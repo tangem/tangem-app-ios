@@ -745,6 +745,7 @@
 		EF130EB628E1C6CB00D37EFC /* LegacyMultiWalletContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EB528E1C6CB00D37EFC /* LegacyMultiWalletContentViewModel.swift */; };
 		EF130EBA28E1D33000D37EFC /* LegacySingleWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EB928E1D33000D37EFC /* LegacySingleWalletContentView.swift */; };
 		EF130EBC28E1D34500D37EFC /* LegacyMultiWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EBB28E1D34500D37EFC /* LegacyMultiWalletContentView.swift */; };
+		EF193BFC2A7793050048C0C3 /* ScrollViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF193BFB2A7793050048C0C3 /* ScrollViewRepresentable.swift */; };
 		EF29BEDA292E5CAE00D7C782 /* OneInchAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BED9292E5CAE00D7C782 /* OneInchAPIService.swift */; };
 		EF29BEE2292E5DB400D7C782 /* SwappingTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE1292E5DB400D7C782 /* SwappingTransactionData.swift */; };
 		EF29BEE4292E5DC400D7C782 /* OneInchSwappingProviderErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEE3292E5DC400D7C782 /* OneInchSwappingProviderErrors.swift */; };
@@ -1842,6 +1843,8 @@
 		EF130EB528E1C6CB00D37EFC /* LegacyMultiWalletContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMultiWalletContentViewModel.swift; sourceTree = "<group>"; };
 		EF130EB928E1D33000D37EFC /* LegacySingleWalletContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacySingleWalletContentView.swift; sourceTree = "<group>"; };
 		EF130EBB28E1D34500D37EFC /* LegacyMultiWalletContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMultiWalletContentView.swift; sourceTree = "<group>"; };
+		EF193BF92A73D09C0048C0C3 /* BottomSheetUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetUI.swift; sourceTree = "<group>"; };
+		EF193BFB2A7793050048C0C3 /* ScrollViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewRepresentable.swift; sourceTree = "<group>"; };
 		EF29BED9292E5CAE00D7C782 /* OneInchAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchAPIService.swift; sourceTree = "<group>"; };
 		EF29BEE1292E5DB400D7C782 /* SwappingTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTransactionData.swift; sourceTree = "<group>"; };
 		EF29BEE3292E5DC400D7C782 /* OneInchSwappingProviderErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchSwappingProviderErrors.swift; sourceTree = "<group>"; };
@@ -5042,6 +5045,8 @@
 				EF81B2A92A6686E7006CD57B /* BottomSearchableScrollView.swift */,
 				EFE503562A724C110086A1B1 /* ClearDragGestureView.swift */,
 				EFE503582A727A100086A1B1 /* BottomSearchableSheet.swift */,
+				EF193BF92A73D09C0048C0C3 /* BottomSheetUI.swift */,
+				EF193BFB2A7793050048C0C3 /* ScrollViewRepresentable.swift */,
 			);
 			path = BottomSearchableScrollView;
 			sourceTree = "<group>";
@@ -6529,6 +6534,7 @@
 				EF11DD9D29378A6F0044B33C /* SwappingTokenItemViewModel.swift in Sources */,
 				EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */,
 				B0A884A12A6A5D6300210321 /* WalletConnectWalletModelProvider.swift in Sources */,
+				EF193BFC2A7793050048C0C3 /* ScrollViewRepresentable.swift in Sources */,
 				B0C5BF4E2A31B037005AE2BD /* BalanceProvider.swift in Sources */,
 				EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */,
 				EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */,
