@@ -69,6 +69,9 @@ struct OrganizeTokensView: View {
 
     @GestureState private var dragGestureTranslation: CGSize = .zero
 
+    // Adopts changes in scroll view content offset (`scrollViewContentCoordinateSpaceName` coordinate space)
+    // to the drag gesture translation (`scrollViewFrameCoordinateSpaceName` coordinate space).
+    // Changes can be made by drag-and-drop auto scroll, for example.
     private var dragGestureTranslationFix: CGSize {
         return CGSize(
             width: 0.0,
@@ -150,7 +153,6 @@ struct OrganizeTokensView: View {
             .overlay(
                 makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
                     .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
-
                 alignment: .top
             )
         }
@@ -550,6 +552,9 @@ struct OrganizeTokensView: View {
             )
             .onDisappear {
                 // Perform required clean-up when the view removal animation finishes
+                //
+                // `dragAndDropSourceViewModelIdentifier` nullified here one more time,
+                // in case if `AnyTransition.onViewRemoval` is unexpectedly cancelled
                 dragAndDropSourceViewModelIdentifier = nil
                 viewModel.onDragAnimationCompletion()
             }
