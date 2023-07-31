@@ -1,5 +1,5 @@
 //
-//  TokenListViewModel.swift
+//  LegacyTokenListViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,11 +12,11 @@ import BlockchainSdk
 import TangemSdk
 import SwiftUI
 
-class TokenListViewModel: ObservableObject {
+class LegacyTokenListViewModel: ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
-    @Published var coinViewModels: [CoinViewModel] = []
+    @Published var coinViewModels: [LegacyCoinViewModel] = []
 
     @Published var isSaving: Bool = false
     @Published var isLoading: Bool = true
@@ -58,9 +58,9 @@ class TokenListViewModel: ObservableObject {
     private lazy var loader = setupListDataLoader()
     private let mode: Mode
     private var bag = Set<AnyCancellable>()
-    private unowned let coordinator: TokenListRoutable
+    private unowned let coordinator: LegacyTokenListRoutable
 
-    init(mode: Mode, coordinator: TokenListRoutable) {
+    init(mode: Mode, coordinator: LegacyTokenListRoutable) {
         self.mode = mode
         self.coordinator = coordinator
 
@@ -125,7 +125,7 @@ class TokenListViewModel: ObservableObject {
 
 // MARK: - Navigation
 
-extension TokenListViewModel {
+extension LegacyTokenListViewModel {
     func closeModule() {
         coordinator.closeModule()
     }
@@ -140,7 +140,7 @@ extension TokenListViewModel {
 
 // MARK: - Private
 
-private extension TokenListViewModel {
+private extension LegacyTokenListViewModel {
     func bind() {
         enteredSearchText
             .dropFirst()
@@ -165,13 +165,13 @@ private extension TokenListViewModel {
         }
     }
 
-    func setupListDataLoader() -> ListDataLoader {
+    func setupListDataLoader() -> LegacyListDataLoader {
         let supportedBlockchains = mode.settings?.supportedBlockchains ?? SupportedBlockchains.all
         let networkIds = supportedBlockchains.map { $0.networkId }
-        let loader = ListDataLoader(networkIds: networkIds)
+        let loader = LegacyListDataLoader(networkIds: networkIds)
 
         loader.$items
-            .map { [weak self] items -> [CoinViewModel] in
+            .map { [weak self] items -> [LegacyCoinViewModel] in
                 items.compactMap { self?.mapToCoinViewModel(coinModel: $0) }
             }
             .receive(on: DispatchQueue.main)
@@ -279,9 +279,9 @@ private extension TokenListViewModel {
         return binding
     }
 
-    func mapToCoinViewModel(coinModel: CoinModel) -> CoinViewModel {
+    func mapToCoinViewModel(coinModel: CoinModel) -> LegacyCoinViewModel {
         let currencyItems = coinModel.items.enumerated().map { index, item in
-            CoinItemViewModel(
+            LegacyCoinItemViewModel(
                 tokenItem: item,
                 isReadonly: isReadonlyMode,
                 isSelected: bindSelection(item),
@@ -290,7 +290,7 @@ private extension TokenListViewModel {
             )
         }
 
-        return CoinViewModel(with: coinModel, items: currencyItems)
+        return LegacyCoinViewModel(with: coinModel, items: currencyItems)
     }
 
     func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
@@ -356,15 +356,15 @@ private extension TokenListViewModel {
 }
 
 // [REDACTED_TODO_COMMENT]
-extension TokenListViewModel {
+extension LegacyTokenListViewModel {
     enum Mode {
         case add(
-            settings: ManageTokensSettings,
+            settings: LegacyManageTokensSettings,
             userTokensManager: UserTokensManager
         )
         case show
 
-        fileprivate var settings: ManageTokensSettings? {
+        fileprivate var settings: LegacyManageTokensSettings? {
             switch self {
             case .add(let settings, _):
                 return settings
