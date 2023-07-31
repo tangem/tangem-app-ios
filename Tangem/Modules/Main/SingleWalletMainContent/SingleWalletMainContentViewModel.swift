@@ -1,5 +1,5 @@
 //
-//  MultiWalletContentViewModel.swift
+//  SingleWalletMainContentViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,15 @@
 
 import Combine
 
-final class MultiWalletContentViewModel: ObservableObject {
+final class SingleWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
 
     // MARK: - Dependencies
 
-    private unowned let coordinator: MultiWalletContentRoutable
+    private unowned let coordinator: SingleWalletMainContentRoutable
 
     init(
-        coordinator: MultiWalletContentRoutable
+        coordinator: SingleWalletMainContentRoutable
     ) {
         self.coordinator = coordinator
     }

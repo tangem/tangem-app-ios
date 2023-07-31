@@ -77,9 +77,7 @@ struct ReferralView: View {
                 Assets.cryptoCurrencies,
                 header: { Text(Localization.referralPointCurrenciesTitle) },
                 description: {
-                    Text(Localization.referralPointCurrenciesDescriptionPrefix + " ") +
-                        Text(viewModel.award).foregroundColor(Colors.Text.primary1) +
-                        Text(viewModel.awardDescriptionSuffix)
+                    Text(viewModel.awardDescription(highlightColor: Colors.Text.primary1))
                 }
             )
 
