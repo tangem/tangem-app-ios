@@ -182,7 +182,7 @@
 "main_no_backup_warning_title" = "您的錢包尚未備份";
 "main_page_balance" = "總餘額";
 "main_processing_full_amount" = "該金額不包括您的部分資金";
-"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 24 hours";
+"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 48 hours";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "main_tokens" = "代幣";
@@ -280,12 +280,15 @@
 "referral_error_failed_to_load_info" = "無法加載有關推薦計劃的消息。請稍後再試";
 "referral_error_failed_to_load_info_with_reason" = "無法加載有關推薦計劃的消息。原因：%@。請稍後再試";
 "referral_error_failed_to_participate" = "無法處理您的請求。原因：%@。請稍後再試。無如果問題仍然存在—請隨時聯繫服務人員";
+"referral_expected_awards" = "Upcoming payments";
 "referral_friends_bought_title" = "您的朋友買";
-"referral_point_currencies_description_prefix" = "會得到";
-"referral_point_currencies_description_suffix" = "對於你的朋友在你的 %1$@ 網絡地址%2$@上購買的每個錢包";
+"referral_less" = "Less";
+"referral_more" = "More";
+"referral_no_expected_awards" = "No upcoming payments";
+"referral_point_currencies_description" = "Will get ^^%1$@^^ for each wallet bought by your friend on your %2$@ network address %3$@ ^^30 days after^^ that";
 "referral_point_currencies_title" = "你";
 "referral_point_discount_description_prefix" = "得到";
-"referral_point_discount_description_suffix" = "當在 tangem.com購買卡片";
+"referral_point_discount_description_suffix" = "when buying a wallet on tangem.com";
 "referral_point_discount_description_value" = "%@ 折扣";
 "referral_point_discount_title" = "你的朋友";
 "referral_promo_code_copied" = "個人促銷碼已複製!";
