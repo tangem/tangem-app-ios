@@ -1,5 +1,5 @@
 //
-//  CardMainPageBuilder.swift
+//  MainCardPageBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-enum CardMainPageBuilder: Identifiable {
+enum MainCardPageBuilder: Identifiable {
     case singleWallet(id: String, headerModel: CardHeaderViewModel, bodyModel: SingleWalletContentCoordinator)
     case multiWallet(id: String, headerModel: CardHeaderViewModel, bodyModel: MultiWalletContentCoordinator)
 
