@@ -54,9 +54,14 @@ struct MainView: View {
 }
 
 struct MainView_Preview: PreviewProvider {
+    static let viewModel: MainViewModel = {
+        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+        return .init(coordinator: MainCoordinator())
+    }()
+
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(coordinator: MainCoordinator(), userWalletRepository: FakeUserWalletRepository()))
+            MainView(viewModel: viewModel)
         }
     }
 }
