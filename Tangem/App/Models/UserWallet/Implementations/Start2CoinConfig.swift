@@ -88,6 +88,10 @@ extension Start2CoinConfig: UserWalletConfig {
         .start2coin
     }
 
+    var cardHeaderImage: ImageType? {
+        Assets.Cards.s2c
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .send:
@@ -148,7 +152,7 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
-        return Start2CoinOnboardingStepsBuilder(card: card, touId: tou.id)
+        return Start2CoinOnboardingStepsBuilder(hasWallets: !card.wallets.isEmpty, touId: tou.id)
     }
 
     func makeWalletModelsFactory() -> WalletModelsFactory {
