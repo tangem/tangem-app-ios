@@ -1,5 +1,5 @@
 //
-//  MultiWalletCardHeaderSubtitleProvider.swift
+//  MultiWalletMainHeaderSubtitleProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import Combine
 
-class MultiWalletCardHeaderSubtitleProvider: CardHeaderSubtitleProvider {
-    var subtitlePublisher: AnyPublisher<CardHeaderSubtitleInfo, Never> {
+class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
+    var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
         subtitleInfoSubject.eraseToAnyPublisher()
     }
 
@@ -33,7 +33,7 @@ class MultiWalletCardHeaderSubtitleProvider: CardHeaderSubtitleProvider {
     }
 
     private let separator = " • "
-    private let subtitleInfoSubject: CurrentValueSubject<CardHeaderSubtitleInfo, Never> = .init(.empty)
+    private let subtitleInfoSubject: CurrentValueSubject<MainHeaderSubtitleInfo, Never> = .init(.empty)
     private let userWalletModel: UserWalletModel
     private var updateSubscription: AnyCancellable?
 
