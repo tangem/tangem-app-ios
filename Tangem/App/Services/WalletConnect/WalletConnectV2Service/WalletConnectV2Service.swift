@@ -331,14 +331,14 @@ final class WalletConnectV2Service {
         func respond(
             with error: WalletConnectV2Error,
             session: WalletConnectSavedSession?,
-            blockchain: BlockchainSdk.Blockchain?
+            blockchainCurrencySymbol: String?
         ) async {
             AppLog.shared.error(error)
 
             logAnalytics(
                 request: request,
                 session: session,
-                blockchain: blockchain,
+                blockchainCurrencySymbol: blockchainCurrencySymbol,
                 error: error
             )
 
@@ -354,31 +354,31 @@ final class WalletConnectV2Service {
 
         guard let targetBlockchain = utils.createBlockchain(for: request.chainId) else {
             log("Failed to create blockchain \(logSuffix)")
-            await respond(with: .missingBlockchains([request.chainId.absoluteString]), session: nil, blockchain: nil)
+            await respond(with: .missingBlockchains([request.chainId.absoluteString]), session: nil, blockchainCurrencySymbol: nil)
             return
         }
 
         if userWalletRepository.isLocked, userWalletRepository.models.isEmpty {
             log("User wallet repository is locked")
-            await respond(with: .userWalletRepositoryIsLocked, session: nil, blockchain: targetBlockchain)
+            await respond(with: .userWalletRepositoryIsLocked, session: nil, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
             return
         }
 
         guard let session = await sessionsStorage.session(with: request.topic) else {
             log("Failed to find session in storage \(logSuffix)")
-            await respond(with: .wrongCardSelected, session: nil, blockchain: targetBlockchain)
+            await respond(with: .wrongCardSelected, session: nil, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
             return
         }
 
         guard let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == session.userWalletId }) else {
             log("Failed to find target user wallet")
-            await respond(with: .missingActiveUserWalletModel, session: session, blockchain: targetBlockchain)
+            await respond(with: .missingActiveUserWalletModel, session: session, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
             return
         }
 
         if userWallet.userWallet.isLocked {
             log("Attempt to handle message with locked user wallet")
-            await respond(with: .userWalletIsLocked, session: session, blockchain: targetBlockchain)
+            await respond(with: .userWalletIsLocked, session: session, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
             return
         }
 
@@ -386,7 +386,7 @@ final class WalletConnectV2Service {
             let result = try await wcHandlersService.handle(
                 request,
                 from: session.sessionInfo.dAppInfo,
-                blockchain: targetBlockchain,
+                blockchainId: targetBlockchain.id,
                 signer: userWallet.signer,
                 walletModelProvider: CommonWalletConnectWalletModelProvider(walletModelsManager: userWallet.walletModelsManager) // Actuallty don't know where this generation should be...
             )
@@ -397,7 +397,7 @@ final class WalletConnectV2Service {
             logAnalytics(
                 request: request,
                 session: session,
-                blockchain: targetBlockchain,
+                blockchainCurrencySymbol: targetBlockchain.currencySymbol,
                 error: nil
             )
 
@@ -405,11 +405,11 @@ final class WalletConnectV2Service {
             if case .unsupportedWCMethod = error {} else {
                 displayErrorUI(error)
             }
-            await respond(with: error, session: session, blockchain: targetBlockchain)
+            await respond(with: error, session: session, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
         } catch {
             let wcError: WalletConnectV2Error = .unknown(error.localizedDescription)
             displayErrorUI(wcError)
-            await respond(with: wcError, session: session, blockchain: targetBlockchain)
+            await respond(with: wcError, session: session, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
         }
     }
 
@@ -418,7 +418,7 @@ final class WalletConnectV2Service {
     private func logAnalytics(
         request: Request,
         session: WalletConnectSavedSession?,
-        blockchain: BlockchainSdk.Blockchain?,
+        blockchainCurrencySymbol: String?,
         error: WalletConnectV2Error?
     ) {
         var params: [Analytics.ParameterKey: String] = [:]
@@ -428,8 +428,8 @@ final class WalletConnectV2Service {
             params[.dAppUrl] = session.sessionInfo.dAppInfo.url
         }
 
-        if let blockchain {
-            params[.blockchain] = blockchain.currencySymbol
+        if let blockchainCurrencySymbol {
+            params[.blockchain] = blockchainCurrencySymbol
         }
 
         params[.methodName] = request.method
