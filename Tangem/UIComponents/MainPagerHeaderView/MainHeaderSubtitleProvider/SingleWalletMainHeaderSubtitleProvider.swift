@@ -9,12 +9,18 @@
 import Foundation
 import Combine
 
+protocol SingleWalletMainHeaderSubtitleDataSource: AnyObject {
+    var walletDidChangePublisher: AnyPublisher<WalletModel.State, Never> { get }
+    var balance: String { get }
+}
+
 class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
+    private weak var dataSource: SingleWalletMainHeaderSubtitleDataSource?
+
     private let subject: CurrentValueSubject<MainHeaderSubtitleInfo, Never> = .init(.empty)
     private let isLoadingSubject: CurrentValueSubject<Bool, Never>
+    private let isUserWalletLocked: Bool
 
-    private let userWalletModel: UserWalletModel
-    private let walletModel: WalletModel?
     private var stateUpdateSubscription: AnyCancellable?
 
     var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> {
@@ -27,20 +33,20 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 
     var containsSensitiveInfo: Bool { true }
 
-    init(userWalletModel: UserWalletModel, walletModel: WalletModel?) {
-        self.userWalletModel = userWalletModel
-        self.walletModel = walletModel
-        isLoadingSubject = .init(!userWalletModel.isUserWalletLocked)
+    init(isUserWalletLocked: Bool, dataSource: SingleWalletMainHeaderSubtitleDataSource?) {
+        self.isUserWalletLocked = isUserWalletLocked
+        self.dataSource = dataSource
+        isLoadingSubject = .init(!isUserWalletLocked)
         bind()
     }
 
     private func bind() {
-        if userWalletModel.isUserWalletLocked {
+        if isUserWalletLocked {
             displayLockedWalletMessage()
             return
         }
 
-        stateUpdateSubscription = walletModel?.walletDidChangePublisher
+        stateUpdateSubscription = dataSource?.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] newState in
                 guard let self else { return }
@@ -65,9 +71,9 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     }
 
     private func formatBalanceMessage() {
-        guard let walletModel else { return }
+        guard let dataSource else { return }
 
-        let balance = walletModel.balance
+        let balance = dataSource.balance
         subject.send(.init(message: balance, formattingOption: .default))
     }
 
@@ -79,3 +85,5 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
         subject.send(.init(message: Localization.commonLocked, formattingOption: .default))
     }
 }
+
+extension WalletModel: SingleWalletMainHeaderSubtitleDataSource {}
