@@ -9,7 +9,7 @@
 import BlockchainSdk
 import Combine
 
-protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, AnyObject {
+protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnyObject {
     var isMultiWallet: Bool { get }
     var tokensCount: Int? { get }
     var cardsCount: Int { get }
