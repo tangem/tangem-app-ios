@@ -93,7 +93,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     func openMain(with cardModel: CardViewModel) {
         if FeatureProvider.isAvailable(.mainV2) {
             let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-            let options = MainCoordinator.Options(cardViewModel: cardModel)
+            let options = MainCoordinator.Options(userWalletModel: cardModel)
             coordinator.start(with: options)
             mainCoordinator = coordinator
             return
