@@ -27,7 +27,7 @@ class LegacyMainCoordinator: CoordinatorObject {
     @Published var legacyTokenDetailsCoordinator: LegacyTokenDetailsCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var detailsCoordinator: DetailsCoordinator? = nil
-    @Published var tokenListCoordinator: TokenListCoordinator? = nil
+    @Published var tokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
@@ -242,14 +242,14 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
     }
 
     func openTokensList(
-        with settings: ManageTokensSettings,
+        with settings: LegacyManageTokensSettings,
         userTokensManager: UserTokensManager
     ) {
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
         }
 
-        let coordinator = TokenListCoordinator(dismissAction: dismissAction)
+        let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .add(
             settings: settings,
             userTokensManager: userTokensManager
