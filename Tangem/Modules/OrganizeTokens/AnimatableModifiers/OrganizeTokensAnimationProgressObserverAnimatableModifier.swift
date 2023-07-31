@@ -40,11 +40,3 @@ struct OrganizeTokensAnimationProgressObserverAnimatableModifier<T>: AnimatableM
         content
     }
 }
-
-// MARK: - Convenience extensions
-
-extension OrganizeTokensAnimationProgressObserverAnimatableModifier where T: ExpressibleByFloatLiteral {
-    /// Useful for creating asymetric transitions using `AnyTransition.asymmetric(insertion:removal:)`,
-    /// when you don't want to observe both insertion and removal.
-    static var dummy: Self { Self(targetProgress: 0.0, progressThreshold: 0.0) {} }
-}
