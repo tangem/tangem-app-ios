@@ -9,26 +9,31 @@
 import Foundation
 import SwiftUI
 
+extension ScrollViewRepresentable: Setupable {
+    func isScrollDisabled(_ disabled: Bool) -> Self {
+        map { $0.isScrollDisabled = disabled }
+    }
+}
+
+protocol ScrollViewRepresentableDelegate: AnyObject {
+    func contentOffsetDidChanged(contentOffset: CGPoint)
+    func gesture(onChanged value: UIPanGestureRecognizer.Value)
+    func gesture(onEnded value: UIPanGestureRecognizer.Value)
+}
+
 struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
+    private weak var delegate: ScrollViewRepresentableDelegate?
+    private let content: () -> Content
+
+    private var isScrollDisabled: Bool = false
+
     init(
-        isScrollDisabled: Binding<Bool>,
-        contentOffset: @escaping (CGPoint) -> Void,
-        onChanged: @escaping (ClearDragGestureView.Value) -> Void,
-        onEnded: @escaping (ClearDragGestureView.Value) -> Void,
+        delegate: ScrollViewRepresentableDelegate,
         content: @escaping () -> Content
     ) {
-        _isScrollDisabled = isScrollDisabled
-        self.contentOffset = contentOffset
-        self.onChanged = onChanged
-        self.onEnded = onEnded
+        self.delegate = delegate
         self.content = content
     }
-
-    @Binding var isScrollDisabled: Bool
-    public let contentOffset: (CGPoint) -> Void
-    public let onChanged: (ClearDragGestureView.Value) -> Void
-    public let onEnded: (ClearDragGestureView.Value) -> Void
-    public let content: () -> Content
 
     func makeUIView(context: Context) -> UIScrollView {
         let scrollView = UIScrollView()
@@ -39,88 +44,78 @@ struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
         scrollView.contentInsetAdjustmentBehavior = .never
         scrollView.alwaysBounceVertical = true
 
-        let controller = context.coordinator.hostingController
-        let contentView = controller.view!
-        contentView.backgroundColor = .red.withAlphaComponent(0.3)
+        guard let contentView = context.coordinator.hostingController.view else {
+            assertionFailure("HostingController haven't rootView")
+            return scrollView
+        }
 
         scrollView.addSubview(contentView)
-//        let screenSize = CGSize(width: UIScreen.main.bounds.width, height: scrollViewSize)
-//        let contentSize = contentView.sizeThatFits(screenSize)
-//
-//        contentView.frame = CGRect(x: 0, y: 0, width: contentSize.width, height: contentSize.height)
-//        scrollView.contentSize = contentSize
 
-        let drag = UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.gestureRecognizerPanned))
-        drag.delegate = context.coordinator
-        scrollView.addGestureRecognizer(drag)
+        let gesture = UIPanGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.gestureRecognizerPanned)
+        )
+
+        gesture.delegate = context.coordinator
+        scrollView.addGestureRecognizer(gesture)
 
         return scrollView
     }
 
     func updateUIView(_ uiView: UIScrollView, context: Context) {
         uiView.isScrollEnabled = !isScrollDisabled
+
+        // Use it for handle SwiftUI view updating
         context.coordinator.hostingController.rootView = content()
 
-        let controller = context.coordinator.hostingController
-        let contentView = controller.view!
-        let screenSize = CGSize(width: UIScreen.main.bounds.width, height: .greatestFiniteMagnitude)
+        guard let contentView = context.coordinator.hostingController.view else {
+            assertionFailure("HostingController haven't rootView")
+            return
+        }
+
+        let screenSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
         let contentSize = contentView.sizeThatFits(screenSize)
         contentView.frame = CGRect(x: 0, y: 0, width: contentSize.width, height: contentSize.height)
+
         uiView.contentSize = contentSize
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(
+        return Coordinator(
             hostingController: UIHostingController(rootView: content()),
-            contentOffset: contentOffset,
-            onChanged: onChanged,
-            onEnded: onEnded
+            delegate: delegate
         )
     }
 }
 
+// MARK: - Coordinator
+
 extension ScrollViewRepresentable {
     class Coordinator: NSObject, UIScrollViewDelegate, UIGestureRecognizerDelegate {
-        let hostingController: UIHostingController<Content>
-        public let contentOffset: (CGPoint) -> Void
-        public let onChanged: (ClearDragGestureView.Value) -> Void
-        public let onEnded: (ClearDragGestureView.Value) -> Void
+        var hostingController: UIHostingController<Content>
+        weak var delegate: ScrollViewRepresentableDelegate?
+
+        private var startLocation = CGPoint.zero
+        private var contentOffset = CGPoint.zero
 
         init(
             hostingController: UIHostingController<Content>,
-            contentOffset: @escaping (CGPoint) -> Void,
-            onChanged: @escaping (ClearDragGestureView.Value) -> Void,
-            onEnded: @escaping (ClearDragGestureView.Value) -> Void
+            delegate: ScrollViewRepresentableDelegate?
         ) {
             self.hostingController = hostingController
-            self.contentOffset = contentOffset
-            self.onChanged = onChanged
-            self.onEnded = onEnded
+            self.delegate = delegate
         }
+
+        // MARK: - UIScrollViewDelegate
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            contentOffset(scrollView.contentOffset)
+            contentOffset = scrollView.contentOffset
+            delegate?.contentOffsetDidChanged(contentOffset: scrollView.contentOffset)
         }
 
-        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//            onEnded(scrollView.contentOffset)
-            print(#function)
-        }
+        // MARK: - UIGestureRecognizerDelegate
 
-        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-            print(#function, velocity)
-        }
-
-        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            print(#function, "decelerate", decelerate)
-            if !decelerate {
-//                onEnded(scrollView.contentOffset)
-            }
-        }
-
-        private var startLocation = CGPoint.zero
-
-        public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
             return true
         }
 
@@ -137,21 +132,22 @@ extension ScrollViewRepresentable {
             case .began:
                 startLocation = gesture.location(in: view)
             case .changed:
-                let value = ClearDragGestureView.Value(
+                let value = UIPanGestureRecognizer.Value(
                     time: Date(),
                     location: gesture.location(in: view),
                     startLocation: startLocation,
                     velocity: gesture.velocity(in: view)
                 )
-                onChanged(value)
+                delegate?.gesture(onChanged: value)
+
             case .ended:
-                let value = ClearDragGestureView.Value(
+                let value = UIPanGestureRecognizer.Value(
                     time: Date(),
                     location: gesture.location(in: view),
                     startLocation: startLocation,
                     velocity: gesture.velocity(in: view)
                 )
-                onEnded(value)
+                delegate?.gesture(onEnded: value)
             @unknown default:
                 break
             }
@@ -172,8 +168,45 @@ extension ScrollViewRepresentable {
     }
 }
 
-extension ScrollViewRepresentable {
+// MARK: - Value
+
+public extension UIPanGestureRecognizer {
+    /// This API is meant to mirror DragGesture,.Value as that has no accessible initializers
     struct Value {
-        let offset: CGPoint
+        /// The time associated with the current event.
+        public let time: Date
+
+        /// The location of the current event.
+        public let location: CGPoint
+
+        /// The location of the first event.
+        public let startLocation: CGPoint
+
+        public let velocity: CGPoint
+
+        /// The total translation from the first event to the current
+        /// event. Equivalent to `location.{x,y} -
+        /// startLocation.{x,y}`.
+        public var translation: CGSize {
+            return CGSize(width: location.x - startLocation.x, height: location.y - startLocation.y)
+        }
+
+        /// A prediction of where the final location would be if
+        /// dragging stopped now, based on the current drag velocity.
+        public var predictedEndLocation: CGPoint {
+            let endTranslation = predictedEndTranslation
+            return CGPoint(x: location.x + endTranslation.width, y: location.y + endTranslation.height)
+        }
+
+        public var predictedEndTranslation: CGSize {
+            return CGSize(width: estimatedTranslation(fromVelocity: velocity.x), height: estimatedTranslation(fromVelocity: velocity.y))
+        }
+
+        private func estimatedTranslation(fromVelocity velocity: CGFloat) -> CGFloat {
+            // This is a guess. I couldn't find any documentation anywhere on what this should be
+            let acceleration: CGFloat = 500
+            let timeToStop = velocity / acceleration
+            return velocity * timeToStop / 2
+        }
     }
 }
