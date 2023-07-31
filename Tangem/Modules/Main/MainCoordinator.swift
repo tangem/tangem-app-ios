@@ -61,4 +61,8 @@ extension MainCoordinator: MainRoutable {
         coordinator.popToRootAction = popToRootAction
         detailsCoordinator = coordinator
     }
+
+    func close(newScan: Bool) {
+        popToRoot(with: .init(newScan: newScan))
+    }
 }
