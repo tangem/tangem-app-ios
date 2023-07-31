@@ -518,10 +518,9 @@ struct OrganizeTokensView: View {
             - baseOffsetTransitionValue
             - dragGestureTranslationFix.height
 
-        let dummyProgressObserver = OrganizeTokensAnimationProgressObserverModifier(progress: 1.0, threshold: 1.0) {}
         let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverModifier(
-            progress: 0.0,
-            threshold: Constants.dropAnimationProgressThresholdForViewRemoval
+            targetProgress: 0.0,
+            progressThreshold: Constants.dropAnimationProgressThresholdForViewRemoval
         ) {
             // `DispatchQueue.main.async` used here to allow publishing changes during view update
             DispatchQueue.main.async {
