@@ -23,7 +23,7 @@ class WalletConnectV2SendTransactionHandler {
 
     init(
         requestParams: AnyCodable,
-        blockchain: Blockchain,
+        blockchainId: String,
         transactionBuilder: WalletConnectEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
         signer: TangemSigner,
@@ -38,7 +38,7 @@ class WalletConnectV2SendTransactionHandler {
             }
 
             self.wcTransaction = wcTransaction
-            walletModel = try walletModelProvider.getModel(with: wcTransaction.from, in: blockchain)
+            walletModel = try walletModelProvider.getModel(with: wcTransaction.from, blockchainId: blockchainId)
         } catch {
             AppLog.shared.debug("[WC 2.0] Failed to create Send transaction handler. \(error)")
             throw error
