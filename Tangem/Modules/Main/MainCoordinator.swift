@@ -33,7 +33,7 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        mainViewModel = MainViewModel(cardViewModel: options.cardViewModel, coordinator: self, userWalletRepository: userWalletRepository)
+        mainViewModel = MainViewModel(userWalletModel: options.userWalletModel, coordinator: self, userWalletRepository: userWalletRepository)
     }
 }
 
@@ -41,7 +41,7 @@ class MainCoordinator: CoordinatorObject {
 
 extension MainCoordinator {
     struct Options {
-        let cardViewModel: CardViewModel
+        let userWalletModel: UserWalletModel
     }
 }
 
