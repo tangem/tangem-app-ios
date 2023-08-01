@@ -13,7 +13,7 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
 
     var body: some View {
-        BottomSearchableSheet_Preview.ContentView()
+        BottomScrollableSheet_Preview.ContentView()
 
 //        NavigationView {
 //            if let welcomeCoordinator = coordinator.welcomeCoordinator {
