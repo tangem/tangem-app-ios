@@ -84,8 +84,6 @@ class LegacyMainCoordinator: CoordinatorObject {
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
-
-//        tokensList(with: options.cardModel)
     }
 }
 
