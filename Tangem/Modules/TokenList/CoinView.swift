@@ -45,6 +45,7 @@ struct PriceChangeView: View {
                 .foregroundColor(priceChangeDirection.color)
 
             Text(priceChangePercentage)
+                .lineLimit(1)
                 .style(Fonts.Regular.footnote, color: priceChangeDirection.color)
         }
     }
@@ -96,6 +97,7 @@ struct CoinView: View {
                             .lineLimit(1)
 
                         Text(symbolFormatted)
+                            .lineLimit(1)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -103,6 +105,7 @@ struct CoinView: View {
 
                     HStack(spacing: 4) {
                         Text(model.price)
+                            .lineLimit(1)
                             .style(Fonts.Regular.footnote, color: Color(hex: "919191")!)
 
                         PriceChangeView(priceChangeDirection: model.priceChangeDirection, priceChangePercentage: model.priceChangePercentage)
