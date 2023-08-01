@@ -92,7 +92,6 @@ struct BottomSheetContainer<ContentView: View>: View {
 
                 let dragValue = value.translation.height - stateObject.previousDragTranslation.height
                 let locationChange = value.startLocation.y - value.location.y
-                print("locationChange", locationChange)
 
                 if locationChange > 0 {
                     stateObject.offset += dragValue / 3
@@ -105,8 +104,6 @@ struct BottomSheetContainer<ContentView: View>: View {
             .onEnded { value in
                 stateObject.previousDragTranslation = .zero
                 stateObject.isDragging = false
-
-                print("value.translation.height ->>", value.translation.height)
 
                 // If swipe was been enough to hide view
                 if value.translation.height > settings.distanceToHide {
@@ -173,11 +170,7 @@ extension BottomSheetContainer {
         @Published var isDragging: Bool = false
         @Published var previousDragTranslation: CGSize = .zero
         @Published var ancorPoint: [AncorPoint] = []
-        @Published var offset: CGFloat = UIScreen.main.bounds.height {
-            didSet {
-                print("offset ->>", offset)
-            }
-        }
+        @Published var offset: CGFloat = UIScreen.main.bounds.height
 
         public var dragPercentage: CGFloat {
             let visibleHeight = contentHeight - offset
