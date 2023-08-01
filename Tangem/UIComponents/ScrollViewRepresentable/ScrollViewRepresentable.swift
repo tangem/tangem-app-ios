@@ -9,20 +9,6 @@
 import Foundation
 import SwiftUI
 
-extension ScrollViewRepresentable: Setupable {
-    func isScrollDisabled(_ disabled: Bool) -> Self {
-        map { $0.isScrollDisabled = disabled }
-    }
-}
-
-protocol ScrollViewRepresentableDelegate: AnyObject {
-    func getSafeAreaInsets() -> UIEdgeInsets
-
-    func contentOffsetDidChanged(contentOffset: CGPoint)
-    func gesture(onChanged value: UIPanGestureRecognizer.Value)
-    func gesture(onEnded value: UIPanGestureRecognizer.Value)
-}
-
 struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
     private weak var delegate: ScrollViewRepresentableDelegate?
     private let content: () -> Content
@@ -85,6 +71,24 @@ struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
             hostingController: UIHostingController(rootView: content()),
             delegate: delegate
         )
+    }
+}
+
+// MARK: - ScrollViewRepresentableDelegate
+
+protocol ScrollViewRepresentableDelegate: AnyObject {
+    func getSafeAreaInsets() -> UIEdgeInsets
+
+    func contentOffsetDidChanged(contentOffset: CGPoint)
+    func gesture(onChanged value: UIPanGestureRecognizer.Value)
+    func gesture(onEnded value: UIPanGestureRecognizer.Value)
+}
+
+// MARK: - Setupable
+
+extension ScrollViewRepresentable: Setupable {
+    func isScrollDisabled(_ disabled: Bool) -> Self {
+        map { $0.isScrollDisabled = disabled }
     }
 }
 
@@ -181,7 +185,7 @@ extension ScrollViewRepresentable {
     }
 }
 
-// MARK: - Value
+// MARK: - UIPanGestureRecognizer.Value
 
 public extension UIPanGestureRecognizer {
     /// This API is meant to mirror DragGesture,.Value as that has no accessible initializers
