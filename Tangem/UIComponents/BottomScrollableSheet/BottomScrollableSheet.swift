@@ -14,7 +14,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     @ViewBuilder private let header: () -> Header
     @ViewBuilder private let content: () -> Content
 
-    private let handHeight: CGFloat = 20
+    private let backgroundViewOpacity: CGFloat = 0.5
     private let indicatorSize = CGSize(width: 32, height: 4)
 
     init(
@@ -40,9 +40,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
                 alignment: .bottom
             )
             .ignoresSafeArea(.all, edges: .all)
-            .onAppear {
-                stateObject.onAppear()
-            }
+            .onAppear(perform: stateObject.onAppear)
             .preference(
                 key: BottomScrollableSheetStateObject.GeometryReaderPreferenceKey.self,
                 value: .init(size: proxy.size, safeAreaInsets: proxy.safeAreaInsets)
@@ -56,7 +54,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
 
     private var backgroundView: some View {
         Color.black
-            .opacity(0.5 * stateObject.percent)
+            .opacity(backgroundViewOpacity * stateObject.percent)
             .ignoresSafeArea(.all)
     }
 
@@ -89,8 +87,9 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             Capsule(style: .continuous)
                 .fill(Color.gray)
                 .frame(width: indicatorSize.width, height: indicatorSize.height)
+                .padding(.vertical, 8)
         }
-        .frame(width: proxy.size.width, height: handHeight)
+        .frame(maxWidth: .infinity)
     }
 
     private func scrollView(proxy: GeometryProxy) -> some View {
