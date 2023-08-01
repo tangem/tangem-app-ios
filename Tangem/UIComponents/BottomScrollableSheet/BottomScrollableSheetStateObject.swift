@@ -1,5 +1,5 @@
 //
-//  BottomSearchableSheetStateObject.swift
+//  BottomScrollableSheetStateObject.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-class BottomSearchableSheetStateObject: ObservableObject {
+public class BottomScrollableSheetStateObject: ObservableObject {
     @Published var visibleHeight: CGFloat = 0
     @Published var scrollViewIsDragging: Bool = false
     @Published var headerSize: CGFloat = 100
@@ -27,7 +27,7 @@ class BottomSearchableSheetStateObject: ObservableObject {
     private var contentOffset: CGPoint = .zero
     private var keyboardCancellable: AnyCancellable?
 
-    init() {
+    public init() {
         bindKeyboard()
     }
 
@@ -51,7 +51,7 @@ class BottomSearchableSheetStateObject: ObservableObject {
         }
     }
 
-    func height(for state: BottomSearchableSheetStateObject.SheetState) -> CGFloat {
+    func height(for state: BottomScrollableSheetStateObject.SheetState) -> CGFloat {
         switch state {
         case .bottom:
             return headerSize + geometryInfo.safeAreaInsets.bottom
@@ -78,7 +78,7 @@ class BottomSearchableSheetStateObject: ObservableObject {
         }
     }
 
-    func contentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
+    func scrollViewContentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
         UIApplication.shared.endEditing()
 
         let translationChange = value.translation.height
@@ -93,7 +93,7 @@ class BottomSearchableSheetStateObject: ObservableObject {
         }
     }
 
-    func contentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
+    func scrollViewContentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
         // If the dragging was started from the top of the ScrollView
         if contentOffset.y <= .zero {
             // The user made a quick enough swipe to hide sheet
@@ -145,7 +145,7 @@ class BottomSearchableSheetStateObject: ObservableObject {
     }
 }
 
-extension BottomSearchableSheetStateObject: ScrollViewRepresentableDelegate {
+extension BottomScrollableSheetStateObject: ScrollViewRepresentableDelegate {
     func getSafeAreaInsets() -> UIEdgeInsets {
         UIEdgeInsets(
             top: .zero,
@@ -160,15 +160,15 @@ extension BottomSearchableSheetStateObject: ScrollViewRepresentableDelegate {
     }
 
     func gesture(onChanged value: UIPanGestureRecognizer.Value) {
-        contentDragGesture(onChanged: value)
+        scrollViewContentDragGesture(onChanged: value)
     }
 
     func gesture(onEnded value: UIPanGestureRecognizer.Value) {
-        contentDragGesture(onEnded: value)
+        scrollViewContentDragGesture(onEnded: value)
     }
 }
 
-extension BottomSearchableSheetStateObject {
+extension BottomScrollableSheetStateObject {
     enum Constants {
         static let hidingLineMultiplicator: CGFloat = 0.5
         static let reduceSwipeMultiplicator: CGFloat = 10
@@ -182,7 +182,7 @@ extension BottomSearchableSheetStateObject {
 
 // MARK: - GeometryReaderPreferenceKey
 
-extension BottomSearchableSheetStateObject {
+extension BottomScrollableSheetStateObject {
     struct GeometryReaderPreferenceKey: PreferenceKey {
         typealias Value = GeometryInfo
         static var defaultValue: Value { .init() }
