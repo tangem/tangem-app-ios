@@ -30,6 +30,12 @@ enum PriceChangeDirection {
     }
 }
 
+enum CoinViewManageButtonType {
+    case add
+    case edit
+    case info
+}
+
 struct PriceChangeView: View {
     let priceChangeDirection: PriceChangeDirection
     let priceChangePercentage: String
@@ -111,7 +117,7 @@ struct CoinView: View {
                         PriceChangeView(priceChangeDirection: model.priceChangeDirection, priceChangePercentage: model.priceChangePercentage)
                     }
                 }
-                
+
                 Spacer(minLength: 13)
 
                 LineChartView(
@@ -121,16 +127,8 @@ struct CoinView: View {
                 .frame(width: 50, height: 37, alignment: .center)
 
                 Spacer(minLength: 43)
-                
-                Button {
-                    
-                } label: {
-                    Text("Add")
-                        .foregroundColor(Color.white)
-                        .background(Color.black)
-                }
-                
-                
+
+                manageButton(for: model.manageType)
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -139,6 +137,48 @@ struct CoinView: View {
         }
         .padding(.vertical, 10)
         .animation(nil) // Disable animations on scroll reuse
+    }
+    
+    @ViewBuilder
+    func manageButton(for type: CoinViewManageButtonType) -> some View {
+        ZStack {
+            switch type {
+            case .add:
+                Button {
+                    print("add")
+                } label: {
+                    Text("Add")
+                        .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(Colors.Button.primary)
+                        .clipShape(Capsule())
+                }
+            case .edit:
+                Button {
+                    print("edit")
+                } label: {
+                    Text("Edit")
+                        .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(Colors.Button.primary)
+                        .clipShape(Capsule())
+                }
+            case .info:
+                Image(systemName: "info.circle")
+            }
+            
+            Text("Add")
+                .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
+                .padding(.horizontal, 12)
+                .hidden()
+            
+            Text("Edit")
+                .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
+                .padding(.horizontal, 12)
+                .hidden()
+        }
     }
 }
 
@@ -151,9 +191,10 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "BTC",
                 price: "$23,034.83",
                 priceChangeDirection: .up,
-                priceChangePercentage: "10.5%"
+                priceChangePercentage: "10.5%",
+                manageType: .add
             ))
-            .border(Color.blue.opacity(0.3))
+//            .border(Color.blue.opacity(0.3))
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
@@ -161,16 +202,18 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "ETH",
                 price: "$1,340.33",
                 priceChangeDirection: .down,
-                priceChangePercentage: "10.5%"
+                priceChangePercentage: "10.5%",
+                manageType: .add
             ))
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png")!,
                 name: "Solana",
                 symbol: "SOL",
-                price: "$30.00",
+                price: "$33.00",
                 priceChangeDirection: .up,
-                priceChangePercentage: "1.3%"
+                priceChangePercentage: "1.3%",
+                manageType: .add
             ))
 
             CoinView(model: CoinViewModel(
@@ -179,7 +222,8 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "MATIC",
                 price: "$34.83",
                 priceChangeDirection: .same,
-                priceChangePercentage: "0.0%"
+                priceChangePercentage: "0.0%",
+                manageType: .edit
             ))
 
             CoinView(model: CoinViewModel(
@@ -188,12 +232,13 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "BUS",
                 price: "$23,341,324,034.83",
                 priceChangeDirection: .up,
-                priceChangePercentage: "1,340,340.0%"
+                priceChangePercentage: "1,340,340.0%",
+                manageType: .info
             ))
 
             Spacer()
         }
-        .border(Color.blue.opacity(0.3))
+//        .border(Color.blue.opacity(0.3))
         .padding()
     }
 }
