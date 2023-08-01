@@ -10,7 +10,7 @@ import SwiftUI
 struct LineChartView: View {
     let color: Color
     let data: [Double]
-    
+
     var body: some View {
         GeometryReader { geometry in
             linePath(for: geometry.size)
@@ -25,7 +25,7 @@ struct LineChartView: View {
                 )
         }
     }
-    
+
     private func linePath(for size: CGSize) -> Path {
         guard
             data.count >= 2,
@@ -34,7 +34,7 @@ struct LineChartView: View {
         else {
             return Path()
         }
-        
+
         let dx = size.width / Double(data.count - 1)
         let points = data.enumerated().map { index, x in
             CGPoint(
@@ -47,20 +47,19 @@ struct LineChartView: View {
             if let first = points.first {
                 path.move(to: first)
             }
-            
+
             for point in points.dropFirst(1) {
                 path.addLine(to: point)
             }
         }
     }
-    
+
     private func gradientPath(for size: CGSize) -> Path {
         var path = linePath(for: size)
         path.addLine(to: CGPoint(x: size.width, y: size.height))
         path.addLine(to: CGPoint(x: 0, y: size.height))
         return path
     }
-
 }
 
 struct LineChartView_Previews: PreviewProvider {
@@ -71,7 +70,7 @@ struct LineChartView_Previews: PreviewProvider {
                 data: [1, 7, 3, 5, 13].reversed()
             )
             .frame(width: 100, height: 50, alignment: .center)
-            
+
             LineChartView(
                 color: Color(hex: "#0099FF")!,
                 data: [2, 4, 3, 5, 6]
