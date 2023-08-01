@@ -14,12 +14,15 @@ extension Colors {
 //    static var blueBlue =
 }
 
-enum PriceChange {
+enum PriceChangeDirection {
     case up
+    case same
     case down
 
     init(_ percentage: Decimal) {
-        if percentage >= 0 {
+        if percentage.isEqual(to: .zero) {
+            self = .same
+        } else if percentage > 0 {
             self = .up
         } else {
             self = .down
@@ -28,7 +31,7 @@ enum PriceChange {
 }
 
 struct PriceChangeView: View {
-    let priceChange: PriceChange
+    let priceChangeDirection: PriceChangeDirection
     let priceChangePercentage: String
 
     var body: some View {
@@ -38,20 +41,22 @@ struct PriceChangeView: View {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 8, height: 6)
-                .rotationEffect(priceChange.iconRotation)
-                .foregroundColor(priceChange.color)
+                .rotationEffect(priceChangeDirection.iconRotation)
+                .foregroundColor(priceChangeDirection.color)
 
             Text(priceChangePercentage)
-                .style(Fonts.Regular.footnote, color: priceChange.color)
+                .style(Fonts.Regular.footnote, color: priceChangeDirection.color)
         }
     }
 }
 
-extension PriceChange {
+extension PriceChangeDirection {
     var color: Color {
         switch self {
         case .up:
             return Color(hex: "0099FF")!
+        case .same:
+            return Color.black
         case .down:
             return Color(hex: "FF3333")!
         }
@@ -61,6 +66,8 @@ extension PriceChange {
         switch self {
         case .up:
             return .zero
+        case .same:
+            return Angle(degrees: 90)
         case .down:
             return Angle(degrees: 180)
         }
@@ -96,10 +103,10 @@ struct CoinView: View {
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                     HStack(spacing: 4) {
-                        Text("27,456 $")
+                        Text(model.price)
                             .style(Fonts.Regular.footnote, color: Color(hex: "919191")!)
 
-                        PriceChangeView(priceChange: Bool.random() ? .up : .down, priceChangePercentage: "10%")
+                        PriceChangeView(priceChangeDirection: model.priceChangeDirection, priceChangePercentage: model.priceChangePercentage)
                     }
                 }
 
@@ -121,32 +128,47 @@ struct CurrencyViewNew_Previews: PreviewProvider {
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png")!,
                 name: "Bitcoin",
-                symbol: "BTC"
+                symbol: "BTC",
+                price: "$23 034,83",
+                priceChangeDirection: .up,
+                priceChangePercentage: "10.5%"
             ))
             .border(Color.blue.opacity(0.3))
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
                 name: "Tether",
-                symbol: "USDT"
+                symbol: "USDT",
+                price: "$23 034,83",
+                priceChangeDirection: .down,
+                priceChangePercentage: "10.5%"
             ))
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
                 name: "Babananas United",
-                symbol: "BABASDT"
+                symbol: "BABASDT",
+                price: "$23 034,83",
+                priceChangeDirection: .up,
+                priceChangePercentage: "1.3%"
             ))
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
                 name: "Binance USD",
-                symbol: "BUS"
+                symbol: "BUS",
+                price: "$23 034,83",
+                priceChangeDirection: .down,
+                priceChangePercentage: "3.5%"
             ))
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
                 name: "Binance USD very-very-long-name",
-                symbol: "BUS"
+                symbol: "BUS",
+                price: "$23 034,83",
+                priceChangeDirection: .same,
+                priceChangePercentage: "0.0%"
             ))
 
             Spacer()
