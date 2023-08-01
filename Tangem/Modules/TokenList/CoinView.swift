@@ -93,13 +93,12 @@ struct CoinView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 4) {
                         Text(model.name)
+                            .lineLimit(1)
 
                         Text(symbolFormatted)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-//                    .lineLimit(1)
-//                    .font(.system(size: 17, weight: .medium, design: .default))
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                     HStack(spacing: 4) {
@@ -109,8 +108,26 @@ struct CoinView: View {
                         PriceChangeView(priceChangeDirection: model.priceChangeDirection, priceChangePercentage: model.priceChangePercentage)
                     }
                 }
+                
+                Spacer(minLength: 13)
 
-                Spacer(minLength: 0)
+                LineChartView(
+                    color: Color(hex: "#0099FF")!,
+                    data: [1, 7, 3, 5, 13]
+                )
+                .frame(width: 50, height: 37, alignment: .center)
+
+                Spacer(minLength: 43)
+                
+                Button {
+                    
+                } label: {
+                    Text("Add")
+                        .foregroundColor(Color.white)
+                        .background(Color.black)
+                }
+                
+                
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -137,7 +154,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
-                name: "ethereum",
+                name: "Ethereum",
                 symbol: "ETH",
                 price: "$1,340.33",
                 priceChangeDirection: .down,
@@ -145,10 +162,10 @@ struct CurrencyViewNew_Previews: PreviewProvider {
             ))
 
             CoinView(model: CoinViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/binance/info/logo.png")!,
-                name: "Binance",
-                symbol: "BNB",
-                price: "$304.00",
+                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png")!,
+                name: "Solana",
+                symbol: "SOL",
+                price: "$30.00",
                 priceChangeDirection: .up,
                 priceChangePercentage: "1.3%"
             ))
