@@ -12,8 +12,10 @@ import BlockchainSdk
 protocol UserTokenListManager {
     var userTokens: [StorageEntry] { get }
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { get }
+    var userTokenList: any Publisher<UserTokenList, Never> { get }
 
+    func update(with userTokenList: UserTokenList)
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
-    func upload()
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void)
+    func upload()
 }
