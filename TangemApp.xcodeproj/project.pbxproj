@@ -457,6 +457,7 @@
 		B6FF1EFE2A57E59100B208E4 /* Subject+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FF1EFD2A57E59100B208E4 /* Subject+.swift */; };
 		BC3BCAF910DB455D23661425 /* Pods_TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADDBC9E43D315C358E078BC8 /* Pods_TangemSwapping.framework */; };
 		CA4CE122EA06BFF58F298C1F /* Pods_TangemSwappingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18DFAA500D7B2AF19B3D48B8 /* Pods_TangemSwappingTests.framework */; };
+		DA0156F92A7944A10002A23B /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0156F82A7944A10002A23B /* LineChartView.swift */; };
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
 		DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
@@ -1543,6 +1544,7 @@
 		D2313A69E005802F0E551C08 /* Pods-Tangem.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		D4CF153401E1CA0F93E4A641 /* Pods-TangemSwapping.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(production).xcconfig"; sourceTree = "<group>"; };
 		D4E67C3833548EA7FAF75825 /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA0156F82A7944A10002A23B /* LineChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
 		DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellViewModel.swift; sourceTree = "<group>"; };
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
@@ -3122,6 +3124,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				DA0156F72A7944960002A23B /* Charts */,
 				B0A4C49E2A270F490060E039 /* BalanceWithButtonsView */,
 				EF666C242A2DF9D60044986F /* BottomSheet */,
 				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
@@ -3802,6 +3805,14 @@
 				3C9182C6C925702F336B218E /* Pods-TangemTests.release(alpha).xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		DA0156F72A7944960002A23B /* Charts */ = {
+			isa = PBXGroup;
+			children = (
+				DA0156F82A7944A10002A23B /* LineChartView.swift */,
+			);
+			path = Charts;
 			sourceTree = "<group>";
 		};
 		DA23786A27B241C2009795A8 /* ShopifyService */ = {
@@ -6123,6 +6134,7 @@
 				5DDFC1FD2812A622005976FE /* Coin.swift in Sources */,
 				5D51036B27C534CB0025EA55 /* EIP712TypedData.swift in Sources */,
 				E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */,
+				DA0156F92A7944A10002A23B /* LineChartView.swift in Sources */,
 				DA23788B27B2488D009795A8 /* ShopifyShop.swift in Sources */,
 				DCBAF69B2A4AEF3C0029480A /* HDWalletManagerFactory.swift in Sources */,
 				EF053DF22938D4BC006FD13A /* UserWalletListCoordinator.swift in Sources */,
