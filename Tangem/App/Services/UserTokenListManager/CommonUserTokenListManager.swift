@@ -51,6 +51,14 @@ extension CommonUserTokenListManager: UserTokenListManager {
         _userTokens.eraseToAnyPublisher()
     }
 
+    var userTokenList: any Publisher<UserTokenList, Never> {
+        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
+    }
+
+    func update(with userTokenList: UserTokenList) {
+        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
+    }
+
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
         switch type {
         case .rewrite(let entries):
@@ -70,12 +78,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
     }
 
-    func upload() {
-        guard hasTokenSynchronization else { return }
-
-        updateTokensOnServer()
-    }
-
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         guard hasTokenSynchronization else {
             result(.success(()))
@@ -83,6 +85,12 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
 
         loadUserTokenList(result: result)
+    }
+
+    func upload() {
+        guard hasTokenSynchronization else { return }
+
+        updateTokensOnServer()
     }
 }
 
