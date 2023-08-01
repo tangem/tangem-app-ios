@@ -129,7 +129,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png")!,
                 name: "Bitcoin",
                 symbol: "BTC",
-                price: "$23 034,83",
+                price: "$23,034.83",
                 priceChangeDirection: .up,
                 priceChangePercentage: "10.5%"
             ))
@@ -137,38 +137,38 @@ struct CurrencyViewNew_Previews: PreviewProvider {
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
-                name: "Tether",
-                symbol: "USDT",
-                price: "$23 034,83",
+                name: "ethereum",
+                symbol: "ETH",
+                price: "$1,340.33",
                 priceChangeDirection: .down,
                 priceChangePercentage: "10.5%"
             ))
 
             CoinView(model: CoinViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
-                name: "Babananas United",
-                symbol: "BABASDT",
-                price: "$23 034,83",
+                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/binance/info/logo.png")!,
+                name: "Binance",
+                symbol: "BNB",
+                price: "$304.00",
                 priceChangeDirection: .up,
                 priceChangePercentage: "1.3%"
             ))
 
             CoinView(model: CoinViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
-                name: "Binance USD",
-                symbol: "BUS",
-                price: "$23 034,83",
-                priceChangeDirection: .down,
-                priceChangePercentage: "3.5%"
+                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png")!,
+                name: "Polygon",
+                symbol: "MATIC",
+                price: "$34.83",
+                priceChangeDirection: .same,
+                priceChangePercentage: "0.0%"
             ))
 
             CoinView(model: CoinViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
-                name: "Binance USD very-very-long-name",
+                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/acalaevm/info/logo.png")!,
+                name: "Very long token name is very long",
                 symbol: "BUS",
-                price: "$23 034,83",
-                priceChangeDirection: .same,
-                priceChangePercentage: "0.0%"
+                price: "$23,341,324,034.83",
+                priceChangeDirection: .up,
+                priceChangePercentage: "1,340,340.0%"
             ))
 
             Spacer()
