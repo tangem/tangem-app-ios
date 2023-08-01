@@ -43,7 +43,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             bodyModel: viewModel
         )
     }
-    
+
     func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder] {
         return models.map(createPage(for:))
     }
