@@ -19,7 +19,7 @@ struct MultiWalletMainContentView: View {
 }
 
 struct MultiWalletContentView_Preview: PreviewProvider {
-    static let viewModel = MultiWalletMainContentViewModel(coordinator: MultiWalletMainContentCoordinator())
+    static let viewModel = MultiWalletMainContentViewModel(coordinator: MainCoordinator())
 
     static var previews: some View {
         MultiWalletMainContentView(viewModel: viewModel)
