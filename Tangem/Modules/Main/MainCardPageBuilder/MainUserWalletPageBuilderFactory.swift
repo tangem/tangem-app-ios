@@ -13,6 +13,8 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
+    let coordinator: MultiWalletMainContentRoutable & SingleWalletMainContentRoutable
+
     func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder] {
         return models.map {
             let id = $0.userWalletId.stringValue
@@ -24,22 +26,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             if $0.isMultiWallet {
-                let coordinator = MultiWalletMainContentCoordinator()
-                coordinator.start(with: .init())
+                let viewModel = MultiWalletMainContentViewModel(coordinator: coordinator)
 
                 return .multiWallet(
                     id: id,
                     headerModel: headerModel,
-                    bodyModel: coordinator
+                    bodyModel: viewModel
                 )
             }
 
-            let coordinator = SingleWalletMainContentCoordinator()
-            coordinator.start(with: .init())
+            let viewModel = SingleWalletMainContentViewModel(coordinator: coordinator)
             return .singleWallet(
                 id: id,
                 headerModel: headerModel,
-                bodyModel: coordinator
+                bodyModel: viewModel
             )
         }
     }
