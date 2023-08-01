@@ -34,6 +34,7 @@ class MainCoordinator: CoordinatorObject {
     func start(with options: Options) {
         mainViewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
+            coordinator: self,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
         )
     }
