@@ -37,15 +37,19 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
         self.isUserWalletLocked = isUserWalletLocked
         self.dataSource = dataSource
         isLoadingSubject = .init(!isUserWalletLocked)
-        bind()
+
+        initialSetup()
+    }
+
+    private func initialSetup() {
+        if isUserWalletLocked {
+            displayLockedWalletMessage()
+        } else {
+            bind()
+        }
     }
 
     private func bind() {
-        if isUserWalletLocked {
-            displayLockedWalletMessage()
-            return
-        }
-
         stateUpdateSubscription = dataSource?.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] newState in
