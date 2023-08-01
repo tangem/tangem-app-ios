@@ -14,6 +14,7 @@ protocol MainUserWalletPageBuilderFactory {
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
     let coordinator: MultiWalletMainContentRoutable & SingleWalletMainContentRoutable
+
     func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder] {
         return models.map {
             let id = $0.userWalletId.stringValue
