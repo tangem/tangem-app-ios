@@ -644,10 +644,16 @@ struct OrganizeTokensView_Preview: PreviewProvider {
 
         Group {
             ForEach(viewModels.indexed(), id: \.0.self) { index, sections in
+                let coordinator = OrganizeTokensCoordinator()
+                let userWalletModel = UserWalletModelMock()
+                let userTokenListManager = userWalletModel.userTokenListManager
+
                 OrganizeTokensView(
-                    viewModel: .init(
-                        coordinator: OrganizeTokensCoordinator(),
-                        userWalletModel: UserWalletModelMock()
+                    viewModel: OrganizeTokensViewModel(
+                        coordinator: coordinator,
+                        userTokenListManager: userTokenListManager,
+                        walletModelsManager: userWalletModel.walletModelsManager,
+                        walletModelsAdapter: OrganizeWalletModelsAdapter(userTokenListManager: userTokenListManager)
                     )
                 )
             }
