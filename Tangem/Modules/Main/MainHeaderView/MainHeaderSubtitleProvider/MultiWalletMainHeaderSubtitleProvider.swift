@@ -53,6 +53,8 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
         self.isUserWalletLocked = isUserWalletLocked
         self.areWalletsImported = areWalletsImported
         self.dataSource = dataSource
+
+        subscribeToUpdates()
         formatSubtitle()
     }
 
