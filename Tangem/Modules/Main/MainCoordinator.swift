@@ -34,7 +34,7 @@ class MainCoordinator: CoordinatorObject {
     func start(with options: Options) {
         mainViewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
-            coordinator: self
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
         )
     }
 }
@@ -66,3 +66,7 @@ extension MainCoordinator: MainRoutable {
         popToRoot(with: .init(newScan: newScan))
     }
 }
+
+extension MainCoordinator: MultiWalletMainContentRoutable {}
+
+extension MainCoordinator: SingleWalletMainContentRoutable {}
