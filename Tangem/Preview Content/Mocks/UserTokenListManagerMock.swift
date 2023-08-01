@@ -18,13 +18,17 @@ struct UserTokenListManagerMock: UserTokenListManager {
         .just(output: [])
     }
 
-    func contains(_ entry: StorageEntry) -> Bool {
-        return false
+    var userTokenList: any Publisher<UserTokenList, Never> {
+        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
+    }
+
+    func update(with userTokenList: UserTokenList) {
+        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
     }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
 
-    func upload() {}
-
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {}
+
+    func upload() {}
 }
