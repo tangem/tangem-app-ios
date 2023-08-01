@@ -26,9 +26,14 @@ final class OrganizeTokensCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let userWalletModel = options.userWalletModel
+        let userTokenListManager = userWalletModel.userTokenListManager
+
         rootViewModel = OrganizeTokensViewModel(
             coordinator: self,
-            userWalletModel: options.userWalletModel
+            userTokenListManager: userTokenListManager,
+            walletModelsManager: userWalletModel.walletModelsManager,
+            walletModelsAdapter: OrganizeWalletModelsAdapter(userTokenListManager: userTokenListManager)
         )
     }
 }
