@@ -13,18 +13,25 @@ class CoinViewModel: Identifiable, ObservableObject {
     let imageURL: URL?
     let name: String
     let symbol: String
+    
+    let price: String
+    let priceChangeDirection: PriceChangeDirection
+    let priceChangePercentage: String
 
-    init(imageURL: URL?, name: String, symbol: String) {
+    init(imageURL: URL?, name: String, symbol: String, price: String, priceChangeDirection: PriceChangeDirection, priceChangePercentage: String) {
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
+        self.price = price
+        self.priceChangeDirection = priceChangeDirection
+        self.priceChangePercentage = priceChangePercentage
     }
 
-    init(with model: CoinModel) {
-        name = model.name
-        symbol = model.symbol
-        imageURL = model.imageURL
-    }
+//    init(with model: CoinModel) {
+//        name = model.name
+//        symbol = model.symbol
+//        imageURL = model.imageURL
+//    }
 }
 
 extension CoinViewModel: Hashable {
