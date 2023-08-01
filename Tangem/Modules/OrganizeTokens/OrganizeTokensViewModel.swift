@@ -7,12 +7,11 @@
 //
 
 import Combine
+import CombineExt
 import SwiftUI
 import struct BlockchainSdk.Token
 
 final class OrganizeTokensViewModel: ObservableObject {
-    private typealias Token = BlockchainSdk.Token
-
     /// Sentinel value for `item` of `IndexPath` representing a section.
     var sectionHeaderItemIndex: Int { .min }
 
@@ -63,65 +62,91 @@ final class OrganizeTokensViewModel: ObservableObject {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
         walletModelsManager
             .walletModelsPublisher
-            .map(Self.map)
-            .weakAssign(to: \.sections, on: self)
+            .combineLatest(userTokenListManager.userTokensPublisher)
+            .map { walletModels, storageEntries in
+                return Self.map(walletModels: walletModels, storageEntries: storageEntries)
+            }
+            .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
 
         didPerformBind = true
     }
 
     private static func map(
-        _ walletModels: [WalletModel]
+        walletModels: [WalletModel],
+        storageEntries: [StorageEntry]
     ) -> [OrganizeTokensListSectionViewModel] {
-        return walletModels.map { walletModel in
-            let blockchainNetwork = walletModel.blockchainNetwork
-            let networkItem = map(blockchainNetwork)
-            let tokenItems = map([], in: blockchainNetwork) // [REDACTED_TODO_COMMENT]
-            return OrganizeTokensListSectionViewModel(
-                style: .fixed(title: Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)),
-                items: [networkItem] + tokenItems
-            )
-        }
-    }
-
-    private static func map(
-        _ blockchainNetwork: BlockchainNetwork
-    ) -> OrganizeTokensListItemViewModel {
-        let tokenIcon = TokenIconInfoBuilder().build(
-            for: .coin,
-            in: blockchainNetwork.blockchain
-        )
-        return makeListItemViewModel(tokenIcon: tokenIcon)
-    }
-
-    private static func map(
-        _ tokens: [Token],
-        in blockchainNetwork: BlockchainNetwork
-    ) -> [OrganizeTokensListItemViewModel] {
+        let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
+        let blockchainNetworks = walletModels.map(\.blockchainNetwork).toSet()
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
-        return tokens.map { token in
-            let tokenIcon = tokenIconInfoBuilder.build(
-                for: .token(value: token),
-                in: blockchainNetwork.blockchain
-            )
-            return makeListItemViewModel(tokenIcon: tokenIcon)
-        }
+
+        let listItemViewModels = storageEntries
+            .reduce(into: [OrganizeTokensListItemViewModel]()) { result, entry in
+                if blockchainNetworks.contains(entry.blockchainNetwork) {
+                    let items = entry
+                        .walletModelIds
+                        .compactMap { walletModelsKeyedByIds[$0] }
+                        .map { map(walletModel: $0, using: tokenIconInfoBuilder) }
+                    result += items
+                } else {
+                    result += map(storageEntry: entry, using: tokenIconInfoBuilder)
+                }
+            }
+
+        return [OrganizeTokensListSectionViewModel(style: .invisible, items: listItemViewModels)]
     }
 
-    private static func makeListItemViewModel(
-        tokenIcon: TokenIconInfo
+    private static func map(
+        walletModel: WalletModel,
+        using tokenIconInfoBuilder: TokenIconInfoBuilder
     ) -> OrganizeTokensListItemViewModel {
-        // [REDACTED_TODO_COMMENT]
+        let tokenIcon = tokenIconInfoBuilder.build(
+            for: walletModel.amountType,
+            in: walletModel.blockchainNetwork.blockchain
+        )
+
         return OrganizeTokensListItemViewModel(
+            tokenIcon: tokenIcon,
+            balance: .noData,
+            isDraggable: false,
+            networkUnreachable: false,
+            hasPendingTransactions: walletModel.hasPendingTx
+        )
+    }
+
+    private static func map(
+        storageEntry: StorageEntry,
+        using tokenIconInfoBuilder: TokenIconInfoBuilder
+    ) -> [OrganizeTokensListItemViewModel] {
+        // [REDACTED_TODO_COMMENT]
+        let tokenIcon = tokenIconInfoBuilder.build(
+            for: .coin,
+            in: storageEntry.blockchainNetwork.blockchain
+        )
+        let coinListItemViewModel = OrganizeTokensListItemViewModel(
             tokenIcon: tokenIcon,
             balance: .noData,
             isDraggable: false,
             networkUnreachable: false,
             hasPendingTransactions: false
         )
+        let tokenListItemViewModels = storageEntry.tokens.map { token in
+            let tokenIcon = tokenIconInfoBuilder.build(
+                for: .token(value: token),
+                in: storageEntry.blockchainNetwork.blockchain
+            )
+            return OrganizeTokensListItemViewModel(
+                tokenIcon: tokenIcon,
+                balance: .noData,
+                isDraggable: false,
+                networkUnreachable: false,
+                hasPendingTransactions: false
+            )
+        }
+
+        return [coinListItemViewModel] + tokenListItemViewModels
     }
 }
 
