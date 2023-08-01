@@ -16,6 +16,8 @@ extension ScrollViewRepresentable: Setupable {
 }
 
 protocol ScrollViewRepresentableDelegate: AnyObject {
+    func getSafeAreaInsets() -> UIEdgeInsets
+
     func contentOffsetDidChanged(contentOffset: CGPoint)
     func gesture(onChanged value: UIPanGestureRecognizer.Value)
     func gesture(onEnded value: UIPanGestureRecognizer.Value)
@@ -50,6 +52,7 @@ struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
         }
 
         scrollView.addSubview(contentView)
+        scrollView.contentSize = context.coordinator.contentSize()
 
         let gesture = UIPanGestureRecognizer(
             target: context.coordinator,
@@ -65,23 +68,20 @@ struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
     func updateUIView(_ uiView: UIScrollView, context: Context) {
         uiView.isScrollEnabled = !isScrollDisabled
 
+        let hostingController = context.coordinator.hostingController
         // Use it for handle SwiftUI view updating
-        context.coordinator.hostingController.rootView = content()
+        hostingController.rootView = content()
 
-        guard let contentView = context.coordinator.hostingController.view else {
-            assertionFailure("HostingController haven't rootView")
-            return
+        uiView.contentSize = context.coordinator.contentSize()
+
+        if let safeAreaInsets = delegate?.getSafeAreaInsets() {
+            uiView.contentInset = safeAreaInsets
+            uiView.verticalScrollIndicatorInsets = safeAreaInsets
         }
-
-        let screenSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        let contentSize = contentView.sizeThatFits(screenSize)
-        contentView.frame = CGRect(x: 0, y: 0, width: contentSize.width, height: contentSize.height)
-
-        uiView.contentSize = contentSize
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(
+        Coordinator(
             hostingController: UIHostingController(rootView: content()),
             delegate: delegate
         )
@@ -96,7 +96,6 @@ extension ScrollViewRepresentable {
         weak var delegate: ScrollViewRepresentableDelegate?
 
         private var startLocation = CGPoint.zero
-        private var contentOffset = CGPoint.zero
 
         init(
             hostingController: UIHostingController<Content>,
@@ -106,10 +105,24 @@ extension ScrollViewRepresentable {
             self.delegate = delegate
         }
 
+        func contentSize() -> CGSize {
+            guard let contentView = hostingController.view else {
+                assertionFailure("HostingController haven't rootView")
+                return .zero
+            }
+
+            let screenSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            let contentSize = contentView.sizeThatFits(screenSize)
+
+            // Update size inside contentView
+            contentView.frame = CGRect(origin: .zero, size: contentSize)
+
+            return contentSize
+        }
+
         // MARK: - UIScrollViewDelegate
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            contentOffset = scrollView.contentOffset
             delegate?.contentOffsetDidChanged(contentOffset: scrollView.contentOffset)
         }
 
@@ -154,13 +167,13 @@ extension ScrollViewRepresentable {
         }
 
         func getGlobalView() -> UIView? {
-            //        getting the all scenes
+            // getting the all scenes
             let scenes = UIApplication.shared.connectedScenes
-            //        getting windowScene from scenes
+            // getting windowScene from scenes
             let windowScene = scenes.first as? UIWindowScene
-            //        getting window from windowScene
+            // getting window from windowScene
             let window = windowScene?.windows.first
-            //        getting the root view controller
+            // getting the root view controller
             let rootVC = window?.rootViewController
 
             return rootVC?.view
