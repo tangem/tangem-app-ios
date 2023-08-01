@@ -30,7 +30,7 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
@@ -42,7 +42,7 @@ final class MainViewModel: ObservableObject {
     convenience init(
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory = CommonMainUserWalletPageBuilderFactory()
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.init(coordinator: coordinator, mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory)
 
