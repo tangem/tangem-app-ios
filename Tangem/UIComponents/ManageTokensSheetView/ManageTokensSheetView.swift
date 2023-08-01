@@ -28,6 +28,8 @@ struct ManageTokensSheetView<RootContent: View>: View {
             content()
 
             bottomSheet
+
+            sheets
         }
     }
 
@@ -54,5 +56,12 @@ struct ManageTokensSheetView<RootContent: View>: View {
                 }
             }
         }
+    }
+
+    private var sheets: some View {
+        NavHolder()
+            .bottomSheet(item: $viewModel.bottomSheet) {
+                BottomSheetContainer_Previews.BottomSheetView(viewModel: $0)
+            }
     }
 }
