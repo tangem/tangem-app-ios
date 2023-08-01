@@ -19,7 +19,7 @@ struct SingleWalletMainContentView: View {
 }
 
 struct SingleWalletContentView_Preview: PreviewProvider {
-    static let viewModel = SingleWalletMainContentViewModel(coordinator: SingleWalletMainContentCoordinator())
+    static let viewModel = SingleWalletMainContentViewModel(coordinator: MainCoordinator())
 
     static var previews: some View {
         SingleWalletMainContentView(viewModel: viewModel)

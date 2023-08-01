@@ -264,14 +264,10 @@
 		B06C084E2A73FB4D00D982BC /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08492A73FB4D00D982BC /* MainView.swift */; };
 		B06C084F2A73FB4E00D982BC /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C084A2A73FB4D00D982BC /* MainViewModel.swift */; };
 		B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C084B2A73FB4D00D982BC /* MainRoutable.swift */; };
-		B06C08572A73FC3B00D982BC /* MultiWalletMainContentCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08522A73FC3B00D982BC /* MultiWalletMainContentCoordinator.swift */; };
-		B06C08582A73FC3B00D982BC /* MultiWalletMainContentCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08532A73FC3B00D982BC /* MultiWalletMainContentCoordinatorView.swift */; };
 		B06C08592A73FC3B00D982BC /* MultiWalletMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08542A73FC3B00D982BC /* MultiWalletMainContentView.swift */; };
 		B06C085A2A73FC3B00D982BC /* MultiWalletMainContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08552A73FC3B00D982BC /* MultiWalletMainContentViewModel.swift */; };
 		B06C085B2A73FC3B00D982BC /* MultiWalletMainContentRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08562A73FC3B00D982BC /* MultiWalletMainContentRoutable.swift */; };
 		B06C085E2A73FCB700D982BC /* MainUserWalletPageBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C085D2A73FCB700D982BC /* MainUserWalletPageBuilder.swift */; };
-		B06C08652A73FCDE00D982BC /* SingleWalletMainContentCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08602A73FCDE00D982BC /* SingleWalletMainContentCoordinator.swift */; };
-		B06C08662A73FCDE00D982BC /* SingleWalletMainContentCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08612A73FCDE00D982BC /* SingleWalletMainContentCoordinatorView.swift */; };
 		B06C08672A73FCDE00D982BC /* SingleWalletMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08622A73FCDE00D982BC /* SingleWalletMainContentView.swift */; };
 		B06C08682A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08632A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift */; };
 		B06C08692A73FCDE00D982BC /* SingleWalletMainContentRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08642A73FCDE00D982BC /* SingleWalletMainContentRoutable.swift */; };
@@ -1364,14 +1360,10 @@
 		B06C08492A73FB4D00D982BC /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		B06C084A2A73FB4D00D982BC /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		B06C084B2A73FB4D00D982BC /* MainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainRoutable.swift; sourceTree = "<group>"; };
-		B06C08522A73FC3B00D982BC /* MultiWalletMainContentCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentCoordinator.swift; sourceTree = "<group>"; };
-		B06C08532A73FC3B00D982BC /* MultiWalletMainContentCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentCoordinatorView.swift; sourceTree = "<group>"; };
 		B06C08542A73FC3B00D982BC /* MultiWalletMainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentView.swift; sourceTree = "<group>"; };
 		B06C08552A73FC3B00D982BC /* MultiWalletMainContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentViewModel.swift; sourceTree = "<group>"; };
 		B06C08562A73FC3B00D982BC /* MultiWalletMainContentRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentRoutable.swift; sourceTree = "<group>"; };
 		B06C085D2A73FCB700D982BC /* MainUserWalletPageBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainUserWalletPageBuilder.swift; sourceTree = "<group>"; };
-		B06C08602A73FCDE00D982BC /* SingleWalletMainContentCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletMainContentCoordinator.swift; sourceTree = "<group>"; };
-		B06C08612A73FCDE00D982BC /* SingleWalletMainContentCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletMainContentCoordinatorView.swift; sourceTree = "<group>"; };
 		B06C08622A73FCDE00D982BC /* SingleWalletMainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletMainContentView.swift; sourceTree = "<group>"; };
 		B06C08632A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletMainContentViewModel.swift; sourceTree = "<group>"; };
 		B06C08642A73FCDE00D982BC /* SingleWalletMainContentRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletMainContentRoutable.swift; sourceTree = "<group>"; };
@@ -3081,8 +3073,6 @@
 		B06C08512A73FC1B00D982BC /* MultiWalletMainContent */ = {
 			isa = PBXGroup;
 			children = (
-				B06C08522A73FC3B00D982BC /* MultiWalletMainContentCoordinator.swift */,
-				B06C08532A73FC3B00D982BC /* MultiWalletMainContentCoordinatorView.swift */,
 				B06C08542A73FC3B00D982BC /* MultiWalletMainContentView.swift */,
 				B06C08552A73FC3B00D982BC /* MultiWalletMainContentViewModel.swift */,
 				B06C08562A73FC3B00D982BC /* MultiWalletMainContentRoutable.swift */,
@@ -3102,8 +3092,6 @@
 		B06C085F2A73FCC400D982BC /* SingleWalletMainContent */ = {
 			isa = PBXGroup;
 			children = (
-				B06C08602A73FCDE00D982BC /* SingleWalletMainContentCoordinator.swift */,
-				B06C08612A73FCDE00D982BC /* SingleWalletMainContentCoordinatorView.swift */,
 				B06C08622A73FCDE00D982BC /* SingleWalletMainContentView.swift */,
 				B06C08632A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift */,
 				B06C08642A73FCDE00D982BC /* SingleWalletMainContentRoutable.swift */,
@@ -6010,7 +5998,6 @@
 				EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */,
 				DC7D39F929E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift in Sources */,
 				EF46622C2924DF0300346B6C /* DefaultToggleRowViewModel.swift in Sources */,
-				B06C08652A73FCDE00D982BC /* SingleWalletMainContentCoordinator.swift in Sources */,
 				B6AA13682A2A373000B53937 /* CardInfoPagePreviewViewModel.swift in Sources */,
 				EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */,
 				5D96BD2827F60AC5000AA797 /* BlockchainNetwork.swift in Sources */,
@@ -6162,7 +6149,6 @@
 				EFF253B4293DCAAA00AEF302 /* SwappingFeeRowView.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
 				5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */,
-				B06C08572A73FC3B00D982BC /* MultiWalletMainContentCoordinator.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				B6AA13722A2A378300B53937 /* CardInfoPageWarningIconOnlyCellPreviewViewModel.swift in Sources */,
 				EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */,
@@ -6495,7 +6481,6 @@
 				B668D2582A685DD800D9A12A /* BinaryFloatingPoint+.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
 				EFEC653C292E1B9100AE8521 /* SwappingViewModel.swift in Sources */,
-				B06C08582A73FC3B00D982BC /* MultiWalletMainContentCoordinatorView.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				B69D5EEB2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift in Sources */,
 				B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */,
@@ -6577,7 +6562,6 @@
 				DA5CD0992A25F4F2008FD876 /* PromotionCoordinatorView.swift in Sources */,
 				DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */,
 				DCF2369129924C0900FE1855 /* AnalyticsContext.swift in Sources */,
-				B06C08662A73FCDE00D982BC /* SingleWalletMainContentCoordinatorView.swift in Sources */,
 				DAC53CFF27BE63830027147D /* FinishStoryPage.swift in Sources */,
 				DC295B482861C4BE006CB7B6 /* DetailsCoordinator.swift in Sources */,
 				DC7D3A0B29E07829007BCD23 /* TwinTangemSdkFactory.swift in Sources */,
