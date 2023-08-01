@@ -52,7 +52,7 @@ struct BottomSheetContainer<ContentView: View>: View {
                 // Added to hide the line between views
                 .offset(y: -1)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .edgesIgnoringSafeArea(.all)
         .animation(.default, value: opacity)
         .animation(.interactiveSpring(), value: stateObject.isDragging)
     }
@@ -169,7 +169,6 @@ extension BottomSheetContainer {
         @Published var contentHeight: CGFloat = UIScreen.main.bounds.height / 2
         @Published var isDragging: Bool = false
         @Published var previousDragTranslation: CGSize = .zero
-        @Published var ancorPoint: [AncorPoint] = []
         @Published var offset: CGFloat = UIScreen.main.bounds.height
 
         public var dragPercentage: CGFloat {
@@ -179,20 +178,6 @@ extension BottomSheetContainer {
         }
 
         public var viewDidHidden: () -> Void = {}
-    }
-
-    enum AncorPoint {
-        case bottom(_ value: CGFloat)
-        case middle(_ value: CGFloat = UIScreen.main.bounds.height / 2)
-        case top
-
-        var offset: CGFloat {
-            switch self {
-            case .bottom(let offset): return offset
-            case .middle(let offset): return offset
-            case .top: return 0
-            }
-        }
     }
 }
 
