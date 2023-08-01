@@ -14,7 +14,10 @@ import Foundation
 /// // Output example:
 /// <UIDimmingView: 0x14622ddc0; frame = (-414 -736; 1242 2208); opaque = NO>
 /// ```
-func objectDescription(_ object: AnyObject, userInfo: [AnyHashable: Any] = [:]) -> String {
+func objectDescription(
+    _ object: AnyObject,
+    userInfo: KeyValuePairs<AnyHashable, Any> = [:]
+) -> String {
     let typeName = String(describing: type(of: object))
     let memoryAddress = String(describing: Unmanaged.passUnretained(object).toOpaque())
     let description = userInfo.reduce(into: [typeName + ": " + memoryAddress]) { partialResult, pair in
