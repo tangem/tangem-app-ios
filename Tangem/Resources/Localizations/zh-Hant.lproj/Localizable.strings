@@ -182,7 +182,7 @@
 "main_no_backup_warning_title" = "您的錢包尚未備份";
 "main_page_balance" = "總餘額";
 "main_processing_full_amount" = "該金額不包括您的部分資金";
-"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 24 hours";
+"main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 48 hours";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
 "main_tokens" = "代幣";
