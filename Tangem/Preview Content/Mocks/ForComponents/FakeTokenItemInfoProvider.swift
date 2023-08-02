@@ -51,7 +51,7 @@ class FakeTokenItemInfoProvider: PriceChangeProvider, ObservableObject {
         }
         print("Tapped wallet model: \(tappedWalletManager)")
         var updateSubscription: AnyCancellable?
-        updateSubscription = tappedWalletManager.update(silent: false)
+        updateSubscription = tappedWalletManager.update(silent: true)
             .sink { newState in
                 print("Receive new state \(newState) for \(tappedWalletManager)")
                 withExtendedLifetime(updateSubscription) {}
