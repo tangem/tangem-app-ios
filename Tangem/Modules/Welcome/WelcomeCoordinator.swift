@@ -20,7 +20,8 @@ class WelcomeCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var mainCoordinator: LegacyMainCoordinator? = nil
+    @Published var legacyMainCoordinator: LegacyMainCoordinator? = nil
+    @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
@@ -90,10 +91,18 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
+        if FeatureProvider.isAvailable(.mainV2) {
+            let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+            let options = MainCoordinator.Options(userWalletModel: cardModel)
+            coordinator.start(with: options)
+            mainCoordinator = coordinator
+            return
+        }
+
         let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
         let options = LegacyMainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
-        mainCoordinator = coordinator
+        legacyMainCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
