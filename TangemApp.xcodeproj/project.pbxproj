@@ -425,7 +425,6 @@
 		B69D5EEB2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */; };
 		B69E78762A6978E2007E358A /* CardInfoPagePreviewContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69E78752A6978E2007E358A /* CardInfoPagePreviewContainerView.swift */; };
 		B69E78782A69795D007E358A /* CardInfoPagePreviewConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69E78772A69795D007E358A /* CardInfoPagePreviewConfig.swift */; };
-		B6A9BEA72A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverAnimatableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A9BEA62A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverAnimatableModifier.swift */; };
 		B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */; };
 		B6AA13682A2A373000B53937 /* CardInfoPagePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13672A2A373000B53937 /* CardInfoPagePreviewViewModel.swift */; };
 		B6AA136A2A2A373600B53937 /* CardInfoPagePreviewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13692A2A373600B53937 /* CardInfoPagePreviewSection.swift */; };
@@ -1508,7 +1507,6 @@
 		B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListCornerRadiusParametersProvider.swift; sourceTree = "<group>"; };
 		B69E78752A6978E2007E358A /* CardInfoPagePreviewContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewContainerView.swift; sourceTree = "<group>"; };
 		B69E78772A69795D007E358A /* CardInfoPagePreviewConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewConfig.swift; sourceTree = "<group>"; };
-		B6A9BEA62A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverAnimatableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensAnimationProgressObserverAnimatableModifier.swift; sourceTree = "<group>"; };
 		B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerPreviewProvider.swift; sourceTree = "<group>"; };
 		B6AA13672A2A373000B53937 /* CardInfoPagePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewViewModel.swift; sourceTree = "<group>"; };
 		B6AA13692A2A373600B53937 /* CardInfoPagePreviewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewSection.swift; sourceTree = "<group>"; };
@@ -3576,7 +3574,6 @@
 				B63B63BB2A44013100A7CECF /* ListFooter */,
 				B63127D52A2F83CA007C124C /* ListSection */,
 				B63127D62A2F83D0007C124C /* ListItem */,
-				B6A19C3E2A776B6500A292F0 /* AnimatableModifiers */,
 				B6E932BF2A2F2D860068D466 /* OrganizeTokensCoordinator.swift */,
 				B6E932C12A2F2D860068D466 /* OrganizeTokensCoordinatorView.swift */,
 				B6E932C02A2F2D860068D466 /* OrganizeTokensRoutable.swift */,
@@ -3653,14 +3650,6 @@
 				B6805B712A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift */,
 			);
 			path = OrganizeTokens;
-			sourceTree = "<group>";
-		};
-		B6A19C3E2A776B6500A292F0 /* AnimatableModifiers */ = {
-			isa = PBXGroup;
-			children = (
-				B6A9BEA62A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverAnimatableModifier.swift */,
-			);
-			path = AnimatableModifiers;
 			sourceTree = "<group>";
 		};
 		B6AA135D2A2A36CF00B53937 /* Views */ = {
@@ -6685,7 +6674,6 @@
 				B0F318F92A7393FA009F131E /* WalletStubs.swift in Sources */,
 				B0431B47291A905A00F84DEF /* RoundedBackgroundModifier.swift in Sources */,
 				B6E8BBFB2A2F209B0012E7D3 /* View+InfinityFrame.swift in Sources */,
-				B6A9BEA72A4F2516003D43D9 /* OrganizeTokensAnimationProgressObserverAnimatableModifier.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 				B0CE1E4C2A30A00000D297F8 /* FakeBalanceWithButtonsInfoProvider.swift in Sources */,
 				B0F7D75E2A4048D5007FEB2E /* ReceiveAddressInfo.swift in Sources */,
