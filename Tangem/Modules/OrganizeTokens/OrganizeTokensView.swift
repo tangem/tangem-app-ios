@@ -536,14 +536,7 @@ struct OrganizeTokensView: View {
                         )
                     )
                     .combined(with: .shadow)
-                    .combined(
-                        with: .onViewRemoval {
-                            // `DispatchQueue.main.async` used here to allow publishing changes during view update
-                            DispatchQueue.main.async {
-                                dragAndDropSourceViewModelIdentifier = nil
-                            }
-                        }
-                    )
+                    .combined(with: .onViewRemoval { dragAndDropSourceViewModelIdentifier = nil })
             )
             .onDisappear {
                 // Perform required clean-up when the view removal animation finishes
@@ -593,13 +586,11 @@ private extension AnyTransition {
     }
 
     static func onViewRemoval(perform action: @escaping () -> Void) -> AnyTransition {
-        let dummyViewInsertionProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
-            targetProgress: 1.0,
-            progressThreshold: 1.0
-        ) {}
-        let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
-            targetProgress: 0.0,
-            progressThreshold: OrganizeTokensView.Constants.dropAnimationProgressThresholdForViewRemoval,
+        let dummyViewInsertionProgressObserver = AnimationProgressObserverModifier(observedValue: 1.0) {}
+        let viewRemovalProgressObserver = AnimationProgressObserverModifier(
+            observedValue: 0.0,
+            targetValue: OrganizeTokensView.Constants.dropAnimationProgressThresholdForViewRemoval,
+            valueComparator: <=,
             action: action
         )
 
