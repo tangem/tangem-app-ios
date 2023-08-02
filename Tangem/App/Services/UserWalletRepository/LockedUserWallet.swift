@@ -8,9 +8,22 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 
 class LockedUserWallet: UserWalletModel {
+    let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
+    let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
+    var signer: TangemSigner
+
+    var tokensCount: Int? { nil }
+
+    var cardsCount: Int { config.cardsCount }
+
+    var isMultiWallet: Bool { config.hasFeature(.multiCurrency) }
+
+    var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
+
+    var updatePublisher: AnyPublisher<Void, Never> { .just }
+
     private(set) var userWallet: UserWallet
 
     private let config: UserWalletConfig
@@ -18,63 +31,28 @@ class LockedUserWallet: UserWalletModel {
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
+        signer = TangemSigner(with: userWallet.card.cardId, sdk: config.makeTangemSdk())
     }
-
-    var isMultiWallet: Bool { config.hasFeature(.multiCurrency) }
-
-    var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
-
-    var walletModels: [WalletModel] { [] }
-
-    var userTokenListManager: UserTokenListManager { DummyUserTokenListManager() }
-
-    var totalBalanceProvider: TotalBalanceProviding { DummyTotalBalanceProvider() }
-
-    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> { .just(output: []) }
-
-    func getSavedEntries() -> [StorageEntry] { [] }
-
-    func getEntriesWithoutDerivation() -> [StorageEntry] { [] }
-
-    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> { .just(output: []) }
-
-    func canManage(amountType: BlockchainSdk.Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool { false }
-
-    func update(entries: [StorageEntry]) {}
-
-    func append(entries: [StorageEntry]) {}
-
-    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {}
 
     func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
-        userWallet.name = name
+        // Renaming locked wallets is prohibited
     }
 
-    func updateWalletModels() {}
-
-    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {}
+    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
+        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    }
 }
 
-extension LockedUserWallet {
-    struct DummyUserTokenListManager: UserTokenListManager {
-        var didPerformInitialLoading: Bool { false }
+extension LockedUserWallet: MainHeaderInfoProvider {
+    var isUserWalletLocked: Bool { true }
 
-        func update(userWalletId: Data) {}
-
-        func update(_ type: CommonUserTokenListManager.UpdateType) {}
-
-        func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {}
-
-        func getEntriesFromRepository() -> [StorageEntry] { [] }
-
-        func clearRepository(completion: @escaping () -> Void) {}
+    var userWalletNamePublisher: AnyPublisher<String, Never> {
+        .just(output: userWallet.name)
     }
 
-    struct DummyTotalBalanceProvider: TotalBalanceProviding {
-        func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-            Empty().eraseToAnyPublisher()
-        }
+    var cardHeaderImage: ImageType? {
+        config.cardHeaderImage
     }
 }
