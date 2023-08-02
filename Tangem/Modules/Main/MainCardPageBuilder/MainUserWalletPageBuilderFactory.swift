@@ -9,38 +9,42 @@
 import Foundation
 
 protocol MainUserWalletPageBuilderFactory {
+    func createPage(for model: UserWalletModel) -> MainUserWalletPageBuilder
     func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder]
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
     let coordinator: MultiWalletMainContentRoutable & SingleWalletMainContentRoutable
 
-    func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder] {
-        return models.map {
-            let id = $0.userWalletId.stringValue
-            let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: $0)
-            let headerModel = MainHeaderViewModel(
-                infoProvider: $0,
-                subtitleProvider: subtitleProvider,
-                balanceProvider: $0
-            )
+    func createPage(for model: UserWalletModel) -> MainUserWalletPageBuilder {
+        let id = model.userWalletId
+        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model)
+        let headerModel = MainHeaderViewModel(
+            infoProvider: model,
+            subtitleProvider: subtitleProvider,
+            balanceProvider: model
+        )
 
-            if $0.isMultiWallet {
-                let viewModel = MultiWalletMainContentViewModel(coordinator: coordinator)
+        if model.isMultiWallet {
+            let viewModel = MultiWalletMainContentViewModel(coordinator: coordinator)
 
-                return .multiWallet(
-                    id: id,
-                    headerModel: headerModel,
-                    bodyModel: viewModel
-                )
-            }
-
-            let viewModel = SingleWalletMainContentViewModel(coordinator: coordinator)
-            return .singleWallet(
+            return .multiWallet(
                 id: id,
                 headerModel: headerModel,
                 bodyModel: viewModel
             )
         }
+
+        let viewModel = SingleWalletMainContentViewModel(coordinator: coordinator)
+
+        return .singleWallet(
+            id: id,
+            headerModel: headerModel,
+            bodyModel: viewModel
+        )
+    }
+
+    func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder] {
+        return models.map(createPage(for:))
     }
 }
