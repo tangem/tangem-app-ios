@@ -287,7 +287,7 @@
 		B09E518C2981825C0042998A /* DeprecationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09E518B2981825C0042998A /* DeprecationService.swift */; };
 		B0A0910C26D3628200F46DF5 /* AnimatableGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0910B26D3628200F46DF5 /* AnimatableGradient.swift */; };
 		B0A0910E26D362A600F46DF5 /* OnboardingProgressCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0910D26D362A600F46DF5 /* OnboardingProgressCircle.swift */; };
-		B0A0911026D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0910F26D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift */; };
+		B0A0911026D3636F00F46DF5 /* AnimationProgressObserverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0910F26D3636F00F46DF5 /* AnimationProgressObserverModifier.swift */; };
 		B0A1B4802A42C78300376FCC /* TokenDetailsHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A1B47F2A42C78300376FCC /* TokenDetailsHeaderViewModel.swift */; };
 		B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2B3E825D6B5BD0001EEB4 /* TokenBalanceViewModel.swift */; };
 		B0A4C4A02A270F5B0060E039 /* BalanceWithButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4C49F2A270F5B0060E039 /* BalanceWithButtonsView.swift */; };
@@ -1365,7 +1365,7 @@
 		B09E518B2981825C0042998A /* DeprecationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeprecationService.swift; sourceTree = "<group>"; };
 		B0A0910B26D3628200F46DF5 /* AnimatableGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableGradient.swift; sourceTree = "<group>"; };
 		B0A0910D26D362A600F46DF5 /* OnboardingProgressCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressCircle.swift; sourceTree = "<group>"; };
-		B0A0910F26D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationCompletionObserverModifier.swift; sourceTree = "<group>"; };
+		B0A0910F26D3636F00F46DF5 /* AnimationProgressObserverModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationProgressObserverModifier.swift; sourceTree = "<group>"; };
 		B0A1B47F2A42C78300376FCC /* TokenDetailsHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsHeaderViewModel.swift; sourceTree = "<group>"; };
 		B0A2B3E825D6B5BD0001EEB4 /* TokenBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceViewModel.swift; sourceTree = "<group>"; };
 		B0A4C49F2A270F5B0060E039 /* BalanceWithButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceWithButtonsView.swift; sourceTree = "<group>"; };
@@ -3309,7 +3309,7 @@
 				B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */,
 				B0431B46291A905A00F84DEF /* RoundedBackgroundModifier.swift */,
 				B0A0910B26D3628200F46DF5 /* AnimatableGradient.swift */,
-				B0A0910F26D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift */,
+				B0A0910F26D3636F00F46DF5 /* AnimationProgressObserverModifier.swift */,
 				DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */,
 				B60275282A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift */,
 				B602752A2A7A651000865EA7 /* ShadowAnimatableModifier.swift */,
@@ -6476,7 +6476,7 @@
 				EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */,
-				B0A0911026D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift in Sources */,
+				B0A0911026D3636F00F46DF5 /* AnimationProgressObserverModifier.swift in Sources */,
 				B0120A932A0E0F4400F485F1 /* FakeCardHeaderPreviewProvider.swift in Sources */,
 				B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */,
 				EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */,
