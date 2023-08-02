@@ -16,6 +16,7 @@ enum Feature: String, Hashable, CaseIterable {
     case learnToEarn
     case tokenDetailsV2
     case enableBlockchainSdkEvents
+    case mainV2
     case organizeTokensPreview
 
     var name: String {
@@ -27,6 +28,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return "Learn to Earn"
         case .tokenDetailsV2: return "Token details 2.0"
         case .enableBlockchainSdkEvents: return "Enable send BlockchainSdk events"
+        case .mainV2: return "Main page 2.0"
         case .organizeTokensPreview: return "Organize Tokens Preview"
         }
     }
@@ -40,6 +42,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .version("4.9")
         case .tokenDetailsV2: return .unspecified
         case .enableBlockchainSdkEvents: return .unspecified
+        case .mainV2: return .unspecified
         case .organizeTokensPreview: return .unspecified
         }
     }
