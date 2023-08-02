@@ -23,10 +23,20 @@ class FakeWalletManager: WalletManager {
     var walletPublisher: AnyPublisher<Wallet, Never> { $wallet.eraseToAnyPublisher() }
     var statePublisher: AnyPublisher<WalletManagerState, Never> { $state.eraseToAnyPublisher() }
 
+    private var loadingStateObserver: AnyCancellable?
+
     init(wallet: BlockchainSdk.Wallet, derivationStyle: DerivationStyle? = .v2) {
         self.wallet = wallet
         cardTokens = wallet.amounts.compactMap { $0.key.token }
         walletModels = CommonWalletModelsFactory(derivationStyle: derivationStyle).makeWalletModels(from: self)
+        bind()
+    }
+
+    func scheduleSwitchFromLoadingState() {
+        print("Scheduling switch from loading state")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            self.state = .loaded(self.wallet)
+        }
     }
 
     func setNeedsUpdate() {}
@@ -34,7 +44,9 @@ class FakeWalletManager: WalletManager {
     func update() {}
 
     func updatePublisher() -> AnyPublisher<WalletManagerState, Never> {
-        Just(nextState())
+        print("Receive update request")
+
+        return Just(nextState())
             .delay(for: 5, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
@@ -65,6 +77,14 @@ class FakeWalletManager: WalletManager {
             .init(amount),
             .init(amount),
         ])
+    }
+
+    private func bind() {
+        loadingStateObserver = $state.sink { state in
+            if case .loading = state {
+                self.scheduleSwitchFromLoadingState()
+            }
+        }
     }
 
     private func nextState() -> WalletManagerState {
