@@ -11,6 +11,7 @@ import Combine
 
 protocol UserWalletRepository: Initializable {
     var models: [UserWalletModel] { get }
+    var userWallets: [UserWallet] { get }
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
     var isEmpty: Bool { get }
@@ -31,6 +32,7 @@ protocol UserWalletRepository: Initializable {
     func save(_ userWallet: UserWallet)
     func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool)
     func clear()
+    func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo)
 }
 
 private struct UserWalletRepositoryKey: InjectionKey {
