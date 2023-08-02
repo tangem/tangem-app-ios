@@ -10,10 +10,10 @@ import Foundation
 import SwiftUI
 
 enum MainUserWalletPageBuilder: Identifiable {
-    case singleWallet(id: String, headerModel: MainHeaderViewModel, bodyModel: SingleWalletMainContentViewModel)
-    case multiWallet(id: String, headerModel: MainHeaderViewModel, bodyModel: MultiWalletMainContentViewModel)
+    case singleWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: SingleWalletMainContentViewModel)
+    case multiWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: MultiWalletMainContentViewModel)
 
-    var id: String {
+    var id: UserWalletId {
         switch self {
         case .singleWallet(let id, _, _):
             return id
