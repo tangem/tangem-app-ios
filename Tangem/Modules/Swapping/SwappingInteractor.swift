@@ -18,7 +18,7 @@ class SwappingInteractor {
     // MARK: - Dependencies
 
     private let swappingManager: SwappingManager
-    private let userWalletModel: UserWalletModel
+    private let userTokensManager: UserTokensManager
     private let currencyMapper: CurrencyMapping
     private let blockchainNetwork: BlockchainNetwork
 
@@ -28,12 +28,12 @@ class SwappingInteractor {
 
     init(
         swappingManager: SwappingManager,
-        userWalletModel: UserWalletModel,
+        userTokensManager: UserTokensManager,
         currencyMapper: CurrencyMapping,
         blockchainNetwork: BlockchainNetwork
     ) {
         self.swappingManager = swappingManager
-        self.userWalletModel = userWalletModel
+        self.userTokensManager = userTokensManager
         self.currencyMapper = currencyMapper
         self.blockchainNetwork = blockchainNetwork
     }
@@ -189,16 +189,11 @@ private extension SwappingInteractor {
 
     func addDestinationTokenToUserWalletList() {
         guard let destination = getSwappingItems().destination,
-              let token = currencyMapper.mapToToken(currency: destination),
-              let walletModel = userWalletModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }),
-              !walletModel.getTokens().contains(where: { $0.id == token.id }) else {
+              let token = currencyMapper.mapToToken(currency: destination) else {
             return
         }
 
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-        userWalletModel.append(entries: [entry])
-        userWalletModel.updateWalletModels()
-        walletModel.update(silent: true)
+        userTokensManager.add(.token(token, blockchainNetwork.blockchain), derivationPath: blockchainNetwork.derivationPath, completion: { _ in })
     }
 
     func getAnalyticsFeeType() -> Analytics.ParameterValue {

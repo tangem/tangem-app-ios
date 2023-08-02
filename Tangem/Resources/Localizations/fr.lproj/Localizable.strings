@@ -77,6 +77,7 @@
 "common_import" = "Import";
 "common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Like";
+"common_locked" = "Locked";
 "common_main_network" = "Main network";
 "common_no" = "No";
 "common_no_data" = "No data";
@@ -279,12 +280,15 @@
 "referral_error_failed_to_load_info" = "Failed to load the information about the referral program. Please try again later.";
 "referral_error_failed_to_load_info_with_reason" = "Failed to load the information about the referral program. Error code: %@. Please try again later.";
 "referral_error_failed_to_participate" = "Your participation request could not be processed. Error code: %@. Please try again later. If the problem persists — feel free to contact our support.";
+"referral_expected_awards" = "Upcoming payments";
 "referral_friends_bought_title" = "Your friends bought";
-"referral_point_currencies_description_prefix" = "Will get";
-"referral_point_currencies_description_suffix" = "for each wallet bought by your friend on your %1$@ network address%2$@";
+"referral_less" = "Less";
+"referral_more" = "More";
+"referral_no_expected_awards" = "No upcoming payments";
+"referral_point_currencies_description" = "Will get ^^%1$@^^ for each wallet bought by your friend on your %2$@ network address %3$@ ^^30 days after^^ that";
 "referral_point_currencies_title" = "You";
 "referral_point_discount_description_prefix" = "Will get a";
-"referral_point_discount_description_suffix" = "when buying a card on tangem.com";
+"referral_point_discount_description_suffix" = "when buying a wallet on tangem.com";
 "referral_point_discount_description_value" = "%@ discount";
 "referral_point_discount_title" = "Your friend";
 "referral_promo_code_copied" = "Personal code copied!";
@@ -336,7 +340,6 @@
 "shop_other_payment_methods" = "Other payment methods";
 "shop_placing_order" = "Placing your order";
 "shop_pre_order_now" = "Pre-order now";
-"shop_sold_out_description" = "Due to the high volume of orders we are receiving shipping may be delayed up to 5 weeks depending on your location";
 "shop_total" = "Total";
 "shop_web_checkout_title" = "Your order";
 "solana_rent_warning" = "Solana network charges a rent of %1$@ every 2 days. Accounts that can't afford the rent are purged from the network. Deposit your account with more than %2$@ to use it for free.";
