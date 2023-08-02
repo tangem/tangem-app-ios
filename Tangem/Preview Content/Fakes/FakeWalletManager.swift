@@ -12,7 +12,8 @@ import BlockchainSdk
 
 class FakeWalletManager: WalletManager {
     @Published var wallet: Wallet
-    @Published var state: WalletManagerState = .initial
+    @Published var state: WalletManagerState = .loading
+    @Published var walletModels: [WalletModel] = []
 
     var cardTokens: [BlockchainSdk.Token] = []
     var currentHost: String = "tangem.com"
@@ -22,8 +23,10 @@ class FakeWalletManager: WalletManager {
     var walletPublisher: AnyPublisher<Wallet, Never> { $wallet.eraseToAnyPublisher() }
     var statePublisher: AnyPublisher<WalletManagerState, Never> { $state.eraseToAnyPublisher() }
 
-    init(wallet: BlockchainSdk.Wallet) {
+    init(wallet: BlockchainSdk.Wallet, derivationStyle: DerivationStyle? = .v2) {
         self.wallet = wallet
+        cardTokens = wallet.amounts.compactMap { $0.key.token }
+        walletModels = CommonWalletModelsFactory(derivationStyle: derivationStyle).makeWalletModels(from: self)
     }
 
     func setNeedsUpdate() {}
@@ -31,7 +34,9 @@ class FakeWalletManager: WalletManager {
     func update() {}
 
     func updatePublisher() -> AnyPublisher<WalletManagerState, Never> {
-        .just(output: state)
+        Just(nextState())
+            .delay(for: 5, scheduler: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     func removeToken(_ token: BlockchainSdk.Token) {
@@ -61,4 +66,36 @@ class FakeWalletManager: WalletManager {
             .init(amount),
         ])
     }
+
+    private func nextState() -> WalletManagerState {
+        switch state {
+        case .initial: return .loading
+        case .loading: return .loaded(wallet)
+        case .loaded: return .failed("Some Wallet manager error")
+        case .failed: return .loading
+        }
+    }
+}
+
+extension FakeWalletManager {
+    static let ethWithTokensManager: FakeWalletManager = {
+        var wallet = Wallet.ethereumWalletStub
+        wallet.add(coinValue: 15.929003000000354389)
+        wallet.add(tokenValue: 1242.298278546, for: .sushiMock)
+        wallet.add(tokenValue: 864, for: .tetherMock)
+        wallet.add(tokenValue: 0.9991239124323274832932535, for: .inverseBTCBlaBlaBlaMock)
+        return FakeWalletManager(wallet: wallet)
+    }()
+
+    static let polygonWithTokensManager: FakeWalletManager = {
+        var wallet = Wallet.polygonWalletStub
+        wallet.add(coinValue: 15.929003000000354389)
+        wallet.add(tokenValue: 97642.298278546, for: .shibaInuMock)
+        wallet.add(tokenValue: 864193.24382948329432, for: .cosmosMock)
+        wallet.add(tokenValue: 123.9991239124323274832932535, for: .inverseBTCBlaBlaBlaMock)
+        return FakeWalletManager(wallet: wallet)
+    }()
+
+    static let btcManager = FakeWalletManager(wallet: .btcWalletStub)
+    static let xrpManager = FakeWalletManager(wallet: .xrpWalletStub)
 }
