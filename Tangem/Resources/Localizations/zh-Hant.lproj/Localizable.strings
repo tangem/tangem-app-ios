@@ -78,6 +78,7 @@
 "common_import" = "導入";
 "common_learn_and_earn" = "Learn & Earn";
 "common_like" = "喜歡";
+"common_locked" = "Locked";
 "common_main_network" = "Main network";
 "common_no" = "否";
 "common_no_data" = "No data";
@@ -280,12 +281,15 @@
 "referral_error_failed_to_load_info" = "無法加載有關推薦計劃的消息。請稍後再試";
 "referral_error_failed_to_load_info_with_reason" = "無法加載有關推薦計劃的消息。原因：%@。請稍後再試";
 "referral_error_failed_to_participate" = "無法處理您的請求。原因：%@。請稍後再試。無如果問題仍然存在—請隨時聯繫服務人員";
+"referral_expected_awards" = "Upcoming payments";
 "referral_friends_bought_title" = "您的朋友買";
-"referral_point_currencies_description_prefix" = "會得到";
-"referral_point_currencies_description_suffix" = "對於你的朋友在你的 %1$@ 網絡地址%2$@上購買的每個錢包";
+"referral_less" = "Less";
+"referral_more" = "More";
+"referral_no_expected_awards" = "No upcoming payments";
+"referral_point_currencies_description" = "Will get ^^%1$@^^ for each wallet bought by your friend on your %2$@ network address %3$@ ^^30 days after^^ that";
 "referral_point_currencies_title" = "你";
 "referral_point_discount_description_prefix" = "得到";
-"referral_point_discount_description_suffix" = "當在 tangem.com購買卡片";
+"referral_point_discount_description_suffix" = "when buying a wallet on tangem.com";
 "referral_point_discount_description_value" = "%@ 折扣";
 "referral_point_discount_title" = "你的朋友";
 "referral_promo_code_copied" = "個人促銷碼已複製!";
@@ -337,7 +341,6 @@
 "shop_other_payment_methods" = "其他付款方式";
 "shop_placing_order" = "下訂";
 "shop_pre_order_now" = "Pre-order now";
-"shop_sold_out_description" = "Due to the high volume of orders we are receiving shipping may be delayed up to 5 weeks depending on your location";
 "shop_total" = "總計";
 "shop_web_checkout_title" = "你的訂單";
 "solana_rent_warning" = "Solana 網絡每 2 天收取 %1$@ 的費用。無法付此費用的帳戶將從網絡中清除。向您的帳戶存入超過 %2$@ 即可免費使用";
