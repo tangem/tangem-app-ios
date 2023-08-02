@@ -14,7 +14,7 @@ struct LockedUserTokenListManager: UserTokenListManager {
 
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { .just(output: []) }
 
-    var userTokenList: any Publisher<UserTokenList, Never> {
+    var userTokenList: AnyPublisher<UserTokenList, Never> {
         fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
     }
 
