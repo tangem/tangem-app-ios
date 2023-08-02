@@ -12,7 +12,7 @@ import BlockchainSdk
 protocol UserTokenListManager {
     var userTokens: [StorageEntry] { get }
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { get }
-    var userTokenList: any Publisher<UserTokenList, Never> { get }
+    var userTokenList: AnyPublisher<UserTokenList, Never> { get }
 
     func update(with userTokenList: UserTokenList)
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
