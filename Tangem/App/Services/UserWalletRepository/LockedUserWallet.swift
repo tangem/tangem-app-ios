@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 
 class LockedUserWallet: UserWalletModel {
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
@@ -38,10 +37,22 @@ class LockedUserWallet: UserWalletModel {
     func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
-        userWallet.name = name
+        // Renaming locked wallets is prohibited
     }
 
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
         .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    }
+}
+
+extension LockedUserWallet: MainHeaderInfoProvider {
+    var isUserWalletLocked: Bool { true }
+
+    var userWalletNamePublisher: AnyPublisher<String, Never> {
+        .just(output: userWallet.name)
+    }
+
+    var cardHeaderImage: ImageType? {
+        config.cardHeaderImage
     }
 }
