@@ -560,26 +560,35 @@ struct OrganizeTokensView: View {
 
 private extension AnyTransition {
     static var shadow: AnyTransition {
+        let color = Color.black.opacity(0.08)
+        let radius = 14.0
+        let offset = CGPoint(x: 0.0, y: 8.0)
         return .modifier(
-            active: OrganizeTokensShadowAnimatableModifier(progress: 0.0),
-            identity: OrganizeTokensShadowAnimatableModifier(progress: 1.0)
+            active: ShadowAnimatableModifier(progress: 0.0, color: color, radius: radius, offset: offset),
+            identity: ShadowAnimatableModifier(progress: 1.0, color: color, radius: radius, offset: offset)
         )
     }
 
     static func cornerRadius(insertionOffset: CGFloat, removalOffset: CGFloat) -> AnyTransition {
         return .modifier(
-            active: OrganizeTokensCornerRadiusAnimatableModifier(
+            active: CornerRadiusAnimatableModifier(
                 progress: 0.0,
                 cornerRadius: 0.0,
-                offset: removalOffset,
-                scale: 1.0
-            ),
-            identity: OrganizeTokensCornerRadiusAnimatableModifier(
+                cornerRadiusStyle: .continuous
+            ) { clipShape in
+                clipShape
+                    .scale(1.0)
+                    .offset(y: removalOffset)
+            },
+            identity: CornerRadiusAnimatableModifier(
                 progress: 1.0,
                 cornerRadius: OrganizeTokensView.Constants.draggableViewCornerRadius,
-                offset: insertionOffset,
-                scale: OrganizeTokensView.Constants.draggableViewScale
-            )
+                cornerRadiusStyle: .continuous
+            ) { clipShape in
+                clipShape
+                    .scale(OrganizeTokensView.Constants.draggableViewScale)
+                    .offset(y: insertionOffset)
+            }
         )
     }
 
