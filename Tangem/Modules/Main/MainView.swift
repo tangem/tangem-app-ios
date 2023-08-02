@@ -38,9 +38,25 @@ struct MainView: View {
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
-                detailsNavigationButton
+                HStack(spacing: 0) {
+                    scanCardButton
+
+                    detailsNavigationButton
+                }
+                .offset(x: 10)
             }
         })
+        .alert(item: $viewModel.errorAlert) { $0.alert }
+    }
+
+    var scanCardButton: some View {
+        Button(action: viewModel.scanCardAction) {
+            Assets.scanWithPhone.image
+                .foregroundColor(Colors.Icon.primary1)
+                .frame(width: 44, height: 44)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .animation(nil)
     }
 
     var detailsNavigationButton: some View {
