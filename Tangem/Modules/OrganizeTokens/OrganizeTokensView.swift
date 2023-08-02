@@ -43,7 +43,8 @@ struct OrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
-    @GestureState private var scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture: CGPoint = .zero
+    // `Initial` here means 'at the beginning of the drag and drop gesture'.
+    @GestureState private var scrollViewInitialContentOffset: CGPoint = .zero
 
     // Viewport with `contentInset` (i.e. with `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
     @State private var visibleViewportFrame: CGRect = .zero
@@ -52,10 +53,11 @@ struct OrganizeTokensView: View {
     @State private var draggedItemFrame: CGRect = .zero
 
     // Index path for a view that received a new touch.
+    // `Initial` here means 'at the beginning of the drag and drop gesture'.
     //
     // Contains meaningful value only until the long press gesture successfully ends,
     // mustn't be used after that (use `dragAndDropSourceIndexPath` property instead)
-    @State private var dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture: IndexPath?
+    @State private var dragAndDropInitialIndexPath: IndexPath?
 
     @GestureState private var dragAndDropSourceIndexPath: IndexPath?
 
@@ -75,7 +77,7 @@ struct OrganizeTokensView: View {
     private var dragGestureTranslationFix: CGSize {
         return CGSize(
             width: 0.0,
-            height: scrollViewContentOffset.y - scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture.y
+            height: scrollViewContentOffset.y - scrollViewInitialContentOffset.y
         )
     }
 
@@ -290,9 +292,7 @@ struct OrganizeTokensView: View {
     private func makeDragAndDropGesture() -> some Gesture {
         LongPressGesture(minimumDuration: Constants.dragLiftLongPressGestureDuration)
             .sequenced(before: DragGesture())
-            .updating($scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture) { [
-                contentOffset = scrollViewContentOffset
-            ] value, state, _ in
+            .updating($scrollViewInitialContentOffset) { [contentOffset = scrollViewContentOffset] value, state, _ in
                 switch value {
                 case .first:
                     break
@@ -321,9 +321,7 @@ struct OrganizeTokensView: View {
                     state = dragGestureValue.translation
                 }
             }
-            .updating($dragAndDropSourceIndexPath) { [
-                initialIndexPath = dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture
-            ] value, state, _ in
+            .updating($dragAndDropSourceIndexPath) { [initialIndexPath = dragAndDropInitialIndexPath] value, state, _ in
                 switch value {
                 case .first(let isLongPressGestureBegins):
                     // Long press gesture began (equivalent of `UIGestureRecognizer.State.began`)
@@ -345,8 +343,7 @@ struct OrganizeTokensView: View {
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
-                        // Next line effectively consumes `dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture`
-                        dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture = nil
+                        dragAndDropInitialIndexPath = nil // Effectively consumes `dragAndDropInitialIndexPath`
                         dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
                         dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
 
@@ -376,7 +373,7 @@ struct OrganizeTokensView: View {
                         }
                     } else {
                         // Initial state after successfully ended long press gesture
-                        state = dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture
+                        state = dragAndDropInitialIndexPath
                     }
                 }
             }
@@ -385,9 +382,9 @@ struct OrganizeTokensView: View {
     private func onTouchesBegan(atLocation location: CGPoint) {
         if let initialIndexPath = dragAndDropController.indexPath(for: location),
            viewModel.canStartDragAndDropSession(at: initialIndexPath) {
-            dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture = initialIndexPath
+            dragAndDropInitialIndexPath = initialIndexPath
         } else {
-            dragAndDropSourceIndexPathAtTheBeginningOfTheDragAndDropGesture = nil
+            dragAndDropInitialIndexPath = nil
         }
     }
 
@@ -515,9 +512,7 @@ struct OrganizeTokensView: View {
 
         let destinationItemFrame = dragAndDropController.frame(forItemAt: indexPath) ?? .zero
         let baseOffsetTransitionValue = itemFrame.origin.y + dragGestureTranslation.height
-
-        let totalOffsetTransitionValue = baseOffsetTransitionValue
-            - scrollViewContentOffsetAtTheBeginningOfTheDragAndDropGesture.y
+        let totalOffsetTransitionValue = baseOffsetTransitionValue - scrollViewInitialContentOffset.y
 
         let additionalOffsetRemovalTransitionValue = destinationItemFrame.minY
             - baseOffsetTransitionValue
@@ -544,14 +539,7 @@ struct OrganizeTokensView: View {
                         )
                     )
                     .combined(with: .shadow)
-                    .combined(
-                        with: .onViewRemoval {
-                            // `DispatchQueue.main.async` used here to allow publishing changes during view update
-                            DispatchQueue.main.async {
-                                dragAndDropSourceViewModelIdentifier = nil
-                            }
-                        }
-                    )
+                    .combined(with: .onViewRemoval { dragAndDropSourceViewModelIdentifier = nil })
             )
             .onDisappear {
                 // Perform required clean-up when the view removal animation finishes
@@ -568,37 +556,44 @@ struct OrganizeTokensView: View {
 
 private extension AnyTransition {
     static var shadow: AnyTransition {
+        let color = Color.black.opacity(0.08)
+        let radius = 14.0
+        let offset = CGPoint(x: 0.0, y: 8.0)
         return .modifier(
-            active: OrganizeTokensShadowAnimatableModifier(progress: 0.0),
-            identity: OrganizeTokensShadowAnimatableModifier(progress: 1.0)
+            active: ShadowAnimatableModifier(progress: 0.0, color: color, radius: radius, offset: offset),
+            identity: ShadowAnimatableModifier(progress: 1.0, color: color, radius: radius, offset: offset)
         )
     }
 
     static func cornerRadius(insertionOffset: CGFloat, removalOffset: CGFloat) -> AnyTransition {
         return .modifier(
-            active: OrganizeTokensCornerRadiusAnimatableModifier(
+            active: CornerRadiusAnimatableModifier(
                 progress: 0.0,
                 cornerRadius: 0.0,
-                offset: removalOffset,
-                scale: 1.0
-            ),
-            identity: OrganizeTokensCornerRadiusAnimatableModifier(
+                cornerRadiusStyle: .continuous
+            ) { clipShape in
+                clipShape
+                    .scale(1.0)
+                    .offset(y: removalOffset)
+            },
+            identity: CornerRadiusAnimatableModifier(
                 progress: 1.0,
                 cornerRadius: OrganizeTokensView.Constants.draggableViewCornerRadius,
-                offset: insertionOffset,
-                scale: OrganizeTokensView.Constants.draggableViewScale
-            )
+                cornerRadiusStyle: .continuous
+            ) { clipShape in
+                clipShape
+                    .scale(OrganizeTokensView.Constants.draggableViewScale)
+                    .offset(y: insertionOffset)
+            }
         )
     }
 
     static func onViewRemoval(perform action: @escaping () -> Void) -> AnyTransition {
-        let dummyViewInsertionProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
-            targetProgress: 1.0,
-            progressThreshold: 1.0
-        ) {}
-        let viewRemovalProgressObserver = OrganizeTokensAnimationProgressObserverAnimatableModifier(
-            targetProgress: 0.0,
-            progressThreshold: OrganizeTokensView.Constants.dropAnimationProgressThresholdForViewRemoval,
+        let dummyViewInsertionProgressObserver = AnimationProgressObserverModifier(observedValue: 1.0) {}
+        let viewRemovalProgressObserver = AnimationProgressObserverModifier(
+            observedValue: 0.0,
+            targetValue: OrganizeTokensView.Constants.dropAnimationProgressThresholdForViewRemoval,
+            valueComparator: <=,
             action: action
         )
 
