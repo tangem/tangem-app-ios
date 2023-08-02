@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensCornerRadiusAnimatableModifier.swift
+//  CornerRadiusAnimatableModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,9 @@
 
 import SwiftUI
 
-struct OrganizeTokensCornerRadiusAnimatableModifier: AnimatableModifier {
+struct CornerRadiusAnimatableModifier<ModifiedClipShape>: AnimatableModifier where ModifiedClipShape: Shape {
+    typealias ClipShapeModifications = (_ clipShape: RoundedRectangle) -> ModifiedClipShape
+
     var animatableData: Double {
         get { progress }
         set { progress = newValue }
@@ -16,19 +18,19 @@ struct OrganizeTokensCornerRadiusAnimatableModifier: AnimatableModifier {
 
     private var progress: Double
     private let cornerRadius: CGFloat
-    private let offset: CGFloat
-    private let scale: CGFloat
+    private let cornerRadiusStyle: RoundedCornerStyle
+    private let clipShapeModifications: ClipShapeModifications
 
     init(
         progress: Double,
         cornerRadius: CGFloat,
-        offset: CGFloat,
-        scale: CGFloat
+        cornerRadiusStyle: RoundedCornerStyle,
+        clipShapeModifications: @escaping ClipShapeModifications = { $0 }
     ) {
         self.progress = progress
         self.cornerRadius = cornerRadius
-        self.offset = offset
-        self.scale = scale
+        self.cornerRadiusStyle = cornerRadiusStyle
+        self.clipShapeModifications = clipShapeModifications
     }
 
     func body(content: Content) -> some View {
@@ -40,9 +42,11 @@ struct OrganizeTokensCornerRadiusAnimatableModifier: AnimatableModifier {
                 //
                 // Therefore, we should replicate these modifications for the clip shape in order to
                 // match the final appearance of `content` view and clip shape.
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .scale(scale)
-                    .offset(y: offset)
+                //
+                // Modifications provided by the caller, in the `clipShapeModifications` closure.
+                clipShapeModifications(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: cornerRadiusStyle)
+                )
             )
     }
 }
