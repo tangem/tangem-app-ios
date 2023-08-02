@@ -100,8 +100,8 @@ class FakeWalletManager: WalletManager {
 extension FakeWalletManager {
     static let ethWithTokensManager: FakeWalletManager = {
         var wallet = Wallet.ethereumWalletStub
-        wallet.add(coinValue: 15.929003000000354389)
-        wallet.add(tokenValue: 1242.298278546, for: .sushiMock)
+        wallet.add(coinValue: 15.929021455553232400354389)
+        wallet.add(tokenValue: 124245648213146521.298278546, for: .sushiMock)
         wallet.add(tokenValue: 864, for: .tetherMock)
         wallet.add(tokenValue: 0.9991239124323274832932535, for: .inverseBTCBlaBlaBlaMock)
         return FakeWalletManager(wallet: wallet)
@@ -116,6 +116,15 @@ extension FakeWalletManager {
         return FakeWalletManager(wallet: wallet)
     }()
 
-    static let btcManager = FakeWalletManager(wallet: .btcWalletStub)
-    static let xrpManager = FakeWalletManager(wallet: .xrpWalletStub)
+    static let btcManager: FakeWalletManager = {
+        var wallet = Wallet.btcWalletStub
+        wallet.add(coinValue: 1423)
+        return FakeWalletManager(wallet: wallet)
+    }()
+
+    static let xrpManager: FakeWalletManager = {
+        var wallet = Wallet.xrpWalletStub
+        wallet.add(coinValue: 5828830)
+        return FakeWalletManager(wallet: wallet)
+    }()
 }
