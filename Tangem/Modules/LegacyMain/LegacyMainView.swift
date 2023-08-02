@@ -29,7 +29,7 @@ struct LegacyMainView: View {
                         .padding(.top, 8)
                         .fixedSize(horizontal: false, vertical: true)
 
-                        if viewModel.isLackDerivationWarningViewVisible {
+                        if viewModel.hasPendingDerivations {
                             ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
                                 .padding(.horizontal, 16)
                         }
@@ -119,6 +119,7 @@ struct LegacyMainView: View {
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings) {
             NavbarDotsImage()
+                .offset(x: 11)
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
