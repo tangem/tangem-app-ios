@@ -106,7 +106,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         hasPendingTransactions = infoProvider.hasPendingTransactions
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func updateBalances() {
         balanceCrypto = .loaded(text: infoProvider.balance)
         balanceFiat = .loaded(text: infoProvider.fiatBalance)
