@@ -23,6 +23,8 @@ class LockedUserWallet: UserWalletModel {
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
+    var emailConfig: EmailConfig? { nil }
+
     var didPerformInitialTokenSync: Bool { false }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
