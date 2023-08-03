@@ -13,6 +13,7 @@ import BlockchainSdk
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
+    let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(with: "", sdk: .init())
 
@@ -20,6 +21,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let isMultiWallet: Bool
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
+
     var cardsCount: Int
 
     var userWalletName: String { _userWalletNamePublisher.value }
@@ -27,7 +29,11 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
     var updatePublisher: AnyPublisher<Void, Never> { _updatePublisher.eraseToAnyPublisher() }
 
+    var didPerformInitialTokenSync: Bool { _didPerformInitialTokenSync.value }
+    var didPerformInitialTokenSyncPublisher: AnyPublisher<Bool, Never> { _didPerformInitialTokenSync.eraseToAnyPublisher() }
+
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
+    private let _didPerformInitialTokenSync = CurrentValueSubject<Bool, Never>(false)
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
 
     internal init(
@@ -36,7 +42,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         isUserWalletLocked: Bool,
         cardsCount: Int,
         userWalletId: UserWalletId,
-        walletModels: [WalletModel],
+        walletManagers: [FakeWalletManager],
         userWallet: UserWallet
     ) {
         self.isMultiWallet = isMultiWallet
@@ -44,13 +50,21 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
         _userWalletNamePublisher = .init(userWalletName)
-        walletModelsManager = WalletModelsManagerMock()
-        userTokenListManager = CommonUserTokenListManager(hasTokenSynchronization: false, userWalletId: userWalletId.value, hdWalletsSupported: true)
+
+        walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers)
+        userTokenListManager = FakeUserTokenListManager()
+        userTokensManager = UserTokensManagerMock()
         totalBalanceProvider = TotalBalanceProviderMock()
+
         self.userWallet = userWallet
+        initialUpdate()
     }
 
-    func initialUpdate() {}
+    func initialUpdate() {
+        userTokenListManager.updateLocalRepositoryFromServer { _ in
+            self._didPerformInitialTokenSync.send(true)
+        }
+    }
 
     func updateWalletName(_ name: String) {
         _userWalletNamePublisher.send(name)
@@ -83,18 +97,7 @@ extension FakeUserWalletModel {
         isUserWalletLocked: false,
         cardsCount: 3,
         userWalletId: .init(with: Data.randomData(count: 32)),
-        walletModels: [
-            WalletModel(
-                walletManager: FakeWalletManager(wallet: .ethereumWalletStub),
-                amountType: .coin,
-                isCustom: false
-            ),
-            WalletModel(
-                walletManager: FakeWalletManager(wallet: .ethereumWalletStub),
-                amountType: .token(value: .sushiMock),
-                isCustom: false
-            ),
-        ],
+        walletManagers: [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager],
         userWallet: UserWalletStubs.walletV2Stub
     )
 
@@ -104,13 +107,7 @@ extension FakeUserWalletModel {
         isUserWalletLocked: true,
         cardsCount: 2,
         userWalletId: .init(with: Data.randomData(count: 32)),
-        walletModels: [
-            WalletModel(
-                walletManager: FakeWalletManager(wallet: .btcWalletStub),
-                amountType: .coin,
-                isCustom: false
-            ),
-        ],
+        walletManagers: [.btcManager],
         userWallet: UserWalletStubs.twinStub
     )
 
@@ -120,13 +117,7 @@ extension FakeUserWalletModel {
         isUserWalletLocked: false,
         cardsCount: 1,
         userWalletId: .init(with: Data.randomData(count: 32)),
-        walletModels: [
-            WalletModel(
-                walletManager: FakeWalletManager(wallet: .xrpWalletStub),
-                amountType: .coin,
-                isCustom: false
-            ),
-        ],
+        walletManagers: [.xrpManager],
         userWallet: UserWalletStubs.xrpNoteStub
     )
 }
