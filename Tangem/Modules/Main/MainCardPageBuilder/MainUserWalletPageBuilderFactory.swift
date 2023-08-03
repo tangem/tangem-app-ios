@@ -26,7 +26,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         if model.isMultiWallet {
-            let viewModel = MultiWalletMainContentViewModel(coordinator: coordinator)
+            let viewModel = MultiWalletMainContentViewModel(
+                userWalletModel: model,
+                coordinator: coordinator,
+                // [REDACTED_TODO_COMMENT]
+                sectionsProvider: GroupedTokenListInfoProvider(userWalletId: id, walletModelsManager: model.walletModelsManager)
+            )
 
             return .multiWallet(
                 id: id,
