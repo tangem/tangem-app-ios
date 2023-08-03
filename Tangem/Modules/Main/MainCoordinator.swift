@@ -21,8 +21,15 @@ class MainCoordinator: CoordinatorObject {
 
     @Published var detailsCoordinator: DetailsCoordinator?
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
+    @Published var modalOnboardingCoordinator: OnboardingCoordinator?
 
     // MARK: - Child view models
+
+    @Published var mailViewModel: MailViewModel?
+
+    // MARK: - Other state
+
+    @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(
         dismissAction: @escaping Action,
@@ -62,6 +69,23 @@ extension MainCoordinator: MainRoutable {
         coordinator.start(with: options)
         coordinator.popToRootAction = popToRootAction
         detailsCoordinator = coordinator
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+    }
+
+    func openOnboardingModal(with input: OnboardingInput) {
+        let dismissAction: Action = { [weak self] in
+            self?.modalOnboardingCoordinator = nil
+            self?.mainViewModel?.updateIsBackupAllowed()
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
+        coordinator.start(with: options)
+        modalOnboardingCoordinator = coordinator
     }
 
     func close(newScan: Bool) {
