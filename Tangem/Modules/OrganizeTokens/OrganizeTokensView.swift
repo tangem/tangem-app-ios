@@ -642,13 +642,13 @@ struct OrganizeTokensView_Preview: PreviewProvider {
                 let coordinator = OrganizeTokensCoordinator()
                 let userWalletModel = UserWalletModelMock()
                 let userTokenListManager = userWalletModel.userTokenListManager
+                let walletModelsAdapter = OrganizeWalletModelsAdapter(userTokenListManager: userTokenListManager)
 
                 OrganizeTokensView(
                     viewModel: OrganizeTokensViewModel(
                         coordinator: coordinator,
-                        userTokenListManager: userTokenListManager,
                         walletModelsManager: userWalletModel.walletModelsManager,
-                        walletModelsAdapter: OrganizeWalletModelsAdapter(userTokenListManager: userTokenListManager)
+                        walletModelsAdapter: walletModelsAdapter
                     )
                 )
             }
