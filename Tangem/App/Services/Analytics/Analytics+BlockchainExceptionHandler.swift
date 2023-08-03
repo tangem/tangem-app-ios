@@ -15,8 +15,7 @@ extension Analytics {
         func handleAPISwitch(currentHost: String, nextHost: String, message: String) {
             Analytics.log(
                 event: .blockchainSdkException,
-                params: [.exceptionHost: currentHost, .selectedHost: nextHost, .errorDescription: message],
-                analyticsSystems: [.crashlytics, .firebase, .amplitude]
+                params: [.exceptionHost: currentHost, .selectedHost: nextHost, .errorDescription: message]
             )
         }
     }
