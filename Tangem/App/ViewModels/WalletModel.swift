@@ -766,3 +766,9 @@ extension WalletModel {
         walletManager as? EthereumTransactionProcessor
     }
 }
+
+extension WalletModel: TokenItemInfoProvider {
+    var hasPendingTransactions: Bool {
+        !incomingPendingTransactions.isEmpty || !outgoingPendingTransactions.isEmpty
+    }
+}
