@@ -23,7 +23,7 @@ final class OrganizeTokensViewModel: ObservableObject {
     @available(*, deprecated, message: "Get rid of using `UserTokenListManager` and `[StorageEntry]`")
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
-    private let walletModelsAdapter: OrganizeWalletModelsAdapter<String>
+    private let walletModelsAdapter: OrganizeWalletModelsAdapter
 
     private var currentlyDraggedSectionIdentifier: UUID?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
@@ -36,7 +36,7 @@ final class OrganizeTokensViewModel: ObservableObject {
         coordinator: OrganizeTokensRoutable,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
-        walletModelsAdapter: OrganizeWalletModelsAdapter<String>
+        walletModelsAdapter: OrganizeWalletModelsAdapter
     ) {
         self.coordinator = coordinator
         self.userTokenListManager = userTokenListManager
@@ -61,21 +61,34 @@ final class OrganizeTokensViewModel: ObservableObject {
     }
 
     private func bindIfNeeded() {
-        if didPerformBind {
-            return
-        }
+        guard !didPerformBind else { return }
 
         // [REDACTED_TODO_COMMENT]
         walletModelsAdapter
             .organizedWalletModels(from: walletModelsManager.walletModelsPublisher)
-            .combineLatest(userTokenListManager.userTokensPublisher) // [REDACTED_TODO_COMMENT]
-            .map { walletModels, storageEntries in
-                return []   // [REDACTED_TODO_COMMENT]
-            }
+            .map(Self.map)
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
 
         didPerformBind = true
+    }
+
+    private static func map(
+        walletModelsSections: [OrganizeWalletModelsAdapter.Section]
+    ) -> [OrganizeTokensListSectionViewModel] {
+        let tokenIconInfoBuilder = TokenIconInfoBuilder()
+
+        return walletModelsSections.map { section in
+            let items = section.items.map { map(walletModel: $0, using: tokenIconInfoBuilder) }
+
+            switch section.model {
+            case .group(let blockchainNetwork):
+                let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
+                return OrganizeTokensListSectionViewModel(style: .fixed(title: title), items: items) // [REDACTED_TODO_COMMENT]
+            case .plain:
+                return OrganizeTokensListSectionViewModel(style: .invisible, items: items)
+            }
+        }
     }
 
     private static func map(
