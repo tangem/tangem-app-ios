@@ -25,6 +25,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var cardsCount: Int
 
     var userWalletName: String { _userWalletNamePublisher.value }
+    var emailConfig: EmailConfig? { nil }
 
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
     var updatePublisher: AnyPublisher<Void, Never> { _updatePublisher.eraseToAnyPublisher() }
