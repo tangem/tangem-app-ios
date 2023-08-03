@@ -27,6 +27,7 @@ class CommonUserTokenListManager {
     private var migrated = false
 
     private var _userTokens: CurrentValueSubject<[StorageEntry], Never>
+    private var _userTokenList: CurrentValueSubject<UserTokenList, Never>
 
     init(hasTokenSynchronization: Bool, userWalletId: Data, hdWalletsSupported: Bool) {
         self.hasTokenSynchronization = hasTokenSynchronization
@@ -34,6 +35,7 @@ class CommonUserTokenListManager {
         self.hdWalletsSupported = hdWalletsSupported
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         _userTokens = .init(tokenItemsRepository.getItems())
+        _userTokenList = .init(.empty)
         removeInvalidTokens()
     }
 }
@@ -50,7 +52,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
     }
 
     var userTokenList: AnyPublisher<UserTokenList, Never> {
-        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
+        _userTokenList.eraseToAnyPublisher()
     }
 
     func update(with userTokenList: UserTokenList) {
@@ -69,7 +71,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             tokenItemsRepository.remove([token], blockchainNetwork: network)
         }
 
-        sendUpdate()
+        updateUserTokens()
 
         if shouldUpload {
             updateTokensOnServer()
@@ -95,8 +97,12 @@ extension CommonUserTokenListManager: UserTokenListManager {
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
-    func sendUpdate() {
+    func updateUserTokens() {
         _userTokens.send(tokenItemsRepository.getItems())
+    }
+
+    func updateUserTokenList(with userTokenList: UserTokenList) {
+        _userTokenList.send(userTokenList)
     }
 
     // MARK: - Requests
@@ -125,7 +131,8 @@ private extension CommonUserTokenListManager {
                 }
             } receiveValue: { [unowned self] list, _ in
                 tokenItemsRepository.update(mapToEntries(list: list))
-                sendUpdate()
+                updateUserTokens()
+                updateUserTokenList(with: list)
                 result(.success(()))
             }
     }
