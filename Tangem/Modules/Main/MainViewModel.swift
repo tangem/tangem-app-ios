@@ -123,12 +123,13 @@ final class MainViewModel: ObservableObject {
         let newPageIndex = pages.count
         pages.append(newPage)
         selectedCardIndex = newPageIndex
+        setupHorizontalScrollAvailability()
     }
 
     // MARK: - Private functions
 
     private func setupHorizontalScrollAvailability() {
-        isHorizontalScrollDisabled = pages.count <= 1
+//        isHorizontalScrollDisabled = pages.count <= 1
     }
 
     private func bind() {}
