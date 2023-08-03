@@ -11,6 +11,7 @@ import Combine
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedCardScanTracker
 
     // MARK: - ViewState
 
@@ -18,6 +19,7 @@ final class MainViewModel: ObservableObject {
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
     @Published var errorAlert: AlertBinder?
+    @Published var showTroubleshootingView: Bool = false
 
     // MARK: - Dependencies
 
@@ -36,6 +38,7 @@ final class MainViewModel: ObservableObject {
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
         pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
+        bind()
     }
 
     convenience init(
@@ -90,6 +93,10 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    func updateIsBackupAllowed() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
     // MARK: - Scan card
 
     private func scanCard() {
@@ -100,19 +107,18 @@ final class MainViewModel: ObservableObject {
 
             switch result {
             case .troubleshooting:
-                // [REDACTED_TODO_COMMENT]
-                break
-            case .onboarding:
-                // [REDACTED_TODO_COMMENT]
-                break
+                showTroubleshootingView = true
+            case .onboarding(let input):
+                openOnboarding(with: input)
             case .error(let error):
                 if let userWalletRepositoryError = error as? UserWalletRepositoryError {
                     errorAlert = userWalletRepositoryError.alertBinder
                 } else {
                     errorAlert = error.alertBinder
                 }
-            case .success(let cardModel), .partial(let cardModel, _):
-                addNewPage(for: cardModel)
+            case .success(_), .partial:
+                // Will be handled through `updated` user wallet repo event
+                break
             }
         }
     }
@@ -124,11 +130,51 @@ final class MainViewModel: ObservableObject {
         selectedCardIndex = newPageIndex
     }
 
+    private func removePage(with id: Data) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
     // MARK: - Private functions
 
-    private func bind() {}
+    private func bind() {
+        userWalletRepository.eventProvider
+            .sink { [weak self] event in
+                switch event {
+                case .locked:
+                    break
+                case .scan:
+                    // [REDACTED_TODO_COMMENT]
+                    break
+                case .inserted:
+                    // Useless event...
+                    break
+                case .updated(let userWalletModel):
+                    self?.addNewPage(for: userWalletModel)
+                case .deleted(let userWalletId):
+                    self?.removePage(with: userWalletId)
+                case .selected:
+                    break
+                }
+            }
+            .store(in: &bag)
+    }
 
     private func log(_ message: String) {
         AppLog.shared.debug("[Main V2] \(message)")
+    }
+}
+
+// MARK: - Navigation
+
+extension MainViewModel {
+    func openOnboarding(with input: OnboardingInput) {
+        coordinator?.openOnboardingModal(with: input)
+    }
+
+    func requestSupport() {
+        Analytics.log(.buttonRequestSupport)
+        failedCardScanTracker.resetCounter()
+
+        coordinator?.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
     }
 }
