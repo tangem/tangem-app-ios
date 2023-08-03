@@ -20,8 +20,6 @@ final class OrganizeTokensViewModel: ObservableObject {
 
     private unowned let coordinator: OrganizeTokensRoutable
 
-    @available(*, deprecated, message: "Get rid of using `UserTokenListManager` and `[StorageEntry]`")
-    private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let walletModelsAdapter: OrganizeWalletModelsAdapter
 
@@ -34,12 +32,10 @@ final class OrganizeTokensViewModel: ObservableObject {
 
     init(
         coordinator: OrganizeTokensRoutable,
-        userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
         walletModelsAdapter: OrganizeWalletModelsAdapter
     ) {
         self.coordinator = coordinator
-        self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
         self.walletModelsAdapter = walletModelsAdapter
     }
@@ -92,30 +88,6 @@ final class OrganizeTokensViewModel: ObservableObject {
     }
 
     private static func map(
-        walletModels: [WalletModel],
-        storageEntries: [StorageEntry]
-    ) -> [OrganizeTokensListSectionViewModel] {
-        let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
-        let blockchainNetworks = walletModels.map(\.blockchainNetwork).toSet()
-        let tokenIconInfoBuilder = TokenIconInfoBuilder()
-
-        let listItemViewModels = storageEntries
-            .reduce(into: [OrganizeTokensListItemViewModel]()) { result, entry in
-                if blockchainNetworks.contains(entry.blockchainNetwork) {
-                    let items = entry
-                        .walletModelIds
-                        .compactMap { walletModelsKeyedByIds[$0] }
-                        .map { map(walletModel: $0, using: tokenIconInfoBuilder) }
-                    result += items
-                } else {
-                    result += map(storageEntry: entry, using: tokenIconInfoBuilder)
-                }
-            }
-
-        return [OrganizeTokensListSectionViewModel(style: .invisible, items: listItemViewModels)]
-    }
-
-    private static func map(
         walletModel: WalletModel,
         using tokenIconInfoBuilder: TokenIconInfoBuilder
     ) -> OrganizeTokensListItemViewModel {
@@ -131,39 +103,6 @@ final class OrganizeTokensViewModel: ObservableObject {
             networkUnreachable: false,
             hasPendingTransactions: walletModel.hasPendingTx
         )
-    }
-
-    private static func map(
-        storageEntry: StorageEntry,
-        using tokenIconInfoBuilder: TokenIconInfoBuilder
-    ) -> [OrganizeTokensListItemViewModel] {
-        // [REDACTED_TODO_COMMENT]
-        let tokenIcon = tokenIconInfoBuilder.build(
-            for: .coin,
-            in: storageEntry.blockchainNetwork.blockchain
-        )
-        let coinListItemViewModel = OrganizeTokensListItemViewModel(
-            tokenIcon: tokenIcon,
-            balance: .noData,
-            isDraggable: false,
-            networkUnreachable: false,
-            hasPendingTransactions: false
-        )
-        let tokenListItemViewModels = storageEntry.tokens.map { token in
-            let tokenIcon = tokenIconInfoBuilder.build(
-                for: .token(value: token),
-                in: storageEntry.blockchainNetwork.blockchain
-            )
-            return OrganizeTokensListItemViewModel(
-                tokenIcon: tokenIcon,
-                balance: .noData,
-                isDraggable: false,
-                networkUnreachable: false,
-                hasPendingTransactions: false
-            )
-        }
-
-        return [coinListItemViewModel] + tokenListItemViewModels
     }
 }
 
