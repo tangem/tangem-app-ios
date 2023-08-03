@@ -18,8 +18,11 @@ class UserWalletModelMock: UserWalletModel {
 
     var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
+    var userTokensManager: UserTokensManager { UserTokensManagerMock() }
 
     var isMultiWallet: Bool { false }
+
+    var didPerformInitialTokenSync: Bool { true }
 
     var tokensCount: Int? { 10 }
 
@@ -32,6 +35,7 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
+    var didPerformInitialTokenSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
 
