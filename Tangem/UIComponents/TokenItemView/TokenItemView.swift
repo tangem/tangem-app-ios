@@ -42,7 +42,7 @@ struct TokenItemView: View {
 }
 
 struct TokenItemView_Previews: PreviewProvider {
-    static let infoProvider = FakeTokenItemInfoProvider()
+    static let infoProvider = FakeTokenItemInfoProvider(walletManagers: [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager])
 
     static var previews: some View {
         VStack(spacing: 0) {
