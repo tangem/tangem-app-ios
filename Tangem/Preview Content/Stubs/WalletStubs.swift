@@ -14,7 +14,21 @@ extension Wallet {
         blockchain: .ethereum(testnet: false),
         addresses: [
             .default: PlainAddress(
-                value: "0x1213012890acc67bd6f731",
+                value: "0x27a716A260892C789D4E09719BEa1f526eDFc9E9",
+                publicKey: .init(
+                    seedKey: Data.randomData(count: 32),
+                    derivation: .ethDerivationStub
+                ),
+                type: .default
+            ),
+        ]
+    )
+
+    static let polygonWalletStub = Wallet(
+        blockchain: .polygon(testnet: false),
+        addresses: [
+            .default: PlainAddress(
+                value: "0x27a716A260892C789D4E09719BEa1f526eDFc9E9",
                 publicKey: .init(
                     seedKey: Data.randomData(count: 32),
                     derivation: .ethDerivationStub
