@@ -27,6 +27,9 @@ class CommonTangemApiService {
     private var _geoIpRegionCode: String?
     private var authData: TangemApiTarget.AuthData?
 
+    private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
+    private let currenciesQueue = DispatchQueue(label: "currencies_request_queue", qos: .default)
+
     deinit {
         AppLog.shared.debug("CommonTangemApiService deinit")
     }
@@ -100,7 +103,7 @@ extension CommonTangemApiService: TangemApiService {
                     )
                 }
             }
-            .subscribe(on: DispatchQueue.global())
+            .subscribe(on: coinsQueue)
             .eraseToAnyPublisher()
     }
 
@@ -125,7 +128,7 @@ extension CommonTangemApiService: TangemApiService {
             .map(CurrenciesResponse.self)
             .map { $0.currencies.sorted(by: { $0.name < $1.name }) }
             .mapError { _ in AppError.serverUnavailable }
-            .subscribe(on: DispatchQueue.global())
+            .subscribe(on: currenciesQueue)
             .eraseToAnyPublisher()
     }
 
