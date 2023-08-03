@@ -13,8 +13,6 @@ import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
 
 class CommonUserTokenListManager {
-    private static var apiVersion: Int { 0 }
-
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let userWalletId: Data
@@ -156,7 +154,6 @@ private extension CommonUserTokenListManager {
         let tokens = mapToTokens(entries: entries)
         return UserTokenList(
             tokens: tokens,
-            version: Self.apiVersion,
             group: .none,
             sort: .manual
         )
