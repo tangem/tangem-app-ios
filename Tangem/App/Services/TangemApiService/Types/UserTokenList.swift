@@ -12,21 +12,42 @@ import struct TangemSdk.DerivationPath
 /// The API model for the`user-tokens/:key/` routing
 struct UserTokenList: Codable {
     let tokens: [Token]
+    let group: GroupType
+    let sort: SortType
 
     private let version: Int
-    private let group: GroupType
-    private let sort: SortType
 
     init(
-        tokens: [UserTokenList.Token],
-        version: Int,
+        tokens: [Token],
+        group: GroupType,
+        sort: SortType,
+        version: Int
+    ) {
+        self.tokens = tokens
+        self.group = group
+        self.sort = sort
+        self.version = version
+    }
+}
+
+extension UserTokenList {
+    static var initialVersion: Int { 0 }
+
+    static var empty: Self {
+        return Self(tokens: [], group: .none, sort: .manual)
+    }
+
+    init(
+        tokens: [Token],
         group: GroupType,
         sort: SortType
     ) {
-        self.tokens = tokens
-        self.version = version
-        self.group = group
-        self.sort = sort
+        self.init(
+            tokens: tokens,
+            group: group,
+            sort: sort,
+            version: Self.initialVersion
+        )
     }
 }
 
