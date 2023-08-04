@@ -29,7 +29,6 @@ struct TransactionHistoryRepository {
     func add(records: [TransactionRecord], for blockchain: Blockchain) {
         TransactionHistoryRepository.storage.mutate { value in
             value[blockchain, default: []] += records
-            print("History", blockchain.displayName, value[blockchain]?.count)
         }
     }
 }
