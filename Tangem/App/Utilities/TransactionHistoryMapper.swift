@@ -9,35 +9,9 @@
 import BlockchainSdk
 
 struct TransactionHistoryMapper {
-    func convertToTransactionRecords(_ transactions: [Transaction], for addresses: [BlockchainSdk.Address]) -> [TransactionRecord] {
-        transactions.compactMap { convertToTransactionRecord($0, for: addresses) }
-    }
+    let walletAddress: String
 
-    func convertToTransactionRecord(_ transaction: Transaction, for addresses: [BlockchainSdk.Address]) -> TransactionRecord? {
-        let timeFormatter = DateFormatter()
-        timeFormatter.timeStyle = .short
-
-        guard let date = transaction.date else {
-            return nil
-        }
-
-        let transactionType: TransactionRecord.TransactionType = addresses.contains(where: {
-            $0.value.caseInsensitiveCompare(transaction.destinationAddress) == .orderedSame
-        }) ? .receive : .send
-        let address = transactionType == .receive ? transaction.sourceAddress : transaction.destinationAddress
-
-        return .init(
-            amountType: transaction.amount.type,
-            destination: transactionType.localizeDestination(for: AddressFormatter(address: address).truncated()),
-            timeFormatted: timeFormatter.string(from: date),
-            date: date,
-            transferAmount: "\(transactionType.amountPrefix)\(transaction.amount.string(with: 2))",
-            transactionType: transactionType,
-            status: .init(transaction.status)
-        )
-    }
-
-    func makeTransactionListItems(from transactions: [TransactionRecord]) -> [TransactionListItem] {
+    func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
         dateFormatter.doesRelativeDateFormatting = true
@@ -45,23 +19,21 @@ struct TransactionHistoryMapper {
 
         var controlDate: Date!
         var txListItems = [TransactionListItem]()
-        var controlDateTxs = [TransactionRecord]()
-        transactions.forEach { tx in
-            guard let recordDate = tx.date else {
-                return
-            }
-
+        var controlDateTxs = [TransactionViewModel]()
+        records.forEach { record in
             // Check if this is first transaction. If so add to list.
             if controlDate == nil {
-                controlDate = recordDate
-                controlDateTxs.append(tx)
+                controlDate = record.date
+                let viewModel = mapTransactionViewModel(record)
+                controlDateTxs.append(viewModel)
                 return
             }
 
             // If this current transaction was in the same day - add to list
             // otherwise create day group
-            if calendar.isDate(recordDate, inSameDayAs: controlDate) {
-                controlDateTxs.append(tx)
+            if calendar.isDate(record.date, inSameDayAs: controlDate) {
+                let viewModel = mapTransactionViewModel(record)
+                controlDateTxs.append(viewModel)
                 return
             }
 
@@ -74,8 +46,9 @@ struct TransactionHistoryMapper {
             txListItems.append(listItem)
 
             // Set current transaction date as new control date and create new list with current transaction
-            controlDate = recordDate
-            controlDateTxs = [tx]
+            controlDate = record.date
+            let viewModel = mapTransactionViewModel(record)
+            controlDateTxs = [viewModel]
         }
 
         // Transactions in the last day group won't be added in forEach loop, so we need to
@@ -88,5 +61,69 @@ struct TransactionHistoryMapper {
         }
 
         return txListItems
+    }
+
+    func mapTransactionViewModel(_ record: TransactionRecord) -> TransactionViewModel {
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeStyle = .short
+
+        let type = transactionType(from: record)
+
+        return TransactionViewModel(
+            destination: destination(from: record),
+            timeFormatted: timeFormatter.string(from: record.date),
+            transferAmount: "\(type.amountPrefix)\(transferAmount(from: record))",
+            transactionType: type,
+            status: record.status == .confirmed ? .confirmed : .inProgress
+        )
+    }
+
+    func transferAmount(from record: TransactionRecord) -> String {
+        switch record.type {
+        case .send:
+            switch record.destination {
+            case .single(let destination):
+                return destination.amount.string(with: 2)
+            case .multiple(let destinations):
+                // [REDACTED_TODO_COMMENT]
+                return destinations.first?.amount.string(with: 2) ?? ""
+            }
+        case .receive:
+            switch record.source {
+            case .single(let source):
+                return source.amount.string(with: 2)
+            case .multiple(let destinations):
+                return destinations.first?.amount.string(with: 2) ?? ""
+            }
+        }
+    }
+
+    func destination(from record: TransactionRecord) -> String {
+        switch record.type {
+        case .send:
+            switch record.destination {
+            case .single(let destination):
+                return destination.address.string
+            case .multiple(let destinations):
+                // [REDACTED_TODO_COMMENT]
+                return destinations.first(where: { $0.address.string != walletAddress })?.address.string ?? ""
+            }
+        case .receive:
+            switch record.source {
+            case .single(let source):
+                return source.address
+            case .multiple(let sources):
+                return sources.first(where: { $0.address != walletAddress })?.address ?? ""
+            }
+        }
+    }
+
+    func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
+        switch record.type {
+        case .receive:
+            return .receive
+        case .send:
+            return .send
+        }
     }
 }
