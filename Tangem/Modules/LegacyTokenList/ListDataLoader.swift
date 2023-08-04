@@ -1,5 +1,5 @@
 //
-//  LegacyListDataLoader.swift
+//  ListDataLoader.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-class LegacyListDataLoader {
+class ListDataLoader {
     // MARK: Dependencies
 
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -79,7 +79,7 @@ class LegacyListDataLoader {
 
 // MARK: Private
 
-private extension LegacyListDataLoader {
+private extension ListDataLoader {
     func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let searchText = searchText.trimmed()
         let requestModel = CoinsListRequestModel(
