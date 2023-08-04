@@ -107,9 +107,9 @@ class WalletModel {
     var incomingPendingTransactions: [TransactionViewModel] {
         wallet.pendingIncomingTransactions.map {
             TransactionViewModel(
+                id: UUID().uuidString,
                 destination: $0.sourceAddress,
                 timeFormatted: "",
-                date: $0.date,
                 transferAmount: formatter.formatCryptoBalance(
                     $0.amount.value,
                     currencyCode: $0.amount.currencySymbol
@@ -123,9 +123,9 @@ class WalletModel {
     var outgoingPendingTransactions: [TransactionViewModel] {
         return wallet.pendingOutgoingTransactions.map {
             return TransactionViewModel(
+                id: UUID().uuidString,
                 destination: $0.destinationAddress,
                 timeFormatted: "",
-                date: $0.date,
                 transferAmount: formatter.formatCryptoBalance(
                     $0.amount.value,
                     currencyCode: $0.amount.currencySymbol
@@ -182,7 +182,7 @@ class WalletModel {
     private lazy var walletTransactionHistoryService = WalletTransactionHistoryService(
         blockchain: blockchainNetwork.blockchain,
         address: defaultAddress,
-        mapper: TransactionHistoryMapper(walletAddress: defaultAddress),
+        mapper: TransactionHistoryMapper(currencySymbol: blockchainNetwork.blockchain.currencySymbol, walletAddress: defaultAddress),
         repository: TransactionHistoryRepository()
     )
 
@@ -468,11 +468,7 @@ extension WalletModel {
     }
 
     func fetchTransactionsHistory() {
-        guard blockchainNetwork.blockchain.canLoadTransactionHistory, let walletTransactionHistoryService else {
-            return
-        }
-
-        walletTransactionHistoryService.fetch()
+        walletTransactionHistoryService?.fetch()
     }
 }
 
