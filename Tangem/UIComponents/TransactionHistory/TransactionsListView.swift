@@ -12,7 +12,7 @@ struct TransactionListItem: Hashable, Identifiable {
     var id: Int { hashValue }
 
     let header: String
-    let items: [TransactionRecord]
+    let items: [TransactionViewModel]
 }
 
 struct TransactionsListView: View {
@@ -21,6 +21,7 @@ struct TransactionsListView: View {
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
     let buyButtonAction: (() -> Void)?
+    let fetchMoreBlock: (() -> Void)?
 
     var body: some View {
         content
@@ -154,6 +155,14 @@ struct TransactionsListView: View {
                         }
                     }
                 }
+
+                if let fetchMoreBlock = fetchMoreBlock {
+                    ActivityIndicatorView(style: .medium, color: .gray)
+                        .padding(.vertical)
+                        .onAppear {
+                            fetchMoreBlock()
+                        }
+                }
             }
             .padding(12)
         }
@@ -211,41 +220,36 @@ struct TransactionsListView_Previews: PreviewProvider {
         TransactionListItem(
             header: "Today",
             items: [
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "01:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .inProgress
                 ),
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "02:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
                 ),
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "05:00",
                     transferAmount: "+15 wxDAI",
                     transactionType: .receive,
                     status: .confirmed
                 ),
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "08:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
                 ),
-                TransactionRecord(
-                    amountType: .coin,
-                    destination: TransactionRecord.TransactionType.receive.localizeDestination(for: "0x0123...baced"),
+                TransactionViewModel(
+                    destination: TransactionViewModel.TransactionType.receive.localizeDestination(for: "0x0123...baced"),
                     timeFormatted: "15:00",
                     transferAmount: "+15 wxDAI",
                     transactionType: .receive,
@@ -256,16 +260,14 @@ struct TransactionsListView_Previews: PreviewProvider {
         TransactionListItem(
             header: "Yesterday",
             items: [
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
                 ),
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "09:00",
                     transferAmount: "-15 wxDAI",
@@ -277,25 +279,22 @@ struct TransactionsListView_Previews: PreviewProvider {
         TransactionListItem(
             header: "02.05.23",
             items: [
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
                 ),
-                TransactionRecord(
-                    amountType: .coin,
+                TransactionViewModel(
                     destination: "0x0123...baced",
                     timeFormatted: "08:00",
                     transferAmount: "-15 wxDAI",
                     transactionType: .send,
                     status: .confirmed
                 ),
-                TransactionRecord(
-                    amountType: .coin,
-                    destination: TransactionRecord.TransactionType.approval.localizeDestination(for: "0x0123...baced"),
+                TransactionViewModel(
+                    destination: TransactionViewModel.TransactionType.approval.localizeDestination(for: "0x0123...baced"),
                     timeFormatted: "18:32",
                     transferAmount: "-0.0012 ETH",
                     transactionType: .approval,
@@ -308,13 +307,13 @@ struct TransactionsListView_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView {
             VStack(spacing: 16) {
-                TransactionsListView(state: .notSupported, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(state: .notSupported, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
 
-                TransactionsListView(state: .loading, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(state: .loading, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
 
-                TransactionsListView(state: .loaded([]), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(state: .loaded([]), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
 
-                TransactionsListView(state: .error(""), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(state: .error(""), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
             }
             .padding(.horizontal, 16)
         }
@@ -327,7 +326,8 @@ struct TransactionsListView_Previews: PreviewProvider {
                 exploreAction: {},
                 reloadButtonAction: {},
                 isReloadButtonBusy: false,
-                buyButtonAction: {}
+                buyButtonAction: {},
+                fetchMoreBlock: {}
             )
             .padding(.horizontal, 16)
         }
