@@ -130,11 +130,21 @@ final class OrganizeWalletModelsAdapter {
     ) -> [WalletModel] {
         switch sortType {
         case .manual:
-            // Keep existing sort order
+            // Keeping existing sort order
             return walletModels
         case .balance:
-            // [REDACTED_TODO_COMMENT]
-            return walletModels
+            // The underlying sorting algorithm is guaranteed to be stable in Swift 5.0 and above
+            // For cases when both lhs and rhs values are nil we also maintain a stable order of such elements
+            return walletModels.sorted { lhs, rhs in
+                switch (lhs.fiatValue, rhs.fiatValue) {
+                case (.some, .none):
+                    return true
+                case (.none, .some), (.none, .none):
+                    return false
+                case (.some(let lhsFiatValue), .some(let rhsFiatValue)):
+                    return lhsFiatValue > rhsFiatValue
+                }
+            }
         }
     }
 }
