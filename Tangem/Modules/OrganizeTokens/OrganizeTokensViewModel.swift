@@ -28,6 +28,11 @@ final class OrganizeTokensViewModel: ObservableObject {
 
     private var didPerformBind = false
 
+    private let mappingQueue = DispatchQueue(
+        label: "com.tangem.OrganizeTokensViewModel.mappingQueue",
+        qos: .userInitiated
+    )
+
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -59,10 +64,23 @@ final class OrganizeTokensViewModel: ObservableObject {
     private func bindIfNeeded() {
         guard !didPerformBind else { return }
 
-        // [REDACTED_TODO_COMMENT]
+        let walletModelsPublisher = walletModelsManager
+            .walletModelsPublisher
+
+        let walletModelsDidChangePublisher = walletModelsPublisher
+            .flatMap { walletModels in
+                return walletModels
+                    .map(\.walletDidChangePublisher)
+                    .merge()
+            }
+            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .withLatestFrom(walletModelsPublisher)
+            .receive(on: mappingQueue)
+
         walletModelsAdapter
-            .organizedWalletModels(from: walletModelsManager.walletModelsPublisher)
+            .organizedWalletModels(from: walletModelsDidChangePublisher)
             .map(Self.map)
+            .receive(on: DispatchQueue.main)
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
 
