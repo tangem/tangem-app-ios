@@ -14,6 +14,7 @@ class WalletManagerFactoryProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     lazy var factory: WalletManagerFactory = .init(config: keysManager.blockchainConfig)
+    lazy var transactionHistoryFactory: TransactionHistoryProviderFactory = .init(config: keysManager.blockchainConfig)
 
     init() {}
 }

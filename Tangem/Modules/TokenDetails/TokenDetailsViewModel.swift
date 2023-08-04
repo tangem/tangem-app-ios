@@ -23,6 +23,7 @@ final class TokenDetailsViewModel: ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published private var actionButtons: [ButtonWithIconInfo] = []
 
+    var canFetchMoreTransactionHistory: Bool { walletModel.canFetchMoreTransactionHistory }
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
@@ -116,7 +117,7 @@ final class TokenDetailsViewModel: ObservableObject {
                 }
             } receiveValue: { _ in }
 
-        reloadHistory()
+        reloadTransactionHistory()
     }
 
     func openExplorer() {
@@ -128,13 +129,14 @@ final class TokenDetailsViewModel: ObservableObject {
         openExplorer(at: url)
     }
 
-    func reloadHistory() {
+    func reloadTransactionHistory() {
         isReloadingTransactionHistory = true
-        walletModel.updateTransactionsHistory()
-            .sink { [weak self] completion in
-                self?.isReloadingTransactionHistory = false
-            } receiveValue: { _ in }
-            .store(in: &bag)
+        walletModel.resetTransactionsHistory()
+        walletModel.fetchTransactionsHistory()
+    }
+
+    func fetchTransactionHistory() {
+        walletModel.fetchTransactionsHistory()
     }
 
     func openBuy() {
@@ -234,10 +236,13 @@ private extension TokenDetailsViewModel {
             }
             .store(in: &bag)
 
-        walletModel.transactionHistoryPublisher
+        walletModel.transactionHistoryState
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
                 AppLog.shared.debug("New transaction history state: \(newState)")
+                if self?.isReloadingTransactionHistory == true {
+                    self?.isReloadingTransactionHistory = false
+                }
                 self?.updateHistoryState(to: newState)
             }
             .store(in: &bag)
@@ -271,15 +276,13 @@ private extension TokenDetailsViewModel {
         actionButtons = buttons
     }
 
-    private func updateHistoryState(to newState: WalletModel.TransactionHistoryState) {
+    private func updateHistoryState(to newState: WalletTransactionHistoryService.State) {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
         case .notLoaded:
             transactionHistoryState = .loading
-            walletModel.updateTransactionsHistory()
-                .sink()
-                .store(in: &bag)
+            walletModel.fetchTransactionsHistory()
         case .loading:
             if case .notLoaded = newState {
                 transactionHistoryState = .loading
@@ -287,8 +290,7 @@ private extension TokenDetailsViewModel {
         case .failedToLoad(let error):
             transactionHistoryState = .error(error)
         case .loaded:
-            let txListItems = TransactionHistoryMapper().makeTransactionListItems(from: walletModel.transactions)
-            transactionHistoryState = .loaded(txListItems)
+            transactionHistoryState = .loaded(walletModel.transactionRecordList)
         }
     }
 
