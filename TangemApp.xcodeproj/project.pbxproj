@@ -494,7 +494,7 @@
 		DA43719D2A7D1937006215CA /* LegacyCoinItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */; };
 		DA43719E2A7D1937006215CA /* LegacyCoinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718F2A7D1937006215CA /* LegacyCoinView.swift */; };
 		DA43719F2A7D1937006215CA /* LegacyTokenListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */; };
-		DA4371A02A7D1937006215CA /* LegacyListDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371912A7D1937006215CA /* LegacyListDataLoader.swift */; };
+		DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371912A7D1937006215CA /* ListDataLoader.swift */; };
 		DA4371A12A7D1937006215CA /* LegacyTokenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371922A7D1937006215CA /* LegacyTokenListView.swift */; };
 		DA4371A22A7D1937006215CA /* LegacyManageTokensSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371932A7D1937006215CA /* LegacyManageTokensSettings.swift */; };
 		DA4371A32A7D1937006215CA /* LegacyTokenListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371942A7D1937006215CA /* LegacyTokenListCoordinatorView.swift */; };
@@ -1597,7 +1597,7 @@
 		DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinItemViewModel.swift; sourceTree = "<group>"; };
 		DA43718F2A7D1937006215CA /* LegacyCoinView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinView.swift; sourceTree = "<group>"; };
 		DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyTokenListCoordinator.swift; sourceTree = "<group>"; };
-		DA4371912A7D1937006215CA /* LegacyListDataLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyListDataLoader.swift; sourceTree = "<group>"; };
+		DA4371912A7D1937006215CA /* ListDataLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListDataLoader.swift; sourceTree = "<group>"; };
 		DA4371922A7D1937006215CA /* LegacyTokenListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyTokenListView.swift; sourceTree = "<group>"; };
 		DA4371932A7D1937006215CA /* LegacyManageTokensSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyManageTokensSettings.swift; sourceTree = "<group>"; };
 		DA4371942A7D1937006215CA /* LegacyTokenListCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyTokenListCoordinatorView.swift; sourceTree = "<group>"; };
@@ -3920,7 +3920,7 @@
 				DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */,
 				DA43718F2A7D1937006215CA /* LegacyCoinView.swift */,
 				DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */,
-				DA4371912A7D1937006215CA /* LegacyListDataLoader.swift */,
+				DA4371912A7D1937006215CA /* ListDataLoader.swift */,
 				DA4371922A7D1937006215CA /* LegacyTokenListView.swift */,
 				DA4371932A7D1937006215CA /* LegacyManageTokensSettings.swift */,
 				DA4371942A7D1937006215CA /* LegacyTokenListCoordinatorView.swift */,
@@ -6540,7 +6540,7 @@
 				EF130EBA28E1D33000D37EFC /* LegacySingleWalletContentView.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */,
 				DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */,
-				DA4371A02A7D1937006215CA /* LegacyListDataLoader.swift in Sources */,
+				DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */,
 				EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */,
