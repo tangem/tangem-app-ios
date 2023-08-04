@@ -157,7 +157,8 @@ struct TransactionsListView: View {
                 }
 
                 if let fetchMoreBlock = fetchMoreBlock {
-                    ActivityIndicatorView(style: .medium, color: .gray)
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
                         .padding(.vertical)
                         .onAppear {
                             fetchMoreBlock()
@@ -221,6 +222,7 @@ struct TransactionsListView_Previews: PreviewProvider {
             header: "Today",
             items: [
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "01:00",
                     transferAmount: "-15 wxDAI",
@@ -228,6 +230,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     status: .inProgress
                 ),
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "02:00",
                     transferAmount: "-15 wxDAI",
@@ -235,6 +238,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     status: .confirmed
                 ),
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "05:00",
                     transferAmount: "+15 wxDAI",
@@ -242,6 +246,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     status: .confirmed
                 ),
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "08:00",
                     transferAmount: "-15 wxDAI",
@@ -249,6 +254,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     status: .confirmed
                 ),
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: TransactionViewModel.TransactionType.receive.localizeDestination(for: "0x0123...baced"),
                     timeFormatted: "15:00",
                     transferAmount: "+15 wxDAI",
@@ -261,6 +267,7 @@ struct TransactionsListView_Previews: PreviewProvider {
             header: "Yesterday",
             items: [
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
@@ -268,6 +275,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     status: .confirmed
                 ),
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "09:00",
                     transferAmount: "-15 wxDAI",
@@ -280,6 +288,7 @@ struct TransactionsListView_Previews: PreviewProvider {
             header: "02.05.23",
             items: [
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "05:00",
                     transferAmount: "-15 wxDAI",
@@ -287,6 +296,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     status: .confirmed
                 ),
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: "0x0123...baced",
                     timeFormatted: "08:00",
                     transferAmount: "-15 wxDAI",
@@ -294,6 +304,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                     status: .confirmed
                 ),
                 TransactionViewModel(
+                    id: UUID().uuidString,
                     destination: TransactionViewModel.TransactionType.approval.localizeDestination(for: "0x0123...baced"),
                     timeFormatted: "18:32",
                     transferAmount: "-0.0012 ETH",

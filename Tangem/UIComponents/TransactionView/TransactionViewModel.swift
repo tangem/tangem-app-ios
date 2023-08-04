@@ -11,11 +11,9 @@ import BlockchainSdk
 import SwiftUI
 
 struct TransactionViewModel: Hashable, Identifiable {
-    var id: Int { hashValue }
-
+    let id: String
     let destination: String
     let timeFormatted: String
-    var date: Date?
     let transferAmount: String
     let transactionType: TransactionType
     let status: Status
