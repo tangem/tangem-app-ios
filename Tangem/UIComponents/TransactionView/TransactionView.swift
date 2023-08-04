@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TransactionView: View {
-    let transactionRecord: TransactionRecord
+    let transactionRecord: TransactionViewModel
 
     var body: some View {
         HStack(spacing: 12) {
@@ -72,12 +72,11 @@ struct TransactionView: View {
 }
 
 struct TransactionView_Previews: PreviewProvider {
-    static func destination(for transactionType: TransactionRecord.TransactionType, address: String) -> String {
+    static func destination(for transactionType: TransactionViewModel.TransactionType, address: String) -> String {
         transactionType.localizeDestination(for: address)
     }
 
-    static let incomingInProgressRecord = TransactionRecord(
-        amountType: .coin,
+    static let incomingInProgressRecord = TransactionViewModel(
         destination: destination(for: .receive, address: "0x01230...3feed"),
         timeFormatted: "10:45",
         transferAmount: "+443 wxDAI",
@@ -85,8 +84,7 @@ struct TransactionView_Previews: PreviewProvider {
         status: .inProgress
     )
 
-    static let incomingConfirmedRecord = TransactionRecord(
-        amountType: .coin,
+    static let incomingConfirmedRecord = TransactionViewModel(
         destination: destination(for: .receive, address: "0x01230...3feed"),
         timeFormatted: "05:10",
         transferAmount: "+50 wxDAI",
@@ -94,8 +92,7 @@ struct TransactionView_Previews: PreviewProvider {
         status: .confirmed
     )
 
-    static let outgoingInProgressRecord = TransactionRecord(
-        amountType: .coin,
+    static let outgoingInProgressRecord = TransactionViewModel(
         destination: destination(for: .receive, address: "0x012...baced"),
         timeFormatted: "00:04",
         transferAmount: "-0.5 wxDAI",
@@ -103,8 +100,7 @@ struct TransactionView_Previews: PreviewProvider {
         status: .inProgress
     )
 
-    static let outgoingConfirmedRecord = TransactionRecord(
-        amountType: .coin,
+    static let outgoingConfirmedRecord = TransactionViewModel(
         destination: destination(for: .receive, address: "0x0123...baced"),
         timeFormatted: "15:00",
         transferAmount: "-15 wxDAI",
@@ -112,8 +108,7 @@ struct TransactionView_Previews: PreviewProvider {
         status: .confirmed
     )
 
-    static let incomingSwapRecord = TransactionRecord(
-        amountType: .coin,
+    static let incomingSwapRecord = TransactionViewModel(
         destination: destination(for: .swap(type: .buy), address: "0x0123...baced"),
         timeFormatted: "16:23",
         transferAmount: "+0.000000532154 ETH",
@@ -121,8 +116,7 @@ struct TransactionView_Previews: PreviewProvider {
         status: .inProgress
     )
 
-    static let outgoingSwapRecord = TransactionRecord(
-        amountType: .coin,
+    static let outgoingSwapRecord = TransactionViewModel(
         destination: destination(for: .swap(type: .sell), address: "0x0123...baced"),
         timeFormatted: "16:23",
         transferAmount: "-0.532154 USDT",
@@ -130,8 +124,7 @@ struct TransactionView_Previews: PreviewProvider {
         status: .confirmed
     )
 
-    static let approveConfirmedRecord = TransactionRecord(
-        amountType: .coin,
+    static let approveConfirmedRecord = TransactionViewModel(
         destination: destination(for: .approval, address: "0x0123...baced"),
         timeFormatted: "18:32",
         transferAmount: "-0.0012 ETH",
@@ -139,8 +132,7 @@ struct TransactionView_Previews: PreviewProvider {
         status: .confirmed
     )
 
-    static let approveInProgressRecord = TransactionRecord(
-        amountType: .coin,
+    static let approveInProgressRecord = TransactionViewModel(
         destination: destination(for: .approval, address: "0x0123...baced"),
         timeFormatted: "18:32",
         transferAmount: "-0.0012 ETH",
