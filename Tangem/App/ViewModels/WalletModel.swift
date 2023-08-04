@@ -144,11 +144,6 @@ class WalletModel {
     }
 
     var transactions: [TransactionRecord] {
-        // [REDACTED_TODO_COMMENT]
-        if FeatureStorage().useFakeTxHistory {
-            return Bool.random() ? FakeTransactionHistoryFactory().createFakeTxs(currencyCode: wallet.amounts[.coin]?.currencySymbol ?? "") : []
-        }
-
         return TransactionHistoryMapper().convertToTransactionRecords(wallet.transactions, for: wallet.addresses)
     }
 
@@ -454,99 +449,7 @@ extension WalletModel {
 
 extension WalletModel {
     func updateTransactionsHistory() -> AnyPublisher<TransactionHistoryState, Never> {
-        // [REDACTED_TODO_COMMENT]
-        if FeatureStorage().useFakeTxHistory {
-            return loadFakeTransactionHistory()
-                .replaceError(with: ())
-                .map { self._transactionsHistory.value }
-                .eraseToAnyPublisher()
-        }
-
-        guard
-            blockchainNetwork.blockchain.canLoadTransactionHistory,
-            let historyLoader = walletManager as? TransactionHistoryLoader
-        else {
-            DispatchQueue.main.async {
-                self._transactionsHistory.value = .notSupported
-            }
-            return .just(output: _transactionsHistory.value)
-        }
-
-        guard txHistoryUpdateSubscription == nil else {
-            return .just(output: _transactionsHistory.value)
-        }
-
-        _transactionsHistory.value = .loading
-
-        let historyPublisher = historyLoader.loadTransactionHistory()
-            .map { _ in TransactionHistoryState.loaded }
-            .catch {
-                AppLog.shared.debug("🔄 Failed to load transaction history. Error: \($0)")
-
-                return Just(TransactionHistoryState.failedToLoad($0))
-                    .eraseToAnyPublisher()
-            }
-
-        txHistoryUpdateSubscription = historyPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] newState in
-                self?._transactionsHistory.value = .loaded
-                self?.txHistoryUpdateSubscription = nil
-            }
-
-        return historyPublisher
-            .eraseToAnyPublisher()
-    }
-
-    // MARK: - Fake tx history related
-
-    private func loadFakeTransactionHistory() -> AnyPublisher<Void, Error> {
-        // [REDACTED_TODO_COMMENT]
-        guard FeatureStorage().useFakeTxHistory else {
-            return .anyFail(error: "Can't use fake history")
-        }
-
-        switch _transactionsHistory.value {
-        case .notLoaded, .notSupported:
-            _transactionsHistory.value = .loading
-            return Just(())
-                .delay(for: 5, scheduler: DispatchQueue.main)
-                .map {
-                    self._transactionsHistory.value = .failedToLoad("Failed to load tx history")
-                    return ()
-                }
-                .eraseError()
-                .eraseToAnyPublisher()
-        case .failedToLoad:
-            _transactionsHistory.value = .loading
-            return Just(())
-                .delay(for: 5, scheduler: DispatchQueue.main)
-                .map {
-                    self._transactionsHistory.value = .loaded
-                    return ()
-                }
-                .eraseError()
-                .eraseToAnyPublisher()
-        case .loaded:
-            _transactionsHistory.value = .loading
-            return Just(())
-                .delay(for: 5, scheduler: DispatchQueue.main)
-                .map {
-                    self._transactionsHistory.value = .notSupported
-                    return ()
-                }
-                .eraseError()
-                .eraseToAnyPublisher()
-        case .loading:
-            return Just(())
-                .delay(for: 5, scheduler: DispatchQueue.main)
-                .map {
-                    self._transactionsHistory.value = .loaded
-                    return ()
-                }
-                .eraseError()
-                .eraseToAnyPublisher()
-        }
+        return .just(output: .notSupported)
     }
 }
 
