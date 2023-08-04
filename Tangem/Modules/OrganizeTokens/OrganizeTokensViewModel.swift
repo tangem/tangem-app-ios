@@ -98,11 +98,24 @@ final class OrganizeTokensViewModel: ObservableObject {
 
         return OrganizeTokensListItemViewModel(
             tokenIcon: tokenIcon,
-            balance: .noData,
+            balance: fiatBalance(for: walletModel),
             isDraggable: false,
             networkUnreachable: false,
             hasPendingTransactions: walletModel.hasPendingTx
         )
+    }
+
+    private static func fiatBalance(for walletModel: WalletModel) -> LoadableTextView.State {
+        guard !walletModel.rateFormatted.isEmpty else { return .noData }
+
+        switch walletModel.state {
+        case .created, .idle, .noAccount, .noDerivation:
+            return .loaded(text: walletModel.fiatBalance)
+        case .loading:
+            return .loading
+        case .failed:
+            return .noData
+        }
     }
 }
 
