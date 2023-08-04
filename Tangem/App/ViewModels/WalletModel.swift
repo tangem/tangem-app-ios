@@ -104,10 +104,10 @@ class WalletModel {
         wallet.blockchain.isTestnet
     }
 
-    var incomingPendingTransactions: [TransactionViewModel] {
+    var incomingPendingTransactions: [LegacyTransactionRecord] {
         wallet.pendingIncomingTransactions.map {
-            TransactionViewModel(
-                id: UUID().uuidString,
+            LegacyTransactionRecord(
+                amountType: $0.amount.type,
                 destination: $0.sourceAddress,
                 timeFormatted: "",
                 transferAmount: formatter.formatCryptoBalance(
@@ -120,10 +120,10 @@ class WalletModel {
         }
     }
 
-    var outgoingPendingTransactions: [TransactionViewModel] {
+    var outgoingPendingTransactions: [LegacyTransactionRecord] {
         return wallet.pendingOutgoingTransactions.map {
-            return TransactionViewModel(
-                id: UUID().uuidString,
+            return LegacyTransactionRecord(
+                amountType: $0.amount.type,
                 destination: $0.destinationAddress,
                 timeFormatted: "",
                 transferAmount: formatter.formatCryptoBalance(
@@ -169,7 +169,6 @@ class WalletModel {
     let isCustom: Bool
 
     private let walletManager: WalletManager
-
     private var updateTimer: AnyCancellable?
     private var txHistoryUpdateSubscription: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
@@ -259,11 +258,11 @@ class WalletModel {
     // MARK: - Update wallet model
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
+        // fetchTransactionsHistory asynchronously
         resetTransactionsHistory()
         fetchTransactionsHistory()
 
         return update(silent: silent)
-//            .combineLatest(updateTransactionsHistory())
             .mapVoid()
             .eraseToAnyPublisher()
     }
@@ -443,7 +442,7 @@ extension WalletModel {
     }
 }
 
-// MARK: - TransactionsHistory
+// MARK: - Transaction history
 
 extension WalletModel {
     /// Listen tx history changes
