@@ -17,7 +17,7 @@ struct SimpleWalletManagerFactory: AnyWalletManagerFactory {
             throw CommonError.noData
         }
 
-        let factory = WalletManagerFactoryProvider().factory
+        let factory = WalletManagerFactoryProvider().walletManagerFactory
         let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivation: .none)
         let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
 
