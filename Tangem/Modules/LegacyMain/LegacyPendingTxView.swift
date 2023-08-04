@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import BlockchainSdk
 
 struct LegacyPendingTxView: View, Identifiable {
     var id: Int { pendingTx.id }
