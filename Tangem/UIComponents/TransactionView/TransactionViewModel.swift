@@ -10,10 +10,9 @@ import Foundation
 import BlockchainSdk
 import SwiftUI
 
-struct TransactionRecord: Hashable, Identifiable {
+struct TransactionViewModel: Hashable, Identifiable {
     var id: Int { hashValue }
 
-    let amountType: Amount.AmountType
     let destination: String
     let timeFormatted: String
     var date: Date?
@@ -22,7 +21,7 @@ struct TransactionRecord: Hashable, Identifiable {
     let status: Status
 }
 
-extension TransactionRecord {
+extension TransactionViewModel {
     enum TransactionType: Hashable {
         case receive
         case send
