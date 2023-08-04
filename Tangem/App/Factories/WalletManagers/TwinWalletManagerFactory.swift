@@ -24,7 +24,7 @@ extension TwinWalletManagerFactory: AnyWalletManagerFactory {
             throw CommonError.noData
         }
 
-        let factory = WalletManagerFactoryProvider().factory
+        let factory = WalletManagerFactoryProvider().walletManagerFactory
         let twinManager = try factory.makeTwinWalletManager(
             walletPublicKey: walletPublicKey,
             pairKey: pairPublicKey,
