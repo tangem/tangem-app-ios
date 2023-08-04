@@ -45,9 +45,10 @@ struct TokenDetailsView: View {
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
-                    reloadButtonAction: viewModel.reloadHistory,
+                    reloadButtonAction: viewModel.reloadTransactionHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil
+                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil,
+                    fetchMoreBlock: viewModel.canFetchMoreTransactionHistory ? viewModel.fetchTransactionHistory : nil
                 )
                 .padding(.bottom, 40)
             }
