@@ -258,7 +258,7 @@ class WalletModel {
     // MARK: - Update wallet model
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        // fetchTransactionsHistory asynchronously
+        // Fetch transactions history asynchronously
         resetTransactionsHistory()
         fetchTransactionsHistory()
 
