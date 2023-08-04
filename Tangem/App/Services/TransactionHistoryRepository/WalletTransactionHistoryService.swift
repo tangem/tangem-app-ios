@@ -21,7 +21,7 @@ class WalletTransactionHistoryService {
 
     private var totalPages = 0
     private var currentPage = 0
-    private let pageSize: Int = 10
+    private let pageSize: Int = 20
     private var cancellable: AnyCancellable?
 
     var canFetchMore: Bool {
