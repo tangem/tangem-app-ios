@@ -34,12 +34,12 @@ class LegacyTokenDetailsViewModel: ObservableObject {
 
     var walletModel: WalletModel?
 
-    var incomingTransactions: [TransactionViewModel] {
-        walletModel?.incomingPendingTransactions ?? [] // .filter { $0.amountType == amountType } ?? []
+    var incomingTransactions: [LegacyTransactionRecord] {
+        walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
-    var outgoingTransactions: [TransactionViewModel] {
-        walletModel?.outgoingPendingTransactions ?? [] // .filter { $0.amountType == amountType } ?? []
+    var outgoingTransactions: [LegacyTransactionRecord] {
+        walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
     var canBuyCrypto: Bool {
