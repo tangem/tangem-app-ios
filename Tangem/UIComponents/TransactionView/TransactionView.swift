@@ -77,6 +77,7 @@ struct TransactionView_Previews: PreviewProvider {
     }
 
     static let incomingInProgressRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .receive, address: "0x01230...3feed"),
         timeFormatted: "10:45",
         transferAmount: "+443 wxDAI",
@@ -85,6 +86,7 @@ struct TransactionView_Previews: PreviewProvider {
     )
 
     static let incomingConfirmedRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .receive, address: "0x01230...3feed"),
         timeFormatted: "05:10",
         transferAmount: "+50 wxDAI",
@@ -93,6 +95,7 @@ struct TransactionView_Previews: PreviewProvider {
     )
 
     static let outgoingInProgressRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .receive, address: "0x012...baced"),
         timeFormatted: "00:04",
         transferAmount: "-0.5 wxDAI",
@@ -101,6 +104,7 @@ struct TransactionView_Previews: PreviewProvider {
     )
 
     static let outgoingConfirmedRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .receive, address: "0x0123...baced"),
         timeFormatted: "15:00",
         transferAmount: "-15 wxDAI",
@@ -109,6 +113,7 @@ struct TransactionView_Previews: PreviewProvider {
     )
 
     static let incomingSwapRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .swap(type: .buy), address: "0x0123...baced"),
         timeFormatted: "16:23",
         transferAmount: "+0.000000532154 ETH",
@@ -117,6 +122,7 @@ struct TransactionView_Previews: PreviewProvider {
     )
 
     static let outgoingSwapRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .swap(type: .sell), address: "0x0123...baced"),
         timeFormatted: "16:23",
         transferAmount: "-0.532154 USDT",
@@ -125,6 +131,7 @@ struct TransactionView_Previews: PreviewProvider {
     )
 
     static let approveConfirmedRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .approval, address: "0x0123...baced"),
         timeFormatted: "18:32",
         transferAmount: "-0.0012 ETH",
@@ -133,6 +140,7 @@ struct TransactionView_Previews: PreviewProvider {
     )
 
     static let approveInProgressRecord = TransactionViewModel(
+        id: UUID().uuidString,
         destination: destination(for: .approval, address: "0x0123...baced"),
         timeFormatted: "18:32",
         transferAmount: "-0.0012 ETH",
