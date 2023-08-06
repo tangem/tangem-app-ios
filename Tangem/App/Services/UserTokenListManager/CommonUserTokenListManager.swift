@@ -56,7 +56,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
     }
 
     func update(with userTokenList: UserTokenList) {
-        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
+        // [REDACTED_TODO_COMMENT]
     }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
