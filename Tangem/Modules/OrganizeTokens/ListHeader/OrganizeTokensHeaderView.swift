@@ -17,14 +17,13 @@ struct OrganizeTokensHeaderView: View {
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.sortByBalanceButtonTitle,
                     icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                    isSelected: viewModel.isSortByBalanceEnabled,
+                    isToggled: viewModel.isSortByBalanceEnabled,
                     action: viewModel.toggleSortState
                 )
 
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
-                    isSelected: true,
                     action: viewModel.toggleGroupState
                 )
             }
