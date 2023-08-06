@@ -14,8 +14,8 @@ import enum BlockchainSdk.Blockchain // [REDACTED_TODO_COMMENT]
 final class OrganizeWalletModelsAdapter {
     typealias Section = OrganizeWalletModelsSection<SectionType>
     typealias UserToken = UserTokenList.Token // [REDACTED_TODO_COMMENT]
-    typealias SortingType = UserTokenList.SortType // [REDACTED_TODO_COMMENT]
-    typealias GroupingType = UserTokenList.GroupType // [REDACTED_TODO_COMMENT]
+    typealias GroupingOption = OrganizeTokensOptions.Grouping
+    typealias SortingOption = OrganizeTokensOptions.Sorting
 
     enum SectionType {
         case group(by: BlockchainNetwork)
@@ -23,24 +23,36 @@ final class OrganizeWalletModelsAdapter {
     }
 
     private let userTokenListManager: UserTokenListManager
+    private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
+    private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
     init(
-        userTokenListManager: UserTokenListManager
+        userTokenListManager: UserTokenListManager,
+        organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
+        organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
     ) {
         self.userTokenListManager = userTokenListManager
+        self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
+        self.organizeTokensOptionsEditing = organizeTokensOptionsEditing
     }
 
     func organizedWalletModels(
-        from walletModels: some Publisher<[WalletModel], Never>
+        from walletModels: some Publisher<[WalletModel], Never>,
+        on workingQueue: DispatchQueue
     ) -> some Publisher<[Section], Never> {
         return walletModels
-            .combineLatest(userTokenListManager.userTokenList)
-            .map { walletModels, userTokenList in
+            .combineLatest(
+                userTokenListManager.userTokenList.map(\.tokens),
+                organizeTokensOptionsProviding.groupingOption,
+                organizeTokensOptionsProviding.sortingOption
+            )
+            .receive(on: workingQueue)
+            .map { walletModels, userTokens, groupingOption, sortingOption in
                 return Self.makeSections(
                     walletModels: walletModels,
-                    userTokens: userTokenList.tokens,
-                    sortingType: userTokenList.sort,
-                    groupingType: userTokenList.group
+                    userTokens: userTokens,
+                    groupingOption: groupingOption,
+                    sortingOption: sortingOption
                 )
             }
     }
@@ -48,24 +60,24 @@ final class OrganizeWalletModelsAdapter {
     private static func makeSections(
         walletModels: [WalletModel],
         userTokens: [UserToken],
-        sortingType: SortingType,
-        groupingType: GroupingType
+        groupingOption: GroupingOption,
+        sortingOption: SortingOption
     ) -> [Section] {
         let walletModelsKeyedByID = walletModels
             .keyedFirst(by: \.id)
 
-        switch groupingType {
-        case .network:
+        switch groupingOption {
+        case .byBlockchainNetwork:
             return makeGroupedSections(
                 walletModelsKeyedByID: walletModelsKeyedByID,
                 userTokens: userTokens,
-                sortingType: sortingType
+                sortingOption: sortingOption
             )
         case .none:
             return makePlainSections(
                 walletModelsKeyedByID: walletModelsKeyedByID,
                 userTokens: userTokens,
-                sortingType: sortingType
+                sortingOption: sortingOption
             )
         }
     }
@@ -73,7 +85,7 @@ final class OrganizeWalletModelsAdapter {
     private static func makeGroupedSections(
         walletModelsKeyedByID: [WalletModel.ID: WalletModel],
         userTokens: [UserToken],
-        sortingType: SortingType
+        sortingOption: SortingOption
     ) -> [Section] {
         let blockchainNetworks = userTokens
             .unique(by: \.blockchainNetwork)
@@ -95,7 +107,7 @@ final class OrganizeWalletModelsAdapter {
             }
             let sortedWalletModelsForBlockchainNetwork = self.walletModels(
                 walletModelsForBlockchainNetwork,
-                sortedBy: sortingType
+                sortedBy: sortingOption
             )
             return Section(
                 model: .group(by: blockchainNetwork),
@@ -107,14 +119,17 @@ final class OrganizeWalletModelsAdapter {
     private static func makePlainSections(
         walletModelsKeyedByID: [WalletModel.ID: WalletModel],
         userTokens: [UserToken],
-        sortingType: SortingType
+        sortingOption: SortingOption
     ) -> [Section] {
         let walletModels = userTokens.compactMap { token -> WalletModel? in
             guard let walletModelID = token.walletModelID else { return nil }
 
             return walletModelsKeyedByID[walletModelID]
         }
-        let sortedWalletModels = self.walletModels(walletModels, sortedBy: sortingType)
+        let sortedWalletModels = self.walletModels(
+            walletModels,
+            sortedBy: sortingOption
+        )
 
         return [
             Section(
@@ -126,13 +141,13 @@ final class OrganizeWalletModelsAdapter {
 
     private static func walletModels(
         _ walletModels: [WalletModel],
-        sortedBy sortType: UserTokenList.SortType
+        sortedBy sortingOption: SortingOption
     ) -> [WalletModel] {
-        switch sortType {
-        case .manual:
+        switch sortingOption {
+        case .dragAndDrop:
             // Keeping existing sort order
             return walletModels
-        case .balance:
+        case .byBalance:
             // The underlying sorting algorithm is guaranteed to be stable in Swift 5.0 and above
             // For cases when both lhs and rhs values are nil we also maintain a stable order of such elements
             return walletModels.sorted { lhs, rhs in
@@ -151,7 +166,8 @@ final class OrganizeWalletModelsAdapter {
 
 // MARK: - Convenience extensions
 
-private extension UserTokenList.Token { // [REDACTED_TODO_COMMENT]
+// [REDACTED_TODO_COMMENT]
+private extension UserTokenList.Token {
     var blockchainNetwork: BlockchainNetwork? {
         guard let blockchain = Blockchain(from: networkId) else { return nil }
 
@@ -172,9 +188,7 @@ private extension UserTokenList.Token { // [REDACTED_TODO_COMMENT]
                     symbol: symbol,
                     contractAddress: contractAddress,
                     decimalCount: decimals,
-                    id: id,
-                    customIconUrl: nil,
-                    exchangeable: nil
+                    id: id
                 )
             )
         } else {
