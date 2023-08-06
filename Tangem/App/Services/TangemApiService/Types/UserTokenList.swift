@@ -11,9 +11,9 @@ import struct TangemSdk.DerivationPath
 
 /// The API model for the`user-tokens/:key/` routing
 struct UserTokenList: Codable {
-    let tokens: [Token]
-    let group: GroupType
-    let sort: SortType
+    var tokens: [Token]
+    var group: GroupType
+    var sort: SortType
 
     private let version: Int
 
