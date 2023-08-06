@@ -137,9 +137,8 @@ final class OrganizeTokensViewModel: ObservableObject {
         return OrganizeTokensListItemViewModel(
             tokenIcon: tokenIcon,
             balance: fiatBalance(for: walletModel),
-            isDraggable: isDraggable,
-            networkUnreachable: false,
-            hasPendingTransactions: walletModel.hasPendingTx
+            isNetworkUnreachable: walletModel.state.isBlockchainUnreachable,
+            isDraggable: isDraggable
         )
     }
 
