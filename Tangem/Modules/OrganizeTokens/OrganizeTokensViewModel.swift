@@ -9,48 +9,52 @@
 import Combine
 import CombineExt
 import SwiftUI
-import struct BlockchainSdk.Token
 
 final class OrganizeTokensViewModel: ObservableObject {
     /// Sentinel value for `item` of `IndexPath` representing a section.
     var sectionHeaderItemIndex: Int { .min }
 
-    private(set) lazy var headerViewModel = OrganizeTokensHeaderViewModel()
+    let headerViewModel: OrganizeTokensHeaderViewModel
     @Published private(set) var sections: [OrganizeTokensListSectionViewModel] = []
 
     private unowned let coordinator: OrganizeTokensRoutable
 
+    private let onSave = PassthroughSubject<Void, Never>()
+
     private let walletModelsManager: WalletModelsManager
     private let walletModelsAdapter: OrganizeWalletModelsAdapter
+    private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
     private var currentlyDraggedSectionIdentifier: UUID?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
-
-    private var didPerformBind = false
 
     private let mappingQueue = DispatchQueue(
         label: "com.tangem.OrganizeTokensViewModel.mappingQueue",
         qos: .userInitiated
     )
 
-    private var bag = Set<AnyCancellable>()
+    private var bag: Set<AnyCancellable> = []
 
     init(
         coordinator: OrganizeTokensRoutable,
         walletModelsManager: WalletModelsManager,
-        walletModelsAdapter: OrganizeWalletModelsAdapter
+        walletModelsAdapter: OrganizeWalletModelsAdapter,
+        organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
+        organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
     ) {
         self.coordinator = coordinator
         self.walletModelsManager = walletModelsManager
         self.walletModelsAdapter = walletModelsAdapter
+        self.organizeTokensOptionsEditing = organizeTokensOptionsEditing
+
+        headerViewModel = OrganizeTokensHeaderViewModel(
+            organizeTokensOptionsProviding: organizeTokensOptionsProviding,
+            organizeTokensOptionsEditing: organizeTokensOptionsEditing
+        )
     }
 
     func onViewAppear() {
-        bindIfNeeded()
-    }
-
-    func onViewDisappear() {
-        // [REDACTED_TODO_COMMENT]
+        bind()
     }
 
     func onCancelButtonTap() {
@@ -58,16 +62,15 @@ final class OrganizeTokensViewModel: ObservableObject {
     }
 
     func onApplyButtonTap() {
-        // [REDACTED_TODO_COMMENT]
+        onSave.send()
     }
 
-    private func bindIfNeeded() {
-        guard !didPerformBind else { return }
-
+    private func bind() {
         let walletModelsPublisher = walletModelsManager
             .walletModelsPublisher
 
         let walletModelsDidChangePublisher = walletModelsPublisher
+            .receive(on: mappingQueue)
             .flatMap { walletModels in
                 return walletModels
                     .map(\.walletDidChangePublisher)
@@ -75,16 +78,23 @@ final class OrganizeTokensViewModel: ObservableObject {
             }
             .debounce(for: 0.3, scheduler: RunLoop.main)
             .withLatestFrom(walletModelsPublisher)
-            .receive(on: mappingQueue)
 
         walletModelsAdapter
-            .organizedWalletModels(from: walletModelsDidChangePublisher)
+            .organizedWalletModels(from: walletModelsDidChangePublisher, on: mappingQueue)
             .map(Self.map)
             .receive(on: DispatchQueue.main)
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        didPerformBind = true
+        onSave
+            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .eraseToAnyPublisher()
+            .withWeakCaptureOf(self)
+            .flatMapLatest { viewModel, _ in
+                viewModel.organizeTokensOptionsEditing.save()
+            }
+            .sink()
+            .store(in: &bag)
     }
 
     private static func map(
