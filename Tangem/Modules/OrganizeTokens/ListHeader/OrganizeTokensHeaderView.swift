@@ -34,6 +34,7 @@ struct OrganizeTokensHeaderView: View {
                     .primary
                     .cornerRadiusContinuous(10.0)
             )
+            .onFirstAppear(perform: viewModel.onViewAppear)
         }
     }
 }
@@ -42,8 +43,11 @@ struct OrganizeTokensHeaderView: View {
 
 struct OrganizeTokensHeaderView_Previews: PreviewProvider {
     static var previews: some View {
-        OrganizeTokensHeaderView(
-            viewModel: .init()
+        let optionsManager = OrganizeTokensOptionsManagerStub()
+        let viewModel = OrganizeTokensHeaderViewModel(
+            organizeTokensOptionsProviding: optionsManager,
+            organizeTokensOptionsEditing: optionsManager
         )
+        return OrganizeTokensHeaderView(viewModel: viewModel)
     }
 }
