@@ -10,21 +10,13 @@ import Foundation
 import Combine
 
 struct UserTokenListManagerMock: UserTokenListManager {
-    var userTokens: [StorageEntry] {
-        []
-    }
+    var userTokens: [StorageEntry] { [] }
 
-    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
-        .just(output: [])
-    }
+    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { .just(output: []) }
 
-    var userTokenList: AnyPublisher<UserTokenList, Never> {
-        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
-    }
+    var userTokenList: AnyPublisher<UserTokenList, Never> { .just(output: .empty) }
 
-    func update(with userTokenList: UserTokenList) {
-        fatalError("\(#function) not implemented yet ([REDACTED_INFO])")
-    }
+    func update(with userTokenList: UserTokenList) {}
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
 
