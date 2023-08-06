@@ -100,11 +100,10 @@ struct OrganizeTokensView: View {
             Colors.Background.secondary
                 .ignoresSafeArea(edges: .vertical)
         )
-        .onAppear {
+        .onFirstAppear {
             dragAndDropController.dataSource = viewModel
             viewModel.onViewAppear()
         }
-        .onDidAppear(viewModel.onViewDisappear)
     }
 
     // MARK: - Subviews
@@ -642,13 +641,20 @@ struct OrganizeTokensView_Preview: PreviewProvider {
                 let coordinator = OrganizeTokensCoordinator()
                 let userWalletModel = UserWalletModelMock()
                 let userTokenListManager = userWalletModel.userTokenListManager
-                let walletModelsAdapter = OrganizeWalletModelsAdapter(userTokenListManager: userTokenListManager)
+                let optionsManager = OrganizeTokensOptionsManagerStub()
+                let walletModelsAdapter = OrganizeWalletModelsAdapter(
+                    userTokenListManager: userTokenListManager,
+                    organizeTokensOptionsProviding: optionsManager,
+                    organizeTokensOptionsEditing: optionsManager
+                )
 
                 OrganizeTokensView(
                     viewModel: OrganizeTokensViewModel(
                         coordinator: coordinator,
                         walletModelsManager: userWalletModel.walletModelsManager,
-                        walletModelsAdapter: walletModelsAdapter
+                        walletModelsAdapter: walletModelsAdapter,
+                        organizeTokensOptionsProviding: optionsManager,
+                        organizeTokensOptionsEditing: optionsManager
                     )
                 )
             }
