@@ -19,7 +19,25 @@ struct SingleWalletMainContentView: View {
 }
 
 struct SingleWalletContentView_Preview: PreviewProvider {
-    static let viewModel = SingleWalletMainContentViewModel(coordinator: MainCoordinator())
+    static let viewModel: SingleWalletMainContentViewModel = {
+        let mainCoordinator = MainCoordinator()
+        let userWalletModel = FakeUserWalletModel.xrpNote
+        let walletModel = userWalletModel.walletModelsManager.walletModels.first!
+        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+        let cryptoUtility = ExchangeCryptoUtility(
+            blockchain: walletModel.blockchainNetwork.blockchain,
+            address: walletModel.wallet.address,
+            amountType: walletModel.amountType
+        )
+
+        return SingleWalletMainContentViewModel(
+            userWalletModel: userWalletModel,
+            walletModel: userWalletModel.walletModelsManager.walletModels.first!,
+            userTokensManager: userWalletModel.userTokensManager,
+            exchangeUtility: cryptoUtility,
+            coordinator: mainCoordinator
+        )
+    }()
 
     static var previews: some View {
         SingleWalletMainContentView(viewModel: viewModel)
