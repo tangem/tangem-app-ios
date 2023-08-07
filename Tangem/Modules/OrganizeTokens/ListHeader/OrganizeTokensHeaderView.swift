@@ -12,6 +12,9 @@ struct OrganizeTokensHeaderView: View {
     @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
 
     var body: some View {
+        let shadowOpacity = 0.1
+        let toggledShadowOpacity = shadowOpacity / (viewModel.isSortByBalanceEnabled ? 3.0 : 1.0)
+
         HStack(spacing: 8.0) {
             Group {
                 FlexySizeButtonWithLeadingIcon(
@@ -20,15 +23,17 @@ struct OrganizeTokensHeaderView: View {
                     isToggled: viewModel.isSortByBalanceEnabled,
                     action: viewModel.toggleSortState
                 )
+                // [REDACTED_TODO_COMMENT]
+                .shadow(color: Colors.Button.primary.opacity(toggledShadowOpacity), radius: 5.0)
 
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
                     action: viewModel.toggleGroupState
                 )
+                // [REDACTED_TODO_COMMENT]
+                .shadow(color: Colors.Button.primary.opacity(shadowOpacity), radius: 5.0)
             }
-            // [REDACTED_TODO_COMMENT]
-            .shadow(color: Colors.Button.primary.opacity(0.1), radius: 5.0)
             .background(
                 Colors.Background
                     .primary
