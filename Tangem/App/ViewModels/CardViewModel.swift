@@ -467,7 +467,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
-        config.getFeatureAvailability(feature).disabledLocalizedReason
+        config.getDisabledLocalizedReason(for: feature)
     }
 
     private func updateModel() {
