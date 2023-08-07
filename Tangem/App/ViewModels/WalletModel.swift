@@ -109,9 +109,9 @@ class WalletModel {
         wallet.blockchain.isTestnet
     }
 
-    var incomingPendingTransactions: [TransactionRecord] {
+    var incomingPendingTransactions: [LegacyTransactionRecord] {
         wallet.pendingIncomingTransactions.map {
-            TransactionRecord(
+            LegacyTransactionRecord(
                 amountType: $0.amount.type,
                 destination: $0.sourceAddress,
                 timeFormatted: "",
@@ -126,9 +126,9 @@ class WalletModel {
         }
     }
 
-    var outgoingPendingTransactions: [TransactionRecord] {
+    var outgoingPendingTransactions: [LegacyTransactionRecord] {
         return wallet.pendingOutgoingTransactions.map {
-            return TransactionRecord(
+            return LegacyTransactionRecord(
                 amountType: $0.amount.type,
                 destination: $0.destinationAddress,
                 timeFormatted: "",
@@ -143,7 +143,12 @@ class WalletModel {
         }
     }
 
-    var transactions: [TransactionRecord] {
+    var transactions: [LegacyTransactionRecord] {
+        // [REDACTED_TODO_COMMENT]
+        if FeatureStorage().useFakeTxHistory {
+            return Bool.random() ? FakeTransactionHistoryFactory().createFakeTxs(currencyCode: wallet.amounts[.coin]?.currencySymbol ?? "") : []
+        }
+
         return TransactionHistoryMapper().convertToTransactionRecords(wallet.transactions, for: wallet.addresses)
     }
 
@@ -449,7 +454,66 @@ extension WalletModel {
 
 extension WalletModel {
     func updateTransactionsHistory() -> AnyPublisher<TransactionHistoryState, Never> {
+        // [REDACTED_TODO_COMMENT]
+        if FeatureStorage().useFakeTxHistory {
+            return loadFakeTransactionHistory()
+                .replaceError(with: ())
+                .map { self._transactionsHistory.value }
+                .eraseToAnyPublisher()
+        }
+
         return .just(output: .notSupported)
+    }
+
+    // MARK: - Fake tx history related
+
+    private func loadFakeTransactionHistory() -> AnyPublisher<Void, Error> {
+        // [REDACTED_TODO_COMMENT]
+        guard FeatureStorage().useFakeTxHistory else {
+            return .anyFail(error: "Can't use fake history")
+        }
+
+        switch _transactionsHistory.value {
+        case .notLoaded, .notSupported:
+            _transactionsHistory.value = .loading
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self._transactionsHistory.value = .failedToLoad("Failed to load tx history")
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        case .failedToLoad:
+            _transactionsHistory.value = .loading
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self._transactionsHistory.value = .loaded
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        case .loaded:
+            _transactionsHistory.value = .loading
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self._transactionsHistory.value = .notSupported
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        case .loading:
+            return Just(())
+                .delay(for: 5, scheduler: DispatchQueue.main)
+                .map {
+                    self._transactionsHistory.value = .loaded
+                    return ()
+                }
+                .eraseError()
+                .eraseToAnyPublisher()
+        }
     }
 }
 
