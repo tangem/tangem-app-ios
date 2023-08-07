@@ -91,8 +91,11 @@ class SingleTokenViewModel: ObservableObject {
     }
 
     func reloadHistory() {
-        isReloadingTransactionHistory = true
+        DispatchQueue.main.async {
+            self.isReloadingTransactionHistory = true
+        }
         walletModel.updateTransactionsHistory()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isReloadingTransactionHistory = false
             } receiveValue: { _ in }
