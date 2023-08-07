@@ -629,34 +629,19 @@ struct OrganizeTokensView_Preview: PreviewProvider {
     private static let previewProvider = OrganizeTokensPreviewProvider()
 
     static var previews: some View {
+        // [REDACTED_TODO_COMMENT]
         let viewModels = [
             previewProvider.multipleSections(),
             previewProvider.singleMediumSection(),
             previewProvider.singleSmallSection(),
             previewProvider.singleLargeSection(),
         ]
+        let viewModelFactory = OrganizeTokensPreviewViewModelFactory()
 
         Group {
-            ForEach(viewModels.indexed(), id: \.0.self) { index, sections in
-                let coordinator = OrganizeTokensRoutableStub()
-                let userWalletModel = UserWalletModelMock()
-                let userTokenListManager = userWalletModel.userTokenListManager
-                let optionsManager = OrganizeTokensOptionsManagerStub()
-                let walletModelsAdapter = OrganizeWalletModelsAdapter(
-                    userTokenListManager: userTokenListManager,
-                    organizeTokensOptionsProviding: optionsManager,
-                    organizeTokensOptionsEditing: optionsManager
-                )
-
-                OrganizeTokensView(
-                    viewModel: OrganizeTokensViewModel(
-                        coordinator: coordinator,
-                        walletModelsManager: userWalletModel.walletModelsManager,
-                        walletModelsAdapter: walletModelsAdapter,
-                        organizeTokensOptionsProviding: optionsManager,
-                        organizeTokensOptionsEditing: optionsManager
-                    )
-                )
+            ForEach(viewModels.indexed(), id: \.0.self) { _, _ in
+                let viewModel = viewModelFactory.makeViewModel()
+                OrganizeTokensView(viewModel: viewModel)
             }
         }
     }
