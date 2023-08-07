@@ -28,6 +28,8 @@ class UserWalletModelMock: UserWalletModel {
 
     var cardsCount: Int { 1 }
 
+    var config: UserWalletConfig { UserWalletConfigFactory(userWallet.cardInfo()).makeConfig() }
+
     var userWalletId: UserWalletId { .init(with: Data()) }
 
     var emailConfig: EmailConfig? { nil }
