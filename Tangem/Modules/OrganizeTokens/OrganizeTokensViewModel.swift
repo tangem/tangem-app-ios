@@ -82,6 +82,7 @@ final class OrganizeTokensViewModel: ObservableObject {
 
         walletModelsAdapter
             .organizedWalletModels(from: walletModelsDidChangePublisher, on: mappingQueue)
+            .withLatestFrom(organizeTokensOptionsProviding.sortingOption) { ($0, $1) }
             .map(Self.map)
             .receive(on: DispatchQueue.main)
             .assign(to: \.sections, on: self, ownership: .weak)
