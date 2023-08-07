@@ -13,13 +13,21 @@ struct MultiWalletMainContentView: View {
 
     var body: some View {
         VStack {
-            Text("Hello, Multiwallet!")
+            FixedSizeButtonWithLeadingIcon(
+                title: Localization.organizeTokensTitle,
+                icon: Assets.OrganizeTokens.filterIcon.image,
+                action: viewModel.openOrganizeTokens
+            )
+            .infinityFrame(axis: .horizontal)
         }
     }
 }
 
 struct MultiWalletContentView_Preview: PreviewProvider {
-    static let viewModel = MultiWalletMainContentViewModel(coordinator: MainCoordinator())
+    static let viewModel = MultiWalletMainContentViewModel(
+        coordinator: MainCoordinator(),
+        userWalletModel: UserWalletModelMock()
+    )
 
     static var previews: some View {
         MultiWalletMainContentView(viewModel: viewModel)
