@@ -74,9 +74,6 @@ struct LegacyMainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.promotionCoordinator) {
                 PromotionCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.organizeTokensCoordinator) { childCoordinator in
-                OrganizeTokensCoordinatorView(coordinator: childCoordinator)
-            }
 
         NavHolder()
             .bottomSheet(
