@@ -23,6 +23,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private unowned let coordinator: MultiWalletMainContentRoutable
     private var sectionsProvider: TokenListInfoProvider
 
+    private var isUpdating = false
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -36,6 +37,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         bind()
         subscribeToTokenListUpdatesIfNeeded()
+    }
+
+    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        if isUpdating {
+            return
+        }
+
+        isUpdating = true
+        userWalletModel.userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            self?.userWalletModel.walletModelsManager.updateAll(silent: true, completion: {
+                self?.isUpdating = false
+                completionHandler()
+            })
+        }
     }
 
     private func bind() {
