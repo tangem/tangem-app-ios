@@ -20,7 +20,7 @@ class SingleTokenViewModel: ObservableObject {
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
 
-    private let actionButtons: CurrentValueSubject<[ButtonWithIconInfo], Never> = .init([])
+    @Published var actionButtons: [ButtonWithIconInfo] = []
 
     private unowned let coordinator: SingleTokenRoutable
 
@@ -170,7 +170,7 @@ extension SingleTokenViewModel {
             }, disabled: isDisabled)
         }
 
-        actionButtons.send(buttons)
+        actionButtons = buttons
     }
 
     private func updateHistoryState(to newState: WalletModel.TransactionHistoryState) {
@@ -353,5 +353,5 @@ extension SingleTokenViewModel {
 }
 
 extension SingleTokenViewModel: ActionButtonsProvider {
-    var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { actionButtons.eraseToAnyPublisher() }
+    var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
 }
