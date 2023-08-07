@@ -13,6 +13,7 @@ class LockedUserWallet: UserWalletModel {
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
+    let config: UserWalletConfig
     var signer: TangemSigner
 
     var tokensCount: Int? { nil }
@@ -31,8 +32,6 @@ class LockedUserWallet: UserWalletModel {
     var didPerformInitialTokenSyncPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
 
     private(set) var userWallet: UserWallet
-
-    private let config: UserWalletConfig
 
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
