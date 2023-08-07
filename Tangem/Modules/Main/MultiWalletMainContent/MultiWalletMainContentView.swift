@@ -48,7 +48,7 @@ struct MultiWalletMainContentView: View {
 
     private var tokensList: some View {
         LazyVStack(spacing: 0) {
-            ForEach(viewModel.sections, id: \.id) { section in
+            ForEach(viewModel.sections) { section in
                 LazyVStack(alignment: .leading, spacing: 0) {
                     if let title = section.title {
                         Text(title)
@@ -60,7 +60,7 @@ struct MultiWalletMainContentView: View {
                             .padding(.horizontal, 14)
                     }
 
-                    ForEach(section.tokenItemModels, id: \.id) { item in
+                    ForEach(section.tokenItemModels) { item in
                         TokenItemView(viewModel: item)
                     }
                 }
