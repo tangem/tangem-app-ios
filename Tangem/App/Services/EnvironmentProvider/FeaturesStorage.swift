@@ -20,6 +20,10 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.useDevApi)
     var useDevApi = false
 
+    // [REDACTED_TODO_COMMENT]
+    @AppStorageCompat(FeatureStorageKeys.fakeTxHistory)
+    var useFakeTxHistory = false
+
     @AppStorageCompat(FeatureStorageKeys.supportedBlockchainsIds)
     var supportedBlockchainsIds: [String] = []
 }
