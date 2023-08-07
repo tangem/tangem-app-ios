@@ -23,7 +23,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private unowned let coordinator: MultiWalletMainContentRoutable
     private var sectionsProvider: TokenListInfoProvider
 
-    private var tokenSyncSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -52,19 +51,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
+        var tokenSyncSubscription: AnyCancellable?
         tokenSyncSubscription = userWalletModel.didPerformInitialTokenSyncPublisher
-            .sink(receiveValue: { [weak self] isTokenSyncPerformed in
-                guard isTokenSyncPerformed else {
-                    return
-                }
-
-                self?.updateTokenListLoadingState()
+            .filter { $0 }
+            .sink(receiveValue: { [weak self] _ in
+                self?.isLoadingTokenList = false
+                withExtendedLifetime(tokenSyncSubscription) {}
             })
-    }
-
-    private func updateTokenListLoadingState() {
-        isLoadingTokenList = false
-        tokenSyncSubscription = nil
     }
 
     private func convertToSections(_ sections: [TokenListSectionInfo]) -> [MultiWalletTokenItemsSection] {
