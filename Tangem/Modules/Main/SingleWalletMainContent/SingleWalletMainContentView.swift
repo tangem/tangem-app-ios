@@ -12,9 +12,19 @@ struct SingleWalletMainContentView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
     var body: some View {
-        VStack {
-            Text("Hello, single wallet!")
+        VStack(spacing: 14) {
+            ScrollableButtonsView(itemsHorizontalOffset: 16, buttonsInfo: viewModel.actionButtons)
+
+            TransactionsListView(
+                state: viewModel.transactionHistoryState,
+                exploreAction: viewModel.openExplorer,
+                reloadButtonAction: viewModel.reloadHistory,
+                isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil
+            )
+            .padding(.bottom, 40)
         }
+        .padding(.horizontal, 16)
     }
 }
 
@@ -23,7 +33,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
         let mainCoordinator = MainCoordinator()
         let userWalletModel = FakeUserWalletModel.xrpNote
         let walletModel = userWalletModel.walletModelsManager.walletModels.first!
-        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
         let cryptoUtility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,
             address: walletModel.wallet.address,
@@ -41,5 +51,6 @@ struct SingleWalletContentView_Preview: PreviewProvider {
 
     static var previews: some View {
         SingleWalletMainContentView(viewModel: viewModel)
+            .background(Colors.Background.secondary)
     }
 }
