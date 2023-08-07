@@ -28,7 +28,7 @@ struct LockedUserTokensManager: UserTokensManager {
     }
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        []
+        return []
     }
 
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
