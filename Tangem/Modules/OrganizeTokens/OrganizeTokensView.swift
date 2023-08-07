@@ -61,7 +61,7 @@ struct OrganizeTokensView: View {
 
     @GestureState private var dragAndDropSourceIndexPath: IndexPath?
 
-    @GestureState private var dragAndDropDestinationIndexPath: IndexPath?
+    @State private var dragAndDropDestinationIndexPath: IndexPath?
 
     // In a `scrollViewContentCoordinateSpaceName` coordinate space
     @State private var dragAndDropSourceItemFrame: CGRect?
@@ -69,7 +69,7 @@ struct OrganizeTokensView: View {
     // Stable identity, independent of changes in the underlying model (unlike index paths)
     @State private var dragAndDropSourceViewModelIdentifier: UUID?
 
-    @GestureState private var dragGestureTranslation: CGSize = .zero
+    @GestureState private var dragGestureTranslation: CGSize?
 
     // Adopts changes in scroll view content offset (`scrollViewContentCoordinateSpaceName` coordinate space)
     // to the drag gesture translation (`scrollViewFrameCoordinateSpaceName` coordinate space).
@@ -170,6 +170,7 @@ struct OrganizeTokensView: View {
         }
         .onChange(of: scrollViewContentOffset) { newValue in
             dragAndDropController.contentOffsetSubject.send(newValue)
+            updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
             isNavigationBarBackgroundHidden = newValue.y - Constants.headerAdditionalBottomInset <= 0.0
         }
         .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
@@ -182,8 +183,12 @@ struct OrganizeTokensView: View {
             if !newValue {
                 // Perform required clean-up when the user lifts the finger
                 dragAndDropController.stopAutoScrolling()
+                dragAndDropDestinationIndexPath = nil
                 dragAndDropSourceItemFrame = nil
             }
+        }
+        .onChange(of: dragGestureTranslation) { newValue in
+            updateDragAndDropDestinationIndexPath(using: newValue)
         }
     }
 
@@ -338,41 +343,20 @@ struct OrganizeTokensView: View {
                         return
                     }
 
+                    // Set initial state for `dragAndDropSourceIndexPath` after successfully ended long press gesture
                     state = sourceIndexPath
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
-                        dragAndDropInitialIndexPath = nil // Effectively consumes `dragAndDropInitialIndexPath`
+                        // Effectively consumes `dragAndDropInitialIndexPath`, so it can't be used anymore
+                        dragAndDropInitialIndexPath = nil
+                        // Set initial state for `dragAndDropDestinationIndexPath` after successfully ended long press gesture
+                        dragAndDropDestinationIndexPath = sourceIndexPath
                         dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
                         dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
 
                         dragAndDropController.onDragStart()
                         viewModel.onDragStart(at: sourceIndexPath)
-                    }
-                }
-            }
-            .updating($dragAndDropDestinationIndexPath) { value, state, _ in
-                switch value {
-                case .first:
-                    break
-                case .second(let isLongPressGestureEnded, let dragGestureValue):
-                    // Long press gesture successfully ends (equivalent of `UIGestureRecognizer.State.ended`)
-                    guard isLongPressGestureEnded else { return }
-
-                    if let dragGestureValue = dragGestureValue,
-                       let sourceIndexPath = dragAndDropSourceIndexPath,
-                       let currentDestinationIndexPath = state {
-                        if let updatedDestinationIndexPath = dragAndDropController.updatedDestinationIndexPath(
-                            source: sourceIndexPath,
-                            currentDestination: currentDestinationIndexPath,
-                            translationValue: dragGestureValue.translation + dragGestureTranslationFix
-                        ) {
-                            // State after drag gesture changed its value
-                            state = updatedDestinationIndexPath
-                        }
-                    } else {
-                        // Initial state after successfully ended long press gesture
-                        state = dragAndDropInitialIndexPath
                     }
                 }
             }
@@ -385,6 +369,25 @@ struct OrganizeTokensView: View {
         } else {
             dragAndDropInitialIndexPath = nil
         }
+    }
+
+    // MARK: - Drag and drop support
+
+    private func updateDragAndDropDestinationIndexPath(using dragGestureTranslation: CGSize?) {
+        guard
+            let dragGestureTranslation = dragGestureTranslation,
+            let sourceIndexPath = dragAndDropSourceIndexPath,
+            let currentDestinationIndexPath = dragAndDropDestinationIndexPath,
+            let updatedDestinationIndexPath = dragAndDropController.updatedDestinationIndexPath(
+                source: sourceIndexPath,
+                currentDestination: currentDestinationIndexPath,
+                translationValue: dragGestureTranslation + dragGestureTranslationFix
+            )
+        else {
+            return
+        }
+
+        dragAndDropDestinationIndexPath = updatedDestinationIndexPath
     }
 
     // MARK: - Auto scrolling support
@@ -510,7 +513,7 @@ struct OrganizeTokensView: View {
         let offsetTransitionRatio = 1.0 - scaleTransitionValue
 
         let destinationItemFrame = dragAndDropController.frame(forItemAt: indexPath) ?? .zero
-        let baseOffsetTransitionValue = itemFrame.origin.y + dragGestureTranslation.height
+        let baseOffsetTransitionValue = itemFrame.origin.y + (dragGestureTranslation?.height ?? .zero)
         let totalOffsetTransitionValue = baseOffsetTransitionValue - scrollViewInitialContentOffset.y
 
         let additionalOffsetRemovalTransitionValue = destinationItemFrame.minY
