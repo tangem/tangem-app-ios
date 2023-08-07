@@ -86,8 +86,7 @@ private extension LegacyMultiWalletContentViewModel {
             }
             .store(in: &bag)
 
-        walletModelsManager
-            .walletModelsPublisher
+        walletModelsManager.walletModelsPublisher
             .combineLatest(userTokenListManager.userTokensPublisher)
             .receive(on: DispatchQueue.global())
             .map { [weak self] _ -> [LegacyTokenItemViewModel] in
@@ -113,19 +112,19 @@ private extension LegacyMultiWalletContentViewModel {
     func collectTokenItemViewModels() -> [LegacyTokenItemViewModel] {
         let entries = userTokenListManager.userTokens
         let walletModels = walletModelsManager.walletModels
-        let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
-        let blockchainNetworks = walletModels.map(\.blockchainNetwork).toSet()
+        return entries.reduce([]) { result, entry in
+            if walletModels.contains(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
+                let ids = entry.walletModelIds
+                let models = ids.compactMap { id in
+                    walletModels.first(where: { $0.id == id })
+                }
 
-        return entries.reduce(into: []) { result, entry in
-            if blockchainNetworks.contains(entry.blockchainNetwork) {
-                let items = entry
-                    .walletModelIds
-                    .compactMap { walletModelsKeyedByIds[$0] }
-                    .map { mapToTokenItemViewModel($0) }
-                result += items
-            } else {
-                result += mapToTokenItemViewModels(entry: entry)
+                let items = models.map { mapToTokenItemViewModel($0) }
+
+                return result + items
             }
+
+            return result + mapToTokenItemViewModels(entry: entry)
         }
     }
 
