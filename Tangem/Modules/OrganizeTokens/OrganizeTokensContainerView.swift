@@ -80,7 +80,7 @@ struct OrganizeTokensContainerView_Preview: PreviewProvider {
 
         Group {
             ForEach(viewModels.indexed(), id: \.0.self) { index, sections in
-                let coordinator = OrganizeTokensCoordinator()
+                let coordinator = OrganizeTokensRoutableStub()
                 let userWalletModel = UserWalletModelMock()
                 let userTokenListManager = userWalletModel.userTokenListManager
                 let optionsManager = OrganizeTokensOptionsManagerStub()
