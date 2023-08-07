@@ -13,11 +13,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    private let userWalletModel: UserWalletModel
+
     private unowned let coordinator: MultiWalletMainContentRoutable
 
     init(
-        coordinator: MultiWalletMainContentRoutable
+        coordinator: MultiWalletMainContentRoutable,
+        userWalletModel: UserWalletModel
     ) {
         self.coordinator = coordinator
+        self.userWalletModel = userWalletModel
+    }
+
+    func openOrganizeTokens() {
+        coordinator.openOrganizeTokens(for: userWalletModel)
     }
 }
