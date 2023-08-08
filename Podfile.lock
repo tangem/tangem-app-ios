@@ -252,7 +252,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-339`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, branch `bugfix/IOS-4217-ethercluster-etc-api-discontinued`)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -328,8 +328,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
+    :branch: bugfix/IOS-4217-ethercluster-etc-api-discontinued
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-339
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -363,8 +363,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
+    :commit: bdf2f9c3dad7f3444a29ba99fc136d55b322f5a6
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-339
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -446,6 +446,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: b2e6f678ee49eafd0f24e1a78b48461d7c9da8b4
+PODFILE CHECKSUM: ec69c2ebd2024b00f91c0265405a2cfad0b723cc
 
 COCOAPODS: 1.12.1
