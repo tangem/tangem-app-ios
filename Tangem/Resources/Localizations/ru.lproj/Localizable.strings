@@ -77,6 +77,7 @@
 "common_import" = "Импортировать";
 "common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Нравится";
+"common_locked" = "Заблокирован";
 "common_main_network" = "Основная сеть";
 "common_no" = "Нет";
 "common_no_data" = "Нет данных";
@@ -279,12 +280,15 @@
 "referral_error_failed_to_load_info" = "Не удалось загрузить информацию по реферальной программе. Пожалуйста, попробуйте позже.";
 "referral_error_failed_to_load_info_with_reason" = "Не удалось загрузить информацию по реферальной программе. Код ошибки: %@. Пожалуйста, попробуйте позже.";
 "referral_error_failed_to_participate" = "Не удалось обработать вашу заявку на участие. Код ошибки: %@. Пожалуйста, попробуйте позже. Если проблема сохранится, вы можете обратиться в техподдержку.";
+"referral_expected_awards" = "Грядущие выплаты";
 "referral_friends_bought_title" = "Ваши друзья купили";
-"referral_point_currencies_description_prefix" = "Получите";
-"referral_point_currencies_description_suffix" = "на ваш адрес в сети %1$@%2$@ за каждый кошелек, который купит ваш друг";
+"referral_less" = "Меньше";
+"referral_more" = "Больше";
+"referral_no_expected_awards" = "Нет грядущих выплат";
+"referral_point_currencies_description" = "Получите ^^%1$@^^ на ваш адрес в сети %2$@ %3$@ ^^спустя 30 дней^^ за каждый кошелек, который купит ваш друг";
 "referral_point_currencies_title" = "Вы";
 "referral_point_discount_description_prefix" = "Получит";
-"referral_point_discount_description_suffix" = "при покупке карточки на сайте tangem.com";
+"referral_point_discount_description_suffix" = "при покупке кошелька на сайте tangem.com";
 "referral_point_discount_description_value" = "%@ скидку";
 "referral_point_discount_title" = "Ваш друг";
 "referral_promo_code_copied" = "Персональный код скопирован!";
@@ -336,7 +340,6 @@
 "shop_other_payment_methods" = "Другие способы оплаты";
 "shop_placing_order" = "Оформление заказа";
 "shop_pre_order_now" = "Сделать предзаказ";
-"shop_sold_out_description" = "Из-за высокого количества заказов, которые мы получаем, доставка может быть задержана на срок до 5 недель в зависимости от вашего местоположения";
 "shop_total" = "Итого";
 "shop_web_checkout_title" = "Ваш заказ";
 "solana_rent_warning" = "Сеть Solana взимает арендную плату в размере %1$@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %2$@, чтобы не платить арендную плату.";
