@@ -43,7 +43,10 @@ enum PreviewCard {
                     blockscoutCredentials: .init(login: "", password: "")
                 )
             )
-            let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
+            let walletManager = try! factory.makeWalletManager(
+                blockchain: blockchain,
+                publicKey: .init(seedKey: publicKey, derivation: .none)
+            )
         }
 
         // [REDACTED_TODO_COMMENT]
@@ -77,7 +80,7 @@ enum PreviewCard {
         case .stellar:
             return .stellar(testnet: false)
         case .cardanoNote:
-            return .cardano(shelley: true)
+            return .cardano
         default:
             return nil
         }
@@ -109,7 +112,7 @@ enum PreviewCard {
         case .tangemWalletBackuped:
             return .walletWithBackup
         default:
-            return .card
+            return .walletV2
         }
     }
 }
