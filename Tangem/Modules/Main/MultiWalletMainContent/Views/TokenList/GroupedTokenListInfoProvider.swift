@@ -32,8 +32,8 @@ class GroupedTokenListInfoProvider {
 
     private func bind() {
         userTokenListManager.userTokensPublisher
-            .sink { entries in
-            }
+            .map(convertToSectionInfo(from:))
+            .assign(to: \.value, on: currentSections)
             .store(in: &bag)
     }
 
@@ -47,6 +47,7 @@ class GroupedTokenListInfoProvider {
                 }
 
                 let sectionInfo = TokenListSectionInfo(
+                    id: entry.blockchainNetwork.hashValue,
                     sectionType: .titled(title: title(for: entry.blockchainNetwork)),
                     infoProviders: models
                 )
@@ -59,17 +60,24 @@ class GroupedTokenListInfoProvider {
     }
 
     private func mapToListSectionInfo(_ entry: StorageEntry) -> TokenListSectionInfo {
-        let blockchain = entry.blockchainNetwork.blockchain
+        let blockchainNetwork = entry.blockchainNetwork
         var infoProviders = [
-            TokenWithoutDerivationInfoProvider(tokenItem: .blockchain(blockchain)),
+            TokenWithoutDerivationInfoProvider(
+                id: WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: .coin).id,
+                tokenItem: .blockchain(blockchainNetwork.blockchain)
+            ),
         ]
 
         infoProviders += entry.tokens.map {
-            TokenWithoutDerivationInfoProvider(tokenItem: .token($0, blockchain))
+            TokenWithoutDerivationInfoProvider(
+                id: WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: .token(value: $0)).id,
+                tokenItem: .token($0, blockchainNetwork.blockchain)
+            )
         }
 
         return .init(
-            sectionType: .titled(title: title(for: entry.blockchainNetwork)),
+            id: entry.blockchainNetwork.hashValue,
+            sectionType: .titled(title: title(for: blockchainNetwork)),
             infoProviders: infoProviders
         )
     }
