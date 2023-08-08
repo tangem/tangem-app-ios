@@ -27,6 +27,9 @@ class CommonTangemApiService {
     private var _geoIpRegionCode: String?
     private var authData: TangemApiTarget.AuthData?
 
+    private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
+    private let currenciesQueue = DispatchQueue(label: "currencies_request_queue", qos: .default)
+
     deinit {
         AppLog.shared.debug("CommonTangemApiService deinit")
     }
@@ -100,7 +103,21 @@ extension CommonTangemApiService: TangemApiService {
                     )
                 }
             }
-            .subscribe(on: DispatchQueue.global())
+            .subscribe(on: coinsQueue)
+            .eraseToAnyPublisher()
+    }
+
+    func loadQuotes(requestModel: QuotesDTO.Request) -> AnyPublisher<[Quote], Error> {
+        let target = TangemApiTarget(type: .quotes(requestModel), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusAndRedirectCodes()
+            .map(QuotesDTO.Response.self)
+            .eraseError()
+            .map { response in
+                QuotesMapper().mapToQuotes(response)
+            }
             .eraseToAnyPublisher()
     }
 
@@ -111,7 +128,7 @@ extension CommonTangemApiService: TangemApiService {
             .map(CurrenciesResponse.self)
             .map { $0.currencies.sorted(by: { $0.name < $1.name }) }
             .mapError { _ in AppError.serverUnavailable }
-            .subscribe(on: DispatchQueue.global())
+            .subscribe(on: currenciesQueue)
             .eraseToAnyPublisher()
     }
 
@@ -131,9 +148,9 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
-    func loadReferralProgramInfo(for userWalletId: String) async throws -> ReferralProgramInfo {
+    func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo {
         let target = TangemApiTarget(
-            type: .loadReferralProgramInfo(userWalletId: userWalletId),
+            type: .loadReferralProgramInfo(userWalletId: userWalletId, expectedAwardsLimit: expectedAwardsLimit),
             authData: authData
         )
         let response = try await provider.asyncRequest(for: target)
@@ -161,8 +178,8 @@ extension CommonTangemApiService: TangemApiService {
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
-    func shops(name: String) async throws -> ShopDetails {
-        try await request(for: .shops(name: name))
+    func sales(locale: String, shops: String) async throws -> SalesDetails {
+        try await request(for: .sales(locale: locale, shops: shops))
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
