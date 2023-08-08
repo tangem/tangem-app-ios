@@ -26,35 +26,27 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
 
     private let tokenIcon: TokenIconInfo
-    private let amountType: Amount.AmountType
+    private let tokenItem: TokenItem
     private let tokenTapped: (WalletModelId) -> Void
     private unowned let infoProvider: TokenItemInfoProvider
     private unowned let priceChangeProvider: PriceChangeProvider
 
-    private let cryptoFormattingOptions: BalanceFormattingOptions
-    private var fiatFormattingOptions: BalanceFormattingOptions {
-        .defaultFiatFormattingOptions
-    }
-
     private var bag = Set<AnyCancellable>()
-    private var balanceUpdateTask: Task<Void, Error>?
 
     init(
         id: Int,
         tokenIcon: TokenIconInfo,
-        amountType: Amount.AmountType,
+        tokenItem: TokenItem,
         tokenTapped: @escaping (WalletModelId) -> Void,
         infoProvider: TokenItemInfoProvider,
-        priceChangeProvider: PriceChangeProvider,
-        cryptoFormattingOptions: BalanceFormattingOptions
+        priceChangeProvider: PriceChangeProvider
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
-        self.amountType = amountType
+        self.tokenItem = tokenItem
         self.tokenTapped = tokenTapped
         self.infoProvider = infoProvider
         self.priceChangeProvider = priceChangeProvider
-        self.cryptoFormattingOptions = cryptoFormattingOptions
 
         bind()
     }
@@ -64,7 +56,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        infoProvider.walletStatePublisher
+        infoProvider.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
                 guard let self else { return }
@@ -89,17 +81,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
                 case .loading:
                     break
                 }
-            }
-            .store(in: &bag)
 
-        infoProvider.pendingTransactionPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] id, hasPendingTransactions in
-                guard self?.id == id else {
-                    return
-                }
-
-                self?.hasPendingTransactions = hasPendingTransactions
+                updatePendingTransactionsStateIfNeeded()
             }
             .store(in: &bag)
 
@@ -119,32 +102,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
+    private func updatePendingTransactionsStateIfNeeded() {
+        hasPendingTransactions = infoProvider.hasPendingTransactions
+    }
+
     private func updateBalances() {
-        let formatter = BalanceFormatter()
-        let balance = infoProvider.balance(for: amountType)
-        let formattedBalance = formatter.formatCryptoBalance(balance, formattingOptions: cryptoFormattingOptions)
-        balanceCrypto = .loaded(text: formattedBalance)
-
-        balanceUpdateTask?.cancel()
-        balanceUpdateTask = Task { [weak self] in
-            guard let self else { return }
-
-            let formattedFiat: String
-            do {
-                let fiatBalance = try await BalanceConverter().convertToFiat(
-                    value: balance,
-                    from: cryptoFormattingOptions.currencyCode,
-                    to: fiatFormattingOptions.currencyCode
-                )
-                formattedFiat = formatter.formatFiatBalance(fiatBalance, formattingOptions: fiatFormattingOptions)
-            } catch {
-                formattedFiat = "-"
-            }
-
-            try Task.checkCancellation()
-            await MainActor.run {
-                self.balanceFiat = .loaded(text: formattedFiat)
-            }
-        }
+        balanceCrypto = .loaded(text: infoProvider.balance)
+        balanceFiat = .loaded(text: infoProvider.fiatBalance)
     }
 }
