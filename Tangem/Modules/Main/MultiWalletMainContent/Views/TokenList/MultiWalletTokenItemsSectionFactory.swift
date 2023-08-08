@@ -25,6 +25,7 @@ struct MultiWalletTokenItemsSectionFactory {
                 )
             }
             return .init(
+                id: section.id,
                 title: section.sectionType.title,
                 tokenItemModels: viewModels
             )
