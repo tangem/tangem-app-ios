@@ -10,8 +10,15 @@ import Foundation
 import BlockchainSdk
 import SwiftUI
 
+<<<<<<<< HEAD:Tangem/UIComponents/TransactionView/TransactionViewModel.swift
 struct TransactionViewModel: Hashable, Identifiable {
     let id: String
+========
+struct LegacyTransactionRecord: Hashable, Identifiable {
+    var id: Int { hashValue }
+
+    let amountType: Amount.AmountType
+>>>>>>>> develop:Tangem/App/Models/LegacyTransactionRecord.swift
     let destination: String
     let timeFormatted: String
     let transferAmount: String
@@ -19,7 +26,11 @@ struct TransactionViewModel: Hashable, Identifiable {
     let status: Status
 }
 
+<<<<<<<< HEAD:Tangem/UIComponents/TransactionView/TransactionViewModel.swift
 extension TransactionViewModel {
+========
+extension LegacyTransactionRecord {
+>>>>>>>> develop:Tangem/App/Models/LegacyTransactionRecord.swift
     enum TransactionType: Hashable {
         case receive
         case send
