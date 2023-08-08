@@ -22,8 +22,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var isMultiWallet: Bool { false }
 
-    var didPerformInitialTokenSync: Bool { true }
-
     var tokensCount: Int? { 10 }
 
     var cardsCount: Int { 1 }
@@ -37,7 +35,6 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
-    var didPerformInitialTokenSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
 
