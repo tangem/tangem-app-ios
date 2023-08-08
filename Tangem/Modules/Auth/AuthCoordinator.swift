@@ -19,7 +19,8 @@ class AuthCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var mainCoordinator: LegacyMainCoordinator?
+    @Published var legacyMainCoordinator: LegacyMainCoordinator?
+    @Published var mainCoordinator: MainCoordinator?
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator?
 
     // MARK: - Child view models
@@ -65,10 +66,18 @@ extension AuthCoordinator: AuthRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
+        if FeatureProvider.isAvailable(.mainV2) {
+            let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+            let options = MainCoordinator.Options(userWalletModel: cardModel)
+            coordinator.start(with: options)
+            mainCoordinator = coordinator
+            return
+        }
+
         let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
         let options = LegacyMainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
-        mainCoordinator = coordinator
+        legacyMainCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
