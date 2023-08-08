@@ -380,7 +380,7 @@
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
 		B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FE2679DA8000269C7A /* AmountView.swift */; };
 		B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBBB212924C42E00020EC2 /* ReferralParticipationRequestBody.swift */; };
-		B0EC1200267386FC00137059 /* TransactionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* TransactionRecord.swift */; };
+		B0EC1200267386FC00137059 /* LegacyTransactionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* LegacyTransactionRecord.swift */; };
 		B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F16D7026EF5ED800687C47 /* ProgressBar.swift */; };
 		B0F318F42A738A30009F131E /* LockedWalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318F32A738A30009F131E /* LockedWalletModelsManager.swift */; };
 		B0F318F62A738ACC009F131E /* LockedUserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318F52A738ACC009F131E /* LockedUserTokenListManager.swift */; };
@@ -1477,7 +1477,7 @@
 		B0E9E2FC2679DA5B00269C7A /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
 		B0E9E2FE2679DA8000269C7A /* AmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountView.swift; sourceTree = "<group>"; };
 		B0EBBB212924C42E00020EC2 /* ReferralParticipationRequestBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralParticipationRequestBody.swift; sourceTree = "<group>"; };
-		B0EC11FF267386FC00137059 /* TransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionRecord.swift; sourceTree = "<group>"; };
+		B0EC11FF267386FC00137059 /* LegacyTransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTransactionRecord.swift; sourceTree = "<group>"; };
 		B0F16D7026EF5ED800687C47 /* ProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressBar.swift; sourceTree = "<group>"; };
 		B0F318F32A738A30009F131E /* LockedWalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedWalletModelsManager.swift; sourceTree = "<group>"; };
 		B0F318F52A738ACC009F131E /* LockedUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedUserTokenListManager.swift; sourceTree = "<group>"; };
@@ -2282,7 +2282,7 @@
 				5DDFC1F728129E0C005976FE /* Currencies */,
 				5DDFC1F828129E1F005976FE /* Rates */,
 				DAA153BA2876CBE2002254D1 /* Geo */,
-				B0EC11FF267386FC00137059 /* TransactionRecord.swift */,
+				B0EC11FF267386FC00137059 /* LegacyTransactionRecord.swift */,
 				5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */,
 				5D4B8BC227EDD601002CE87C /* CardInfo.swift */,
 				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
@@ -6132,7 +6132,7 @@
 				DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */,
 				DA5CD0982A25F4F2008FD876 /* PromotionViewModel.swift in Sources */,
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
-				B0EC1200267386FC00137059 /* TransactionRecord.swift in Sources */,
+				B0EC1200267386FC00137059 /* LegacyTransactionRecord.swift in Sources */,
 				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
 				DCBAF69F2A4AF4660029480A /* TwinWalletManagerFactory.swift in Sources */,
