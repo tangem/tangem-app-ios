@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import SwiftUI
 import BlockchainSdk
 
 class ReferralViewModel: ObservableObject {
@@ -19,9 +20,14 @@ class ReferralViewModel: ObservableObject {
     @Published var errorAlert: AlertBinder?
     @Published var showCodeCopiedToast: Bool = false
 
+    @Published var expectedAwardsExpanded = false
+
     private weak var coordinator: ReferralRoutable?
-    private let cardModel: CardViewModel
+    private let userTokensManager: UserTokensManager
     private let userWalletId: Data
+
+    private let expectedAwardsFetchLimit = 30
+    private let expectedAwardsShortListLimit = 3
 
     private var shareLink: String {
         guard let referralInfo = referralProgramInfo?.referral else {
@@ -31,12 +37,18 @@ class ReferralViewModel: ObservableObject {
         return Localization.referralShareLink(referralInfo.shareLink)
     }
 
-    init(cardModel: CardViewModel, userWalletId: Data, coordinator: ReferralRoutable) {
-        self.cardModel = cardModel
+    init(
+        userWalletId: Data,
+        userTokensManager: UserTokensManager,
+        coordinator: ReferralRoutable
+    ) {
+        self.userTokensManager = userTokensManager
         self.userWalletId = userWalletId
         self.coordinator = coordinator
 
-        runTask(loadReferralInfo)
+        runTask(in: self) { root in
+            await root.loadReferralInfo()
+        }
     }
 
     @MainActor
@@ -50,7 +62,8 @@ class ReferralViewModel: ObservableObject {
 
         guard
             let award = referralProgramInfo?.conditions.awards.first,
-            let blockchain = Blockchain(from: award.token.networkId)
+            let blockchain = Blockchain(from: award.token.networkId),
+            let token = award.token.storageToken
         else {
             AppLog.shared.error(Localization.referralErrorFailedToLoadInfo)
             errorAlert = AlertBuilder.makeOkErrorAlert(
@@ -61,25 +74,23 @@ class ReferralViewModel: ObservableObject {
             return
         }
 
-        let token = award.token
-
-        let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-        guard let address = cardModel.walletModels.first(where: { $0.blockchainNetwork == network })?.wallet.address else {
-            requestDerivation(for: blockchain, with: token)
-            return
-        }
-
-        saveToStorageIfNeeded(token, for: blockchain)
         do {
-            let referralProgramInfo = try await runInTask {
-                try await self.tangemApiService.participateInReferralProgram(using: token, for: address, with: self.userWalletId.hexString)
+            let address = try await userTokensManager.add(.token(token, blockchain), derivationPath: nil)
+            isProcessingRequest = false
+
+            let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
+                guard let self else { return nil }
+
+                return try await tangemApiService.participateInReferralProgram(using: award.token, for: address, with: userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
-            let referralError = ReferralError(error)
-            let message = Localization.referralErrorFailedToParticipate(referralError.code)
-            errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
-            AppLog.shared.error(referralError)
+            if !error.toTangemSdkError().isUserCancelled {
+                let referralError = ReferralError(error)
+                let message = Localization.referralErrorFailedToParticipate(referralError.code)
+                errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
+                AppLog.shared.error(referralError)
+            }
         }
 
         isProcessingRequest = false
@@ -100,8 +111,10 @@ class ReferralViewModel: ObservableObject {
     @MainActor
     private func loadReferralInfo() async {
         do {
-            let referralProgramInfo = try await runInTask {
-                try await self.tangemApiService.loadReferralProgramInfo(for: self.userWalletId.hexString)
+            let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
+                guard let self else { return nil }
+
+                return try await tangemApiService.loadReferralProgramInfo(for: userWalletId.hexString, expectedAwardsLimit: expectedAwardsFetchLimit)
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
@@ -111,73 +124,24 @@ class ReferralViewModel: ObservableObject {
             errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator?.dismiss ?? {})
         }
     }
-
-    private func requestDerivation(for blockchain: Blockchain, with referralToken: AwardToken) {
-        let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-        let token = referralToken.storageToken
-
-        let storageEntry = StorageEntry(blockchainNetwork: network, token: token)
-        if let model = cardModel.walletModels.first(where: { $0.blockchainNetwork == network }),
-           let token {
-            model.addTokens([token])
-        }
-
-        cardModel.add(entries: [storageEntry]) { [weak self] result in
-            guard let self else { return }
-
-            isProcessingRequest = false
-            switch result {
-            case .success:
-                runTask(participateInReferralProgram)
-            case .failure(let error):
-                if case .userCancelled = error.toTangemSdkError() {
-                    return
-                }
-
-                AppLog.shared.error(error)
-                errorAlert = error.alertBinder
-            }
-        }
-    }
-
-    private func saveToStorageIfNeeded(_ referralToken: AwardToken, for blockchain: Blockchain) {
-        let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-        guard
-            let storageToken = referralToken.storageToken
-        else {
-            return
-        }
-
-        var savedEntries = cardModel.getSavedEntries()
-
-        if let savedNetworkIndex = savedEntries.firstIndex(where: { $0.blockchainNetwork == network }),
-           !savedEntries[savedNetworkIndex].tokens.contains(where: { $0 == storageToken }) {
-            savedEntries[savedNetworkIndex].tokens.append(storageToken)
-            cardModel.update(entries: savedEntries)
-        }
-    }
 }
 
 // MARK: UI stuff
 
 extension ReferralViewModel {
-    var award: String {
-        guard
-            let info = referralProgramInfo,
-            let award = info.conditions.awards.first
-        else {
-            return ""
-        }
-
-        return "\(award.amount) \(award.token.symbol)"
-    }
-
-    var awardDescriptionSuffix: String {
+    func awardDescription(highlightColor: Color) -> NSAttributedString {
+        var formattedAward = ""
         var addressContent = ""
         var tokenName = ""
+
+        if let info = referralProgramInfo,
+           let award = info.conditions.awards.first {
+            formattedAward = "\(award.amount) \(award.token.symbol)"
+        }
+
         if let address = referralProgramInfo?.referral?.address {
             let addressFormatter = AddressFormatter(address: address)
-            addressContent = " \(addressFormatter.truncated())"
+            addressContent = addressFormatter.truncated()
         }
 
         if let token = referralProgramInfo?.conditions.awards.first?.token,
@@ -185,7 +149,8 @@ extension ReferralViewModel {
             tokenName = blockchain.displayName
         }
 
-        return " " + Localization.referralPointCurrenciesDescriptionSuffix(tokenName, addressContent)
+        let rawText = Localization.referralPointCurrenciesDescription(formattedAward, tokenName, addressContent)
+        return TangemRichTextFormatter(highlightColor: UIColor(highlightColor)).format(rawText)
     }
 
     var discount: String {
@@ -196,9 +161,62 @@ extension ReferralViewModel {
         return Localization.referralPointDiscountDescriptionValue("\(info.conditions.discount.amount)\(info.conditions.discount.type.symbol)")
     }
 
+    var hasPurchases: Bool {
+        let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
+        return count > 0
+    }
+
     var numberOfWalletsBought: String {
         let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
         return Localization.referralWalletsPurchasedCount(count)
+    }
+
+    var hasExpectedAwards: Bool {
+        let count = referralProgramInfo?.expectedAwards?.numberOfWallets ?? 0
+        return count > 0
+    }
+
+    var numberOfWalletsForPayments: String {
+        let count = referralProgramInfo?.expectedAwards?.numberOfWallets ?? 0
+        return Localization.referralNumberOfWallets(count)
+    }
+
+    var expectedAwards: [ExpectedAward] {
+        guard let list = referralProgramInfo?.expectedAwards?.list else {
+            return []
+        }
+
+        let dateParser = DateFormatter()
+        dateParser.dateFormat = "yyyy-MM-dd"
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.doesRelativeDateFormatting = true
+
+        let awards: [ExpectedAward] = list.map {
+            let amount = "\($0.amount) \($0.currency)"
+
+            guard
+                let date = dateParser.date(from: $0.paymentDate)
+            else {
+                return ExpectedAward(date: $0.paymentDate, amount: amount)
+            }
+
+            let formattedDate = dateFormatter.string(from: date)
+            return ExpectedAward(date: formattedDate, amount: amount)
+        }
+
+        let awardsToShow = expectedAwardsExpanded ? expectedAwardsFetchLimit : expectedAwardsShortListLimit
+        return Array(awards.prefix(awardsToShow))
+    }
+
+    var canExpandExpectedAwards: Bool {
+        let list = referralProgramInfo?.expectedAwards?.list ?? []
+        return list.count > expectedAwardsShortListLimit
+    }
+
+    var expandButtonText: String {
+        expectedAwardsExpanded ? Localization.referralLess : Localization.referralMore
     }
 
     var promoCode: String {
@@ -235,5 +253,58 @@ extension ReferralViewModel {
 
         Analytics.log(.referralButtonOpenTos)
         coordinator?.openTOS(with: url)
+    }
+}
+
+extension ReferralViewModel {
+    struct ExpectedAward {
+        let date: String
+        let amount: String
+    }
+}
+
+private struct TangemRichTextFormatter {
+    // Formatting rich text as NSAttributedString
+    // Supported formats: ^^color^^ for the highlight color
+    private let highlightColor: UIColor
+
+    init(highlightColor: UIColor) {
+        self.highlightColor = highlightColor
+    }
+
+    func format(_ string: String) -> NSAttributedString {
+        var attributedString = NSMutableAttributedString(string: string)
+
+        attributedString = formatColor(string, attributedString, highlightColor: highlightColor)
+
+        return attributedString
+    }
+
+    private func formatColor(_ string: String, _ attributedString: NSMutableAttributedString, highlightColor: UIColor) -> NSMutableAttributedString {
+        var originalString = string
+
+        let regex = try! NSRegularExpression(pattern: "\\^{2}.+?\\^{2}")
+
+        let wholeRange = NSRange(location: 0, length: (originalString as NSString).length)
+        let matches = regex.matches(in: originalString, range: wholeRange)
+
+        for match in matches.reversed() {
+            let formatterTagLength = 2
+
+            let richText = String(originalString[Range(match.range, in: originalString)!])
+            let plainText = richText.dropFirst(formatterTagLength).dropLast(formatterTagLength)
+
+            originalString = originalString.replacingOccurrences(of: richText, with: plainText)
+
+            let richTextRange = NSRange(location: match.range.location, length: match.range.length)
+
+            attributedString.replaceCharacters(in: richTextRange, with: String(plainText))
+
+            let plainTextRange = NSRange(location: match.range.location, length: plainText.count)
+            let attributedStringColor = [NSAttributedString.Key.foregroundColor: highlightColor]
+            attributedString.addAttribute(.foregroundColor, value: highlightColor, range: plainTextRange)
+        }
+
+        return attributedString
     }
 }
