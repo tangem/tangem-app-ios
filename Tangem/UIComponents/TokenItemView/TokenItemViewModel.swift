@@ -65,6 +65,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
                 case .noDerivation:
                     missingDerivation = true
                     networkUnreachable = false
+                    updateBalances()
                 case .networkError:
                     missingDerivation = false
                     networkUnreachable = true
