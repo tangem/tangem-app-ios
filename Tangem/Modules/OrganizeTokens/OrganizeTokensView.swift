@@ -365,6 +365,8 @@ struct OrganizeTokensView: View {
     }
 
     private func onTouchesBegan(atLocation location: CGPoint) {
+        newDragAndDropSessionPrecondition()
+
         if let initialIndexPath = dragAndDropController.indexPath(for: location),
            viewModel.canStartDragAndDropSession(at: initialIndexPath) {
             dragAndDropInitialIndexPath = initialIndexPath
@@ -374,6 +376,14 @@ struct OrganizeTokensView: View {
     }
 
     // MARK: - Drag and drop support
+
+    func newDragAndDropSessionPrecondition() {
+        // The following assertions verify that the drag-and-drop related @State variables
+        // have been properly reset at the end of the previous drag-and-drop session
+        assert(dragAndDropDestinationIndexPath == nil)
+        assert(dragAndDropSourceItemFrame == nil)
+        assert(dragAndDropSourceViewModelIdentifier == nil)
+    }
 
     private func updateDragAndDropDestinationIndexPath(using dragGestureTranslation: CGSize?) {
         guard
