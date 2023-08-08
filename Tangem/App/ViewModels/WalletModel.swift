@@ -753,6 +753,12 @@ extension WalletModel {
 }
 
 extension WalletModel: TokenItemInfoProvider {
+    var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> {
+        _walletDidChangePublisher
+            .map { TokenItemViewState(walletModelState: $0) }
+            .eraseToAnyPublisher()
+    }
+
     var hasPendingTransactions: Bool {
         !incomingPendingTransactions.isEmpty || !outgoingPendingTransactions.isEmpty
     }
