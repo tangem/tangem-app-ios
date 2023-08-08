@@ -86,38 +86,59 @@ struct TransactionHistoryMapper {
     }
 
     func transferAmount(from record: TransactionRecord) -> String {
-        let sent: Decimal = {
-            switch record.source {
-            case .single(let source):
-                return source.amount
-            case .multiple(let destinations):
-                let amount = destinations
-                    .filter { $0.address == walletAddress }
-                    .reduce(0) { $0 + $1.amount }
+        switch record.type {
+        case .send:
+            let sent: Decimal = {
+                switch record.source {
+                case .single(let source):
+                    return source.amount
+                case .multiple(let destinations):
+                    let amount = destinations
+                        .filter { $0.address == walletAddress }
+                        .reduce(0) { $0 + $1.amount }
 
-                return amount
-            @unknown default:
-                fatalError()
-            }
-        }()
+                    return amount
+                @unknown default:
+                    fatalError()
+                }
+            }()
 
-        let change: Decimal = {
-            switch record.destination {
-            case .single(let destination):
-                return destination.address.string == walletAddress ? destination.amount : 0
-            case .multiple(let destinations):
-                let amount = destinations
-                    .filter { $0.address.string == walletAddress }
-                    .reduce(0) { $0 + $1.amount }
+            let change: Decimal = {
+                switch record.destination {
+                case .single(let destination):
+                    return destination.address.string == walletAddress ? destination.amount : 0
+                case .multiple(let destinations):
+                    let amount = destinations
+                        .filter { $0.address.string == walletAddress }
+                        .reduce(0) { $0 + $1.amount }
 
-                return amount
-            @unknown default:
-                fatalError()
-            }
-        }()
+                    return amount
+                @unknown default:
+                    fatalError()
+                }
+            }()
 
-        let amount = sent - change
-        return formatted(amount: amount)
+            let amount = sent - change
+            return formatted(amount: amount)
+
+        case .receive:
+            let received: Decimal = {
+                switch record.destination {
+                case .single(let destination):
+                    return destination.amount
+                case .multiple(let destinations):
+                    let amount = destinations
+                        .filter { $0.address.string == walletAddress }
+                        .reduce(0) { $0 + $1.amount }
+
+                    return amount
+                @unknown default:
+                    fatalError()
+                }
+            }()
+
+            return formatted(amount: received)
+        }
     }
 
     func destination(from record: TransactionRecord) -> String {
