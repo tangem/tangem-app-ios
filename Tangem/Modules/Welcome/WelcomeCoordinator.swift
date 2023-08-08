@@ -20,10 +20,11 @@ class WelcomeCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var mainCoordinator: LegacyMainCoordinator? = nil
+    @Published var legacyMainCoordinator: LegacyMainCoordinator? = nil
+    @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
-    @Published var tokenListCoordinator: TokenListCoordinator? = nil
+    @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
 
     // MARK: - Child view models
@@ -39,7 +40,7 @@ class WelcomeCoordinator: CoordinatorObject {
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($tokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($legacyTokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
@@ -90,10 +91,18 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
+        if FeatureProvider.isAvailable(.mainV2) {
+            let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+            let options = MainCoordinator.Options(userWalletModel: cardModel)
+            coordinator.start(with: options)
+            mainCoordinator = coordinator
+            return
+        }
+
         let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
         let options = LegacyMainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
-        mainCoordinator = coordinator
+        legacyMainCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
@@ -113,11 +122,11 @@ extension WelcomeCoordinator: WelcomeRoutable {
 
     func openTokensList() {
         let dismissAction: Action = { [weak self] in
-            self?.tokenListCoordinator = nil
+            self?.legacyTokenListCoordinator = nil
         }
-        let coordinator = TokenListCoordinator(dismissAction: dismissAction)
+        let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .show)
-        tokenListCoordinator = coordinator
+        legacyTokenListCoordinator = coordinator
     }
 
     func openShop() {
