@@ -9,15 +9,16 @@
 import Foundation
 
 struct MultiWalletTokenItemsSection: Identifiable {
-    var id: String { title ?? UUID().uuidString }
-
+    var id: Int
     let title: String?
     let tokenItemModels: [TokenItemViewModel]
 
     init(
+        id: Int,
         title: String?,
         tokenItemModels: [TokenItemViewModel]
     ) {
+        self.id = id
         self.title = title
         self.tokenItemModels = tokenItemModels
     }
