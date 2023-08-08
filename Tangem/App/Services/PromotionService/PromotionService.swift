@@ -151,8 +151,8 @@ extension PromotionService: PromotionServiceProtocol {
         }
     }
 
-    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Blockchain? {
-        guard let awardDetails = try await awardDetails(storageEntryAdding: storageEntryAdding) else { return nil }
+    func claimReward(userWalletId: String, userTokensManager: UserTokensManager) async throws -> Blockchain? {
+        guard let awardDetails = try await awardDetails(userTokensManager: userTokensManager) else { return nil }
 
         let address = awardDetails.address
 
@@ -213,7 +213,7 @@ extension PromotionService {
         let address: String
     }
 
-    private func awardDetails(storageEntryAdding: StorageEntryAdding) async throws -> AwardDetails? {
+    private func awardDetails(userTokensManager: UserTokensManager) async throws -> AwardDetails? {
         let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: nil)
 
         guard
@@ -223,12 +223,8 @@ extension PromotionService {
             throw TangemAPIError(code: .decode)
         }
 
-        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: nil)
-
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
-
         do {
-            let address = try await storageEntryAdding.add(entry: entry)
+            let address = try await userTokensManager.add(.token(awardToken, awardBlockchain), derivationPath: nil)
             return AwardDetails(blockchain: awardBlockchain, address: address)
         } catch {
             if error.toTangemSdkError().isUserCancelled {
