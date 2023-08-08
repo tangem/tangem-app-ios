@@ -43,15 +43,6 @@ struct OrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
-    // `Initial` here means 'at the beginning of the drag and drop gesture'.
-    @GestureState private var scrollViewInitialContentOffset: CGPoint = .zero
-
-    // Viewport with `contentInset` (i.e. with `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
-    @State private var visibleViewportFrame: CGRect = .zero
-
-    // In a `.global` coordinate space
-    @State private var draggedItemFrame: CGRect = .zero
-
     // Index path for a view that received a new touch.
     // `Initial` here means 'at the beginning of the drag and drop gesture'.
     //
@@ -71,6 +62,20 @@ struct OrganizeTokensView: View {
 
     @GestureState private var dragGestureTranslation: CGSize?
 
+    // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
+    private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
+
+    // MARK: - Auto scrolling support
+
+    // Viewport insetted by `contentInset` (i.e. by `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
+    @State private var visibleViewportFrame: CGRect = .zero
+
+    // In a `.global` coordinate space
+    @State private var draggedItemFrame: CGRect = .zero
+
+    // `Initial` here means 'at the beginning of the drag and drop gesture'.
+    @GestureState private var scrollViewInitialContentOffset: CGPoint = .zero
+
     // Adopts changes in scroll view content offset (`scrollViewContentCoordinateSpaceName` coordinate space)
     // to the drag gesture translation (`scrollViewFrameCoordinateSpaceName` coordinate space).
     // Changes can be made by drag-and-drop auto scroll, for example.
@@ -80,9 +85,6 @@ struct OrganizeTokensView: View {
             height: scrollViewContentOffset.y - scrollViewInitialContentOffset.y
         )
     }
-
-    // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
-    private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
 
     // MARK: - Body
 
