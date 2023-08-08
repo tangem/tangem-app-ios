@@ -501,8 +501,7 @@ class SendViewModel: ObservableObject {
 
     func validateAddress(_ address: String) -> Bool {
         let service = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
-        return service.validate(address)
-            && !walletModel.wallet.addresses.contains(where: { $0.value == address })
+        return service.validate(address) && !walletModel.wallet.addresses.contains(where: { $0.value == address })
     }
 
     func validateDestination(_ destination: String) {
@@ -822,8 +821,10 @@ private extension SendViewModel {
 
     func getFiat(for amount: Amount?, roundingType: AmountRoundingType) -> Decimal? {
         if let amount = amount {
-            let currencyId = amount.type.token?.id ?? blockchainNetwork.blockchain.currencyId
-            guard let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) else {
+            guard
+                let currencyId = walletModel.tokenItem.currencyId,
+                let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId)
+            else {
                 return nil
             }
 
@@ -842,10 +843,15 @@ private extension SendViewModel {
     }
 
     func getCrypto(for amount: Amount?) -> Decimal? {
-        guard let amount = amount else { return nil }
+        guard
+            let amount = amount,
+            let currencyId = walletModel.tokenItem.currencyId
+        else {
+            return nil
+        }
 
         return BalanceConverter()
-            .convertFromFiat(value: amount.value, to: amount.currencySymbol)?
+            .convertFromFiat(value: amount.value, to: currencyId)?
             .rounded(scale: amount.decimals)
     }
 
