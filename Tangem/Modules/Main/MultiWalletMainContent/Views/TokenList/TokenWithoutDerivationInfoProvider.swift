@@ -12,16 +12,16 @@ import BlockchainSdk
 
 class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     var id: Int
+    var tokenItem: TokenItem
+
+    var hasPendingTransactions: Bool = false
+    var balance: String = Localization.walletBalanceMissingDerivation
+    var fiatBalance: String = BalanceFormatter.defaultEmptyBalanceString
 
     var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { .just(output: .noDerivation) }
 
-    var tokenItem: TokenItem
-    var hasPendingTransactions: Bool = false
-    var balance: String = BalanceFormatter.defaultEmptyBalanceString
-    var fiatBalance: String = BalanceFormatter.defaultEmptyBalanceString
-
-    init(tokenItem: TokenItem) {
+    init(id: Int, tokenItem: TokenItem) {
+        self.id = id
         self.tokenItem = tokenItem
-        id = tokenItem.hashValue
     }
 }
