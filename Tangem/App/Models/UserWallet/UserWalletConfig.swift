@@ -23,11 +23,15 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var mandatoryCurves: [EllipticCurve] { get }
 
+    var derivationStyle: DerivationStyle? { get }
+
     var tangemSigner: TangemSigner { get }
 
     var warningEvents: [WarningEvent] { get }
 
     var canSkipBackup: Bool { get }
+
+    var canImportKeys: Bool { get }
     /// All blockchains supported by this user wallet.
     var supportedBlockchains: Set<Blockchain> { get }
 
@@ -42,15 +46,17 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var emailData: [EmailCollectedData] { get }
 
-    var cardAmountType: Amount.AmountType? { get }
-
     var userWalletIdSeed: Data? { get }
 
     var productType: Analytics.ProductType { get }
 
+    var cardHeaderImage: ImageType? { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel
+    func makeWalletModelsFactory() -> WalletModelsFactory
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory
 }
 
 extension UserWalletConfig {
@@ -58,8 +64,12 @@ extension UserWalletConfig {
         getFeatureAvailability(feature).isAvailable
     }
 
-    var cardAmountType: Amount.AmountType? {
-        return nil
+    func isFeatureVisible(_ feature: UserWalletFeature) -> Bool {
+        !getFeatureAvailability(feature).isHidden
+    }
+
+    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
+        getFeatureAvailability(feature).disabledLocalizedReason
     }
 
     var tou: TOU {
@@ -73,6 +83,14 @@ extension UserWalletConfig {
 
     var canSkipBackup: Bool {
         true
+    }
+
+    var canImportKeys: Bool {
+        false
+    }
+
+    var derivationStyle: DerivationStyle? {
+        return nil
     }
 }
 
