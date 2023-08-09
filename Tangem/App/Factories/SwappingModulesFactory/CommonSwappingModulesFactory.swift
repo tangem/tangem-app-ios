@@ -103,7 +103,7 @@ private extension CommonSwappingModulesFactory {
 
     var currencyMapper: CurrencyMapping { CurrencyMapper() }
 
-    var tokenIconURLBuilder: TokenIconURLBuilding { TokenIconURLBuilder(baseURL: CoinsList.baseURL) }
+    var tokenIconURLBuilder: TokenIconURLBuilding { TokenIconURLBuilder() }
 
     var userCurrenciesProvider: UserCurrenciesProviding {
         UserCurrenciesProvider(
