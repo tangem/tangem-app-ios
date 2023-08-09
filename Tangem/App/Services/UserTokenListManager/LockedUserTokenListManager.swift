@@ -14,15 +14,15 @@ struct LockedUserTokenListManager: UserTokenListManager {
 
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { .just(output: []) }
 
-    func contains(_ entry: StorageEntry) -> Bool {
-        return false
-    }
+    var userTokenList: AnyPublisher<UserTokenList, Never> { .just(output: .empty) }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool) {}
+    func update(with userTokenList: UserTokenList) {}
 
-    func upload() {}
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         result(.success(()))
     }
+
+    func upload() {}
 }
