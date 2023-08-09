@@ -35,7 +35,10 @@ struct CardsInfoPagerView<
 
     // MARK: - Selected index
 
-    @Binding private var selectedIndex: Int
+    @State private var selectedIndex: Int
+
+    /// `External` here means 'driven from the outside' (by the consumer of this pager view).
+    @Binding private var externalSelectedIndex: Int
 
     /// Contains previous value of the `selectedIndex` property.
     @State private var previouslySelectedIndex: Int
@@ -136,6 +139,12 @@ struct CardsInfoPagerView<
                     // Therefore, we sync them forcefully when vertical scrolling starts.
                     synchronizeContentSelectedIndex()
                 }
+                .onChange(of: externalSelectedIndex) { newValue in
+                    // Synchronizing external and private selected indices if needed
+                    if newValue != selectedIndex {
+                        switchPageProgrammatically(to: newValue, geometryProxy: proxy)
+                    }
+                }
         }
         .modifier(
             CardsInfoPagerContentSwitchingModifier(
@@ -157,6 +166,10 @@ struct CardsInfoPagerView<
         .onPreferenceChange(CardsInfoPagerContentSwitchingModifier.PreferenceKey.self) { newValue in
             scheduleContentSelectedIndexUpdateIfNeeded(toNewValue: newValue)
         }
+        .onChange(of: selectedIndex) { newValue in
+            // Synchronizing private and external selected indices
+            externalSelectedIndex = newValue
+        }
     }
 
     // MARK: - Initialization/Deinitialization
@@ -171,9 +184,10 @@ struct CardsInfoPagerView<
     ) {
         self.data = data
         self.idProvider = idProvider
-        _selectedIndex = selectedIndex
+        _selectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _previouslySelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _contentSelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
+        _externalSelectedIndex = selectedIndex
         self.headerFactory = headerFactory
         self.contentFactory = contentFactory
         self.onPullToRefresh = onPullToRefresh
