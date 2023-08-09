@@ -20,7 +20,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let userWallet: UserWallet
     let isMultiWallet: Bool
     let isUserWalletLocked: Bool
-    let userWalletId: UserWalletId
+    var userWalletId: UserWalletId
     var cardsCount: Int
 
     var userWalletName: String { _userWalletNamePublisher.value }

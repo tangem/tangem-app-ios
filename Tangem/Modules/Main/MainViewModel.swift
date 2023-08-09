@@ -35,7 +35,7 @@ final class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
-        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
+        pages = mainUserWalletPageBuilderFactory.createPages(from: FakeUserWalletModel.allFakeWalletModels)
         setupHorizontalScrollAvailability()
     }
 
@@ -49,6 +49,20 @@ final class MainViewModel: ObservableObject {
         if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
             selectedCardIndex = selectedIndex
         }
+    }
+
+    func dropFirst() {
+        pages.removeFirst()
+    }
+
+    func dropLast() {
+        pages.removeLast()
+    }
+
+    func appendToEnd() {
+        var fakeModel = FakeUserWalletModel.allFakeWalletModels.randomElement()!
+        fakeModel.userWalletId = .init(with: Data.randomData(count: 32))
+        pages.append(mainUserWalletPageBuilderFactory.createPage(for: fakeModel))
     }
 
     // MARK: - Internal functions
