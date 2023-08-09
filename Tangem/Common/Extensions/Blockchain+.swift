@@ -62,6 +62,7 @@ extension Blockchain {
         }
     }
 
+    /// The ID from `CoinGecko`
     var id: String {
         switch self {
         case .binance: return "binancecoin"
@@ -107,10 +108,12 @@ extension Blockchain {
         }
     }
 
+    /// The ID for `Tangem API`. Used to save a list of user tokens
     var networkId: String {
         isTestnet ? "\(rawNetworkId)\(Blockchain.testnetId)" : rawNetworkId
     }
 
+    /// Used to for currency rate from `Tangem API`
     var currencyId: String {
         switch self {
         case .arbitrum(let testnet), .optimism(let testnet):
@@ -120,7 +123,31 @@ extension Blockchain {
         }
     }
 
-    var rawNetworkId: String {
+    /// Used to get icon from `Tokens.xcassets`
+    var iconName: String {
+        let rawId = rawStringId
+
+        if rawId == "binance" {
+            return "bsc"
+        }
+
+        return rawId
+    }
+
+    /// Used to get icon from `Tokens.xcassets`
+    var iconNameFilled: String { "\(iconName).fill" }
+
+    private var rawStringId: String {
+        var name = "\(self)".lowercased()
+
+        if let index = name.firstIndex(of: "(") {
+            name = String(name.prefix(upTo: index))
+        }
+
+        return name
+    }
+
+    private var rawNetworkId: String {
         switch self {
         case .binance: return "binancecoin"
         case .bitcoin: return "bitcoin"
@@ -164,26 +191,4 @@ extension Blockchain {
         case .chia: return "chia"
         }
     }
-
-    var rawStringId: String {
-        var name = "\(self)".lowercased()
-
-        if let index = name.firstIndex(of: "(") {
-            name = String(name.prefix(upTo: index))
-        }
-
-        return name
-    }
-
-    var iconName: String {
-        let rawId = rawStringId
-
-        if rawId == "binance" {
-            return "bsc"
-        }
-
-        return rawId
-    }
-
-    var iconNameFilled: String { "\(iconName).fill" }
 }

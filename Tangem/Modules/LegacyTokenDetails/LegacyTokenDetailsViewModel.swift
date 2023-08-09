@@ -223,7 +223,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         let currencyId = amountType.token?.id ?? blockchainNetwork.blockchain.id
 
         tangemApiService
-            .loadCoins(requestModel: CoinsListRequestModel(networkIds: [networkId], ids: [currencyId]))
+            .loadCoins(requestModel: CoinsList.Request(supportedBlockchains: [blockchainNetwork.blockchain], ids: [currencyId]))
             .sink { [weak self] completion in
                 if case .failure = completion {
                     self?.canSwap = false
