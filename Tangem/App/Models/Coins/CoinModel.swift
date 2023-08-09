@@ -14,6 +14,5 @@ struct CoinModel {
     let id: String
     let name: String
     let symbol: String
-    let imageURL: URL?
     let items: [TokenItem]
 }
