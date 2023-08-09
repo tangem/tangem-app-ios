@@ -145,6 +145,13 @@ struct CardsInfoPagerView<
                         switchPageProgrammatically(to: newValue, geometryProxy: proxy)
                     }
                 }
+                .onChange(of: data.count) { newValue in
+                    // Handling edge cases when the very last page is selected and that page is being deleted
+                    let clampedSelectedIndex = clamp(selectedIndex, min: selectedIndexLowerBound, max: newValue - 1)
+                    if selectedIndex > clampedSelectedIndex {
+                        switchPageProgrammatically(to: clampedSelectedIndex, geometryProxy: proxy)
+                    }
+                }
         }
         .modifier(
             CardsInfoPagerContentSwitchingModifier(
