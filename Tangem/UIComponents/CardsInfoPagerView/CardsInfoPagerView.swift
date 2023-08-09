@@ -266,7 +266,7 @@ struct CardsInfoPagerView<
                     .fixedSize()
                     .id(collapsedHeaderScrollTargetIdentifier)
 
-                contentFactory(data[contentSelectedIndex])
+                contentFactory(data[clamp(contentSelectedIndex, min: selectedIndexLowerBound, max: selectedIndexUpperBound)])
                     .modifier(
                         CardsInfoPagerContentAnimationModifier(
                             progress: pageSwitchProgress,
