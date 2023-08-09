@@ -220,7 +220,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         exchangeButtonIsLoading = true
 
         let networkId = blockchainNetwork.blockchain.networkId
-        let currencyId = amountType.token?.id ?? blockchainNetwork.blockchain.id
+        let currencyId = amountType.token?.id ?? blockchainNetwork.blockchain.coinId
 
         tangemApiService
             .loadCoins(requestModel: CoinsList.Request(supportedBlockchains: [blockchainNetwork.blockchain], ids: [currencyId]))
