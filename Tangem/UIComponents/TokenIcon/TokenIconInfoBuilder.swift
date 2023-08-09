@@ -27,7 +27,7 @@ struct TokenIconInfoBuilder {
         }
 
         if let id {
-            imageURL = TokenIconURLBuilder(baseURL: CoinsResponse.baseURL)
+            imageURL = TokenIconURLBuilder(baseURL: CoinsList.baseURL)
                 .iconURL(id: id, size: .large)
         }
 
