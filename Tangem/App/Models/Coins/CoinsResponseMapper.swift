@@ -16,22 +16,6 @@ struct CoinsResponseMapper {
         self.supportedBlockchains = supportedBlockchains
     }
 
-    func mapToToken(contract: String, in response: CoinsList.Response) -> Token? {
-        let coinModels = mapToCoinModels(response)
-        var token: Token?
-
-        for coinModel in coinModels {
-            for tokenItem in coinModel.items {
-                if tokenItem.contractAddress?.caseInsensitiveCompare(contract) == .orderedSame {
-                    token = tokenItem.token
-                    break
-                }
-            }
-        }
-
-        return token
-    }
-
     func mapToCoinModels(_ response: CoinsList.Response) -> [CoinModel] {
         response.coins.map { coin in
             let id = coin.id.trimmed()
