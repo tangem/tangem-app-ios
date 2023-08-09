@@ -16,6 +16,10 @@ struct UserTokensManagerMock: UserTokensManager {
 
     var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
+    var derivationManager: DerivationManager? { nil }
+
+    func deriveEntriesWithoutDerivation(_ completion: @escaping () -> Void) {}
+
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
