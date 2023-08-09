@@ -68,8 +68,8 @@ private extension SwappingDestinationService {
     }
 
     func loadPreferredCurrencyFromAPI(networkId: String, tokenSymbol: String? = nil) async throws -> Currency {
-        let model = CoinsListRequestModel(
-            networkIds: [networkId],
+        let model = CoinsList.Request(
+            supportedBlockchains: [blockchain],
             searchText: tokenSymbol,
             exchangeable: true
         )
