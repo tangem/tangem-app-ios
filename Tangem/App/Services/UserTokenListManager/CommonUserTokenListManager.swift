@@ -251,9 +251,9 @@ private extension CommonUserTokenListManager {
     }
 
     func updateCustomToken(token: Token, in blockchainNetwork: BlockchainNetwork) -> AnyPublisher<Bool, Never> {
-        let requestModel = CoinsListRequestModel(
-            contractAddress: token.contractAddress,
-            networkIds: [blockchainNetwork.blockchain.networkId]
+        let requestModel = CoinsList.Request(
+            supportedBlockchains: [blockchainNetwork.blockchain],
+            contractAddress: token.contractAddress
         )
 
         // [REDACTED_TODO_COMMENT]
@@ -261,14 +261,13 @@ private extension CommonUserTokenListManager {
             .loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .flatMap { [weak self] models -> AnyPublisher<Bool, Never> in
-                guard let self = self,
-                      let token = models.first?.items.compactMap({ $0.token }).first else {
+                guard let token = models.first?.items.compactMap({ $0.token }).first else {
                     return Just(false).eraseToAnyPublisher()
                 }
 
                 return Future<Bool, Never> { promise in
                     let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-                    self.update(.append([entry]), shouldUpload: true)
+                    self?.update(.append([entry]), shouldUpload: true)
                     promise(.success(true))
                 }
                 .eraseToAnyPublisher()
