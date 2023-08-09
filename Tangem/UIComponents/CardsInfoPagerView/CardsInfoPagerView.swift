@@ -483,6 +483,19 @@ struct CardsInfoPagerView<
         }
     }
 
+    /// Convenience helper which resets view's state before performing page switch programmatically.
+    private func switchPageProgrammatically(to selectedIndex: Int, geometryProxy proxy: GeometryProxy) {
+        resetViewStateBeforeSwitchingPageProgrammatically()
+        switchPage(method: .programmatically(selectedIndex: selectedIndex), geometryProxy: proxy)
+    }
+
+    private func resetViewStateBeforeSwitchingPageProgrammatically() {
+        withTransaction(.withoutAnimations()) {
+            pageSwitchProgress = 0.0
+            hasValidIndexToSelect = true
+        }
+    }
+
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
 
     func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
