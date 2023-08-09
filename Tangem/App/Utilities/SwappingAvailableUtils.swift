@@ -63,7 +63,7 @@ struct SwappingAvailableUtils {
             }
 
             let networkId = swapBlockchain.networkId
-            let currencyId = token.id ?? blockchain.id
+            let currencyId = token.id ?? blockchain.coinId
 
             return tangemApiService
                 .loadCoins(requestModel: .init(supportedBlockchains: [blockchain], ids: [currencyId]))
