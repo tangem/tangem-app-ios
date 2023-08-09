@@ -114,7 +114,7 @@ struct CardsInfoPagerView<
 
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
-    private var pageSwitchAnimationDuration: CGFloat = Constants.pageSwitchAnimationDuration
+    private var pageSwitchAnimationDuration: TimeInterval = Constants.pageSwitchAnimationDuration
     private var isHorizontalScrollDisabled = false
 
     // MARK: - Body
@@ -642,7 +642,7 @@ private extension CardsInfoPagerView {
         static var headerAutoScrollThresholdRatio: CGFloat { 0.25 }
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
-        static var pageSwitchAnimationDuration: CGFloat { 0.7 }
+        static var pageSwitchAnimationDuration: TimeInterval { 0.7 }
     }
 }
 
