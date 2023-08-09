@@ -368,6 +368,8 @@ struct CardsInfoPagerView<
         let remainingPageSwitchProgress = pageHasBeenSwitched
             ? 1.0 - currentPageSwitchProgress
             : currentPageSwitchProgress
+        let minRemainingPageSwitchProgress = Constants.minRemainingPageSwitchProgress
+        var remainingPageSwitchProgressIsTooSmall = false
         let remainingWidth = totalWidth * remainingPageSwitchProgress
         let horizontalDragGestureVelocity = abs(dragGestureVelocity.width)
         var animationSpeed = 1.0
@@ -385,6 +387,7 @@ struct CardsInfoPagerView<
                 animationSpeed = pageSwitchProgressDrivenAnimationSpeed(
                     remainingPageSwitchProgress: remainingPageSwitchProgress
                 )
+                remainingPageSwitchProgressIsTooSmall = remainingPageSwitchProgress < minRemainingPageSwitchProgress
             }
         } else {
             // Horizontal velocity of the drag gesture is zero, therefore animation speed
@@ -392,12 +395,17 @@ struct CardsInfoPagerView<
             animationSpeed = pageSwitchProgressDrivenAnimationSpeed(
                 remainingPageSwitchProgress: remainingPageSwitchProgress
             )
+            remainingPageSwitchProgressIsTooSmall = remainingPageSwitchProgress < minRemainingPageSwitchProgress
         }
 
-        if !hasValidIndexToSelect {
-            // 'sharpness' of the animation is reduced if there is no valid next/previous index
-            // to select, i.e. when we are at the first/last page and we're trying to switch to
-            // either `selectedIndexLowerBound - 1` or `selectedIndexUpperBound + 1` index
+        if !hasValidIndexToSelect || remainingPageSwitchProgressIsTooSmall {
+            // 'sharpness' of the animations is reduced in two cases:
+            //
+            // 1. If there is no valid next/previous index to select (i.e. when we are at
+            // the first/last page and we're trying to switch to either `selectedIndexLowerBound - 1`
+            // or `selectedIndexUpperBound + 1` index)
+            //
+            // 2. There is not enough remaining page switch progress left to make nice-looking animations
             animationSpeed = clamp(animationSpeed, min: 1.0, max: 3.0)
         }
 
@@ -643,6 +651,7 @@ private extension CardsInfoPagerView {
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimationDuration: TimeInterval { 0.7 }
+        static var minRemainingPageSwitchProgress: CGFloat { 1.0 / 3.0 }
     }
 }
 
