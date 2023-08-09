@@ -18,7 +18,7 @@ struct TokenIconInfoBuilder {
 
         switch type {
         case .coin, .reserve:
-            id = blockchain.id
+            id = blockchain.coinId
             name = blockchain.displayName
         case .token(let token):
             id = token.id
