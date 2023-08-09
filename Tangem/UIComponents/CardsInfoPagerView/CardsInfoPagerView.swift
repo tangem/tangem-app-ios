@@ -324,11 +324,11 @@ struct CardsInfoPagerView<
                 )
 
                 // The presence/absence of the next index to select must be determined as soon as possible
-                // when drag gesture starts, therefore `nextPageThreshold` equals `ulpOfOne` here
+                // when drag gesture starts, therefore `nextPageThreshold` is a relatively small value here
                 let nextIndexToSelect = nextIndexToSelectFiltered(
                     translation: value.translation.width,
                     totalWidth: totalWidth,
-                    nextPageThreshold: .ulpOfOne
+                    nextPageThreshold: 1.0 / 100000.0 // 0.001%
                 )
                 hasValidIndexToSelect = nextIndexToSelect != nil && nextIndexToSelect != selectedIndex
             }
