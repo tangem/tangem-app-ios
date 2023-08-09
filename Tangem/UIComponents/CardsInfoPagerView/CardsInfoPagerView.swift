@@ -312,47 +312,7 @@ struct CardsInfoPagerView<
                 hasValidIndexToSelect = nextIndexToSelect != nil && nextIndexToSelect != selectedIndex
             }
             .onEnded { value in
-                let totalWidth = proxy.size.width
-
-                let newSelectedIndex = nextIndexToSelectClamped(
-                    translation: value.predictedEndTranslation.width,
-                    totalWidth: totalWidth,
-                    nextPageThreshold: pageSwitchThreshold
-                )
-                let pageHasBeenSwitched = newSelectedIndex != selectedIndex
-
-                cumulativeHorizontalTranslation += valueWithRubberbandingIfNeeded(value.translation.width)
-                cumulativeHorizontalTranslation += additionalHorizontalTranslation(
-                    oldSelectedIndex: selectedIndex,
-                    newSelectedIndex: newSelectedIndex
-                )
-
-                if pageSwitchThreshold > 0.5, !pageHasBeenSwitched {
-                    // Fixes edge cases for page switch thresholds > 0.5 when page switch threshold
-                    // hasn't been exceeded: reverse animation should restore `contentSelectedIndex`
-                    // back to `selectedIndex` value exactly in the middle of the animation.
-                    // In order to achieve that we have to assign `previouslySelectedIndex` to a
-                    // different value, or SwiftUI's `onChange(of:perform:)` callback won't be triggered.
-                    previouslySelectedIndex = contentSelectedIndex
-                } else {
-                    previouslySelectedIndex = selectedIndex
-                }
-
-                selectedIndex = newSelectedIndex
-                initialPageSwitchProgress = pageSwitchProgress
-                finalPageSwitchProgress = pageHasBeenSwitched ? 1.0 : 0.0
-
-                let animation = makeHorizontalScrollAnimation(
-                    totalWidth: totalWidth,
-                    dragGestureVelocity: value.velocityCompat,
-                    currentPageSwitchProgress: pageSwitchProgress,
-                    pageHasBeenSwitched: pageHasBeenSwitched
-                )
-
-                withAnimation(animation) {
-                    cumulativeHorizontalTranslation = -CGFloat(newSelectedIndex) * totalWidth
-                    pageSwitchProgress = finalPageSwitchProgress
-                }
+                switchPage(method: .byGesture(value), geometryProxy: proxy)
             }
     }
 
@@ -446,6 +406,45 @@ struct CardsInfoPagerView<
 
     private func valueWithRubberbandingIfNeeded<T>(_ value: T) -> T where T: BinaryFloatingPoint {
         return hasValidIndexToSelect ? value : value.withRubberbanding()
+    }
+
+    private func switchPage(method: PageSwitchMethod, geometryProxy proxy: GeometryProxy) {
+        let totalWidth = proxy.size.width
+        let newSelectedIndex = newSelectedIndex(from: method, totalWidth: totalWidth)
+        let pageHasBeenSwitched = newSelectedIndex != selectedIndex
+        let gestureProperties = gestureProperties(from: method)
+
+        cumulativeHorizontalTranslation += valueWithRubberbandingIfNeeded(gestureProperties.translation.width)
+        cumulativeHorizontalTranslation += additionalHorizontalTranslation(
+            oldSelectedIndex: selectedIndex,
+            newSelectedIndex: newSelectedIndex
+        )
+
+        if pageSwitchThreshold > 0.5, !pageHasBeenSwitched {
+            // Fixes edge cases for page switch thresholds > 0.5 when page switch threshold
+            // hasn't been exceeded: reverse animation should restore `contentSelectedIndex`
+            // back to `selectedIndex` value exactly in the middle of the animation.
+            // In order to achieve that we have to assign `previouslySelectedIndex` to a
+            // different value, or SwiftUI's `onChange(of:perform:)` callback won't be triggered.
+            previouslySelectedIndex = contentSelectedIndex
+        } else {
+            previouslySelectedIndex = selectedIndex
+        }
+
+        selectedIndex = newSelectedIndex
+        initialPageSwitchProgress = pageSwitchProgress
+        finalPageSwitchProgress = pageHasBeenSwitched ? 1.0 : 0.0
+
+        let animation = makeHorizontalScrollAnimation(
+            totalWidth: totalWidth,
+            dragGestureVelocity: gestureProperties.velocity,
+            currentPageSwitchProgress: pageSwitchProgress,
+            pageHasBeenSwitched: pageHasBeenSwitched
+        )
+        withAnimation(animation) {
+            cumulativeHorizontalTranslation = -CGFloat(newSelectedIndex) * totalWidth
+            pageSwitchProgress = finalPageSwitchProgress
+        }
     }
 
     private func newSelectedIndex(from method: PageSwitchMethod, totalWidth: CGFloat) -> Int {
