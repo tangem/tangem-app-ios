@@ -155,7 +155,7 @@ private extension CommonUserTokenListManager {
         entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
             let blockchainToken = UserTokenList.Token(
-                id: blockchain.id,
+                id: blockchain.coinId,
                 networkId: blockchain.networkId,
                 name: blockchain.displayName,
                 symbol: blockchain.currencySymbol,
