@@ -43,7 +43,10 @@ enum PreviewCard {
                     blockscoutCredentials: .init(login: "", password: "")
                 )
             )
-            let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
+            let walletManager = try! factory.makeWalletManager(
+                blockchain: blockchain,
+                publicKey: .init(seedKey: publicKey, derivation: .none)
+            )
         }
 
         // [REDACTED_TODO_COMMENT]
