@@ -9,9 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-enum CoinsList {
-    static let baseURL: URL = .init(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/")!
-}
+enum CoinsList {}
 
 // MARK: - Request
 
