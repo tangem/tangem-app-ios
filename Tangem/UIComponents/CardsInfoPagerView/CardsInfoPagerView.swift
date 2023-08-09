@@ -148,7 +148,7 @@ struct CardsInfoPagerView<
                 .onChange(of: data.count) { newValue in
                     // Handling edge cases when the very last page is selected and that page is being deleted
                     let clampedSelectedIndex = clamp(selectedIndex, min: selectedIndexLowerBound, max: newValue - 1)
-                    if selectedIndex > clampedSelectedIndex {
+                    if selectedIndex < clampedSelectedIndex || selectedIndex > clampedSelectedIndex {
                         switchPageProgrammatically(to: clampedSelectedIndex, geometryProxy: proxy)
                     }
                 }
@@ -273,14 +273,18 @@ struct CardsInfoPagerView<
                     .fixedSize()
                     .id(collapsedHeaderScrollTargetIdentifier)
 
-                contentFactory(data[clamp(contentSelectedIndex, min: selectedIndexLowerBound, max: selectedIndexUpperBound)])
-                    .modifier(
-                        CardsInfoPagerContentAnimationModifier(
-                            progress: pageSwitchProgress,
-                            verticalOffset: contentViewVerticalOffset,
-                            hasValidIndexToSelect: hasValidIndexToSelect
+                if data.isEmpty {
+                    EmptyView()
+                } else {
+                    contentFactory(data[clamp(contentSelectedIndex, min: selectedIndexLowerBound, max: selectedIndexUpperBound)])
+                        .modifier(
+                            CardsInfoPagerContentAnimationModifier(
+                                progress: pageSwitchProgress,
+                                verticalOffset: contentViewVerticalOffset,
+                                hasValidIndexToSelect: hasValidIndexToSelect
+                            )
                         )
-                    )
+                }
             }
             .readGeometry(\.size, bindTo: $contentSize)
             .readContentOffset(
