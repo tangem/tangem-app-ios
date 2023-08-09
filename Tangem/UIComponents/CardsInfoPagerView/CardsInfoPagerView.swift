@@ -153,6 +153,26 @@ struct CardsInfoPagerView<
                     }
                 }
         }
+        .overlay(
+            HStack(spacing: 0.0) {
+                Spacer()
+
+                Color.yellow
+                    .frame(width: 1.0 / UIScreen.main.scale)
+
+                Spacer()
+            }
+        )
+        .overlay(
+            HStack {
+                Text("PSP: \(pageSwitchProgress)")
+                    .background(Color.green)
+                    .infinityFrame(alignment: .top)
+                Text("PSP_INIT: \(initialPageSwitchProgress)")
+                    .background(Color.yellow)
+                    .infinityFrame(alignment: .top)
+            }
+        )
         .modifier(
             CardsInfoPagerContentSwitchingModifier(
                 progress: pageSwitchProgress,
@@ -210,6 +230,16 @@ struct CardsInfoPagerView<
                 headerFactory(element)
                     .frame(width: max(proxy.size.width - Constants.headerItemHorizontalOffset * 2.0, 0.0))
                     .readGeometry(\.size.height, bindTo: $headerHeight)
+                    .overlay(
+                        Text("\(index)")
+                            .font(.largeTitle)
+                            .background(Color.yellow)
+                    )
+                    .overlay(
+                        Rectangle()
+                            .strokeBorder(Color.red, lineWidth: 1.0 / UIScreen.main.scale)
+                            .padding(.trailing, -Constants.headerInteritemSpacing / 2.0)
+                    )
             }
         }
         // This offset translates the page based on swipe
@@ -242,6 +272,12 @@ struct CardsInfoPagerView<
             }
             .readGeometry(\.size, bindTo: $viewportSize)
             .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+            .overlay(
+                Text("\(selectedIndex)")
+                    .font(.largeTitle)
+                    .background(Color.blue)
+                    .infinityFrame(alignment: .bottom)
+            )
         }
     }
 
@@ -283,6 +319,12 @@ struct CardsInfoPagerView<
                                 verticalOffset: contentViewVerticalOffset,
                                 hasValidIndexToSelect: hasValidIndexToSelect
                             )
+                        )
+                        .overlay(
+                            Text("\(clamp(contentSelectedIndex, min: selectedIndexLowerBound, max: selectedIndexUpperBound))")
+                                .font(.largeTitle)
+                                .background(Color.red)
+                                .infinityFrame(alignment: .top)
                         )
                 }
             }
