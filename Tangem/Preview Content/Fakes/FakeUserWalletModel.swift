@@ -31,11 +31,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
     var updatePublisher: AnyPublisher<Void, Never> { _updatePublisher.eraseToAnyPublisher() }
 
-    var didPerformInitialTokenSync: Bool { _didPerformInitialTokenSync.value }
-    var didPerformInitialTokenSyncPublisher: AnyPublisher<Bool, Never> { _didPerformInitialTokenSync.eraseToAnyPublisher() }
-
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
-    private let _didPerformInitialTokenSync = CurrentValueSubject<Bool, Never>(false)
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
 
     internal init(
@@ -63,11 +59,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         initialUpdate()
     }
 
-    func initialUpdate() {
-        userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self._didPerformInitialTokenSync.send(true)
-        }
-    }
+    func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
         _userWalletNamePublisher.send(name)
