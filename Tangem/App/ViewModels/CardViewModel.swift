@@ -312,6 +312,7 @@ class CardViewModel: Identifiable, ObservableObject {
         userTokenListManager = CommonUserTokenListManager(
             hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
             userWalletId: userWalletId.value,
+            supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: config.hasFeature(.hdWallets)
         )
 

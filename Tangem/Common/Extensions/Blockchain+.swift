@@ -192,3 +192,9 @@ extension Blockchain {
         }
     }
 }
+
+extension Set<Blockchain> {
+    subscript(networkId: String) -> Blockchain? {
+        first(where: { $0.networkId == networkId })
+    }
+}
