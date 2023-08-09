@@ -21,13 +21,6 @@ struct CoinsResponseMapper {
             let id = coin.id.trimmed()
             let name = coin.name.trimmed()
             let symbol = coin.symbol.uppercased().trimmed()
-            var imageURL: URL?
-
-            if let imageHost = response.imageHost {
-                imageURL = imageHost
-                    .appendingPathComponent(TokenURLIconSize.large.rawValue)
-                    .appendingPathComponent("\(id).png")
-            }
 
             let items: [TokenItem] = coin.networks.compactMap { network in
                 // We should find and use a exactly same blockchain that in the supportedBlockchains set
@@ -52,7 +45,7 @@ struct CoinsResponseMapper {
                 return .token(token, blockchain)
             }
 
-            return CoinModel(id: id, name: name, symbol: symbol, imageURL: imageURL, items: items)
+            return CoinModel(id: id, name: name, symbol: symbol, items: items)
         }
     }
 }
