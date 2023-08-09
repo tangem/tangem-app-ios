@@ -97,7 +97,6 @@ extension CommonTangemApiService: TangemApiService {
                         id: coinModel.id,
                         name: coinModel.name,
                         symbol: coinModel.symbol,
-                        imageURL: coinModel.imageURL,
                         items: items
                     )
                 }
