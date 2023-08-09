@@ -7,10 +7,14 @@
 //
 
 import Foundation
+import Combine
 import TangemSdk
 import BlockchainSdk
 
 struct LockedUserTokensManager: UserTokensManager {
+    var isInitialSyncPerformed: Bool { false }
+
+    var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
@@ -36,4 +40,6 @@ struct LockedUserTokensManager: UserTokensManager {
     }
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
+
+    func updateUserTokens() {}
 }
