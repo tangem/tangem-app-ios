@@ -9,7 +9,7 @@
 import Foundation
 
 struct TokenIconURLBuilder: TokenIconURLBuilding {
-    let baseURL: URL
+    private let baseURL: URL
 
     init(baseURL: URL = URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/")!) {
         self.baseURL = baseURL
