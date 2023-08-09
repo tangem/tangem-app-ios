@@ -31,7 +31,7 @@ struct CoinsResponseMapper {
 
             let items: [TokenItem] = coin.networks.compactMap { network in
                 // We should find and use a exactly same blockchain that in the supportedBlockchains set
-                guard let blockchain = supportedBlockchains.first(where: { $0.networkId == network.networkId }) else {
+                guard let blockchain = supportedBlockchains[network.networkId] else {
                     return nil
                 }
 
