@@ -31,21 +31,66 @@ struct MainView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .edgesIgnoringSafeArea(.bottom)
-        .toolbar(content: {
+        .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Assets.newTangemLogo.image
-                    .foregroundColor(Colors.Icon.primary1)
+                Button(
+                    action: {
+                        let numOfPages = viewModel.pages.count
+                        let modulo = numOfPages > 0 ? numOfPages : 1
+                        let currValue = viewModel.selectedCardIndex
+                        viewModel.selectedCardIndex = (currValue - 1 + numOfPages) % modulo
+                    }, label: {
+                        Image(systemName: "arrow.backward.square.fill")
+                    }
+                )
+            }
+
+            ToolbarItem(placement: .cancellationAction) {
+                Button(
+                    action: {
+                        viewModel.dropFirst()
+                        print("⭐️dropFirst, now has \(viewModel.pages.count) items")
+                    }, label: {
+                        Image(systemName: "rectangle.badge.minus")
+                    }
+                )
+            }
+
+            ToolbarItem(placement: .principal) {
+                Button(
+                    action: {
+                        viewModel.appendToEnd()
+                        print("⭐️appendToEnd, now has \(viewModel.pages.count) items")
+                    }, label: {
+                        Text("Curr page #\(viewModel.selectedCardIndex), add new?")
+                    }
+                )
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 0) {
-                    scanCardButton
-
-                    detailsNavigationButton
-                }
-                .offset(x: 10)
+                Button(
+                    action: {
+                        viewModel.dropLast()
+                        print("⭐️dropLast, now has \(viewModel.pages.count) items")
+                    }, label: {
+                        Image(systemName: "folder.badge.minus")
+                    }
+                )
             }
-        })
+
+            ToolbarItem(placement: .primaryAction) {
+                Button(
+                    action: {
+                        let numOfPages = viewModel.pages.count
+                        let modulo = numOfPages > 0 ? numOfPages : 1
+                        let currValue = viewModel.selectedCardIndex
+                        viewModel.selectedCardIndex = (currValue + 1) % modulo
+                    }, label: {
+                        Image(systemName: "arrow.forward.square.fill")
+                    }
+                )
+            }
+        }
         .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
