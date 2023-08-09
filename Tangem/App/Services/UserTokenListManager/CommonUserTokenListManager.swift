@@ -17,6 +17,7 @@ class CommonUserTokenListManager {
 
     private let userWalletId: Data
     private let tokenItemsRepository: TokenItemsRepository
+    private let supportedBlockchains: Set<Blockchain>
 
     private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
@@ -28,9 +29,10 @@ class CommonUserTokenListManager {
 
     private var _userTokens: CurrentValueSubject<[StorageEntry], Never>
 
-    init(hasTokenSynchronization: Bool, userWalletId: Data, hdWalletsSupported: Bool) {
+    init(hasTokenSynchronization: Bool, userWalletId: Data, supportedBlockchains: Set<Blockchain>, hdWalletsSupported: Bool) {
         self.hasTokenSynchronization = hasTokenSynchronization
         self.userWalletId = userWalletId
+        self.supportedBlockchains = supportedBlockchains
         self.hdWalletsSupported = hdWalletsSupported
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         _userTokens = .init(tokenItemsRepository.getItems())
@@ -187,7 +189,7 @@ private extension CommonUserTokenListManager {
         let blockchains = list.tokens
             .filter { $0.contractAddress == nil }
             .compactMap { token -> BlockchainNetwork? in
-                guard let blockchain = Blockchain(from: token.networkId) else {
+                guard let blockchain = supportedBlockchains[token.networkId] else {
                     return nil
                 }
 
