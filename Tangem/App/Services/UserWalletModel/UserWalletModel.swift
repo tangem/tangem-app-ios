@@ -15,7 +15,6 @@ protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, MultiWa
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
     var userWallet: UserWallet { get }
-    var emailConfig: EmailConfig? { get }
     var walletModelsManager: WalletModelsManager { get }
     var userTokensManager: UserTokensManager { get }
     var userTokenListManager: UserTokenListManager { get }

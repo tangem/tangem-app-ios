@@ -30,8 +30,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var userWalletId: UserWalletId { .init(with: Data()) }
 
-    var emailConfig: EmailConfig? { nil }
-
     var userWallet: UserWallet {
         UserWallet(userWalletId: Data(), name: "", card: .init(card: .walletWithBackup), associatedCardIds: [], walletData: .none, artwork: nil, isHDWalletAllowed: false)
     }
