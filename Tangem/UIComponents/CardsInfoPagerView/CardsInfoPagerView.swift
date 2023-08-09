@@ -20,6 +20,11 @@ struct CardsInfoPagerView<
         case expanded
     }
 
+    private enum PageSwitchMethod {
+        case byGesture(DragGesture.Value)
+        case programmatically(selectedIndex: Int)
+    }
+
     // MARK: - Dependencies
 
     private let data: Data
@@ -441,6 +446,28 @@ struct CardsInfoPagerView<
 
     private func valueWithRubberbandingIfNeeded<T>(_ value: T) -> T where T: BinaryFloatingPoint {
         return hasValidIndexToSelect ? value : value.withRubberbanding()
+    }
+
+    private func newSelectedIndex(from method: PageSwitchMethod, totalWidth: CGFloat) -> Int {
+        switch method {
+        case .byGesture(let gestureValue):
+            return nextIndexToSelectClamped(
+                translation: gestureValue.predictedEndTranslation.width,
+                totalWidth: totalWidth,
+                nextPageThreshold: pageSwitchThreshold
+            )
+        case .programmatically(let selectedIndex):
+            return selectedIndex
+        }
+    }
+
+    private func gestureProperties(from method: PageSwitchMethod) -> (translation: CGSize, velocity: CGSize) {
+        switch method {
+        case .byGesture(let gestureValue):
+            return (gestureValue.translation, gestureValue.velocityCompat)
+        case .programmatically:
+            return (.zero, .zero)
+        }
     }
 
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
