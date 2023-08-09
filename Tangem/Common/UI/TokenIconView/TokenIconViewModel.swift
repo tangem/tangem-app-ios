@@ -17,7 +17,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
     var imageURL: URL? {
         guard let id else { return nil }
 
-        return TokenIconURLBuilder(baseURL: CoinsResponse.baseURL)
+        return TokenIconURLBuilder(baseURL: CoinsList.baseURL)
             .iconURL(id: id, size: .large)
     }
 
