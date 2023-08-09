@@ -12,9 +12,6 @@ struct OrganizeTokensHeaderView: View {
     @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
 
     var body: some View {
-        let shadowOpacity = 0.1
-        let toggledShadowOpacity = shadowOpacity / (viewModel.isSortByBalanceEnabled ? 3.0 : 1.0)
-
         HStack(spacing: 8.0) {
             Group {
                 FlexySizeButtonWithLeadingIcon(
@@ -24,7 +21,7 @@ struct OrganizeTokensHeaderView: View {
                     action: viewModel.toggleSortState
                 )
                 // [REDACTED_TODO_COMMENT]
-                .shadow(color: Colors.Button.primary.opacity(toggledShadowOpacity), radius: 5.0)
+                .shadow(color: Colors.Button.primary.opacity(sortByBalanceButtonShadowOpacity), radius: 5.0)
 
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
@@ -32,7 +29,7 @@ struct OrganizeTokensHeaderView: View {
                     action: viewModel.toggleGroupState
                 )
                 // [REDACTED_TODO_COMMENT]
-                .shadow(color: Colors.Button.primary.opacity(shadowOpacity), radius: 5.0)
+                .shadow(color: Colors.Button.primary.opacity(groupingButtonShadowOpacity), radius: 5.0)
             }
             .background(
                 Colors.Background
@@ -41,6 +38,22 @@ struct OrganizeTokensHeaderView: View {
             )
             .onFirstAppear(perform: viewModel.onViewAppear)
         }
+    }
+
+    private var sortByBalanceButtonShadowOpacity: CGFloat {
+        return Constants.buttonShadowOpacity / (viewModel.isSortByBalanceEnabled ? 3.0 : 1.0)
+    }
+
+    private var groupingButtonShadowOpacity: CGFloat {
+        return Constants.buttonShadowOpacity
+    }
+}
+
+// MARK: - Constants
+
+private extension OrganizeTokensHeaderView {
+    enum Constants {
+        static let buttonShadowOpacity = 0.1
     }
 }
 
