@@ -27,6 +27,7 @@ class CommonUserTokenListManager {
     private var migrated = false
 
     private var _userTokens: CurrentValueSubject<[StorageEntry], Never>
+    private var _userTokenList: CurrentValueSubject<UserTokenList, Never>
 
     init(hasTokenSynchronization: Bool, userWalletId: Data, hdWalletsSupported: Bool) {
         self.hasTokenSynchronization = hasTokenSynchronization
@@ -34,6 +35,7 @@ class CommonUserTokenListManager {
         self.hdWalletsSupported = hdWalletsSupported
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         _userTokens = .init(tokenItemsRepository.getItems())
+        _userTokenList = .init(.empty)
         removeInvalidTokens()
     }
 }
@@ -49,7 +51,15 @@ extension CommonUserTokenListManager: UserTokenListManager {
         _userTokens.eraseToAnyPublisher()
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool) {
+    var userTokenList: AnyPublisher<UserTokenList, Never> {
+        _userTokenList.eraseToAnyPublisher()
+    }
+
+    func update(with userTokenList: UserTokenList) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
         switch type {
         case .rewrite(let entries):
             tokenItemsRepository.update(entries)
@@ -61,17 +71,11 @@ extension CommonUserTokenListManager: UserTokenListManager {
             tokenItemsRepository.remove([token], blockchainNetwork: network)
         }
 
-        sendUpdate()
+        updateUserTokens()
 
         if shouldUpload {
             updateTokensOnServer()
         }
-    }
-
-    func upload() {
-        guard hasTokenSynchronization else { return }
-
-        updateTokensOnServer()
     }
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
@@ -82,13 +86,23 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
         loadUserTokenList(result: result)
     }
+
+    func upload() {
+        guard hasTokenSynchronization else { return }
+
+        updateTokensOnServer()
+    }
 }
 
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
-    func sendUpdate() {
+    func updateUserTokens() {
         _userTokens.send(tokenItemsRepository.getItems())
+    }
+
+    func updateUserTokenList(with userTokenList: UserTokenList) {
+        _userTokenList.send(userTokenList)
     }
 
     // MARK: - Requests
@@ -117,7 +131,8 @@ private extension CommonUserTokenListManager {
                 }
             } receiveValue: { [unowned self] list, _ in
                 tokenItemsRepository.update(mapToEntries(list: list))
-                sendUpdate()
+                updateUserTokens()
+                updateUserTokenList(with: list)
                 result(.success(()))
             }
     }
@@ -144,7 +159,11 @@ private extension CommonUserTokenListManager {
     func getUserTokenList() -> UserTokenList {
         let entries = tokenItemsRepository.getItems()
         let tokens = mapToTokens(entries: entries)
-        return UserTokenList(tokens: tokens)
+        return UserTokenList(
+            tokens: tokens,
+            group: .none,
+            sort: .manual
+        )
     }
 
     // MARK: - Mapping
@@ -290,14 +309,5 @@ private extension CommonUserTokenListManager {
 
         let networks = badItems.map { $0.blockchainNetwork }
         tokenItemsRepository.remove(networks)
-    }
-}
-
-extension CommonUserTokenListManager {
-    enum UpdateType {
-        case rewrite(_ entries: [StorageEntry])
-        case append(_ entries: [StorageEntry])
-        case removeBlockchain(_ blockchain: BlockchainNetwork)
-        case removeToken(_ token: Token, in: BlockchainNetwork)
     }
 }
