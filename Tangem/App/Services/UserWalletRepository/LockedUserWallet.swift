@@ -24,8 +24,6 @@ class LockedUserWallet: UserWalletModel {
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
-    var emailConfig: EmailConfig? { nil }
-
     var updatePublisher: AnyPublisher<Void, Never> { .just }
 
     private(set) var userWallet: UserWallet
