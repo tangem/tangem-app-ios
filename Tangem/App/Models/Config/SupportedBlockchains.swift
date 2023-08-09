@@ -90,6 +90,7 @@ struct SupportedBlockchains {
             .terraV1,
             .terraV2,
             .cronos,
+            .octa,
         ]
     }
 
@@ -115,6 +116,7 @@ struct SupportedBlockchains {
             .kava(testnet: true),
             .ravencoin(testnet: true),
             .cosmos(testnet: true),
+            .octa,
         ]
     }
 }
