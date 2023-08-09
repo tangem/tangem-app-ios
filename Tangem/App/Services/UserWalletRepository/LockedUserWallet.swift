@@ -26,10 +26,7 @@ class LockedUserWallet: UserWalletModel {
 
     var emailConfig: EmailConfig? { nil }
 
-    var didPerformInitialTokenSync: Bool { false }
-
     var updatePublisher: AnyPublisher<Void, Never> { .just }
-    var didPerformInitialTokenSyncPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
 
     private(set) var userWallet: UserWallet
 
