@@ -287,16 +287,16 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func migrate(card: CardDTO) {
-//        let config = config(for: card)
-//        if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
-//            legacyCardMigrator.migrateIfNeeded()
-//        }
-//
-//        if card.hasWallets,
-//           let seed = config.userWalletIdSeed {
-//            let userWalletId = UserWalletId(with: seed)
-//            let tokenMigrator = TokenItemsRepositoryMigrator(card: card, userWalletId: userWalletId.value)
-//            tokenMigrator.migrate()
-//        }
+        let config = config(for: card)
+        if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
+            legacyCardMigrator.migrateIfNeeded()
+        }
+
+        if card.hasWallets,
+           let seed = config.userWalletIdSeed {
+            let userWalletId = UserWalletId(with: seed)
+            let tokenMigrator = TokenItemsRepositoryMigrator(card: card, userWalletId: userWalletId.value)
+            tokenMigrator.migrate()
+        }
     }
 }
