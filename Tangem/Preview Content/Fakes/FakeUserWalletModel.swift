@@ -47,7 +47,12 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         _userWalletNamePublisher = .init(userWalletName)
         walletModelsManager = WalletModelsManagerMock()
-        userTokenListManager = CommonUserTokenListManager(hasTokenSynchronization: false, userWalletId: userWalletId.value, hdWalletsSupported: true)
+        userTokenListManager = CommonUserTokenListManager(
+            hasTokenSynchronization: false,
+            userWalletId: userWalletId.value,
+            supportedBlockchains: SupportedBlockchains.all,
+            hdWalletsSupported: true
+        )
         totalBalanceProvider = TotalBalanceProviderMock()
         self.userWallet = userWallet
     }
