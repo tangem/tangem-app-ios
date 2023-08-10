@@ -16,9 +16,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var isLoadingTokenList: Bool = true
     @Published var sections: [MultiWalletTokenItemsSection] = []
 
-    private let userWalletModel: UserWalletModel
-
     // MARK: - Dependencies
+
+    private let userWalletModel: UserWalletModel
 
     private unowned let coordinator: MultiWalletMainContentRoutable
     private var sectionsProvider: TokenListInfoProvider
@@ -71,5 +71,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    func openOrganizeTokens() {
+        coordinator.openOrganizeTokens(for: userWalletModel)
     }
 }
