@@ -17,7 +17,6 @@ struct MissingAddressesWarningView: View {
         VStack(spacing: 14) {
             HStack(spacing: 12) {
                 Assets.blueCircleWarning.image
-                    .frame(size: .init(bothDimensions: 36))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(Localization.mainWarningMissingDerivationTitle)
