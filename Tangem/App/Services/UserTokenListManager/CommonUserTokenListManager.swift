@@ -17,6 +17,7 @@ class CommonUserTokenListManager {
 
     private let userWalletId: Data
     private let tokenItemsRepository: TokenItemsRepository
+    private let supportedBlockchains: Set<Blockchain>
 
     private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
@@ -29,9 +30,10 @@ class CommonUserTokenListManager {
     private var _userTokens: CurrentValueSubject<[StorageEntry], Never>
     private var _userTokenList: CurrentValueSubject<UserTokenList, Never>
 
-    init(hasTokenSynchronization: Bool, userWalletId: Data, hdWalletsSupported: Bool) {
+    init(hasTokenSynchronization: Bool, userWalletId: Data, supportedBlockchains: Set<Blockchain>, hdWalletsSupported: Bool) {
         self.hasTokenSynchronization = hasTokenSynchronization
         self.userWalletId = userWalletId
+        self.supportedBlockchains = supportedBlockchains
         self.hdWalletsSupported = hdWalletsSupported
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         _userTokens = .init(tokenItemsRepository.getItems())
@@ -172,7 +174,7 @@ private extension CommonUserTokenListManager {
         entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
             let blockchainToken = UserTokenList.Token(
-                id: blockchain.id,
+                id: blockchain.coinId,
                 networkId: blockchain.networkId,
                 name: blockchain.displayName,
                 symbol: blockchain.currencySymbol,
@@ -206,7 +208,7 @@ private extension CommonUserTokenListManager {
         let blockchains = list.tokens
             .filter { $0.contractAddress == nil }
             .compactMap { token -> BlockchainNetwork? in
-                guard let blockchain = Blockchain(from: token.networkId) else {
+                guard let blockchain = supportedBlockchains[token.networkId] else {
                     return nil
                 }
 
@@ -270,9 +272,9 @@ private extension CommonUserTokenListManager {
     }
 
     func updateCustomToken(token: Token, in blockchainNetwork: BlockchainNetwork) -> AnyPublisher<Bool, Never> {
-        let requestModel = CoinsListRequestModel(
-            contractAddress: token.contractAddress,
-            networkIds: [blockchainNetwork.blockchain.networkId]
+        let requestModel = CoinsList.Request(
+            supportedBlockchains: [blockchainNetwork.blockchain],
+            contractAddress: token.contractAddress
         )
 
         // [REDACTED_TODO_COMMENT]
@@ -280,14 +282,13 @@ private extension CommonUserTokenListManager {
             .loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .flatMap { [weak self] models -> AnyPublisher<Bool, Never> in
-                guard let self = self,
-                      let token = models.first?.items.compactMap({ $0.token }).first else {
+                guard let token = models.first?.items.compactMap({ $0.token }).first else {
                     return Just(false).eraseToAnyPublisher()
                 }
 
                 return Future<Bool, Never> { promise in
                     let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-                    self.update(.append([entry]), shouldUpload: true)
+                    self?.update(.append([entry]), shouldUpload: true)
                     promise(.success(true))
                 }
                 .eraseToAnyPublisher()
