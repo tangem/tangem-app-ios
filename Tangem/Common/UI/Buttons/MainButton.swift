@@ -11,7 +11,7 @@ struct MainButton: View {
     private let title: String
     private let icon: Icon?
     private let style: Style
-    private let size: SizeType
+    private let size: Size
     private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
@@ -20,7 +20,7 @@ struct MainButton: View {
         title: String,
         icon: Icon? = nil,
         style: Style = .primary,
-        size: SizeType = .default,
+        size: Size = .default,
         isLoading: Bool = false,
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
@@ -165,7 +165,7 @@ extension MainButton {
         }
     }
 
-    enum SizeType {
+    enum Size {
         /// Height: 46
         case `default`
         /// Height: 40
@@ -183,7 +183,7 @@ extension MainButton {
         let title: String
         let icon: Icon?
         let style: Style
-        let size: SizeType
+        let size: Size
         let isLoading: Bool
         var isDisabled: Bool
         let action: () -> Void
@@ -192,7 +192,7 @@ extension MainButton {
             title: String,
             icon: Icon? = nil,
             style: Style = .primary,
-            size: SizeType = .default,
+            size: Size = .default,
             isLoading: Bool = false,
             isDisabled: Bool = false,
             action: @escaping (() -> Void)
