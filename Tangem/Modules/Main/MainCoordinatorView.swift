@@ -35,6 +35,9 @@ struct MainCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
+                OrganizeTokensContainerView(viewModel: viewModel)
+            }
     }
 }
