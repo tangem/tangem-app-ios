@@ -8,4 +8,6 @@
 
 import Foundation
 
-protocol MultiWalletMainContentRoutable: AnyObject {}
+protocol MultiWalletMainContentRoutable: AnyObject {
+    func openOrganizeTokens(for userWalletModel: UserWalletModel)
+}
