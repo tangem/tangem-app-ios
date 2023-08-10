@@ -169,15 +169,12 @@ extension MainButton {
         /// Height: 46
         case `default`
         /// Height: 40
-        case notificationBig
-        /// Height: 34
-        case notificationSmall
+        case notification
 
         var height: CGFloat {
             switch self {
             case .default: return 46
-            case .notificationBig: return 40
-            case .notificationSmall: return 34
+            case .notification: return 40
             }
         }
     }
@@ -235,6 +232,7 @@ struct MainButton_Previews: PreviewProvider {
                 title: "Order card",
                 icon: .leading(Assets.tangemIcon),
                 style: style,
+                size: .notification,
                 isDisabled: true
             ) {}
 
@@ -255,6 +253,7 @@ struct MainButton_Previews: PreviewProvider {
                 title: "Order card",
                 icon: .trailing(Assets.tangemIcon),
                 style: style,
+                size: .notification,
                 isLoading: true
             ) {}
 
@@ -269,23 +268,14 @@ struct MainButton_Previews: PreviewProvider {
                 MainButton(
                     title: "Order card",
                     icon: .leading(Assets.tangemIcon),
-                    style: style,
-                    size: .notificationBig,
-                    isDisabled: true
+                    style: style
                 ) {}
 
                 MainButton(
                     title: "Order card",
                     icon: .leading(Assets.tangemIcon),
                     style: style,
-                    size: .default
-                ) {}
-
-                MainButton(
-                    title: "Order card",
-                    icon: .trailing(Assets.tangemIcon),
-                    style: style,
-                    size: .notificationSmall
+                    size: .notification
                 ) {}
             }
         }
