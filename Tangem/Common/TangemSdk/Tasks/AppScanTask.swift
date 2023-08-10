@@ -62,6 +62,13 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
+        // tmp disable reading cards with imported wallets
+        if card.firmwareVersion < .ed25519Slip0010Available,
+           card.wallets.contains(where: { $0.isImported == true }) {
+            completion(.failure(.wrongCardType(nil)))
+            return
+        }
+
         if let legacyWalletData = session.environment.walletData,
            legacyWalletData.blockchain != "ANY" {
             walletData = .legacy(legacyWalletData)
