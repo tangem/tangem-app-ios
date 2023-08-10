@@ -57,7 +57,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     private func bind() {
         infoProvider.walletDidChangePublisher
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
                 guard let self else { return }
 
