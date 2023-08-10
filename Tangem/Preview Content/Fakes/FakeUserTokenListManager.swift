@@ -26,8 +26,15 @@ class FakeUserTokenListManager: UserTokenListManager {
         initialSyncSubject.eraseToAnyPublisher()
     }
 
+    var userTokenList: AnyPublisher<UserTokenList, Never> {
+        userTokenListSubject
+            .delay(for: 3, scheduler: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+
     private let initialSyncSubject = CurrentValueSubject<Bool, Never>(false)
     private let userTokensSubject = CurrentValueSubject<[StorageEntry], Never>([])
+    private let userTokenListSubject = CurrentValueSubject<UserTokenList, Never>(UserTokenListStubs.walletUserWalletList)
 
     init() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
@@ -35,7 +42,11 @@ class FakeUserTokenListManager: UserTokenListManager {
         }
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool) {}
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
+
+    func update(with userTokenList: UserTokenList) {
+        userTokenListSubject.send(userTokenList)
+    }
 
     func upload() {}
 
