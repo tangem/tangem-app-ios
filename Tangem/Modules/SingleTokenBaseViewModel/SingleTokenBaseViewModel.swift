@@ -1,5 +1,5 @@
 //
-//  SingleTokenViewModel.swift
+//  SingleTokenBaseViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -22,7 +22,7 @@ class SingleTokenBaseViewModel {
 
     @Published var actionButtons: [ButtonWithIconInfo] = []
 
-    private unowned let coordinator: SingleTokenRoutable
+    private unowned let coordinator: SingleTokenBaseRoutable
 
     let swappingUtils = SwappingAvailableUtils()
     let exchangeUtility: ExchangeCryptoUtility
@@ -70,7 +70,7 @@ class SingleTokenBaseViewModel {
         walletModel: WalletModel,
         userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
-        coordinator: SingleTokenRoutable
+        coordinator: SingleTokenBaseRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
