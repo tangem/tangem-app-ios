@@ -72,11 +72,11 @@ private struct MoonpayCurrency: Decodable {
             case .bnbChain:
                 return .binance(testnet: testnet)
             case .solana:
-                return .solana(testnet: testnet)
+                return .solana(curve: .ed25519_slip0010, testnet: testnet)
             case .litecoin:
                 return .litecoin
             case .stellar:
-                return .stellar(testnet: testnet)
+                return .stellar(curve: .ed25519_slip0010, testnet: testnet)
             case .tron:
                 return .tron(testnet: testnet)
             case .polygon:
