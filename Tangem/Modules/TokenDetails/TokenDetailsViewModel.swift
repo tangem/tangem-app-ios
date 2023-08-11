@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemSwapping
 
-final class TokenDetailsViewModel: SingleTokenViewModel {
+final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
