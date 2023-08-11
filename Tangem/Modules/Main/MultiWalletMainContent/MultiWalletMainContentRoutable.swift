@@ -10,4 +10,5 @@ import Foundation
 
 protocol MultiWalletMainContentRoutable: AnyObject {
     func openTokenDetails(for model: WalletModel, userWalletModel: UserWalletModel)
+    func openOrganizeTokens(for userWalletModel: UserWalletModel)
 }
