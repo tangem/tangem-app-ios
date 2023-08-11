@@ -1,5 +1,5 @@
 //
-//  TokenItemViewState.swift
+//  TokenItemViewState+WalletModelState.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,14 +8,7 @@
 
 import Foundation
 
-enum TokenItemViewState {
-    case notLoaded
-    case noDerivation
-    case loading
-    case loaded
-    case noAccount(message: String)
-    case networkError(Error)
-
+extension TokenItemViewState {
     init(walletModelState: WalletModel.State) {
         switch walletModelState {
         case .created:
