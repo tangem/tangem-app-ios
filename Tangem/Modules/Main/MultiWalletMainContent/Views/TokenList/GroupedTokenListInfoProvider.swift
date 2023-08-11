@@ -42,8 +42,12 @@ class GroupedTokenListInfoProvider {
         return storageEntries.reduce([]) { result, entry in
             if walletModels.contains(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 let ids = entry.walletModelIds
-                let models = ids.compactMap { id in
-                    walletModels.first(where: { $0.id == id })
+                let models: [DefaultTokenItemInfoProvider] = ids.compactMap { id in
+                    guard let model = walletModels.first(where: { $0.id == id }) else {
+                        return nil
+                    }
+
+                    return DefaultTokenItemInfoProvider(walletModel: model)
                 }
 
                 let sectionInfo = TokenListSectionInfo(
