@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemSwapping
 
-class SingleTokenViewModel: ObservableObject {
+class SingleTokenBaseViewModel {
     @Injected(\.keysManager) var keysManager: KeysManager
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
@@ -129,7 +129,7 @@ class SingleTokenViewModel: ObservableObject {
 
 // MARK: - Setup functions
 
-extension SingleTokenViewModel {
+extension SingleTokenBaseViewModel {
     private func prepareSelf() {
         bind()
         setupActionButtons()
@@ -240,7 +240,7 @@ extension SingleTokenViewModel {
 
 // MARK: - Navigation
 
-extension SingleTokenViewModel {
+extension SingleTokenBaseViewModel {
     func openReceive() {
         let infos = walletModel.wallet.addresses.map { address in
             ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
@@ -352,6 +352,6 @@ extension SingleTokenViewModel {
     }
 }
 
-extension SingleTokenViewModel: ActionButtonsProvider {
+extension SingleTokenBaseViewModel: ActionButtonsProvider {
     var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
 }
