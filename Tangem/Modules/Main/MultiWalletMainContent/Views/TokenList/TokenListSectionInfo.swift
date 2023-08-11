@@ -10,6 +10,7 @@ import Foundation
 
 // [REDACTED_TODO_COMMENT]
 struct TokenListSectionInfo {
+    let id: Int
     let sectionType: SectionType
     let infoProviders: [TokenItemInfoProvider]
 }
