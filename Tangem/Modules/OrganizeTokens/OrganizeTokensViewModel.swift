@@ -32,6 +32,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     private var currentlyDraggedSectionIdentifier: UUID?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
+    private var itemViewModelsIdentifiers: [AnyHashable: UUID] = [:]
 
     private let onSave = PassthroughSubject<Void, Never>()
 
@@ -85,7 +86,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         walletModelsAdapter
             .organizedWalletModels(from: walletModelsDidChangePublisher, on: mappingQueue)
             .withLatestFrom(organizeTokensOptionsProviding.sortingOption) { ($0, $1) }
-            .map(Self.map)
+            .withWeakCaptureOf(self)
+            .map { input in
+                let (viewModel, (sections, option)) = input
+                return viewModel.map(walletModelsSections: sections, sortingOption: option)
+            }
             .receive(on: DispatchQueue.main)
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
@@ -101,14 +106,14 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    private static func map(
+    private func map(
         walletModelsSections: [OrganizeWalletModelsAdapter.Section],
         sortingOption: OrganizeTokensOptions.Sorting
     ) -> [OrganizeTokensListSectionViewModel] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let isListItemsDraggable = isListItemDraggable(sortingOption: sortingOption)
 
-        return walletModelsSections.map { section in
+        return walletModelsSections.enumerated().map { index, section in
             let items = section.items.map { item in
                 return map(
                     walletModel: item,
@@ -116,18 +121,27 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                     using: tokenIconInfoBuilder
                 )
             }
+            let viewModelIdentifier = viewModelIdentifier(for: section.model, atIndex: index)
 
             switch section.model {
             case .group(let blockchainNetwork):
                 let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
-                return OrganizeTokensListSectionViewModel(style: .draggable(title: title), items: items)
+                return OrganizeTokensListSectionViewModel(
+                    id: viewModelIdentifier,
+                    style: .draggable(title: title),
+                    items: items
+                )
             case .plain:
-                return OrganizeTokensListSectionViewModel(style: .invisible, items: items)
+                return OrganizeTokensListSectionViewModel(
+                    id: viewModelIdentifier,
+                    style: .invisible,
+                    items: items
+                )
             }
         }
     }
 
-    private static func map(
+    private func map(
         walletModel: WalletModel,
         isDraggable: Bool,
         using tokenIconInfoBuilder: TokenIconInfoBuilder
@@ -136,8 +150,10 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             for: walletModel.amountType,
             in: walletModel.blockchainNetwork.blockchain
         )
+        let viewModelIdentifier = viewModelIdentifier(for: walletModel)
 
         return OrganizeTokensListItemViewModel(
+            id: viewModelIdentifier,
             tokenIcon: tokenIcon,
             balance: fiatBalance(for: walletModel),
             isNetworkUnreachable: walletModel.state.isBlockchainUnreachable,
@@ -145,7 +161,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         )
     }
 
-    private static func fiatBalance(for walletModel: WalletModel) -> LoadableTextView.State {
+    private func fiatBalance(for walletModel: WalletModel) -> LoadableTextView.State {
         guard !walletModel.rateFormatted.isEmpty else { return .noData }
 
         switch walletModel.state {
@@ -158,7 +174,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private static func isListItemDraggable(
+    private func isListItemDraggable(
         sortingOption: OrganizeTokensOptions.Sorting
     ) -> Bool {
         switch sortingOption {
@@ -167,6 +183,39 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         case .byBalance:
             return false
         }
+    }
+
+    private func viewModelIdentifier(
+        for sectionType: OrganizeWalletModelsAdapter.SectionType,
+        atIndex sectionIndex: Int
+    ) -> UUID {
+        // The identity of sections isn't affected by grouping status, so the constant is used
+        let isGroupingEnabled = true
+        switch sectionType {
+        case .group(let blockchainNetwork):
+            let key = IdentifierKey(value: blockchainNetwork, isGroupingEnabled: isGroupingEnabled)
+            return viewModelIdentifier(for: key)
+        case .plain:
+            let key = IdentifierKey(value: sectionIndex, isGroupingEnabled: isGroupingEnabled)
+            return viewModelIdentifier(for: key)
+        }
+    }
+
+    private func viewModelIdentifier(for walletModel: WalletModel) -> UUID {
+        let isGroupingEnabled = headerViewModel.isGroupingEnabled
+        let key = IdentifierKey(value: walletModel.id, isGroupingEnabled: isGroupingEnabled)
+        return viewModelIdentifier(for: key)
+    }
+
+    private func viewModelIdentifier<T>(for key: IdentifierKey<T>) -> UUID {
+        if let existingIdentifier = itemViewModelsIdentifiers[key] {
+            return existingIdentifier
+        }
+
+        let newIdentifier = UUID()
+        itemViewModelsIdentifiers[key] = newIdentifier
+
+        return newIdentifier
     }
 }
 
@@ -289,5 +338,16 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
         return viewModelIdentifier(at: indexPath)
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension OrganizeTokensViewModel {
+    /// SE-0283 'Implement Equatable, Comparable, and Hashable conformance for Tuples'
+    /// got reverted and the implementation never landed, therefore separate type is used as a key.
+    struct IdentifierKey<T>: Hashable where T: Hashable {
+        let value: T
+        let isGroupingEnabled: Bool
     }
 }
