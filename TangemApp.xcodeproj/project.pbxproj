@@ -3028,13 +3028,13 @@
 			path = IconWithMessageView;
 			sourceTree = "<group>";
 		};
-		B04EADE82A80D617009B5768 /* SingleTokenBaseViewModel */ = {
+		B04EADE82A80D617009B5768 /* SingleTokenBase */ = {
 			isa = PBXGroup;
 			children = (
 				B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */,
 				B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */,
 			);
-			path = SingleTokenBaseViewModel;
+			path = SingleTokenBase;
 			sourceTree = "<group>";
 		};
 		B0541DBA26FB2FCE0043893E /* Wallet */ = {
@@ -4580,7 +4580,7 @@
 				DC261CA2292CF53E00875E64 /* Auth */,
 				EF59039229091CCE00C527C9 /* EnvironmentSetup */,
 				DC66BBF6285A20FE00CDF765 /* LegacyMain */,
-				B04EADE82A80D617009B5768 /* SingleTokenBaseViewModel */,
+				B04EADE82A80D617009B5768 /* SingleTokenBase */,
 				B06C08442A73FB2C00D982BC /* Main */,
 				DA23788E27B250D3009795A8 /* Shop */,
 				B074BABF26779B14005D641B /* PushTx */,
