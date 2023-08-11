@@ -73,7 +73,7 @@ struct SupportedBlockchains {
             .xrp(curve: .secp256k1),
             .rsk,
             .binance(testnet: false),
-            .tezos(curve: version == .v2 ? .ed25519 : .secp256k1),
+            .tezos(curve: version == .v2 ? .ed25519_slip0010 : .secp256k1),
             .stellar(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: false),
             .dogecoin,
             .bsc(testnet: false),
