@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-final class SingleWalletMainContentViewModel: SingleTokenViewModel {
+final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, ObservableObject {
     // MARK: - ViewState
 
     // MARK: - Dependencies
