@@ -8,16 +8,28 @@
 
 import Combine
 
-final class SingleWalletMainContentViewModel: ObservableObject {
+final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, ObservableObject {
     // MARK: - ViewState
 
     // MARK: - Dependencies
 
-    private unowned let coordinator: SingleWalletMainContentRoutable
+    private unowned let singleWalletCoordinator: SingleWalletMainContentRoutable
 
     init(
+        userWalletModel: UserWalletModel,
+        walletModel: WalletModel,
+        userTokensManager: UserTokensManager,
+        exchangeUtility: ExchangeCryptoUtility,
         coordinator: SingleWalletMainContentRoutable
     ) {
-        self.coordinator = coordinator
+        singleWalletCoordinator = coordinator
+
+        super.init(
+            userWalletModel: userWalletModel,
+            walletModel: walletModel,
+            userTokensManager: userTokensManager,
+            exchangeUtility: exchangeUtility,
+            coordinator: coordinator
+        )
     }
 }
