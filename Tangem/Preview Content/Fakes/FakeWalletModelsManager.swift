@@ -16,7 +16,9 @@ class FakeWalletModelsManager: WalletModelsManager {
     }
 
     var walletModelsPublisher: AnyPublisher<[WalletModel], Never> {
-        walletModelsSubject.eraseToAnyPublisher()
+        walletModelsSubject
+            .delay(for: 5, scheduler: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     private let walletModelsSubject: CurrentValueSubject<[WalletModel], Never>
