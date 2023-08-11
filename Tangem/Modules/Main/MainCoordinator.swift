@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 class MainCoordinator: CoordinatorObject {
     let dismissAction: Action
@@ -20,9 +21,22 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var detailsCoordinator: DetailsCoordinator?
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
+    @Published var modalOnboardingCoordinator: OnboardingCoordinator?
+    @Published var sendCoordinator: SendCoordinator?
+    @Published var swappingCoordinator: SwappingCoordinator?
 
     // MARK: - Child view models
 
+    @Published var mailViewModel: MailViewModel?
+    @Published var pushedWebViewModel: WebViewContainerViewModel?
+    @Published var warningBankCardViewModel: WarningBankCardViewModel?
+    @Published var modalWebViewModel: WebViewContainerViewModel?
+    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
+
+    // MARK: - Other state
+
+    @Published var modalOnboardingCoordinatorKeeper: Bool = false
     @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
     required init(
@@ -65,6 +79,23 @@ extension MainCoordinator: MainRoutable {
         detailsCoordinator = coordinator
     }
 
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+    }
+
+    func openOnboardingModal(with input: OnboardingInput) {
+        let dismissAction: Action = { [weak self] in
+            self?.modalOnboardingCoordinator = nil
+            self?.mainViewModel?.updateIsBackupAllowed()
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
+        coordinator.start(with: options)
+        modalOnboardingCoordinator = coordinator
+    }
+
     func close(newScan: Bool) {
         popToRoot(with: .init(newScan: newScan))
     }
@@ -73,6 +104,28 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
+    func openTokenDetails(for model: WalletModel, userWalletModel: UserWalletModel) {
+        // [REDACTED_TODO_COMMENT]
+        guard let cardViewModel = userWalletModel as? CardViewModel else {
+            return
+        }
+
+        Analytics.log(.tokenIsTapped)
+        let dismissAction: Action = { [weak self] in
+            self?.tokenDetailsCoordinator = nil
+        }
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
+        coordinator.start(
+            with: .init(
+                cardModel: cardViewModel,
+                walletModel: model,
+                userTokensManager: userWalletModel.userTokensManager
+            )
+        )
+
+        tokenDetailsCoordinator = coordinator
+    }
+
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
         let userTokenListManager = userWalletModel.userTokenListManager
         let optionsManager = OrganizeTokensOptionsManager(
@@ -95,6 +148,124 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             walletModelsAdapter: walletModelsAdapter,
             organizeTokensOptionsProviding: optionsManager,
             organizeTokensOptionsEditing: optionsManager
+        )
+    }
+}
+
+// MARK: - SingleTokenRoutable
+
+extension MainCoordinator: SingleTokenBaseRoutable {
+    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
+        let tokenItem: TokenItem
+        switch amountType {
+        case .token(let token):
+            tokenItem = .token(token, blockchain)
+        default:
+            tokenItem = .blockchain(blockchain)
+        }
+        receiveBottomSheetViewModel = .init(tokenItem: tokenItem, addressInfos: addressInfos)
+    }
+
+    func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.topupScreenOpened)
+        pushedWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.commonBuy,
+            addLoadingIndicator: true,
+            urlActions: [
+                closeUrl: { [weak self] response in
+                    self?.pushedWebViewModel = nil
+                    action(response)
+                },
+            ]
+        )
+    }
+
+    func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.withdrawScreenOpened)
+        pushedWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.commonSell,
+            addLoadingIndicator: true,
+            urlActions: [sellRequestUrl: action]
+        )
+    }
+
+    func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
+        let options = SendCoordinator.Options(
+            amountToSend: amountToSend,
+            destination: nil,
+            blockchainNetwork: blockchainNetwork,
+            cardViewModel: cardViewModel
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
+    func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
+        let options = SendCoordinator.Options(
+            amountToSend: amountToSend,
+            destination: destination,
+            blockchainNetwork: blockchainNetwork,
+            cardViewModel: cardViewModel
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
+    func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
+        let delay = 0.6
+        warningBankCardViewModel = .init(confirmCallback: { [weak self] in
+            self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                confirmCallback()
+            }
+        }, declineCallback: { [weak self] in
+            self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                declineCallback()
+            }
+        })
+    }
+
+    func openP2PTutorial() {
+        modalWebViewModel = WebViewContainerViewModel(
+            url: URL(string: "https://tangem.com/howtobuy.html")!,
+            title: "",
+            addLoadingIndicator: true,
+            withCloseButton: false,
+            urlActions: [:]
+        )
+    }
+
+    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
+        let dismissAction: Action = { [weak self] in
+            self?.swappingCoordinator = nil
+        }
+
+        let factory = CommonSwappingModulesFactory(inputModel: input)
+        let coordinator = SwappingCoordinator(
+            factory: factory,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .default)
+
+        swappingCoordinator = coordinator
+    }
+
+    func openExplorer(at url: URL, blockchainDisplayName: String) {
+        modalWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: Localization.commonExplorerFormat(blockchainDisplayName),
+            withCloseButton: true
         )
     }
 }
