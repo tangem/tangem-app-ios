@@ -58,6 +58,9 @@ struct MainCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
+            .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
+                OrganizeTokensContainerView(viewModel: viewModel)
+            }
 
         NavHolder()
             .bottomSheet(
