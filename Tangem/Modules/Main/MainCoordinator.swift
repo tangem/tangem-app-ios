@@ -37,6 +37,7 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Other state
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
     required init(
         dismissAction: @escaping Action,
@@ -63,7 +64,7 @@ extension MainCoordinator {
     }
 }
 
-// MARK: - MainRoutable
+// MARK: - MainRoutable protocol conformance
 
 extension MainCoordinator: MainRoutable {
     func openDetails(for cardModel: CardViewModel) {
@@ -100,6 +101,8 @@ extension MainCoordinator: MainRoutable {
     }
 }
 
+// MARK: - MultiWalletMainContentRoutable protocol conformance
+
 extension MainCoordinator: MultiWalletMainContentRoutable {
     func openTokenDetails(for model: WalletModel, userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
@@ -122,7 +125,34 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
         tokenDetailsCoordinator = coordinator
     }
+
+    func openOrganizeTokens(for userWalletModel: UserWalletModel) {
+        let userTokenListManager = userWalletModel.userTokenListManager
+        let optionsManager = OrganizeTokensOptionsManager(
+            userTokenListManager: userTokenListManager,
+            editingThrottleInterval: 1.0
+        )
+        let walletModelComponentsBuilder = WalletModelComponentsBuilder(
+            supportedBlockchains: userWalletModel.config.supportedBlockchains
+        )
+        let walletModelsAdapter = OrganizeWalletModelsAdapter(
+            userTokenListManager: userTokenListManager,
+            walletModelComponentsBuilder: walletModelComponentsBuilder,
+            organizeTokensOptionsProviding: optionsManager,
+            organizeTokensOptionsEditing: optionsManager
+        )
+
+        organizeTokensViewModel = OrganizeTokensViewModel(
+            coordinator: self,
+            walletModelsManager: userWalletModel.walletModelsManager,
+            walletModelsAdapter: walletModelsAdapter,
+            organizeTokensOptionsProviding: optionsManager,
+            organizeTokensOptionsEditing: optionsManager
+        )
+    }
 }
+
+// MARK: - SingleTokenRoutable
 
 extension MainCoordinator: SingleTokenRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
@@ -240,4 +270,14 @@ extension MainCoordinator: SingleTokenRoutable {
     }
 }
 
+// MARK: - SingleWalletMainContentRoutable protocol conformance
+
 extension MainCoordinator: SingleWalletMainContentRoutable {}
+
+// MARK: - OrganizeTokensRoutable protocol conformance
+
+extension MainCoordinator: OrganizeTokensRoutable {
+    func didTapCancelButton() {
+        organizeTokensViewModel = nil
+    }
+}
