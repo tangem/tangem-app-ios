@@ -121,6 +121,15 @@ final class MainViewModel: ObservableObject {
     }
 
     private func addNewPage(for userWalletModel: UserWalletModel) {
+        // [REDACTED_TODO_COMMENT]
+        // We need this check to prevent adding new pages after each
+        // UserWalletModel update in `CommonUserWalletRepository`.
+        // The problem itself not in `update` event from repository but
+        // in `inserted` event, which is sending `UserWallet` instead of `UserWalletModel`
+        if pages.contains(where: { $0.id == userWalletModel.userWalletId }) {
+            return
+        }
+
         guard let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel) else {
             return
         }
@@ -137,6 +146,16 @@ final class MainViewModel: ObservableObject {
     // MARK: - Private functions
 
     private func bind() {
+        $selectedCardIndex
+            .sink { [weak self] newIndex in
+                guard let userWalletId = self?.pages[newIndex].id else {
+                    return
+                }
+
+                self?.userWalletRepository.setSelectedUserWalletId(userWalletId.value, reason: .userSelected)
+            }
+            .store(in: &bag)
+
         userWalletRepository.eventProvider
             .sink { [weak self] event in
                 switch event {
