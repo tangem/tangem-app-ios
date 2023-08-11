@@ -30,7 +30,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userWalletModel: model,
                 coordinator: coordinator,
                 // [REDACTED_TODO_COMMENT]
-                sectionsProvider: GroupedTokenListInfoProvider(userWalletId: id, walletModelsManager: model.walletModelsManager)
+                sectionsProvider: GroupedTokenListInfoProvider(
+                    userWalletId: id,
+                    userTokenListManager: model.userTokenListManager,
+                    walletModelsManager: model.walletModelsManager
+                )
             )
 
             return .multiWallet(
