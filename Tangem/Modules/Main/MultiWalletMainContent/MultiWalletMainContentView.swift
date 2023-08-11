@@ -84,7 +84,10 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         let mainCoordinator = MainCoordinator()
         let userWalletModel = repo.models.first!
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
-        sectionProvider = GroupedTokenListInfoProvider(walletModelsManager: userWalletModel.walletModelsManager)
+        sectionProvider = GroupedTokenListInfoProvider(
+            userTokenListManager: userWalletModel.userTokenListManager,
+            walletModelsManager: userWalletModel.walletModelsManager
+        )
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             coordinator: mainCoordinator,
