@@ -1,5 +1,5 @@
 //
-//  SingleTokenRoutable.swift
+//  SingleTokenBaseRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemSwapping
 
-protocol SingleTokenRoutable: AnyObject {
+protocol SingleTokenBaseRoutable: AnyObject {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void)
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void)
