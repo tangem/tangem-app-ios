@@ -91,7 +91,7 @@ class WalletModel {
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
     }
 
-    var hasPendingTx: Bool {
+    var hasPendingTransactions: Bool {
         wallet.hasPendingTx(for: amountType)
     }
 
@@ -208,7 +208,7 @@ class WalletModel {
     private let formatter = BalanceFormatter()
 
     deinit {
-        AppLog.shared.debug("🗑 WalletModel deinit")
+        AppLog.shared.debug("🗑 \(self) deinit")
     }
 
     init(
@@ -254,7 +254,7 @@ class WalletModel {
             .sink { [weak self] rate in
                 guard let self else { return }
 
-                AppLog.shared.debug("🔄 Rate updated for \(name)")
+                AppLog.shared.debug("🔄 Rate updated for \(self)")
                 _rate.send(rate)
             }
             .store(in: &bag)
@@ -292,7 +292,7 @@ class WalletModel {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
-        AppLog.shared.debug("🔄 Start updating \(name)")
+        AppLog.shared.debug("🔄 Start updating \(self)")
 
         if !silent {
             updateState(.loading)
@@ -305,7 +305,7 @@ class WalletModel {
             .sink { [weak self] newState, _ in
                 guard let self else { return }
 
-                AppLog.shared.debug("🔄 Finished common update for \(name)")
+                AppLog.shared.debug("🔄 Finished common update for \(self)")
 
                 updatePublisher?.send(mapState(newState))
                 updatePublisher?.send(completion: .finished)
@@ -318,13 +318,13 @@ class WalletModel {
     private func walletManagerDidUpdate(_ walletManagerState: WalletManagerState) {
         switch walletManagerState {
         case .loaded:
-            AppLog.shared.debug("🔄 Finished updating for \(name)")
+            AppLog.shared.debug("🔄 Finished updating for \(self)")
 
             if let demoBalance {
                 walletManager.wallet.add(coinValue: demoBalance)
             }
         case .failed:
-            AppLog.shared.debug("🔄 Failed updating for \(name)")
+            AppLog.shared.debug("🔄 Failed updating for \(self)")
         case .loading, .initial:
             break
         }
@@ -351,7 +351,7 @@ class WalletModel {
     }
 
     private func updateState(_ state: State) {
-        AppLog.shared.debug("🔄 Update state for \(name). New state is \(state)")
+        AppLog.shared.debug("🔄 Updating state for \(self). New state is \(state)")
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?._state.value = state
         }
@@ -365,19 +365,19 @@ class WalletModel {
             return .just(output: [:])
         }
 
-        AppLog.shared.debug("🔄 Start loading rates for \(name)")
+        AppLog.shared.debug("🔄 Start loading rates for \(self)")
 
         return ratesRepository
             .loadRates(coinIds: [currencyId])
-            .handleEvents(receiveOutput: { [name] _ in
-                AppLog.shared.debug("🔄 Finished loading rates for \(name)")
+            .handleEvents(receiveOutput: { [weak self] _ in
+                AppLog.shared.debug("🔄 Finished loading rates for \(String(describing: self))")
             })
             .eraseToAnyPublisher()
     }
 
     func startUpdatingTimer() {
         walletManager.setNeedsUpdate()
-        AppLog.shared.debug("⏰ Starting updating timer for Wallet model")
+        AppLog.shared.debug("⏰ Starting updating timer for \(self)")
         updateTimer = Timer.TimerPublisher(
             interval: 10.0,
             tolerance: 0.1,
@@ -386,7 +386,7 @@ class WalletModel {
         )
         .autoconnect()
         .sink { [weak self] _ in
-            AppLog.shared.debug("⏰ Updating timer alarm ‼️ Wallet model will be updated")
+            AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(String(describing: self)) will be updated")
             self?.update(silent: false)
             self?.updateTimer?.cancel()
         }
@@ -680,6 +680,21 @@ extension WalletModel {
     }
 }
 
+// MARK: - CustomStringConvertible protocol conformance
+
+extension WalletModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "name": name,
+                "isMainToken": isMainToken,
+                "tokenItem": "\(tokenItem.name) (\(tokenItem.networkName))",
+            ]
+        )
+    }
+}
+
 // MARK: - Interfaces
 
 extension WalletModel {
@@ -717,11 +732,5 @@ extension WalletModel {
 
     var ethereumTransactionProcessor: EthereumTransactionProcessor? {
         walletManager as? EthereumTransactionProcessor
-    }
-}
-
-extension WalletModel: TokenItemInfoProvider {
-    var hasPendingTransactions: Bool {
-        !incomingPendingTransactions.isEmpty || !outgoingPendingTransactions.isEmpty
     }
 }
