@@ -12,8 +12,15 @@ struct MultiWalletMainContentView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 14) {
             tokensContent
+
+            FixedSizeButtonWithLeadingIcon(
+                title: Localization.organizeTokensTitle,
+                icon: Assets.OrganizeTokens.filterIcon.image,
+                action: viewModel.openOrganizeTokens
+            )
+            .infinityFrame(axis: .horizontal)
         }
         .padding(.bottom, 40)
     }
