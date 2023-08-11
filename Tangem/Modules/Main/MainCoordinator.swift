@@ -154,7 +154,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
 // MARK: - SingleTokenRoutable
 
-extension MainCoordinator: SingleTokenRoutable {
+extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
         let tokenItem: TokenItem
         switch amountType {
