@@ -1,5 +1,5 @@
 //
-//  SingleTokenViewModel.swift
+//  SingleTokenBaseViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemSwapping
 
-class SingleTokenViewModel: ObservableObject {
+class SingleTokenBaseViewModel {
     @Injected(\.keysManager) var keysManager: KeysManager
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
@@ -22,7 +22,7 @@ class SingleTokenViewModel: ObservableObject {
 
     @Published var actionButtons: [ButtonWithIconInfo] = []
 
-    private unowned let coordinator: SingleTokenRoutable
+    private unowned let coordinator: SingleTokenBaseRoutable
 
     let swappingUtils = SwappingAvailableUtils()
     let exchangeUtility: ExchangeCryptoUtility
@@ -70,7 +70,7 @@ class SingleTokenViewModel: ObservableObject {
         walletModel: WalletModel,
         userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
-        coordinator: SingleTokenRoutable
+        coordinator: SingleTokenBaseRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
@@ -132,7 +132,7 @@ class SingleTokenViewModel: ObservableObject {
 
 // MARK: - Setup functions
 
-extension SingleTokenViewModel {
+extension SingleTokenBaseViewModel {
     private func prepareSelf() {
         bind()
         setupActionButtons()
@@ -243,7 +243,7 @@ extension SingleTokenViewModel {
 
 // MARK: - Navigation
 
-extension SingleTokenViewModel {
+extension SingleTokenBaseViewModel {
     func openReceive() {
         let infos = walletModel.wallet.addresses.map { address in
             ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
@@ -355,6 +355,6 @@ extension SingleTokenViewModel {
     }
 }
 
-extension SingleTokenViewModel: ActionButtonsProvider {
+extension SingleTokenBaseViewModel: ActionButtonsProvider {
     var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
 }
