@@ -124,7 +124,10 @@ final class MainViewModel: ObservableObject {
     }
 
     private func addNewPage(for userWalletModel: UserWalletModel) {
-        let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel)
+        guard let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel) else {
+            return
+        }
+
         let newPageIndex = pages.count
         pages.append(newPage)
         selectedCardIndex = newPageIndex
