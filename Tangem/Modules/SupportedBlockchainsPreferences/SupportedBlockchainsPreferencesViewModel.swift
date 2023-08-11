@@ -18,12 +18,12 @@ class SupportedBlockchainsPreferencesViewModel: ObservableObject {
                 DefaultToggleRowViewModel(
                     title: blockchain.displayName,
                     isOn: .init(get: {
-                        return FeatureStorage().supportedBlockchainsIds.contains(blockchain.id)
+                        return FeatureStorage().supportedBlockchainsIds.contains(blockchain.coinId)
                     }, set: { newValue in
                         if newValue {
-                            FeatureStorage().supportedBlockchainsIds.append(blockchain.id)
+                            FeatureStorage().supportedBlockchainsIds.append(blockchain.coinId)
                         } else {
-                            FeatureStorage().supportedBlockchainsIds.removeAll(where: { $0 == blockchain.id })
+                            FeatureStorage().supportedBlockchainsIds.removeAll(where: { $0 == blockchain.coinId })
                         }
                     })
                 )
