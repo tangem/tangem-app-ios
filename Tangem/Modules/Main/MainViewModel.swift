@@ -81,15 +81,12 @@ final class MainViewModel: ObservableObject {
             completionHandler()
         }
         let page = pages[selectedCardIndex]
-        let model = userWalletRepository.models[selectedCardIndex]
 
         switch page {
-        case .singleWallet:
-            model.walletModelsManager.updateAll(silent: false, completion: completion)
-        case .multiWallet:
-            model.userTokenListManager.updateLocalRepositoryFromServer { _ in
-                model.walletModelsManager.updateAll(silent: true, completion: completion)
-            }
+        case .singleWallet(_, _, let viewModel):
+            viewModel.onPullToRefresh(completionHandler: completion)
+        case .multiWallet(_, _, let viewModel):
+            viewModel.onPullToRefresh(completionHandler: completion)
         }
     }
 
