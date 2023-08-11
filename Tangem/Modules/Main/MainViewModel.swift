@@ -36,7 +36,6 @@ final class MainViewModel: ObservableObject {
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
         pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
-        setupHorizontalScrollAvailability()
     }
 
     convenience init(
@@ -75,7 +74,7 @@ final class MainViewModel: ObservableObject {
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
         isHorizontalScrollDisabled = true
         let completion = { [weak self] in
-            self?.setupHorizontalScrollAvailability()
+            self?.isHorizontalScrollDisabled = false
             completionHandler()
         }
         let page = pages[selectedCardIndex]
@@ -126,10 +125,6 @@ final class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private functions
-
-    private func setupHorizontalScrollAvailability() {
-        isHorizontalScrollDisabled = pages.count <= 1
-    }
 
     private func bind() {}
 
