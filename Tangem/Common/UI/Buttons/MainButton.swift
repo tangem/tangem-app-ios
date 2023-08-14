@@ -107,7 +107,7 @@ struct MainButton: View {
 }
 
 extension MainButton {
-    enum Icon {
+    enum Icon: Hashable {
         case leading(_ icon: ImageType)
         case trailing(_ icon: ImageType)
     }
@@ -165,7 +165,7 @@ extension MainButton {
         }
     }
 
-    enum Size {
+    enum Size: Hashable {
         /// Height: 46
         case `default`
         /// Height: 40
@@ -179,7 +179,22 @@ extension MainButton {
         }
     }
 
-    struct Settings {
+    struct Settings: Identifiable, Hashable {
+        static func == (lhs: MainButton.Settings, rhs: MainButton.Settings) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+
+        var id: Int { hashValue }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(title)
+            hasher.combine(icon)
+            hasher.combine(style)
+            hasher.combine(size)
+            hasher.combine(isLoading)
+            hasher.combine(isDisabled)
+        }
+
         let title: String
         let icon: Icon?
         let style: Style
