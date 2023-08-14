@@ -180,21 +180,6 @@ extension MainButton {
     }
 
     struct Settings: Identifiable, Hashable {
-        static func == (lhs: MainButton.Settings, rhs: MainButton.Settings) -> Bool {
-            lhs.hashValue == rhs.hashValue
-        }
-
-        var id: Int { hashValue }
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(title)
-            hasher.combine(icon)
-            hasher.combine(style)
-            hasher.combine(size)
-            hasher.combine(isLoading)
-            hasher.combine(isDisabled)
-        }
-
         let title: String
         let icon: Icon?
         let style: Style
@@ -202,6 +187,8 @@ extension MainButton {
         let isLoading: Bool
         var isDisabled: Bool
         let action: () -> Void
+
+        var id: Int { hashValue }
 
         init(
             title: String,
@@ -219,6 +206,19 @@ extension MainButton {
             self.isLoading = isLoading
             self.isDisabled = isDisabled
             self.action = action
+        }
+
+        static func == (lhs: MainButton.Settings, rhs: MainButton.Settings) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(title)
+            hasher.combine(icon)
+            hasher.combine(style)
+            hasher.combine(size)
+            hasher.combine(isLoading)
+            hasher.combine(isDisabled)
         }
     }
 }
