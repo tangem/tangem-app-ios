@@ -7,48 +7,67 @@
 //
 
 import Foundation
+import SwiftUI
 
-public struct NotificationViewModel: Identifiable {
+struct NotificationViewModel: Identifiable {
     // MARK: - Access
 
-    public var mainIcon: ImageType {
-        input.mainIcon
+    var id: NotificationId { input.id }
+
+    var style: NotificationView.Style { input.style }
+
+    var colorScheme: NotificationView.ColorScheme { input.colorScheme }
+
+    var icon: Image {
+        input.icon.image
     }
 
-    public var title: String {
+    var iconColor: Color? {
+        input.icon.color
+    }
+
+    var title: String {
         input.title
     }
 
-    public var description: String? {
+    var description: String? {
         input.description
     }
 
-    public var detailIcon: ImageType? {
-        input.detailIcon
-    }
+    var isDismissable: Bool { input.isDismissable }
 
     // MARK: - Properties
-
-    public let id = UUID()
-    public let primaryTapAction: (() -> Void)?
-    public let secondaryTapAction: (() -> Void)?
 
     private let input: Input
 
     // MARK: - Init
 
-    public init(input: Input, primaryTapAction: (() -> Void)?, secondaryTapAction: (() -> Void)?) {
+    init(input: Input) {
         self.input = input
-        self.primaryTapAction = primaryTapAction
-        self.secondaryTapAction = secondaryTapAction
+    }
+
+    func dismiss() {
+        input.dismissAction?(id)
     }
 }
 
-public extension NotificationViewModel {
-    struct Input {
-        let mainIcon: ImageType
+extension NotificationViewModel {
+    struct Input: Identifiable, Hashable {
+        static func == (lhs: NotificationViewModel.Input, rhs: NotificationViewModel.Input) -> Bool {
+            return lhs.id == rhs.id
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+
+        var id: NotificationId = UUID().uuidString
+        let style: NotificationView.Style
+        let colorScheme: NotificationView.ColorScheme
+        let icon: NotificationView.MessageIcon
         let title: String
         let description: String?
-        let detailIcon: ImageType?
+        let isDismissable: Bool
+        let dismissAction: ((NotificationId) -> Void)?
     }
 }
