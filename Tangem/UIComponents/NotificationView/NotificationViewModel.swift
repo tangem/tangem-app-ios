@@ -53,15 +53,7 @@ struct NotificationViewModel: Identifiable {
 
 extension NotificationViewModel {
     struct Input: Identifiable, Hashable {
-        static func == (lhs: NotificationViewModel.Input, rhs: NotificationViewModel.Input) -> Bool {
-            return lhs.id == rhs.id
-        }
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-        }
-
-        var id: NotificationId = UUID().uuidString
+        let id: NotificationId = UUID().uuidString
         let style: NotificationView.Style
         let colorScheme: NotificationView.ColorScheme
         let icon: NotificationView.MessageIcon
@@ -69,5 +61,13 @@ extension NotificationViewModel {
         let description: String?
         let isDismissable: Bool
         let dismissAction: ((NotificationId) -> Void)?
+
+        static func == (lhs: NotificationViewModel.Input, rhs: NotificationViewModel.Input) -> Bool {
+            return lhs.id == rhs.id
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
     }
 }
