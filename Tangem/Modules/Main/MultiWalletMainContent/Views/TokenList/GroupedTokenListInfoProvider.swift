@@ -32,7 +32,8 @@ class GroupedTokenListInfoProvider {
 
     private func bind() {
         userTokenListManager.userTokensPublisher
-            .combineLatest(walletModelsManager.walletModelsPublisher)
+            .removeDuplicates()
+            .combineLatest(walletModelsManager.walletModelsPublisher.removeDuplicates())
             .map(convertToSectionInfo(from:and:))
             .assign(to: \.value, on: currentSections)
             .store(in: &bag)
