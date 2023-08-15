@@ -13,6 +13,18 @@ struct TransactionHistoryMapper {
     private let walletAddress: String
 
     private let balanceFormatter = BalanceFormatter()
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.doesRelativeDateFormatting = true
+        return formatter
+    }()
+
+    private let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter
+    }()
 
     init(currencySymbol: String, walletAddress: String) {
         self.currencySymbol = currencySymbol
@@ -20,9 +32,6 @@ struct TransactionHistoryMapper {
     }
 
     func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.doesRelativeDateFormatting = true
         let calendar = Calendar.current
 
         var controlDate: Date!
@@ -72,9 +81,6 @@ struct TransactionHistoryMapper {
     }
 
     func mapTransactionViewModel(_ record: TransactionRecord) -> TransactionViewModel {
-        let timeFormatter = DateFormatter()
-        timeFormatter.timeStyle = .short
-
         let type = transactionType(from: record)
         var timeFormatted: String?
         if let date = record.date {
