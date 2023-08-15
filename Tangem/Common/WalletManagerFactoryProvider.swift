@@ -7,14 +7,12 @@
 //
 
 import Foundation
-import TangemSdk
 import BlockchainSdk
 
 class WalletManagerFactoryProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    lazy var walletManagerFactory: WalletManagerFactory = .init(config: keysManager.blockchainConfig)
-    lazy var transactionHistoryFactory: TransactionHistoryProviderFactory = .init(config: keysManager.blockchainConfig)
+    lazy var factory: WalletManagerFactory = .init(config: keysManager.blockchainConfig)
 
     init() {}
 }
