@@ -13,46 +13,45 @@ import Combine
 class WalletTransactionHistoryService {
     private let blockchain: Blockchain
     private let address: String
-    private let mapper: TransactionHistoryMapper
     private let repository: TransactionHistoryRepository
     private let transactionHistoryProvider: TransactionHistoryProvider
 
-    private var _state: CurrentValueSubject<State, Never> = .init(.notLoaded)
-
+    private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private var totalPages = 0
     private var currentPage = 0
     private let pageSize: Int = 20
     private var cancellable: AnyCancellable?
 
-    var canFetchMore: Bool {
-        currentPage < totalPages
-    }
-
-    init?(
+    init(
         blockchain: Blockchain,
         address: String,
-        mapper: TransactionHistoryMapper,
-        repository: TransactionHistoryRepository
+        repository: TransactionHistoryRepository,
+        transactionHistoryProvider: TransactionHistoryProvider
     ) {
-        let factory = WalletManagerFactoryProvider().transactionHistoryFactory
-        guard let transactionHistoryProvider = factory.makeProvider(for: blockchain) else {
-            return nil
-        }
-
         self.blockchain = blockchain
         self.address = address
-        self.mapper = mapper
         self.repository = repository
         self.transactionHistoryProvider = transactionHistoryProvider
     }
+}
 
-    func state() -> AnyPublisher<State, Never> {
+// MARK: - TransactionHistoryService
+
+extension WalletTransactionHistoryService: TransactionHistoryService {
+    var state: TransactionHistoryServiceState {
+        _state.value
+    }
+
+    var statePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
         _state.eraseToAnyPublisher()
     }
 
-    func items() -> [TransactionListItem] {
-        let records = repository.records(blockchain: blockchain)
-        return mapper.mapTransactionListItem(from: records)
+    var items: [TransactionRecord] {
+        return repository.records(blockchain: blockchain)
+    }
+
+    var canFetchMore: Bool {
+        currentPage < totalPages
     }
 
     func reset() {
@@ -60,16 +59,31 @@ class WalletTransactionHistoryService {
         currentPage = 0
         totalPages = 0
         repository.update(records: [], for: blockchain)
+        AppLog.shared.debug("\(self) was reset")
     }
 
-    func fetch() {
+    func update() -> AnyPublisher<Void, Error> {
+        Deferred {
+            Future<Void, Error> { [weak self] promise in
+                self?.fetch(result: promise)
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Private
+
+private extension WalletTransactionHistoryService {
+    func fetch(result: @escaping (Result<Void, Error>) -> Void) {
         cancellable = nil
 
         guard currentPage == 0 || canFetchMore else {
-            AppLog.shared.debug("PagerLoader reach the end of list")
+            AppLog.shared.debug("\(self) reached the end of list")
             return
         }
 
+        AppLog.shared.debug("\(self) start loading")
         _state.send(.loading)
 
         let nextPage = Page(number: currentPage + 1, size: pageSize)
@@ -79,6 +93,8 @@ class WalletTransactionHistoryService {
                 switch completion {
                 case .failure(let error):
                     self?._state.send(.failedToLoad(error))
+                    result(.failure(error))
+                    AppLog.shared.debug("\(String(describing: self)) error: \(error)")
                 case .finished:
                     self?._state.send(.loaded)
                 }
@@ -87,19 +103,27 @@ class WalletTransactionHistoryService {
                     return
                 }
 
-                totalPages = response.totalPages
-                currentPage = response.page.number
-                repository.add(records: response.records, for: blockchain)
+                self.totalPages = response.totalPages
+                self.currentPage = response.page.number
+                self.repository.add(records: response.records, for: self.blockchain)
+                AppLog.shared.debug("\(self) loaded")
+                result(.success(()))
             }
     }
 }
 
-extension WalletTransactionHistoryService {
-    enum State {
-        case notSupported
-        case notLoaded
-        case loading
-        case failedToLoad(Error)
-        case loaded
+// MARK: - CustomStringConvertible
+
+extension WalletTransactionHistoryService: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "blockchain": blockchain.displayName,
+                "address": address,
+                "totalPages": totalPages,
+                "currentPage": currentPage,
+            ]
+        )
     }
 }
