@@ -40,7 +40,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .unspecified
         case .tokenDetailsV2: return .unspecified
         case .enableBlockchainSdkEvents: return .unspecified
-        case .mainV2: return .unspecified
+        case .mainV2: return .version("0.0")
         }
     }
 }
