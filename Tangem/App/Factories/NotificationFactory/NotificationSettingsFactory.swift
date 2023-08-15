@@ -1,5 +1,5 @@
 //
-//  NotificationFactory.swift
+//  NotificationSettingsFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct NotificationViewModelFactory {
+struct NotificationSettingsFactory {
     func buildMissingDerivationNotifSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
         .init(
             colorScheme: .white,
