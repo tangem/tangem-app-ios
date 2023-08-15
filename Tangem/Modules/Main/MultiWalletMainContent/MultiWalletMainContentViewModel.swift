@@ -9,13 +9,14 @@
 import Foundation
 import Combine
 import CombineExt
+import SwiftUI
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isLoadingTokenList: Bool = true
     @Published var sections: [MultiWalletTokenItemsSection] = []
-    @Published var pendingDerivationsCount: Int = 0
+    @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
 
     @Published var isScannerBusy = false
 
@@ -71,7 +72,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .pendingDerivationsCount
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .assign(to: \.pendingDerivationsCount, on: self, ownership: .weak)
+            .sink(receiveValue: { [weak self] pendingDerivationsCount in
+                self?.updateMissingDerivationNotification(for: pendingDerivationsCount)
+            })
             .store(in: &bag)
 
         sectionsProvider.sectionsPublisher
@@ -106,6 +109,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func updateMissingDerivationNotification(for pendingDerivationsCount: Int) {
+        guard pendingDerivationsCount > 0 else {
+            missingDerivationNotificationSettings = nil
+            return
+        }
+
+        let factory = NotificationViewModelFactory()
+        missingDerivationNotificationSettings = factory.buildMissingDerivationNotifSettings(for: pendingDerivationsCount)
     }
 
     func openOrganizeTokens() {
