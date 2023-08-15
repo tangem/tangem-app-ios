@@ -12,7 +12,7 @@ struct TokenItemViewLeadingComponent: View {
     let name: String
     let imageURL: URL?
     let blockchainIconName: String?
-    let isColorless: Bool
+    let hasMonochromeIcon: Bool
 
     var body: some View {
         TokenIcon(
@@ -21,6 +21,6 @@ struct TokenItemViewLeadingComponent: View {
             blockchainIconName: blockchainIconName,
             size: .init(bothDimensions: 36.0)
         )
-        .saturation(isColorless ? 0 : 1)
+        .saturation(hasMonochromeIcon ? 0 : 1)
     }
 }
