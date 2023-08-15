@@ -17,7 +17,6 @@ class CommonDerivationManager {
 
     private var bag = Set<AnyCancellable>()
     private let pendingDerivations: CurrentValueSubject<[Data: [DerivationPath]], Never> = .init([:])
-    private let _pendingDerivationsCount: CurrentValueSubject<Int, Never> = .init(0)
 
     internal init(keysRepository: KeysRepository, userTokenListManager: UserTokenListManager) {
         self.keysRepository = keysRepository
@@ -37,7 +36,6 @@ class CommonDerivationManager {
     private func process(_ entries: [StorageEntry], _ keys: [CardDTO.Wallet]) {
         var derivations: [Data: [DerivationPath]] = [:]
 
-        var pendingDerivationsCount = 0
         entries.forEach { entry in
             let curve = entry.blockchainNetwork.blockchain.curve
 
@@ -47,12 +45,10 @@ class CommonDerivationManager {
                 return
             }
 
-            pendingDerivationsCount += 1
             derivations[masterKey.publicKey, default: []].append(derivationPath)
         }
 
         pendingDerivations.send(derivations)
-        _pendingDerivationsCount.send(pendingDerivationsCount)
     }
 }
 
@@ -65,7 +61,10 @@ extension CommonDerivationManager: DerivationManager {
     }
 
     var pendingDerivationsCount: AnyPublisher<Int, Never> {
-        _pendingDerivationsCount
+        pendingDerivations
+            .map { pending in
+                pending.reduce(0) { $0 + $1.value.count }
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }

@@ -11,15 +11,21 @@ import SwiftUI
 struct MultiWalletMainContentView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
+    private let notificationTransition: AnyTransition = .scale.combined(with: .opacity)
+
     var body: some View {
         VStack(spacing: 14) {
-            if viewModel.pendingDerivationsCount > 0 {
-                MissingAddressesWarningView(
-                    missingAddressesCount: viewModel.pendingDerivationsCount,
-                    isLoading: viewModel.isScannerBusy,
-                    action: viewModel.deriveEntriesWithoutDerivation
-                )
-                .transition(AnyTransition.scale.combined(with: .opacity))
+            if let settings = viewModel.missingDerivationNotificationSettings {
+                NotificationView(settings: settings, buttons: [
+                    .init(
+                        title: Localization.commonGenerateAddresses,
+                        icon: .trailing(Assets.tangemIcon),
+                        size: .notification,
+                        isLoading: viewModel.isScannerBusy,
+                        action: viewModel.deriveEntriesWithoutDerivation
+                    ),
+                ])
+                .transition(notificationTransition)
             }
 
             tokensContent
@@ -31,7 +37,7 @@ struct MultiWalletMainContentView: View {
             )
             .infinityFrame(axis: .horizontal)
         }
-        .animation(.default, value: viewModel.pendingDerivationsCount)
+        .animation(.default, value: viewModel.missingDerivationNotificationSettings)
         .padding(.horizontal, 16)
         .padding(.bottom, 40)
     }
@@ -94,6 +100,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         let mainCoordinator = MainCoordinator()
         let userWalletModel = repo.models.first!
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+        InjectedValues[\.tangemApiService] = FakeTangemApiService()
         sectionProvider = GroupedTokenListInfoProvider(
             userTokenListManager: userWalletModel.userTokenListManager,
             walletModelsManager: userWalletModel.walletModelsManager
