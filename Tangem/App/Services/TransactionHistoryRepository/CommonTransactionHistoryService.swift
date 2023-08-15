@@ -1,5 +1,5 @@
 //
-//  WalletTransactionHistoryService.swift
+//  CommonTransactionHistoryService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-class WalletTransactionHistoryService {
+class CommonTransactionHistoryService {
     private let blockchain: Blockchain
     private let address: String
     private let repository: TransactionHistoryRepository
@@ -37,7 +37,7 @@ class WalletTransactionHistoryService {
 
 // MARK: - TransactionHistoryService
 
-extension WalletTransactionHistoryService: TransactionHistoryService {
+extension CommonTransactionHistoryService: TransactionHistoryService {
     var state: TransactionHistoryServiceState {
         _state.value
     }
@@ -74,7 +74,7 @@ extension WalletTransactionHistoryService: TransactionHistoryService {
 
 // MARK: - Private
 
-private extension WalletTransactionHistoryService {
+private extension CommonTransactionHistoryService {
     func fetch(result: @escaping (Result<Void, Error>) -> Void) {
         cancellable = nil
 
@@ -114,7 +114,7 @@ private extension WalletTransactionHistoryService {
 
 // MARK: - CustomStringConvertible
 
-extension WalletTransactionHistoryService: CustomStringConvertible {
+extension CommonTransactionHistoryService: CustomStringConvertible {
     var description: String {
         objectDescription(
             self,
