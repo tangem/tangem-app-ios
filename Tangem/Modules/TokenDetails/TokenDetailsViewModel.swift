@@ -68,6 +68,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                     done()
                 }
             } receiveValue: { _ in }
+
+        reloadHistory()
     }
 }
 
