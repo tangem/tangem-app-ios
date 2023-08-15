@@ -18,21 +18,21 @@ struct TokenItemView: View {
                     name: viewModel.name,
                     imageURL: viewModel.imageURL,
                     blockchainIconName: viewModel.blockchainIconName,
-                    isColorless: viewModel.isColorlessIcon
+                    hasMonochromeIcon: viewModel.hasMonochromeIcon
                 )
 
                 TokenItemViewMiddleComponent(
                     name: viewModel.name,
                     balance: viewModel.balanceCrypto,
                     hasPendingTransactions: viewModel.hasPendingTransactions,
-                    isWithErroor: viewModel.networkUnreachable || viewModel.missingDerivation
+                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation
                 )
 
                 Spacer(minLength: 0.0)
 
                 TokenItemViewTrailingComponent(
-                    isWithError: viewModel.networkUnreachable || viewModel.missingDerivation,
-                    errorMessage: viewModel.trailingErrorMessage,
+                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation,
+                    errorMessage: viewModel.errorMessage,
                     balanceFiat: viewModel.balanceFiat,
                     changePercentage: viewModel.changePercentage
                 )
