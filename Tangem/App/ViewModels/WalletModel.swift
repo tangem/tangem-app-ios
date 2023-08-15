@@ -447,7 +447,7 @@ extension WalletModel {
 extension WalletModel {
     func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
         guard let transactionHistoryService else {
-            assertionFailure("UpdateTransactionsHistory not supported")
+            AppLog.shared.debug("TransactionsHistory for \(self) not supported")
             return .just(output: ())
         }
 
