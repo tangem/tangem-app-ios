@@ -9,23 +9,26 @@
 import Foundation
 import struct BlockchainSdk.Token
 
-// [REDACTED_TODO_COMMENT]
-struct StorageEntry: Codable, Hashable {
-    let blockchainNetwork: BlockchainNetwork
-    var tokens: [Token]
+extension StorageEntry {
+    enum V2 {
+        struct Entry: Codable, Hashable {
+            let blockchainNetwork: BlockchainNetwork
+            var tokens: [Token]
 
-    init(blockchainNetwork: BlockchainNetwork, tokens: [Token]) {
-        self.blockchainNetwork = blockchainNetwork
-        self.tokens = tokens
-    }
+            init(blockchainNetwork: BlockchainNetwork, tokens: [Token]) {
+                self.blockchainNetwork = blockchainNetwork
+                self.tokens = tokens
+            }
 
-    init(blockchainNetwork: BlockchainNetwork, token: Token?) {
-        self.blockchainNetwork = blockchainNetwork
+            init(blockchainNetwork: BlockchainNetwork, token: Token?) {
+                self.blockchainNetwork = blockchainNetwork
 
-        if let token = token {
-            tokens = [token]
-        } else {
-            tokens = []
+                if let token = token {
+                    tokens = [token]
+                } else {
+                    tokens = []
+                }
+            }
         }
     }
 }
