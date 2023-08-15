@@ -37,7 +37,7 @@ struct TransactionHistoryMapper {
 
             // If this current transaction was in the same day - add to list
             // otherwise create day group
-            if calendar.isDate(record.date, inSameDayAs: controlDate) {
+            if let date = record.date, calendar.isDate(date, inSameDayAs: controlDate) {
                 let viewModel = mapTransactionViewModel(record)
                 controlDateTxs.append(viewModel)
                 return
@@ -74,11 +74,15 @@ struct TransactionHistoryMapper {
         timeFormatter.timeStyle = .short
 
         let type = transactionType(from: record)
+        var timeFormatted: String?
+        if let date = record.date {
+            timeFormatted = timeFormatter.string(from: date)
+        }
 
         return TransactionViewModel(
             id: record.hash,
             destination: destination(from: record),
-            timeFormatted: timeFormatter.string(from: record.date),
+            timeFormatted: timeFormatted,
             transferAmount: "\(type.amountPrefix)\(transferAmount(from: record))",
             transactionType: type,
             status: record.status == .confirmed ? .confirmed : .inProgress
