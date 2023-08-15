@@ -13,7 +13,7 @@ import SwiftUI
 struct TransactionViewModel: Hashable, Identifiable {
     let id: String
     let destination: String
-    let timeFormatted: String
+    let timeFormatted: String?
     let transferAmount: String
     let transactionType: TransactionType
     let status: Status
