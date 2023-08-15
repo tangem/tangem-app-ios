@@ -103,9 +103,9 @@ private extension WalletTransactionHistoryService {
                     return
                 }
 
-                self.totalPages = response.totalPages
-                self.currentPage = response.page.number
-                self.repository.add(records: response.records, for: self.blockchain)
+                totalPages = response.totalPages
+                currentPage = response.page.number
+                repository.add(records: response.records, for: blockchain)
                 AppLog.shared.debug("\(self) loaded")
                 result(.success(()))
             }
