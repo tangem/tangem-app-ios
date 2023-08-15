@@ -453,7 +453,6 @@ extension WalletModel {
 
         return transactionHistoryService
             .update()
-            .replaceError(with: ())
             .eraseToAnyPublisher()
     }
 
