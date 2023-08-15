@@ -34,7 +34,7 @@ struct CommonWalletModelsFactory {
             return nil
         }
 
-        return WalletTransactionHistoryService(
+        return CommonTransactionHistoryService(
             blockchain: blockchain,
             address: wallet.address,
             repository: TransactionHistoryRepository(),
