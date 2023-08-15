@@ -28,15 +28,20 @@ struct CommonWalletModelsFactory {
 
     private func makeTransactionHistoryService(wallet: Wallet) -> TransactionHistoryService? {
         let blockchain = wallet.blockchain
-        let factory = TransactionHistoryFactoryProvider().factory
+        let address = wallet.address
 
+        if FeatureStorage().useFakeTxHistory {
+            return FakeTransactionHistoryService(blockchain: blockchain, address: address)
+        }
+
+        let factory = TransactionHistoryFactoryProvider().factory
         guard let provider = factory.makeProvider(for: blockchain) else {
             return nil
         }
 
         return CommonTransactionHistoryService(
             blockchain: blockchain,
-            address: wallet.address,
+            address: address,
             transactionHistoryProvider: provider
         )
     }
