@@ -8,10 +8,30 @@
 
 import SwiftUI
 
-// MARK: - View
-
 struct NotificationView: View {
-    let viewModel: NotificationViewModel
+    let settings: Settings
+    let style: Style
+
+    init(settings: Settings, style: Style) {
+        self.settings = settings
+        self.style = style
+    }
+
+    init(input: NotificationInput) {
+        self.init(settings: input.settings, style: input.style)
+    }
+
+    init(settings: Settings) {
+        self.init(settings: settings, style: .plain)
+    }
+
+    init(settings: Settings, tapAction: @escaping (NotificationId) -> Void) {
+        self.init(settings: settings, style: .tappable(action: tapAction))
+    }
+
+    init(settings: Settings, buttons: [MainButton.Settings]) {
+        self.init(settings: settings, style: .withButtons(buttons))
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -21,17 +41,19 @@ struct NotificationView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .background(viewModel.colorScheme.color)
+        .background(settings.colorScheme.color)
         .cornerRadiusContinuous(14)
     }
 
     @ViewBuilder
     private var dismissOverlay: some View {
-        if viewModel.isDismissable {
+        if settings.isDismissable {
             HStack {
                 Spacer()
 
-                Button(action: viewModel.dismiss) {
+                Button(action: {
+                    settings.dismissAction?(settings.id)
+                }) {
                     Assets.cross.image
                         .foregroundColor(Colors.Icon.inactive)
                 }
@@ -45,11 +67,11 @@ struct NotificationView: View {
 
     @ViewBuilder
     private var content: some View {
-        switch viewModel.style {
+        switch style {
         case .plain:
             messageIconContent
         case .tappable(let action):
-            Button(action: { action(viewModel.id) }) {
+            Button(action: { action(settings.id) }) {
                 HStack(spacing: 0) {
                     messageIconContent
 
@@ -74,16 +96,16 @@ struct NotificationView: View {
 
     private var messageIconContent: some View {
         HStack(spacing: 12) {
-            viewModel.icon
+            settings.icon.image
                 .resizable()
-                .foregroundColor(viewModel.iconColor)
+                .foregroundColor(settings.icon.color)
                 .frame(size: .init(bothDimensions: 20))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.title)
+                Text(settings.title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                if let description = viewModel.description {
+                if let description = settings.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
                         .lineSpacing(3)
@@ -98,48 +120,23 @@ struct NotificationView: View {
     }
 }
 
-typealias NotificationId = String
-
-extension NotificationView {
-    enum Style {
-        case tappable(action: (NotificationId) -> Void)
-        case withButtons([MainButton.Settings])
-        case plain
-    }
-
-    enum ColorScheme {
-        case white
-        case gray
-
-        var color: Color {
-            switch self {
-            case .white: return Colors.Background.primary
-            case .gray: return Colors.Button.secondary
-            }
-        }
-    }
-
-    struct MessageIcon {
-        let image: Image
-        var color: Color?
-    }
-}
-
 // MARK: - Previews
 
 struct NotificationView_Previews: PreviewProvider {
     class PreviewViewModel: ObservableObject {
-        lazy var notificationInputs: [NotificationViewModel.Input] = [
+        lazy var notificationInputs: [NotificationInput] = [
             .init(
                 style: .tappable(action: { [weak self] id in
                     self?.notificationTapped(with: id)
                 }),
-                colorScheme: .gray,
-                icon: .init(image: Assets.attentionRed.image),
-                title: "Used card",
-                description: "The card signed transactions in the past",
-                isDismissable: false,
-                dismissAction: nil
+                settings: .init(
+                    colorScheme: .gray,
+                    icon: .init(image: Assets.attentionRed.image),
+                    title: "Used card",
+                    description: "The card signed transactions in the past",
+                    isDismissable: false,
+                    dismissAction: nil
+                )
             ),
             .init(
                 style: .withButtons([
@@ -155,12 +152,14 @@ struct NotificationView_Previews: PreviewProvider {
                         }
                     ),
                 ]),
-                colorScheme: .white,
-                icon: .init(image: Assets.warningIcon.image),
-                title: "Some addresses are missing",
-                description: "Generate addresses for 2 new networks using your card.",
-                isDismissable: false,
-                dismissAction: nil
+                settings: .init(
+                    colorScheme: .white,
+                    icon: .init(image: Assets.warningIcon.image),
+                    title: "Some addresses are missing",
+                    description: "Generate addresses for 2 new networks using your card.",
+                    isDismissable: false,
+                    dismissAction: nil
+                )
             ),
             .init(
                 style: .withButtons([
@@ -176,49 +175,57 @@ struct NotificationView_Previews: PreviewProvider {
                         }
                     ),
                 ]),
-                colorScheme: .white,
-                icon: .init(image: Image("ethereum.fill")),
-                title: "Unable to cover Ethereum fee",
-                description: "To make a USD Coin transaction you need to depo sit some Ethereum (ETH) to cover the network fee.",
-                isDismissable: true,
-                dismissAction: { [weak self] id in
-                    self?.removeNotification(with: id)
-                }
+                settings: .init(
+                    colorScheme: .white,
+                    icon: .init(image: Image("ethereum.fill")),
+                    title: "Unable to cover Ethereum fee",
+                    description: "To make a USD Coin transaction you need to depo sit some Ethereum (ETH) to cover the network fee.",
+                    isDismissable: true,
+                    dismissAction: { [weak self] id in
+                        self?.removeNotification(with: id)
+                    }
+                )
             ),
             .init(
                 style: .plain,
-                colorScheme: .gray,
-                icon: .init(image: Assets.warningIcon.image),
-                title: "Network rent fee",
-                description: "The Solana network charges a fee of 0.0000056 every two days. Accounts without money will be removed from the network. Refill your account with 0.000465 to avoid paying the rent.",
-                isDismissable: true,
-                dismissAction: { [weak self] id in
-                    self?.removeNotification(with: id)
-                }
+                settings: .init(
+                    colorScheme: .gray,
+                    icon: .init(image: Assets.warningIcon.image),
+                    title: "Network rent fee",
+                    description: "The Solana network charges a fee of 0.0000056 every two days. Accounts without money will be removed from the network. Refill your account with 0.000465 to avoid paying the rent.",
+                    isDismissable: true,
+                    dismissAction: { [weak self] id in
+                        self?.removeNotification(with: id)
+                    }
+                )
             ),
             .init(
                 style: .plain,
-                colorScheme: .gray,
-                icon: .init(image: Assets.attentionRed.image),
-                title: "Development card",
-                description: "The card you scanned is a development card. Don't accept it as a payment",
-                isDismissable: false,
-                dismissAction: nil
+                settings: .init(
+                    colorScheme: .gray,
+                    icon: .init(image: Assets.attentionRed.image),
+                    title: "Development card",
+                    description: "The card you scanned is a development card. Don't accept it as a payment",
+                    isDismissable: false,
+                    dismissAction: nil
+                )
             ),
             .init(
                 style: .tappable(action: { [weak self] id in
                     self?.notificationTapped(with: id)
                 }),
-                colorScheme: .gray,
-                icon: .init(image: Assets.lock.image, color: Colors.Icon.primary1),
-                title: "Unlock needed",
-                description: "You need to unlock this wallet before you can use it",
-                isDismissable: false,
-                dismissAction: nil
+                settings: .init(
+                    colorScheme: .gray,
+                    icon: .init(image: Assets.lock.image, color: Colors.Icon.primary1),
+                    title: "Unlock needed",
+                    description: "You need to unlock this wallet before you can use it",
+                    isDismissable: false,
+                    dismissAction: nil
+                )
             ),
         ]
 
-        @Published var notifications: [NotificationViewModel.Input] = []
+        @Published var notifications: [NotificationInput] = []
 
         init() {
             notifications = [
@@ -235,11 +242,11 @@ struct NotificationView_Previews: PreviewProvider {
         }
 
         func removeNotification(with id: NotificationId) {
-            notifications.removeAll(where: { $0.id == id })
+            notifications.removeAll(where: { $0.settings.id == id })
         }
 
         func notificationTapped(with id: NotificationId) {
-            notifications.removeAll(where: { $0.id == id })
+            notifications.removeAll(where: { $0.settings.id == id })
         }
     }
 
@@ -250,7 +257,7 @@ struct NotificationView_Previews: PreviewProvider {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 14) {
                     ForEach(viewModel.notifications) { input in
-                        NotificationView(viewModel: .init(input: input))
+                        NotificationView(input: input)
                             .transition(AnyTransition.scale.combined(with: .opacity))
                     }
 
