@@ -9,14 +9,14 @@
 import SwiftUI
 
 struct TokenItemViewTrailingComponent: View {
-    let isWithError: Bool
+    let hasError: Bool
     let errorMessage: String?
     let balanceFiat: LoadableTextView.State
     let changePercentage: LoadableTextView.State
 
     var body: some View {
         VStack(alignment: .trailing) {
-            if isWithError, let errorMessage {
+            if hasError, let errorMessage {
                 Text(errorMessage)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             } else {
