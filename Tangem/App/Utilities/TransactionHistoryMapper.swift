@@ -9,8 +9,10 @@
 import BlockchainSdk
 
 struct TransactionHistoryMapper {
-    let currencySymbol: String
-    let walletAddress: String
+    private let currencySymbol: String
+    private let walletAddress: String
+
+    private let balanceFormatter = BalanceFormatter()
 
     init(currencySymbol: String, walletAddress: String) {
         self.currencySymbol = currencySymbol
@@ -96,14 +98,8 @@ struct TransactionHistoryMapper {
                 switch record.source {
                 case .single(let source):
                     return source.amount
-                case .multiple(let destinations):
-                    let amount = destinations
-                        .filter { $0.address == walletAddress }
-                        .reduce(0) { $0 + $1.amount }
-
-                    return amount
-                @unknown default:
-                    fatalError()
+                case .multiple(let sources):
+                    return sources.sum(for: walletAddress)
                 }
             }()
 
@@ -112,18 +108,12 @@ struct TransactionHistoryMapper {
                 case .single(let destination):
                     return destination.address.string == walletAddress ? destination.amount : 0
                 case .multiple(let destinations):
-                    let amount = destinations
-                        .filter { $0.address.string == walletAddress }
-                        .reduce(0) { $0 + $1.amount }
-
-                    return amount
-                @unknown default:
-                    fatalError()
+                    return destinations.sum(for: walletAddress)
                 }
             }()
 
             let amount = sent - change
-            return formatted(amount: amount)
+            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
 
         case .receive:
             let received: Decimal = {
@@ -131,17 +121,11 @@ struct TransactionHistoryMapper {
                 case .single(let destination):
                     return destination.amount
                 case .multiple(let destinations):
-                    let amount = destinations
-                        .filter { $0.address.string == walletAddress }
-                        .reduce(0) { $0 + $1.amount }
-
-                    return amount
-                @unknown default:
-                    fatalError()
+                    return destinations.sum(for: walletAddress)
                 }
             }()
 
-            return formatted(amount: received)
+            return balanceFormatter.formatCryptoBalance(received, currencyCode: currencySymbol)
         }
     }
 
@@ -153,8 +137,6 @@ struct TransactionHistoryMapper {
                 return destination.address.string
             case .multiple(let destinations):
                 return destinations.first(where: { $0.address.string != walletAddress })?.address.string ?? ""
-            @unknown default:
-                fatalError()
             }
         case .receive:
             switch record.source {
@@ -162,11 +144,7 @@ struct TransactionHistoryMapper {
                 return source.address
             case .multiple(let sources):
                 return sources.first(where: { $0.address != walletAddress })?.address ?? ""
-            @unknown default:
-                fatalError()
             }
-        @unknown default:
-            fatalError()
         }
     }
 
@@ -176,26 +154,7 @@ struct TransactionHistoryMapper {
             return .receive
         case .send:
             return .send
-        @unknown default:
-            fatalError()
         }
-    }
-
-    func formatted(amount: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.locale = Locale.current
-        formatter.numberStyle = .currency
-        formatter.usesGroupingSeparator = true
-        formatter.currencySymbol = currencySymbol
-        formatter.alwaysShowsDecimalSeparator = true
-        formatter.maximumFractionDigits = Constants.maximumFractionDigits
-        formatter.minimumFractionDigits = 2
-        let rounded = amount.rounded(
-            scale: Constants.maximumFractionDigits,
-            roundingMode: Constants.roundingMode
-        ) as NSDecimalNumber
-
-        return formatter.string(from: rounded) ?? "\(rounded) \(currencySymbol)"
     }
 }
 
@@ -203,5 +162,17 @@ extension TransactionHistoryMapper {
     enum Constants {
         static let maximumFractionDigits = 8
         static let roundingMode: NSDecimalNumber.RoundingMode = .down
+    }
+}
+
+private extension Array where Element == TransactionRecord.Destination {
+    func sum(for address: String) -> Decimal {
+        filter { $0.address.string == address }.reduce(0) { $0 + $1.amount }
+    }
+}
+
+private extension Array where Element == TransactionRecord.Source {
+    func sum(for address: String) -> Decimal {
+        filter { $0.address == address }.reduce(0) { $0 + $1.amount }
     }
 }
