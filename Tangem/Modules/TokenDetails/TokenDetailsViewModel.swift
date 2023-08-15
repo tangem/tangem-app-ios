@@ -15,7 +15,6 @@ import TangemSwapping
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
 
-    var canFetchMoreTransactionHistory: Bool { walletModel.canFetchMoreTransactionHistory }
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
@@ -69,8 +68,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                     done()
                 }
             } receiveValue: { _ in }
-
-        reloadTransactionHistory()
     }
 }
 
