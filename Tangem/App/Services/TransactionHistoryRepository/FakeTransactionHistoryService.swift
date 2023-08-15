@@ -48,11 +48,11 @@ extension FakeTransactionHistoryService: TransactionHistoryService {
         AppLog.shared.debug("\(self) was reset")
     }
 
-    func update() -> AnyPublisher<Void, Error> {
+    func update() -> AnyPublisher<Void, Never> {
         switch _state.value {
         case .initial:
             _state.value = .loading
-            return .justWithError(output: ())
+            return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
                     self._state.value = .failedToLoad("Failed to load tx history")
@@ -61,7 +61,7 @@ extension FakeTransactionHistoryService: TransactionHistoryService {
                 .eraseToAnyPublisher()
         case .failedToLoad:
             _state.value = .loading
-            return .justWithError(output: ())
+            return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
                     self._state.value = .loaded
@@ -70,7 +70,7 @@ extension FakeTransactionHistoryService: TransactionHistoryService {
                 .eraseToAnyPublisher()
         case .loaded:
             _state.value = .loading
-            return .justWithError(output: ())
+            return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
                     self._state.value = .initial
@@ -78,7 +78,7 @@ extension FakeTransactionHistoryService: TransactionHistoryService {
                 }
                 .eraseToAnyPublisher()
         case .loading:
-            return .justWithError(output: ())
+            return Just(())
                 .delay(for: 5, scheduler: DispatchQueue.main)
                 .map {
                     self._state.value = .loaded
