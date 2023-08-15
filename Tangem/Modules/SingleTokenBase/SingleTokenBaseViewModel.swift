@@ -19,12 +19,7 @@ class SingleTokenBaseViewModel {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
-    @Published var canFetchMoreTransactionHistory: Bool = false {
-        didSet {
-            print("canFetchMoreTransactionHistory", canFetchMoreTransactionHistory)
-        }
-    }
-
+    @Published var canFetchMoreTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
 
     private unowned let coordinator: SingleTokenBaseRoutable
