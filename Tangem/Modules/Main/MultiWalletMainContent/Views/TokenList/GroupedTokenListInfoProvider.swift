@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 
+// [REDACTED_TODO_COMMENT]
 class GroupedTokenListInfoProvider {
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
@@ -32,6 +33,7 @@ class GroupedTokenListInfoProvider {
     }
 
     private func bind() {
+        // [REDACTED_TODO_COMMENT]
         userTokenListManager.userTokensPublisher
             .removeDuplicates()
             .combineLatest(walletModelsManager.walletModelsPublisher.removeDuplicates())
