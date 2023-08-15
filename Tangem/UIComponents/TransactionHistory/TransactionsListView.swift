@@ -21,6 +21,7 @@ struct TransactionsListView: View {
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
     let buyButtonAction: (() -> Void)?
+    let shouldAddFetchMoreBlock: Bool
     let fetchMoreBlock: (() -> Void)?
 
     var body: some View {
@@ -156,12 +157,12 @@ struct TransactionsListView: View {
                     }
                 }
 
-                if let fetchMoreBlock = fetchMoreBlock {
+                if shouldAddFetchMoreBlock {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
                         .padding(.vertical)
                         .onAppear {
-                            fetchMoreBlock()
+                            fetchMoreBlock?()
                         }
                 }
             }
@@ -318,13 +319,45 @@ struct TransactionsListView_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView {
             VStack(spacing: 16) {
-                TransactionsListView(state: .notSupported, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
+                TransactionsListView(
+                    state: .notSupported,
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    shouldAddFetchMoreBlock: false,
+                    fetchMoreBlock: {}
+                )
 
-                TransactionsListView(state: .loading, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
+                TransactionsListView(
+                    state: .loading,
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    shouldAddFetchMoreBlock: false,
+                    fetchMoreBlock: {}
+                )
 
-                TransactionsListView(state: .loaded([]), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
+                TransactionsListView(
+                    state: .loaded([]),
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    shouldAddFetchMoreBlock: false,
+                    fetchMoreBlock: {}
+                )
 
-                TransactionsListView(state: .error(""), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {}, fetchMoreBlock: {})
+                TransactionsListView(
+                    state: .error(""),
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    shouldAddFetchMoreBlock: false,
+                    fetchMoreBlock: {}
+                )
             }
             .padding(.horizontal, 16)
         }
@@ -338,6 +371,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 reloadButtonAction: {},
                 isReloadButtonBusy: false,
                 buyButtonAction: {},
+                shouldAddFetchMoreBlock: false,
                 fetchMoreBlock: {}
             )
             .padding(.horizontal, 16)
