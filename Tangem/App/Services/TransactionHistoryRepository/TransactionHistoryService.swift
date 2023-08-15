@@ -20,6 +20,6 @@ protocol TransactionHistoryService: AnyObject {
     /// Use this method for reset manager to first page
     func reset()
 
-    /// Use this method for reset manager to first page
+    /// This method will be load the next page(current + 1) of transaction history records
     func update() -> AnyPublisher<Void, Error>
 }
