@@ -21,5 +21,5 @@ protocol TransactionHistoryService: AnyObject {
     func reset()
 
     /// This method will be load the next page(current + 1) of transaction history records
-    func update() -> AnyPublisher<Void, Error>
+    func update() -> AnyPublisher<Void, Never>
 }
