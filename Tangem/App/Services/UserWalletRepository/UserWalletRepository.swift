@@ -33,6 +33,7 @@ protocol UserWalletRepository: Initializable {
     func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool)
     func clear()
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo)
+    func initialClean()
 }
 
 private struct UserWalletRepositoryKey: InjectionKey {
