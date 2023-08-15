@@ -26,6 +26,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || tokenItem.blockchain.isTestnet }
     var errorMessage: String? {
+        // Don't forget to add check in trailing item in `TokenItemView` when adding new error here
         if missingDerivation {
             return Localization.commonNoAddress
         }
