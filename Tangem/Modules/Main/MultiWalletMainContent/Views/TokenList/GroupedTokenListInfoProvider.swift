@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 class GroupedTokenListInfoProvider {
     private let userTokenListManager: UserTokenListManager
@@ -35,7 +36,7 @@ class GroupedTokenListInfoProvider {
             .removeDuplicates()
             .combineLatest(walletModelsManager.walletModelsPublisher.removeDuplicates())
             .map(convertToSectionInfo(from:and:))
-            .assign(to: \.value, on: currentSections)
+            .assign(to: \.value, on: currentSections, ownership: .weak)
             .store(in: &bag)
     }
 
