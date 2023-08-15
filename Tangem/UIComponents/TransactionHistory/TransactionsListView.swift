@@ -144,8 +144,8 @@ struct TransactionsListView: View {
                 ForEach(transactionItems, id: \.id) { item in
                     Section {
                         LazyVStack(spacing: 12) {
-                            ForEach(item.items, id: \.id) { record in
-                                TransactionView(transactionRecord: record)
+                            ForEach(item.items, id: \.id) { item in
+                                TransactionView(viewModel: item)
                             }
                         }
                     } header: {
