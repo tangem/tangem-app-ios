@@ -1,5 +1,5 @@
 //
-//  PendingTransaction.swift
+//  LegacyTransactionRecord.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
