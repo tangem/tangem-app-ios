@@ -22,6 +22,11 @@ class WalletModel {
         _state.value
     }
 
+    /// Listen tx history changes
+    var transactionHistoryPublisher: AnyPublisher<TransactionHistoryState, Never> {
+        transactionHistoryState()
+    }
+
     var shoudShowFeeSelector: Bool {
         walletManager.allowsFeeSelection
     }
@@ -169,6 +174,7 @@ class WalletModel {
     let isCustom: Bool
 
     private let walletManager: WalletManager
+    private let _transactionHistoryService: TransactionHistoryService?
     private var updateTimer: AnyCancellable?
     private var txHistoryUpdateSubscription: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
@@ -178,12 +184,6 @@ class WalletModel {
     private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
-    private lazy var walletTransactionHistoryService = WalletTransactionHistoryService(
-        blockchain: blockchainNetwork.blockchain,
-        address: defaultAddress,
-        mapper: TransactionHistoryMapper(currencySymbol: blockchainNetwork.blockchain.currencySymbol, walletAddress: defaultAddress),
-        repository: TransactionHistoryRepository()
-    )
 
     private var rate: Decimal? {
         guard let currencyId = tokenItem.currencyId else {
@@ -202,10 +202,12 @@ class WalletModel {
 
     init(
         walletManager: WalletManager,
+        transactionHistoryService: TransactionHistoryService?,
         amountType: Amount.AmountType,
         isCustom: Bool
     ) {
         self.walletManager = walletManager
+        _transactionHistoryService = transactionHistoryService
         self.amountType = amountType
         self.isCustom = isCustom
 
@@ -259,12 +261,9 @@ class WalletModel {
     // MARK: - Update wallet model
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        // Fetch transactions history asynchronously
-        resetTransactionsHistory()
-        fetchTransactionsHistory()
-
-        return update(silent: silent)
-            .mapVoid()
+        Publishers
+            .CombineLatest(update(silent: silent), updateTransactionsHistory())
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -446,29 +445,38 @@ extension WalletModel {
 // MARK: - Transaction history
 
 extension WalletModel {
-    /// Listen tx history changes
-    var transactionHistoryState: AnyPublisher<WalletTransactionHistoryService.State, Never> {
-        if let walletTransactionHistoryService {
-            return walletTransactionHistoryService.state()
+    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
+        guard let transactionHistoryService else {
+            assertionFailure("UpdateTransactionsHistory not supported")
+            return .just(output: ())
         }
 
-        return .just(output: .notSupported)
+        return transactionHistoryService
+            .update()
+            .replaceError(with: ())
+            .eraseToAnyPublisher()
     }
 
-    var transactionRecordList: [TransactionListItem] {
-        walletTransactionHistoryService?.items() ?? []
-    }
+    private func transactionHistoryState() -> AnyPublisher<WalletModel.TransactionHistoryState, Never> {
+        guard let transactionHistoryService else {
+            return .just(output: .notSupported)
+        }
 
-    var canFetchMoreTransactionHistory: Bool {
-        walletTransactionHistoryService?.canFetchMore ?? false
-    }
-
-    func resetTransactionsHistory() {
-        walletTransactionHistoryService?.reset()
-    }
-
-    func fetchTransactionsHistory() {
-        walletTransactionHistoryService?.fetch()
+        return transactionHistoryService
+            .statePublisher
+            .map { [weak transactionHistoryService] state -> WalletModel.TransactionHistoryState in
+                switch state {
+                case .initial:
+                    return .notLoaded
+                case .loading:
+                    return .loading
+                case .loaded:
+                    return .loaded(items: transactionHistoryService?.items ?? [])
+                case .failedToLoad(let error):
+                    return .error(error)
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -575,6 +583,31 @@ extension WalletModel: Hashable {
 }
 
 extension WalletModel {
+    enum TransactionHistoryState: CustomStringConvertible {
+        case notSupported
+        case notLoaded
+        case loading
+        case loaded(items: [TransactionRecord])
+        case error(Error)
+
+        var description: String {
+            switch self {
+            case .notSupported:
+                return "TransactionHistoryState.notSupported"
+            case .notLoaded:
+                return "TransactionHistoryState.notLoaded"
+            case .loading:
+                return "TransactionHistoryState.loading"
+            case .loaded(let items):
+                return "TransactionHistoryState.loaded with items: \(items.count)"
+            case .error(let error):
+                return "TransactionHistoryState.error with \(error.localizedDescription)"
+            }
+        }
+    }
+}
+
+extension WalletModel {
     struct Id: Hashable, Identifiable, Equatable {
         var id: Int { hashValue }
 
@@ -676,5 +709,9 @@ extension WalletModel {
 
     var ethereumTransactionProcessor: EthereumTransactionProcessor? {
         walletManager as? EthereumTransactionProcessor
+    }
+
+    var transactionHistoryService: TransactionHistoryService? {
+        _transactionHistoryService
     }
 }

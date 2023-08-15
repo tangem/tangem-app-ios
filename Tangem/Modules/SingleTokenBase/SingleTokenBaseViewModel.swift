@@ -19,6 +19,11 @@ class SingleTokenBaseViewModel {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
+    @Published var canFetchMoreTransactionHistory: Bool = false {
+        didSet {
+            print("canFetchMoreTransactionHistory", canFetchMoreTransactionHistory)
+        }
+    }
 
     @Published var actionButtons: [ButtonWithIconInfo] = []
 
@@ -34,6 +39,7 @@ class SingleTokenBaseViewModel {
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     var availableActions: [TokenActionType] = []
+    private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
     var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
@@ -65,6 +71,8 @@ class SingleTokenBaseViewModel {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
 
+    lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
+
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
@@ -91,15 +99,23 @@ class SingleTokenBaseViewModel {
     }
 
     func reloadHistory() {
+        // We should reset transaction history to initial state here
+        walletModel.transactionHistoryService?.reset()
+
         DispatchQueue.main.async {
             self.isReloadingTransactionHistory = true
         }
-        walletModel.updateTransactionsHistory()
+
+        loadHistory()
+    }
+
+    func loadHistory() {
+        transactionHistoryBag = walletModel
+            .updateTransactionsHistory()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
+            .receiveCompletion { [weak self] _ in
                 self?.isReloadingTransactionHistory = false
-            } receiveValue: { _ in }
-            .store(in: &bag)
+            }
     }
 
     func openBuy() {
@@ -138,6 +154,7 @@ extension SingleTokenBaseViewModel {
         setupActionButtons()
         loadSwappingState()
         updateActionButtons()
+        loadHistory()
     }
 
     private func setupActionButtons() {
@@ -182,18 +199,16 @@ extension SingleTokenBaseViewModel {
             transactionHistoryState = .notSupported
         case .notLoaded:
             transactionHistoryState = .loading
-            walletModel.updateTransactionsHistory()
-                .sink()
-                .store(in: &bag)
         case .loading:
             if case .notLoaded = newState {
                 transactionHistoryState = .loading
             }
-        case .failedToLoad(let error):
+        case .error(let error):
             transactionHistoryState = .error(error)
-        case .loaded:
-            let txListItems = TransactionHistoryMapper().makeTransactionListItems(from: walletModel.transactions)
-            transactionHistoryState = .loaded(txListItems)
+        case .loaded(let records):
+            let listItems = transactionHistoryMapper.mapTransactionListItem(from: records)
+            transactionHistoryState = .loaded(listItems)
+            canFetchMoreTransactionHistory = walletModel.transactionHistoryService?.canFetchMore ?? false
         }
     }
 
