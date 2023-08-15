@@ -134,8 +134,4 @@ struct FakeTransactionHistoryFactory {
             ),
         ]
     }
-
-    private func destination(for transactionType: TransactionViewModel.TransactionType, address: String) -> String {
-        transactionType.localizeDestination(for: address)
-    }
 }
