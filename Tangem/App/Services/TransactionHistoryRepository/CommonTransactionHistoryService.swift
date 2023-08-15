@@ -62,9 +62,9 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
         AppLog.shared.debug("\(self) was reset")
     }
 
-    func update() -> AnyPublisher<Void, Error> {
+    func update() -> AnyPublisher<Void, Never> {
         Deferred {
-            Future<Void, Error> { [weak self] promise in
+            Future { [weak self] promise in
                 self?.fetch(result: promise)
             }
         }
@@ -75,7 +75,7 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
 // MARK: - Private
 
 private extension CommonTransactionHistoryService {
-    func fetch(result: @escaping (Result<Void, Error>) -> Void) {
+    func fetch(result: @escaping (Result<Void, Never>) -> Void) {
         cancellable = nil
 
         guard currentPage == 0 || canFetchMore else {
@@ -93,7 +93,6 @@ private extension CommonTransactionHistoryService {
                 switch completion {
                 case .failure(let error):
                     self?._state.send(.failedToLoad(error))
-                    result(.failure(error))
                     AppLog.shared.debug("\(String(describing: self)) error: \(error)")
                 case .finished:
                     self?._state.send(.loaded)
