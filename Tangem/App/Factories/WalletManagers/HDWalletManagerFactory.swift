@@ -33,7 +33,7 @@ struct HDWalletManagerFactory: AnyWalletManagerFactory {
             throw AnyWalletManagerFactoryError.noDerivation
         }
 
-        let factory = WalletManagerFactoryProvider().walletManagerFactory
+        let factory = WalletManagerFactoryProvider().factory
         let publicKey = Wallet.PublicKey(seedKey: seedKey, derivation: .init(path: derivationPath, derivedKey: derivedKey))
         let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
 
