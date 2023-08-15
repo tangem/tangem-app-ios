@@ -12,8 +12,8 @@ import BlockchainSdk
 // [REDACTED_TODO_COMMENT]
 // [REDACTED_TODO_COMMENT]
 protocol UserTokenListManager: UserTokensSyncService {
-    var userTokens: [StorageEntry] { get }
-    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { get }
+    var userTokens: [StorageEntry.V2.Entry] { get }
+    var userTokensPublisher: AnyPublisher<[StorageEntry.V2.Entry], Never> { get }
     var userTokenList: AnyPublisher<UserTokenList, Never> { get }
 
     func update(with userTokenList: UserTokenList)
