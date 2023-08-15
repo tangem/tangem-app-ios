@@ -31,8 +31,9 @@ extension AnalyticsContextData {
         card: CardDTO,
         productType: Analytics.ProductType,
         userWalletId: Data?,
-        embeddedEntry: StorageEntry.V2.Entry?
+        embeddedEntry: StorageEntry.V3.Entry?
     ) {
+        // [REDACTED_TODO_COMMENT]
         id = userWalletId?.sha256().hexString
         self.productType = productType
         batchId = card.batchId
