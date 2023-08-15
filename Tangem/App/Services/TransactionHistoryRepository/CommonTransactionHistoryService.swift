@@ -9,11 +9,12 @@
 import Foundation
 import BlockchainSdk
 import Combine
+import class TangemSwapping.ThreadSafeContainer
 
 class CommonTransactionHistoryService {
     private let blockchain: Blockchain
     private let address: String
-    private let repository: TransactionHistoryRepository
+
     private let transactionHistoryProvider: TransactionHistoryProvider
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
@@ -21,16 +22,15 @@ class CommonTransactionHistoryService {
     private var currentPage = 0
     private let pageSize: Int = 20
     private var cancellable: AnyCancellable?
+    private var storage: ThreadSafeContainer<[TransactionRecord]> = []
 
     init(
         blockchain: Blockchain,
         address: String,
-        repository: TransactionHistoryRepository,
         transactionHistoryProvider: TransactionHistoryProvider
     ) {
         self.blockchain = blockchain
         self.address = address
-        self.repository = repository
         self.transactionHistoryProvider = transactionHistoryProvider
     }
 }
@@ -47,7 +47,7 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
     }
 
     var items: [TransactionRecord] {
-        return repository.records(blockchain: blockchain)
+        return storage.read()
     }
 
     var canFetchMore: Bool {
@@ -58,7 +58,7 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
         cancellable = nil
         currentPage = 0
         totalPages = 0
-        repository.update(records: [], for: blockchain)
+        updateStorage(records: [])
         AppLog.shared.debug("\(self) was reset")
     }
 
@@ -99,16 +99,24 @@ private extension CommonTransactionHistoryService {
                     self?._state.send(.loaded)
                 }
             } receiveValue: { [weak self] response in
-                guard let self else {
-                    return
-                }
-
-                totalPages = response.totalPages
-                currentPage = response.page.number
-                repository.add(records: response.records, for: blockchain)
-                AppLog.shared.debug("\(self) loaded")
+                self?.totalPages = response.totalPages
+                self?.currentPage = response.page.number
+                self?.addToStorage(records: response.records)
+                AppLog.shared.debug("\(String(describing: self)) loaded")
                 result(.success(()))
             }
+    }
+
+    func updateStorage(records: [TransactionRecord]) {
+        storage.mutate { value in
+            value = records
+        }
+    }
+
+    func addToStorage(records: [TransactionRecord]) {
+        storage.mutate { value in
+            value += records
+        }
     }
 }
 
