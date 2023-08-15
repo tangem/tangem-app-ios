@@ -117,7 +117,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationViewModelFactory()
+        let factory = NotificationSettingsFactory()
         missingDerivationNotificationSettings = factory.buildMissingDerivationNotifSettings(for: pendingDerivationsCount)
     }
 
