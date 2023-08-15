@@ -981,7 +981,6 @@
 		EFBA18032989063A00C23955 /* MockExplorerURLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA18022989063A00C23955 /* MockExplorerURLService.swift */; };
 		EFBAABAE2927CCBA0065C6D4 /* DecimalNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAC2927CCBA0065C6D4 /* DecimalNumberTextField.swift */; };
 		EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAABAD2927CCBA0065C6D4 /* DecimalNumberFormatter.swift */; };
-		EFBE76982A7CEA5500CD918B /* TransactionHistoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBE76972A7CEA5500CD918B /* TransactionHistoryRepository.swift */; };
 		EFBFA43729ACC4B9008FD598 /* CommonSwappingWalletDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFA43629ACC4B9008FD598 /* CommonSwappingWalletDataProvider.swift */; };
 		EFBFD56F2979990900B20C2E /* SwappingRatesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFD56E2979990900B20C2E /* SwappingRatesProvider.swift */; };
 		EFC46EFE29266982003928E3 /* SendCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46EFD29266982003928E3 /* SendCurrencyViewModel.swift */; };
@@ -2139,7 +2138,6 @@
 		EFBA18022989063A00C23955 /* MockExplorerURLService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExplorerURLService.swift; sourceTree = "<group>"; };
 		EFBAABAC2927CCBA0065C6D4 /* DecimalNumberTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecimalNumberTextField.swift; sourceTree = "<group>"; };
 		EFBAABAD2927CCBA0065C6D4 /* DecimalNumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecimalNumberFormatter.swift; sourceTree = "<group>"; };
-		EFBE76972A7CEA5500CD918B /* TransactionHistoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryRepository.swift; sourceTree = "<group>"; };
 		EFBFA43629ACC4B9008FD598 /* CommonSwappingWalletDataProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonSwappingWalletDataProvider.swift; sourceTree = "<group>"; };
 		EFBFD56E2979990900B20C2E /* SwappingRatesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingRatesProvider.swift; sourceTree = "<group>"; };
 		EFBFD5702979991100B20C2E /* FiatRatesProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatRatesProviding.swift; sourceTree = "<group>"; };
@@ -5415,7 +5413,6 @@
 		EFBE76962A7CEA4F00CD918B /* TransactionHistoryRepository */ = {
 			isa = PBXGroup;
 			children = (
-				EFBE76972A7CEA5500CD918B /* TransactionHistoryRepository.swift */,
 				EF57693D2A8BAF6700901571 /* TransactionHistoryService.swift */,
 				EF57693F2A8BAF7900901571 /* TransactionHistoryServiceState.swift */,
 				EFAD023F2A7D17BB00E9B959 /* CommonTransactionHistoryService.swift */,
@@ -6736,7 +6733,6 @@
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
 				EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */,
 				DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */,
-				EFBE76982A7CEA5500CD918B /* TransactionHistoryRepository.swift in Sources */,
 				B0FE0B3A297140D10046EE2C /* WalletConnectV2Error.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
