@@ -41,7 +41,7 @@ struct TransactionView: View {
 
                     Spacer()
 
-                    Text(transactionRecord.timeFormatted)
+                    Text(subtitleText)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
             }
@@ -64,7 +64,7 @@ struct TransactionView: View {
     private var subtitleText: String {
         switch transactionRecord.status {
         case .confirmed:
-            return transactionRecord.timeFormatted
+            return transactionRecord.timeFormatted ?? "-"
         case .inProgress:
             return Localization.transactionHistoryTxInProgress
         }
