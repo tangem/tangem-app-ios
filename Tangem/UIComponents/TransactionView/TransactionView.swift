@@ -9,34 +9,34 @@
 import SwiftUI
 
 struct TransactionView: View {
-    let transactionRecord: TransactionViewModel
+    let viewModel: TransactionViewModel
 
     var body: some View {
         HStack(spacing: 12) {
             txTypeIcon
                 .renderingMode(.template)
-                .foregroundColor(transactionRecord.status.iconColor)
+                .foregroundColor(viewModel.status.iconColor)
                 .padding(10)
-                .background(transactionRecord.status.iconBackgroundColor)
+                .background(viewModel.status.iconBackgroundColor)
                 .cornerRadiusContinuous(20)
 
             VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 6) {
-                    Text(transactionRecord.transactionType.name)
+                    Text(viewModel.transactionType.name)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
-                    if case .inProgress = transactionRecord.status {
+                    if case .inProgress = viewModel.status {
                         Assets.pendingTxIndicator.image
                     }
 
                     Spacer()
 
-                    Text(transactionRecord.transferAmount)
-                        .style(Fonts.Regular.subheadline, color: transactionRecord.transactionType.amountTextColor)
+                    Text(viewModel.transferAmount)
+                        .style(Fonts.Regular.subheadline, color: viewModel.transactionType.amountTextColor)
                 }
 
                 HStack(spacing: 6) {
-                    Text(transactionRecord.destination)
+                    Text(viewModel.destination)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
                     Spacer()
@@ -49,7 +49,7 @@ struct TransactionView: View {
     }
 
     private var txTypeIcon: Image {
-        switch transactionRecord.transactionType {
+        switch viewModel.transactionType {
         case .receive:
             return Assets.arrowDownMini.image
         case .send:
@@ -62,9 +62,9 @@ struct TransactionView: View {
     }
 
     private var subtitleText: String {
-        switch transactionRecord.status {
+        switch viewModel.status {
         case .confirmed:
-            return transactionRecord.timeFormatted ?? "-"
+            return viewModel.timeFormatted ?? "-"
         case .inProgress:
             return Localization.transactionHistoryTxInProgress
         }
@@ -150,14 +150,14 @@ struct TransactionView_Previews: PreviewProvider {
 
     static var previews: some View {
         VStack {
-            TransactionView(transactionRecord: incomingInProgressRecord)
-            TransactionView(transactionRecord: incomingConfirmedRecord)
-            TransactionView(transactionRecord: outgoingInProgressRecord)
-            TransactionView(transactionRecord: outgoingConfirmedRecord)
-            TransactionView(transactionRecord: incomingSwapRecord)
-            TransactionView(transactionRecord: outgoingSwapRecord)
-            TransactionView(transactionRecord: approveInProgressRecord)
-            TransactionView(transactionRecord: approveConfirmedRecord)
+            TransactionView(viewModel: incomingInProgressRecord)
+            TransactionView(viewModel: incomingConfirmedRecord)
+            TransactionView(viewModel: outgoingInProgressRecord)
+            TransactionView(viewModel: outgoingConfirmedRecord)
+            TransactionView(viewModel: incomingSwapRecord)
+            TransactionView(viewModel: outgoingSwapRecord)
+            TransactionView(viewModel: approveInProgressRecord)
+            TransactionView(viewModel: approveConfirmedRecord)
         }
         .padding()
     }
