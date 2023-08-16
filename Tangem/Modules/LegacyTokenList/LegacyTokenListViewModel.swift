@@ -229,6 +229,21 @@ private extension LegacyTokenListViewModel {
 
             return
         }
+
+        if selected, !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+            let okButton = Alert.Button.default(Text(Localization.commonOk)) {
+                self.updateSelection(tokenItem)
+            }
+
+            alert = AlertBinder(alert: Alert(
+                title: Text(Localization.commonAttention),
+                message: Text(Localization.alertManageTokensUnsupportedMessage),
+                dismissButton: okButton
+            ))
+
+            return
+        }
+
         sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
 
         let alreadyAdded = isAdded(tokenItem)
