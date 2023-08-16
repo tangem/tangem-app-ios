@@ -60,7 +60,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     func deriveEntriesWithoutDerivation() {
         Analytics.log(.noticeScanYourCardTapped)
         isScannerBusy = true
-        userWalletModel.userTokensManager.deriveEntriesWithoutDerivation { [weak self] in
+        userWalletModel.userTokensManager.deriveIfNeeded { [weak self] _ in
             DispatchQueue.main.async {
                 self?.isScannerBusy = false
             }
