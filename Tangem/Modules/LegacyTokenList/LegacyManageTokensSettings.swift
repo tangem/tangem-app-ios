@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemSdk
 
 struct LegacyManageTokensSettings {
     let supportedBlockchains: Set<Blockchain>
@@ -15,4 +16,5 @@ struct LegacyManageTokensSettings {
     let longHashesSupported: Bool
     let derivationStyle: DerivationStyle?
     let shouldShowLegacyDerivationAlert: Bool
+    let existingCurves: [EllipticCurve]
 }
