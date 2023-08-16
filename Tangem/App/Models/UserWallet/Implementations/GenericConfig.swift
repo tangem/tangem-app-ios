@@ -57,8 +57,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = SupportedBlockchains(version: .v1).blockchains()
-        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
+        SupportedBlockchains(version: .v1).blockchains()
     }
 
     var defaultBlockchains: [StorageEntry] {
@@ -197,7 +196,7 @@ extension GenericConfig: UserWalletConfig {
 
     func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
-            return HDWalletManagerFactory()
+            return GenericWalletManagerFactory()
         } else {
             return SimpleWalletManagerFactory()
         }
