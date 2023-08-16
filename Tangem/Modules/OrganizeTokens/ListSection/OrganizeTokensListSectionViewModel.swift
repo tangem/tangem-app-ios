@@ -8,15 +8,16 @@
 
 import Foundation
 
-struct OrganizeTokensListSectionViewModel: Equatable, Identifiable {
+struct OrganizeTokensListSectionViewModel: Hashable, Identifiable {
     enum SectionStyle: Hashable {
         case invisible
         case fixed(title: String)
         case draggable(title: String)
     }
 
-    let id: UUID
-    let style: SectionStyle
+    var id = UUID()
+
+    var style: SectionStyle
     var items: [OrganizeTokensListItemViewModel]
 
     var isDraggable: Bool {
