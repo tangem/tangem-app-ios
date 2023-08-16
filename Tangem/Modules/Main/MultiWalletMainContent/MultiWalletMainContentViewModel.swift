@@ -121,7 +121,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         let factory = NotificationSettingsFactory()
-        missingDerivationNotificationSettings = factory.buildMissingDerivationNotifSettings(for: pendingDerivationsCount)
+        missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
     }
 
     func openOrganizeTokens() {
