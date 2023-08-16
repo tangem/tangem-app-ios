@@ -32,9 +32,9 @@ class FakeUserTokensManager: UserTokensManager {
         ""
     }
 
-    func deriveEntriesWithoutDerivation(_ completion: @escaping () -> Void) {
-        derivationManager?.deriveKeys(cardInteractor: CardInteractor(tangemSdk: .init(), cardId: ""), completion: { _ in
-            completion()
+    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        derivationManager?.deriveKeys(cardInteractor: CardInteractor(tangemSdk: .init(), cardId: ""), completion: { result in
+            completion(result)
         })
     }
 
