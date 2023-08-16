@@ -9,7 +9,7 @@
 import Foundation
 
 struct NotificationSettingsFactory {
-    func buildMissingDerivationNotifSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
+    func buildMissingDerivationNotificationSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
         .init(
             colorScheme: .white,
             icon: .init(image: Assets.blueCircleWarning.image),
