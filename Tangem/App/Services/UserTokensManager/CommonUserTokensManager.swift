@@ -12,10 +12,11 @@ import TangemSdk
 import BlockchainSdk
 
 struct CommonUserTokensManager {
+    let derivationManager: DerivationManager?
+
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
-    private let derivationManager: DerivationManager?
     private weak var cardDerivableProvider: CardDerivableProvider?
 
     init(
@@ -43,16 +44,6 @@ struct CommonUserTokensManager {
         }
 
         return BlockchainNetwork(blockchain, derivationPath: nil)
-    }
-
-    private func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        guard let derivationManager,
-              let interactor = cardDerivableProvider?.cardDerivableInteractor else {
-            completion(.success(()))
-            return
-        }
-
-        derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
     }
 
     private func addInternal(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, shouldUpload: Bool) {
@@ -85,6 +76,16 @@ struct CommonUserTokensManager {
 }
 
 extension CommonUserTokensManager: UserTokensManager {
+    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        guard let derivationManager,
+              let interactor = cardDerivableProvider?.cardDerivableInteractor else {
+            completion(.success(()))
+            return
+        }
+
+        derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
+    }
+
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
         let storageEntries = userTokenListManager.userTokens.filter { $0.blockchainNetwork == blockchainNetwork }
