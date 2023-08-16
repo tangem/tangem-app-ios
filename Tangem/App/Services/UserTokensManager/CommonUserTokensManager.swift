@@ -46,16 +46,6 @@ struct CommonUserTokensManager {
         return BlockchainNetwork(blockchain, derivationPath: nil)
     }
 
-    private func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        guard let derivationManager,
-              let interactor = cardDerivableProvider?.cardDerivableInteractor else {
-            completion(.success(()))
-            return
-        }
-
-        derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
-    }
-
     private func addInternal(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, shouldUpload: Bool) {
         let entries = tokenItems.map { tokenItem in
             let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
@@ -81,10 +71,14 @@ struct CommonUserTokensManager {
 }
 
 extension CommonUserTokensManager: UserTokensManager {
-    func deriveEntriesWithoutDerivation(_ completion: @escaping () -> Void) {
-        deriveIfNeeded { _ in
-            completion()
+    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        guard let derivationManager,
+              let interactor = cardDerivableProvider?.cardDerivableInteractor else {
+            completion(.success(()))
+            return
         }
+
+        derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
     }
 
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
