@@ -10,13 +10,13 @@ import SwiftUI
 
 extension NotificationView {
     struct Settings: Identifiable, Hashable {
-        let id: NotificationId = UUID().uuidString
+        let id: NotificationViewId = UUID().uuidString
         let colorScheme: NotificationView.ColorScheme
         let icon: NotificationView.MessageIcon
         let title: String
         let description: String?
         let isDismissable: Bool
-        let dismissAction: ((NotificationId) -> Void)?
+        let dismissAction: ((NotificationViewId) -> Void)?
 
         static func == (lhs: Settings, rhs: Settings) -> Bool {
             return lhs.id == rhs.id
@@ -28,7 +28,7 @@ extension NotificationView {
     }
 
     enum Style: Equatable {
-        case tappable(action: (NotificationId) -> Void)
+        case tappable(action: (NotificationViewId) -> Void)
         case withButtons([MainButton.Settings])
         case plain
 
