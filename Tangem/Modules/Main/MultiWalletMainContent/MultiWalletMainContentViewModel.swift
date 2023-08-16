@@ -99,6 +99,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func convertToSections(_ sections: [TokenListSectionInfo]) -> [MultiWalletTokenItemsSection] {
+        // [REDACTED_TODO_COMMENT]
+        // Or need to replace `unowned` references to `TokenItemInfoProvider` with `weak` references
+        // Will be done in [REDACTED_INFO]
         MultiWalletTokenItemsSectionFactory()
             .makeSections(from: sections, tapAction: tokenItemTapped(_:))
     }
@@ -117,8 +120,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationViewModelFactory()
-        missingDerivationNotificationSettings = factory.buildMissingDerivationNotifSettings(for: pendingDerivationsCount)
+        let factory = NotificationSettingsFactory()
+        missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
     }
 
     func openOrganizeTokens() {
