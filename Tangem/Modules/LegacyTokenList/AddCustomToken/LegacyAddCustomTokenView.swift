@@ -159,7 +159,8 @@ struct LegacyAddCustomTokenView_Previews: PreviewProvider {
             hdWalletsSupported: true,
             longHashesSupported: true,
             derivationStyle: .v3,
-            shouldShowLegacyDerivationAlert: false
+            shouldShowLegacyDerivationAlert: false,
+            existingCurves: []
         )
 
         let viewModel = LegacyAddCustomTokenViewModel(
