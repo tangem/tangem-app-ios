@@ -17,7 +17,7 @@ struct NotificationView: View {
         self.style = style
     }
 
-    init(input: NotificationInput) {
+    init(input: NotificationViewInput) {
         self.init(settings: input.settings, style: input.style)
     }
 
@@ -25,7 +25,7 @@ struct NotificationView: View {
         self.init(settings: settings, style: .plain)
     }
 
-    init(settings: Settings, tapAction: @escaping (NotificationId) -> Void) {
+    init(settings: Settings, tapAction: @escaping (NotificationViewId) -> Void) {
         self.init(settings: settings, style: .tappable(action: tapAction))
     }
 
@@ -124,7 +124,7 @@ struct NotificationView: View {
 
 struct NotificationView_Previews: PreviewProvider {
     class PreviewViewModel: ObservableObject {
-        lazy var notificationInputs: [NotificationInput] = [
+        lazy var notificationInputs: [NotificationViewInput] = [
             .init(
                 style: .tappable(action: { [weak self] id in
                     self?.notificationTapped(with: id)
@@ -225,7 +225,7 @@ struct NotificationView_Previews: PreviewProvider {
             ),
         ]
 
-        @Published var notifications: [NotificationInput] = []
+        @Published var notifications: [NotificationViewInput] = []
 
         init() {
             notifications = [
@@ -241,11 +241,11 @@ struct NotificationView_Previews: PreviewProvider {
             )
         }
 
-        func removeNotification(with id: NotificationId) {
+        func removeNotification(with id: NotificationViewId) {
             notifications.removeAll(where: { $0.settings.id == id })
         }
 
-        func notificationTapped(with id: NotificationId) {
+        func notificationTapped(with id: NotificationViewId) {
             notifications.removeAll(where: { $0.settings.id == id })
         }
     }
