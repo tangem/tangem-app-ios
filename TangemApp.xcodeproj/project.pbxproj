@@ -335,7 +335,7 @@
 		B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */; };
 		B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */; };
 		B0BDFD1B2A8B685200479F53 /* NotificationView+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BDFD1A2A8B685200479F53 /* NotificationView+Settings.swift */; };
-		B0BDFD1D2A8B68B600479F53 /* NotificationInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BDFD1C2A8B68B600479F53 /* NotificationInput.swift */; };
+		B0BDFD1D2A8B68B600479F53 /* NotificationViewInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BDFD1C2A8B68B600479F53 /* NotificationViewInput.swift */; };
 		B0BE305D2A7B91CC00B3AD13 /* TokenListSectionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BE305C2A7B91CC00B3AD13 /* TokenListSectionInfo.swift */; };
 		B0BE305F2A7BA4E500B3AD13 /* TokenListInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BE305E2A7BA4E500B3AD13 /* TokenListInfoProvider.swift */; };
 		B0BE30612A7BA4FB00B3AD13 /* GroupedTokenListInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BE30602A7BA4FB00B3AD13 /* GroupedTokenListInfoProvider.swift */; };
@@ -1457,7 +1457,7 @@
 		B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCircleButton.swift; sourceTree = "<group>"; };
 		B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressQrBottomSheetView.swift; sourceTree = "<group>"; };
 		B0BDFD1A2A8B685200479F53 /* NotificationView+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationView+Settings.swift"; sourceTree = "<group>"; };
-		B0BDFD1C2A8B68B600479F53 /* NotificationInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationInput.swift; sourceTree = "<group>"; };
+		B0BDFD1C2A8B68B600479F53 /* NotificationViewInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewInput.swift; sourceTree = "<group>"; };
 		B0BE305C2A7B91CC00B3AD13 /* TokenListSectionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListSectionInfo.swift; sourceTree = "<group>"; };
 		B0BE305E2A7BA4E500B3AD13 /* TokenListInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListInfoProvider.swift; sourceTree = "<group>"; };
 		B0BE30602A7BA4FB00B3AD13 /* GroupedTokenListInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedTokenListInfoProvider.swift; sourceTree = "<group>"; };
@@ -2227,7 +2227,7 @@
 			children = (
 				2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */,
 				B0BDFD1A2A8B685200479F53 /* NotificationView+Settings.swift */,
-				B0BDFD1C2A8B68B600479F53 /* NotificationInput.swift */,
+				B0BDFD1C2A8B68B600479F53 /* NotificationViewInput.swift */,
 			);
 			path = NotificationView;
 			sourceTree = "<group>";
@@ -6179,7 +6179,6 @@
 				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
 				EFBA17E62987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
-				2D535E712A0CB4D20081EB76 /* NotificationViewModel.swift in Sources */,
 				B06C084E2A73FB4D00D982BC /* MainView.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
@@ -6869,7 +6868,7 @@
 				5D9DCAEB25517FB50059799C /* CommonUserWalletRepository.swift in Sources */,
 				B0D1AC322906719300584E6C /* Analytics+Event.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
-				B0BDFD1D2A8B68B600479F53 /* NotificationInput.swift in Sources */,
+				B0BDFD1D2A8B68B600479F53 /* NotificationViewInput.swift in Sources */,
 				5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */,
 				B6E932C32A2F2D860068D466 /* OrganizeTokensViewModel.swift in Sources */,
 				EFC7FE9729D6D8D100C39E42 /* CurrencyMapping.swift in Sources */,
