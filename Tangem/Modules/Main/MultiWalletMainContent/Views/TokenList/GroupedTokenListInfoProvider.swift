@@ -76,6 +76,7 @@ class GroupedTokenListInfoProvider {
                     )
                 )
             } else {
+                // View models for entries without derivation (yet)
                 partialResult.append(mapToListSectionInfo(storageEntries, in: element))
             }
         }
