@@ -9,20 +9,20 @@
 import Foundation
 
 final class StorageEntriesMigrator {
-    typealias StorageWriter = (_ tokens: [StorageEntry.V3.Entry], _ cardID: String) -> Void
+    typealias V3EntriesHandler = (_ entries: [StorageEntry.V3.Entry], _ cardID: String) -> Void
 
     private let persistanceStorage: PersistentStorageProtocol
-    private let storageWriter: StorageWriter
     private let cardID: String
+    private let v3EntriesHandler: V3EntriesHandler
 
     init(
         persistanceStorage: PersistentStorageProtocol,
-        storageWriter: @escaping StorageWriter,
-        cardID: String
+        cardID: String,
+        v3EntriesHandler: @escaping V3EntriesHandler
     ) {
         self.persistanceStorage = persistanceStorage
-        self.storageWriter = storageWriter
         self.cardID = cardID
+        self.v3EntriesHandler = v3EntriesHandler
     }
 
     // MARK: - Common
@@ -134,7 +134,7 @@ final class StorageEntriesMigrator {
                 partialResult += element.tokens.map { converter.convert($0, in: blockchainNetwork) }
             }
 
-        storageWriter(v3StorageEntries, cardID)
+        v3EntriesHandler(v3StorageEntries, cardID)
     }
 
     private func getV2StorageEntries() -> [StorageEntry.V2.Entry]? {
