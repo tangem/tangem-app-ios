@@ -55,10 +55,10 @@ final class CommonTokenItemsRepository {
 extension CommonTokenItemsRepository: TokenItemsRepository {
     var isInitialized: Bool {
         lockQueue.sync {
-            // Here it's necessary to distinguish between empty (`[]` value) and non-initialized
+            // Here it's necessary to distinguish between empty (`StorageEntry.V3.List.empty` value) and non-initialized
             // (`nil` value) storage, therefore direct access to the underlying storage is used here
-            let entries: [StorageEntry.V3.Entry]? = try? persistanceStorage.value(for: .wallets(cid: key))
-            return entries != nil
+            let list: StorageEntry.V3.List? = try? persistanceStorage.value(for: .wallets(cid: key))
+            return list != nil
         }
     }
 
