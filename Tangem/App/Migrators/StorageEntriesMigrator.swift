@@ -99,6 +99,8 @@ final class StorageEntriesMigrator {
                 )
                 return StorageEntry.V2.Entry(blockchainNetwork: network, tokens: tokens)
             }
+
+            // All v2 storage entries from each wallet are going to be migrated to v3
             migrateV2StorageEntries(v2StorageEntries, forCardID: cardId)
         }
 
