@@ -8,8 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
 protocol _TokenItemsRepository {
     var isInitialized: Bool { get }
 
