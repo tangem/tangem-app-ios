@@ -1,5 +1,5 @@
 //
-//  _CommonTokenItemsRepository.swift
+//  CommonTokenItemsRepository.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class _CommonTokenItemsRepository {
+final class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) private var persistanceStorage: PersistentStorageProtocol
 
     @AppStorageCompat(StorageKeys.currentStorageVersion)
@@ -51,7 +51,7 @@ final class _CommonTokenItemsRepository {
 
 // MARK: - Constants
 
-private extension _CommonTokenItemsRepository {
+private extension CommonTokenItemsRepository {
     enum StorageKeys: String {
         case currentStorageVersion = "com.tangem.CommonTokenItemsRepository.currentStorageVersion"
     }
@@ -59,7 +59,7 @@ private extension _CommonTokenItemsRepository {
 
 // MARK: - TokenItemsRepository protocol conformance
 
-extension _CommonTokenItemsRepository: _TokenItemsRepository {
+extension CommonTokenItemsRepository: TokenItemsRepository {
     var isInitialized: Bool {
         lockQueue.sync {
             // Here it's necessary to distinguish between empty (`[]` value) and non-initialized
@@ -176,7 +176,7 @@ extension _CommonTokenItemsRepository: _TokenItemsRepository {
 
 // MARK: - Private
 
-private extension _CommonTokenItemsRepository {
+private extension CommonTokenItemsRepository {
     func fetch() -> [StorageEntry.V3.Entry] {
         if let cachedEntries = cache {
             return cachedEntries
@@ -234,7 +234,7 @@ private extension _CommonTokenItemsRepository {
 
 // MARK: - Auxiliary types
 
-private extension _CommonTokenItemsRepository {
+private extension CommonTokenItemsRepository {
     /// A key for fast O(1) lookups in sets, dictionaries, etc.
     struct StorageEntryKey: Hashable {
         let blockchainNetwork: StorageEntry.V3.BlockchainNetwork
