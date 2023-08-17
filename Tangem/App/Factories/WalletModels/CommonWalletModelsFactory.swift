@@ -26,7 +26,7 @@ struct CommonWalletModelsFactory {
         return derivationPath == defaultDerivation
     }
 
-    private func makeTransactionHistoryService(wallet: Wallet) -> TransactionHistoryService? {
+    private func makeTransactionHistoryService(wallet: Wallet, contract: String? = nil) -> TransactionHistoryService? {
         let blockchain = wallet.blockchain
         let address = wallet.address
 
@@ -35,7 +35,7 @@ struct CommonWalletModelsFactory {
         }
 
         let factory = TransactionHistoryFactoryProvider().factory
-        guard let provider = factory.makeProvider(for: blockchain) else {
+        guard let provider = factory.makeProvider(for: blockchain, contract: contract) else {
             return nil
         }
 
@@ -64,6 +64,10 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let tokenModels = walletManager.cardTokens.map { token in
             let amountType: Amount.AmountType = .token(value: token)
             let isTokenCustom = isMainCoinCustom || token.id == nil
+            let transactionHistoryService = makeTransactionHistoryService(
+                wallet: walletManager.wallet,
+                contract: token.contractAddress
+            )
             let tokenModel = WalletModel(
                 walletManager: walletManager,
                 transactionHistoryService: transactionHistoryService,
