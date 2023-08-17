@@ -20,10 +20,6 @@ struct UserTokenListManagerMock: UserTokenListManager {
 
     var userTokenList: AnyPublisher<UserTokenList, Never> { .just(output: .empty) }
 
-    func contains(_ entry: StorageEntry.V2.Entry) -> Bool {
-        return false
-    }
-
     func update(with userTokenList: UserTokenList) {}
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
