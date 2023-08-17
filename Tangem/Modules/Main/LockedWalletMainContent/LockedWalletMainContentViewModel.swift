@@ -8,6 +8,10 @@
 
 import Combine
 
+protocol LockedWalletDelegate: AnyObject {
+    func openUnlockSheet(for userWalletModel: UserWalletModel)
+}
+
 class LockedWalletMainContentViewModel: ObservableObject {
     lazy var lockedNotificationInput: NotificationViewInput = {
         let factory = NotificationSettingsFactory()
@@ -33,12 +37,14 @@ class LockedWalletMainContentViewModel: ObservableObject {
     }
 
     private let userWalletModel: UserWalletModel
+    private weak var lockedWalletDelegate: LockedWalletDelegate?
 
-    init(userWalletModel: UserWalletModel) {
+    init(userWalletModel: UserWalletModel, lockedWalletDelegate: LockedWalletDelegate?) {
         self.userWalletModel = userWalletModel
+        self.lockedWalletDelegate = lockedWalletDelegate
     }
 
     private func openUnlockSheet() {
-        // [REDACTED_TODO_COMMENT]
+        lockedWalletDelegate?.openUnlockSheet(for: userWalletModel)
     }
 }
