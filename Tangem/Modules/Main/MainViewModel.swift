@@ -179,9 +179,7 @@ final class MainViewModel: ObservableObject {
 
     private func removePage(with id: Data) {
         if let index = pages.firstIndex(where: { $0.id.value == id }) {
-            let newIndex = max(0, min(index, pages.count - 2))
             pages.remove(at: index)
-            selectedCardIndex = newIndex
         }
     }
 
