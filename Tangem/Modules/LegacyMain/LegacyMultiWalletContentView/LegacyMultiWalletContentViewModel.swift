@@ -136,6 +136,7 @@ private extension LegacyMultiWalletContentViewModel {
                     .compactMap { walletModelsKeyedByIds[$0.walletModelId] }
                     .map { mapToTokenItemViewModel($0) }
             } else {
+                // View models for entries without derivation (yet)
                 partialResult += mapToTokenItemViewModels(storageEntries)
             }
         }
