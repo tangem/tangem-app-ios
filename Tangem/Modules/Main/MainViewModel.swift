@@ -185,12 +185,13 @@ final class MainViewModel: ObservableObject {
 
     private func bind() {
         $selectedCardIndex
+            .dropFirst()
             .sink { [weak self] newIndex in
                 guard let userWalletId = self?.pages[newIndex].id else {
                     return
                 }
 
-                self?.userWalletRepository.setSelectedUserWalletId(userWalletId.value, reason: .userSelected)
+                self?.userWalletRepository.setSelectedUserWalletId(userWalletId.value, unlockIfNeeded: false, reason: .userSelected)
             }
             .store(in: &bag)
 
