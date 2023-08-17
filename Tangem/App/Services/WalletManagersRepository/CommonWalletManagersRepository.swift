@@ -46,6 +46,7 @@ class CommonWalletManagersRepository {
         var managers = walletManagers.value
         var hasUpdates = false
 
+        // The order of updates doesn't matter, so the ordering of blockchain networks (from storage entries) is not preserved
         for (blockchainNetwork, entriesForBlockchainNetwork) in entriesGroupedByBlockchainNetwork {
             let tokensForBlockchainNetwork = entriesForBlockchainNetwork.compactMap(converter.convertToToken(_:))
 
