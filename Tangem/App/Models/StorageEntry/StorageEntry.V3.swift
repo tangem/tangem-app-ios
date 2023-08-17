@@ -12,17 +12,17 @@ extension StorageEntry {
     enum V3 {
         typealias BlockchainNetwork = Tangem.BlockchainNetwork
 
-        enum Grouping: Codable {
+        enum Grouping: Codable, Equatable {
             case none
             case byBlockchainNetwork
         }
 
-        enum Sorting: Codable {
+        enum Sorting: Codable, Equatable {
             case manual
             case byBalance
         }
 
-        struct Entry: Codable, Hashable {
+        struct Entry: Codable, Equatable {
             let id: String?
             let networkId: String
             let name: String
@@ -32,11 +32,10 @@ extension StorageEntry {
             let contractAddress: String?
         }
 
-        struct List: Codable {
-            let version: Version
-            let grouping: Grouping
-            let sorting: Sorting
-            let tokens: [Entry]
+        struct List: Codable, Equatable {
+            var grouping: Grouping
+            var sorting: Sorting
+            var entries: [Entry]
         }
     }
 }
