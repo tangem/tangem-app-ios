@@ -27,7 +27,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var subtitle: String? {
         if currentStep == .topup,
-           case .xrp = cardModel?.walletModels.first?.blockchainNetwork.blockchain {
+           case .xrp = cardModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain {
             return Localization.onboardingTopUpBodyNoAccountError("10", "XRP")
         } else {
             return super.subtitle
@@ -94,7 +94,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private var scheduledUpdate: DispatchWorkItem?
 
     private var canBuyCrypto: Bool {
-        if let blockchain = cardModel?.walletModels.first?.blockchainNetwork.blockchain,
+        if let blockchain = cardModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain,
            exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
             return true
         }
@@ -111,7 +111,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             fatalError("Wrong onboarding steps passed to initializer")
         }
 
-        if let walletModel = cardModel?.walletModels.first {
+        if let walletModel = cardModel?.walletModelsManager.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
 
@@ -138,7 +138,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
                 switch currentStep {
                 case .topup:
-                    if let walletModel = cardModel?.walletModels.first {
+                    if let walletModel = cardModel?.walletModelsManager.walletModels.first {
                         updateCardBalanceText(for: walletModel)
                     }
 
