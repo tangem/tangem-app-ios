@@ -50,14 +50,6 @@ final class CommonTokenItemsRepository {
     }
 }
 
-// MARK: - Constants
-
-private extension CommonTokenItemsRepository {
-    enum StorageKeys: String {
-        case currentStorageVersion = "com.tangem.CommonTokenItemsRepository.currentStorageVersion"
-    }
-}
-
 // MARK: - TokenItemsRepository protocol conformance
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
@@ -134,7 +126,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
                 else {
                     continue
                 }
-                
+
                 let blockchainNetworkHasBeenUpdated = updateEntries(
                     &existingEntries,
                     in: blockchainNetwork,
@@ -255,7 +247,7 @@ private extension CommonTokenItemsRepository {
             if let (existingIndex, existingEntry) = existingEntriesWithIndicesKeyedByContractAddress[newEntry.contractAddress] {
                 if existingEntry.id == nil, newEntry.id != nil {
                     // Entry has been saved without id, just updating this entry
-                    entriesToUpdate[existingIndex] = newEntry   // upgrading custom token
+                    entriesToUpdate[existingIndex] = newEntry // upgrading custom token
                     hasChanges = true
                 }
             } else {
@@ -266,6 +258,14 @@ private extension CommonTokenItemsRepository {
         }
 
         return hasChanges
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonTokenItemsRepository {
+    enum StorageKeys: String {
+        case currentStorageVersion = "com.tangem.CommonTokenItemsRepository.currentStorageVersion"
     }
 }
 
