@@ -54,8 +54,8 @@ struct UserTokenListConverter {
 
     // MARK: - DTO to Domain
 
-    func convertToEntries(list: UserTokenList) -> [StorageEntry.V3.Entry] {
-        return list.tokens.compactMap { token -> StorageEntry.V3.Entry? in
+    func convertToEntries(tokens: [UserTokenList.Token]) -> [StorageEntry.V3.Entry] {
+        return tokens.compactMap { token -> StorageEntry.V3.Entry? in
             guard let blockchain = supportedBlockchains[token.networkId] else {
                 return nil
             }
