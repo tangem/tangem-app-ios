@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import func QuartzCore.CACurrentMediaTime
 
 final class StorageEntriesMigrator {
     typealias V3EntriesHandler = (_ entries: [StorageEntry.V3.Entry], _ cardID: String) -> Void
@@ -28,10 +29,13 @@ final class StorageEntriesMigrator {
     // MARK: - Common
 
     func migrate(
-        from currentStorageVersion: StorageEntry.Version,
+        from reportedCurrentStorageVersion: StorageEntry.Version,
         to actualVersion: StorageEntry.Version
     ) {
-        migrateIfNeeded(from: getCurrentStorageVersion(currentStorageVersion), to: actualVersion)
+        let currentStorageVersion = getCurrentStorageVersion(reportedCurrentStorageVersion)
+        let migrationStartTime = CACurrentMediaTime()
+
+        migrateIfNeeded(from: currentStorageVersion, to: actualVersion, migrationStartTime: migrationStartTime)
     }
 
     private func getCurrentStorageVersion(
@@ -51,31 +55,35 @@ final class StorageEntriesMigrator {
 
     private func migrateIfNeeded(
         from oldVersion: StorageEntry.Version,
-        to newVersion: StorageEntry.Version
+        to newVersion: StorageEntry.Version,
+        migrationStartTime: CFTimeInterval
     ) {
-        var wasMigrated = false
+        let result: StorageMigrationResult
 
         switch oldVersion {
         case .v1:
-            wasMigrated = migrateV1StorageEntriesIfNeeded()
+            result = migrateV1StorageEntriesIfNeeded()
         case .v2:
-            wasMigrated = migrateV2StorageEntriesIfNeeded()
+            result = migrateV2StorageEntriesIfNeeded()
         case .v3:
-            wasMigrated = migrateV3StorageEntriesIfNeeded()
+            result = migrateV3StorageEntriesIfNeeded()
         }
 
-        if wasMigrated {
+        if result.wasMigrated {
+            let migrationDuration = String(format: "took %.5fs", CACurrentMediaTime() - migrationStartTime)
+
             AppLog.shared.debug(
                 """
-                "\(objectDescription(self)): successfully performed storage migration for cardID \
-                \(cardID) from version \(oldVersion.rawValue) to \(newVersion.rawValue).
+                \(objectDescription(self)): successfully performed storage migration for cardID \
+                \(cardID) from version \(oldVersion.rawValue) to \(newVersion.rawValue) \
+                (coins: \(result.coinsCount), tokens: \(result.tokensCount), \(migrationDuration))
                 """
             )
         } else {
             AppLog.shared.debug(
                 """
                 \(objectDescription(self)): storage migration for cardID \(cardID) from version \
-                \(oldVersion.rawValue) to \(newVersion.rawValue) was requested, but not performed.
+                \(oldVersion.rawValue) to \(newVersion.rawValue) was requested, but not performed
                 """
             )
         }
@@ -83,8 +91,10 @@ final class StorageEntriesMigrator {
 
     // MARK: - V1 specific
 
-    private func migrateV1StorageEntriesIfNeeded() -> Bool {
-        guard let v1Wallets = getV1StorageEntries() else { return false }
+    private func migrateV1StorageEntriesIfNeeded() -> StorageMigrationResult {
+        var result = StorageMigrationResult()
+
+        guard let v1Wallets = getV1StorageEntries() else { return result }
 
         v1Wallets.forEach { cardId, v1StorageEntries in
             let blockchains = Set(v1StorageEntries.map { $0.blockchain })
@@ -101,10 +111,16 @@ final class StorageEntriesMigrator {
             }
 
             // All v2 storage entries from each wallet are going to be migrated to v3
-            migrateV2StorageEntries(v2StorageEntries, forCardID: cardId)
+            let walletMigrationResult = migrateV2StorageEntries(v2StorageEntries, forCardID: cardId)
+
+            if walletMigrationResult.wasMigrated {
+                result.wasMigrated = true
+                result.coinsCount += walletMigrationResult.coinsCount
+                result.tokensCount += walletMigrationResult.tokensCount
+            }
         }
 
-        return true
+        return result
     }
 
     private func getV1StorageEntries() -> [String: [StorageEntry.V1.Entry]]? {
@@ -113,18 +129,17 @@ final class StorageEntriesMigrator {
 
     // MARK: - V2 specific
 
-    private func migrateV2StorageEntriesIfNeeded() -> Bool {
-        guard let storageEntries = getV2StorageEntries() else { return false }
+    private func migrateV2StorageEntriesIfNeeded() -> StorageMigrationResult {
+        guard let storageEntries = getV2StorageEntries() else { return StorageMigrationResult() }
 
-        migrateV2StorageEntries(storageEntries, forCardID: cardID)
-
-        return true
+        return migrateV2StorageEntries(storageEntries, forCardID: cardID)
     }
 
     private func migrateV2StorageEntries(
         _ v2StorageEntries: [StorageEntry.V2.Entry],
         forCardID cardID: String
-    ) {
+    ) -> StorageMigrationResult {
+        var result = StorageMigrationResult()
         let converter = StorageEntriesConverter()
         let v3StorageEntries: [StorageEntry.V3.Entry] = v2StorageEntries
             .reduce(into: []) { partialResult, element in
@@ -132,9 +147,15 @@ final class StorageEntriesMigrator {
 
                 partialResult.append(converter.convert(blockchainNetwork))
                 partialResult += element.tokens.map { converter.convert($0, in: blockchainNetwork) }
+
+                result.wasMigrated = true
+                result.coinsCount += 1
+                result.tokensCount += element.tokens.count
             }
 
         v3EntriesHandler(v3StorageEntries, cardID)
+
+        return result
     }
 
     private func getV2StorageEntries() -> [StorageEntry.V2.Entry]? {
@@ -145,8 +166,18 @@ final class StorageEntriesMigrator {
 
     // MARK: - V3 specific
 
-    private func migrateV3StorageEntriesIfNeeded() -> Bool {
+    private func migrateV3StorageEntriesIfNeeded() -> StorageMigrationResult {
         // No-op, actual version at the moment
-        return false
+        return StorageMigrationResult()
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension StorageEntriesMigrator {
+    struct StorageMigrationResult {
+        var wasMigrated = false
+        var coinsCount = 0
+        var tokensCount = 0
     }
 }
