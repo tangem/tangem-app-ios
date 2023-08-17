@@ -567,16 +567,16 @@ class CommonUserWalletRepository: UserWalletRepository {
 
 extension CommonUserWalletRepository {
     func initialize() {
-        // Removing UserWallet-related data from Keychain
-        if AppSettings.shared.numberOfLaunches == 1 {
-            AppLog.shared.debug("Clean CommonUserWalletRepository")
-            clearUserWallets()
-        }
-
         let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
         selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
         AppLog.shared.debug("CommonUserWalletRepository initialized")
+    }
+
+    func initialClean() {
+        // Removing UserWallet-related data from Keychain
+        AppLog.shared.debug("Clean CommonUserWalletRepository")
+        clearUserWallets()
     }
 }
