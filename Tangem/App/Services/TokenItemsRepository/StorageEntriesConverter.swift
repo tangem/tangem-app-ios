@@ -15,10 +15,9 @@ struct StorageEntriesConverter {
     ) -> StorageEntry.V3.Entry {
         return StorageEntry.V3.Entry(
             id: blockchainNetwork.blockchain.coinId,
-            networkId: blockchainNetwork.blockchain.networkId,
             name: blockchainNetwork.blockchain.displayName,
             symbol: blockchainNetwork.blockchain.currencySymbol,
-            decimals: blockchainNetwork.blockchain.decimalCount,
+            decimalCount: blockchainNetwork.blockchain.decimalCount,
             blockchainNetwork: blockchainNetwork,
             contractAddress: nil
         )
@@ -30,10 +29,9 @@ struct StorageEntriesConverter {
     ) -> StorageEntry.V3.Entry {
         return StorageEntry.V3.Entry(
             id: token.id,
-            networkId: blockchainNetwork.blockchain.networkId,
             name: token.name,
             symbol: token.symbol,
-            decimals: token.decimalCount,
+            decimalCount: token.decimalCount,
             blockchainNetwork: blockchainNetwork,
             contractAddress: token.contractAddress
         )
@@ -48,7 +46,7 @@ struct StorageEntriesConverter {
             name: storageEntry.name,
             symbol: storageEntry.symbol,
             contractAddress: contractAddress,
-            decimalCount: storageEntry.decimals,
+            decimalCount: storageEntry.decimalCount,
             id: storageEntry.id
         )
     }
