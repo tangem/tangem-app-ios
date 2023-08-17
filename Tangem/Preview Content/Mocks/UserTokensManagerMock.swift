@@ -18,7 +18,7 @@ struct UserTokensManagerMock: UserTokensManager {
 
     var derivationManager: DerivationManager? { nil }
 
-    func deriveEntriesWithoutDerivation(_ completion: @escaping () -> Void) {}
+    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
 
