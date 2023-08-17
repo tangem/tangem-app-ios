@@ -16,7 +16,7 @@ class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let userWalletId: Data
-    private let tokenItemsRepository: _TokenItemsRepository
+    private let tokenItemsRepository: TokenItemsRepository
     private let supportedBlockchains: Set<Blockchain>
 
     private var pendingTokensToUpdate: UserTokenList?
@@ -36,7 +36,7 @@ class CommonUserTokenListManager {
         self.userWalletId = userWalletId
         self.supportedBlockchains = supportedBlockchains
         self.hdWalletsSupported = hdWalletsSupported
-        tokenItemsRepository = _CommonTokenItemsRepository(key: userWalletId.hexString)
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         initialTokenSyncSubject = CurrentValueSubject(tokenItemsRepository.isInitialized)
         _userTokens = .init(tokenItemsRepository.getItems())
         _userTokenList = .init(.empty)
