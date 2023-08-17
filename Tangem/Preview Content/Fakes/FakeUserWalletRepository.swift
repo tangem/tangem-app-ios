@@ -60,4 +60,6 @@ class FakeUserWalletRepository: UserWalletRepository {
     func initialize() {}
 
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {}
+
+    func initialClean() {}
 }
