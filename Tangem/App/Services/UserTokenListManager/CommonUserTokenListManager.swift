@@ -138,7 +138,7 @@ private extension CommonUserTokenListManager {
         let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
 
         if let list = pendingTokensToUpdate {
-            tokenItemsRepository.update(converter.convertToEntries(list: list))
+            tokenItemsRepository.update(converter.convertToEntries(tokens: list.tokens))
             tokenItemsRepository.groupingOption = converter.convertToGroupingOption(groupType: list.group)
             tokenItemsRepository.sortingOption = converter.convertToSortingOption(sortType: list.sort)
             updateTokensOnServer(list: list, result: result)
@@ -161,7 +161,7 @@ private extension CommonUserTokenListManager {
                     result(.failure(error as Error))
                 }
             } receiveValue: { [unowned self] list, _ in
-                tokenItemsRepository.update(converter.convertToEntries(list: list))
+                tokenItemsRepository.update(converter.convertToEntries(tokens: list.tokens))
                 tokenItemsRepository.groupingOption = converter.convertToGroupingOption(groupType: list.group)
                 tokenItemsRepository.sortingOption = converter.convertToSortingOption(sortType: list.sort)
                 updateUserTokens()
@@ -212,7 +212,7 @@ private extension CommonUserTokenListManager {
         migrated = true
 
         let items = tokenItemsRepository.getItems()
-        let customTokens = items.filter(\.isCustom)
+        let customTokens = items.filter { $0.isToken && $0.isCustom }
 
         if customTokens.isEmpty {
             return .just
