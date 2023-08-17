@@ -77,7 +77,7 @@ extension _CommonTokenItemsRepository: _TokenItemsRepository {
 
     func append(_ entries: [StorageEntry.V3.Entry]) {
         lockQueue.sync {
-            var existingEntries = fetch(forCardID: key)
+            var existingEntries = fetch()
             var hasChanges = false
             var existingBlockchainNetworksToUpdate: [StorageEntry.V3.BlockchainNetwork] = []
 
@@ -128,7 +128,7 @@ extension _CommonTokenItemsRepository: _TokenItemsRepository {
     func remove(_ blockchainNetworks: [BlockchainNetwork]) {
         lockQueue.sync {
             let blockchainNetworks = blockchainNetworks.toSet()
-            let existingEntries = fetch(forCardID: key)
+            let existingEntries = fetch()
             var newEntries = existingEntries
 
             newEntries.removeAll { blockchainNetworks.contains($0.blockchainNetwork) }
@@ -146,7 +146,7 @@ extension _CommonTokenItemsRepository: _TokenItemsRepository {
                 .map { StorageEntryKey(blockchainNetwork: $0.blockchainNetwork, contractAddresses: $0.contractAddress) }
                 .toSet()
 
-            let existingEntries = fetch(forCardID: key)
+            let existingEntries = fetch()
             var newEntries = existingEntries
 
             newEntries.removeAll { entry in
@@ -169,7 +169,7 @@ extension _CommonTokenItemsRepository: _TokenItemsRepository {
 
     func getItems() -> [StorageEntry.V3.Entry] {
         lockQueue.sync {
-            return fetch(forCardID: key)
+            return fetch()
         }
     }
 }
@@ -177,19 +177,21 @@ extension _CommonTokenItemsRepository: _TokenItemsRepository {
 // MARK: - Private
 
 private extension _CommonTokenItemsRepository {
-    func fetch(forCardID cardID: String) -> [StorageEntry.V3.Entry] {
+    func fetch() -> [StorageEntry.V3.Entry] {
         if let cachedEntries = cache {
             return cachedEntries
         }
 
-        let entries: [StorageEntry.V3.Entry] = (try? persistanceStorage.value(for: .wallets(cid: cardID))) ?? []
+        let entries: [StorageEntry.V3.Entry] = (try? persistanceStorage.value(for: .wallets(cid: key))) ?? []
         cache = entries
 
         return entries
     }
 
     func save(_ entries: [StorageEntry.V3.Entry], forCardID cardID: String) {
-        markCacheAsDirty()
+        if cardID == key {
+            markCacheAsDirty()
+        }
 
         do {
             try persistanceStorage.store(value: entries, for: .wallets(cid: cardID))
