@@ -110,7 +110,11 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var embeddedBlockchains: [StorageEntry.V3.Entry]? {
-        return defaultBlockchains
+        let blockchainNetworks = defaultBlockchains
+            .unique(by: \.blockchainNetwork)
+            .map(\.blockchainNetwork)
+
+        return defaultBlockchains.filter { $0.blockchainNetwork == blockchainNetworks.first }
     }
 
     var warningEvents: [WarningEvent] {
