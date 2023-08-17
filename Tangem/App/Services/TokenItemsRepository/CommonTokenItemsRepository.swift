@@ -18,7 +18,7 @@ final class CommonTokenItemsRepository {
 
     private let lockQueue = DispatchQueue(label: "com.tangem.CommonTokenItemsRepository.lockQueue")
     private let key: String
-    private var cache: [StorageEntry.V3.Entry]?
+    private var cache: StorageEntry.V3.List?
 
     init(key: String) {
         self.key = key
@@ -36,9 +36,10 @@ final class CommonTokenItemsRepository {
     private func migrateStorageIfNeeded() {
         let migrator = StorageEntriesMigrator(
             persistanceStorage: persistanceStorage,
-            storageWriter: save(_:forCardID:),
             cardID: key
-        )
+        ) { entries, cardID in
+            self.save(entries, to: \.entries, forCardID: cardID)
+        }
         migrator.migrate(from: currentStorageVersion, to: actualStorageVersion)
     }
 
@@ -69,15 +70,41 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
         }
     }
 
+    var groupingOption: StorageEntry.V3.Grouping {
+        get {
+            return lockQueue.sync {
+                fetch().grouping
+            }
+        }
+        set {
+            lockQueue.sync {
+                save(newValue, to: \.grouping, forCardID: key)
+            }
+        }
+    }
+
+    var sortingOption: StorageEntry.V3.Sorting {
+        get {
+            return lockQueue.sync {
+                fetch().sorting
+            }
+        }
+        set {
+            lockQueue.sync {
+                save(newValue, to: \.sorting, forCardID: key)
+            }
+        }
+    }
+
     func update(_ entries: [StorageEntry.V3.Entry]) {
         lockQueue.sync {
-            save(entries, forCardID: key)
+            save(entries, to: \.entries, forCardID: key)
         }
     }
 
     func append(_ entries: [StorageEntry.V3.Entry]) {
         lockQueue.sync {
-            var existingEntries = fetch()
+            var existingEntries = fetch().entries
             var hasChanges = false
             var existingBlockchainNetworksToUpdate: [StorageEntry.V3.BlockchainNetwork] = []
 
@@ -120,7 +147,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             }
 
             if hasChanges {
-                save(existingEntries, forCardID: key)
+                save(existingEntries, to: \.entries, forCardID: key)
             }
         }
     }
@@ -128,14 +155,14 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
     func remove(_ blockchainNetworks: [BlockchainNetwork]) {
         lockQueue.sync {
             let blockchainNetworks = blockchainNetworks.toSet()
-            let existingEntries = fetch()
+            let existingEntries = fetch().entries
             var newEntries = existingEntries
 
             newEntries.removeAll { blockchainNetworks.contains($0.blockchainNetwork) }
 
             let hasRemoved = newEntries.count != existingEntries.count
             if hasRemoved {
-                save(newEntries, forCardID: key)
+                save(newEntries, to: \.entries, forCardID: key)
             }
         }
     }
@@ -146,7 +173,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
                 .map { StorageEntryKey(blockchainNetwork: $0.blockchainNetwork, contractAddresses: $0.contractAddress) }
                 .toSet()
 
-            let existingEntries = fetch()
+            let existingEntries = fetch().entries
             var newEntries = existingEntries
 
             newEntries.removeAll { entry in
@@ -156,20 +183,20 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
 
             let hasRemoved = newEntries.count != existingEntries.count
             if hasRemoved {
-                save(newEntries, forCardID: key)
+                save(newEntries, to: \.entries, forCardID: key)
             }
         }
     }
 
     func removeAll() {
         lockQueue.sync {
-            save([], forCardID: key)
+            save([], to: \.entries, forCardID: key)
         }
     }
 
     func getItems() -> [StorageEntry.V3.Entry] {
         lockQueue.sync {
-            return fetch()
+            return fetch().entries
         }
     }
 }
@@ -177,24 +204,34 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
 // MARK: - Private
 
 private extension CommonTokenItemsRepository {
-    func fetch() -> [StorageEntry.V3.Entry] {
-        if let cachedEntries = cache {
-            return cachedEntries
+    func fetch() -> StorageEntry.V3.List {
+        if let cachedList = cache {
+            return cachedList
         }
 
-        let entries: [StorageEntry.V3.Entry] = (try? persistanceStorage.value(for: .wallets(cid: key))) ?? []
-        cache = entries
+        let list: StorageEntry.V3.List = (try? persistanceStorage.value(for: .wallets(cid: key))) ?? .empty
+        cache = list
 
-        return entries
+        return list
     }
 
-    func save(_ entries: [StorageEntry.V3.Entry], forCardID cardID: String) {
+    func save<T>(
+        _ value: T,
+        to keyPath: WritableKeyPath<StorageEntry.V3.List, T>,
+        forCardID cardID: String
+    ) {
+        let existingList = fetch()
+        var updatedList = existingList
+        updatedList[keyPath: keyPath] = value
+
+        guard existingList != updatedList else { return }
+
         if cardID == key {
             markCacheAsDirty()
         }
 
         do {
-            try persistanceStorage.store(value: entries, for: .wallets(cid: cardID))
+            try persistanceStorage.store(value: updatedList, for: .wallets(cid: cardID))
         } catch {
             assertionFailure("\(objectDescription(self)) saving error: \(error)")
         }
@@ -230,6 +267,12 @@ private extension CommonTokenItemsRepository {
 
         return hasChanges
     }
+}
+
+// MARK: - Convenience extensions
+
+private extension StorageEntry.V3.List {
+    static var empty: Self { Self(grouping: .none, sorting: .manual, entries: []) }
 }
 
 // MARK: - Auxiliary types
