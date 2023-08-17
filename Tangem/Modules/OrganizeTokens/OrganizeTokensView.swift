@@ -58,7 +58,7 @@ struct OrganizeTokensView: View {
     @State private var dragAndDropSourceItemFrame: CGRect?
 
     // Stable identity, independent of changes in the underlying model (unlike index paths)
-    @State private var dragAndDropSourceViewModelIdentifier: UUID?
+    @State private var dragAndDropSourceViewModelIdentifier: AnyHashable?
 
     @GestureState private var dragGestureTranslation: CGSize?
 
