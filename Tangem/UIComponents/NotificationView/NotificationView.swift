@@ -12,25 +12,16 @@ struct NotificationView: View {
     let settings: Settings
     let style: Style
 
-    init(settings: Settings, style: Style) {
-        self.settings = settings
-        self.style = style
-    }
-
     init(input: NotificationViewInput) {
-        self.init(settings: input.settings, style: input.style)
+        settings = input.settings
+        style = input.style
     }
 
-    init(settings: Settings) {
-        self.init(settings: settings, style: .plain)
-    }
-
-    init(settings: Settings, tapAction: @escaping (NotificationViewId) -> Void) {
-        self.init(settings: settings, style: .tappable(action: tapAction))
-    }
-
+    /// Use this initializer when you need to refresh `MainButton`, e.g. when button can display spinned
+    /// or `MainButton` can toggle enable state during notification lifetime
     init(settings: Settings, buttons: [MainButton.Settings]) {
-        self.init(settings: settings, style: .withButtons(buttons))
+        self.settings = settings
+        style = .withButtons(buttons)
     }
 
     var body: some View {
