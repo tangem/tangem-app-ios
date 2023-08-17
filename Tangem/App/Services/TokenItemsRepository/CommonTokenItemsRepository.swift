@@ -144,7 +144,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
         }
     }
 
-    func remove(_ blockchainNetworks: [BlockchainNetwork]) {
+    func remove(_ blockchainNetworks: [StorageEntry.V3.BlockchainNetwork]) {
         lockQueue.sync {
             let blockchainNetworks = blockchainNetworks.toSet()
             let existingEntries = fetch().entries
@@ -235,7 +235,7 @@ private extension CommonTokenItemsRepository {
 
     func updateEntries(
         _ entriesToUpdate: inout [StorageEntry.V3.Entry],
-        in blockchainNetworkToUpdate: BlockchainNetwork,
+        in blockchainNetworkToUpdate: StorageEntry.V3.BlockchainNetwork,
         existingEntriesWithIndices: [(Int, StorageEntry.V3.Entry)],
         newEntries: [StorageEntry.V3.Entry]
     ) -> Bool {
