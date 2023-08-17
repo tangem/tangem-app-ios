@@ -3,7 +3,7 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -113,7 +113,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
                     // This blockchain network already exists, and it probably needs to be updated with new tokens
                     existingBlockchainNetworksToUpdate.append(newBlockchainNetwork)
                 } else if let newEntries = newEntriesGroupedByBlockchainNetworks[newBlockchainNetwork] {
-                    // New network, just appending all tokens from it to the end of the existing list
+                    // New blockchain network, just appending all tokens from it to the end of the existing list
                     existingEntries.append(contentsOf: newEntries)
                     hasChanges = true
                 }
