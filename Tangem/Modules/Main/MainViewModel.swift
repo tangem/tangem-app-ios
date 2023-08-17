@@ -87,6 +87,8 @@ final class MainViewModel: ObservableObject {
             viewModel.onPullToRefresh(completionHandler: completion)
         case .multiWallet(_, _, let viewModel):
             viewModel.onPullToRefresh(completionHandler: completion)
+        case .lockedWallet:
+            completion()
         }
     }
 
