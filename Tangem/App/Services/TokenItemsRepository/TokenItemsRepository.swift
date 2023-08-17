@@ -1,5 +1,5 @@
 //
-//  _TokenItemsRepository.swift
+//  TokenItemsRepository.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol _TokenItemsRepository {
+protocol TokenItemsRepository {
     var isInitialized: Bool { get }
 
     func update(_ tokens: [StorageEntry.V3.Entry])
