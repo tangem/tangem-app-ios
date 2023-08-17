@@ -24,10 +24,10 @@ struct UserTokenListConverter {
         return entries.map { entry in
             return UserTokenList.Token(
                 id: entry.id,
-                networkId: entry.networkId,
+                networkId: entry.blockchainNetwork.blockchain.networkId,
                 name: entry.name,
                 symbol: entry.symbol,
-                decimals: entry.decimals,
+                decimals: entry.decimalCount,
                 derivationPath: entry.blockchainNetwork.derivationPath,
                 contractAddress: entry.contractAddress
             )
@@ -64,10 +64,9 @@ struct UserTokenListConverter {
 
             return StorageEntry.V3.Entry(
                 id: token.id,
-                networkId: token.networkId,
                 name: token.name,
                 symbol: token.symbol,
-                decimals: token.decimals,
+                decimalCount: token.decimals,
                 blockchainNetwork: blockchainNetwork,
                 contractAddress: token.contractAddress
             )
