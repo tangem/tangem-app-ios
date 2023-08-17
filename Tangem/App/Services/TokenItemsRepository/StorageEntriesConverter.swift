@@ -14,7 +14,7 @@ struct StorageEntriesConverter {
         _ blockchainNetwork: BlockchainNetwork
     ) -> StorageEntry.V3.Entry {
         return StorageEntry.V3.Entry(
-            id: blockchainNetwork.blockchain.coinId, // [REDACTED_TODO_COMMENT]
+            id: blockchainNetwork.blockchain.coinId,
             networkId: blockchainNetwork.blockchain.networkId,
             name: blockchainNetwork.blockchain.displayName,
             symbol: blockchainNetwork.blockchain.currencySymbol,
