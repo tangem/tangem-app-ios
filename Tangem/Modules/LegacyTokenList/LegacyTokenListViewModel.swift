@@ -230,14 +230,16 @@ private extension LegacyTokenListViewModel {
             return
         }
 
-        if selected, !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+        if selected,
+           case .chia = tokenItem.blockchain,
+           !settings.existingCurves.contains(tokenItem.blockchain.curve) {
             let okButton = Alert.Button.default(Text(Localization.commonOk)) {
                 self.updateSelection(tokenItem)
             }
 
             alert = AlertBinder(alert: Alert(
                 title: Text(Localization.commonAttention),
-                message: Text(Localization.alertManageTokensUnsupportedMessage),
+                message: Text(Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)),
                 dismissButton: okButton
             ))
 
@@ -353,11 +355,21 @@ private extension LegacyTokenListViewModel {
     }
 
     func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
-        if case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
-           mode.settings?.longHashesSupported == false {
+        guard let settings = mode.settings else {
             return false
         }
+
+        if case .token(_, let blockchain) = tokenItem,
+           case .solana = blockchain,
+           settings.longHashesSupported == false {
+            return false
+        }
+
+        if case .chia = tokenItem.blockchain,
+           !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+            return false
+        }
+
         return true
     }
 
