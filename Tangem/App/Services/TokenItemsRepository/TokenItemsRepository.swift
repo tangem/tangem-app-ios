@@ -8,8 +8,10 @@
 
 import Foundation
 
-protocol TokenItemsRepository {
+protocol TokenItemsRepository: AnyObject {
     var isInitialized: Bool { get }
+    var groupingOption: StorageEntry.V3.Grouping { get set }
+    var sortingOption: StorageEntry.V3.Sorting { get set }
 
     func update(_ tokens: [StorageEntry.V3.Entry])
     func append(_ tokens: [StorageEntry.V3.Entry])
