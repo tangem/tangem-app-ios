@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -20,6 +21,7 @@ final class MainViewModel: ObservableObject {
     @Published var isHorizontalScrollDisabled = false
     @Published var errorAlert: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
+    @Published var showingDeleteConfirmation = false
 
     // MARK: - Dependencies
 
@@ -27,6 +29,7 @@ final class MainViewModel: ObservableObject {
     private weak var coordinator: MainRoutable?
 
     private var bag = Set<AnyCancellable>()
+    private var isLoggingOut = false
 
     // MARK: - Initializers
 
@@ -96,6 +99,41 @@ final class MainViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
     }
 
+    func didTapEditWallet() {
+        // [REDACTED_TODO_COMMENT]
+//        Analytics.log(.buttonEditWalletTapped)
+
+        guard let userWallet = userWalletRepository.selectedModel?.userWallet else { return }
+
+        let alert = AlertBuilder.makeAlertControllerWithTextField(
+            title: Localization.userWalletListRenamePopupTitle,
+            fieldPlaceholder: Localization.userWalletListRenamePopupPlaceholder,
+            fieldText: userWallet.name
+        ) { [weak self] newName in
+            guard userWallet.name != newName else { return }
+
+            var newUserWallet = userWallet
+            newUserWallet.name = newName
+
+            self?.userWalletRepository.save(newUserWallet)
+        }
+
+        AppPresenter.shared.show(alert)
+    }
+
+    func didTapDeleteWallet() {
+        // [REDACTED_TODO_COMMENT]
+//        Analytics.log(.buttonDeleteWalletTapped)
+
+        showingDeleteConfirmation = true
+    }
+
+    func didConfirmWalletDeletion() {
+        guard let userWalletModel = userWalletRepository.selectedModel else { return }
+
+        userWalletRepository.delete(userWalletModel.userWallet, logoutIfNeeded: true)
+    }
+
     // MARK: - Scan card
 
     private func scanCard() {
@@ -162,7 +200,7 @@ final class MainViewModel: ObservableObject {
             .sink { [weak self] event in
                 switch event {
                 case .locked:
-                    break
+                    self?.isLoggingOut = true
                 case .scan:
                     // [REDACTED_TODO_COMMENT]
                     break
@@ -172,6 +210,11 @@ final class MainViewModel: ObservableObject {
                 case .updated(let userWalletModel):
                     self?.addNewPage(for: userWalletModel)
                 case .deleted(let userWalletId):
+                    // This model is alive for enough time to receive the "deleted" event
+                    // after the last model has been removed and the application has been logged out
+                    if self?.isLoggingOut == true {
+                        return
+                    }
                     self?.removePage(with: userWalletId)
                 case .selected:
                     break
