@@ -108,7 +108,7 @@ extension CommonUserTokensManager: UserTokensManager {
         let converter = StorageEntriesConverter()
         return userTokenListManager
             .userTokens
-            .filter { $0.blockchainNetwork == blockchainNetwork && $0.isToken }
+            .filter { $0.blockchainNetwork == blockchainNetwork }
             .compactMap(converter.convertToToken(_:))
     }
 
