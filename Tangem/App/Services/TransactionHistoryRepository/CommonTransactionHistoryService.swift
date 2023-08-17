@@ -87,8 +87,9 @@ private extension CommonTransactionHistoryService {
         _state.send(.loading)
 
         let nextPage = Page(number: currentPage + 1, size: pageSize)
+        let request = TransactionHistory.Request(address: address, page: nextPage)
         cancellable = transactionHistoryProvider
-            .loadTransactionHistory(address: address, page: nextPage)
+            .loadTransactionHistory(request: request)
             .sink { [weak self] completion in
                 switch completion {
                 case .failure(let error):
