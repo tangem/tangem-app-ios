@@ -18,7 +18,9 @@ struct UserTokenListConverter {
         self.supportedBlockchains = supportedBlockchains
     }
 
-    func mapToTokens(entries: [StorageEntry.V3.Entry]) -> [UserTokenList.Token] {
+    // MARK: - Domain to DTO
+
+    func convertToTokens(entries: [StorageEntry.V3.Entry]) -> [UserTokenList.Token] {
         return entries.map { entry in
             return UserTokenList.Token(
                 id: entry.id,
@@ -32,7 +34,27 @@ struct UserTokenListConverter {
         }
     }
 
-    func mapToEntries(list: UserTokenList) -> [StorageEntry.V3.Entry] {
+    func convertToGroupType(groupingOption: StorageEntry.V3.Grouping) -> UserTokenList.GroupType {
+        switch groupingOption {
+        case .none:
+            return .none
+        case .byBlockchainNetwork:
+            return .network
+        }
+    }
+
+    func convertToSortType(sortingOption: StorageEntry.V3.Sorting) -> UserTokenList.SortType {
+        switch sortingOption {
+        case .manual:
+            return .manual
+        case .byBalance:
+            return .balance
+        }
+    }
+
+    // MARK: - DTO to Domain
+
+    func convertToEntries(list: UserTokenList) -> [StorageEntry.V3.Entry] {
         return list.tokens.compactMap { token -> StorageEntry.V3.Entry? in
             guard let blockchain = supportedBlockchains[token.networkId] else {
                 return nil
@@ -49,6 +71,24 @@ struct UserTokenListConverter {
                 blockchainNetwork: blockchainNetwork,
                 contractAddress: token.contractAddress
             )
+        }
+    }
+
+    func convertToGroupingOption(groupType: UserTokenList.GroupType) -> StorageEntry.V3.Grouping {
+        switch groupType {
+        case .none:
+            return .none
+        case .network:
+            return .byBlockchainNetwork
+        }
+    }
+
+    func convertToSortingOption(sortType: UserTokenList.SortType) -> StorageEntry.V3.Sorting {
+        switch sortType {
+        case .manual:
+            return .manual
+        case .balance:
+            return .byBalance
         }
     }
 }

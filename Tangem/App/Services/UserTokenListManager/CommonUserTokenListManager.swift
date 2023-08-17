@@ -138,7 +138,9 @@ private extension CommonUserTokenListManager {
         let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
 
         if let list = pendingTokensToUpdate {
-            tokenItemsRepository.update(converter.mapToEntries(list: list))
+            tokenItemsRepository.update(converter.convertToEntries(list: list))
+            tokenItemsRepository.groupingOption = converter.convertToGroupingOption(groupType: list.group)
+            tokenItemsRepository.sortingOption = converter.convertToSortingOption(sortType: list.sort)
             updateTokensOnServer(list: list, result: result)
 
             pendingTokensToUpdate = nil
@@ -159,7 +161,9 @@ private extension CommonUserTokenListManager {
                     result(.failure(error as Error))
                 }
             } receiveValue: { [unowned self] list, _ in
-                tokenItemsRepository.update(converter.mapToEntries(list: list))
+                tokenItemsRepository.update(converter.convertToEntries(list: list))
+                tokenItemsRepository.groupingOption = converter.convertToGroupingOption(groupType: list.group)
+                tokenItemsRepository.sortingOption = converter.convertToSortingOption(sortType: list.sort)
                 updateUserTokens()
                 updateUserTokenList(with: list)
                 result(.success(()))
@@ -187,13 +191,14 @@ private extension CommonUserTokenListManager {
 
     func getUserTokenList() -> UserTokenList {
         let entries = tokenItemsRepository.getItems()
+        let groupingOption = tokenItemsRepository.groupingOption
+        let sortingOption = tokenItemsRepository.sortingOption
         let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
-        let tokens = converter.mapToTokens(entries: entries)
 
         return UserTokenList(
-            tokens: tokens,
-            group: .none,
-            sort: .manual
+            tokens: converter.convertToTokens(entries: entries),
+            group: converter.convertToGroupType(groupingOption: groupingOption),
+            sort: converter.convertToSortType(sortingOption: sortingOption)
         )
     }
 
