@@ -42,7 +42,7 @@ final class _CommonTokenItemsRepository {
         migrator.migrate(from: currentStorageVersion, to: actualStorageVersion)
     }
 
-    /// - Warning: MUST BE called only AFTER the storage migration has been performed,
+    /// - Warning: MUST BE called only AFTER the storage migration has been attempted,
     /// otherwise user data may be lost.
     private func updateCurrentStorageVersion() {
         currentStorageVersion = actualStorageVersion
@@ -235,6 +235,7 @@ private extension _CommonTokenItemsRepository {
 // MARK: - Auxiliary types
 
 private extension _CommonTokenItemsRepository {
+    /// A key for fast O(1) lookups in sets, dictionaries, etc.
     struct StorageEntryKey: Hashable {
         let blockchainNetwork: StorageEntry.V3.BlockchainNetwork
         let contractAddresses: String?
