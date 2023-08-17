@@ -23,9 +23,11 @@ final class MainViewModel: ObservableObject {
     @Published var showTroubleshootingView: Bool = false
     @Published var showingDeleteConfirmation = false
 
+    @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
+
     // MARK: - Dependencies
 
-    private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+    private var mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     private weak var coordinator: MainRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -40,7 +42,8 @@ final class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
-        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
+        self.mainUserWalletPageBuilderFactory.unlockUserWalletDelegate = self
+        pages = self.mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
         bind()
     }
 
@@ -144,7 +147,7 @@ final class MainViewModel: ObservableObject {
 
             switch result {
             case .troubleshooting:
-                showTroubleshootingView = true
+                showTroubleshooting()
             case .onboarding(let input):
                 openOnboarding(with: input)
             case .error(let error):
@@ -183,6 +186,10 @@ final class MainViewModel: ObservableObject {
         if let index = pages.firstIndex(where: { $0.id.value == id }) {
             pages.remove(at: index)
         }
+    }
+
+    private func updateUnlockedPages() {
+        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
     }
 
     // MARK: - Private functions
@@ -243,5 +250,40 @@ extension MainViewModel {
         failedCardScanTracker.resetCounter()
 
         coordinator?.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
+    }
+}
+
+extension MainViewModel: LockedWalletDelegate {
+    func openUnlockSheet(for userWalletModel: UserWalletModel) {
+        unlockWalletBottomSheetViewModel = .init(
+            userWalletModel: userWalletModel,
+            delegate: self
+        )
+    }
+}
+
+extension MainViewModel: UnlockUserWalletDelegate {
+    func unlockedWithBiometry() {
+        unlockWalletBottomSheetViewModel = nil
+        updateUnlockedPages()
+    }
+
+    func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
+        guard
+            let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }),
+            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel)
+        else {
+            return
+        }
+
+        pages[index] = page
+        unlockWalletBottomSheetViewModel = nil
+    }
+
+    func showTroubleshooting() {
+        unlockWalletBottomSheetViewModel = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.showTroubleshootingView = true
+        }
     }
 }
