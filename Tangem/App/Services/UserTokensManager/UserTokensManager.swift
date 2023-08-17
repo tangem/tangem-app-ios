@@ -19,7 +19,7 @@ protocol UserTokensSyncService {
 protocol UserTokensManager: UserTokensSyncService {
     var derivationManager: DerivationManager? { get }
 
-    func deriveEntriesWithoutDerivation(_ completion: @escaping () -> Void)
+    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
