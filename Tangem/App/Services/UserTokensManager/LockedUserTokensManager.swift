@@ -15,7 +15,7 @@ struct LockedUserTokensManager: UserTokensManager {
     var isInitialSyncPerformed: Bool { false }
 
     var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
-    
+
     var derivationManager: DerivationManager? { nil }
 
     func deriveEntriesWithoutDerivation(_ completion: @escaping () -> Void) {}
