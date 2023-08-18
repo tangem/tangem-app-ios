@@ -50,7 +50,7 @@ struct UnlockUserWalletBottomSheetView: View {
 }
 
 struct UnlockUserWalletBottomSheetView_Previews: PreviewProvider {
-    class FakeUnlockUserWalletDelegate: UnlockUserWalletDelegate {
+    class FakeUnlockUserWalletDelegate: UnlockUserWalletBottomSheetDelegate {
         func unlockedWithBiometry() {
             print("Unlocked with biometry")
         }
