@@ -601,13 +601,13 @@ extension LegacyMainViewModel {
     }
 
     func openSend(for amountToSend: Amount) {
-        guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
+        guard let blockchainNetwork = cardModel.walletModelsManager.walletModels.first?.blockchainNetwork else { return }
 
         coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardModel)
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
+        guard let blockchainNetwork = cardModel.walletModelsManager.walletModels.first?.blockchainNetwork else { return }
 
         let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
         coordinator.openSendToSell(
@@ -641,7 +641,7 @@ extension LegacyMainViewModel {
             return
         }
 
-        if let walletModel = cardModel.walletModels.first,
+        if let walletModel = cardModel.walletModelsManager.walletModels.first,
            walletModel.wallet.blockchain == .ethereum(testnet: true),
            let token = walletModel.wallet.amounts.keys.compactMap({ $0.token }).first {
             testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletModel: walletModel, signer: cardModel.signer))
