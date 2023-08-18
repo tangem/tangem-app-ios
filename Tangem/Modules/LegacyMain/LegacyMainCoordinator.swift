@@ -210,7 +210,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
         }
 
         if FeatureProvider.isAvailable(.tokenDetailsV2) {
-            guard let walletModel = cardModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            guard let walletModel = cardModel.walletModelsManager.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
                 return
             }
 
