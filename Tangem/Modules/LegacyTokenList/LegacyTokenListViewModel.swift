@@ -361,7 +361,7 @@ private extension LegacyTokenListViewModel {
 
         if case .token(_, let blockchain) = tokenItem,
            case .solana = blockchain,
-           settings.longHashesSupported == false {
+           !settings.longHashesSupported {
             return false
         }
 
