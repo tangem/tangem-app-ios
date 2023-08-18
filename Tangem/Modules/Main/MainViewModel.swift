@@ -42,7 +42,7 @@ final class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
-        self.mainUserWalletPageBuilderFactory.unlockUserWalletDelegate = self
+        self.mainUserWalletPageBuilderFactory.lockedUserWalletDelegate = self
         pages = self.mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
         bind()
     }
@@ -188,7 +188,7 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    private func updateUnlockedPages() {
+    private func recreatePages() {
         pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
     }
 
@@ -253,8 +253,8 @@ extension MainViewModel {
     }
 }
 
-extension MainViewModel: LockedWalletDelegate {
-    func openUnlockSheet(for userWalletModel: UserWalletModel) {
+extension MainViewModel: MainLockedUserWalletDelegate {
+    func openUnlockUserWalletBottomSheet(for userWalletModel: UserWalletModel) {
         unlockWalletBottomSheetViewModel = .init(
             userWalletModel: userWalletModel,
             delegate: self
@@ -262,10 +262,10 @@ extension MainViewModel: LockedWalletDelegate {
     }
 }
 
-extension MainViewModel: UnlockUserWalletDelegate {
+extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     func unlockedWithBiometry() {
         unlockWalletBottomSheetViewModel = nil
-        updateUnlockedPages()
+        recreatePages()
     }
 
     func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
