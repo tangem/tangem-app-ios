@@ -14,6 +14,8 @@ struct OnboardingSeedPhraseUserValidationView: View {
     @State private var containerSize: CGSize = .zero
     @State private var contentSize: CGSize = .zero
 
+    @State private var isButtonPositionAnimationEnabled = false
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -68,9 +70,12 @@ struct OnboardingSeedPhraseUserValidationView: View {
             }
         }
         .readGeometry(\.size, inCoordinateSpace: .local) { containerSize in
+            if self.containerSize != .zero, !isButtonPositionAnimationEnabled {
+                isButtonPositionAnimationEnabled = true
+            }
             self.containerSize = containerSize
         }
-        .animation(.easeOut(duration: 0.35), value: containerSize)
+        .animation(isButtonPositionAnimationEnabled ? .easeOut(duration: 0.35) : nil, value: containerSize)
         .padding(.horizontal, 16)
     }
 }
