@@ -67,11 +67,10 @@ struct OnboardingSeedPhraseUserValidationView: View {
                 }
             }
         }
-        .readGeometry(\.size) { contentSize in
-            if containerSize == .zero {
-                containerSize = containerSize
-            }
+        .readGeometry(\.size, inCoordinateSpace: .local) { containerSize in
+            self.containerSize = containerSize
         }
+        .animation(.easeOut(duration: 0.35), value: containerSize)
         .padding(.horizontal, 16)
     }
 }
