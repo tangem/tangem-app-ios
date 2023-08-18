@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol UnlockUserWalletDelegate: AnyObject {
+protocol UnlockUserWalletBottomSheetDelegate: AnyObject {
     func unlockedWithBiometry()
     func userWalletUnlocked(_ userWalletModel: UserWalletModel)
     func showTroubleshooting()
@@ -22,9 +22,9 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     @Published var error: AlertBinder? = nil
 
     private let userWalletModel: UserWalletModel
-    private weak var delegate: UnlockUserWalletDelegate?
+    private weak var delegate: UnlockUserWalletBottomSheetDelegate?
 
-    init(userWalletModel: UserWalletModel, delegate: UnlockUserWalletDelegate?) {
+    init(userWalletModel: UserWalletModel, delegate: UnlockUserWalletBottomSheetDelegate?) {
         self.userWalletModel = userWalletModel
         self.delegate = delegate
     }
