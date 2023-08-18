@@ -65,7 +65,10 @@ struct MainView: View {
                 ]
             )
         }
-        .bottomSheet(item: $viewModel.unlockWalletBottomSheetViewModel) { model in
+        .bottomSheet(
+            item: $viewModel.unlockWalletBottomSheetViewModel,
+            settings: .init(backgroundColor: Colors.Background.primary)
+        ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
         .background(
