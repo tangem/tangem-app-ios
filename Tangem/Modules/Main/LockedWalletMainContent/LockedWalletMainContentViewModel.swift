@@ -8,8 +8,8 @@
 
 import Combine
 
-protocol LockedWalletDelegate: AnyObject {
-    func openUnlockSheet(for userWalletModel: UserWalletModel)
+protocol MainLockedUserWalletDelegate: AnyObject {
+    func openUnlockUserWalletBottomSheet(for userWalletModel: UserWalletModel)
 }
 
 class LockedWalletMainContentViewModel: ObservableObject {
@@ -37,14 +37,14 @@ class LockedWalletMainContentViewModel: ObservableObject {
     }
 
     private let userWalletModel: UserWalletModel
-    private weak var lockedWalletDelegate: LockedWalletDelegate?
+    private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
 
-    init(userWalletModel: UserWalletModel, lockedWalletDelegate: LockedWalletDelegate?) {
+    init(userWalletModel: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate?) {
         self.userWalletModel = userWalletModel
-        self.lockedWalletDelegate = lockedWalletDelegate
+        self.lockedUserWalletDelegate = lockedUserWalletDelegate
     }
 
     private func openUnlockSheet() {
-        lockedWalletDelegate?.openUnlockSheet(for: userWalletModel)
+        lockedUserWalletDelegate?.openUnlockUserWalletBottomSheet(for: userWalletModel)
     }
 }
