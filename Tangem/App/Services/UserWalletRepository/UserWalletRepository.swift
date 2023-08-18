@@ -111,7 +111,7 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
         case .biometricsChanged:
             return .init(title: Localization.commonAttention, message: Localization.keyInvalidatedWarningDescription)
         case .cardWithWrongUserWalletIdScanned:
-            return .init(title: Localization.commonAttention, message: Localization.errorWrongWalletTapped)
+            return .init(title: Localization.commonWarning, message: Localization.errorWrongWalletTapped)
         }
     }
 }
