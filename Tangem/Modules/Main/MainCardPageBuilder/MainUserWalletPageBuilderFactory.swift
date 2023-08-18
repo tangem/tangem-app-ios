@@ -9,14 +9,14 @@
 import Foundation
 
 protocol MainUserWalletPageBuilderFactory {
-    var unlockUserWalletDelegate: LockedWalletDelegate? { get set }
+    var lockedUserWalletDelegate: MainLockedUserWalletDelegate? { get set }
     func createPage(for model: UserWalletModel) -> MainUserWalletPageBuilder?
     func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder]
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
     let coordinator: MultiWalletMainContentRoutable & SingleWalletMainContentRoutable
-    weak var unlockUserWalletDelegate: LockedWalletDelegate?
+    weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
 
     func createPage(for model: UserWalletModel) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
@@ -33,7 +33,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 headerModel: headerModel,
                 bodyModel: .init(
                     userWalletModel: model,
-                    lockedWalletDelegate: unlockUserWalletDelegate
+                    lockedUserWalletDelegate: lockedUserWalletDelegate
                 )
             )
         }
