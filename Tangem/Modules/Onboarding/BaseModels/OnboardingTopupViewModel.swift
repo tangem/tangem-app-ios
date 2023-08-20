@@ -21,7 +21,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     var walletModelUpdateCancellable: AnyCancellable?
 
     var buyCryptoURL: URL? {
-        if let wallet = cardModel?.walletModels.first?.wallet {
+        if let wallet = cardModel?.walletModelsManager.walletModels.first?.wallet {
             return exchangeService.getBuyUrl(
                 currencySymbol: wallet.blockchain.currencySymbol,
                 amountType: .coin,
@@ -36,22 +36,22 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
 
     private var shareAddress: String {
-        cardModel?.walletModels.first?.shareAddressString(for: 0) ?? ""
+        cardModel?.walletModelsManager.walletModels.first?.shareAddressString(for: 0) ?? ""
     }
 
     private var walletAddress: String {
-        cardModel?.walletModels.first?.displayAddress(for: 0) ?? ""
+        cardModel?.walletModelsManager.walletModels.first?.displayAddress(for: 0) ?? ""
     }
 
     private var qrNoticeMessage: String {
-        cardModel?.walletModels.first?.qrReceiveMessage ?? ""
+        cardModel?.walletModelsManager.walletModels.first?.qrReceiveMessage ?? ""
     }
 
     private var refreshButtonDispatchWork: DispatchWorkItem?
 
     func updateCardBalance(shouldGoToNextStep: Bool = true) {
         guard
-            let walletModel = cardModel?.walletModels.first,
+            let walletModel = cardModel?.walletModelsManager.walletModels.first,
             walletModelUpdateCancellable == nil
         else { return }
 
