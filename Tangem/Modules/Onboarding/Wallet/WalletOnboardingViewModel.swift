@@ -799,7 +799,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: { [weak self] in
                 self?.resetCard(with: cardId)
             }),
-            secondaryButton: Alert.Button.cancel {
+            secondaryButton: .default(Text(Localization.commonCancel)) {
                 Analytics.log(.backupResetCardNotification, params: [.option: .cancel])
             }
         )
