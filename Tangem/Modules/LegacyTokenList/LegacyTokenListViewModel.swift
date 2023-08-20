@@ -217,31 +217,21 @@ private extension LegacyTokenListViewModel {
            case .token(_, let blockchain) = tokenItem,
            case .solana = blockchain,
            !settings.longHashesSupported {
-            let okButton = Alert.Button.default(Text(Localization.commonOk)) {
-                self.updateSelection(tokenItem)
-            }
-
-            alert = AlertBinder(alert: Alert(
-                title: Text(Localization.commonAttention),
-                message: Text(Localization.alertManageTokensUnsupportedMessage),
-                dismissButton: okButton
-            ))
+            displayAlertAndUpdateSelection(
+                for: tokenItem,
+                title: Localization.commonAttention,
+                message: Localization.alertManageTokensUnsupportedMessage
+            )
 
             return
         }
 
-        if selected,
-           case .chia = tokenItem.blockchain,
-           !settings.existingCurves.contains(tokenItem.blockchain.curve) {
-            let okButton = Alert.Button.default(Text(Localization.commonOk)) {
-                self.updateSelection(tokenItem)
-            }
-
-            alert = AlertBinder(alert: Alert(
-                title: Text(Localization.commonAttention),
-                message: Text(Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)),
-                dismissButton: okButton
-            ))
+        if selected, !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+            displayAlertAndUpdateSelection(
+                for: tokenItem,
+                title: Localization.commonAttention,
+                message: Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
+            )
 
             return
         }
@@ -378,6 +368,20 @@ private extension LegacyTokenListViewModel {
             .state: Analytics.ParameterValue.state(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
         ])
+    }
+
+    // MARK: - Private Implementation
+
+    private func displayAlertAndUpdateSelection(for tokenItem: TokenItem, title: String, message: String) {
+        let okButton = Alert.Button.default(Text(Localization.commonOk)) {
+            self.updateSelection(tokenItem)
+        }
+
+        alert = AlertBinder(alert: Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: okButton
+        ))
     }
 }
 
