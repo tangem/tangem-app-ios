@@ -23,6 +23,10 @@ struct IconView: View {
         self.forceKingfisher = forceKingfisher
     }
 
+    init(url: URL?, sizeSettings: IconViewSizeSettings, forceKingfisher: Bool = false) {
+        self.init(url: url, size: sizeSettings.iconSize, forceKingfisher: forceKingfisher)
+    }
+
     var body: some View {
         if forceKingfisher {
             kfImage
