@@ -58,7 +58,7 @@ class SeedPhraseInputProcessor {
 
     func prepare(copiedText: String) -> NSAttributedString {
         // Replace all new lines before trying to create mnemonic, because new line is not a valid separator
-        let textToParse = copiedText.replacingOccurrences(of: "\n", with: " ")
+        let textToParse = copiedText.components(separatedBy: CharacterSet.newlines).joined(separator: " ")
         do {
             let mnemonic = try Mnemonic(with: textToParse)
             return processInput(words: mnemonic.mnemonicComponents).attributedText
