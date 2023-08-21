@@ -92,10 +92,16 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
         onSave
             .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
-            .eraseToAnyPublisher()
+            .receive(on: mappingQueue)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, _ in
-                viewModel.organizeTokensOptionsEditing.save()
+                let walletModelIds = viewModel
+                    .sections
+                    .flatMap(\.items)
+                    .map { $0.id as! ListItemViewModelIdentifier }  // [REDACTED_TODO_COMMENT]
+                    .map(\.walletModelId)
+
+                return viewModel.organizeTokensOptionsEditing.save(walletModelIds: walletModelIds)
             }
             .sink()
             .store(in: &bag)
