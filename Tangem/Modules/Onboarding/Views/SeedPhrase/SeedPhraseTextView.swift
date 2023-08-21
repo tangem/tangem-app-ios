@@ -120,7 +120,7 @@ extension SeedPhraseTextView {
             // If user typed or pasted something we can safely invalidate all previous results
             inputProcessor.resetValidation()
 
-            let isNewLine = text == "\n"
+            let isNewLine = text.rangeOfCharacter(from: CharacterSet.newlines) != nil
             let text = isNewLine ? " " : text
 
             let oldText = textView.text ?? ""
