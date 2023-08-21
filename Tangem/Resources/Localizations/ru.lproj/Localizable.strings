@@ -13,6 +13,7 @@
 "alert_failed_to_send_email_title" = "Не удалось отправить письмо";
 "alert_failed_to_send_transaction_message" = "Причина: %@";
 "alert_manage_tokens_addresses_message" = "Внимание! Валюты на разных сетях имеют разные адреса. Убедитесь, что адрес соответствует сети, в которой вы отправляете средства.";
+"alert_manage_tokens_unsupported_curve_message" = "Для активации криптографии сети %1$@ необходимо сбросить кошелек до заводских настроек. Пожалуйста, выведите свои средства, чтобы не потерять их, после сброса доступ к текущему кошельку будет невозможен.";
 "alert_manage_tokens_unsupported_message" = "Токены в сети Solana не поддерживаются этой картой из-за ограничений прошивки.";
 "alert_negative_app_rate_sent_message" = "Спасибо за ваш отзыв. Мы ответим в кратчайшие сроки.";
 "alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
