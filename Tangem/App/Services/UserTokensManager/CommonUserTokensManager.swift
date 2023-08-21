@@ -165,7 +165,7 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
-        userTokenListManager.upload()
+        userTokenListManager.updateServerFromLocalRepository()
     }
 }
 
