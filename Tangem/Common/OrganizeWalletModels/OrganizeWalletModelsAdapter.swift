@@ -24,18 +24,15 @@ final class OrganizeWalletModelsAdapter {
     private let userTokenListManager: UserTokenListManager
     private let walletModelComponentsBuilder: WalletModelComponentsBuilder
     private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
-    private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
     init(
         userTokenListManager: UserTokenListManager,
         walletModelComponentsBuilder: WalletModelComponentsBuilder,
-        organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
-        organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
+        organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
     ) {
         self.userTokenListManager = userTokenListManager
         self.walletModelComponentsBuilder = walletModelComponentsBuilder
         self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
-        self.organizeTokensOptionsEditing = organizeTokensOptionsEditing
     }
 
     func organizedWalletModels(
