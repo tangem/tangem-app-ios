@@ -43,7 +43,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     }
 
     func toggleSortState() {
-        organizeTokensOptionsEditing.sort(by: isSortByBalanceEnabled ? .dragAndDrop : .byBalance)
+        organizeTokensOptionsEditing.sort(by: isSortByBalanceEnabled ? .manual : .byBalance)
     }
 
     func toggleGroupState() {
@@ -68,7 +68,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .sortingOption
             .map { sortingOption in
                 switch sortingOption {
-                case .dragAndDrop:
+                case .manual:
                     return false
                 case .byBalance:
                     return true
