@@ -12,7 +12,7 @@ import CombineExt
 
 final class OrganizeWalletModelsAdapter {
     typealias Section = OrganizeWalletModelsSection<SectionType>
-    typealias UserToken = UserTokenList.Token // [REDACTED_TODO_COMMENT]
+    typealias UserToken = StorageEntry.V3.Entry
     typealias GroupingOption = OrganizeTokensOptions.Grouping
     typealias SortingOption = OrganizeTokensOptions.Sorting
 
@@ -44,7 +44,7 @@ final class OrganizeWalletModelsAdapter {
     ) -> some Publisher<[Section], Never> {
         return walletModels
             .combineLatest(
-                userTokenListManager.userTokenList.map(\.tokens),
+                userTokenListManager.userTokensPublisher,
                 organizeTokensOptionsProviding.groupingOption,
                 organizeTokensOptionsProviding.sortingOption
             )
