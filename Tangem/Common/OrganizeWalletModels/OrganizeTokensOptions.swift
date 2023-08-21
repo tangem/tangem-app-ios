@@ -9,13 +9,6 @@
 import Foundation
 
 enum OrganizeTokensOptions {
-    enum Grouping {
-        case none
-        case byBlockchainNetwork
-    }
-
-    enum Sorting {
-        case dragAndDrop
-        case byBalance
-    }
+    typealias Grouping = StorageEntry.V3.Grouping
+    typealias Sorting = StorageEntry.V3.Sorting
 }
