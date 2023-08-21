@@ -355,8 +355,7 @@ private extension LegacyTokenListViewModel {
             return false
         }
 
-        if case .chia = tokenItem.blockchain,
-           !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+        if !settings.existingCurves.contains(tokenItem.blockchain.curve) {
             return false
         }
 
