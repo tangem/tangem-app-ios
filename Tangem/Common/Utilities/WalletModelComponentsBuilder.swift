@@ -12,6 +12,8 @@ import struct BlockchainSdk.Amount
 
 // [REDACTED_TODO_COMMENT]
 struct WalletModelComponentsBuilder {
+    typealias UserToken = StorageEntry.V3.Entry
+
     private let supportedBlockchains: Set<Blockchain>
 
     init(
@@ -20,13 +22,15 @@ struct WalletModelComponentsBuilder {
         self.supportedBlockchains = supportedBlockchains
     }
 
-    func buildBlockchainNetwork(from token: UserTokenList.Token) -> BlockchainNetwork? {
-        guard let blockchain = supportedBlockchains[token.networkId] else { return nil }
+    func buildBlockchainNetwork(from token: UserToken) -> BlockchainNetwork? {
+        let blockchainNetwork = token.blockchainNetwork
 
-        return BlockchainNetwork(blockchain, derivationPath: token.derivationPath)
+        guard let blockchain = supportedBlockchains[blockchainNetwork.blockchain.networkId] else { return nil }
+
+        return BlockchainNetwork(blockchain, derivationPath: blockchainNetwork.derivationPath)
     }
 
-    func buildWalletModelID(from token: UserTokenList.Token) -> WalletModel.ID? {
+    func buildWalletModelID(from token: UserToken) -> WalletModel.ID? {
         guard let blockchainNetwork = buildBlockchainNetwork(from: token) else { return nil }
 
         let amountType = amountType(from: token)
@@ -34,14 +38,14 @@ struct WalletModelComponentsBuilder {
         return WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: amountType).id
     }
 
-    private func amountType(from token: UserTokenList.Token) -> Amount.AmountType {
+    private func amountType(from token: UserToken) -> Amount.AmountType {
         if let contractAddress = token.contractAddress {
             return .token(
                 value: .init(
                     name: token.name,
                     symbol: token.symbol,
                     contractAddress: contractAddress,
-                    decimalCount: token.decimals,
+                    decimalCount: token.decimalCount,
                     id: token.id
                 )
             )
