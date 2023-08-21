@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 class FakeUserTokenListManager: UserTokenListManager {
     var userTokens: [StorageEntry.V3.Entry] {
@@ -18,18 +19,26 @@ class FakeUserTokenListManager: UserTokenListManager {
         userTokensSubject.eraseToAnyPublisher()
     }
 
+    var groupingOptionPublisher: AnyPublisher<StorageEntry.V3.Grouping, Never> {
+        [
+            Just(.none)
+                .eraseToAnyPublisher(),
+            Just(.byBlockchainNetwork)
+                .delay(for: 10.0, scheduler: RunLoop.main)
+                .eraseToAnyPublisher(),
+        ].merge()
+    }
+
+    var sortingOptionPublisher: AnyPublisher<StorageEntry.V3.Sorting, Never> {
+        Just(.manual).eraseToAnyPublisher()
+    }
+
     var isInitialSyncPerformed: Bool {
         initialSyncSubject.value
     }
 
     var initialSyncPublisher: AnyPublisher<Bool, Never> {
         initialSyncSubject.eraseToAnyPublisher()
-    }
-
-    var userTokenList: AnyPublisher<UserTokenList, Never> {
-        userTokenListSubject
-            .delay(for: 3, scheduler: DispatchQueue.main)
-            .eraseToAnyPublisher()
     }
 
     private let initialSyncSubject = CurrentValueSubject<Bool, Never>(false)
@@ -42,13 +51,7 @@ class FakeUserTokenListManager: UserTokenListManager {
         }
     }
 
-    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
-
-    func update(with userTokenList: UserTokenList) {
-        userTokenListSubject.send(userTokenList)
-    }
-
-    func upload() {}
+    func update(_ updates: [UserTokenListUpdateType], shouldUpload: Bool) {}
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
@@ -64,4 +67,6 @@ class FakeUserTokenListManager: UserTokenListManager {
             result(.success(()))
         }
     }
+
+    func updateServerFromLocalRepository() {}
 }
