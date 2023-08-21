@@ -10,6 +10,7 @@ import Foundation
 import Kingfisher
 import SwiftUI
 
+@available(*, deprecated, message: "Use `IconView` instead")
 struct TokenIconView: View {
     private let viewModel: TokenIconViewModel
     private let size: CGSize
