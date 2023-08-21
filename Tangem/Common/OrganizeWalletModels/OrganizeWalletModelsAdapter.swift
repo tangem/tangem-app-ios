@@ -154,7 +154,7 @@ final class OrganizeWalletModelsAdapter {
         sortedBy sortingOption: SortingOption
     ) -> [WalletModel] {
         switch sortingOption {
-        case .dragAndDrop:
+        case .manual:
             // Keeping existing sort order
             return walletModels
         case .byBalance:
