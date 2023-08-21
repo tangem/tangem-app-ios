@@ -19,8 +19,7 @@ struct OrganizeTokensPreviewViewModelFactory {
         let walletModelsAdapter = OrganizeWalletModelsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
             walletModelComponentsBuilder: walletModelComponentsBuilder,
-            organizeTokensOptionsProviding: optionsManager,
-            organizeTokensOptionsEditing: optionsManager
+            organizeTokensOptionsProviding: optionsManager
         )
 
         return OrganizeTokensViewModel(
