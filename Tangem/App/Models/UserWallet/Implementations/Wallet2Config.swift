@@ -57,8 +57,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = SupportedBlockchains(version: .v2).blockchains()
-        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
+        SupportedBlockchains(version: .v2).blockchains()
     }
 
     var defaultBlockchains: [StorageEntry] {
@@ -183,7 +182,7 @@ extension Wallet2Config: UserWalletConfig {
 
     func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
-            return HDWalletManagerFactory()
+            return GenericWalletManagerFactory()
         } else {
             return SimpleWalletManagerFactory()
         }
