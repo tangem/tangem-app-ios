@@ -222,19 +222,19 @@ extension OrganizeTokensViewModel {
 
     func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath.item == sectionHeaderItemIndex {
-            assert(sourceIndexPath.item == destinationIndexPath.item, "Can't perform move operation between section and item or vice versa")
-            let diff = sourceIndexPath.section > destinationIndexPath.section ? 0 : 1
-            sections.move(
-                fromOffsets: IndexSet(integer: sourceIndexPath.section),
-                toOffset: destinationIndexPath.section + diff
-            )
+            guard sourceIndexPath.item == destinationIndexPath.item else {
+                assertionFailure("Can't perform move operation between section and item or vice versa")
+                return
+            }
+
+            sections.swapAt(sourceIndexPath.section, destinationIndexPath.section)
         } else {
-            assert(sourceIndexPath.section == destinationIndexPath.section, "Can't perform move operation between section and item or vice versa")
-            let diff = sourceIndexPath.item > destinationIndexPath.item ? 0 : 1
-            sections[sourceIndexPath.section].items.move(
-                fromOffsets: IndexSet(integer: sourceIndexPath.item),
-                toOffset: destinationIndexPath.item + diff
-            )
+            guard sourceIndexPath.section == destinationIndexPath.section else {
+                assertionFailure("Can't perform move operation between section and item or vice versa")
+                return
+            }
+
+            sections[sourceIndexPath.section].items.swapAt(sourceIndexPath.item, destinationIndexPath.item)
         }
     }
 
