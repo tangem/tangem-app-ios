@@ -199,6 +199,7 @@ extension SeedPhraseTextView {
                 ]
             }
 
+            // This need to prevent inserting new lines in text view and saving correct text coloring
             if isNewLine {
                 let mutableAttrString = NSMutableAttributedString(attributedString: textView.attributedText)
                 mutableAttrString.mutableString.replaceCharacters(in: range, with: text)
