@@ -177,7 +177,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         sortingOption: OrganizeTokensOptions.Sorting
     ) -> Bool {
         switch sortingOption {
-        case .dragAndDrop:
+        case .manual:
             return true
         case .byBalance:
             return false
