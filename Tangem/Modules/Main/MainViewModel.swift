@@ -42,8 +42,7 @@ final class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
-        self.mainUserWalletPageBuilderFactory.lockedUserWalletDelegate = self
-        pages = self.mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
+        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models, lockedUserWalletDelegate: self)
         bind()
     }
 
@@ -173,7 +172,7 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        guard let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel) else {
+        guard let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self) else {
             return
         }
 
@@ -189,7 +188,7 @@ final class MainViewModel: ObservableObject {
     }
 
     private func recreatePages() {
-        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models)
+        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models, lockedUserWalletDelegate: self)
     }
 
     // MARK: - Private functions
@@ -271,7 +270,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
         guard
             let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }),
-            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel)
+            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self)
         else {
             return
         }
