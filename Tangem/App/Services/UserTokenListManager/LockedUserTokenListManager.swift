@@ -18,17 +18,15 @@ struct LockedUserTokenListManager: UserTokenListManager {
 
     var userTokensPublisher: AnyPublisher<[StorageEntry.V3.Entry], Never> { .just(output: []) }
 
-    var userTokenList: AnyPublisher<UserTokenList, Never> { .just(output: .empty) }
+    var groupingOptionPublisher: AnyPublisher<StorageEntry.V3.Grouping, Never> { .just(output: .none) }
 
-    func update(with userTokenList: UserTokenList) {}
+    var sortingOptionPublisher: AnyPublisher<StorageEntry.V3.Sorting, Never> { .just(output: .manual) }
 
-    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
+    func update(_ updates: [UserTokenListUpdateType], shouldUpload: Bool) {}
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         result(.success(()))
     }
 
-    func updateUserTokens() {}
-
-    func upload() {}
+    func updateServerFromLocalRepository() {}
 }
