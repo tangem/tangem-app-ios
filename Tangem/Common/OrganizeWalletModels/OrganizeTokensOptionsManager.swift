@@ -13,8 +13,8 @@ import CombineExt
 final class OrganizeTokensOptionsManager {
     private let userTokenListManager: UserTokenListManager
     private let editingThrottleInterval: TimeInterval
-    private let editedGroupingOption = PassthroughSubject<OrganizeTokensOptions.Grouping, Never>()
-    private let editedSortingOption = PassthroughSubject<OrganizeTokensOptions.Sorting, Never>()
+    private let editedGroupingOption = CurrentValueSubject<OrganizeTokensOptions.Grouping?, Never>(nil)
+    private let editedSortingOption = CurrentValueSubject<OrganizeTokensOptions.Sorting?, Never>(nil)
 
     init(
         userTokenListManager: UserTokenListManager,
@@ -35,12 +35,12 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
                 scheduler: RunLoop.main,
                 latest: false
             )
+            .compactMap { $0 }
             .eraseToAnyPublisher()
 
         let groupingOptionFromUserTokenList = userTokenListManager
-            .userTokenList
+            .groupingOptionPublisher
             .prefix(untilOutputFrom: editedGroupingOption)
-            .map { OrganizeTokensOptionsConverter().convert($0.group) }
             .eraseToAnyPublisher()
 
         return [
@@ -56,12 +56,12 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
                 scheduler: RunLoop.main,
                 latest: false
             )
+            .compactMap { $0 }
             .eraseToAnyPublisher()
 
         let sortingOptionFromUserTokenList = userTokenListManager
-            .userTokenList
+            .sortingOptionPublisher
             .prefix(untilOutputFrom: editedSortingOption)
-            .map { OrganizeTokensOptionsConverter().convert($0.sort) }
             .eraseToAnyPublisher()
 
         return [
@@ -82,20 +82,58 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
         editedSortingOption.send(sortingOption)
     }
 
-    func save() -> AnyPublisher<Void, Never> {
+    func save(
+        walletModelIds: [WalletModel.ID]
+    ) -> AnyPublisher<Void, Never> {
+        let groupingOptionPublisher = Just(nil)
+            .append(editedGroupingOption)
+            .withLatestFrom(userTokenListManager.groupingOptionPublisher) { ($0, $1) }
+
+        let sortingOptionPublisher = Just(nil)
+            .append(editedSortingOption)
+            .withLatestFrom(userTokenListManager.sortingOptionPublisher) { ($0, $1) }
+
         return .just
-            .withLatestFrom(groupingOption, sortingOption, userTokenListManager.userTokenList)
+            .withLatestFrom(groupingOptionPublisher, sortingOptionPublisher, userTokenListManager.userTokensPublisher)
             .withWeakCaptureOf(self)
             .flatMapLatest { input in
-                let (manager, (grouping, sorting, userTokenList)) = input
+                let (manager, (groupingOption, sortingOption, userTokens)) = input
 
                 return Deferred {
                     Future<Void, Never> { [userTokenListManager = manager.userTokenListManager] promise in
-                        let converter = OrganizeTokensOptionsConverter()
-                        var updatedUserTokenList = userTokenList
-                        updatedUserTokenList.group = converter.convert(grouping)
-                        updatedUserTokenList.sort = converter.convert(sorting)
-                        userTokenListManager.update(with: updatedUserTokenList) // [REDACTED_TODO_COMMENT]
+                        // [REDACTED_TODO_COMMENT]
+                        var updates: [UserTokenListUpdateType] = []
+
+                        let (groupingNewValue, groupingCurrentValue) = groupingOption
+                        if let groupingNewValue = groupingNewValue, groupingNewValue != groupingCurrentValue {
+                            updates.append(.group(groupingNewValue))
+                        }
+
+                        let (sortingNewValue, sortingCurrentValue) = sortingOption
+                        if let sortingNewValue = sortingNewValue, sortingNewValue != sortingCurrentValue {
+                            updates.append(.sort(sortingNewValue))
+                        }
+
+                        if sortingNewValue != .byBalance {
+                            var existingUserTokensKeyedByWalletModelIds: [WalletModel.ID: StorageEntry.V3.Entry] = [:]
+                            var walletModelIdsFromExistingUserTokens: [WalletModel.ID] = []
+
+                            for userToken in userTokens {
+                                let walletModelId = userToken.walletModelId
+                                walletModelIdsFromExistingUserTokens.append(walletModelId)
+                                existingUserTokensKeyedByWalletModelIds[walletModelId] = userToken
+                            }
+
+                            if walletModelIdsFromExistingUserTokens != walletModelIds {
+                                let updatedUserTokens = walletModelIds.compactMap { existingUserTokensKeyedByWalletModelIds[$0] }
+                                updates.append(.rewrite(updatedUserTokens))
+                            }
+                        }
+
+                        DispatchQueue.main.async {
+                            userTokenListManager.update(updates, shouldUpload: true)
+                        }
+
                         promise(.success(()))
                     }
                 }
