@@ -26,7 +26,7 @@ class ServicesManager {
         let initialLaunches = AppSettings.shared.numberOfLaunches
         let currentLaunches = initialLaunches + 1
         AppSettings.shared.numberOfLaunches = currentLaunches
-        
+
         AppLog.shared.logAppLaunch(currentLaunches)
 
         if initialLaunches == 0 {
