@@ -605,4 +605,10 @@ extension CommonUserWalletRepository {
         userWallets = savedUserWallets(withSensitiveData: false)
         AppLog.shared.debug("CommonUserWalletRepository initialized")
     }
+
+    func initialClean() {
+        // Removing UserWallet-related data from Keychain
+        AppLog.shared.debug("Clean CommonUserWalletRepository")
+        clearUserWallets()
+    }
 }
