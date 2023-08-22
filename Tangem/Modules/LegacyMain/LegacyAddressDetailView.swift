@@ -110,7 +110,7 @@ struct LegacyAddressDetailView_Previews: PreviewProvider {
             Color.tangemBgGray
             LegacyAddressDetailView(
                 selectedAddressIndex: .constant(0),
-                walletModel: PreviewCard.v4.cardModel.walletModels.first!,
+                walletModel: PreviewCard.v4.cardModel.walletModelsManager.walletModels.first!,
                 copyAddress: {},
                 showQr: {},
                 showExplorerURL: { _ in }
