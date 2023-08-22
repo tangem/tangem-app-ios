@@ -174,7 +174,8 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private var canSignLongTransactions: Bool {
         if let blockchain = walletModel?.blockchainNetwork.blockchain,
            NFCUtils.isPoorNfcQualityDevice,
-           case .solana = blockchain {
+           case .solana = blockchain,
+           case .chia = blockchain {
             return false
         } else {
             return true
@@ -191,7 +192,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         self.amountType = amountType
         self.coordinator = coordinator
 
-        walletModel = card.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
+        walletModel = card.walletModelsManager.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
 
         bind()
         updateSwapAvailability()
