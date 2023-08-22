@@ -18,7 +18,7 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
             if extended {
                 return try CardanoWalletManagerFactory().makeWalletManager(for: token, keys: keys)
             } else {
-                fallthrough
+                return try HDWalletManagerFactory().makeWalletManager(for: token, keys: keys)
             }
         default:
             return try HDWalletManagerFactory().makeWalletManager(for: token, keys: keys)
