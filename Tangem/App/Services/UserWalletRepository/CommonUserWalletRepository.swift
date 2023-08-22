@@ -609,6 +609,6 @@ extension CommonUserWalletRepository {
     func initialClean() {
         // Removing UserWallet-related data from Keychain
         AppLog.shared.debug("Clean CommonUserWalletRepository")
-        clearUserWallets()
+        clearUserWalletStorage()
     }
 }
