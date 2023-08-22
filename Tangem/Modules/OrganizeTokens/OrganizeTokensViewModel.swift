@@ -138,7 +138,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                     .flatMap(\.items)
                     .map(\.id.walletModelId)
 
-                return viewModel.organizeTokensOptionsEditing.save(walletModelIds: walletModelIds)
+                return viewModel.organizeTokensOptionsEditing.save(reorderedWalletModelIds: walletModelIds)
             }
             .sink()
             .store(in: &bag)
