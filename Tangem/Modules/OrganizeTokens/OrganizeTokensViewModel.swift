@@ -151,8 +151,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         let listItemViewModelFactory = OrganizeTokensListItemViewModelFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
         let isListItemsDraggable = isListItemDraggable(sortingOption: sortingOption)
 
-        // Plain sections use section indices (using `enumerated()`) as a stable identity, but in
-        // reality we always have only one single plain section, so the identity doesn't matter here
         var listItemViewModels = sections.enumerated().map { index, section in
             let isListSectionGrouped = isListSectionGrouped(section)
             let items = section.items.map { item in
@@ -172,6 +170,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                     items: items
                 )
             case .plain:
+                // Plain sections use section indices (from `enumerated()`) as a stable identity, but in
+                // reality we always have only one single plain section, so the identity doesn't matter here
                 return OrganizeTokensListSectionViewModel(
                     id: index,
                     style: .invisible,
