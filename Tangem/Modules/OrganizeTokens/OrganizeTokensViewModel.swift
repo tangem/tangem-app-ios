@@ -106,8 +106,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                 let walletModelIds = viewModel
                     .sections
                     .flatMap(\.items)
-                    .map { $0.id as! ListItemViewModelIdentifier } // [REDACTED_TODO_COMMENT]
-                    .map(\.walletModelId)
+                    .map(\.id.walletModelId)
 
                 return viewModel.organizeTokensOptionsEditing.save(walletModelIds: walletModelIds)
             }
@@ -120,6 +119,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         sortingOption: OrganizeTokensOptions.Sorting
     ) -> [OrganizeTokensListSectionViewModel] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
+        let listItemViewModelFactory = OrganizeTokensListItemViewModelFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
         let isListItemsDraggable = isListItemDraggable(sortingOption: sortingOption)
 
         // Plain sections use section indices (using `enumerated()`) as a stable identity, but in
@@ -127,11 +127,10 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         return walletModelsSections.enumerated().map { index, section in
             let isListSectionGrouped = isListSectionGrouped(section)
             let items = section.items.map { item in
-                return map(
+                listItemViewModelFactory.makeListItemViewModel(
                     sectionItem: item,
                     isDraggable: isListItemsDraggable,
-                    inGroupedSection: isListSectionGrouped,
-                    using: tokenIconInfoBuilder
+                    inGroupedSection: isListSectionGrouped
                 )
             }
 
@@ -150,81 +149,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                     items: items
                 )
             }
-        }
-    }
-
-    private static func map(
-        sectionItem: OrganizeWalletModelsAdapter.SectionItem,
-        isDraggable: Bool,
-        inGroupedSection: Bool,
-        using tokenIconInfoBuilder: TokenIconInfoBuilder
-    ) -> OrganizeTokensListItemViewModel {
-        let converter = StorageEntriesConverter()
-
-        switch sectionItem {
-        case .complete(let walletModel):
-            let identifier = ListItemViewModelIdentifier(
-                walletModelId: walletModel.id,
-                inGroupedSection: inGroupedSection
-            )
-            let tokenIcon = tokenIconInfoBuilder.build(
-                for: walletModel.amountType,
-                in: walletModel.blockchainNetwork.blockchain
-            )
-
-            return OrganizeTokensListItemViewModel(
-                id: identifier,
-                tokenIcon: tokenIcon,
-                balance: fiatBalance(for: walletModel),
-                isNetworkUnreachable: walletModel.state.isBlockchainUnreachable,
-                isDraggable: isDraggable
-            )
-        case .withoutDerivation(let userToken, let blockchainNetwork, let walletModelID):
-            // [REDACTED_TODO_COMMENT]
-            let identifier = ListItemViewModelIdentifier(
-                walletModelId: walletModelID,
-                inGroupedSection: inGroupedSection
-            )
-
-            if let token = converter.convertToToken(userToken) {
-                let tokenIcon = tokenIconInfoBuilder.build(
-                    for: .token(value: token),
-                    in: blockchainNetwork.blockchain
-                )
-                return OrganizeTokensListItemViewModel(
-                    id: identifier,
-                    tokenIcon: tokenIcon,
-                    balance: .noData,
-                    isNetworkUnreachable: false,
-                    isDraggable: isDraggable
-                )
-            }
-
-            let tokenIcon = tokenIconInfoBuilder.build(
-                for: .coin,
-                in: blockchainNetwork.blockchain
-            )
-
-            return OrganizeTokensListItemViewModel(
-                id: identifier,
-                tokenIcon: tokenIcon,
-                balance: .noData,
-                isNetworkUnreachable: false,
-                isDraggable: isDraggable
-            )
-        }
-    }
-
-    private static func fiatBalance(for walletModel: WalletModel) -> LoadableTextView.State {
-        guard !walletModel.rateFormatted.isEmpty else { return .noData }
-
-        switch walletModel.state {
-        case .created, .idle, .noAccount, .noDerivation:
-            return .loaded(text: walletModel.fiatBalance)
-        case .loading:
-            return .loading
-        case .failed:
-            return .noData
         }
     }
 
@@ -257,7 +181,7 @@ extension OrganizeTokensViewModel {
     func itemViewModel(for identifier: AnyHashable) -> OrganizeTokensListItemViewModel? {
         return sections
             .flatMap { $0.items }
-            .first { $0.id == identifier }
+            .first { $0.id.asAnyHashable == identifier }
     }
 
     func sectionViewModel(for identifier: AnyHashable) -> OrganizeTokensListSectionViewModel? {
@@ -266,7 +190,7 @@ extension OrganizeTokensViewModel {
     }
 
     func viewModelIdentifier(at indexPath: IndexPath) -> AnyHashable {
-        return sectionViewModel(at: indexPath)?.id ?? itemViewModel(at: indexPath).id
+        return sectionViewModel(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.asAnyHashable
     }
 
     func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
@@ -370,14 +294,5 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
         return viewModelIdentifier(at: indexPath)
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension OrganizeTokensViewModel {
-    struct ListItemViewModelIdentifier: Hashable {
-        let walletModelId: WalletModel.ID
-        let inGroupedSection: Bool
     }
 }
