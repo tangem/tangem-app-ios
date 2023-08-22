@@ -12,16 +12,13 @@ import CombineExt
 
 final class OrganizeTokensOptionsManager {
     private let userTokenListManager: UserTokenListManager
-    private let editingThrottleInterval: TimeInterval
     private let editedGroupingOption = CurrentValueSubject<OrganizeTokensOptions.Grouping?, Never>(nil)
     private let editedSortingOption = CurrentValueSubject<OrganizeTokensOptions.Sorting?, Never>(nil)
 
     init(
-        userTokenListManager: UserTokenListManager,
-        editingThrottleInterval: TimeInterval
+        userTokenListManager: UserTokenListManager
     ) {
         self.userTokenListManager = userTokenListManager
-        self.editingThrottleInterval = editingThrottleInterval
     }
 }
 
@@ -30,11 +27,6 @@ final class OrganizeTokensOptionsManager {
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
     var groupingOption: AnyPublisher<OrganizeTokensOptions.Grouping, Never> {
         let editedGroupingOption = editedGroupingOption
-            .throttle(
-                for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
-                scheduler: RunLoop.main,
-                latest: false
-            )
             .compactMap { $0 }
             .eraseToAnyPublisher()
 
@@ -51,11 +43,6 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
 
     var sortingOption: AnyPublisher<OrganizeTokensOptions.Sorting, Never> {
         let editedSortingOption = editedSortingOption
-            .throttle(
-                for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
-                scheduler: RunLoop.main,
-                latest: false
-            )
             .compactMap { $0 }
             .eraseToAnyPublisher()
 
