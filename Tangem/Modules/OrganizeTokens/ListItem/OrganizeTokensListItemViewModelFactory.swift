@@ -18,22 +18,22 @@ struct OrganizeTokensListItemViewModelFactory {
     }
 
     func makeListItemViewModel(
-        sectionItem: OrganizeWalletModelsAdapter.SectionItem,
+        sectionItem: OrganizeTokensSectionsAdapter.SectionItem,
         isDraggable: Bool,
         inGroupedSection: Bool
     ) -> OrganizeTokensListItemViewModel {
         switch sectionItem {
-        case .complete(let walletModel):
+        case .default(let walletModel):
             return makeListItemViewModel(
                 walletModel: walletModel,
                 isDraggable: isDraggable,
                 inGroupedSection: inGroupedSection
             )
-        case .withoutDerivation(let userToken, let blockchainNetwork, let walletModelID):
+        case .withoutDerivation(let userToken, let blockchainNetwork, let walletModelId):
             return makeListItemViewModel(
                 userToken: userToken,
                 blockchainNetwork: blockchainNetwork,
-                walletModelID: walletModelID,
+                walletModelId: walletModelId,
                 isDraggable: isDraggable,
                 inGroupedSection: inGroupedSection
             )
@@ -66,16 +66,16 @@ struct OrganizeTokensListItemViewModelFactory {
     }
 
     private func makeListItemViewModel(
-        userToken: OrganizeWalletModelsAdapter.UserToken,
+        userToken: OrganizeTokensSectionsAdapter.UserToken,
         blockchainNetwork: BlockchainNetwork,
-        walletModelID: WalletModel.ID,
+        walletModelId: WalletModel.ID,
         isDraggable: Bool,
         inGroupedSection: Bool
     ) -> OrganizeTokensListItemViewModel {
         let converter = StorageEntriesConverter()
 
         let identifier = OrganizeTokensListItemViewModel.Identifier(
-            walletModelId: walletModelID,
+            walletModelId: walletModelId,
             inGroupedSection: inGroupedSection
         )
 
