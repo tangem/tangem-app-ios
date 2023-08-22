@@ -16,7 +16,7 @@ struct OrganizeTokensPreviewViewModelFactory {
         let walletModelComponentsBuilder = WalletModelComponentsBuilder(
             supportedBlockchains: userWalletModel.config.supportedBlockchains
         )
-        let walletModelsAdapter = OrganizeWalletModelsAdapter(
+        let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
             walletModelComponentsBuilder: walletModelComponentsBuilder,
             organizeTokensOptionsProviding: optionsManager
@@ -25,7 +25,7 @@ struct OrganizeTokensPreviewViewModelFactory {
         return OrganizeTokensViewModel(
             coordinator: coordinator,
             walletModelsManager: userWalletModel.walletModelsManager,
-            walletModelsAdapter: walletModelsAdapter,
+            organizeTokensSectionsAdapter: organizeTokensSectionsAdapter,
             organizeTokensOptionsProviding: optionsManager,
             organizeTokensOptionsEditing: optionsManager
         )
