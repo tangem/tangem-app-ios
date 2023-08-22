@@ -34,6 +34,7 @@ protocol UserWalletRepository: Initializable {
     func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool)
     func clearNonSelectedUserWallets()
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo)
+    func initialClean()
 }
 
 extension UserWalletRepository {
