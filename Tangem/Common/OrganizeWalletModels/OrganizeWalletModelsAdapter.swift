@@ -158,7 +158,7 @@ final class OrganizeWalletModelsAdapter {
                 switch (lhs, rhs) {
                 case (.complete, .withoutDerivation):
                     return true
-                case (.withoutDerivation, .complete),  (.withoutDerivation, .withoutDerivation):
+                case (.withoutDerivation, .complete), (.withoutDerivation, .withoutDerivation):
                     return false
                 case (.complete(let lhs), .complete(let rhs)):
                     return compareWalletModels(lhs, rhs)
