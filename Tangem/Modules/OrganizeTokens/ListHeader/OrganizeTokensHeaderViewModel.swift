@@ -28,6 +28,9 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
     private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
+    private let onToggleSortState = PassthroughSubject<Void, Never>()
+    private let onToggleGroupState = PassthroughSubject<Void, Never>()
+
     private var bag: Set<AnyCancellable> = []
     private var didBind = false
 
@@ -44,11 +47,11 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     }
 
     func toggleSortState() {
-        organizeTokensOptionsEditing.sort(by: isSortByBalanceEnabled ? .manual : .byBalance)
+        onToggleSortState.send()
     }
 
     func toggleGroupState() {
-        organizeTokensOptionsEditing.group(by: isGroupingEnabled ? .none : .byBlockchainNetwork)
+        onToggleGroupState.send(())
     }
 
     private func bind() {
@@ -64,6 +67,26 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .sortingOption
             .map(\.isSorted)
             .assign(to: \.isSortByBalanceEnabled, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        onToggleSortState
+            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.organizeTokensOptionsEditing.sort(
+                    by: viewModel.isSortByBalanceEnabled ? .manual : .byBalance
+                )
+            }
+            .store(in: &bag)
+
+        onToggleGroupState
+            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .withWeakCaptureOf(self)
+            .sink { _ in
+                self.organizeTokensOptionsEditing.group(
+                    by: self.isGroupingEnabled ? .none : .byBlockchainNetwork
+                )
+            }
             .store(in: &bag)
 
         didBind = true
