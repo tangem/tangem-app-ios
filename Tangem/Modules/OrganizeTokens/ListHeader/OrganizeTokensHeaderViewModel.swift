@@ -53,27 +53,13 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     private func bind() {
         organizeTokensOptionsProviding
             .groupingOption
-            .map { groupingOption in
-                switch groupingOption {
-                case .none:
-                    return false
-                case .byBlockchainNetwork:
-                    return true
-                }
-            }
+            .map(\.isGrouped)
             .assign(to: \.isGroupingEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         organizeTokensOptionsProviding
             .sortingOption
-            .map { sortingOption in
-                switch sortingOption {
-                case .manual:
-                    return false
-                case .byBalance:
-                    return true
-                }
-            }
+            .map(\.isSorted)
             .assign(to: \.isSortByBalanceEnabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
