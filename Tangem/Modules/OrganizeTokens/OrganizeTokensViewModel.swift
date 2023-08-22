@@ -30,6 +30,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
     private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
+    private let dragAndDropActionsCache = OrganizeTokensDragAndDropActionsCache()
     private var currentlyDraggedSectionIdentifier: AnyHashable?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
 
@@ -90,9 +91,35 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             walletModelsDidChangePublisher,
         ].merge()
 
-        walletModelsAdapter
+        let organizedWalletModelsPublisher = walletModelsAdapter
             .organizedWalletModels(from: aggregatedWalletModelsPublisher, on: mappingQueue)
-            .withLatestFrom(organizeTokensOptionsProviding.sortingOption) { ($0, $1) }
+            .share(replay: 1)
+
+        let cache = dragAndDropActionsCache
+
+        // Resetting drag-and-drop actions cache for grouped sections
+        organizedWalletModelsPublisher
+            .withLatestFrom(organizeTokensOptionsProviding.groupingOption) { ($0, $1) }
+            .filter { $0.1.isGrouped }
+            .map(\.0)
+            .pairwise()
+            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: true) }
+            .store(in: &bag)
+
+        // Resetting drag-and-drop actions cache for plain (non-grouped) sections
+        organizedWalletModelsPublisher
+            .withLatestFrom(organizeTokensOptionsProviding.groupingOption) { ($0, $1) }
+            .filter { !$0.1.isGrouped }
+            .map(\.0)
+            .pairwise()
+            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
+            .store(in: &bag)
+
+        organizedWalletModelsPublisher
+            .withLatestFrom(
+                organizeTokensOptionsProviding.sortingOption,
+                organizeTokensOptionsProviding.groupingOption
+            ) { ($0, $1.0, $1.1, cache) }
             .map(Self.map)
             .receive(on: DispatchQueue.main)
             .assign(to: \.sections, on: self, ownership: .weak)
@@ -115,8 +142,10 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private static func map(
-        walletModelsSections: [OrganizeWalletModelsAdapter.Section],
-        sortingOption: OrganizeTokensOptions.Sorting
+        sections: [OrganizeWalletModelsAdapter.Section],
+        sortingOption: OrganizeTokensOptions.Sorting,
+        groupingOption: OrganizeTokensOptions.Grouping,
+        dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
     ) -> [OrganizeTokensListSectionViewModel] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let listItemViewModelFactory = OrganizeTokensListItemViewModelFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
@@ -124,7 +153,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
         // Plain sections use section indices (using `enumerated()`) as a stable identity, but in
         // reality we always have only one single plain section, so the identity doesn't matter here
-        return walletModelsSections.enumerated().map { index, section in
+        var listItemViewModels = sections.enumerated().map { index, section in
             let isListSectionGrouped = isListSectionGrouped(section)
             let items = section.items.map { item in
                 listItemViewModelFactory.makeListItemViewModel(
@@ -150,6 +179,16 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                 )
             }
         }
+
+        // By design, drag-and-drop actions can only be applied when manual sorting is active
+        if !sortingOption.isSorted {
+            dragAndDropActionsCache.applyDragAndDropActions(
+                to: &listItemViewModels,
+                isGroupingEnabled: groupingOption.isGrouped
+            )
+        }
+
+        return listItemViewModels
     }
 
     private static func isListItemDraggable(
@@ -194,6 +233,8 @@ extension OrganizeTokensViewModel {
     }
 
     func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let isGroupingEnabled = headerViewModel.isGroupingEnabled
+
         if sourceIndexPath.item == sectionHeaderItemIndex {
             guard sourceIndexPath.item == destinationIndexPath.item else {
                 assertionFailure("Can't perform move operation between section and item or vice versa")
@@ -201,6 +242,9 @@ extension OrganizeTokensViewModel {
             }
 
             sections.swapAt(sourceIndexPath.section, destinationIndexPath.section)
+            dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
+                sectionsToMutate.swapAt(sourceIndexPath.section, destinationIndexPath.section)
+            }
         } else {
             guard sourceIndexPath.section == destinationIndexPath.section else {
                 assertionFailure("Can't perform move operation between section and item or vice versa")
@@ -208,6 +252,9 @@ extension OrganizeTokensViewModel {
             }
 
             sections[sourceIndexPath.section].items.swapAt(sourceIndexPath.item, destinationIndexPath.item)
+            dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
+                sectionsToMutate[sourceIndexPath.section].items.swapAt(sourceIndexPath.item, destinationIndexPath.item)
+            }
         }
     }
 
