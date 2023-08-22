@@ -29,6 +29,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
     private var bag: Set<AnyCancellable> = []
+    private var didBind = false
 
     init(
         organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
@@ -51,6 +52,8 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     }
 
     private func bind() {
+        guard !didBind else { return }
+
         organizeTokensOptionsProviding
             .groupingOption
             .map(\.isGrouped)
@@ -62,5 +65,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .map(\.isSorted)
             .assign(to: \.isSortByBalanceEnabled, on: self, ownership: .weak)
             .store(in: &bag)
+
+        didBind = true
     }
 }
