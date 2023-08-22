@@ -36,7 +36,7 @@ struct OrganizeTokensHeaderView: View {
                     .primary
                     .cornerRadiusContinuous(10.0)
             )
-            .onFirstAppear(perform: viewModel.onViewAppear)
+            .onAppear(perform: viewModel.onViewAppear)
         }
     }
 
