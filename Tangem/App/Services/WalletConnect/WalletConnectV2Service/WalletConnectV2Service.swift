@@ -13,8 +13,8 @@ import BlockchainSdk
 
 protocol WalletConnectUserWalletInfoProvider {
     var userWalletId: UserWalletId { get }
-    var walletModels: [WalletModel] { get }
     var signer: TangemSigner { get }
+    var wcWalletModelProvider: WalletConnectWalletModelProvider { get }
 }
 
 final class WalletConnectV2Service {
@@ -251,7 +251,7 @@ final class WalletConnectV2Service {
             let sessionNamespaces = try utils.createSessionNamespaces(
                 from: proposal.requiredNamespaces,
                 optionalNamespaces: proposal.optionalNamespaces,
-                for: infoProvider.walletModels
+                walletModelProvider: infoProvider.wcWalletModelProvider
             )
             displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
         } catch let error as WalletConnectV2Error {
@@ -273,7 +273,7 @@ final class WalletConnectV2Service {
             return
         }
 
-        let blockchains = WalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces, using: infoProvider.walletModels)
+        let blockchains = WalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces, walletModelProvider: infoProvider.wcWalletModelProvider)
         let message = messageComposer.makeMessage(for: proposal, targetBlockchains: blockchains)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .establishSession,
