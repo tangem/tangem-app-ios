@@ -1,5 +1,5 @@
 //
-//  OrganizeWalletModelsAdapter.swift
+//  OrganizeTokensSectionsAdapter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,9 @@ import Foundation
 import Combine
 import CombineExt
 
-final class OrganizeWalletModelsAdapter {
-    typealias Section = OrganizeWalletModelsSection<SectionType, SectionItem>
+/// Placed in a separate module because it is used by both 'Main' and 'Organize Tokens' modules
+final class OrganizeTokensSectionsAdapter {
+    typealias Section = SectionModel<SectionType, SectionItem>
     typealias UserToken = StorageEntry.V3.Entry
     typealias GroupingOption = OrganizeTokensOptions.Grouping
     typealias SortingOption = OrganizeTokensOptions.Sorting
@@ -22,8 +23,8 @@ final class OrganizeWalletModelsAdapter {
     }
 
     enum SectionItem {
-        case complete(WalletModel)
-        case withoutDerivation(OrganizeWalletModelsAdapter.UserToken, BlockchainNetwork, WalletModel.ID)
+        case `default`(WalletModel)
+        case withoutDerivation(OrganizeTokensSectionsAdapter.UserToken, BlockchainNetwork, WalletModel.ID)
     }
 
     private let userTokenListManager: UserTokenListManager
@@ -40,7 +41,7 @@ final class OrganizeWalletModelsAdapter {
         self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
     }
 
-    func organizedWalletModels(
+    func organizedSections(
         from walletModels: some Publisher<[WalletModel], Never>,
         on workingQueue: DispatchQueue
     ) -> some Publisher<[Section], Never> {
@@ -69,10 +70,10 @@ final class OrganizeWalletModelsAdapter {
         groupingOption: GroupingOption,
         sortingOption: SortingOption
     ) -> [Section] {
-        let walletModelsKeyedByIDs = walletModels
+        let walletModelsKeyedByIds = walletModels
             .keyedFirst(by: \.id)
 
-        let blockchainNetworksFromWalletModels = walletModelsKeyedByIDs
+        let blockchainNetworksFromWalletModels = walletModelsKeyedByIds
             .values
             .unique(by: \.blockchainNetwork)
             .map(\.blockchainNetwork)
@@ -81,19 +82,19 @@ final class OrganizeWalletModelsAdapter {
         let sectionItems: [SectionItem] = userTokens.compactMap { userToken in
             guard
                 let blockchainNetwork = walletModelComponentsBuilder.buildBlockchainNetwork(from: userToken),
-                let walletModelID = walletModelComponentsBuilder.buildWalletModelID(from: userToken)
+                let walletModelId = walletModelComponentsBuilder.buildWalletModelID(from: userToken)
             else {
                 return nil
             }
 
             if blockchainNetworksFromWalletModels.contains(blockchainNetwork) {
                 // Most likely we have wallet model (and derivation too) for this entry
-                guard let walletModel = walletModelsKeyedByIDs[walletModelID] else { return nil }
+                guard let walletModel = walletModelsKeyedByIds[walletModelId] else { return nil }
 
-                return .complete(walletModel)
+                return .default(walletModel)
             } else {
                 // Section item for entry without derivation (yet)
-                return .withoutDerivation(userToken, blockchainNetwork, walletModelID)
+                return .withoutDerivation(userToken, blockchainNetwork, walletModelId)
             }
         }
 
@@ -156,11 +157,11 @@ final class OrganizeWalletModelsAdapter {
             // For cases when both lhs and rhs values are w/o derivation we also maintain a stable order of such elements
             return sectionItems.sorted { lhs, rhs in
                 switch (lhs, rhs) {
-                case (.complete, .withoutDerivation):
+                case (.default, .withoutDerivation):
                     return true
-                case (.withoutDerivation, .complete), (.withoutDerivation, .withoutDerivation):
+                case (.withoutDerivation, .default), (.withoutDerivation, .withoutDerivation):
                     return false
-                case (.complete(let lhs), .complete(let rhs)):
+                case (.default(let lhs), .default(let rhs)):
                     return compareWalletModels(lhs, rhs)
                 }
             }
@@ -182,10 +183,10 @@ final class OrganizeWalletModelsAdapter {
 
 // MARK: - Convenience extensions
 
-private extension OrganizeWalletModelsAdapter.SectionItem {
+private extension OrganizeTokensSectionsAdapter.SectionItem {
     var blockchainNetwork: BlockchainNetwork {
         switch self {
-        case .complete(let walletModel):
+        case .default(let walletModel):
             return walletModel.blockchainNetwork
         case .withoutDerivation(_, let blockchainNetwork, _):
             return blockchainNetwork
