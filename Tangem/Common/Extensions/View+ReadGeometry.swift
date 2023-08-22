@@ -158,8 +158,6 @@ private struct TimeStampContainer: Equatable {
     let geometryInfo: GeometryInfo
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        assert(lhs.throttleInterval == rhs.throttleInterval)
-
         if abs(lhs.timeStamp - rhs.timeStamp) < rhs.throttleInterval {
             return true
         }
