@@ -27,45 +27,18 @@ struct HDWalletManagerFactory: AnyWalletManagerFactory {
             throw AnyWalletManagerFactoryError.entryHasNotDerivationPath
         }
 
-        guard let seedKey = seedKeys[curve], let derivedWalletKeys = derivedKeys[curve] else {
-            throw AnyWalletManagerFactoryError.walletWithBlockchainCurveNotFound
+        guard let seedKey = seedKeys[curve],
+              let derivedWalletKeys = derivedKeys[curve],
+              let derivedKey = derivedWalletKeys[derivationPath] else {
+            throw AnyWalletManagerFactoryError.noDerivation
         }
 
         let factory = WalletManagerFactoryProvider().factory
-        let publicKey = try makePublicKey(seedKey: seedKey, for: blockchain, with: derivationPath, in: derivedWalletKeys)
+        let hdKey = Wallet.PublicKey.HDKey(path: derivationPath, extendedPublicKey: derivedKey)
+        let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(hdKey))
         let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
 
         walletManager.addTokens(token.tokens)
         return walletManager
-    }
-
-    func makePublicKey(
-        seedKey: Data,
-        for blockchain: Blockchain,
-        with derivationPath: DerivationPath,
-        in derivedWalletKeys: [DerivationPath: ExtendedPublicKey]
-    ) throws -> Wallet.PublicKey {
-        guard let derivedKey = derivedWalletKeys[derivationPath] else {
-            throw AnyWalletManagerFactoryError.noDerivation
-        }
-
-        let derivationKey = Wallet.PublicKey.DerivationKey(path: derivationPath, extendedPublicKey: derivedKey)
-
-        // For extended cardano we should find a second extended public key
-        guard case .cardano(let extended) = blockchain, extended else {
-            return Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(derivationKey))
-        }
-
-        let extendedDerivationPath = try CardanoUtil().extendedDerivationPath(for: derivationPath)
-        guard let secondDerivedKey = derivedWalletKeys[extendedDerivationPath] else {
-            throw AnyWalletManagerFactoryError.noDerivation
-        }
-
-        let secondDerivationKey = Wallet.PublicKey.DerivationKey(path: extendedDerivationPath, extendedPublicKey: secondDerivedKey)
-
-        return Wallet.PublicKey(
-            seedKey: seedKey,
-            derivationType: .double(first: derivationKey, second: secondDerivationKey)
-        )
     }
 }
