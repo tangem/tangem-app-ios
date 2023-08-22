@@ -10,8 +10,8 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-extension Wallet.PublicKey.DerivationKey {
-    static let ethDerivationStub = Wallet.PublicKey.DerivationKey(
+extension Wallet.PublicKey.HDKey {
+    static let ethDerivationStub = Wallet.PublicKey.HDKey(
         path: try! .init(rawPath: "m/44'/60'/0'/0/0"),
         extendedPublicKey: .init(
             publicKey: Data(hexString: "032A08567430A46A47CFFBF3FFD7FBB17A7850E75E7AC8E3E034BB1D8D5625A30D"),
@@ -19,7 +19,7 @@ extension Wallet.PublicKey.DerivationKey {
         )
     )
 
-    static let btcLegacyDerivationStub = Wallet.PublicKey.DerivationKey(
+    static let btcLegacyDerivationStub = Wallet.PublicKey.HDKey(
         path: try! .init(rawPath: "m/44'/0'/0'/0/0"),
         extendedPublicKey: .init(
             publicKey: Data(hexString: "032A08567430A46A47CFFBF3FFD7FBB17A7850E75E7AC8E3E034BB1D8D5625A30D"),
@@ -27,7 +27,7 @@ extension Wallet.PublicKey.DerivationKey {
         )
     )
 
-    static let btcSegwitDerivationStub = Wallet.PublicKey.DerivationKey(
+    static let btcSegwitDerivationStub = Wallet.PublicKey.HDKey(
         path: try! .init(rawPath: "m/84'/0'/0'/0/0"),
         extendedPublicKey: .init(
             publicKey: Data(hexString: "02616104143281B4679AFEB669392B073D63564606F431D13DF3EBEDE75D269509"),
@@ -35,7 +35,7 @@ extension Wallet.PublicKey.DerivationKey {
         )
     )
 
-    static let xrpDerivationStub = Wallet.PublicKey.DerivationKey(
+    static let xrpDerivationStub = Wallet.PublicKey.HDKey(
         path: try! .init(rawPath: "m/44'/144'/0'/0/0"),
         extendedPublicKey: .init(
             publicKey: Data(hexString: "02616104143281B4679AFEB669392B073D63564606F431D13DF3EBEDE75D269509"),
