@@ -370,7 +370,7 @@ extension OnboardingViewModel {
         UIApplication.shared.endEditing()
 
         let dataCollector = DetailsFeedbackDataCollector(
-            walletModels: cardModel?.walletModels ?? [],
+            walletModels: cardModel?.walletModelsManager.walletModels ?? [],
             userWalletEmailData: input.cardInput.emailData
         )
 
