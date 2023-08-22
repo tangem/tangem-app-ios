@@ -13,6 +13,7 @@ extension StorageEntry.V3.Entry {
 
     var isToken: Bool { contractAddress != nil }
 
+    @available(*, deprecated, message: "Doesn't take `SupportedBlockchains` into account and therefore shouldn't be used with Wallet 2.0")
     var walletModelId: WalletModel.ID {
         let converter = StorageEntriesConverter()
 
