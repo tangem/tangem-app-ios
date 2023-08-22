@@ -140,7 +140,10 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
                 return viewModel.organizeTokensOptionsEditing.save(reorderedWalletModelIds: walletModelIds)
             }
-            .sink()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.coordinator.didTapSaveButton()
+            }
             .store(in: &bag)
 
         didBind = true
