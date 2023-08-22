@@ -14,6 +14,12 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
         switch token.blockchainNetwork.blockchain {
         case .chia:
             return try SimpleWalletManagerFactory().makeWalletManager(for: token, keys: keys)
+        case .cardano(let extended):
+            if extended {
+                return try CardanoWalletManagerFactory().makeWalletManager(for: token, keys: keys)
+            } else {
+                fallthrough
+            }
         default:
             return try HDWalletManagerFactory().makeWalletManager(for: token, keys: keys)
         }
