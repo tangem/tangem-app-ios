@@ -26,7 +26,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private unowned let coordinator: OrganizeTokensRoutable
 
     private let walletModelsManager: WalletModelsManager
-    private let walletModelsAdapter: OrganizeWalletModelsAdapter
+    private let organizeTokensSectionsAdapter: OrganizeTokensSectionsAdapter
     private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
     private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
@@ -47,13 +47,13 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     init(
         coordinator: OrganizeTokensRoutable,
         walletModelsManager: WalletModelsManager,
-        walletModelsAdapter: OrganizeWalletModelsAdapter,
+        organizeTokensSectionsAdapter: OrganizeTokensSectionsAdapter,
         organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
         organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
     ) {
         self.coordinator = coordinator
         self.walletModelsManager = walletModelsManager
-        self.walletModelsAdapter = walletModelsAdapter
+        self.organizeTokensSectionsAdapter = organizeTokensSectionsAdapter
         self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
         self.organizeTokensOptionsEditing = organizeTokensOptionsEditing
     }
@@ -94,8 +94,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             walletModelsDidChangePublisher,
         ].merge()
 
-        let organizedWalletModelsPublisher = walletModelsAdapter
-            .organizedWalletModels(from: aggregatedWalletModelsPublisher, on: mappingQueue)
+        let organizedWalletModelsPublisher = organizeTokensSectionsAdapter
+            .organizedSections(from: aggregatedWalletModelsPublisher, on: mappingQueue)
             .share(replay: 1)
 
         let cache = dragAndDropActionsCache
@@ -147,7 +147,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private static func map(
-        sections: [OrganizeWalletModelsAdapter.Section],
+        sections: [OrganizeTokensSectionsAdapter.Section],
         sortingOption: OrganizeTokensOptions.Sorting,
         groupingOption: OrganizeTokensOptions.Grouping,
         dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
@@ -208,7 +208,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private static func isListSectionGrouped(
-        _ section: OrganizeWalletModelsAdapter.Section
+        _ section: OrganizeTokensSectionsAdapter.Section
     ) -> Bool {
         switch section.model {
         case .group:
