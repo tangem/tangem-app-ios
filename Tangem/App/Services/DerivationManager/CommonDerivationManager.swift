@@ -45,12 +45,15 @@ class CommonDerivationManager {
                 return
             }
 
-            // If needed derivationPaths already add just skip it
-            if derivationPaths.allConforms(masterKey.derivedKeys.keys.contains(_:)) {
+            let pendingDerivationPaths = derivationPaths.filter { derivationPath in
+                !masterKey.derivedKeys.keys.contains { $0 == derivationPath }
+            }
+
+            if pendingDerivationPaths.isEmpty {
                 return
             }
 
-            derivations[masterKey.publicKey, default: []] += derivationPaths
+            derivations[masterKey.publicKey, default: []] += pendingDerivationPaths
         }
 
         pendingDerivations.send(derivations)
