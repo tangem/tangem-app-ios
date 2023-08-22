@@ -71,6 +71,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private func bind() {
         let walletModelsPublisher = walletModelsManager
             .walletModelsPublisher
+            .share(replay: 1)
+            .eraseToAnyPublisher()
 
         let walletModelsDidChangePublisher = walletModelsPublisher
             .receive(on: mappingQueue)
@@ -81,9 +83,15 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             }
             .debounce(for: 0.3, scheduler: RunLoop.main)
             .withLatestFrom(walletModelsPublisher)
+            .eraseToAnyPublisher()
+
+        let aggregatedWalletModelsPublisher = [
+            walletModelsPublisher,
+            walletModelsDidChangePublisher,
+        ].merge()
 
         walletModelsAdapter
-            .organizedWalletModels(from: walletModelsDidChangePublisher, on: mappingQueue)
+            .organizedWalletModels(from: aggregatedWalletModelsPublisher, on: mappingQueue)
             .withLatestFrom(organizeTokensOptionsProviding.sortingOption) { ($0, $1) }
             .map(Self.map)
             .receive(on: DispatchQueue.main)
@@ -98,7 +106,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                 let walletModelIds = viewModel
                     .sections
                     .flatMap(\.items)
-                    .map { $0.id as! ListItemViewModelIdentifier }  // [REDACTED_TODO_COMMENT]
+                    .map { $0.id as! ListItemViewModelIdentifier } // [REDACTED_TODO_COMMENT]
                     .map(\.walletModelId)
 
                 return viewModel.organizeTokensOptionsEditing.save(walletModelIds: walletModelIds)
@@ -120,7 +128,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             let isListSectionGrouped = isListSectionGrouped(section)
             let items = section.items.map { item in
                 return map(
-                    walletModel: item,
+                    sectionItem: item,
                     isDraggable: isListItemsDraggable,
                     inGroupedSection: isListSectionGrouped,
                     using: tokenIconInfoBuilder
@@ -146,24 +154,65 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private static func map(
-        walletModel: WalletModel,
+        sectionItem: OrganizeWalletModelsAdapter.SectionItem,
         isDraggable: Bool,
         inGroupedSection: Bool,
         using tokenIconInfoBuilder: TokenIconInfoBuilder
     ) -> OrganizeTokensListItemViewModel {
-        let tokenIcon = tokenIconInfoBuilder.build(
-            for: walletModel.amountType,
-            in: walletModel.blockchainNetwork.blockchain
-        )
-        let identifier = ListItemViewModelIdentifier(walletModelId: walletModel.id, inGroupedSection: inGroupedSection)
+        let converter = StorageEntriesConverter()
 
-        return OrganizeTokensListItemViewModel(
-            id: identifier,
-            tokenIcon: tokenIcon,
-            balance: fiatBalance(for: walletModel),
-            isNetworkUnreachable: walletModel.state.isBlockchainUnreachable,
-            isDraggable: isDraggable
-        )
+        switch sectionItem {
+        case .complete(let walletModel):
+            let identifier = ListItemViewModelIdentifier(
+                walletModelId: walletModel.id,
+                inGroupedSection: inGroupedSection
+            )
+            let tokenIcon = tokenIconInfoBuilder.build(
+                for: walletModel.amountType,
+                in: walletModel.blockchainNetwork.blockchain
+            )
+
+            return OrganizeTokensListItemViewModel(
+                id: identifier,
+                tokenIcon: tokenIcon,
+                balance: fiatBalance(for: walletModel),
+                isNetworkUnreachable: walletModel.state.isBlockchainUnreachable,
+                isDraggable: isDraggable
+            )
+        case .withoutDerivation(let userToken, let blockchainNetwork, let walletModelID):
+            // [REDACTED_TODO_COMMENT]
+            let identifier = ListItemViewModelIdentifier(
+                walletModelId: walletModelID,
+                inGroupedSection: inGroupedSection
+            )
+
+            if let token = converter.convertToToken(userToken) {
+                let tokenIcon = tokenIconInfoBuilder.build(
+                    for: .token(value: token),
+                    in: blockchainNetwork.blockchain
+                )
+                return OrganizeTokensListItemViewModel(
+                    id: identifier,
+                    tokenIcon: tokenIcon,
+                    balance: .noData,
+                    isNetworkUnreachable: false,
+                    isDraggable: isDraggable
+                )
+            }
+
+            let tokenIcon = tokenIconInfoBuilder.build(
+                for: .coin,
+                in: blockchainNetwork.blockchain
+            )
+
+            return OrganizeTokensListItemViewModel(
+                id: identifier,
+                tokenIcon: tokenIcon,
+                balance: .noData,
+                isNetworkUnreachable: false,
+                isDraggable: isDraggable
+            )
+        }
     }
 
     private static func fiatBalance(for walletModel: WalletModel) -> LoadableTextView.State {
