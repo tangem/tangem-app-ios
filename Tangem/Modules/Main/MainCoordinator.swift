@@ -276,4 +276,8 @@ extension MainCoordinator: OrganizeTokensRoutable {
     func didTapCancelButton() {
         organizeTokensViewModel = nil
     }
+
+    func didTapSaveButton() {
+        organizeTokensViewModel = nil
+    }
 }
