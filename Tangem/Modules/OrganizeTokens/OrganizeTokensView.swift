@@ -214,7 +214,7 @@ struct OrganizeTokensView: View {
                             indexPath: indexPath,
                             parametersProvider: parametersProvider
                         )
-                        .hidden(itemViewModel.id == dragAndDropSourceViewModelIdentifier)
+                        .hidden(itemViewModel.id.asAnyHashable == dragAndDropSourceViewModelIdentifier)
                         .id(itemViewModel.id)
                         .readGeometry(
                             \.frame,
