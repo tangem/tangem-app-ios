@@ -189,7 +189,7 @@ struct BalanceAddressView: View {
 
 struct BalanceAddressView_Previews: PreviewProvider {
     static var walletModel: WalletModel {
-        let vm = PreviewCard.stellar.cardModel.walletModels.first!
+        let vm = PreviewCard.stellar.cardModel.walletModelsManager.walletModels.first!
         return vm
     }
 
