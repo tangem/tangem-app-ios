@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct OrganizeWalletModelsSection<SectionModel> {
+struct OrganizeWalletModelsSection<SectionModel, ItemModel> {
     let model: SectionModel
-    let items: [WalletModel]
+    let items: [ItemModel]
 }
