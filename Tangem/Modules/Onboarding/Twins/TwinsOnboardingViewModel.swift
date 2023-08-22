@@ -139,7 +139,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
         super.init(input: input, coordinator: coordinator)
 
-        if let walletModel = cardModel?.walletModels.first {
+        if let walletModel = cardModel?.walletModelsManager.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
 
