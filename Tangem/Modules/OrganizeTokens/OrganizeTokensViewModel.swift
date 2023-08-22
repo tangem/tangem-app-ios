@@ -42,6 +42,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     )
 
     private var bag: Set<AnyCancellable> = []
+    private var didBind = false
 
     init(
         coordinator: OrganizeTokensRoutable,
@@ -70,6 +71,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
+        guard !didBind else { return }
+
         let walletModelsPublisher = walletModelsManager
             .walletModelsPublisher
             .share(replay: 1)
@@ -139,6 +142,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             }
             .sink()
             .store(in: &bag)
+
+        didBind = true
     }
 
     private static func map(
