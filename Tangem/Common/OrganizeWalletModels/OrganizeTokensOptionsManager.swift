@@ -20,6 +20,54 @@ final class OrganizeTokensOptionsManager {
     ) {
         self.userTokenListManager = userTokenListManager
     }
+
+    private static func userTokenListUpdate(
+        currentValue: OrganizeTokensOptions.Grouping,
+        newValue: OrganizeTokensOptions.Grouping?
+    ) -> UserTokenListUpdateType? {
+        guard let newValue = newValue, newValue != currentValue else { return nil }
+
+        return .group(newValue)
+    }
+
+    private static func userTokenListUpdate(
+        currentValue: OrganizeTokensOptions.Sorting,
+        newValue: OrganizeTokensOptions.Sorting?
+    ) -> UserTokenListUpdateType? {
+        guard let newValue = newValue, newValue != currentValue else { return nil }
+
+        return .sort(newValue)
+    }
+
+    private static func userTokenListUpdate(
+        reorderedWalletModelIds: [WalletModel.ID],
+        existingUserTokens: [StorageEntry.V3.Entry],
+        sortingNewValue: OrganizeTokensOptions.Sorting?
+    ) -> UserTokenListUpdateType? {
+        // Re-orderings made as a result of sorting user tokens by balance are ignored
+        guard sortingNewValue != .byBalance else { return nil }
+
+        var existingUserTokensKeyedByWalletModelIds: [WalletModel.ID: StorageEntry.V3.Entry] = [:]
+        var walletModelIdsFromExistingUserTokens: [WalletModel.ID] = []
+
+        for userToken in existingUserTokens {
+            let walletModelId = userToken.walletModelId
+            walletModelIdsFromExistingUserTokens.append(walletModelId)
+            existingUserTokensKeyedByWalletModelIds[walletModelId] = userToken
+        }
+
+        // Checking if any re-ordering has actually taken place
+        guard walletModelIdsFromExistingUserTokens != reorderedWalletModelIds else { return nil }
+
+        let reorderedUserTokens = reorderedWalletModelIds.compactMap { existingUserTokensKeyedByWalletModelIds[$0] }
+
+        assert(
+            reorderedWalletModelIds.count == existingUserTokens.count && reorderedUserTokens.count == existingUserTokens.count,
+            "Method expects a re-ordered, but not modified (by adding/removing some entries) list of wallet model identifiers"
+        )
+
+        return .rewrite(reorderedUserTokens)
+    }
 }
 
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
@@ -70,58 +118,45 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
     }
 
     func save(
-        walletModelIds: [WalletModel.ID]
+        reorderedWalletModelIds: [WalletModel.ID]
     ) -> AnyPublisher<Void, Never> {
+        let manager = userTokenListManager
+
         let groupingOptionPublisher = Just(nil)
             .append(editedGroupingOption)
-            .withLatestFrom(userTokenListManager.groupingOptionPublisher) { ($0, $1) }
+            .withLatestFrom(userTokenListManager.groupingOptionPublisher) { (currentValue: $1, newValue: $0) }
 
         let sortingOptionPublisher = Just(nil)
             .append(editedSortingOption)
-            .withLatestFrom(userTokenListManager.sortingOptionPublisher) { ($0, $1) }
+            .withLatestFrom(userTokenListManager.sortingOptionPublisher) { (currentValue: $1, newValue: $0) }
 
         return .just
             .withLatestFrom(groupingOptionPublisher, sortingOptionPublisher, userTokenListManager.userTokensPublisher)
-            .withWeakCaptureOf(self)
             .flatMapLatest { input in
-                let (manager, (groupingOption, sortingOption, userTokens)) = input
+                let (groupingOption, sortingOption, userTokens) = input
 
                 return Deferred {
-                    Future<Void, Never> { [userTokenListManager = manager.userTokenListManager] promise in
-                        // [REDACTED_TODO_COMMENT]
-                        var updates: [UserTokenListUpdateType] = []
-
-                        let (groupingNewValue, groupingCurrentValue) = groupingOption
-                        if let groupingNewValue = groupingNewValue, groupingNewValue != groupingCurrentValue {
-                            updates.append(.group(groupingNewValue))
-                        }
-
-                        let (sortingNewValue, sortingCurrentValue) = sortingOption
-                        if let sortingNewValue = sortingNewValue, sortingNewValue != sortingCurrentValue {
-                            updates.append(.sort(sortingNewValue))
-                        }
-
-                        if sortingNewValue != .byBalance {
-                            var existingUserTokensKeyedByWalletModelIds: [WalletModel.ID: StorageEntry.V3.Entry] = [:]
-                            var walletModelIdsFromExistingUserTokens: [WalletModel.ID] = []
-
-                            for userToken in userTokens {
-                                let walletModelId = userToken.walletModelId
-                                walletModelIdsFromExistingUserTokens.append(walletModelId)
-                                existingUserTokensKeyedByWalletModelIds[walletModelId] = userToken
-                            }
-
-                            if walletModelIdsFromExistingUserTokens != walletModelIds {
-                                let updatedUserTokens = walletModelIds.compactMap { existingUserTokensKeyedByWalletModelIds[$0] }
-                                updates.append(.rewrite(updatedUserTokens))
-                            }
-                        }
+                    Future<Void, Never> { promise in
+                        let updates = [
+                            Self.userTokenListUpdate(
+                                currentValue: groupingOption.currentValue,
+                                newValue: groupingOption.newValue
+                            ),
+                            Self.userTokenListUpdate(
+                                currentValue: sortingOption.currentValue,
+                                newValue: sortingOption.newValue
+                            ),
+                            Self.userTokenListUpdate(
+                                reorderedWalletModelIds: reorderedWalletModelIds,
+                                existingUserTokens: userTokens,
+                                sortingNewValue: sortingOption.newValue
+                            ),
+                        ].compactMap { $0 }
 
                         DispatchQueue.main.async {
-                            userTokenListManager.update(updates, shouldUpload: true)
+                            manager.update(updates, shouldUpload: true)
+                            promise(.success(()))
                         }
-
-                        promise(.success(()))
                     }
                 }
             }
