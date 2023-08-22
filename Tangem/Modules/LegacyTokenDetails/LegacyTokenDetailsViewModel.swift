@@ -32,6 +32,22 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return walletModel?.wallet
     }
 
+    var balanceAddressViewModel: BalanceAddressViewModel? {
+        guard let walletModel else { return nil }
+
+        return .init(
+            state: walletModel.state,
+            wallet: walletModel.wallet,
+            tokenItem: walletModel.tokenItem,
+            hasTransactionInProgress: walletModel.hasPendingTransactions,
+            name: walletModel.name,
+            fiatBalance: walletModel.fiatBalance,
+            balance: walletModel.balance,
+            isTestnet: walletModel.isTestnet,
+            isDemo: walletModel.isDemo
+        )
+    }
+
     var walletModel: WalletModel?
 
     var incomingTransactions: [LegacyTransactionRecord] {
