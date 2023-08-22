@@ -10,7 +10,7 @@ import Foundation
 
 final class OrganizeTokensDragAndDropActionsCache {
     typealias DragAndDropAction = (_ sectionsToMutate: inout [OrganizeTokensListSectionViewModel]) -> Void
-    typealias SectionsChange = (oldValue: [OrganizeWalletModelsAdapter.Section], newValue: [OrganizeWalletModelsAdapter.Section])
+    typealias SectionsChange = (oldValue: [OrganizeTokensSectionsAdapter.Section], newValue: [OrganizeTokensSectionsAdapter.Section])
 
     private var cachedPlainListActions: [DragAndDropAction] = []
     private var cachedGroupedListActions: [DragAndDropAction] = []
