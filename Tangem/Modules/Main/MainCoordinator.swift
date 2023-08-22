@@ -132,7 +132,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         let walletModelComponentsBuilder = WalletModelComponentsBuilder(
             supportedBlockchains: userWalletModel.config.supportedBlockchains
         )
-        let walletModelsAdapter = OrganizeWalletModelsAdapter(
+        let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
             userTokenListManager: userTokenListManager,
             walletModelComponentsBuilder: walletModelComponentsBuilder,
             organizeTokensOptionsProviding: optionsManager
@@ -141,7 +141,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         organizeTokensViewModel = OrganizeTokensViewModel(
             coordinator: self,
             walletModelsManager: userWalletModel.walletModelsManager,
-            walletModelsAdapter: walletModelsAdapter,
+            organizeTokensSectionsAdapter: organizeTokensSectionsAdapter,
             organizeTokensOptionsProviding: optionsManager,
             organizeTokensOptionsEditing: optionsManager
         )
