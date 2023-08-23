@@ -71,9 +71,7 @@ final class OrganizeTokensSectionsAdapter {
         let walletModelsKeyedByIds = walletModels
             .keyedFirst(by: \.id)
 
-        let blockchainNetworksFromWalletModels = walletModelsKeyedByIds
-            .values
-            .unique(by: \.blockchainNetwork)
+        let blockchainNetworksFromWalletModels = walletModels
             .map(\.blockchainNetwork)
             .toSet()
 

@@ -118,13 +118,13 @@ private extension LegacyMultiWalletContentViewModel {
             .unique(by: \.blockchainNetwork)
             .map(\.blockchainNetwork)
 
-        let walletModelsKeyedByIds = walletModelsManager
+        let walletModels = walletModelsManager
             .walletModels
+
+        let walletModelsKeyedByIds = walletModels
             .keyedFirst(by: \.id)
 
-        let blockchainNetworksFromWalletModels = walletModelsKeyedByIds
-            .values
-            .unique(by: \.blockchainNetwork)
+        let blockchainNetworksFromWalletModels = walletModels
             .map(\.blockchainNetwork)
             .toSet()
 
