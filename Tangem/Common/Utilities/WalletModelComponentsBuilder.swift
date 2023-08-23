@@ -10,7 +10,6 @@ import Foundation
 import enum BlockchainSdk.Blockchain
 import struct BlockchainSdk.Amount
 
-// [REDACTED_TODO_COMMENT]
 struct WalletModelComponentsBuilder {
     typealias UserToken = StorageEntry.V3.Entry
 
