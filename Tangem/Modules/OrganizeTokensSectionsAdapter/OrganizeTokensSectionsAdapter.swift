@@ -23,21 +23,19 @@ final class OrganizeTokensSectionsAdapter {
     }
 
     enum SectionItem {
+        /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
         case `default`(WalletModel)
-        case withoutDerivation(OrganizeTokensSectionsAdapter.UserToken, BlockchainNetwork, WalletModel.ID)
+        case withoutDerivation(OrganizeTokensSectionsAdapter.UserToken)
     }
 
     private let userTokenListManager: UserTokenListManager
-    private let walletModelComponentsBuilder: WalletModelComponentsBuilder
     private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
 
     init(
         userTokenListManager: UserTokenListManager,
-        walletModelComponentsBuilder: WalletModelComponentsBuilder,
         organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
     ) {
         self.userTokenListManager = userTokenListManager
-        self.walletModelComponentsBuilder = walletModelComponentsBuilder
         self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
     }
 
@@ -80,21 +78,12 @@ final class OrganizeTokensSectionsAdapter {
             .toSet()
 
         let sectionItems: [SectionItem] = userTokens.compactMap { userToken in
-            guard
-                let blockchainNetwork = walletModelComponentsBuilder.buildBlockchainNetwork(from: userToken),
-                let walletModelId = walletModelComponentsBuilder.buildWalletModelID(from: userToken)
-            else {
-                return nil
-            }
-
-            if blockchainNetworksFromWalletModels.contains(blockchainNetwork) {
+            if blockchainNetworksFromWalletModels.contains(userToken.blockchainNetwork) {
                 // Most likely we have wallet model (and derivation too) for this entry
-                guard let walletModel = walletModelsKeyedByIds[walletModelId] else { return nil }
-
-                return .default(walletModel)
+                return walletModelsKeyedByIds[userToken.walletModelId].map { .default($0) }
             } else {
                 // Section item for entry without derivation (yet)
-                return .withoutDerivation(userToken, blockchainNetwork, walletModelId)
+                return .withoutDerivation(userToken)
             }
         }
 
@@ -188,8 +177,8 @@ private extension OrganizeTokensSectionsAdapter.SectionItem {
         switch self {
         case .default(let walletModel):
             return walletModel.blockchainNetwork
-        case .withoutDerivation(_, let blockchainNetwork, _):
-            return blockchainNetwork
+        case .withoutDerivation(let userToken):
+            return userToken.blockchainNetwork
         }
     }
 }
