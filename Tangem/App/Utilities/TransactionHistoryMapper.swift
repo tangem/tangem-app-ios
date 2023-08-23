@@ -55,9 +55,9 @@ struct TransactionHistoryMapper {
             id: record.hash,
             interactionAddress: interactionAddress(from: record),
             timeFormatted: timeFormatted,
-            amount: transferAmount(from: record),
-            isOutgoing: record.type == .send,
-            transactionType: transactionType(from: record),
+            transferAmount: transferAmount(from: record),
+            isOutgoing: record.isOutgoing,
+            transactionType: type,
             status: record.status == .confirmed ? .confirmed : .inProgress
         )
     }
@@ -138,10 +138,22 @@ private extension TransactionHistoryMapper {
 
     func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
         switch record.type {
-        case .receive:
+        case .transfer:
             return .transfer
-        case .send:
-            return .transfer
+        case .swap, .unoswap:
+            return .swap
+        case .approve:
+            return .approval
+        case .deposit:
+            return .custom(name: "Deposit")
+        case .submit:
+            return .custom(name: "Submit")
+        case .supply:
+            return .custom(name: "Supply")
+        case .withdraw:
+            return .custom(name: "Withdraw")
+        case .custom(let id):
+            return .custom(name: id)
         }
     }
 }
@@ -150,6 +162,28 @@ extension TransactionHistoryMapper {
     enum Constants {
         static let maximumFractionDigits = 8
         static let roundingMode: NSDecimalNumber.RoundingMode = .down
+    }
+}
+
+private extension TransactionRecord.SourceType {
+    func address(nonEqual address: String) -> String? {
+        switch self {
+        case .single(let source):
+            return source.address
+        case .multiple(let sources):
+            return sources.first(where: { $0.address != address })?.address ?? ""
+        }
+    }
+}
+
+private extension TransactionRecord.DestinationType {
+    func address(nonEqual address: String) -> String? {
+        switch self {
+        case .single(let destination):
+            return destination.address.string
+        case .multiple(let destinations):
+            return destinations.first(where: { $0.address.string != address })?.address.string ?? ""
+        }
     }
 }
 
