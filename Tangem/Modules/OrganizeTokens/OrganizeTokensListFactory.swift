@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensListItemViewModelFactory.swift
+//  OrganizeTokensListFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,35 @@
 
 import Foundation
 
-struct OrganizeTokensListItemViewModelFactory {
+struct OrganizeTokensListFactory {
     private let tokenIconInfoBuilder: TokenIconInfoBuilder
 
     init(
         tokenIconInfoBuilder: TokenIconInfoBuilder
     ) {
         self.tokenIconInfoBuilder = tokenIconInfoBuilder
+    }
+
+    func makeListSection(
+        from sectionType: OrganizeTokensSectionsAdapter.SectionType,
+        with itemViewModels: [OrganizeTokensListItemViewModel],
+        atIndex index: Int
+    ) -> OrganizeTokensListSection {
+        switch sectionType {
+        case .plain:
+            // Plain sections use section indices (from `enumerated()`) as a stable identity, but in
+            // reality we always have only one single plain section, so the identity doesn't matter here
+            return OrganizeTokensListSection(
+                model: .init(id: index, style: .invisible),
+                items: itemViewModels
+            )
+        case .group(let blockchainNetwork):
+            let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
+            return OrganizeTokensListSection(
+                model: .init(id: blockchainNetwork, style: .draggable(title: title)),
+                items: itemViewModels
+            )
+        }
     }
 
     func makeListItemViewModel(
