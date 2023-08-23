@@ -10,8 +10,8 @@ import Foundation
 
 /// Represents a generic section in a list.
 struct SectionModel<Model, ItemModel> {
-    let model: Model
-    let items: [ItemModel]
+    var model: Model
+    var items: [ItemModel]
 }
 
 // MARK: - Equatable protocol conformance
