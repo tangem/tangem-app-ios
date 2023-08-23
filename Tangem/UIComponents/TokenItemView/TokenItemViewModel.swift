@@ -114,12 +114,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func updatePendingTransactionsStateIfNeeded() {
+        // [REDACTED_TODO_COMMENT]
         guard let infoProvider = infoProvider else { return }
 
         hasPendingTransactions = infoProvider.hasPendingTransactions
     }
 
     private func updateBalances() {
+        // [REDACTED_TODO_COMMENT]
         guard let infoProvider = infoProvider else { return }
 
         balanceCrypto = .loaded(text: infoProvider.balance)
