@@ -22,7 +22,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 3.3, decimals: 8)),
                 status: .unconfirmed,
                 isOutgoing: false,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: today
             ),
             TransactionRecord(
@@ -32,7 +32,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 1.3, decimals: 8)),
                 status: .unconfirmed,
                 isOutgoing: false,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -4, to: today)
             ),
             TransactionRecord(
@@ -42,7 +42,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .unconfirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -5, to: today)
             ),
             TransactionRecord(
@@ -52,7 +52,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .confirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: yesterday
             ),
             TransactionRecord(
@@ -62,7 +62,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .unconfirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -3, to: yesterday)
             ),
             TransactionRecord(
@@ -72,7 +72,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .confirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -8, to: yesterday)
             ),
             TransactionRecord(
@@ -82,7 +82,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .confirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: yesterday
             ),
             TransactionRecord(
@@ -92,7 +92,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .unconfirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -3, to: yesterday)
             ),
             TransactionRecord(
@@ -102,7 +102,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .confirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -8, to: yesterday)
             ),
             TransactionRecord(
@@ -112,7 +112,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .confirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: yesterday
             ),
             TransactionRecord(
@@ -122,7 +122,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .unconfirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -3, to: yesterday)
             ),
             TransactionRecord(
@@ -132,7 +132,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .confirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: calendar.date(byAdding: .hour, value: -8, to: yesterday)
             ),
             TransactionRecord(
@@ -142,7 +142,7 @@ struct FakeTransactionHistoryFactory {
                 fee: Fee(.init(type: .coin, currencySymbol: currencyCode, value: 2.1, decimals: 8)),
                 status: .confirmed,
                 isOutgoing: true,
-                type: .ethereumMethod(.transfer),
+                type: .transfer,
                 date: yesterday
             ),
         ]
