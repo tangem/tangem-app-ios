@@ -13,7 +13,7 @@ struct TransactionView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            viewModel.icon
+            transactionTypeIcon
                 .renderingMode(.template)
                 .foregroundColor(viewModel.iconColor)
                 .padding(10)
@@ -31,10 +31,8 @@ struct TransactionView: View {
 
                     Spacer()
 
-                    if let amount = viewModel.formattedAmount {
-                        Text(amount)
-                            .style(Fonts.Regular.subheadline, color: viewModel.amountTextColor)
-                    }
+                    Text(viewModel.amountPrefix + viewModel.transferAmount)
+                        .style(Fonts.Regular.subheadline, color: viewModel.amountTextColor)
                 }
 
                 HStack(spacing: 6) {
