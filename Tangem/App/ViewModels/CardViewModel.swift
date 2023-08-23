@@ -595,7 +595,10 @@ extension CardViewModel: DerivationManagerDelegate {
 
 extension CardViewModel: CardDerivableProvider {
     var cardDerivableInteractor: CardDerivable {
-        cardInteractor
+        // [REDACTED_TODO_COMMENT]
+        let shouldSkipCardId = cardInfo.card.backupStatus?.isActive ?? false
+        let cardId = shouldSkipCardId ? nil : cardInfo.card.cardId
+        return CardInteractor(tangemSdk: config.makeTangemSdk(), cardId: cardId)
     }
 }
 

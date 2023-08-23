@@ -341,7 +341,8 @@ class LegacyMainViewModel: ObservableObject {
 
     func deriveEntriesWithoutDerivation() {
         Analytics.log(.noticeScanYourCardTapped)
-        cardModel.derivationManager?.deriveKeys(cardInteractor: cardModel.cardInteractor, completion: { _ in })
+        // [REDACTED_TODO_COMMENT]
+        cardModel.derivationManager?.deriveKeys(cardInteractor: cardModel.cardDerivableInteractor, completion: { _ in })
     }
 
     func extractSellCryptoRequest(from response: String) {
