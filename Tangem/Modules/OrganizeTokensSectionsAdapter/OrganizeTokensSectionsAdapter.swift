@@ -18,8 +18,8 @@ final class OrganizeTokensSectionsAdapter {
     typealias SortingOption = OrganizeTokensOptions.Sorting
 
     enum SectionType {
-        case group(by: BlockchainNetwork)
         case plain
+        case group(by: BlockchainNetwork)
     }
 
     enum SectionItem {
