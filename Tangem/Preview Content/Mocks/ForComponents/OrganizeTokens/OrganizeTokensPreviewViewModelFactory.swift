@@ -13,12 +13,8 @@ struct OrganizeTokensPreviewViewModelFactory {
         let coordinator = OrganizeTokensRoutableStub()
         let userWalletModel = UserWalletModelMock()
         let optionsManager = OrganizeTokensOptionsManagerStub()
-        let walletModelComponentsBuilder = WalletModelComponentsBuilder(
-            supportedBlockchains: userWalletModel.config.supportedBlockchains
-        )
         let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            walletModelComponentsBuilder: walletModelComponentsBuilder,
             organizeTokensOptionsProviding: optionsManager
         )
 
