@@ -19,7 +19,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         organizeTokensOptionsEditing: organizeTokensOptionsEditing
     )
 
-    @Published private(set) var sections: [OrganizeTokensListSectionViewModel] = []
+    @Published private(set) var sections: [OrganizeTokensListSection] = []
 
     let id = UUID()
 
@@ -154,38 +154,22 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         sortingOption: OrganizeTokensOptions.Sorting,
         groupingOption: OrganizeTokensOptions.Grouping,
         dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
-    ) -> [OrganizeTokensListSectionViewModel] {
+    ) -> [OrganizeTokensListSection] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
-        let listItemViewModelFactory = OrganizeTokensListItemViewModelFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
+        let listFactory = OrganizeTokensListFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
         let isListItemsDraggable = isListItemDraggable(sortingOption: sortingOption)
 
         var listItemViewModels = sections.enumerated().map { index, section in
             let isListSectionGrouped = isListSectionGrouped(section)
             let items = section.items.map { item in
-                listItemViewModelFactory.makeListItemViewModel(
+                listFactory.makeListItemViewModel(
                     sectionItem: item,
                     isDraggable: isListItemsDraggable,
                     inGroupedSection: isListSectionGrouped
                 )
             }
 
-            switch section.model {
-            case .group(let blockchainNetwork):
-                let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
-                return OrganizeTokensListSectionViewModel(
-                    id: blockchainNetwork,
-                    style: .draggable(title: title),
-                    items: items
-                )
-            case .plain:
-                // Plain sections use section indices (from `enumerated()`) as a stable identity, but in
-                // reality we always have only one single plain section, so the identity doesn't matter here
-                return OrganizeTokensListSectionViewModel(
-                    id: index,
-                    style: .invisible,
-                    items: items
-                )
-            }
+            return listFactory.makeListSection(from: section.model, with: items, atIndex: index)
         }
 
         // By design, drag-and-drop actions can only be applied when manual sorting is active
@@ -214,10 +198,10 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         _ section: OrganizeTokensSectionsAdapter.Section
     ) -> Bool {
         switch section.model {
-        case .group:
-            return true
         case .plain:
             return false
+        case .group:
+            return true
         }
     }
 }
@@ -231,13 +215,13 @@ extension OrganizeTokensViewModel {
             .first { $0.id.asAnyHashable == identifier }
     }
 
-    func sectionViewModel(for identifier: AnyHashable) -> OrganizeTokensListSectionViewModel? {
+    func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
         return sections
             .first { $0.id == identifier }
     }
 
     func viewModelIdentifier(at indexPath: IndexPath) -> AnyHashable {
-        return sectionViewModel(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.asAnyHashable
+        return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.asAnyHashable
     }
 
     func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
@@ -267,7 +251,7 @@ extension OrganizeTokensViewModel {
     }
 
     func canStartDragAndDropSession(at indexPath: IndexPath) -> Bool {
-        return sectionViewModel(at: indexPath)?.isDraggable ?? itemViewModel(at: indexPath).isDraggable
+        return section(at: indexPath)?.isDraggable ?? itemViewModel(at: indexPath).isDraggable
     }
 
     func onDragStart(at indexPath: IndexPath) {
@@ -314,7 +298,7 @@ extension OrganizeTokensViewModel {
         return sections[indexPath.section].items[indexPath.item]
     }
 
-    private func sectionViewModel(at indexPath: IndexPath) -> OrganizeTokensListSectionViewModel? {
+    private func section(at indexPath: IndexPath) -> OrganizeTokensListSection? {
         guard indexPath.item == sectionHeaderItemIndex else { return nil }
 
         return sections[indexPath.section]
