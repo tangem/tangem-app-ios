@@ -117,21 +117,25 @@ struct MultiWalletMainContentView: View {
 struct MultiWalletContentView_Preview: PreviewProvider {
     static var sectionProvider: TokenListInfoProvider = EmptyTokenListInfoProvider()
     static let viewModel: MultiWalletMainContentViewModel = {
-        let repo = FakeUserWalletRepository()
-        let mainCoordinator = MainCoordinator()
-        let userWalletModel = repo.models.first!
-        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
-        InjectedValues[\.tangemApiService] = FakeTangemApiService()
-        sectionProvider = GroupedTokenListInfoProvider(
-            userTokenListManager: userWalletModel.userTokenListManager,
-            walletModelsManager: userWalletModel.walletModelsManager
-        )
-        return MultiWalletMainContentViewModel(
-            userWalletModel: userWalletModel,
-            coordinator: mainCoordinator,
-            sectionsProvider: sectionProvider,
-            isManageTokensAvailable: userWalletModel.isMultiWallet
-        )
+        // [REDACTED_TODO_COMMENT]
+        fatalError("\(#function) not implemented yet!")
+        /*
+         let repo = FakeUserWalletRepository()
+         let mainCoordinator = MainCoordinator()
+         let userWalletModel = repo.models.first!
+         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+         InjectedValues[\.tangemApiService] = FakeTangemApiService()
+         sectionProvider = GroupedTokenListInfoProvider(
+             userTokenListManager: userWalletModel.userTokenListManager,
+             walletModelsManager: userWalletModel.walletModelsManager
+         )
+         return MultiWalletMainContentViewModel(
+             userWalletModel: userWalletModel,
+             coordinator: mainCoordinator,
+             sectionsProvider: sectionProvider,
+        isManageTokensAvailable: userWalletModel.isMultiWallet
+         )
+          */
     }()
 
     static var previews: some View {
