@@ -51,11 +51,9 @@ struct OrganizeTokensListFactory {
                 isDraggable: isDraggable,
                 inGroupedSection: inGroupedSection
             )
-        case .withoutDerivation(let userToken, let blockchainNetwork, let walletModelId):
+        case .withoutDerivation(let userToken):
             return makeListItemViewModel(
                 userToken: userToken,
-                blockchainNetwork: blockchainNetwork,
-                walletModelId: walletModelId,
                 isDraggable: isDraggable,
                 inGroupedSection: inGroupedSection
             )
@@ -89,45 +87,39 @@ struct OrganizeTokensListFactory {
 
     private func makeListItemViewModel(
         userToken: OrganizeTokensSectionsAdapter.UserToken,
-        blockchainNetwork: BlockchainNetwork,
-        walletModelId: WalletModel.ID,
         isDraggable: Bool,
         inGroupedSection: Bool
     ) -> OrganizeTokensListItemViewModel {
         let converter = StorageEntriesConverter()
-
+        let blockchain = userToken.blockchainNetwork.blockchain
+        let isTestnet = blockchain.isTestnet
         let identifier = OrganizeTokensListItemViewModel.Identifier(
-            walletModelId: walletModelId,
+            walletModelId: userToken.walletModelId,
             inGroupedSection: inGroupedSection
         )
 
         if let token = converter.convertToToken(userToken) {
-            let tokenIcon = tokenIconInfoBuilder.build(
-                for: .token(value: token),
-                in: blockchainNetwork.blockchain
-            )
+            let tokenIcon = tokenIconInfoBuilder.build(for: .token(value: token), in: blockchain)
+
             return OrganizeTokensListItemViewModel(
                 id: identifier,
                 tokenIcon: tokenIcon,
                 balance: .noData,
                 hasDerivation: false,
-                isTestnet: blockchainNetwork.blockchain.isTestnet,
+                isTestnet: isTestnet,
                 isNetworkUnreachable: false,
                 isDraggable: isDraggable
             )
         }
 
-        let tokenIcon = tokenIconInfoBuilder.build(
-            for: .coin,
-            in: blockchainNetwork.blockchain
-        )
+        let tokenIcon = tokenIconInfoBuilder.build(for: .coin, in: blockchain)
 
         return OrganizeTokensListItemViewModel(
             id: identifier,
             tokenIcon: tokenIcon,
             balance: .noData,
             hasDerivation: false,
-            isTestnet: blockchainNetwork.blockchain.isTestnet,
+            isTestnet: isTestnet,
             isNetworkUnreachable: false,
             isDraggable: isDraggable
         )
