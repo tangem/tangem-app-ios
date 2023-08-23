@@ -68,6 +68,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func startBackupProcess() {
+        // [REDACTED_TODO_COMMENT]
         if let cardViewModel = userWalletModel as? CardViewModel,
            let input = cardViewModel.backupInput {
             Analytics.log(.noticeBackupYourWalletTapped)
