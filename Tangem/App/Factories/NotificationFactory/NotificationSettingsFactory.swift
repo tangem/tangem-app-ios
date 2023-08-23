@@ -31,7 +31,7 @@ struct NotificationSettingsFactory {
         )
     }
 
-    func noBackupNotificationSettings() -> NotificationView.Settings {
+    func missingBackupNotificationSettings() -> NotificationView.Settings {
         .init(
             colorScheme: .white,
             icon: .init(image: Assets.attention.image),
