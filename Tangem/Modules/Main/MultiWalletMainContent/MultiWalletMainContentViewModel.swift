@@ -12,10 +12,20 @@ import CombineExt
 import SwiftUI
 
 final class MultiWalletMainContentViewModel: ObservableObject {
+
+    // MARK: - Types
+
+    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
+
+    struct SectionViewModel: Identifiable {
+        let id: AnyHashable
+        let title: String?
+    }
+
     // MARK: - ViewState
 
     @Published var isLoadingTokenList: Bool = true
-    @Published var sections: [MultiWalletTokenItemsSection] = []
+    @Published var sections: [Section] = []
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
     @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
 
@@ -155,9 +165,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func convertToSections(
         _ sections: [OrganizeTokensSectionsAdapter.Section]
-    ) -> [MultiWalletTokenItemsSection] {
-        // [REDACTED_TODO_COMMENT]
-        return []
+    ) -> [Section] {
+        let factory = MultiWalletTokenItemsSectionFactory()
+
+        return sections.enumerated().map { index, section in
+            let sectionViewModel = factory.makeSectionViewModel(from: section.model, atIndex: index)
+            let itemViewModels = factory.makeSectionItemViewModels(from: section.items) { [weak self] walletModelId in
+                self?.tokenItemTapped(walletModelId)
+            }
+
+            return Section(model: sectionViewModel, items: itemViewModels)
+        }
     }
 
     private func subscribeToTokenListUpdatesIfNeeded() {
