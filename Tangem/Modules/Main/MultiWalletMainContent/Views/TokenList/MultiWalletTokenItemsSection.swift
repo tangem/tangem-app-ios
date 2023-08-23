@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 struct MultiWalletTokenItemsSection: Identifiable {
     var id: Int
     let title: String?
