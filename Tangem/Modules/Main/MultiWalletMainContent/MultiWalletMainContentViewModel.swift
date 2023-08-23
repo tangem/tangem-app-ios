@@ -12,7 +12,6 @@ import CombineExt
 import SwiftUI
 
 final class MultiWalletMainContentViewModel: ObservableObject {
-
     // MARK: - Types
 
     typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
