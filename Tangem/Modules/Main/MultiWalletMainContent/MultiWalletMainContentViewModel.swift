@@ -17,7 +17,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var isLoadingTokenList: Bool = true
     @Published var sections: [MultiWalletTokenItemsSection] = []
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
-    @Published var noBackupNotificationSettings: NotificationView.Settings? = nil
+    @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
 
     @Published var isScannerBusy = false
 
@@ -82,8 +82,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func setup() {
         updateBackupStatus()
-        bind()
         subscribeToTokenListUpdatesIfNeeded()
+        bind()
     }
 
     private func bind() {
@@ -151,11 +151,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func updateBackupStatus() {
         guard userWalletModel.config.hasFeature(.backup) else {
-            noBackupNotificationSettings = nil
+            missingBackupNotificationSettings = nil
             return
         }
 
         let factory = NotificationSettingsFactory()
-        noBackupNotificationSettings = factory.noBackupNotificationSettings()
+        missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
     }
 }
