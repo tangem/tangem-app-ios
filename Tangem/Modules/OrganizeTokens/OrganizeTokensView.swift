@@ -229,8 +229,8 @@ struct OrganizeTokensView: View {
                     let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
 
                     makeSection(
-                        viewModel: sectionViewModel,
-                        sectionIndex: sectionIndex,
+                        from: sectionViewModel,
+                        atIndex: sectionIndex,
                         parametersProvider: parametersProvider
                     )
                     .hidden(sectionViewModel.id == dragAndDropSourceViewModelIdentifier)
@@ -461,12 +461,12 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func makeSection(
-        viewModel: OrganizeTokensListSectionViewModel,
-        sectionIndex: Int,
+        from section: OrganizeTokensListSection,
+        atIndex sectionIndex: Int,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
-            switch viewModel.style {
+            switch section.model.style {
             case .invisible:
                 EmptyView()
             case .fixed(let title):
@@ -493,15 +493,15 @@ struct OrganizeTokensView: View {
                 cornerRadius: Constants.draggableViewCornerRadius
             )
 
-            if let sectionViewModel = viewModel.sectionViewModel(for: dragAndDropSourceViewModelIdentifier) {
+            if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
                 makeDraggableView(
                     width: width,
                     indexPath: dragAndDropDestinationIndexPath,
                     itemFrame: dragAndDropSourceItemFrame
                 ) {
                     makeSection(
-                        viewModel: sectionViewModel,
-                        sectionIndex: dragAndDropSourceIndexPath.section,
+                        from: section,
+                        atIndex: dragAndDropSourceIndexPath.section,
                         parametersProvider: parametersProvider
                     )
                 }
