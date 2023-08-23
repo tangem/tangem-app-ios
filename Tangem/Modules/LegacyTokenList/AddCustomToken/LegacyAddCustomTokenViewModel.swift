@@ -164,7 +164,8 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             ($0.codingKey, $0)
         })
         self.derivationPathByBlockchainName = Dictionary(uniqueKeysWithValues: blockchains.compactMap {
-            guard let derivationPath = $0.derivationPath(for: .v1) else { return nil }
+            guard let derivationStyle = settings.derivationStyle,
+                  let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
             return ($0.codingKey, derivationPath)
         })
 
@@ -191,9 +192,8 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         } else {
             derivations = settings.supportedBlockchains
                 .compactMap {
-                    guard let derivationPath = $0.derivationPath(for: .v1) else {
-                        return nil
-                    }
+                    guard let derivationStyle = settings.derivationStyle,
+                          let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
 
                     let derivationPathFormatted = derivationPath.rawPath
                     let blockchainName = $0.codingKey
