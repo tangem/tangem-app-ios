@@ -172,7 +172,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             return listFactory.makeListSection(from: section.model, with: items, atIndex: index)
         }
 
-        // By design, drag-and-drop actions can only be applied when manual sorting is active
+        // By design, cached drag-and-drop actions can only be applied when manual sorting is active
         if !sortingOption.isSorted {
             dragAndDropActionsCache.applyDragAndDropActions(
                 to: &listItemViewModels,
