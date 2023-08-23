@@ -76,6 +76,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
+    func openOrganizeTokens() {
+        coordinator.openOrganizeTokens(for: userWalletModel)
+    }
+
     private func setup() {
         updateBackupStatus()
         bind()
@@ -153,9 +157,5 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let factory = NotificationSettingsFactory()
         noBackupNotificationSettings = factory.noBackupNotificationSettings()
-    }
-
-    func openOrganizeTokens() {
-        coordinator.openOrganizeTokens(for: userWalletModel)
     }
 }
