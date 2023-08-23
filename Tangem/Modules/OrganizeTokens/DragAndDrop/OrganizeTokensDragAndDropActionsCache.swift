@@ -9,7 +9,7 @@
 import Foundation
 
 final class OrganizeTokensDragAndDropActionsCache {
-    typealias DragAndDropAction = (_ sectionsToMutate: inout [OrganizeTokensListSectionViewModel]) -> Void
+    typealias DragAndDropAction = (_ sectionsToMutate: inout [OrganizeTokensListSection]) -> Void
     typealias SectionsChange = (oldValue: [OrganizeTokensSectionsAdapter.Section], newValue: [OrganizeTokensSectionsAdapter.Section])
 
     private var cachedPlainListActions: [DragAndDropAction] = []
@@ -23,7 +23,7 @@ final class OrganizeTokensDragAndDropActionsCache {
         }
     }
 
-    func applyDragAndDropActions(to sections: inout [OrganizeTokensListSectionViewModel], isGroupingEnabled: Bool) {
+    func applyDragAndDropActions(to sections: inout [OrganizeTokensListSection], isGroupingEnabled: Bool) {
         let actions = isGroupingEnabled ? cachedGroupedListActions : cachedPlainListActions
         actions.forEach { $0(&sections) }
     }
