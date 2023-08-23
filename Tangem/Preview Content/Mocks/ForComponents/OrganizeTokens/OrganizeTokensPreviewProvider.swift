@@ -9,11 +9,10 @@
 import Foundation
 
 struct OrganizeTokensPreviewProvider {
-    func singleSmallHeaderlessSection() -> [OrganizeTokensListSectionViewModel] {
+    func singleSmallHeaderlessSection() -> [OrganizeTokensListSection] {
         return [
             .init(
-                id: UUID(),
-                style: .invisible,
+                model: .init(id: UUID(), style: .invisible),
                 items: [
                     .init(
                         id: .random(),
@@ -32,11 +31,10 @@ struct OrganizeTokensPreviewProvider {
         ]
     }
 
-    func singleSmallSection() -> [OrganizeTokensListSectionViewModel] {
+    func singleSmallSection() -> [OrganizeTokensListSection] {
         return [
             .init(
-                id: UUID(),
-                style: .draggable(title: "Bitcoin Network"),
+                model: .init(id: UUID(), style: .draggable(title: "Bitcoin Network")),
                 items: [
                     .init(
                         id: .random(),
@@ -55,11 +53,10 @@ struct OrganizeTokensPreviewProvider {
         ]
     }
 
-    func singleMediumSection() -> [OrganizeTokensListSectionViewModel] {
+    func singleMediumSection() -> [OrganizeTokensListSection] {
         return [
             .init(
-                id: UUID(),
-                style: .draggable(title: "Bitcoin network"),
+                model: .init(id: UUID(), style: .draggable(title: "Bitcoin Network")),
                 items: [
                     .init(
                         id: .random(),
@@ -122,11 +119,10 @@ struct OrganizeTokensPreviewProvider {
         ]
     }
 
-    func singleLargeSection() -> [OrganizeTokensListSectionViewModel] {
+    func singleLargeSection() -> [OrganizeTokensListSection] {
         return [
             .init(
-                id: UUID(),
-                style: .invisible,
+                model: .init(id: UUID(), style: .invisible),
                 items: [
                     .init(
                         id: .random(),
@@ -349,11 +345,10 @@ struct OrganizeTokensPreviewProvider {
         ]
     }
 
-    func multipleSections() -> [OrganizeTokensListSectionViewModel] {
+    func multipleSections() -> [OrganizeTokensListSection] {
         return [
             .init(
-                id: UUID(),
-                style: .draggable(title: "Section #1"),
+                model: .init(id: UUID(), style: .draggable(title: "Section #1")),
                 items: [
                     .init(
                         id: .random(),
@@ -403,8 +398,7 @@ struct OrganizeTokensPreviewProvider {
             ),
 
             .init(
-                id: UUID(),
-                style: .draggable(title: "Section #2"),
+                model: .init(id: UUID(), style: .draggable(title: "Section #2")),
                 items: [
                     .init(
                         id: .random(),
@@ -454,8 +448,7 @@ struct OrganizeTokensPreviewProvider {
             ),
 
             .init(
-                id: UUID(),
-                style: .draggable(title: "Section #3"),
+                model: .init(id: UUID(), style: .draggable(title: "Section #3")),
                 items: [
                     .init(
                         id: .random(),
@@ -505,8 +498,7 @@ struct OrganizeTokensPreviewProvider {
             ),
 
             .init(
-                id: UUID(),
-                style: .draggable(title: "Section #4"),
+                model: .init(id: UUID(), style: .draggable(title: "Section #4")),
                 items: [
                     .init(
                         id: .random(),
@@ -556,8 +548,7 @@ struct OrganizeTokensPreviewProvider {
             ),
 
             .init(
-                id: UUID(),
-                style: .draggable(title: "Section #5"),
+                model: .init(id: UUID(), style: .draggable(title: "Section #5")),
                 items: [
                     .init(
                         id: .random(),
