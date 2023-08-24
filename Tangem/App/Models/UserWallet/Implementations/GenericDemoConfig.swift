@@ -190,8 +190,6 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .promotion:
             return .hidden
-        case .manageTokens:
-            return .available
         }
     }
 
