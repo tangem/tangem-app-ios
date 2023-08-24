@@ -82,13 +82,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
                 case .networkError:
                     missingDerivation = false
                     networkUnreachable = true
-                case .noAccount(let message):
-                    balanceCrypto = .loaded(text: message)
-                    fallthrough
                 case .notLoaded:
                     missingDerivation = false
                     networkUnreachable = false
-                case .loaded:
+                case .loaded, .noAccount:
                     missingDerivation = false
                     networkUnreachable = false
                     updateBalances()
