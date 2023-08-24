@@ -1,5 +1,5 @@
 //
-//  StorageEntriesList.swift
+//  StoredUserTokenList.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,7 @@
 
 import Foundation
 
-// [REDACTED_USERNAME](*, deprecated, message: "Get rid of this temporary alias and rename StorageEntriesList")
-typealias StoredUserTokenList = StorageEntriesList
-
-// [REDACTED_TODO_COMMENT]
-struct StorageEntriesList: Codable, Equatable {
+struct StoredUserTokenList: Codable, Equatable {
     enum Grouping: Codable, Equatable {
         case none
         case byBlockchainNetwork
@@ -39,11 +35,11 @@ struct StorageEntriesList: Codable, Equatable {
 
 // MARK: - Convenience extensions
 
-extension StorageEntriesList {
+extension StoredUserTokenList {
     static var empty: Self { Self(entries: [], grouping: .none, sorting: .manual) }
 }
 
-extension StorageEntriesList.Entry {
+extension StoredUserTokenList.Entry {
     var isToken: Bool { contractAddress != nil }
     var isCustom: Bool { id == nil }
 }
