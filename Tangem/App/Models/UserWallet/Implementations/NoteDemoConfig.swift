@@ -149,8 +149,6 @@ extension NoteDemoConfig: UserWalletConfig {
             return .hidden
         case .promotion:
             return .hidden
-        case .manageTokens:
-            return .hidden
         }
     }
 
