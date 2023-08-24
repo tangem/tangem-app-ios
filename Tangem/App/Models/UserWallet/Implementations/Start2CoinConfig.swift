@@ -148,8 +148,6 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .promotion:
             return .hidden
-        case .manageTokens:
-            return .hidden
         }
     }
 
