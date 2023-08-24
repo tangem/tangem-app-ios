@@ -21,8 +21,7 @@ struct SingleWalletMainContentView: View {
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
                 buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil,
-                shouldAddFetchMoreBlock: viewModel.canFetchMoreTransactionHistory,
-                fetchMoreBlock: viewModel.loadHistory
+                fetchMore: viewModel.fetchMoreHistory()
             )
             .padding(.bottom, 40)
         }
