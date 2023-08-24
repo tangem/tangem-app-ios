@@ -187,7 +187,13 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .exchange:
             return .available
-        case .walletConnect, .multiCurrency:
+        case .multiCurrency:
+            if isMultiwallet || defaultToken != nil {
+                return .available
+            }
+
+            return .hidden
+        case .walletConnect:
             if isMultiwallet {
                 return .available
             } else {
@@ -222,6 +228,12 @@ extension LegacyConfig: UserWalletConfig {
         case .accessCodeRecoverySettings:
             return .hidden
         case .promotion:
+            return .hidden
+        case .manageTokens:
+            if isMultiwallet {
+                return .available
+            }
+
             return .hidden
         }
     }
