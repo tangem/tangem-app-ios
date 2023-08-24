@@ -24,6 +24,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     let isManageTokensAvailable: Bool
 
+    var isOrganizeTokensVisible: Bool {
+        if sections.isEmpty {
+            return false
+        }
+
+        let numberOfTokens = sections.reduce(0) { $0 + $1.tokenItemModels.count }
+        let requiredNumberOfTokens = 2
+
+        return numberOfTokens >= requiredNumberOfTokens
+    }
+
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
