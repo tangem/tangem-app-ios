@@ -32,16 +32,23 @@ class LockedWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    var isMultiWallet: Bool {
-        userWalletModel.isMultiWallet
-    }
+    let isMultiWallet: Bool
+    // [REDACTED_TODO_COMMENT]
+    let isWithManageTokens: Bool
 
     private let userWalletModel: UserWalletModel
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
 
-    init(userWalletModel: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate?) {
+    init(
+        userWalletModel: UserWalletModel,
+        isMultiWallet: Bool,
+        lockedUserWalletDelegate: MainLockedUserWalletDelegate?
+    ) {
         self.userWalletModel = userWalletModel
+        self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
+        
+        isWithManageTokens = userWalletModel.isMultiWallet
     }
 
     private func openUnlockSheet() {
