@@ -1,5 +1,5 @@
 //
-//  YetAnotherConverter.swift
+//  StorageEntryConverter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,7 @@
 import Foundation
 import struct BlockchainSdk.Token
 
-// [REDACTED_TODO_COMMENT]
-struct _Converter {
+struct StorageEntryConverter {
     // MARK: - StoredUserTokenList to StorageEntry
 
     func convertToStorageEntries(_ userTokens: [StoredUserTokenList.Entry]) -> [StorageEntry] {
