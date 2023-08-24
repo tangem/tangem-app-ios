@@ -173,6 +173,8 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .promotion:
             return .available
+        case .manageTokens:
+            return .available
         }
     }
 
