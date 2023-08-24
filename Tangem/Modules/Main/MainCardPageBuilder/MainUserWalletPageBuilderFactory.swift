@@ -18,7 +18,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
-        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model)
+        let containsDefaultToken = (model.config.defaultBlockchains.first?.tokens.count ?? 0) > 0
+        let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
+        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
         let headerModel = MainHeaderViewModel(
             infoProvider: model,
             subtitleProvider: subtitleProvider,
@@ -31,12 +33,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 headerModel: headerModel,
                 bodyModel: .init(
                     userWalletModel: model,
+                    isMultiWallet: isMultiWalletPage,
                     lockedUserWalletDelegate: lockedUserWalletDelegate
                 )
             )
         }
 
-        if model.isMultiWallet || model.walletModelsManager.walletModels.count > 1 {
+        if isMultiWalletPage {
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 coordinator: coordinator,
