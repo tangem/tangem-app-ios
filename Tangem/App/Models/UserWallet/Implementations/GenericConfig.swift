@@ -187,6 +187,8 @@ extension GenericConfig: UserWalletConfig {
             return .hidden
         case .promotion:
             return .available
+        case .manageTokens:
+            return .available
         }
     }
 
