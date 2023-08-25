@@ -10,7 +10,7 @@ import Foundation
 import enum BlockchainSdk.Blockchain
 import struct TangemSdk.DerivationPath
 
-struct BlockchainNetwork: Codable, Hashable {
+struct BlockchainNetwork: Codable, Hashable, Equatable {
     let blockchain: Blockchain
     let derivationPath: DerivationPath?
 
