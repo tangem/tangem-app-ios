@@ -9,23 +9,37 @@
 import Foundation
 
 protocol MainUserWalletPageBuilderFactory {
-    func createPage(for model: UserWalletModel) -> MainUserWalletPageBuilder?
-    func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder]
+    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder?
+    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> [MainUserWalletPageBuilder]
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
     let coordinator: MultiWalletMainContentRoutable & SingleWalletMainContentRoutable
 
-    func createPage(for model: UserWalletModel) -> MainUserWalletPageBuilder? {
+    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
-        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model)
+        let containsDefaultToken = (model.config.defaultBlockchains.first?.tokens.count ?? 0) > 0
+        let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
+        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
         let headerModel = MainHeaderViewModel(
             infoProvider: model,
             subtitleProvider: subtitleProvider,
             balanceProvider: model
         )
 
-        if model.isMultiWallet {
+        if model.isUserWalletLocked {
+            return .lockedWallet(
+                id: id,
+                headerModel: headerModel,
+                bodyModel: .init(
+                    userWalletModel: model,
+                    isMultiWallet: isMultiWalletPage,
+                    lockedUserWalletDelegate: lockedUserWalletDelegate
+                )
+            )
+        }
+
+        if isMultiWalletPage {
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 coordinator: coordinator,
@@ -34,7 +48,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                     userWalletId: id,
                     userTokenListManager: model.userTokenListManager,
                     walletModelsManager: model.walletModelsManager
-                )
+                ),
+                // [REDACTED_TODO_COMMENT]
+                isManageTokensAvailable: model.isMultiWallet
             )
 
             return .multiWallet(
@@ -69,7 +85,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
     }
 
-    func createPages(from models: [UserWalletModel]) -> [MainUserWalletPageBuilder] {
-        return models.compactMap(createPage(for:))
+    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> [MainUserWalletPageBuilder] {
+        return models.compactMap { createPage(for: $0, lockedUserWalletDelegate: lockedUserWalletDelegate) }
     }
 }
