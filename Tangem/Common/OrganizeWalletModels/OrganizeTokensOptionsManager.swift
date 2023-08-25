@@ -13,8 +13,8 @@ import CombineExt
 final class OrganizeTokensOptionsManager {
     private let userTokensReorderer: UserTokensReordering
     private let editingThrottleInterval: TimeInterval
-    private let editedGroupingOption = PassthroughSubject<OrganizeTokensOptions.Grouping, Never>()
-    private let editedSortingOption = PassthroughSubject<OrganizeTokensOptions.Sorting, Never>()
+    private let editedGroupingOption = PassthroughSubject<UserTokensReorderingOptions.Grouping, Never>()
+    private let editedSortingOption = PassthroughSubject<UserTokensReorderingOptions.Sorting, Never>()
 
     init(
         userTokensReorderer: UserTokensReordering,
@@ -28,7 +28,7 @@ final class OrganizeTokensOptionsManager {
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
-    var groupingOption: AnyPublisher<OrganizeTokensOptions.Grouping, Never> {
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let editedGroupingOption = editedGroupingOption
             .throttle(
                 for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
@@ -48,7 +48,7 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
         ].merge()
     }
 
-    var sortingOption: AnyPublisher<OrganizeTokensOptions.Sorting, Never> {
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let editedSortingOption = editedSortingOption
             .throttle(
                 for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
@@ -72,11 +72,11 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
 // MARK: - OrganizeTokensOptionsEditing protocol conformance
 
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
-    func group(by groupingOption: OrganizeTokensOptions.Grouping) {
+    func group(by groupingOption: UserTokensReorderingOptions.Grouping) {
         editedGroupingOption.send(groupingOption)
     }
 
-    func sort(by sortingOption: OrganizeTokensOptions.Sorting) {
+    func sort(by sortingOption: UserTokensReorderingOptions.Sorting) {
         editedSortingOption.send(sortingOption)
     }
 
