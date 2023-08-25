@@ -9,14 +9,25 @@
 import Foundation
 import Combine
 import CombineExt
+import struct BlockchainSdk.Token
 
 class FakeUserTokenListManager: UserTokenListManager {
-    var userTokens: [StorageEntry.V3.Entry] {
-        userTokensSubject.value
+    var userTokens: [StorageEntry] {
+        let converter = StorageEntryConverter()
+        return converter.convertToStorageEntries(userTokensListSubject.value.entries)
     }
 
-    var userTokensPublisher: AnyPublisher<[StorageEntry.V3.Entry], Never> {
-        userTokensSubject.eraseToAnyPublisher()
+    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
+        let converter = StorageEntryConverter()
+        return userTokensListSubject
+            .map { converter.convertToStorageEntries($0.entries) }
+            .eraseToAnyPublisher()
+    }
+
+    var userTokensList: StoredUserTokenList { userTokensListSubject.value }
+
+    var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> {
+        userTokensListSubject.eraseToAnyPublisher()
     }
 
     var groupingOptionPublisher: AnyPublisher<StorageEntry.V3.Grouping, Never> {
@@ -42,8 +53,7 @@ class FakeUserTokenListManager: UserTokenListManager {
     }
 
     private let initialSyncSubject = CurrentValueSubject<Bool, Never>(false)
-    private let userTokensSubject = CurrentValueSubject<[StorageEntry.V3.Entry], Never>([])
-    private let userTokenListSubject = CurrentValueSubject<UserTokenList, Never>(UserTokenListStubs.walletUserWalletList)
+    private let userTokensListSubject = CurrentValueSubject<StoredUserTokenList, Never>(.empty)
 
     init() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
@@ -51,19 +61,30 @@ class FakeUserTokenListManager: UserTokenListManager {
         }
     }
 
-    func update(_ updates: [UserTokenListUpdateType], shouldUpload: Bool) {}
+    func update(with userTokenList: StoredUserTokenList) {}
+
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
+
+    func upload() {}
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            let converter = StorageEntriesConverter()
+            let converter = StorageEntryConverter()
             let blockchainNetwork = BlockchainNetwork(.ethereum(testnet: false))
-            let storageEntries = [
-                converter.convert(blockchainNetwork),
-                converter.convert(.sushiMock, in: blockchainNetwork),
-                converter.convert(.shibaInuMock, in: blockchainNetwork),
-                converter.convert(.tetherMock, in: blockchainNetwork),
+            let tokens: [Token] = [
+                .sushiMock,
+                .shibaInuMock,
+                .tetherMock,
             ]
-            self.userTokensSubject.send(storageEntries)
+            let entries = tokens.map { converter.convertToStoredUserToken($0, in: blockchainNetwork) }
+
+            self.userTokensListSubject.send(
+                .init(
+                    entries: entries,
+                    grouping: .none,
+                    sorting: .manual
+                )
+            )
             result(.success(()))
         }
     }
