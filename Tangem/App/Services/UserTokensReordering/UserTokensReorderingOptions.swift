@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensOptions.swift
+//  UserTokensReorderingOptions.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum OrganizeTokensOptions {
+enum UserTokensReorderingOptions {
     enum Grouping {
         case none
         case byBlockchainNetwork
