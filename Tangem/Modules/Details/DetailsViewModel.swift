@@ -102,7 +102,7 @@ extension DetailsViewModel {
 
     func openWalletConnect() {
         Analytics.log(.buttonWalletConnect)
-        coordinator.openWalletConnect(with: cardModel)
+        coordinator.openWalletConnect(with: cardModel.getDisabledLocalizedReason(for: .walletConnect))
     }
 
     func openCardSettings() {
