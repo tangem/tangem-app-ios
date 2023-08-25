@@ -89,7 +89,7 @@ extension DetailsViewModel {
         guard let emailConfig = cardModel.emailConfig else { return }
 
         let dataCollector = DetailsFeedbackDataCollector(
-            walletModels: cardModel.walletModels,
+            walletModels: cardModel.walletModelsManager.walletModels,
             userWalletEmailData: cardModel.emailData
         )
 
@@ -119,7 +119,7 @@ extension DetailsViewModel {
         Analytics.log(.settingsButtonChat)
 
         let dataCollector = DetailsFeedbackDataCollector(
-            walletModels: cardModel.walletModels,
+            walletModels: cardModel.walletModelsManager.walletModels,
             userWalletEmailData: cardModel.emailData
         )
 
