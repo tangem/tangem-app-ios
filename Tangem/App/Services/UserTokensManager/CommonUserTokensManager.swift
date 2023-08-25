@@ -47,14 +47,9 @@ struct CommonUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, shouldUpload: Bool) {
-        let converter = StorageEntriesConverter()
-        let entries: [StorageEntry.V3.Entry] = tokenItems.reduce(into: []) { partialResult, element in
-            let blockchainNetwork = makeBlockchainNetwork(for: element.blockchain, derivationPath: derivationPath)
-            partialResult.append(converter.convert(blockchainNetwork))
-
-            if let token = element.token {
-                partialResult.append(converter.convert(token, in: blockchainNetwork))
-            }
+        let entries = tokenItems.map { tokenItem in
+            let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+            return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
         }
 
         userTokenListManager.update(.append(entries), shouldUpload: shouldUpload)
@@ -88,28 +83,27 @@ extension CommonUserTokensManager: UserTokensManager {
 
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-        let storageEntries = userTokenListManager.userTokens.filter { $0.blockchainNetwork == blockchainNetwork }
 
-        guard !storageEntries.isEmpty else { return false }
+        guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            return false
+        }
 
         switch tokenItem {
         case .blockchain:
             return true
         case .token(let token, _):
-            let converter = StorageEntriesConverter()
-            return storageEntries
-                .lazy
-                .compactMap(converter.convertToToken(_:))
-                .contains(token)
+            return targetEntry.tokens.contains(token)
         }
     }
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        let converter = StorageEntriesConverter()
-        return userTokenListManager
-            .userTokens
-            .filter { $0.blockchainNetwork == blockchainNetwork }
-            .compactMap(converter.convertToToken(_:))
+        let items = userTokenListManager.userTokens
+
+        if let network = items.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            return network.tokens
+        }
+
+        return []
     }
 
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
@@ -143,10 +137,12 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-        let hasNoTokens = !userTokenListManager
-            .userTokens
-            .contains { $0.blockchainNetwork == blockchainNetwork && $0.isToken }
 
+        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            return false
+        }
+
+        let hasNoTokens = entry.tokens.isEmpty
         return hasNoTokens
     }
 
