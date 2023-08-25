@@ -30,12 +30,27 @@ extension Sequence {
         }
     }
 
+    func grouped<T>(by keyPath: KeyPath<Element, T>) -> [T: [Element]] where T: Hashable {
+        return Dictionary(grouping: self) { element in
+            return element[keyPath: keyPath]
+        }
+    }
+
     func unique<T>(by keyPath: KeyPath<Element, T>) -> [Element] where T: Hashable {
         var seen: Set<T> = []
 
         return filter { element in
             let key = element[keyPath: keyPath]
             return seen.insert(key).inserted
+        }
+    }
+
+    func uniqueProperties<T>(_ keyPath: KeyPath<Element, T>) -> [T] where T: Hashable {
+        var seen: Set<T> = []
+
+        return compactMap { element in
+            let property = element[keyPath: keyPath]
+            return seen.insert(property).inserted ? property : nil
         }
     }
 }

@@ -53,8 +53,8 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
                 .map(\.blockchainNetwork)
                 .toSet()
 
-            let newEntriesGroupedByBlockchainNetworks = Dictionary(grouping: entries, by: \.blockchainNetwork)
-            let newBlockchainNetworks = entries.unique(by: \.blockchainNetwork).map(\.blockchainNetwork)
+            let newEntriesGroupedByBlockchainNetworks = entries.grouped(by: \.blockchainNetwork)
+            let newBlockchainNetworks = entries.uniqueProperties(\.blockchainNetwork)
 
             for newBlockchainNetwork in newBlockchainNetworks {
                 if existingBlockchainNetworks.contains(newBlockchainNetwork) {
