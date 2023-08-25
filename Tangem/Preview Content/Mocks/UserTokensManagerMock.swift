@@ -48,3 +48,15 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func updateUserTokens() {}
 }
+
+// MARK: - UserTokensReordering protocol conformance
+
+extension UserTokensManagerMock: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+
+    var groupingOption: AnyPublisher<OrganizeTokensOptions.Grouping, Never> { .just(output: .none) }
+
+    var sortingOption: AnyPublisher<OrganizeTokensOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+
+    func reorder(_ reorderingActions: [UserTokensReorderingAction]) -> AnyPublisher<Void, Never> { .just }
+}
