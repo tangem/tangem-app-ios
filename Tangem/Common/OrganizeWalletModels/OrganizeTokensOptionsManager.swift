@@ -11,16 +11,16 @@ import Combine
 import CombineExt
 
 final class OrganizeTokensOptionsManager {
-    private let userTokenListManager: UserTokenListManager
+    private let userTokensReorderer: UserTokensReordering
     private let editingThrottleInterval: TimeInterval
     private let editedGroupingOption = PassthroughSubject<OrganizeTokensOptions.Grouping, Never>()
     private let editedSortingOption = PassthroughSubject<OrganizeTokensOptions.Sorting, Never>()
 
     init(
-        userTokenListManager: UserTokenListManager,
+        userTokensReorderer: UserTokensReordering,
         editingThrottleInterval: TimeInterval
     ) {
-        self.userTokenListManager = userTokenListManager
+        self.userTokensReorderer = userTokensReorderer
         self.editingThrottleInterval = editingThrottleInterval
     }
 }
@@ -37,15 +37,14 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
             )
             .eraseToAnyPublisher()
 
-        let groupingOptionFromUserTokenList = userTokenListManager
-            .userTokensListPublisher
+        let currentGroupingOption = userTokensReorderer
+            .groupingOption
             .prefix(untilOutputFrom: editedGroupingOption)
-            .map { OrganizeTokensOptionsConverter().convert($0.grouping) }
             .eraseToAnyPublisher()
 
         return [
             editedGroupingOption,
-            groupingOptionFromUserTokenList,
+            currentGroupingOption,
         ].merge()
     }
 
@@ -58,15 +57,14 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
             )
             .eraseToAnyPublisher()
 
-        let sortingOptionFromUserTokenList = userTokenListManager
-            .userTokensListPublisher
+        let currentSortingOption = userTokensReorderer
+            .sortingOption
             .prefix(untilOutputFrom: editedSortingOption)
-            .map { OrganizeTokensOptionsConverter().convert($0.sorting) }
             .eraseToAnyPublisher()
 
         return [
             editedSortingOption,
-            sortingOptionFromUserTokenList,
+            currentSortingOption,
         ].merge()
     }
 }
@@ -86,29 +84,16 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
         reorderedWalletModelIds: [WalletModel.ID]
     ) -> AnyPublisher<Void, Never> {
         return .just
-            .withLatestFrom(groupingOption, sortingOption, userTokenListManager.userTokensListPublisher)
+            .withLatestFrom(groupingOption, sortingOption)
             .withWeakCaptureOf(self)
             .flatMapLatest { input in
-                let (manager, (grouping, sorting, userTokenList)) = input
+                let (manager, (grouping, sorting)) = input
 
-                return Deferred {
-                    Future<Void, Never> { [userTokenListManager = manager.userTokenListManager] promise in
-                        let converter = OrganizeTokensOptionsConverter()
-                        let userTokensKeyedByIds = userTokenList.entries.keyedFirst(by: \.walletModelId)
-                        let reorderedUserTokens = reorderedWalletModelIds.compactMap { userTokensKeyedByIds[$0] }
-
-                        assert(reorderedUserTokens.count == userTokenList.entries.count, "Model inconsistency detected")
-
-                        let editedList = StoredUserTokenList(
-                            entries: reorderedUserTokens,
-                            grouping: converter.convert(grouping),
-                            sorting: converter.convert(sorting)
-                        )
-
-                        userTokenListManager.update(with: editedList)
-                        promise(.success(()))
-                    }
-                }
+                return manager.userTokensReorderer.reorder([
+                    .setGroupingOption(option: grouping),
+                    .setSortingOption(option: sorting),
+                    .reorder(reorderedWalletModelIds: reorderedWalletModelIds),
+                ])
             }
             .eraseToAnyPublisher()
     }
