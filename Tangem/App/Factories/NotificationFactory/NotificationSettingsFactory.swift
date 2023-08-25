@@ -19,4 +19,26 @@ struct NotificationSettingsFactory {
             dismissAction: nil
         )
     }
+
+    func lockedWalletNotificationSettings() -> NotificationView.Settings {
+        .init(
+            colorScheme: .gray,
+            icon: .init(image: Assets.lock.image, color: Colors.Icon.primary1),
+            title: Localization.commonUnlockNeeded,
+            description: Localization.unlockWalletDescriptionShort(BiometricAuthorizationUtils.biometryType.name),
+            isDismissable: false,
+            dismissAction: nil
+        )
+    }
+
+    func missingBackupNotificationSettings() -> NotificationView.Settings {
+        .init(
+            colorScheme: .white,
+            icon: .init(image: Assets.attention.image),
+            title: Localization.mainNoBackupWarningTitle,
+            description: Localization.mainNoBackupWarningSubtitle,
+            isDismissable: false,
+            dismissAction: nil
+        )
+    }
 }
