@@ -10,7 +10,7 @@ import Foundation
 import struct BlockchainSdk.Token
 
 struct StorageEntryConverter {
-    // MARK: - StoredUserTokenList to StorageEntry
+    // MARK: - StoredUserTokenList.Entry to StorageEntry
 
     func convertToStorageEntries(_ userTokens: [StoredUserTokenList.Entry]) -> [StorageEntry] {
         let userTokensGroupedByBlockchainNetworks = userTokens.grouped(by: \.blockchainNetwork)
@@ -36,7 +36,7 @@ struct StorageEntryConverter {
         )
     }
 
-    // MARK: - StorageEntry to StoredUserTokenList
+    // MARK: - StorageEntry to StoredUserTokenList.Entry
 
     func convertToStoredUserTokens(_ entries: [StorageEntry]) -> [StoredUserTokenList.Entry] {
         return entries.reduce(into: []) { partialResult, entry in
@@ -46,7 +46,7 @@ struct StorageEntryConverter {
             partialResult.append(
                 StoredUserTokenList.Entry(
                     id: blockchain.coinId,
-                    name: blockchain.displayName, // [REDACTED_TODO_COMMENT]
+                    name: blockchain.displayName,
                     symbol: blockchain.currencySymbol,
                     decimalCount: blockchain.decimalCount,
                     blockchainNetwork: blockchainNetwork,
