@@ -236,9 +236,8 @@ class WalletModel {
 
         walletManager.statePublisher
             .filter { !$0.isInitialState }
-            .combineLatest(walletManager.walletPublisher) // listen pending tx
             .receive(on: updateQueue)
-            .sink { [weak self] newState, _ in
+            .sink { [weak self] newState in
                 self?.walletManagerDidUpdate(newState)
             }
             .store(in: &bag)
@@ -261,7 +260,7 @@ class WalletModel {
 
         _state
             .removeDuplicates()
-            .combineLatest(_rate.removeDuplicates())
+            .combineLatest(_rate.removeDuplicates(), walletManager.walletPublisher)
             .map { $0.0 }
             .weakAssign(to: \._walletDidChangePublisher.value, on: self)
             .store(in: &bag)
@@ -616,7 +615,7 @@ extension WalletModel {
 }
 
 extension WalletModel {
-    struct Id: Hashable, Identifiable {
+    struct Id: Hashable, Identifiable, Equatable {
         var id: Int { hashValue }
 
         let blockchainNetwork: BlockchainNetwork

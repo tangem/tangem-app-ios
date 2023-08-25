@@ -17,8 +17,23 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var isLoadingTokenList: Bool = true
     @Published var sections: [MultiWalletTokenItemsSection] = []
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
+    @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
 
     @Published var isScannerBusy = false
+
+    // [REDACTED_TODO_COMMENT]
+    let isManageTokensAvailable: Bool
+
+    var isOrganizeTokensVisible: Bool {
+        if sections.isEmpty {
+            return false
+        }
+
+        let numberOfTokens = sections.reduce(0) { $0 + $1.tokenItemModels.count }
+        let requiredNumberOfTokens = 2
+
+        return numberOfTokens >= requiredNumberOfTokens
+    }
 
     // MARK: - Dependencies
 
@@ -33,14 +48,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         coordinator: MultiWalletMainContentRoutable,
-        sectionsProvider: TokenListInfoProvider
+        sectionsProvider: TokenListInfoProvider,
+        isManageTokensAvailable: Bool
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         self.sectionsProvider = sectionsProvider
+        self.isManageTokensAvailable = isManageTokensAvailable
 
-        bind()
-        subscribeToTokenListUpdatesIfNeeded()
+        setup()
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
@@ -67,6 +83,41 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
+    func startBackupProcess() {
+        // [REDACTED_TODO_COMMENT]
+        if let cardViewModel = userWalletModel as? CardViewModel,
+           let input = cardViewModel.backupInput {
+            Analytics.log(.noticeBackupYourWalletTapped)
+            coordinator.openOnboardingModal(with: input)
+        }
+    }
+
+    func openOrganizeTokens() {
+        coordinator.openOrganizeTokens(for: userWalletModel)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func openManageTokens() {
+        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+
+        let settings = LegacyManageTokensSettings(
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
+            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
+            derivationStyle: userWalletModel.config.derivationStyle,
+            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
+            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
+        )
+
+        coordinator.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
+    }
+
+    private func setup() {
+        updateBackupStatus()
+        subscribeToTokenListUpdatesIfNeeded()
+        bind()
+    }
+
     private func bind() {
         userWalletModel.userTokensManager.derivationManager?
             .pendingDerivationsCount
@@ -80,6 +131,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         sectionsProvider.sectionsPublisher
             .map(convertToSections(_:))
             .assign(to: \.sections, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        userWalletModel.updatePublisher
+            .sink { [weak self] in
+                self?.updateBackupStatus()
+            }
             .store(in: &bag)
     }
 
@@ -124,7 +181,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
     }
 
-    func openOrganizeTokens() {
-        coordinator.openOrganizeTokens(for: userWalletModel)
+    private func updateBackupStatus() {
+        guard userWalletModel.config.hasFeature(.backup) else {
+            missingBackupNotificationSettings = nil
+            return
+        }
+
+        let factory = NotificationSettingsFactory()
+        missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
     }
 }
