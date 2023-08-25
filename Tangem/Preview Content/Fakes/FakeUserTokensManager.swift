@@ -43,11 +43,7 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [BlockchainSdk.Token] {
-        let converter = StorageEntriesConverter()
-        return userTokenListManager
-            .userTokens
-            .filter { $0.blockchainNetwork == blockchainNetwork }
-            .compactMap(converter.convertToToken(_:))
+        userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork })?.tokens ?? []
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {

@@ -9,6 +9,8 @@
 import Foundation
 import Combine
 import CombineExt
+import struct BlockchainSdk.Amount // [REDACTED_TODO_COMMENT]
+import enum BlockchainSdk.Blockchain // [REDACTED_TODO_COMMENT]
 
 final class OrganizeWalletModelsAdapter {
     typealias Section = OrganizeWalletModelsSection<SectionType>
