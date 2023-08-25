@@ -89,7 +89,7 @@ extension DetailsViewModel {
         guard let emailConfig = cardModel.emailConfig else { return }
 
         let dataCollector = DetailsFeedbackDataCollector(
-            walletModels: cardModel.walletModels,
+            walletModels: cardModel.walletModelsManager.walletModels,
             userWalletEmailData: cardModel.emailData
         )
 
@@ -102,7 +102,7 @@ extension DetailsViewModel {
 
     func openWalletConnect() {
         Analytics.log(.buttonWalletConnect)
-        coordinator.openWalletConnect(with: cardModel)
+        coordinator.openWalletConnect(with: cardModel.getDisabledLocalizedReason(for: .walletConnect))
     }
 
     func openCardSettings() {
@@ -119,7 +119,7 @@ extension DetailsViewModel {
         Analytics.log(.settingsButtonChat)
 
         let dataCollector = DetailsFeedbackDataCollector(
-            walletModels: cardModel.walletModels,
+            walletModels: cardModel.walletModelsManager.walletModels,
             userWalletEmailData: cardModel.emailData
         )
 
