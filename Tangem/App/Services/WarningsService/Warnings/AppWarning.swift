@@ -30,7 +30,7 @@ enum WarningsLocation: String, Decodable {
     case manageTokens
 }
 
-struct AppWarning: Identifiable, Hashable {
+struct AppWarning: Identifiable, Equatable, Hashable {
     let id: UUID = .init()
     let title: String
     let message: String
