@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol OrganizeTokensOptionsEditing {
-    func group(by groupingOption: OrganizeTokensOptions.Grouping)
-    func sort(by sortingOption: OrganizeTokensOptions.Sorting)
+    func group(by groupingOption: UserTokensReorderingOptions.Grouping)
+    func sort(by sortingOption: UserTokensReorderingOptions.Sorting)
     func save(reorderedWalletModelIds: [WalletModel.ID]) -> AnyPublisher<Void, Never>
 }
