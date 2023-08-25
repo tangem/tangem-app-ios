@@ -76,6 +76,10 @@ extension CommonUserTokenListManager: UserTokenListManager {
             .eraseToAnyPublisher()
     }
 
+    var userTokensList: StoredUserTokenList {
+        userTokensListSubject.value
+    }
+
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> {
         userTokensListSubject.eraseToAnyPublisher()
     }
