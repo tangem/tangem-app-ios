@@ -21,7 +21,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     let walletModelsManager: WalletModelsManager
 
-    lazy var userTokensManager: UserTokensManager = CommonUserTokensManager(
+    lazy var userTokensManager: UserTokensManager & UserTokensReordering = CommonUserTokensManager(
         userTokenListManager: userTokenListManager,
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
