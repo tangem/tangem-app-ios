@@ -9,6 +9,7 @@
 import Combine
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 protocol UserTokenListManager: UserTokensSyncService {
     var userTokens: [StorageEntry] { get }
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { get }
