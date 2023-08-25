@@ -98,7 +98,7 @@ class SingleTokenBaseViewModel {
             return nil
         }
 
-        return FetchMore(id: UUID().uuidString) { [weak self] in
+        return FetchMore { [weak self] in
             self?.loadHistory()
         }
     }
