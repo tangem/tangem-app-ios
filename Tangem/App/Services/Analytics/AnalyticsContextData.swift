@@ -27,18 +27,12 @@ struct AnalyticsContextData {
 }
 
 extension AnalyticsContextData {
-    init(
-        card: CardDTO,
-        productType: Analytics.ProductType,
-        userWalletId: Data?,
-        embeddedEntries: [StorageEntry.V3.Entry]?
-    ) {
+    init(card: CardDTO, productType: Analytics.ProductType, userWalletId: Data?, embeddedEntry: StorageEntry?) {
         id = userWalletId?.sha256().hexString
         self.productType = productType
         batchId = card.batchId
         firmware = card.firmwareVersion.stringValue
-        baseCurrency = embeddedEntries?.filter(\.isToken).first?.symbol
-            ?? embeddedEntries?.first?.blockchainNetwork.blockchain.currencySymbol
+        baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
     }
 
     func copy(with userWalletId: Data) -> Self {
