@@ -48,6 +48,7 @@ extension CardInitializer: CardInitializable {
             var mutableCardInfo = cardInfo
             mutableCardInfo.card = CardDTO(card: response.card)
             mutableCardInfo.primaryCard = response.primaryCard
+            mutableCardInfo.card.attestation = cardInfo.card.attestation
             return mutableCardInfo
         }
         .sink(receiveCompletion: { [weak self] completionResult in
