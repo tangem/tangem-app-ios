@@ -7,188 +7,99 @@
 //
 
 import Foundation
+import BlockchainSdk
 
-final class CommonTokenItemsRepository {
-    @Injected(\.persistentStorage) private var persistanceStorage: PersistentStorageProtocol
+class CommonTokenItemsRepository {
+    @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
 
-    @AppStorageCompat(StorageKeys.currentStorageVersion)
-    private var currentStorageVersion: StorageEntry.Version = .v3
-
-    private var actualStorageVersion: StorageEntry.Version { .v3 }
-
-    private let lockQueue = DispatchQueue(label: "com.tangem.CommonTokenItemsRepository.lockQueue")
+    private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
     private let key: String
-    private var cache: StorageEntry.V3.List?
 
     init(key: String) {
         self.key = key
 
-        lockQueue.sync {
-            migrateStorageIfNeeded()
-            updateCurrentStorageVersion()
-        }
+        lockQueue.sync { migrate() }
     }
 
     deinit {
-        AppLog.shared.debug("\(#function) \(objectDescription(self))")
-    }
-
-    private func migrateStorageIfNeeded() {
-        let migrator = StorageEntriesMigrator(
-            persistanceStorage: persistanceStorage,
-            cardID: key
-        ) { entries, cardID in
-            self.save(entries, to: \.entries, forCardID: cardID)
-        }
-        migrator.migrate(from: currentStorageVersion, to: actualStorageVersion)
-    }
-
-    /// - Warning: MUST BE called only AFTER the storage migration has been attempted,
-    /// otherwise user data may be lost.
-    private func updateCurrentStorageVersion() {
-        currentStorageVersion = actualStorageVersion
+        AppLog.shared.debug("TokenItemsRepository deinit")
     }
 }
 
-// MARK: - TokenItemsRepository protocol conformance
+// MARK: - TokenItemsRepository
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
-    var isInitialized: Bool {
+    var containsFile: Bool {
+        let entries: [StorageEntry]? = try? persistanceStorage.value(for: .wallets(cid: key))
+        return entries != nil
+    }
+
+    func update(_ entries: [StorageEntry]) {
         lockQueue.sync {
-            // Here it's necessary to distinguish between empty (`StorageEntry.V3.List.empty` value) and non-initialized
-            // (`nil` value) storage, therefore direct access to the underlying storage is used here
-            let list: StorageEntry.V3.List? = try? persistanceStorage.value(for: .wallets(cid: key))
-            return list != nil
+            save(entries, for: key)
         }
     }
 
-    var groupingOption: StorageEntry.V3.Grouping {
-        get {
-            return lockQueue.sync {
-                fetch().grouping
-            }
-        }
-        set {
-            lockQueue.sync {
-                save(newValue, to: \.grouping, forCardID: key)
-            }
-        }
-    }
-
-    var sortingOption: StorageEntry.V3.Sorting {
-        get {
-            return lockQueue.sync {
-                fetch().sorting
-            }
-        }
-        set {
-            lockQueue.sync {
-                save(newValue, to: \.sorting, forCardID: key)
-            }
-        }
-    }
-
-    func update(_ entries: [StorageEntry.V3.Entry]) {
+    func append(_ entries: [StorageEntry]) {
         lockQueue.sync {
-            save(entries, to: \.entries, forCardID: key)
-        }
-    }
+            var items = fetch(for: key)
+            var hasAppended: Bool = false
 
-    func append(_ entries: [StorageEntry.V3.Entry]) {
-        lockQueue.sync {
-            var existingEntries = fetch().entries
-            var hasChanges = false
-            var existingBlockchainNetworksToUpdate: [StorageEntry.V3.BlockchainNetwork] = []
-
-            let existingEntriesWithIndicesGroupedByBlockchainNetworks = Dictionary(
-                grouping: existingEntries.enumerated(),
-                by: \.element.blockchainNetwork
-            )
-
-            let newEntriesGroupedByBlockchainNetworks = Dictionary(grouping: entries, by: \.blockchainNetwork)
-            let newBlockchainNetworks = entries.unique(by: \.blockchainNetwork).map(\.blockchainNetwork)
-
-            for newBlockchainNetwork in newBlockchainNetworks {
-                if existingEntriesWithIndicesGroupedByBlockchainNetworks[newBlockchainNetwork] != nil {
-                    // This blockchain network already exists, and it probably needs to be updated with new tokens
-                    existingBlockchainNetworksToUpdate.append(newBlockchainNetwork)
-                } else if let newEntries = newEntriesGroupedByBlockchainNetworks[newBlockchainNetwork] {
-                    // New blockchain network, just appending all tokens from it to the end of the existing list
-                    existingEntries.append(contentsOf: newEntries)
-                    hasChanges = true
+            entries.forEach {
+                if items.add(entry: $0) {
+                    hasAppended = true
                 }
             }
 
-            for blockchainNetwork in existingBlockchainNetworksToUpdate {
-                guard
-                    let existingEntriesForBlockchainNetwork = existingEntriesWithIndicesGroupedByBlockchainNetworks[blockchainNetwork],
-                    let newEntriesForBlockchainNetwork = newEntriesGroupedByBlockchainNetworks[blockchainNetwork]
-                else {
-                    continue
-                }
-
-                let blockchainNetworkHasBeenUpdated = updateEntries(
-                    &existingEntries,
-                    in: blockchainNetwork,
-                    existingEntriesWithIndices: existingEntriesForBlockchainNetwork,
-                    newEntries: newEntriesForBlockchainNetwork
-                )
-                if blockchainNetworkHasBeenUpdated {
-                    hasChanges = true
-                }
-            }
-
-            if hasChanges {
-                save(existingEntries, to: \.entries, forCardID: key)
+            if hasAppended {
+                save(items, for: key)
             }
         }
     }
 
-    func remove(_ blockchainNetworks: [StorageEntry.V3.BlockchainNetwork]) {
+    func remove(_ blockchainNetworks: [BlockchainNetwork]) {
         lockQueue.sync {
-            let blockchainNetworks = blockchainNetworks.toSet()
-            let existingEntries = fetch().entries
-            var newEntries = existingEntries
+            var items = fetch(for: key)
+            var hasRemoved: Bool = false
 
-            newEntries.removeAll { blockchainNetworks.contains($0.blockchainNetwork) }
+            blockchainNetworks.forEach {
+                if items.tryRemove(blockchainNetwork: $0) {
+                    hasRemoved = true
+                }
+            }
 
-            let hasRemoved = newEntries.count != existingEntries.count
             if hasRemoved {
-                save(newEntries, to: \.entries, forCardID: key)
+                save(items, for: key)
             }
         }
     }
 
-    func remove(_ entries: [StorageEntry.V3.Entry]) {
+    func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork) {
         lockQueue.sync {
-            let deletedEntriesKeys = entries
-                .map { StorageEntryKey(blockchainNetwork: $0.blockchainNetwork, contractAddresses: $0.contractAddress) }
-                .toSet()
+            var items = fetch(for: key)
+            var hasRemoved: Bool = false
 
-            let existingEntries = fetch().entries
-            var newEntries = existingEntries
-
-            newEntries.removeAll { entry in
-                let key = StorageEntryKey(blockchainNetwork: entry.blockchainNetwork, contractAddresses: entry.contractAddress)
-                return deletedEntriesKeys.contains(key)
+            tokens.forEach {
+                if items.tryRemove(token: $0, in: blockchainNetwork) {
+                    hasRemoved = true
+                }
             }
 
-            let hasRemoved = newEntries.count != existingEntries.count
             if hasRemoved {
-                save(newEntries, to: \.entries, forCardID: key)
+                save(items, for: key)
             }
         }
     }
 
     func removeAll() {
         lockQueue.sync {
-            save([], to: \.entries, forCardID: key)
+            save([], for: key)
         }
     }
 
-    func getItems() -> [StorageEntry.V3.Entry] {
+    func getItems() -> [StorageEntry] {
         lockQueue.sync {
-            return fetch().entries
+            return fetch(for: key)
         }
     }
 }
@@ -196,91 +107,173 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
 // MARK: - Private
 
 private extension CommonTokenItemsRepository {
-    func fetch() -> StorageEntry.V3.List {
-        if let cachedList = cache {
-            return cachedList
+    func migrate() {
+        let wallets: [String: [LegacyStorageEntry]] = persistanceStorage.readAllWallets()
+
+        guard !wallets.isEmpty else {
+            return
         }
 
-        let list: StorageEntry.V3.List = (try? persistanceStorage.value(for: .wallets(cid: key))) ?? .empty
-        cache = list
+        wallets.forEach { cardId, oldData in
+            let blockchains = Set(oldData.map { $0.blockchain })
+            let tokens = oldData.compactMap { $0.token }
+            let groupedTokens = Dictionary(grouping: tokens, by: { $0.blockchain })
 
-        return list
+            let newData: [StorageEntry] = blockchains.map { blockchain in
+                let tokens = groupedTokens[blockchain]?.map { $0.newToken } ?? []
+                let network = BlockchainNetwork(
+                    blockchain,
+                    derivationPath: blockchain.derivationPath(for: .v1)
+                )
+                return StorageEntry(blockchainNetwork: network, tokens: tokens)
+            }
+
+            save(newData, for: cardId)
+        }
     }
 
-    func save<T>(
-        _ value: T,
-        to keyPath: WritableKeyPath<StorageEntry.V3.List, T>,
-        forCardID cardID: String
-    ) {
-        let existingList = fetch()
-        var updatedList = existingList
-        updatedList[keyPath: keyPath] = value
+    func fetch(for cardId: String) -> [StorageEntry] {
+        return (try? persistanceStorage.value(for: .wallets(cid: cardId))) ?? []
+    }
 
-        guard existingList != updatedList else { return }
-
-        if cardID == key {
-            markCacheAsDirty()
-        }
-
+    func save(_ items: [StorageEntry], for cardId: String) {
         do {
-            try persistanceStorage.store(value: updatedList, for: .wallets(cid: cardID))
+            try persistanceStorage.store(value: items, for: .wallets(cid: cardId))
         } catch {
-            assertionFailure("\(objectDescription(self)) saving error: \(error)")
+            assertionFailure("TokenItemsRepository saving error \(error)")
         }
     }
+}
 
-    func markCacheAsDirty() {
-        cache = nil
-    }
+// MARK: - Private Array extension
 
-    func updateEntries(
-        _ entriesToUpdate: inout [StorageEntry.V3.Entry],
-        in blockchainNetworkToUpdate: StorageEntry.V3.BlockchainNetwork,
-        existingEntriesWithIndices: [(Int, StorageEntry.V3.Entry)],
-        newEntries: [StorageEntry.V3.Entry]
-    ) -> Bool {
-        // `contractAddress` may be `nil`, this is a valid key
-        let existingEntriesWithIndicesKeyedByContractAddress = existingEntriesWithIndices.keyedFirst(by: \.1.contractAddress)
-        var hasChanges = false
+private extension Array where Element == StorageEntry {
+    mutating func add(entry: StorageEntry) -> Bool {
+        guard let existingIndex = firstIndex(where: { $0.blockchainNetwork == entry.blockchainNetwork }) else {
+            append(entry)
+            return true
+        }
 
-        for newEntry in newEntries {
-            if let (existingIndex, existingEntry) = existingEntriesWithIndicesKeyedByContractAddress[newEntry.contractAddress] {
-                if existingEntry.id == nil, newEntry.id != nil {
-                    // Entry has been saved without id, just updating this entry
-                    entriesToUpdate[existingIndex] = newEntry // upgrading custom token
-                    hasChanges = true
-                }
-            } else {
-                // Token hasn't been added yet, just appending it to the end of the existing list
-                entriesToUpdate.append(newEntry)
-                hasChanges = true
+        // We already have the blockchainNetwork in storage
+        var appended = false
+
+        // Add new tokens in the existing StorageEntry
+        entry.tokens.forEach { token in
+            if !self[existingIndex].tokens.contains(token) {
+                // Token hasn't been append
+                self[existingIndex].tokens.append(token)
+                appended = true
+            } else if let savedTokenIndex = self[existingIndex].tokens.firstIndex(of: token),
+                      self[existingIndex].tokens[savedTokenIndex].id == nil,
+                      token.id != nil {
+                // Token has been saved without id. Just update this token
+                self[existingIndex].tokens[savedTokenIndex] = token // upgrade custom token
+                appended = true
             }
         }
 
-        return hasChanges
+        return appended
+    }
+
+    mutating func tryRemove(token: Token, in blockchainNetwork: BlockchainNetwork) -> Bool {
+        if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            if let tokenIndex = self[existingIndex].tokens.firstIndex(where: { $0 == token }) {
+                self[existingIndex].tokens.remove(at: tokenIndex)
+                return true
+            }
+        }
+
+        return false
+    }
+
+    mutating func tryRemove(blockchainNetwork: BlockchainNetwork) -> Bool {
+        if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            remove(at: existingIndex)
+            return true
+        }
+
+        return false
     }
 }
 
-// MARK: - Constants
+// MARK: - Legacy storage
 
-private extension CommonTokenItemsRepository {
-    enum StorageKeys: String {
-        case currentStorageVersion = "com.tangem.CommonTokenItemsRepository.currentStorageVersion"
+private enum LegacyStorageEntry: Codable {
+    case blockchain(Blockchain)
+    case token(LegacyToken)
+
+    var blockchain: Blockchain {
+        switch self {
+        case .blockchain(let blockchain):
+            return blockchain
+        case .token(let token):
+            return token.blockchain
+        }
+    }
+
+    var token: LegacyToken? {
+        switch self {
+        case .blockchain:
+            return nil
+        case .token(let token):
+            return token
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if let token = try? container.decode(LegacyToken.self) {
+            self = .token(token)
+            return
+        }
+
+        if let blockchain = try? container.decode(Blockchain.self) {
+            self = .blockchain(blockchain)
+            return
+        }
+
+        if let tokenDto = try? container.decode(LegacyCloudToken.self) {
+            let token = LegacyToken(
+                name: tokenDto.name,
+                symbol: tokenDto.symbol,
+                contractAddress: tokenDto.contractAddress,
+                decimalCount: tokenDto.decimalCount,
+                customIconUrl: tokenDto.customIconUrl,
+                blockchain: .ethereum(testnet: false)
+            )
+            self = .token(token)
+            return
+        }
+
+        throw BlockchainSdkError.decodingFailed
     }
 }
 
-// MARK: - Convenience extensions
+private struct LegacyToken: Codable {
+    let name: String
+    let symbol: String
+    let contractAddress: String
+    let decimalCount: Int
+    let customIconUrl: String?
+    let blockchain: Blockchain
 
-private extension StorageEntry.V3.List {
-    static var empty: Self { Self(grouping: .none, sorting: .manual, entries: []) }
+    var newToken: Token {
+        .init(
+            name: name,
+            symbol: symbol,
+            contractAddress: contractAddress,
+            decimalCount: decimalCount,
+            customIconUrl: customIconUrl
+        )
+    }
 }
 
-// MARK: - Auxiliary types
-
-private extension CommonTokenItemsRepository {
-    /// A key for fast O(1) lookups in sets, dictionaries, etc.
-    struct StorageEntryKey: Hashable {
-        let blockchainNetwork: StorageEntry.V3.BlockchainNetwork
-        let contractAddresses: String?
-    }
+private struct LegacyCloudToken: Decodable {
+    let name: String
+    let symbol: String
+    let contractAddress: String
+    let decimalCount: Int
+    let customIcon: String?
+    let customIconUrl: String?
 }
