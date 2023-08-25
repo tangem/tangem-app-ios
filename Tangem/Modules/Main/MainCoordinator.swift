@@ -25,6 +25,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var sendCoordinator: SendCoordinator?
     @Published var swappingCoordinator: SwappingCoordinator?
+    @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -87,7 +88,6 @@ extension MainCoordinator: MainRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
-            self?.mainViewModel?.updateIsBackupAllowed()
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
@@ -127,10 +127,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        let userTokenListManager = userWalletModel.userTokenListManager
-        let optionsManager = OrganizeTokensOptionsManager(userTokenListManager: userTokenListManager)
+        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
         let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
-            userTokenListManager: userTokenListManager,
+            userTokenListManager: userWalletModel.userTokenListManager,
             organizeTokensOptionsProviding: optionsManager
         )
 
@@ -141,6 +140,19 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             organizeTokensOptionsProviding: optionsManager,
             organizeTokensOptionsEditing: optionsManager
         )
+    }
+
+    func openManageTokens(with settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
+        let dismissAction: Action = { [weak self] in
+            self?.legacyTokenListCoordinator = nil
+        }
+
+        let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .add(
+            settings: settings,
+            userTokensManager: userTokensManager
+        ))
+        legacyTokenListCoordinator = coordinator
     }
 }
 

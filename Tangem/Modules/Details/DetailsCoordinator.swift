@@ -80,9 +80,9 @@ extension DetailsCoordinator: DetailsRoutable {
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
     }
 
-    func openWalletConnect(with cardModel: CardViewModel) {
+    func openWalletConnect(with disabledLocalizedReason: String?) {
         let coordinator = WalletConnectCoordinator()
-        let options = WalletConnectCoordinator.Options(cardModel: cardModel)
+        let options = WalletConnectCoordinator.Options(disabledLocalizedReason: disabledLocalizedReason)
         coordinator.start(with: options)
         walletConnectCoordinator = coordinator
     }
