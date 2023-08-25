@@ -196,16 +196,16 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var groupingOption: AnyPublisher<OrganizeTokensOptions.Grouping, Never> {
-        let converter = OrganizeTokensOptionsConverter()
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+        let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher
             .map { converter.convert($0.grouping) }
             .eraseToAnyPublisher()
     }
 
-    var sortingOption: AnyPublisher<OrganizeTokensOptions.Sorting, Never> {
-        let converter = OrganizeTokensOptionsConverter()
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+        let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher
             .map { converter.convert($0.sorting) }
@@ -222,7 +222,7 @@ extension CommonUserTokensManager: UserTokensReordering {
                     return
                 }
 
-                let converter = OrganizeTokensOptionsConverter()
+                let converter = UserTokensReorderingOptionsConverter()
                 let existingList = userTokenListManager.userTokensList
                 var entries = existingList.entries
                 var grouping = existingList.grouping
