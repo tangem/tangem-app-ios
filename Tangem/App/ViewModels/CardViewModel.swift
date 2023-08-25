@@ -153,8 +153,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.tou
     }
 
-    var embeddedEntries: [StorageEntry.V3.Entry]? {
-        config.embeddedBlockchains
+    var embeddedEntry: StorageEntry? {
+        config.embeddedBlockchain
     }
 
     var canShowSwapping: Bool {
@@ -281,7 +281,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
-    private let _userWalletNamePubliher: CurrentValueSubject<String, Never>
+    private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -333,7 +333,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         _signer = config.tangemSigner
         accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
-        _userWalletNamePubliher = .init(cardInfo.name)
+        _userWalletNamePublisher = .init(cardInfo.name)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
@@ -514,9 +514,8 @@ extension CardViewModel {
 }
 
 extension CardViewModel: WalletConnectUserWalletInfoProvider {
-    // [REDACTED_TODO_COMMENT]
-    var walletModels: [WalletModel] {
-        walletModelsManager.walletModels
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 }
 
@@ -572,7 +571,7 @@ extension CardViewModel: UserWalletModel {
 
     func updateWalletName(_ name: String) {
         cardInfo.name = name
-        _userWalletNamePubliher.send(name)
+        _userWalletNamePublisher.send(name)
     }
 }
 
@@ -581,7 +580,7 @@ extension CardViewModel: MainHeaderInfoProvider {
 
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
-    var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePubliher.eraseToAnyPublisher() }
+    var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 }
 
 // [REDACTED_TODO_COMMENT]
