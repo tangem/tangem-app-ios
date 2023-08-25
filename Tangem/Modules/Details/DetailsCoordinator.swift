@@ -117,22 +117,13 @@ extension DetailsCoordinator: DetailsRoutable {
         environmentSetupCoordinator = coordinator
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func openReferral(
-        with userWalletId: Data,
-        supportedBlockchains: SupportedBlockchainsSet,
-        userTokensManager: UserTokensManager
-    ) {
+    func openReferral(input: ReferralInputModel) {
         let dismissAction: Action = { [weak self] in
             self?.referralCoordinator = nil
         }
 
         let coordinator = ReferralCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(
-            userWalletId: userWalletId,
-            supportedBlockchains: supportedBlockchains,
-            userTokensManager: userTokensManager
-        ))
+        coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
     }
