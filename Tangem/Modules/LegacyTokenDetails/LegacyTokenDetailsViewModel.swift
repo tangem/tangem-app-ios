@@ -32,6 +32,22 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return walletModel?.wallet
     }
 
+    var balanceAddressViewModel: BalanceAddressViewModel? {
+        guard let walletModel else { return nil }
+
+        return .init(
+            state: walletModel.state,
+            wallet: walletModel.wallet,
+            tokenItem: walletModel.tokenItem,
+            hasTransactionInProgress: walletModel.hasPendingTransactions,
+            name: walletModel.name,
+            fiatBalance: walletModel.fiatBalance,
+            balance: walletModel.balance,
+            isTestnet: walletModel.isTestnet,
+            isDemo: walletModel.isDemo
+        )
+    }
+
     var walletModel: WalletModel?
 
     var incomingTransactions: [LegacyTransactionRecord] {
@@ -174,7 +190,8 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private var canSignLongTransactions: Bool {
         if let blockchain = walletModel?.blockchainNetwork.blockchain,
            NFCUtils.isPoorNfcQualityDevice,
-           case .solana = blockchain {
+           case .solana = blockchain,
+           case .chia = blockchain {
             return false
         } else {
             return true
@@ -191,7 +208,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         self.amountType = amountType
         self.coordinator = coordinator
 
-        walletModel = card.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
+        walletModel = card.walletModelsManager.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
 
         bind()
         updateSwapAvailability()
@@ -517,6 +534,8 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openSwapping() {
+        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
+
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
