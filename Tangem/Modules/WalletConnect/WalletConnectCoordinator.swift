@@ -27,13 +27,13 @@ class WalletConnectCoordinator: CoordinatorObject {
     }
 
     func start(with options: WalletConnectCoordinator.Options) {
-        walletConnectViewModel = WalletConnectViewModel(cardModel: options.cardModel, coordinator: self)
+        walletConnectViewModel = WalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
     }
 }
 
 extension WalletConnectCoordinator {
     struct Options {
-        let cardModel: CardViewModel
+        let disabledLocalizedReason: String?
     }
 }
 
