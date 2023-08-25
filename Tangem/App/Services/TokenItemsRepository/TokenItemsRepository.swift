@@ -9,6 +9,7 @@
 import Foundation
 import struct BlockchainSdk.Token
 
+// [REDACTED_TODO_COMMENT]
 protocol TokenItemsRepository {
     var containsFile: Bool { get }
 
