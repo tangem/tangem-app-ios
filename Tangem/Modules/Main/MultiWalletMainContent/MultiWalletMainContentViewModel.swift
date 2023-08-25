@@ -21,6 +21,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published var isScannerBusy = false
 
+    // [REDACTED_TODO_COMMENT]
+    let isManageTokensAvailable: Bool
+
+    var isOrganizeTokensVisible: Bool {
+        if sections.isEmpty {
+            return false
+        }
+
+        let numberOfTokens = sections.reduce(0) { $0 + $1.tokenItemModels.count }
+        let requiredNumberOfTokens = 2
+
+        return numberOfTokens >= requiredNumberOfTokens
+    }
+
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
@@ -34,11 +48,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         coordinator: MultiWalletMainContentRoutable,
-        sectionsProvider: TokenListInfoProvider
+        sectionsProvider: TokenListInfoProvider,
+        isManageTokensAvailable: Bool
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         self.sectionsProvider = sectionsProvider
+        self.isManageTokensAvailable = isManageTokensAvailable
 
         setup()
     }
@@ -78,6 +94,22 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     func openOrganizeTokens() {
         coordinator.openOrganizeTokens(for: userWalletModel)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func openManageTokens() {
+        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+
+        let settings = LegacyManageTokensSettings(
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
+            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
+            derivationStyle: userWalletModel.config.derivationStyle,
+            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
+            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
+        )
+
+        coordinator.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
     }
 
     private func setup() {
