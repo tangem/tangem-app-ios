@@ -30,12 +30,14 @@ extension Sequence {
         }
     }
 
+    /// Just a shim for `Dictionary(grouping:by:)`.
     func grouped<T>(by keyPath: KeyPath<Element, T>) -> [T: [Element]] where T: Hashable {
         return Dictionary(grouping: self) { element in
             return element[keyPath: keyPath]
         }
     }
 
+    /// Returns an ordered collection of elements, unique/distinct by property for the given keypath.
     func unique<T>(by keyPath: KeyPath<Element, T>) -> [Element] where T: Hashable {
         var seen: Set<T> = []
 
@@ -45,6 +47,7 @@ extension Sequence {
         }
     }
 
+    /// Returns an ordered collection of unique/distinct properties of elements for the given keypath.
     func uniqueProperties<T>(_ keyPath: KeyPath<Element, T>) -> [T] where T: Hashable {
         var seen: Set<T> = []
 
@@ -56,10 +59,12 @@ extension Sequence {
 }
 
 extension Sequence where Element: Hashable {
+    /// Just a shim for `Set(_:)`.
     func toSet() -> Set<Element> {
         return Set(self)
     }
 
+    /// Returns an ordered collection of unique/distinct elements.
     func unique() -> [Element] {
         return unique(by: \.self)
     }
