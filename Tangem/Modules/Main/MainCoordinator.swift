@@ -127,13 +127,12 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        let userTokenListManager = userWalletModel.userTokenListManager
         let optionsManager = OrganizeTokensOptionsManager(
-            userTokenListManager: userTokenListManager,
+            userTokensReorderer: userWalletModel.userTokensManager,
             editingThrottleInterval: 1.0
         )
         let walletModelsAdapter = OrganizeWalletModelsAdapter(
-            userTokenListManager: userTokenListManager,
+            userTokenListManager: userWalletModel.userTokenListManager,
             organizeTokensOptionsProviding: optionsManager,
             organizeTokensOptionsEditing: optionsManager
         )
