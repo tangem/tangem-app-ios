@@ -43,11 +43,7 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [BlockchainSdk.Token] {
-        let converter = StorageEntriesConverter()
-        return userTokenListManager
-            .userTokens
-            .filter { $0.blockchainNetwork == blockchainNetwork }
-            .compactMap(converter.convertToToken(_:))
+        userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork })?.tokens ?? []
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
@@ -63,4 +59,16 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
+}
+
+// MARK: - UserTokensReordering protocol conformance
+
+extension FakeUserTokensManager: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+
+    func reorder(_ reorderingActions: [UserTokensReorderingAction]) -> AnyPublisher<Void, Never> { .just }
 }
