@@ -18,6 +18,8 @@ struct LockedUserTokenListManager: UserTokenListManager {
 
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { .just(output: []) }
 
+    var userTokensList: StoredUserTokenList { .empty }
+
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> { .just(output: .empty) }
 
     func update(with userTokenList: StoredUserTokenList) {}
