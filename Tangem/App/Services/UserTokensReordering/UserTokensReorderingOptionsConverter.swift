@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensOptionsConverter.swift
+//  UserTokensReorderingOptionsConverter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import Foundation
 
-struct OrganizeTokensOptionsConverter {
+struct UserTokensReorderingOptionsConverter {
     func convert(
         _ groupType: StoredUserTokenList.Grouping
-    ) -> OrganizeTokensOptions.Grouping {
+    ) -> UserTokensReorderingOptions.Grouping {
         switch groupType {
         case .none:
             return .none
@@ -22,7 +22,7 @@ struct OrganizeTokensOptionsConverter {
 
     func convert(
         _ sortType: StoredUserTokenList.Sorting
-    ) -> OrganizeTokensOptions.Sorting {
+    ) -> UserTokensReorderingOptions.Sorting {
         switch sortType {
         case .manual:
             return .dragAndDrop
@@ -32,7 +32,7 @@ struct OrganizeTokensOptionsConverter {
     }
 
     func convert(
-        _ groupType: OrganizeTokensOptions.Grouping
+        _ groupType: UserTokensReorderingOptions.Grouping
     ) -> StoredUserTokenList.Grouping {
         switch groupType {
         case .none:
@@ -43,7 +43,7 @@ struct OrganizeTokensOptionsConverter {
     }
 
     func convert(
-        _ sortType: OrganizeTokensOptions.Sorting
+        _ sortType: UserTokensReorderingOptions.Sorting
     ) -> StoredUserTokenList.Sorting {
         switch sortType {
         case .dragAndDrop:
