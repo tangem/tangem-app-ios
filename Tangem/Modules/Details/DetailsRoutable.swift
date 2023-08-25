@@ -12,7 +12,7 @@ import TangemSdk
 protocol DetailsRoutable: AnyObject {
     func openOnboardingModal(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
-    func openWalletConnect(with cardModel: CardViewModel)
+    func openWalletConnect(with disabledLocalizedReason: String?)
     func openCurrencySelection()
     func openDisclaimer(at url: URL)
     func openScanCardSettings(with userWalletId: Data, sdk: TangemSdk)
