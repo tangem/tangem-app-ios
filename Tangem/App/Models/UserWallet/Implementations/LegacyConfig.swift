@@ -78,16 +78,12 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    var defaultBlockchains: [StorageEntry.V3.Entry] {
-        let converter = StorageEntriesConverter()
-
+    var defaultBlockchains: [StorageEntry] {
         if let defaultBlockchain = defaultBlockchain {
             let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-
-            return [
-                converter.convert(network),
-                defaultToken.map { converter.convert($0, in: network) },
-            ].compactMap { $0 }
+            let tokens = defaultToken.map { [$0] } ?? []
+            let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
+            return [entry]
         } else {
             guard isMultiwallet else { return [] }
 
@@ -97,11 +93,13 @@ extension LegacyConfig: UserWalletConfig {
                 Blockchain.ethereum(testnet: isTestnet),
             ]
 
-            return blockchains.map { converter.convert(.init($0)) }
+            return blockchains.map {
+                StorageEntry(blockchainNetwork: .init($0), token: nil)
+            }
         }
     }
 
-    var persistentBlockchains: [StorageEntry.V3.Entry]? {
+    var persistentBlockchains: [StorageEntry]? {
         if isMultiwallet {
             return nil
         }
@@ -109,12 +107,8 @@ extension LegacyConfig: UserWalletConfig {
         return defaultBlockchains
     }
 
-    var embeddedBlockchains: [StorageEntry.V3.Entry]? {
-        let blockchainNetworks = defaultBlockchains
-            .unique(by: \.blockchainNetwork)
-            .map(\.blockchainNetwork)
-
-        return defaultBlockchains.filter { $0.blockchainNetwork == blockchainNetworks.first }
+    var embeddedBlockchain: StorageEntry? {
+        return defaultBlockchains.first
     }
 
     var warningEvents: [WarningEvent] {

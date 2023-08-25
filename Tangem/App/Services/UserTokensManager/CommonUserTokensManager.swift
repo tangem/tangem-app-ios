@@ -47,14 +47,9 @@ struct CommonUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, shouldUpload: Bool) {
-        let converter = StorageEntriesConverter()
-        let entries: [StorageEntry.V3.Entry] = tokenItems.reduce(into: []) { partialResult, element in
-            let blockchainNetwork = makeBlockchainNetwork(for: element.blockchain, derivationPath: derivationPath)
-            partialResult.append(converter.convert(blockchainNetwork))
-
-            if let token = element.token {
-                partialResult.append(converter.convert(token, in: blockchainNetwork))
-            }
+        let entries = tokenItems.map { tokenItem in
+            let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+            return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
         }
 
         userTokenListManager.update(.append(entries), shouldUpload: shouldUpload)
@@ -75,6 +70,8 @@ struct CommonUserTokensManager {
     }
 }
 
+// MARK: - UserTokensManager protocol conformance
+
 extension CommonUserTokensManager: UserTokensManager {
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         guard let derivationManager,
@@ -88,28 +85,27 @@ extension CommonUserTokensManager: UserTokensManager {
 
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-        let storageEntries = userTokenListManager.userTokens.filter { $0.blockchainNetwork == blockchainNetwork }
 
-        guard !storageEntries.isEmpty else { return false }
+        guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            return false
+        }
 
         switch tokenItem {
         case .blockchain:
             return true
         case .token(let token, _):
-            let converter = StorageEntriesConverter()
-            return storageEntries
-                .lazy
-                .compactMap(converter.convertToToken(_:))
-                .contains(token)
+            return targetEntry.tokens.contains(token)
         }
     }
 
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
-        let converter = StorageEntriesConverter()
-        return userTokenListManager
-            .userTokens
-            .filter { $0.blockchainNetwork == blockchainNetwork }
-            .compactMap(converter.convertToToken(_:))
+        let items = userTokenListManager.userTokens
+
+        if let network = items.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            return network.tokens
+        }
+
+        return []
     }
 
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
@@ -143,10 +139,12 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
-        let hasNoTokens = !userTokenListManager
-            .userTokens
-            .contains { $0.blockchainNetwork == blockchainNetwork && $0.isToken }
 
+        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            return false
+        }
+
+        let hasNoTokens = entry.tokens.isEmpty
         return hasNoTokens
     }
 
@@ -169,6 +167,8 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 }
 
+// MARK: - UserTokensSyncService protocol conformance
+
 extension CommonUserTokensManager: UserTokensSyncService {
     var isInitialSyncPerformed: Bool {
         userTokenListManager.isInitialSyncPerformed
@@ -183,6 +183,80 @@ extension CommonUserTokensManager: UserTokensSyncService {
         userTokenListManager.updateLocalRepositoryFromServer { _ in
             self.walletModelsManager.updateAll(silent: false, completion: {})
         }
+    }
+}
+
+// MARK: - UserTokensReordering protocol conformance
+
+extension CommonUserTokensManager: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> {
+        return userTokenListManager
+            .userTokensListPublisher
+            .map { $0.entries.map(\.walletModelId) }
+            .eraseToAnyPublisher()
+    }
+
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+        let converter = UserTokensReorderingOptionsConverter()
+        return userTokenListManager
+            .userTokensListPublisher
+            .map { converter.convert($0.grouping) }
+            .eraseToAnyPublisher()
+    }
+
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+        let converter = UserTokensReorderingOptionsConverter()
+        return userTokenListManager
+            .userTokensListPublisher
+            .map { converter.convert($0.sorting) }
+            .eraseToAnyPublisher()
+    }
+
+    func reorder(
+        _ reorderingActions: [UserTokensReorderingAction]
+    ) -> AnyPublisher<Void, Never> {
+        return Deferred { [userTokenListManager = self.userTokenListManager] in
+            Future<Void, Never> { promise in
+                guard !reorderingActions.isEmpty else {
+                    promise(.success(()))
+                    return
+                }
+
+                let converter = UserTokensReorderingOptionsConverter()
+                let existingList = userTokenListManager.userTokensList
+                var entries = existingList.entries
+                var grouping = existingList.grouping
+                var sorting = existingList.sorting
+
+                for action in reorderingActions {
+                    switch action {
+                    case .setGroupingOption(let option):
+                        grouping = converter.convert(option)
+                    case .setSortingOption(let option):
+                        sorting = converter.convert(option)
+                    case .reorder(let reorderedWalletModelIds):
+                        let userTokensKeyedByIds = entries.keyedFirst(by: \.walletModelId)
+                        let reorderedEntries = reorderedWalletModelIds.compactMap { userTokensKeyedByIds[$0] }
+
+                        assert(reorderedEntries.count == entries.count, "Model inconsistency detected")
+                        entries = reorderedEntries
+                    }
+                }
+
+                let editedList = StoredUserTokenList(
+                    entries: entries,
+                    grouping: grouping,
+                    sorting: sorting
+                )
+
+                if editedList != existingList {
+                    userTokenListManager.update(with: editedList)
+                }
+
+                promise(.success(()))
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }
 
