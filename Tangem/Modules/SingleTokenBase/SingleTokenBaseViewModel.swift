@@ -19,7 +19,6 @@ class SingleTokenBaseViewModel {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
-    @Published var canFetchMoreTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
 
     private unowned let coordinator: SingleTokenBaseRoutable
@@ -93,7 +92,20 @@ class SingleTokenBaseViewModel {
         openExplorer(at: url)
     }
 
+    func fetchMoreHistory() -> FetchMore? {
+        guard let transactionHistoryService = walletModel.transactionHistoryService,
+              transactionHistoryService.canFetchMore else {
+            return nil
+        }
+
+        return FetchMore { [weak self] in
+            self?.loadHistory()
+        }
+    }
+
     func reloadHistory() {
+        Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
+
         // We should reset transaction history to initial state here
         walletModel.transactionHistoryService?.reset()
 
@@ -203,7 +215,6 @@ extension SingleTokenBaseViewModel {
         case .loaded(let records):
             let listItems = transactionHistoryMapper.mapTransactionListItem(from: records)
             transactionHistoryState = .loaded(listItems)
-            canFetchMoreTransactionHistory = walletModel.transactionHistoryService?.canFetchMore ?? false
         }
     }
 
@@ -255,6 +266,8 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     func openReceive() {
+        Analytics.log(event: .buttonReceive, params: [.token: currencySymbol])
+
         let infos = walletModel.wallet.addresses.map { address in
             ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
         }
@@ -262,7 +275,7 @@ extension SingleTokenBaseViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buttonBuy)
+        Analytics.log(event: .buttonBuy, params: [.token: currencySymbol])
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning { [weak self] in
                 self?.openBuy()
@@ -281,7 +294,7 @@ extension SingleTokenBaseViewModel {
             let cardViewModel = userWalletModel as? CardViewModel
         else { return }
 
-        Analytics.log(.buttonSend)
+        Analytics.log(event: .buttonSend, params: [.token: currencySymbol])
         coordinator.openSend(
             amountToSend: amountToSend,
             blockchainNetwork: blockchainNetwork,
@@ -290,6 +303,8 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExchange() {
+        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
+
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -326,7 +341,7 @@ extension SingleTokenBaseViewModel {
     }
 
     func openSell() {
-        Analytics.log(.buttonSell)
+        Analytics.log(event: .buttonSell, params: [.token: currencySymbol])
 
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
@@ -360,7 +375,7 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExplorer(at url: URL) {
-        Analytics.log(.buttonExplore)
+        Analytics.log(event: .buttonExplore, params: [.token: currencySymbol])
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 }
