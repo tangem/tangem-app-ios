@@ -47,19 +47,18 @@ extension NoteConfig: UserWalletConfig {
         [defaultBlockchain]
     }
 
-    var defaultBlockchains: [StorageEntry.V3.Entry] {
+    var defaultBlockchains: [StorageEntry] {
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let converter = StorageEntriesConverter()
-
-        return [converter.convert(network)]
+        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        return [entry]
     }
 
-    var persistentBlockchains: [StorageEntry.V3.Entry]? {
+    var persistentBlockchains: [StorageEntry]? {
         return defaultBlockchains
     }
 
-    var embeddedBlockchains: [StorageEntry.V3.Entry]? {
-        return defaultBlockchains
+    var embeddedBlockchain: StorageEntry? {
+        return defaultBlockchains.first
     }
 
     var warningEvents: [WarningEvent] {
