@@ -14,11 +14,15 @@ struct UserTokenListManagerMock: UserTokenListManager {
 
     var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
-    var userTokens: [StorageEntry.V3.Entry] { [] }
+    var userTokens: [StorageEntry] { [] }
 
-    var userTokensPublisher: AnyPublisher<[StorageEntry.V3.Entry], Never> { .just(output: []) }
+    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { .just(output: []) }
 
     var userTokenList: AnyPublisher<UserTokenList, Never> { .just(output: .empty) }
+
+    func contains(_ entry: StorageEntry) -> Bool {
+        return false
+    }
 
     func update(with userTokenList: UserTokenList) {}
 
