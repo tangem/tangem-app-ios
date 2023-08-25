@@ -16,7 +16,7 @@ protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, MultiWa
     var userWalletId: UserWalletId { get }
     var userWallet: UserWallet { get }
     var walletModelsManager: WalletModelsManager { get }
-    var userTokensManager: UserTokensManager & UserTokensReordering { get }
+    var userTokensManager: UserTokensManager { get }
     var userTokenListManager: UserTokenListManager { get }
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
