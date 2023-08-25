@@ -38,6 +38,7 @@ enum PreviewCard {
                     kaspaSecondaryApiUrl: nil,
                     tronGridApiKey: "",
                     tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
+                    fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
                     quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                     quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
                     blockscoutCredentials: .init(login: "", password: "")
@@ -45,7 +46,7 @@ enum PreviewCard {
             )
             let walletManager = try! factory.makeWalletManager(
                 blockchain: blockchain,
-                publicKey: .init(seedKey: publicKey, derivation: .none)
+                publicKey: .init(seedKey: publicKey, derivationType: .none)
             )
         }
 
