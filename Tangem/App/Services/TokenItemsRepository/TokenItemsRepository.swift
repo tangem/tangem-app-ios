@@ -7,17 +7,18 @@
 //
 
 import Foundation
+import struct BlockchainSdk.Token
 
-protocol TokenItemsRepository: AnyObject {
-    var isInitialized: Bool { get }
-    var groupingOption: StorageEntry.V3.Grouping { get set }
-    var sortingOption: StorageEntry.V3.Sorting { get set }
+// [REDACTED_TODO_COMMENT]
+protocol TokenItemsRepository {
+    var containsFile: Bool { get }
 
-    func update(_ entries: [StorageEntry.V3.Entry])
-    func append(_ entries: [StorageEntry.V3.Entry])
-    func remove(_ entries: [StorageEntry.V3.Entry])
-    func remove(_ blockchainNetworks: [StorageEntry.V3.BlockchainNetwork])
+    func update(_ list: StoredUserTokenList)
+    func append(_ entries: [StoredUserTokenList.Entry])
+
+    func remove(_ blockchainNetworks: [BlockchainNetwork])
+    func remove(_ entries: [StoredUserTokenList.Entry])
     func removeAll()
 
-    func getItems() -> [StorageEntry.V3.Entry]
+    func getList() -> StoredUserTokenList
 }
