@@ -98,6 +98,7 @@ struct SupportedBlockchains {
             .terraV2,
             .cronos,
             .octa,
+            .chia(testnet: false),
         ]
 
         // Tempopary support only old not extended cardano
@@ -131,6 +132,7 @@ struct SupportedBlockchains {
             .ravencoin(testnet: true),
             .cosmos(testnet: true),
             .octa,
+            .chia(testnet: true),
         ]
     }
 }
