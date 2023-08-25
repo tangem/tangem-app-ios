@@ -24,16 +24,16 @@ struct UserTokenListConverter {
         let tokens = storedUserTokenList
             .entries
             .compactMap { entry in
-                let blockchainNetwork = entry.blockchainNetwork
-                let id = entry.isToken ? entry.id : blockchainNetwork.blockchain.coinId
+                let network = entry.blockchainNetwork
+                let id = entry.isToken ? entry.id : network.blockchain.coinId
 
                 return UserTokenList.Token(
                     id: id,
-                    networkId: blockchainNetwork.blockchain.networkId,
+                    networkId: network.blockchain.networkId,
                     name: entry.name,
                     symbol: entry.symbol,
                     decimals: entry.decimalCount,
-                    derivationPath: blockchainNetwork.derivationPath,
+                    derivationPath: network.derivationPath,
                     contractAddress: entry.contractAddress
                 )
             }
@@ -80,23 +80,23 @@ struct UserTokenListConverter {
                     return nil
                 }
 
-                let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: token.derivationPath)
+                let network = BlockchainNetwork(blockchain, derivationPath: token.derivationPath)
 
                 let token = StoredUserTokenList.Entry(
                     id: token.id,
                     name: token.name,
                     symbol: token.symbol,
                     decimalCount: token.decimals,
-                    blockchainNetwork: blockchainNetwork,
+                    blockchainNetwork: network,
                     contractAddress: token.contractAddress
                 )
 
                 if let contractAddress = token.contractAddress {
                     /// Additional uniqueness check for remote tokens (replicates old behavior)
-                    if addedTokens[blockchainNetwork, default: []].insert(contractAddress).inserted {
+                    if addedTokens[network, default: []].insert(contractAddress).inserted {
                         return token
                     }
-                    return nil // Duplicate detected
+                    return nil // Duplicate token detected
                 } else {
                     return token
                 }
