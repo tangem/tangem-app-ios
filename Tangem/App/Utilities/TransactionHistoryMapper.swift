@@ -55,10 +55,10 @@ struct TransactionHistoryMapper {
             id: record.hash,
             interactionAddress: interactionAddress(from: record),
             timeFormatted: timeFormatted,
-            transferAmount: transferAmount(from: record),
+            amount: transferAmount(from: record),
             isOutgoing: record.isOutgoing,
-            transactionType: type,
-            status: record.status == .confirmed ? .confirmed : .inProgress
+            transactionType: transactionType(from: record),
+            status: status(from: record)
         )
     }
 }
@@ -88,7 +88,7 @@ private extension TransactionHistoryMapper {
             }()
 
             let amount = sent - change
-            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+            return formatted(amount: amount, isOutgoing: record.isOutgoing)
 
         case false:
             let received: Decimal = {
@@ -100,16 +100,20 @@ private extension TransactionHistoryMapper {
                 }
             }()
 
-            return balanceFormatter.formatCryptoBalance(received, currencyCode: currencySymbol)
+            return formatted(amount: received, isOutgoing: record.isOutgoing)
         }
     }
 
     func interactionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType {
         switch record.type {
-        case .send:
+        case .transfer:
+            if record.isOutgoing {
+                return mapToInteractionAddressType(destination: record.destination)
+            } else {
+                return mapToInteractionAddressType(source: record.source)
+            }
+        default:
             return mapToInteractionAddressType(destination: record.destination)
-        case .receive:
-            return mapToInteractionAddressType(source: record.source)
         }
     }
 
@@ -156,34 +160,33 @@ private extension TransactionHistoryMapper {
             return .custom(name: id)
         }
     }
+
+    func status(from record: TransactionRecord) -> TransactionViewModel.Status {
+        switch record.status {
+        case .confirmed:
+            return .confirmed
+        case .failed:
+            return .failed
+        case .unconfirmed:
+            return .inProgress
+        }
+    }
+
+    func formatted(amount: Decimal, isOutgoing: Bool) -> String {
+        let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+        if amount.isZero {
+            return formatted
+        }
+
+        let prefix = isOutgoing ? "-" : "+"
+        return prefix + formatted
+    }
 }
 
 extension TransactionHistoryMapper {
     enum Constants {
         static let maximumFractionDigits = 8
         static let roundingMode: NSDecimalNumber.RoundingMode = .down
-    }
-}
-
-private extension TransactionRecord.SourceType {
-    func address(nonEqual address: String) -> String? {
-        switch self {
-        case .single(let source):
-            return source.address
-        case .multiple(let sources):
-            return sources.first(where: { $0.address != address })?.address ?? ""
-        }
-    }
-}
-
-private extension TransactionRecord.DestinationType {
-    func address(nonEqual address: String) -> String? {
-        switch self {
-        case .single(let destination):
-            return destination.address.string
-        case .multiple(let destinations):
-            return destinations.first(where: { $0.address.string != address })?.address.string ?? ""
-        }
     }
 }
 
