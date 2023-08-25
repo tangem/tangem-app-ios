@@ -20,4 +20,8 @@ extension Array where Element: Hashable {
         set.remove(element)
         self = Array(set)
     }
+
+    func toSet() -> Set<Element> {
+        return Set(self)
+    }
 }
