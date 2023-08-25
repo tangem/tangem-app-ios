@@ -97,24 +97,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     // MARK: - Main Button setup
 
     override var mainButtonSettings: MainButton.Settings? {
-        var icon: MainButton.Icon?
-
-        switch currentStep {
-        case .disclaimer, .seedPhraseIntro:
-            return nil
-        case .selectBackupCards:
-            icon = .leading(Assets.plusMini)
-        case .createWalletSelector:
-            icon = .leading(Assets.tangemIcon)
-        case .createWallet:
-            icon = .trailing(Assets.tangemIcon)
-        default:
-            break
-        }
-
-        return MainButton.Settings(
+        MainButton.Settings(
             title: mainButtonTitle,
-            icon: icon,
+            icon: mainButtonIcon,
             style: mainButtonStyle,
             isLoading: isMainButtonBusy,
             isDisabled: !isMainButtonEnabled,
@@ -799,7 +784,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: { [weak self] in
                 self?.resetCard(with: cardId)
             }),
-            secondaryButton: Alert.Button.cancel {
+            secondaryButton: .default(Text(Localization.commonCancel)) {
                 Analytics.log(.backupResetCardNotification, params: [.option: .cancel])
             }
         )
