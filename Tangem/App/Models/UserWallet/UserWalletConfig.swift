@@ -36,13 +36,13 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var supportedBlockchains: Set<Blockchain> { get }
 
     /// Blockchains to be added to the tokens list by default on wallet creation.
-    var defaultBlockchains: [StorageEntry.V3.Entry] { get }
+    var defaultBlockchains: [StorageEntry] { get }
 
     /// Blockchains to be added to the tokens list on every scan. E.g. demo blockchains.
-    var persistentBlockchains: [StorageEntry.V3.Entry]? { get }
+    var persistentBlockchains: [StorageEntry]? { get }
 
-    /// Blockchains which embedded in the card.
-    var embeddedBlockchains: [StorageEntry.V3.Entry]? { get }
+    /// Blockchain which embedded in the card.
+    var embeddedBlockchain: StorageEntry? { get }
 
     var emailData: [EmailCollectedData] { get }
 
