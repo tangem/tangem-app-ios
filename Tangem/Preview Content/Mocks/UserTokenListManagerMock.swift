@@ -14,17 +14,21 @@ struct UserTokenListManagerMock: UserTokenListManager {
 
     var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
-    var userTokens: [StorageEntry.V3.Entry] { [] }
+    var userTokens: [StorageEntry] { [] }
 
-    var userTokensPublisher: AnyPublisher<[StorageEntry.V3.Entry], Never> { .just(output: []) }
+    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { .just(output: []) }
 
-    var groupingOptionPublisher: AnyPublisher<StorageEntry.V3.Grouping, Never> { .just(output: .none) }
+    var userTokensList: StoredUserTokenList { .empty }
 
-    var sortingOptionPublisher: AnyPublisher<StorageEntry.V3.Sorting, Never> { .just(output: .manual) }
+    var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> { .just(output: .empty) }
 
-    func update(_ updates: [UserTokenListUpdateType], shouldUpload: Bool) {}
+    func update(with userTokenList: StoredUserTokenList) {}
 
-    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {}
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
 
-    func updateServerFromLocalRepository() {}
+    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
+        result(.success(()))
+    }
+
+    func upload() {}
 }
