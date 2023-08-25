@@ -88,6 +88,9 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository.update(userTokenList)
 
         notifyAboutTokenListUpdates()
+
+        let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
     }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
