@@ -13,8 +13,8 @@ import CombineExt
 final class OrganizeWalletModelsAdapter {
     typealias Section = OrganizeWalletModelsSection<SectionType>
     typealias UserToken = StoredUserTokenList.Entry
-    typealias GroupingOption = OrganizeTokensOptions.Grouping
-    typealias SortingOption = OrganizeTokensOptions.Sorting
+    typealias GroupingOption = UserTokensReorderingOptions.Grouping
+    typealias SortingOption = UserTokensReorderingOptions.Sorting
 
     enum SectionType {
         case group(by: BlockchainNetwork)
