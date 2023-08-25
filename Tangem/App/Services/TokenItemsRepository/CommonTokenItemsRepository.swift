@@ -48,27 +48,25 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             let existingList = fetch()
             var existingEntries = existingList.entries
 
-            var existingBlockchainNetworksToUpdate: [BlockchainNetwork] = []
-            let existingBlockchainNetworks = existingEntries
-                .map(\.blockchainNetwork)
-                .toSet()
+            var existingNetworksToUpdate: [BlockchainNetwork] = []
+            let existingNetworks = existingEntries.map(\.blockchainNetwork).toSet()
 
-            let newEntriesGroupedByBlockchainNetworks = entries.grouped(by: \.blockchainNetwork)
-            let newBlockchainNetworks = entries.uniqueProperties(\.blockchainNetwork)
+            let newEntriesGroupedByNetworks = entries.grouped(by: \.blockchainNetwork)
+            let newNetworks = entries.uniqueProperties(\.blockchainNetwork)
 
-            for newBlockchainNetwork in newBlockchainNetworks {
-                if existingBlockchainNetworks.contains(newBlockchainNetwork) {
+            for network in newNetworks {
+                if existingNetworks.contains(network) {
                     // This blockchain network already exists, and it probably needs to be updated with new tokens
-                    existingBlockchainNetworksToUpdate.append(newBlockchainNetwork)
-                } else if let newEntries = newEntriesGroupedByBlockchainNetworks[newBlockchainNetwork] {
+                    existingNetworksToUpdate.append(network)
+                } else if let newEntries = newEntriesGroupedByNetworks[network] {
                     // New blockchain network, just appending all entries from it to the end of the existing list
                     existingEntries.append(contentsOf: newEntries)
                     hasChanges = true
                 }
             }
 
-            for blockchainNetwork in existingBlockchainNetworksToUpdate {
-                guard let newEntriesForBlockchainNetwork = newEntriesGroupedByBlockchainNetworks[blockchainNetwork] else {
+            for network in existingNetworksToUpdate {
+                guard let newEntriesForBlockchainNetwork = newEntriesGroupedByNetworks[network] else {
                     continue
                 }
 
@@ -77,7 +75,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
                     guard newEntry.isToken else { continue }
 
                     if let index = existingEntries.firstIndex(where: { entry in
-                        return entry.blockchainNetwork == blockchainNetwork && entry.contractAddress == newEntry.contractAddress
+                        return entry.blockchainNetwork == network && entry.contractAddress == newEntry.contractAddress
                     }) {
                         if existingEntries[index].id == nil, newEntry.id != nil {
                             // Entry has been saved without id, just updating this entry
@@ -105,12 +103,12 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
 
     func remove(_ blockchainNetworks: [BlockchainNetwork]) {
         lockQueue.sync {
-            let blockchainNetworksToRemove = blockchainNetworks.toSet()
+            let networksToRemove = blockchainNetworks.toSet()
             let existingList = fetch()
             let existingEntries = existingList.entries
             var editedEntries = existingEntries
 
-            editedEntries.removeAll { blockchainNetworksToRemove.contains($0.blockchainNetwork) }
+            editedEntries.removeAll { networksToRemove.contains($0.blockchainNetwork) }
 
             let hasRemoved = editedEntries.count != existingEntries.count
             if hasRemoved {
