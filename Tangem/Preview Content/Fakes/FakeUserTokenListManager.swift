@@ -10,11 +10,11 @@ import Foundation
 import Combine
 
 class FakeUserTokenListManager: UserTokenListManager {
-    var userTokens: [StorageEntry.V3.Entry] {
+    var userTokens: [StorageEntry] {
         userTokensSubject.value
     }
 
-    var userTokensPublisher: AnyPublisher<[StorageEntry.V3.Entry], Never> {
+    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
         userTokensSubject.eraseToAnyPublisher()
     }
 
@@ -33,7 +33,7 @@ class FakeUserTokenListManager: UserTokenListManager {
     }
 
     private let initialSyncSubject = CurrentValueSubject<Bool, Never>(false)
-    private let userTokensSubject = CurrentValueSubject<[StorageEntry.V3.Entry], Never>([])
+    private let userTokensSubject = CurrentValueSubject<[StorageEntry], Never>([])
     private let userTokenListSubject = CurrentValueSubject<UserTokenList, Never>(UserTokenListStubs.walletUserWalletList)
 
     init() {
@@ -52,15 +52,16 @@ class FakeUserTokenListManager: UserTokenListManager {
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            let converter = StorageEntriesConverter()
-            let blockchainNetwork = BlockchainNetwork(.ethereum(testnet: false))
-            let storageEntries = [
-                converter.convert(blockchainNetwork),
-                converter.convert(.sushiMock, in: blockchainNetwork),
-                converter.convert(.shibaInuMock, in: blockchainNetwork),
-                converter.convert(.tetherMock, in: blockchainNetwork),
-            ]
-            self.userTokensSubject.send(storageEntries)
+            self.userTokensSubject.send([
+                .init(
+                    blockchainNetwork: .init(.ethereum(testnet: false)),
+                    tokens: [
+                        .sushiMock,
+                        .shibaInuMock,
+                        .tetherMock,
+                    ]
+                ),
+            ])
             result(.success(()))
         }
     }

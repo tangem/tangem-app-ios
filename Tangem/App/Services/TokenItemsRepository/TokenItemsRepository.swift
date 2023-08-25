@@ -7,17 +7,29 @@
 //
 
 import Foundation
+import BlockchainSdk
 
-protocol TokenItemsRepository: AnyObject {
-    var isInitialized: Bool { get }
-    var groupingOption: StorageEntry.V3.Grouping { get set }
-    var sortingOption: StorageEntry.V3.Sorting { get set }
+protocol TokenItemsRepository {
+    var containsFile: Bool { get }
 
-    func update(_ entries: [StorageEntry.V3.Entry])
-    func append(_ entries: [StorageEntry.V3.Entry])
-    func remove(_ entries: [StorageEntry.V3.Entry])
-    func remove(_ blockchainNetworks: [StorageEntry.V3.BlockchainNetwork])
+    func update(_ entries: [StorageEntry])
+    func append(_ entries: [StorageEntry])
+
+    func remove(_ blockchainNetworks: [BlockchainNetwork])
+    func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork)
     func removeAll()
 
-    func getItems() -> [StorageEntry.V3.Entry]
+    func getItems() -> [StorageEntry]
+}
+
+extension TokenItemsRepository {
+    func append(_ blockchainNetworks: [BlockchainNetwork]) {
+        let entries = blockchainNetworks.map { StorageEntry(blockchainNetwork: $0, tokens: []) }
+        append(entries)
+    }
+
+    func append(_ tokens: [Token], blockchainNetwork: BlockchainNetwork) {
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: tokens)
+        append([entry])
+    }
 }
