@@ -60,3 +60,15 @@ class FakeUserTokensManager: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
 }
+
+// MARK: - UserTokensReordering protocol conformance
+
+extension FakeUserTokensManager: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+
+    var groupingOption: AnyPublisher<OrganizeTokensOptions.Grouping, Never> { .just(output: .none) }
+
+    var sortingOption: AnyPublisher<OrganizeTokensOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+
+    func reorder(_ reorderingActions: [UserTokensReorderingAction]) -> AnyPublisher<Void, Never> { .just }
+}
