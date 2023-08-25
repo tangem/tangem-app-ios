@@ -151,8 +151,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     private static func map(
         sections: [OrganizeTokensSectionsAdapter.Section],
-        sortingOption: OrganizeTokensOptions.Sorting,
-        groupingOption: OrganizeTokensOptions.Grouping,
+        sortingOption: UserTokensReorderingOptions.Sorting,
+        groupingOption: UserTokensReorderingOptions.Grouping,
         dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
     ) -> [OrganizeTokensListSection] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
@@ -184,7 +184,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private static func isListItemDraggable(
-        sortingOption: OrganizeTokensOptions.Sorting
+        sortingOption: UserTokensReorderingOptions.Sorting
     ) -> Bool {
         switch sortingOption {
         case .manual:
