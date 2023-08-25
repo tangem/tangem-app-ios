@@ -88,11 +88,8 @@ final class OrganizeWalletModelsAdapter {
         userTokens: [UserToken],
         sortingOption: SortingOption
     ) -> [Section] {
-        let blockchainNetworks = userTokens
-            .unique(by: \.blockchainNetwork)
-            .map(\.blockchainNetwork)
-
-        let userTokensGroupedByBlockchainNetworks = Dictionary(grouping: userTokens, by: \.blockchainNetwork)
+        let userTokensGroupedByBlockchainNetworks = userTokens.grouped(by: \.blockchainNetwork)
+        let blockchainNetworks = userTokens.uniqueProperties(\.blockchainNetwork)
 
         return blockchainNetworks.map { blockchainNetwork in
             let userTokensForBlockchainNetwork = userTokensGroupedByBlockchainNetworks[blockchainNetwork, default: []]
