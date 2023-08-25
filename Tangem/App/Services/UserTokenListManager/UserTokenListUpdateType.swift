@@ -10,8 +10,8 @@ import Foundation
 import struct BlockchainSdk.Token
 
 enum UserTokenListUpdateType {
-    case rewrite(_ entries: [StorageEntry.V3.Entry])
-    case append(_ entries: [StorageEntry.V3.Entry])
+    case rewrite(_ entries: [StorageEntry])
+    case append(_ entries: [StorageEntry])
     case removeBlockchain(_ blockchain: BlockchainNetwork)
     case removeToken(_ token: Token, in: BlockchainNetwork)
 }
