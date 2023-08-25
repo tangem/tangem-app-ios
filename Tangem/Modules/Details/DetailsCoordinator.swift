@@ -117,7 +117,12 @@ extension DetailsCoordinator: DetailsRoutable {
         environmentSetupCoordinator = coordinator
     }
 
-    func openReferral(with cardModel: CardViewModel, userWalletId: Data) {
+    // [REDACTED_TODO_COMMENT]
+    func openReferral(
+        with userWalletId: Data,
+        supportedBlockchains: SupportedBlockchainsSet,
+        userTokensManager: UserTokensManager
+    ) {
         let dismissAction: Action = { [weak self] in
             self?.referralCoordinator = nil
         }
@@ -125,8 +130,8 @@ extension DetailsCoordinator: DetailsRoutable {
         let coordinator = ReferralCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(
             userWalletId: userWalletId,
-            supportedBlockchains: cardModel.config.supportedBlockchains,
-            userTokensManager: cardModel.userTokensManager
+            supportedBlockchains: supportedBlockchains,
+            userTokensManager: userTokensManager
         ))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
