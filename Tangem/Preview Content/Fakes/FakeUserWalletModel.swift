@@ -13,7 +13,7 @@ import BlockchainSdk
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
-    let userTokensManager: UserTokensManager & UserTokensReordering
+    let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(with: "", sdk: .init())
 
