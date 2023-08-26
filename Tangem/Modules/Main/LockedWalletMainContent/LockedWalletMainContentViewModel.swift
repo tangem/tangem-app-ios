@@ -32,11 +32,20 @@ class LockedWalletMainContentViewModel: ObservableObject {
         )
     }
 
+    var bottomOverlayViewModel: MainBottomOverlayViewModel? {
+        guard canManageTokens else { return nil }
+
+        return MainBottomOverlayViewModel(
+            isButtonDisabled: true,
+            buttonTitle: Localization.mainManageTokens,
+            buttonAction: {}
+        )
+    }
+
     let isMultiWallet: Bool
-    // [REDACTED_TODO_COMMENT]
-    let isWithManageTokens: Bool
 
     private let userWalletModel: UserWalletModel
+    private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
 
     init(
@@ -48,7 +57,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
 
-        isWithManageTokens = userWalletModel.isMultiWallet
+        canManageTokens = userWalletModel.isMultiWallet
     }
 
     private func openUnlockSheet() {
