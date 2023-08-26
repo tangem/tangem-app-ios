@@ -21,8 +21,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published var isScannerBusy = false
 
-    // [REDACTED_TODO_COMMENT]
-    let isManageTokensAvailable: Bool
+    var bottomOverlayViewModel: MainBottomOverlayViewModel? {
+        guard canManageTokens else { return nil }
+
+        return MainBottomOverlayViewModel(
+            isButtonDisabled: false,
+            buttonTitle: Localization.mainManageTokens,
+            buttonAction: openManageTokens
+        )
+    }
 
     var isOrganizeTokensVisible: Bool {
         if sections.isEmpty {
@@ -38,9 +45,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
-
     private unowned let coordinator: MultiWalletMainContentRoutable
     private var sectionsProvider: TokenListInfoProvider
+    private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
 
     private var isUpdating = false
     private var bag = Set<AnyCancellable>()
@@ -49,12 +56,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletModel: UserWalletModel,
         coordinator: MultiWalletMainContentRoutable,
         sectionsProvider: TokenListInfoProvider,
-        isManageTokensAvailable: Bool
+        canManageTokens: Bool
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         self.sectionsProvider = sectionsProvider
-        self.isManageTokensAvailable = isManageTokensAvailable
+        self.canManageTokens = canManageTokens
 
         setup()
     }
