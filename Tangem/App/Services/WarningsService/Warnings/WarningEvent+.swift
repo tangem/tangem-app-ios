@@ -25,7 +25,7 @@ extension WarningEvent {
         switch self {
         case .legacyDerivation:
             return [.manageTokens]
-        case .testnetCard, .oldDeviceOldCard:
+        case .testnetCard, .oldDeviceOldCard, .demoCard:
             return [.main, .send]
         default:
             return [.main]
