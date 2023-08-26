@@ -92,18 +92,18 @@ extension WarningEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard:
-            return .init(image: Assets.attention.image)
-        case .rateApp, .lowSignatures, .legacyDerivation, .systemDeprecationTemporary, .systemDeprecationPermanent:
+        case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect, .failedToValidateCard, .testnetCard, .devCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .init(image: Assets.attentionRed.image)
+        case .rateApp, .oldDeviceOldCard, .oldCard, .systemDeprecationTemporary:
+            return .init(image: Assets.attention.image)
         }
     }
 
     var isDismissable: Bool {
         switch self {
-        case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationTemporary, .systemDeprecationPermanent:
+        case .multiWalletSignedHashes, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return false
-        case .rateApp:
+        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
         }
     }
