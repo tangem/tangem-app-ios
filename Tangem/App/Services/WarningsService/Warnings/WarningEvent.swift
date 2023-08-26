@@ -30,21 +30,21 @@ extension WarningEvent {
         Localization.commonWarning
     }
 
+    // [REDACTED_TODO_COMMENT]
     var title: String {
         switch self {
         case .multiWalletSignedHashes:
+            // We don't need any special symbol in Notifications
             return Localization.warningImportantSecurityInfo("")
         case .rateApp:
             return Localization.warningRateAppTitle
         case .failedToValidateCard:
             return Localization.warningFailedToVerifyCardTitle
-        case .legacyDerivation:
-            return Localization.alertManageTokensAddressesMessage
         case .systemDeprecationTemporary:
             return Localization.warningSystemUpdateTitle
         case .systemDeprecationPermanent:
             return Localization.warningSystemDeprecationTitle
-        case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect:
+        case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect, .legacyDerivation:
             return defaultTitle
         }
     }
