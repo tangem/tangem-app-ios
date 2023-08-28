@@ -101,6 +101,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         let cache = dragAndDropActionsCache
 
         // Resetting drag-and-drop actions cache for grouped sections
+        // when the structure of the underlying model has changed
         organizedTokensSectionsPublisher
             .withLatestFrom(organizeTokensOptionsProviding.groupingOption) { ($0, $1) }
             .filter { $0.1.isGrouped }
@@ -110,6 +111,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         // Resetting drag-and-drop actions cache for plain (non-grouped) sections
+        // when the structure of the underlying model has changed
         organizedTokensSectionsPublisher
             .withLatestFrom(organizeTokensOptionsProviding.groupingOption) { ($0, $1) }
             .filter { !$0.1.isGrouped }
@@ -252,16 +254,16 @@ extension OrganizeTokensViewModel {
     }
 
     func onDragStart(at indexPath: IndexPath) {
-        // Drag-and-drop always disables sorting by balance
+        // A started drag-and-drop session always disables sorting by balance
         organizeTokensOptionsEditing.sort(by: .dragAndDrop)
 
         // Process further only if a section is currently being dragged
         guard indexPath.item == sectionHeaderItemIndex else { return }
 
         // Setting the sort option to `dragAndDrop` will cause an update of SwiftUI view identifiers for all
-        // cells and sections in `OrganizeTokensView`. This update may take a couple render passes,
-        // so we have to collapse the dragged section (by calling `beginDragAndDropSession(forSectionWithIdentifier:)`)
-        // with a small delay and wait for this update to finish, otherwise UI glitches may appear
+        // cells and sections in `OrganizeTokensView`. This update may take a couple render passes, therefore
+        // we must wait for this update to finish before collapsing the dragged section
+        // (by calling `beginDragAndDropSession(forSectionWithIdentifier:)`), otherwise UI glitches may appear
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             self.beginDragAndDropSession(forSectionWithIdentifier: self.sections[indexPath.section].id)
         }
