@@ -74,7 +74,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.organizeTokensOptionsEditing.sort(
-                    by: viewModel.isSortByBalanceEnabled ? .manual : .byBalance
+                    by: viewModel.isSortByBalanceEnabled ? .dragAndDrop : .byBalance
                 )
             }
             .store(in: &bag)
