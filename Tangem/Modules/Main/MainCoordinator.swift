@@ -130,7 +130,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
         let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            organizeTokensOptionsProviding: optionsManager
+            organizeTokensOptionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
 
         organizeTokensViewModel = OrganizeTokensViewModel(
