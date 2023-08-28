@@ -17,7 +17,7 @@ struct MainBottomOverlayView: View {
             isDisabled: viewModel.isButtonDisabled,
             action: viewModel.buttonAction
         )
-        .padding(.horizontal, 14.0)
+        .padding(.horizontal, 16.0)
         .padding(.top, 14.0)
     }
 }
