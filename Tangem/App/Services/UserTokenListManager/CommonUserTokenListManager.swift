@@ -86,8 +86,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     func update(with userTokenList: StoredUserTokenList) {
         tokenItemsRepository.update(userTokenList)
-
-        notifyAboutTokenListUpdates()
+        notifyAboutTokenListUpdates(with: userTokenList)
 
         let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
         updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
@@ -143,8 +142,11 @@ extension CommonUserTokenListManager: UserTokensSyncService {
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
-    func notifyAboutTokenListUpdates() {
-        userTokensListSubject.send(tokenItemsRepository.getList())
+    func notifyAboutTokenListUpdates(with userTokenList: StoredUserTokenList? = nil) {
+        let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
+        DispatchQueue.main.async {
+            self.userTokensListSubject.send(updatedUserTokenList)
+        }
     }
 
     // MARK: - Requests
@@ -175,9 +177,10 @@ private extension CommonUserTokenListManager {
                 }
             } receiveValue: { [unowned self] list, _ in
                 let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+                let updatedUserTokenList = converter.convertRemoteToStored(list)
 
-                tokenItemsRepository.update(converter.convertRemoteToStored(list))
-                notifyAboutTokenListUpdates()
+                tokenItemsRepository.update(updatedUserTokenList)
+                notifyAboutTokenListUpdates(with: updatedUserTokenList)
                 result(.success(()))
             }
     }
