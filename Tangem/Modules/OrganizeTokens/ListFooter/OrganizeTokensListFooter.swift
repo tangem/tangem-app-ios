@@ -18,22 +18,16 @@ struct OrganizeTokensListFooter: View {
 
     var body: some View {
         HStack(spacing: 8.0) {
-            Group {
-                MainButton(
-                    title: Localization.commonCancel,
-                    style: .secondary,
-                    action: viewModel.onCancelButtonTap
-                )
+            MainButton(
+                title: Localization.commonCancel,
+                style: .secondary,
+                action: viewModel.onCancelButtonTap
+            )
 
-                MainButton(
-                    title: Localization.commonApply,
-                    style: .primary,
-                    action: viewModel.onApplyButtonTap
-                )
-            }
-            .background(
-                Colors.Background.primary
-                    .cornerRadiusContinuous(cornerRadius)
+            MainButton(
+                title: Localization.commonApply,
+                style: .primary,
+                action: viewModel.onApplyButtonTap
             )
             .padding(.bottom, hasBottomSafeAreaInset ? 0.0 : 10.0) // Padding is added only on notchless devices
         }
