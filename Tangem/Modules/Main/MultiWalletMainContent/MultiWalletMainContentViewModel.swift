@@ -58,6 +58,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let sectionsAdapter: OrganizeTokensSectionsAdapter
     private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
 
+    private var cachedTokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
+
     private let mappingQueue = DispatchQueue(
         label: "com.tangem.MultiWalletMainContentViewModel.mappingQueue",
         qos: .userInitiated
@@ -153,13 +155,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletModelsManager
             .walletModelsPublisher
 
-        sectionsAdapter.organizedSections(from: walletModelsPublisher, on: mappingQueue)
+        let organizedTokensSectionsPublisher = sectionsAdapter
+            .organizedSections(from: walletModelsPublisher, on: mappingQueue)
+            .share(replay: 1)
+
+        organizedTokensSectionsPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, sections in
                 return viewModel.convertToSections(sections)
             }
             .receive(on: DispatchQueue.main)
             .assign(to: \.sections, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        organizedTokensSectionsPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, sections in
+                viewModel.evictOldCachedTokenItemViewModels(sections)
+            }
             .store(in: &bag)
 
         userWalletModel.updatePublisher
@@ -176,12 +189,42 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         return sections.enumerated().map { index, section in
             let sectionViewModel = factory.makeSectionViewModel(from: section.model, atIndex: index)
-            let itemViewModels = factory.makeSectionItemViewModels(from: section.items) { [weak self] walletModelId in
-                self?.tokenItemTapped(walletModelId)
+            let itemViewModels = section.items.map { item in
+                switch item {
+                case .default(let walletModel):
+                    // Fetching existing cached View Model for this Wallet Model, if available
+                    let cacheKey = ObjectIdentifier(walletModel)
+                    if let cachedViewModel = cachedTokenItemViewModels[cacheKey] {
+                        return cachedViewModel
+                    }
+                    let viewModel = makeSectionItemViewModel(from: item, using: factory)
+                    cachedTokenItemViewModels[cacheKey] = viewModel
+                    return viewModel
+                case .withoutDerivation:
+                    return makeSectionItemViewModel(from: item, using: factory)
+                }
             }
 
             return Section(model: sectionViewModel, items: itemViewModels)
         }
+    }
+
+    private func makeSectionItemViewModel(
+        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem,
+        using factory: MultiWalletTokenItemsSectionFactory
+    ) -> TokenItemViewModel {
+        return factory.makeSectionItemViewModel(from: sectionItem) { [weak self] walletModelId in
+            self?.tokenItemTapped(walletModelId)
+        }
+    }
+
+    private func evictOldCachedTokenItemViewModels(_ sections: [OrganizeTokensSectionsAdapter.Section]) {
+        let cacheKeys = sections
+            .flatMap(\.walletModels)
+            .map(ObjectIdentifier.init)
+            .toSet()
+
+        cachedTokenItemViewModels = cachedTokenItemViewModels.filter { cacheKeys.contains($0.key) }
     }
 
     private func subscribeToTokenListUpdatesIfNeeded() {
@@ -225,5 +268,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let factory = NotificationSettingsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension OrganizeTokensSectionsAdapter.SectionItem {
+    var walletModel: WalletModel? {
+        switch self {
+        case .default(let walletModel):
+            return walletModel
+        case .withoutDerivation:
+            return nil
+        }
+    }
+}
+
+private extension OrganizeTokensSectionsAdapter.Section {
+    var walletModels: [WalletModel] {
+        return items.compactMap(\.walletModel)
     }
 }
