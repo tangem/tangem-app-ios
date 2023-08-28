@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Combine
 
 struct NotificationsFactory {
     func buildMissingDerivationNotificationSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
