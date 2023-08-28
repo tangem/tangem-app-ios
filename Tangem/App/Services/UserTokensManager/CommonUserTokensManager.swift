@@ -163,7 +163,7 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
-        userTokenListManager.updateServerFromLocalRepository()
+        userTokenListManager.upload()
     }
 }
 

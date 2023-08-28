@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import CombineExt
 import struct BlockchainSdk.Token
 
 class FakeUserTokenListManager: UserTokenListManager {
@@ -28,20 +27,6 @@ class FakeUserTokenListManager: UserTokenListManager {
 
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> {
         userTokensListSubject.eraseToAnyPublisher()
-    }
-
-    var groupingOptionPublisher: AnyPublisher<StorageEntry.V3.Grouping, Never> {
-        [
-            Just(.none)
-                .eraseToAnyPublisher(),
-            Just(.byBlockchainNetwork)
-                .delay(for: 10.0, scheduler: RunLoop.main)
-                .eraseToAnyPublisher(),
-        ].merge()
-    }
-
-    var sortingOptionPublisher: AnyPublisher<StorageEntry.V3.Sorting, Never> {
-        Just(.manual).eraseToAnyPublisher()
     }
 
     var isInitialSyncPerformed: Bool {
@@ -88,6 +73,4 @@ class FakeUserTokenListManager: UserTokenListManager {
             result(.success(()))
         }
     }
-
-    func updateServerFromLocalRepository() {}
 }
