@@ -8,10 +8,12 @@
 
 import Foundation
 import Combine
+import protocol BlockchainSdk.SignatureCountValidator
 
 struct WalletModelsManagerMock: WalletModelsManager {
     var walletModels: [WalletModel] { [] }
     var walletModelsPublisher: AnyPublisher<[WalletModel], Never> { .just(output: []) }
+    var signatureCountValidator: BlockchainSdk.SignatureCountValidator? { nil }
 
     func updateAll(silent: Bool, completion: @escaping () -> Void) {}
 }
