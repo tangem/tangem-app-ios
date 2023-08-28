@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 struct NotificationsFactory {
-    @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
     func buildMissingDerivationNotificationSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
         .init(
             colorScheme: .white,
