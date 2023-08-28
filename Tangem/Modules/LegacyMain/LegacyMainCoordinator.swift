@@ -99,7 +99,7 @@ extension LegacyMainCoordinator {
 
 extension LegacyMainCoordinator: LegacyMainRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
             self?.mainViewModel?.updateIsBackupAllowed()
         }
@@ -320,7 +320,7 @@ extension LegacyMainCoordinator: UserWalletListCoordinatorOutput {
     func dismissAndOpenOnboarding(with input: OnboardingInput) {
         userWalletListCoordinator = nil
 
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
             self?.userWalletRepository.updateSelection()
         }
