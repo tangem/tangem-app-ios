@@ -9,8 +9,8 @@
 import Foundation
 
 class OnboardingCoordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    var dismissAction: Action<Void>
+    var popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Main view models
 
@@ -37,7 +37,7 @@ class OnboardingCoordinator: CoordinatorObject {
 
     private var options: OnboardingCoordinator.Options!
 
-    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
