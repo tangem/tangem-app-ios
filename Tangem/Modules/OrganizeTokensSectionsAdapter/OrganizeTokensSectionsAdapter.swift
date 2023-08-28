@@ -85,23 +85,23 @@ final class OrganizeTokensSectionsAdapter {
             }
         }
 
+        let sections: [Section]
         switch groupingOption {
         case .byBlockchainNetwork:
-            return makeGroupedSections(sectionItems: sectionItems, sortingOption: sortingOption)
+            sections = makeGroupedSections(sectionItems: sectionItems, sortingOption: sortingOption)
         case .none:
-            return makePlainSections(sectionItems: sectionItems, sortingOption: sortingOption)
+            sections = makePlainSections(sectionItems: sectionItems, sortingOption: sortingOption)
         }
+
+        return self.sections(sections, sortedBy: sortingOption)
     }
 
     private func makeGroupedSections(
         sectionItems: [SectionItem],
         sortingOption: SortingOption
     ) -> [Section] {
-        let blockchainNetworksFromSectionItems = sectionItems
-            .map(\.blockchainNetwork)
-            .unique()
-
-        let sectionItemsGroupedByBlockchainNetworks = Dictionary(grouping: sectionItems, by: \.blockchainNetwork)
+        let blockchainNetworksFromSectionItems = sectionItems.uniqueProperties(\.blockchainNetwork)
+        let sectionItemsGroupedByBlockchainNetworks = sectionItems.grouped(by: \.blockchainNetwork)
 
         return blockchainNetworksFromSectionItems.compactMap { blockchainNetwork in
             guard let sectionItems = sectionItemsGroupedByBlockchainNetworks[blockchainNetwork] else {
@@ -129,6 +129,18 @@ final class OrganizeTokensSectionsAdapter {
                 items: sortedSectionItems
             ),
         ]
+    }
+
+    private func sections(
+        _ sections: [Section],
+        sortedBy sortingOption: SortingOption
+    ) -> [Section] {
+        switch sortingOption {
+        case .byBalance:
+            return sections.sorted { $0.fiatValue > $1.fiatValue }
+        case .dragAndDrop:
+            return sections
+        }
     }
 
     private func sectionItems(
@@ -177,6 +189,21 @@ private extension OrganizeTokensSectionsAdapter.SectionItem {
             return walletModel.blockchainNetwork
         case .withoutDerivation(let userToken):
             return userToken.blockchainNetwork
+        }
+    }
+}
+
+private extension OrganizeTokensSectionsAdapter.Section {
+    var fiatValue: Decimal {
+        return items.reduce(into: Decimal()) { partialResult, item in
+            switch item {
+            case .default(let walletModel):
+                if let fiatValue = walletModel.fiatValue {
+                    partialResult += fiatValue
+                }
+            case .withoutDerivation:
+                break
+            }
         }
     }
 }
