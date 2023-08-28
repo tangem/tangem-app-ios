@@ -13,9 +13,9 @@ import CombineExt
 /// Placed in a separate module because it is used by both 'Main' and 'Organize Tokens' modules
 final class OrganizeTokensSectionsAdapter {
     typealias Section = SectionModel<SectionType, SectionItem>
-    typealias UserToken = StorageEntry.V3.Entry
-    typealias GroupingOption = OrganizeTokensOptions.Grouping
-    typealias SortingOption = OrganizeTokensOptions.Sorting
+    typealias UserToken = StoredUserTokenList.Entry
+    typealias GroupingOption = UserTokensReorderingOptions.Grouping
+    typealias SortingOption = UserTokensReorderingOptions.Sorting
 
     enum SectionType {
         case plain
@@ -45,17 +45,17 @@ final class OrganizeTokensSectionsAdapter {
     ) -> some Publisher<[Section], Never> {
         return walletModels
             .combineLatest(
-                userTokenListManager.userTokensPublisher,
+                userTokenListManager.userTokensListPublisher,
                 organizeTokensOptionsProviding.groupingOption,
                 organizeTokensOptionsProviding.sortingOption
             )
             .receive(on: workingQueue)
             .withWeakCaptureOf(self)
             .map { input in
-                let (adapter, (walletModels, userTokens, groupingOption, sortingOption)) = input
+                let (adapter, (walletModels, userTokensList, groupingOption, sortingOption)) = input
                 return adapter.makeSections(
                     walletModels: walletModels,
-                    userTokens: userTokens,
+                    userTokens: userTokensList.entries,
                     groupingOption: groupingOption,
                     sortingOption: sortingOption
                 )
@@ -136,7 +136,7 @@ final class OrganizeTokensSectionsAdapter {
         sortedBy sortingOption: SortingOption
     ) -> [SectionItem] {
         switch sortingOption {
-        case .manual:
+        case .dragAndDrop:
             // Keeping existing sort order
             return sectionItems
         case .byBalance:
