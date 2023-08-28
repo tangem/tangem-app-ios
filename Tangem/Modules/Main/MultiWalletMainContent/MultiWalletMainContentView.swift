@@ -58,7 +58,6 @@ struct MultiWalletMainContentView: View {
         .animation(.default, value: viewModel.missingDerivationNotificationSettings)
         .animation(.default, value: viewModel.notificationInputs)
         .padding(.horizontal, 16)
-        .padding(.bottom, 40)
         .background(
             Color.clear
                 .alert(item: $viewModel.error, content: { $0.alert })
