@@ -25,11 +25,11 @@ protocol CoordinatorObject: ObservableObject, Identifiable {
 
     func start(with options: InputOptions)
 
-    init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>)
+    init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>)
 }
 
 extension CoordinatorObject {
-    init(dismissAction: @escaping Action<Void> = { _ in }, popToRootAction: @escaping Action<PopToRootOptions> = { _ in }) {
+    init(dismissAction: @escaping Action<OutputOptions> = { _ in }, popToRootAction: @escaping Action<PopToRootOptions> = { _ in }) {
         self.init(dismissAction: dismissAction, popToRootAction: popToRootAction)
     }
 
