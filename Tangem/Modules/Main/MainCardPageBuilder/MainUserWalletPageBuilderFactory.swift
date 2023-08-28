@@ -49,8 +49,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                     userTokenListManager: model.userTokenListManager,
                     walletModelsManager: model.walletModelsManager
                 ),
-                // [REDACTED_TODO_COMMENT]
-                isManageTokensAvailable: model.isMultiWallet
+                canManageTokens: model.isMultiWallet // [REDACTED_TODO_COMMENT]
             )
 
             return .multiWallet(
