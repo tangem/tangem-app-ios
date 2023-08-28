@@ -258,7 +258,13 @@ extension OrganizeTokensViewModel {
         // Process further only if a section is currently being dragged
         guard indexPath.item == sectionHeaderItemIndex else { return }
 
-        beginDragAndDropSession(forSectionWithIdentifier: sections[indexPath.section].id)
+        // Setting the sort option to `dragAndDrop` will cause an update of SwiftUI view identifiers for all
+        // cells and sections in `OrganizeTokensView`. This update may take a couple render passes,
+        // so we have to collapse the dragged section (by calling `beginDragAndDropSession(forSectionWithIdentifier:)`)
+        // with a small delay and wait for this update to finish, otherwise UI glitches may appear
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            self.beginDragAndDropSession(forSectionWithIdentifier: self.sections[indexPath.section].id)
+        }
     }
 
     func onDragAnimationCompletion() {
