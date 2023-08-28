@@ -300,7 +300,7 @@ class CardViewModel: Identifiable, ObservableObject {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
         guard let userWalletIdSeed = config.userWalletIdSeed,
-              let walletManagerFactory = try? config.makeAnyWalletManagerFacrory() else {
+              let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
             return nil
         }
 
