@@ -24,16 +24,6 @@ class CommonUserTokenListManager {
     private let initialTokenSyncSubject: CurrentValueSubject<Bool, Never>
     private let userTokensListSubject: CurrentValueSubject<StoredUserTokenList, Never>
 
-    // hotfix migration
-    private let hdWalletsSupported: Bool
-
-    private let hasTokenSynchronization: Bool
-
-    private let _initialSync: CurrentValueSubject<Bool, Never>
-    private let _userTokens: CurrentValueSubject<[StorageEntry.V3.Entry], Never>
-    private let _groupingOption: CurrentValueSubject<StorageEntry.V3.Grouping, Never>
-    private let _sortingOption: CurrentValueSubject<StorageEntry.V3.Sorting, Never>
-
     private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
@@ -66,12 +56,12 @@ class CommonUserTokenListManager {
         }
 
         updateLocalRepositoryFromServer { [weak self] _ in
-            self?._initialSync.send(true)
+            self?.initialTokenSyncSubject.send(true)
         }
     }
 }
 
-// MARK: - UserTokenListManager protocol conformance
+// MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
     var userTokens: [StorageEntry] {
@@ -120,7 +110,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         notifyAboutTokenListUpdates()
 
         if shouldUpload {
-            updateTokenListOnServer()
+            updateTokensOnServer()
         }
     }
 
@@ -133,14 +123,12 @@ extension CommonUserTokenListManager: UserTokenListManager {
         loadUserTokenList(result: result)
     }
 
-    func updateServerFromLocalRepository() {
+    func upload() {
         guard hasTokenSynchronization else { return }
 
-        updateTokenListOnServer()
+        updateTokensOnServer()
     }
 }
-
-// MARK: - UserTokensSyncService protocol conformance
 
 extension CommonUserTokenListManager: UserTokensSyncService {
     var isInitialSyncPerformed: Bool {
@@ -148,7 +136,7 @@ extension CommonUserTokenListManager: UserTokensSyncService {
     }
 
     var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        _initialSync.eraseToAnyPublisher()
+        initialTokenSyncSubject.eraseToAnyPublisher()
     }
 }
 
@@ -181,7 +169,7 @@ private extension CommonUserTokenListManager {
                 guard case .failure(let error) = completion else { return }
 
                 if error.code == .notFound {
-                    updateTokenListOnServer(result: result)
+                    updateTokensOnServer(result: result)
                 } else {
                     result(.failure(error as Error))
                 }
@@ -194,8 +182,8 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    func updateTokenListOnServer(
-        _ list: UserTokenList? = nil,
+    func updateTokensOnServer(
+        list: UserTokenList? = nil,
         result: @escaping (Result<Void, Error>) -> Void = { _ in }
     ) {
         let listToUpdate = list ?? getUserTokenList()
@@ -211,14 +199,6 @@ private extension CommonUserTokenListManager {
                     result(.failure(error))
                 }
             }
-    }
-
-    func updateTokenItemsRepository(with list: UserTokenList) {
-        let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
-
-        tokenItemsRepository.update(converter.convertToEntries(tokens: list.tokens))
-        tokenItemsRepository.groupingOption = converter.convertToGroupingOption(groupType: list.group)
-        tokenItemsRepository.sortingOption = converter.convertToSortingOption(sortType: list.sort)
     }
 
     func getUserTokenList() -> UserTokenList {

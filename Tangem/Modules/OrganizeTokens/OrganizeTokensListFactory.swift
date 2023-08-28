@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct BlockchainSdk.Token
 
 struct OrganizeTokensListFactory {
     private let tokenIconInfoBuilder: TokenIconInfoBuilder
@@ -90,7 +91,6 @@ struct OrganizeTokensListFactory {
         isDraggable: Bool,
         inGroupedSection: Bool
     ) -> OrganizeTokensListItemViewModel {
-        let converter = StorageEntriesConverter()
         let blockchain = userToken.blockchainNetwork.blockchain
         let isTestnet = blockchain.isTestnet
         let identifier = OrganizeTokensListItemViewModel.Identifier(
@@ -98,7 +98,7 @@ struct OrganizeTokensListFactory {
             inGroupedSection: inGroupedSection
         )
 
-        if let token = converter.convertToToken(userToken) {
+        if let token = token(from: userToken) {
             let tokenIcon = tokenIconInfoBuilder.build(for: .token(value: token), in: blockchain)
 
             return OrganizeTokensListItemViewModel(
@@ -122,6 +122,20 @@ struct OrganizeTokensListFactory {
             isTestnet: isTestnet,
             isNetworkUnreachable: false,
             isDraggable: isDraggable
+        )
+    }
+
+    private func token(
+        from userToken: OrganizeTokensSectionsAdapter.UserToken
+    ) -> BlockchainSdk.Token? {
+        guard let contractAddress = userToken.contractAddress else { return nil }
+
+        return BlockchainSdk.Token(
+            name: userToken.name,
+            symbol: userToken.symbol,
+            contractAddress: contractAddress,
+            decimalCount: userToken.decimalCount,
+            id: userToken.id
         )
     }
 
