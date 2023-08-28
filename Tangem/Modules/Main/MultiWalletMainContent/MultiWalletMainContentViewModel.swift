@@ -38,7 +38,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return false
         }
 
-        let numberOfTokens = sections.reduce(0) { $0 + $1.tokenItemModels.count }
+        let numberOfTokens = sections.reduce(0) { $0 + $1.items.count }
         let requiredNumberOfTokens = 2
 
         return numberOfTokens >= requiredNumberOfTokens
@@ -67,7 +67,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
-        self.sectionsAdapter = sectionsAdapter,
+        self.sectionsAdapter = sectionsAdapter
         self.isManageTokensAvailable = isManageTokensAvailable
 
         setup()
