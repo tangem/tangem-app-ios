@@ -59,13 +59,12 @@ extension ScanCardSettingsViewModel {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
-        guard let existingCardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CardViewModel else {
-            return
-        }
-
         var cardInfo = cardInfo
-        cardInfo.name = existingCardModel.name
+
+        // [REDACTED_TODO_COMMENT]
+        if let existingCardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CardViewModel {
+            cardInfo.name = existingCardModel.name
+        }
 
         guard let newCardViewModel = CardViewModel(cardInfo: cardInfo) else {
             return
