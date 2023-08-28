@@ -94,14 +94,14 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             walletModelsDidChangePublisher,
         ].merge()
 
-        let organizedWalletModelsPublisher = organizeTokensSectionsAdapter
+        let organizedTokensSectionsPublisher = organizeTokensSectionsAdapter
             .organizedSections(from: aggregatedWalletModelsPublisher, on: mappingQueue)
             .share(replay: 1)
 
         let cache = dragAndDropActionsCache
 
         // Resetting drag-and-drop actions cache for grouped sections
-        organizedWalletModelsPublisher
+        organizedTokensSectionsPublisher
             .withLatestFrom(organizeTokensOptionsProviding.groupingOption) { ($0, $1) }
             .filter { $0.1.isGrouped }
             .map(\.0)
@@ -110,7 +110,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         // Resetting drag-and-drop actions cache for plain (non-grouped) sections
-        organizedWalletModelsPublisher
+        organizedTokensSectionsPublisher
             .withLatestFrom(organizeTokensOptionsProviding.groupingOption) { ($0, $1) }
             .filter { !$0.1.isGrouped }
             .map(\.0)
@@ -118,7 +118,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
             .store(in: &bag)
 
-        organizedWalletModelsPublisher
+        organizedTokensSectionsPublisher
             .withLatestFrom(
                 organizeTokensOptionsProviding.sortingOption,
                 organizeTokensOptionsProviding.groupingOption
