@@ -21,52 +21,54 @@ struct MultiWalletTokenItemsSectionFactory {
         }
     }
 
-    func makeSectionItemViewModels(
-        from sectionItems: [OrganizeTokensSectionsAdapter.SectionItem],
+    func makeSectionItemViewModel(
+        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem,
         tapAction: @escaping (WalletModel.ID) -> Void
-    ) -> [TokenItemViewModel] {
+    ) -> TokenItemViewModel {
+        let infoProvider = makeSectionItemInfoProvider(from: sectionItem)
+        let priceChangeProvider = makeSectionItemPriceChangeProvider(from: sectionItem)
         let iconInfoBuilder = TokenIconInfoBuilder()
-        let infoProviders = makeSectionItemInfoProviders(from: sectionItems)
+        let tokenItem = infoProvider.tokenItem
+        let tokenIcon = iconInfoBuilder.build(from: tokenItem)
 
-        return infoProviders.map { infoProvider in
-            let tokenItem = infoProvider.tokenItem
-            let tokenIcon = iconInfoBuilder.build(from: tokenItem)
+        return TokenItemViewModel(
+            id: infoProvider.id,
+            tokenIcon: tokenIcon,
+            tokenItem: tokenItem,
+            tokenTapped: tapAction,
+            infoProvider: infoProvider,
+            priceChangeProvider: priceChangeProvider
+        )
+    }
 
-            return TokenItemViewModel(
-                id: infoProvider.id,
-                tokenIcon: tokenIcon,
-                tokenItem: tokenItem,
-                tokenTapped: tapAction,
-                infoProvider: infoProvider,
-                priceChangeProvider: PriceChangeProviderMock()
+    private func makeSectionItemInfoProvider(
+        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem
+    ) -> TokenItemInfoProvider {
+        switch sectionItem {
+        case .default(let walletModel):
+            return DefaultTokenItemInfoProvider(walletModel: walletModel)
+        case .withoutDerivation(let userToken):
+            let converter = StorageEntryConverter()
+            let walletModelId = userToken.walletModelId
+            let blockchain = userToken.blockchainNetwork.blockchain
+
+            if let token = converter.convertToToken(userToken) {
+                return TokenWithoutDerivationInfoProvider(
+                    id: walletModelId,
+                    tokenItem: .token(token, blockchain)
+                )
+            }
+
+            return TokenWithoutDerivationInfoProvider(
+                id: walletModelId,
+                tokenItem: .blockchain(blockchain)
             )
         }
     }
 
-    private func makeSectionItemInfoProviders(
-        from sectionItems: [OrganizeTokensSectionsAdapter.SectionItem]
-    ) -> [TokenItemInfoProvider] {
-        return sectionItems.map { sectionItem in
-            switch sectionItem {
-            case .default(let walletModel):
-                return DefaultTokenItemInfoProvider(walletModel: walletModel)
-            case .withoutDerivation(let userToken):
-                let converter = StorageEntryConverter()
-                let walletModelId = userToken.walletModelId
-                let blockchain = userToken.blockchainNetwork.blockchain
-
-                if let token = converter.convertToToken(userToken) {
-                    return TokenWithoutDerivationInfoProvider(
-                        id: walletModelId,
-                        tokenItem: .token(token, blockchain)
-                    )
-                }
-
-                return TokenWithoutDerivationInfoProvider(
-                    id: walletModelId,
-                    tokenItem: .blockchain(blockchain)
-                )
-            }
-        }
+    private func makeSectionItemPriceChangeProvider(
+        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem
+    ) -> PriceChangeProvider {
+        PriceChangeProviderMock()
     }
 }
