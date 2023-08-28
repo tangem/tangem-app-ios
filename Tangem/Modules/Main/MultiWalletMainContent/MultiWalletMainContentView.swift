@@ -49,18 +49,9 @@ struct MultiWalletMainContentView: View {
                 )
                 .infinityFrame(axis: .horizontal)
             }
-
-            // [REDACTED_TODO_COMMENT]
-            if viewModel.isManageTokensAvailable {
-                MainButton(
-                    title: Localization.mainManageTokens,
-                    action: viewModel.openManageTokens
-                )
-            }
         }
         .animation(.default, value: viewModel.missingDerivationNotificationSettings)
         .padding(.horizontal, 16)
-        .padding(.bottom, 40)
     }
 
     private var tokensContent: some View {
@@ -134,7 +125,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletModel: userWalletModel,
             coordinator: mainCoordinator,
             sectionsAdapter: sectionsAdapter,
-            isManageTokensAvailable: userWalletModel.isMultiWallet
+            canManageTokens: userWalletModel.isMultiWallet
         )
     }()
 
