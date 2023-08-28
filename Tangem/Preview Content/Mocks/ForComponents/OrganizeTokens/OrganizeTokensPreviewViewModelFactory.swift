@@ -15,7 +15,8 @@ struct OrganizeTokensPreviewViewModelFactory {
         let optionsManager = OrganizeTokensOptionsManagerStub()
         let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            organizeTokensOptionsProviding: optionsManager
+            organizeTokensOptionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
 
         return OrganizeTokensViewModel(
