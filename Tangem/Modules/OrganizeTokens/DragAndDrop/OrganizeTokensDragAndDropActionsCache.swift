@@ -44,6 +44,11 @@ final class OrganizeTokensDragAndDropActionsCache {
         }
     }
 
+    func reset() {
+        reset(isGroupingEnabled: true)
+        reset(isGroupingEnabled: false)
+    }
+
     private func reset(isGroupingEnabled: Bool) {
         if isGroupingEnabled {
             cachedGroupedListActions.removeAll()
