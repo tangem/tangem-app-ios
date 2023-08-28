@@ -41,8 +41,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let tokenIcon: TokenIconInfo
     private let tokenItem: TokenItem
     private let tokenTapped: (WalletModelId) -> Void
-    private weak var infoProvider: TokenItemInfoProvider?
-    private weak var priceChangeProvider: PriceChangeProvider?
+    private let infoProvider: TokenItemInfoProvider
+    private let priceChangeProvider: PriceChangeProvider
 
     private var bag = Set<AnyCancellable>()
 
@@ -69,7 +69,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        infoProvider?.tokenItemStatePublisher
+        infoProvider.tokenItemStatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
                 guard let self else { return }
@@ -97,7 +97,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        priceChangeProvider?.priceChangePublisher
+        priceChangeProvider.priceChangePublisher
             .receive(on: DispatchQueue.main)
             .compactMap { [weak self] _ -> String? in
                 guard let self else { return nil }
@@ -114,16 +114,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func updatePendingTransactionsStateIfNeeded() {
-        // [REDACTED_TODO_COMMENT]
-        guard let infoProvider = infoProvider else { return }
-
         hasPendingTransactions = infoProvider.hasPendingTransactions
     }
 
     private func updateBalances() {
-        // [REDACTED_TODO_COMMENT]
-        guard let infoProvider = infoProvider else { return }
-
         balanceCrypto = .loaded(text: infoProvider.balance)
         balanceFiat = .loaded(text: infoProvider.fiatBalance)
     }
