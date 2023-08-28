@@ -21,6 +21,8 @@ class FakeWalletModelsManager: WalletModelsManager {
             .eraseToAnyPublisher()
     }
 
+    var signatureCountValidator: SignatureCountValidator? { nil }
+
     private let walletModelsSubject: CurrentValueSubject<[WalletModel], Never>
     private var updateAllSubscription: AnyCancellable?
 

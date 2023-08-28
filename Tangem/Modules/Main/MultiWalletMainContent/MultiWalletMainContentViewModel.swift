@@ -18,8 +18,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var sections: [MultiWalletTokenItemsSection] = []
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
     @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
+    @Published var notificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
+    @Published var error: AlertBinder? = nil
 
     var bottomOverlayViewModel: MainBottomOverlayViewModel? {
         guard canManageTokens else { return nil }
@@ -45,6 +47,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
+    private let userWalletNotificationManager: NotificationManager
     private unowned let coordinator: MultiWalletMainContentRoutable
     private var sectionsProvider: TokenListInfoProvider
     private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
@@ -54,11 +57,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     init(
         userWalletModel: UserWalletModel,
+        userWalletNotificationManager: NotificationManager,
         coordinator: MultiWalletMainContentRoutable,
         sectionsProvider: TokenListInfoProvider,
         canManageTokens: Bool
     ) {
         self.userWalletModel = userWalletModel
+        self.userWalletNotificationManager = userWalletNotificationManager
         self.coordinator = coordinator
         self.sectionsProvider = sectionsProvider
         self.canManageTokens = canManageTokens
@@ -145,6 +150,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 self?.updateBackupStatus()
             }
             .store(in: &bag)
+
+        userWalletNotificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func subscribeToTokenListUpdatesIfNeeded() {
@@ -184,7 +195,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
     }
 
@@ -194,7 +205,35 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
+    }
+}
+
+extension MultiWalletMainContentViewModel: UserWalletNotificationDelegate {
+    func tapUserWalletNotification(with id: NotificationViewId) {
+        guard
+            let notification = notificationInputs.first(where: { $0.id == id }),
+            let event = notification.settings.event
+        else {
+            userWalletNotificationManager.dismissNotification(with: id)
+            return
+        }
+
+        switch event {
+        case .multiWalletSignedHashes:
+            error = AlertBuilder.makeAlert(
+                title: event.title,
+                message: Localization.alertSignedHashesMessage,
+                with: .withPrimaryCancelButton(
+                    secondaryTitle: Localization.commonUnderstand,
+                    secondaryAction: { [weak self] in
+                        self?.userWalletNotificationManager.dismissNotification(with: id)
+                    }
+                )
+            )
+        default:
+            assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
+        }
     }
 }
