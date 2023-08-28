@@ -124,20 +124,17 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
         let optionsManager = OrganizeTokensOptionsManagerStub()
-        let walletModelComponentsBuilder = WalletModelComponentsBuilder(
-            supportedBlockchains: userWalletModel.config.supportedBlockchains
-        )
         let sectionsAdapter = OrganizeTokensSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            walletModelComponentsBuilder: walletModelComponentsBuilder,
-            organizeTokensOptionsProviding: optionsManager
+            organizeTokensOptionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
 
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             coordinator: mainCoordinator,
             sectionsAdapter: sectionsAdapter,
-isManageTokensAvailable: userWalletModel.isMultiWallet
+            isManageTokensAvailable: userWalletModel.isMultiWallet
         )
     }()
 
