@@ -157,14 +157,13 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     ) -> [OrganizeTokensListSection] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let listFactory = OrganizeTokensListFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
-        let isListItemsDraggable = isListItemDraggable(sortingOption: sortingOption)
 
         var listItemViewModels = sections.enumerated().map { index, section in
             let isListSectionGrouped = isListSectionGrouped(section)
             let items = section.items.map { item in
                 listFactory.makeListItemViewModel(
                     sectionItem: item,
-                    isDraggable: isListItemsDraggable,
+                    isDraggable: !sortingOption.isSorted,
                     inGroupedSection: isListSectionGrouped
                 )
             }
@@ -181,17 +180,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         }
 
         return listItemViewModels
-    }
-
-    private static func isListItemDraggable(
-        sortingOption: UserTokensReorderingOptions.Sorting
-    ) -> Bool {
-        switch sortingOption {
-        case .manual:
-            return true
-        case .byBalance:
-            return false
-        }
     }
 
     private static func isListSectionGrouped(
