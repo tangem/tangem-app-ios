@@ -11,9 +11,16 @@ import SwiftUI
 struct SingleWalletMainContentView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
+    private let notificationTransition: AnyTransition = .scale.combined(with: .opacity)
+
     var body: some View {
         VStack(spacing: 14) {
             ScrollableButtonsView(itemsHorizontalOffset: 16, buttonsInfo: viewModel.actionButtons)
+
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(notificationTransition)
+            }
 
             TransactionsListView(
                 state: viewModel.transactionHistoryState,
@@ -25,6 +32,7 @@ struct SingleWalletMainContentView: View {
             )
             .padding(.bottom, 40)
         }
+        .animation(.default, value: viewModel.notificationInputs)
         .padding(.horizontal, 16)
     }
 }
@@ -46,6 +54,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             walletModel: userWalletModel.walletModelsManager.walletModels.first!,
             userTokensManager: userWalletModel.userTokensManager,
             exchangeUtility: cryptoUtility,
+            userWalletNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator
         )
     }()
