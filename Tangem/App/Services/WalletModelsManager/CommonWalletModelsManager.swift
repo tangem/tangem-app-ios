@@ -99,6 +99,10 @@ extension CommonWalletModelsManager: WalletModelsManager {
         }
     }
 
+    var signatureCountValidator: SignatureCountValidator? {
+        walletManagersRepository.signatureCountValidator
+    }
+
     func updateAll(silent: Bool, completion: @escaping () -> Void) {
         let publishers = walletModels.map {
             $0.update(silent: silent)
