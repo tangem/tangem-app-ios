@@ -30,5 +30,5 @@ struct LockedUserTokenListManager: UserTokenListManager {
         result(.success(()))
     }
 
-    func updateServerFromLocalRepository() {}
+    func upload() {}
 }
