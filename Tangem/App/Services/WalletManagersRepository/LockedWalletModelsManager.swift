@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import protocol BlockchainSdk.SignatureCountValidator
+import BlockchainSdk
 
 struct LockedWalletModelsManager: WalletModelsManager {
     var walletModels: [WalletModel] { [] }
