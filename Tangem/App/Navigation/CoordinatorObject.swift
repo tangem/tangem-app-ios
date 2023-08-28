@@ -24,7 +24,6 @@ protocol CoordinatorObject: ObservableObject, Identifiable {
     var popToRootAction: Action<PopToRootOptions> { get }
 
     func start(with options: InputOptions)
-    func dismiss()
 
     init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>)
 }
