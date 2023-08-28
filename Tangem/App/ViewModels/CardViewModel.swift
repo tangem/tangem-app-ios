@@ -308,13 +308,9 @@ class CardViewModel: Identifiable, ObservableObject {
         self.config = config
         keysRepository = CommonKeysRepository(with: cardInfo.card.wallets)
 
-        let userWalletId = UserWalletId(with: userWalletIdSeed)
-        self.userWalletId = userWalletId
-
-        let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
+        userWalletId = UserWalletId(with: userWalletIdSeed)
         userTokenListManager = CommonUserTokenListManager(
             userWalletId: userWalletId.value,
-            tokenItemsRepository: tokenItemsRepository,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: config.hasFeature(.hdWallets),
             hasTokenSynchronization: config.hasFeature(.tokenSynchronization)
