@@ -118,6 +118,13 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
             .store(in: &bag)
 
+        // Resetting drag-and-drop actions cache unconditionally when sort option is changed
+        organizeTokensOptionsProviding
+            .sortingOption
+            .removeDuplicates()
+            .sink { _ in cache.reset() }
+            .store(in: &bag)
+
         organizedTokensSectionsPublisher
             .withLatestFrom(
                 organizeTokensOptionsProviding.sortingOption,
