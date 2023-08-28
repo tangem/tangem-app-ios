@@ -141,6 +141,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                 return viewModel.organizeTokensOptionsEditing.save(reorderedWalletModelIds: walletModelIds)
             }
             .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
             .sink { viewModel, _ in
                 viewModel.coordinator.didTapSaveButton()
             }

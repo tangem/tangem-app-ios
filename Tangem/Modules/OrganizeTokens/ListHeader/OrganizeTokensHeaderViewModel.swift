@@ -82,9 +82,9 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
         onToggleGroupState
             .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
             .withWeakCaptureOf(self)
-            .sink { _ in
-                self.organizeTokensOptionsEditing.group(
-                    by: self.isGroupingEnabled ? .none : .byBlockchainNetwork
+            .sink { viewModel, _ in
+                viewModel.organizeTokensOptionsEditing.group(
+                    by: viewModel.isGroupingEnabled ? .none : .byBlockchainNetwork
                 )
             }
             .store(in: &bag)
