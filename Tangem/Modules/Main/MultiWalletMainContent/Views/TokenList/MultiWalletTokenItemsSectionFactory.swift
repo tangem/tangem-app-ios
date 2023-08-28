@@ -50,19 +50,21 @@ struct MultiWalletTokenItemsSectionFactory {
             switch sectionItem {
             case .default(let walletModel):
                 return DefaultTokenItemInfoProvider(walletModel: walletModel)
-            case .withoutDerivation(let userToken, let blockchainNetwork, let walletModelId):
-                let converter = StorageEntriesConverter()
+            case .withoutDerivation(let userToken):
+                let converter = StorageEntryConverter()
+                let walletModelId = userToken.walletModelId
+                let blockchain = userToken.blockchainNetwork.blockchain
 
                 if let token = converter.convertToToken(userToken) {
                     return TokenWithoutDerivationInfoProvider(
                         id: walletModelId,
-                        tokenItem: .token(token, blockchainNetwork.blockchain)
+                        tokenItem: .token(token, blockchain)
                     )
                 }
 
                 return TokenWithoutDerivationInfoProvider(
                     id: walletModelId,
-                    tokenItem: .blockchain(blockchainNetwork.blockchain)
+                    tokenItem: .blockchain(blockchain)
                 )
             }
         }
