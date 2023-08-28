@@ -108,7 +108,7 @@ extension WarningEvent {
         }
     }
 
-    var withAction: Bool {
+    var hasAction: Bool {
         switch self {
         case .multiWalletSignedHashes:
             return true
