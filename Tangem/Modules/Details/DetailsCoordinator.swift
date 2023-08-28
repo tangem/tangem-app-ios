@@ -11,8 +11,8 @@ import UIKit
 import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    var dismissAction: Action<Void>
+    var popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Main view model
 
@@ -39,7 +39,7 @@ class DetailsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
-    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -64,7 +64,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
             self?.detailsViewModel?.didFinishOnboarding()
         }
@@ -118,7 +118,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openReferral(input: ReferralInputModel) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.referralCoordinator = nil
         }
 
