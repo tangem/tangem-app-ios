@@ -161,10 +161,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
         var listItemViewModels = sections.enumerated().map { index, section in
             let isListSectionGrouped = isListSectionGrouped(section)
+            let isDraggable = section.items.count > 1
             let items = section.items.map { item in
                 listFactory.makeListItemViewModel(
                     sectionItem: item,
-                    isDraggable: !sortingOption.isSorted,
+                    isDraggable: isDraggable,
                     inGroupedSection: isListSectionGrouped
                 )
             }
@@ -244,6 +245,9 @@ extension OrganizeTokensViewModel {
     }
 
     func onDragStart(at indexPath: IndexPath) {
+        // Drag-and-drop always disables sorting by balance
+        organizeTokensOptionsEditing.sort(by: .dragAndDrop)
+
         // Process further only if a section is currently being dragged
         guard indexPath.item == sectionHeaderItemIndex else { return }
 
