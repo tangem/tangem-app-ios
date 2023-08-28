@@ -109,10 +109,7 @@ final class OrganizeTokensSectionsAdapter {
 
             let sortedSectionItems = self.sectionItems(sectionItems, sortedBy: sortingOption)
 
-            return Section(
-                model: .group(by: blockchainNetwork),
-                items: sortedSectionItems
-            )
+            return Section(model: .group(by: blockchainNetwork), items: sortedSectionItems)
         }
     }
 
@@ -122,12 +119,7 @@ final class OrganizeTokensSectionsAdapter {
     ) -> [Section] {
         let sortedSectionItems = self.sectionItems(sectionItems, sortedBy: sortingOption)
 
-        return [
-            Section(
-                model: .plain,
-                items: sortedSectionItems
-            ),
-        ]
+        return [Section(model: .plain, items: sortedSectionItems)]
     }
 
     private func makeSectionItems(
@@ -136,9 +128,7 @@ final class OrganizeTokensSectionsAdapter {
         groupingOption: GroupingOption,
         sortingOption: SortingOption
     ) -> [SectionItem] {
-        let walletModelsKeyedByIds = walletModels
-            .keyedFirst(by: \.id)
-
+        let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
         let blockchainNetworksFromWalletModels = walletModels
             .map(\.blockchainNetwork)
             .toSet()
@@ -184,8 +174,8 @@ final class OrganizeTokensSectionsAdapter {
             sectionItemsKeyedByIds.removeValue(forKey: walletModelId)
         }
 
-        // We have several new section items since the last cache update in
-        // `cachedOrderedWalletModelIds`, appending them to the end of the list
+        // We have several new and not previously known section items since the last cache
+        // update in `cachedOrderedWalletModelIds`, appending them to the end of the list
         if !sectionItemsKeyedByIds.isEmpty {
             for sectionItem in sectionItems {
                 if sectionItemsKeyedByIds[sectionItem.walletModelId] != nil {
