@@ -40,12 +40,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         }
 
         if isMultiWalletPage {
-        if model.isMultiWallet {
             let sectionsAdapter = makeSectionsAdapter(for: model)
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 coordinator: coordinator,
-                sectionsAdapter: sectionsAdapter
+                sectionsAdapter: sectionsAdapter,
                 isManageTokensAvailable: model.isMultiWallet
             )
 
@@ -86,18 +85,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     }
 
     private func makeSectionsAdapter(for model: UserWalletModel) -> OrganizeTokensSectionsAdapter {
-        let userTokenListManager = model.userTokenListManager
-        let optionsManager = OrganizeTokensOptionsManager(
-            userTokenListManager: userTokenListManager
-        )
-        let walletModelComponentsBuilder = WalletModelComponentsBuilder(
-            supportedBlockchains: model.config.supportedBlockchains
-        )
+        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: model.userTokensManager)
 
         return OrganizeTokensSectionsAdapter(
-            userTokenListManager: userTokenListManager,
-            walletModelComponentsBuilder: walletModelComponentsBuilder,
-            organizeTokensOptionsProviding: optionsManager
+            userTokenListManager: model.userTokenListManager,
+            organizeTokensOptionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
     }
 }
