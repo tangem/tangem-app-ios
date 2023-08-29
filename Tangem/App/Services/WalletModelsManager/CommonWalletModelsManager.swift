@@ -46,8 +46,8 @@ class CommonWalletModelsManager {
             return [mainId] + tokenIds
         })
 
-        let walletModelIdsToDelete = Set(existingWalletModelIds).subtracting(newWalletModelIds)
-        let walletModelIdsToAdd = Set(newWalletModelIds).subtracting(existingWalletModelIds)
+        let walletModelIdsToDelete = existingWalletModelIds.subtracting(newWalletModelIds)
+        let walletModelIdsToAdd = newWalletModelIds.subtracting(existingWalletModelIds)
 
         guard !walletModelIdsToAdd.isEmpty || !walletModelIdsToDelete.isEmpty else {
             return
