@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 protocol UserWalletNotificationDelegate: AnyObject {
     func tapUserWalletNotification(with id: NotificationViewId)
@@ -15,17 +16,19 @@ protocol UserWalletNotificationDelegate: AnyObject {
 
 /// Manager for handling Notifications related to UserWalletModel.
 /// Don't forget to setup manager with delegate for proper notification handling
-class UserWalletNotificationManager {
+final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
 
     private let userWalletModel: UserWalletModel
+    private let signatureCountValidator: SignatureCountValidator?
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
     private weak var delegate: UserWalletNotificationDelegate?
     private var updateSubscription: AnyCancellable?
 
-    init(userWalletModel: UserWalletModel) {
+    init(userWalletModel: UserWalletModel, signatureCountValidator: SignatureCountValidator?) {
         self.userWalletModel = userWalletModel
+        self.signatureCountValidator = signatureCountValidator
     }
 
     func setupManager(with delegate: UserWalletNotificationDelegate? = nil) {
@@ -67,6 +70,7 @@ class UserWalletNotificationManager {
             })
     }
 
+    // [REDACTED_TODO_COMMENT]
     private func validateHashesCount() {
         let card = userWalletModel.userWallet.card
         let config = userWalletModel.config
@@ -108,7 +112,7 @@ class UserWalletNotificationManager {
             return
         }
 
-        guard let validator = userWalletModel.walletModelsManager.signatureCountValidator else {
+        guard let signatureCountValidator else {
             didFinishCountingHashes()
             let notification = factory.buildNotificationInput(
                 for: .numberOfSignedHashesIncorrect,
@@ -120,7 +124,7 @@ class UserWalletNotificationManager {
         }
 
         var validatorSubscription: AnyCancellable?
-        validatorSubscription = validator.validateSignatureCount(signedHashes: cardSignedHashes)
+        validatorSubscription = signatureCountValidator.validateSignatureCount(signedHashes: cardSignedHashes)
             .subscribe(on: DispatchQueue.global())
             .handleEvents(receiveCancel: {
                 AppLog.shared.debug("⚠️ Hash counter subscription cancelled")
