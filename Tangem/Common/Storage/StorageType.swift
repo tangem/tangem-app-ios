@@ -34,4 +34,5 @@ enum StorageType: String {
     case systemDeprecationWarningDismissDate = "tangem_system_deprecation_warning_dismiss_date"
     case understandsAddressNetworkRequirements = "tangem_understands_address_network_requirements"
     case promotionQuestionnaireFinished = "promotion_questionnaire_finished"
+    case hideSensitiveInformation = "hide_sensitive_information"
 }
