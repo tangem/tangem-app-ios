@@ -217,7 +217,7 @@ extension CommonUserTokensManager: UserTokensReordering {
     ) -> AnyPublisher<Void, Never> {
         return Deferred { [userTokenListManager = self.userTokenListManager] in
             Future<Void, Never> { promise in
-                guard !reorderingActions.isEmpty else {
+                if reorderingActions.isEmpty {
                     promise(.success(()))
                     return
                 }
