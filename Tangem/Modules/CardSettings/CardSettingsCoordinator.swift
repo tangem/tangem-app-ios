@@ -53,7 +53,7 @@ extension CardSettingsCoordinator {
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
     func openOnboarding(with input: OnboardingInput, hasOtherCards: Bool) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
         }
 
