@@ -19,6 +19,7 @@ struct LoadableTextView: View {
     var loaderTopPadding: CGFloat = 0.0
 
     var lineLimit: Int = 1
+    var isSensitiveText: Bool = false
 
     var body: some View {
         switch state {
@@ -35,10 +36,16 @@ struct LoadableTextView: View {
                 .cornerRadiusContinuous(loaderCornerRadius)
                 .padding(.top, loaderTopPadding)
         case .loaded(let text):
-            Text(text)
-                .style(font, color: textColor)
-                .lineLimit(lineLimit)
-                .frame(minHeight: loaderSize.height)
+            Group {
+                if isSensitiveText {
+                    SensitiveText(text)
+                } else {
+                    Text(text)
+                }
+            }
+            .style(font, color: textColor)
+            .lineLimit(lineLimit)
+            .frame(minHeight: loaderSize.height)
         }
     }
 }
