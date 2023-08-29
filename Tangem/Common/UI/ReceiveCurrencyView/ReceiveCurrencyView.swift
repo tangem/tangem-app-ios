@@ -36,11 +36,13 @@ struct ReceiveCurrencyView: View {
 
             Spacer()
 
-            if let balanceString = viewModel.balanceString {
-                Text(balanceString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: .zero) {
+                Text(Localization.commonBalance(""))
+
+                SensitiveText(viewModel.balanceString)
             }
+            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .fixedSize(horizontal: false, vertical: true)
         }
     }
 
