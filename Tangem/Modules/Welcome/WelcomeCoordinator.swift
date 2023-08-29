@@ -79,7 +79,7 @@ extension WelcomeCoordinator {
 
 extension WelcomeCoordinator: WelcomeRoutable {
     func openOnboarding(with input: OnboardingInput) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.pushedOnboardingCoordinator = nil
         }
 
