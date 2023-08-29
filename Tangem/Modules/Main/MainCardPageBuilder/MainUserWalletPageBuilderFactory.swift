@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 protocol MainUserWalletPageBuilderFactory {
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder?
@@ -26,7 +27,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             subtitleProvider: subtitleProvider,
             balanceProvider: model
         )
-        let userWalletNotificationManager = UserWalletNotificationManager(userWalletModel: model)
+
+        let signatureCountValidator = selectSignatureCountValidator(for: model)
+        let userWalletNotificationManager = UserWalletNotificationManager(
+            userWalletModel: model,
+            signatureCountValidator: signatureCountValidator
+        )
 
         if model.isUserWalletLocked {
             return .lockedWallet(
@@ -91,5 +97,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
     func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> [MainUserWalletPageBuilder] {
         return models.compactMap { createPage(for: $0, lockedUserWalletDelegate: lockedUserWalletDelegate) }
+    }
+
+    private func selectSignatureCountValidator(for userWalletModel: UserWalletModel) -> SignatureCountValidator? {
+        if userWalletModel.isMultiWallet {
+            return nil
+        }
+
+        return userWalletModel.walletModelsManager.walletModels.first?.signatureCountValidator
     }
 }
