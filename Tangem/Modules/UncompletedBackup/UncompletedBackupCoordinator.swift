@@ -52,7 +52,7 @@ extension UncompletedBackupCoordinator {
 
 extension UncompletedBackupCoordinator: UncompletedBackupRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
             self?.dismiss()
         }
