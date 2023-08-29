@@ -60,6 +60,18 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
     private let customDerivationItemID = "custom-derivation"
     private let settings: LegacyManageTokensSettings
 
+    private var supportedBlockchains: Set<Blockchain> {
+        settings.supportedBlockchains
+            .filter {
+                guard let derivationStyle = settings.derivationStyle,
+                      $0.derivationPath(for: derivationStyle) != nil else {
+                    return false
+                }
+
+                return true
+            }
+    }
+
     init(
         settings: LegacyManageTokensSettings,
         userTokensManager: UserTokensManager,
@@ -139,7 +151,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.customTokenScreenOpened)
-        updateBlockchains(settings.supportedBlockchains)
+        updateBlockchains(supportedBlockchains)
         updateDerivationPaths()
     }
 
@@ -190,7 +202,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         if !settings.hdWalletsSupported {
             derivations = []
         } else {
-            derivations = settings.supportedBlockchains
+            derivations = supportedBlockchains
                 .compactMap {
                     guard let derivationStyle = settings.derivationStyle,
                           let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
@@ -331,7 +343,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         }
 
         let requestModel = CoinsList.Request(
-            supportedBlockchains: settings.supportedBlockchains,
+            supportedBlockchains: supportedBlockchains,
             contractAddress: contractAddress
         )
 
@@ -350,7 +362,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             partialResult.union(currencyModel.items.map { $0.blockchain })
         }
 
-        let blockchains = settings.supportedBlockchains
+        let blockchains = supportedBlockchains
         updateBlockchains(blockchains, newSelectedBlockchain: currencyModelBlockchains.first)
 
         self.foundStandardToken = currencyModels.first
