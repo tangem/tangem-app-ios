@@ -45,7 +45,7 @@ struct CircleActionButton: View {
                 .font(Font.system(size: 17.0, weight: .light, design: .default))
                 .foregroundColor(isVerify ? Color.white : imageColor)
             }
-            .overlay(!isDisabled ? Color.clear : Color.white.opacity(0.4))
+            .overlay(!isDisabled ? Color.clear : Colors.Button.secondary)
         })
         .buttonStyle(PlainButtonStyle())
     }
