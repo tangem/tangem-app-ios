@@ -78,7 +78,7 @@ struct PushTxView: View {
                     Separator()
                     HStack {
                         Spacer()
-                        Text(viewModel.walletTotalBalanceFormatted)
+                        SensitiveText(viewModel.walletTotalBalanceFormatted, modify: Localization.commonBalance)
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
