@@ -11,6 +11,12 @@ import SwiftUI
 struct OrganizeTokensHeaderView: View {
     @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var buttonShadowOpacity: CGFloat {
+        return colorScheme == .light ? Constants.lightModeButtonShadowOpacity : Constants.darkModeButtonShadowOpacity
+    }
+
     var body: some View {
         HStack(spacing: 8.0) {
             Group {
@@ -21,7 +27,7 @@ struct OrganizeTokensHeaderView: View {
                     action: viewModel.toggleSortState
                 )
                 // [REDACTED_TODO_COMMENT]
-                .shadow(color: Colors.Button.primary.opacity(sortByBalanceButtonShadowOpacity), radius: 5.0)
+                .shadow(color: Colors.Background.action.opacity(sortByBalanceButtonShadowOpacity), radius: 5.0)
 
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
@@ -29,7 +35,7 @@ struct OrganizeTokensHeaderView: View {
                     action: viewModel.toggleGroupState
                 )
                 // [REDACTED_TODO_COMMENT]
-                .shadow(color: Colors.Button.primary.opacity(groupingButtonShadowOpacity), radius: 5.0)
+                .shadow(color: Colors.Background.action.opacity(groupingButtonShadowOpacity), radius: 5.0)
             }
             .background(
                 Colors.Background
@@ -41,11 +47,11 @@ struct OrganizeTokensHeaderView: View {
     }
 
     private var sortByBalanceButtonShadowOpacity: CGFloat {
-        return Constants.buttonShadowOpacity / (viewModel.isSortByBalanceEnabled ? 3.0 : 1.0)
+        return buttonShadowOpacity / (viewModel.isSortByBalanceEnabled ? 3.0 : 1.0)
     }
 
     private var groupingButtonShadowOpacity: CGFloat {
-        return Constants.buttonShadowOpacity
+        return buttonShadowOpacity
     }
 }
 
@@ -53,7 +59,8 @@ struct OrganizeTokensHeaderView: View {
 
 private extension OrganizeTokensHeaderView {
     enum Constants {
-        static let buttonShadowOpacity = 0.1
+        static let lightModeButtonShadowOpacity = 0.1
+        static let darkModeButtonShadowOpacity = 0.15
     }
 }
 
@@ -63,8 +70,8 @@ struct OrganizeTokensHeaderView_Previews: PreviewProvider {
     static var previews: some View {
         let optionsManager = OrganizeTokensOptionsManagerStub()
         let viewModel = OrganizeTokensHeaderViewModel(
-            organizeTokensOptionsProviding: optionsManager,
-            organizeTokensOptionsEditing: optionsManager
+            optionsProviding: optionsManager,
+            optionsEditing: optionsManager
         )
         return OrganizeTokensHeaderView(viewModel: viewModel)
     }
