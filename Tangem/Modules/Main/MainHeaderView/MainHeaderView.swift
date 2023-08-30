@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MainHeaderView: View {
     @ObservedObject var viewModel: MainHeaderViewModel
-    @ObservedObject var concealBalanceProvider: ConcealBalanceProvider = .shared
+    @ObservedObject var sensitiveTextVisibilityService: SensitiveTextVisibilityService = .shared
 
     private let imageSize: CGSize = .init(width: 120, height: 106)
     private let horizontalSpacing: CGFloat = 6
@@ -70,9 +70,9 @@ struct MainHeaderView: View {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Button {
-                concealBalanceProvider.toggleIsConceal()
+                sensitiveTextVisibilityService.toggleIsConceal()
             } label: {
-                Image(systemName: !concealBalanceProvider.isConceal ? "eye" : "eye.slash")
+                Image(systemName: !sensitiveTextVisibilityService.isConceal ? "eye" : "eye.slash")
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
             }

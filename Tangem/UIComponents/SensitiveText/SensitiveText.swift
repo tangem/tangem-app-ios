@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct SensitiveText: View {
-    @ObservedObject private var viewModel: ConcealBalanceProvider = .shared
+    @ObservedObject private var viewModel: SensitiveTextVisibilityService = .shared
     private let textType: TextType
 
     init(_ text: String) {
