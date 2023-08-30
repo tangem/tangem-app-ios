@@ -105,8 +105,16 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
                     reorderingActions.append(.setSortingOption(option: newValue))
                 }
 
-                if reorderedWalletModelIds != orderedWalletModelIds {
-                    reorderingActions.append(.reorder(reorderedWalletModelIds: reorderedWalletModelIds))
+                let isCurrentlySortedByDragAndDrop = sortingOption.currentValue == .dragAndDrop && sortingOption.newValue == nil
+                let isSortingOptionChangedToDragAndDrop = sortingOption.newValue == .dragAndDrop
+
+                // New order of wallet models is gonna be saved only if either the current value for sorting option is
+                // `dragAndDrop` and hasn't been changed or if the new value for sorting option is set to `dragAndDrop`,
+                // regardless of the current value
+                if isCurrentlySortedByDragAndDrop || isSortingOptionChangedToDragAndDrop {
+                    if reorderedWalletModelIds != orderedWalletModelIds {
+                        reorderingActions.append(.reorder(reorderedWalletModelIds: reorderedWalletModelIds))
+                    }
                 }
 
                 return manager.userTokensReorderer.reorder(reorderingActions)
