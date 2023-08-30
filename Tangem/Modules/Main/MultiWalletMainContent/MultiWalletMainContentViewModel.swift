@@ -171,7 +171,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         organizedTokensSectionsPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, sections in
-                viewModel.evictOldCachedTokenItemViewModels(sections)
+                viewModel.removeOldCachedTokenViewModels(sections)
             }
             .store(in: &bag)
 
@@ -218,7 +218,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
-    private func evictOldCachedTokenItemViewModels(_ sections: [TokenSectionsAdapter.Section]) {
+    private func removeOldCachedTokenViewModels(_ sections: [TokenSectionsAdapter.Section]) {
         let cacheKeys = sections
             .flatMap(\.walletModels)
             .map(ObjectIdentifier.init)
