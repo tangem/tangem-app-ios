@@ -85,7 +85,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                     .map(\.walletDidChangePublisher)
                     .merge()
             }
-            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .withLatestFrom(walletModelsPublisher)
             .eraseToAnyPublisher()
 
@@ -138,7 +138,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         onSave
-            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .receive(on: mappingQueue)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, _ in
