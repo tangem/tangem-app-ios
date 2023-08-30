@@ -99,6 +99,7 @@ struct SupportedBlockchains {
             .cronos,
             .octa,
             .chia(testnet: false),
+            .ducatus,
         ]
 
         // Tempopary support only old not extended cardano
