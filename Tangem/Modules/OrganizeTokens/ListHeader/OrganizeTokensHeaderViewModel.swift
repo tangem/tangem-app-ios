@@ -55,7 +55,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     }
 
     private func bind() {
-        guard !didBind else { return }
+        if didBind { return }
 
         organizeTokensOptionsProviding
             .groupingOption
