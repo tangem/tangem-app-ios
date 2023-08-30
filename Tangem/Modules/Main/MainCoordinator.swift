@@ -11,8 +11,8 @@ import Combine
 import BlockchainSdk
 
 class MainCoordinator: CoordinatorObject {
-    let dismissAction: Action
-    let popToRootAction: ParamsAction<PopToRootOptions>
+    let dismissAction: Action<Void>
+    let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
@@ -41,8 +41,8 @@ class MainCoordinator: CoordinatorObject {
     @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
     required init(
-        dismissAction: @escaping Action,
-        popToRootAction: @escaping ParamsAction<PopToRootOptions>
+        dismissAction: @escaping Action<Void>,
+        popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -69,7 +69,7 @@ extension MainCoordinator {
 
 extension MainCoordinator: MainRoutable {
     func openDetails(for cardModel: CardViewModel) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.detailsCoordinator = nil
         }
 
@@ -86,7 +86,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
         }
 
@@ -111,7 +111,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
 
         Analytics.log(.tokenIsTapped)
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
@@ -128,23 +128,23 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
         let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
-        let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
+        let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            organizeTokensOptionsProviding: optionsManager,
+            optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
 
         organizeTokensViewModel = OrganizeTokensViewModel(
             coordinator: self,
             walletModelsManager: userWalletModel.walletModelsManager,
-            organizeTokensSectionsAdapter: organizeTokensSectionsAdapter,
-            organizeTokensOptionsProviding: optionsManager,
-            organizeTokensOptionsEditing: optionsManager
+            tokenSectionsAdapter: tokenSectionsAdapter,
+            optionsProviding: optionsManager,
+            optionsEditing: optionsManager
         )
     }
 
     func openManageTokens(with settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.legacyTokenListCoordinator = nil
         }
 
@@ -250,7 +250,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.swappingCoordinator = nil
         }
 
