@@ -26,9 +26,9 @@ class SensitiveTextVisibilityService: ObservableObject {
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
     }
 
-    func toggleIsConceal() {
-        isHidden.toggle()
-        AppSettings.shared.isHidingSensitiveInformation = isHidden
+    func toggleVisibility() {
+        AppSettings.shared.isHidingSensitiveInformation.toggle()
+        isHidden = AppSettings.shared.isHidingSensitiveInformation
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }
@@ -46,7 +46,7 @@ private extension SensitiveTextVisibilityService {
     func orientationDidChange() {
         switch UIDevice.current.orientation {
         case .faceDown:
-            toggleIsConceal()
+            toggleVisibility()
         default:
             break
         }
