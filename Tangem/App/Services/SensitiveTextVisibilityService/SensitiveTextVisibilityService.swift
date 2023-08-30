@@ -38,6 +38,7 @@ private extension SensitiveTextVisibilityService {
         orientationDidChangeBag = NotificationCenter
             .default
             .publisher(for: UIDevice.orientationDidChangeNotification)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.orientationDidChange()
             }
