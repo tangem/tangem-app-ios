@@ -81,7 +81,7 @@ struct MainHeaderView: View {
 
     @ViewBuilder private var subtitleText: some View {
         Group {
-            if viewModel.isSubtitleContainsSensitiveInfo {
+            if viewModel.subtitleContainsSensitiveInfo {
                 SensitiveText(viewModel.subtitleInfo.message)
             } else {
                 Text(viewModel.subtitleInfo.message)
