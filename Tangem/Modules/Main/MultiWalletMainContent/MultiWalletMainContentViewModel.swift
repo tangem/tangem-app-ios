@@ -197,11 +197,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     if let cachedViewModel = cachedTokenItemViewModels[cacheKey] {
                         return cachedViewModel
                     }
-                    let viewModel = makeSectionItemViewModel(from: item, using: factory)
+                    let viewModel = makeTokenItemViewModel(from: item, using: factory)
                     cachedTokenItemViewModels[cacheKey] = viewModel
                     return viewModel
                 case .withoutDerivation:
-                    return makeSectionItemViewModel(from: item, using: factory)
+                    return makeTokenItemViewModel(from: item, using: factory)
                 }
             }
 
@@ -209,7 +209,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
-    private func makeSectionItemViewModel(
+    private func makeTokenItemViewModel(
         from sectionItem: TokenSectionsAdapter.SectionItem,
         using factory: MultiWalletTokenItemsSectionFactory
     ) -> TokenItemViewModel {
