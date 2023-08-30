@@ -70,7 +70,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .store(in: &bag)
 
         onToggleSortState
-            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.organizeTokensOptionsEditing.sort(
@@ -80,7 +80,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .store(in: &bag)
 
         onToggleGroupState
-            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.organizeTokensOptionsEditing.group(
