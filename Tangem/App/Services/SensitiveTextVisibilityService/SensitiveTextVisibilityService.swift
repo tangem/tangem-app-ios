@@ -13,11 +13,11 @@ import Combine
 class SensitiveTextVisibilityService: ObservableObject {
     static let shared = SensitiveTextVisibilityService()
 
-    @Published private(set) var isConceal: Bool
+    @Published private(set) var isHidden: Bool
     private var orientationDidChangeBag: AnyCancellable?
 
     private init() {
-        isConceal = AppSettings.shared.isHideSensitiveInformation
+        isHidden = AppSettings.shared.isHideSensitiveInformation
         bind()
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     }
@@ -27,8 +27,8 @@ class SensitiveTextVisibilityService: ObservableObject {
     }
 
     func toggleIsConceal() {
-        isConceal.toggle()
-        AppSettings.shared.isHideSensitiveInformation = isConceal
+        isHidden.toggle()
+        AppSettings.shared.isHideSensitiveInformation = isHidden
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }
