@@ -70,7 +70,7 @@ struct MainHeaderView: View {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Button {
-                sensitiveTextVisibilityService.toggleIsConceal()
+                sensitiveTextVisibilityService.toggleVisibility()
             } label: {
                 Image(systemName: sensitiveTextVisibilityService.isHidden ? "eye.slash" : "eye")
                     .renderingMode(.template)
