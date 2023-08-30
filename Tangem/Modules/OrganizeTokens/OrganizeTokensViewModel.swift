@@ -71,7 +71,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        guard !didBind else { return }
+        if didBind { return }
 
         let walletModelsPublisher = walletModelsManager
             .walletModelsPublisher
