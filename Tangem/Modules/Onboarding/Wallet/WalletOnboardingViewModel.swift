@@ -553,6 +553,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func backButtonAction() {
         switch currentStep {
+        case .seedPhraseIntro:
+            goToStep(.createWalletSelector)
+        case .seedPhraseGeneration, .seedPhraseImport:
+            goToStep(.seedPhraseIntro)
         case .seedPhraseUserValidation:
             goToStep(.seedPhraseGeneration)
         case .backupCards:
