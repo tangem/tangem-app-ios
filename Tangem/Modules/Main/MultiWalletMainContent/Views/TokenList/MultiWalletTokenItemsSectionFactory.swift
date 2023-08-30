@@ -34,10 +34,10 @@ struct MultiWalletTokenItemsSectionFactory {
         return TokenItemViewModel(
             id: infoProvider.id,
             tokenIcon: tokenIcon,
-            tokenItem: tokenItem,
-            tokenTapped: tapAction,
+            isTestnetToken: tokenItem.blockchain.isTestnet,
             infoProvider: infoProvider,
-            priceChangeProvider: priceChangeProvider
+            priceChangeProvider: priceChangeProvider,
+            tokenTapped: tapAction
         )
     }
 
