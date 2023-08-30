@@ -59,13 +59,12 @@ class CommonWalletModelsManager {
             walletModelIdsToDelete.contains($0.walletModelId)
         }
 
-        let dataToAdd: [BlockchainNetwork: [Amount.AmountType]] = walletModelIdsToAdd.reduce(into: [:]) { partialResult, item in
-            partialResult[item.blockchainNetwork, default: []].append(item.amountType)
-        }
+        let dataToAdd = Dictionary(grouping: walletModelIdsToAdd, by: { $0.blockchainNetwork })
 
         let walletModelsToAdd: [WalletModel] = dataToAdd.flatMap {
             if let walletManager = walletManagers[$0.key] {
-                return walletModelsFactory.makeWalletModels(for: $0.value, walletManager: walletManager)
+                let types = $0.value.map { $0.amountType }
+                return walletModelsFactory.makeWalletModels(for: types, walletManager: walletManager)
             }
 
             return []
