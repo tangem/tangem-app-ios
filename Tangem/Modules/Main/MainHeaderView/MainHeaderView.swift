@@ -65,7 +65,7 @@ struct MainHeaderView: View {
     }
 
     @ViewBuilder private var titleView: some View {
-        HStack {
+        HStack(spacing: 4) {
             Text(viewModel.userWalletName)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
