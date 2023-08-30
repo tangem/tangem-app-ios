@@ -10,7 +10,7 @@ import Foundation
 
 struct MultiWalletTokenItemsSectionFactory {
     func makeSectionViewModel(
-        from sectionType: OrganizeTokensSectionsAdapter.SectionType, atIndex index: Int
+        from sectionType: TokenSectionsAdapter.SectionType, atIndex index: Int
     ) -> MultiWalletMainContentViewModel.SectionViewModel {
         switch sectionType {
         case .plain:
@@ -22,7 +22,7 @@ struct MultiWalletTokenItemsSectionFactory {
     }
 
     func makeSectionItemViewModel(
-        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem,
+        from sectionItem: TokenSectionsAdapter.SectionItem,
         tapAction: @escaping (WalletModel.ID) -> Void
     ) -> TokenItemViewModel {
         let infoProvider = makeSectionItemInfoProvider(from: sectionItem)
@@ -42,7 +42,7 @@ struct MultiWalletTokenItemsSectionFactory {
     }
 
     private func makeSectionItemInfoProvider(
-        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem
+        from sectionItem: TokenSectionsAdapter.SectionItem
     ) -> TokenItemInfoProvider {
         switch sectionItem {
         case .default(let walletModel):
@@ -67,7 +67,7 @@ struct MultiWalletTokenItemsSectionFactory {
     }
 
     private func makeSectionItemPriceChangeProvider(
-        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem
+        from sectionItem: TokenSectionsAdapter.SectionItem
     ) -> PriceChangeProvider {
         PriceChangeProviderMock()
     }
