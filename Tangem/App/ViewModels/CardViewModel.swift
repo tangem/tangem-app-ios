@@ -225,10 +225,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.promotion)
     }
 
-    var supportedBlockchains: Set<Blockchain> {
-        config.supportedBlockchains
-    }
-
     var backupInput: OnboardingInput? {
         let factory = OnboardingInputFactory(
             cardInfo: cardInfo,
