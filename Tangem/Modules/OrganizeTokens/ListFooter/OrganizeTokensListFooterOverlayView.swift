@@ -11,10 +11,7 @@ import SwiftUI
 struct OrganizeTokensListFooterOverlayView: View {
     var body: some View {
         LinearGradient(
-            colors: [
-                Colors.Background.primary.opacity(0.0),
-                Colors.Background.primary.opacity(0.9),
-            ],
+            colors: [Colors.Background.fadeStart, Colors.Background.fadeEnd],
             startPoint: .top,
             endPoint: .bottom
         )
