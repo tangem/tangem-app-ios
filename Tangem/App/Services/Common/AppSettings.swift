@@ -64,7 +64,7 @@ class AppSettings {
     var promotionQuestionnaireFinished: Bool = false
 
     @AppStorageCompat(StorageType.hideSensitiveInformation)
-    var isHiddenSensitiveInformation: Bool = false
+    var isHidingSensitiveInformation: Bool = false
 
     static let shared: AppSettings = .init()
 
