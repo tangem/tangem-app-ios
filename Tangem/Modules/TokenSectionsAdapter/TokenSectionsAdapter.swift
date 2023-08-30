@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensSectionsAdapter.swift
+//  TokenSectionsAdapter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Combine
 import CombineExt
 
 /// Placed in a separate module because it is used by both 'Main' and 'Organize Tokens' modules
-final class OrganizeTokensSectionsAdapter {
+final class TokenSectionsAdapter {
     typealias Section = SectionModel<SectionType, SectionItem>
     typealias UserToken = StoredUserTokenList.Entry
     typealias GroupingOption = UserTokensReorderingOptions.Grouping
@@ -25,11 +25,11 @@ final class OrganizeTokensSectionsAdapter {
     enum SectionItem {
         /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
         case `default`(WalletModel)
-        case withoutDerivation(OrganizeTokensSectionsAdapter.UserToken)
+        case withoutDerivation(TokenSectionsAdapter.UserToken)
     }
 
     private let userTokenListManager: UserTokenListManager
-    private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
+    private let optionsProviding: OrganizeTokensOptionsProviding
 
     private let preservesLastSortedOrderOnSwitchToDragAndDrop: Bool
     private var cachedOrderedWalletModelIdsForPlainSections: [WalletModel.ID] = []
@@ -37,11 +37,11 @@ final class OrganizeTokensSectionsAdapter {
 
     init(
         userTokenListManager: UserTokenListManager,
-        organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
+        optionsProviding: OrganizeTokensOptionsProviding,
         preservesLastSortedOrderOnSwitchToDragAndDrop: Bool
     ) {
         self.userTokenListManager = userTokenListManager
-        self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
+        self.optionsProviding = optionsProviding
         self.preservesLastSortedOrderOnSwitchToDragAndDrop = preservesLastSortedOrderOnSwitchToDragAndDrop
     }
 
@@ -52,8 +52,8 @@ final class OrganizeTokensSectionsAdapter {
         return walletModels
             .combineLatest(
                 userTokenListManager.userTokensListPublisher,
-                organizeTokensOptionsProviding.groupingOption,
-                organizeTokensOptionsProviding.sortingOption
+                optionsProviding.groupingOption,
+                optionsProviding.sortingOption
             )
             .receive(on: workingQueue)
             .withWeakCaptureOf(self)
@@ -260,7 +260,7 @@ final class OrganizeTokensSectionsAdapter {
 
 // MARK: - Convenience extensions
 
-private extension OrganizeTokensSectionsAdapter.SectionItem {
+private extension TokenSectionsAdapter.SectionItem {
     var blockchainNetwork: BlockchainNetwork {
         switch self {
         case .default(let walletModel):
@@ -280,7 +280,7 @@ private extension OrganizeTokensSectionsAdapter.SectionItem {
     }
 }
 
-private extension OrganizeTokensSectionsAdapter.Section {
+private extension TokenSectionsAdapter.Section {
     var fiatValue: Decimal {
         return items.reduce(into: Decimal()) { partialResult, item in
             switch item {
