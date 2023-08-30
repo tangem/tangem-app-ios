@@ -30,8 +30,7 @@ struct CommonWalletModelsFactory {
 extension CommonWalletModelsFactory: WalletModelsFactory {
     func makeWalletModels(from walletManager: WalletManager) -> [WalletModel] {
         var types: [Amount.AmountType] = [.coin]
-        let tokens = walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
-        types.append(contentsOf: tokens)
+        types += walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
         return makeWalletModels(for: types, walletManager: walletManager)
     }
 
