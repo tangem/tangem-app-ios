@@ -38,7 +38,7 @@ class CommonWalletModelsManager {
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {
         AppLog.shared.debug("🔄 Updating Wallet models")
 
-        var existingWalletModelIds = Set(walletModels.map { $0.walletModelId })
+        let existingWalletModelIds = Set(walletModels.map { $0.walletModelId })
 
         let newWalletModelIds = Set(walletManagers.flatMap { network, walletManager in
             let mainId = WalletModel.Id(blockchainNetwork: network, amountType: .coin)
@@ -49,7 +49,7 @@ class CommonWalletModelsManager {
         let walletModelIdsToDelete = existingWalletModelIds.subtracting(newWalletModelIds)
         let walletModelIdsToAdd = newWalletModelIds.subtracting(existingWalletModelIds)
 
-        if walletModelIdsToAdd.isEmpty && walletModelIdsToDelete.isEmpty {
+        if walletModelIdsToAdd.isEmpty, walletModelIdsToDelete.isEmpty {
             return
         }
 
@@ -59,12 +59,16 @@ class CommonWalletModelsManager {
             walletModelIdsToDelete.contains($0.walletModelId)
         }
 
-        let walletManagers = walletModelIdsToAdd.compactMap {
-            walletManagers[$0.blockchainNetwork]
+        let dataToAdd: [BlockchainNetwork: [Amount.AmountType]] = walletModelIdsToAdd.reduce(into: [:]) { partialResult, item in
+            partialResult[item.blockchainNetwork, default: []].append(item.amountType)
         }
 
-        let walletModelsToAdd = walletManagers.flatMap {
-            walletModelsFactory.makeWalletModels(from: $0)
+        let walletModelsToAdd: [WalletModel] = dataToAdd.flatMap {
+            if let walletManager = walletManagers[$0.key] {
+                return walletModelsFactory.makeWalletModels(for: $0.value, walletManager: walletManager)
+            }
+
+            return []
         }
 
         walletModelsToAdd.forEach {
