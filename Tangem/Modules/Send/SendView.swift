@@ -40,7 +40,7 @@ struct SendView: View {
                                 CircleActionButton(
                                     action: viewModel.openQRScanner,
                                     diameter: 34,
-                                    backgroundColor: Colors.Button.paste,
+                                    backgroundColor: Colors.Button.secondary,
                                     systemImageName: "qrcode.viewfinder",
                                     imageColor: .white
                                 )
@@ -103,12 +103,12 @@ struct SendView: View {
                                     Text(viewModel.currencyUnit)
                                         .font(Font.system(size: 38.0, weight: .light, design: .default))
                                         .foregroundColor(!viewModel.isSellingCrypto ?
-                                            Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
+                                            Colors.Button.positive : Color.tangemGrayDark6.opacity(0.5))
 
                                     if viewModel.isFiatConvertingAvailable {
                                         Image(systemName: "arrow.up.arrow.down")
                                             .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                            .foregroundColor(Color.tangemBlue)
+                                            .foregroundColor(Colors.Button.positive)
                                     }
                                 }
                             }
@@ -168,7 +168,7 @@ struct SendView: View {
                                             Text(Localization.sendFeeIncludeDescription)
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                                 .foregroundColor(Color.tangemGrayDark6)
-                                        }.tintCompat(.tangemBlue)
+                                        }.tintCompat(Colors.Control.checked)
                                     }
                                 }
                                 .padding(.vertical, 8.0)
@@ -264,14 +264,14 @@ struct SendView: View {
                     viewModel.pasteClipboardTapped(strings)
                 }
             }
-            .tint(Colors.Button.paste)
+            .tint(Colors.Button.secondary)
             .labelStyle(.iconOnly)
             .buttonBorderShape(.capsule)
         } else {
             CircleActionButton(
                 action: { viewModel.pasteClipboardTapped() },
                 diameter: 34,
-                backgroundColor: Colors.Button.paste,
+                backgroundColor: Colors.Button.secondary,
                 systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
                 imageColor: .white,
                 isDisabled: viewModel.validatedClipboard == nil
