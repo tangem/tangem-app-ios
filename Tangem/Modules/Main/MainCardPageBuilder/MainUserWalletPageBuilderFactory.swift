@@ -44,7 +44,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 coordinator: coordinator,
-                sectionsAdapter: sectionsAdapter,
+                tokenSectionsAdapter: sectionsAdapter,
                 canManageTokens: model.isMultiWallet // [REDACTED_TODO_COMMENT]
             )
 
@@ -84,12 +84,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         return models.compactMap { createPage(for: $0, lockedUserWalletDelegate: lockedUserWalletDelegate) }
     }
 
-    private func makeSectionsAdapter(for model: UserWalletModel) -> OrganizeTokensSectionsAdapter {
+    private func makeSectionsAdapter(for model: UserWalletModel) -> TokenSectionsAdapter {
         let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: model.userTokensManager)
 
-        return OrganizeTokensSectionsAdapter(
+        return TokenSectionsAdapter(
             userTokenListManager: model.userTokenListManager,
-            organizeTokensOptionsProviding: optionsManager,
+            optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
     }
