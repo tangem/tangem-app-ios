@@ -25,8 +25,8 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             : Localization.organizeTokensGroup
     }
 
-    private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
-    private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
+    private let optionsProviding: OrganizeTokensOptionsProviding
+    private let optionsEditing: OrganizeTokensOptionsEditing
 
     private let onToggleSortState = PassthroughSubject<Void, Never>()
     private let onToggleGroupState = PassthroughSubject<Void, Never>()
@@ -35,11 +35,11 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     private var didBind = false
 
     init(
-        organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
-        organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
+        optionsProviding: OrganizeTokensOptionsProviding,
+        optionsEditing: OrganizeTokensOptionsEditing
     ) {
-        self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
-        self.organizeTokensOptionsEditing = organizeTokensOptionsEditing
+        self.optionsProviding = optionsProviding
+        self.optionsEditing = optionsEditing
     }
 
     func onViewAppear() {
@@ -55,35 +55,35 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     }
 
     private func bind() {
-        guard !didBind else { return }
+        if didBind { return }
 
-        organizeTokensOptionsProviding
+        optionsProviding
             .groupingOption
             .map(\.isGrouped)
             .assign(to: \.isGroupingEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
-        organizeTokensOptionsProviding
+        optionsProviding
             .sortingOption
             .map(\.isSorted)
             .assign(to: \.isSortByBalanceEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         onToggleSortState
-            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
-                viewModel.organizeTokensOptionsEditing.sort(
+                viewModel.optionsEditing.sort(
                     by: viewModel.isSortByBalanceEnabled ? .dragAndDrop : .byBalance
                 )
             }
             .store(in: &bag)
 
         onToggleGroupState
-            .throttle(for: 1.0, scheduler: RunLoop.main, latest: false)
+            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
-                viewModel.organizeTokensOptionsEditing.group(
+                viewModel.optionsEditing.group(
                     by: viewModel.isGroupingEnabled ? .none : .byBlockchainNetwork
                 )
             }
