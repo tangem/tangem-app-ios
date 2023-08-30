@@ -13,8 +13,12 @@ struct StorageEntryConverter {
     // MARK: - StoredUserTokenList.Entry to StorageEntry
 
     func convertToStorageEntries(_ userTokens: [StoredUserTokenList.Entry]) -> [StorageEntry] {
-        let userTokensGroupedByBlockchainNetworks = userTokens.grouped(by: \.blockchainNetwork)
-        let blockchainNetworks = userTokens.uniqueProperties(\.blockchainNetwork)
+        let userTokensGroupedByBlockchainNetworks = userTokens
+            .grouped(by: \.blockchainNetwork)
+
+        let blockchainNetworks = userTokens
+            .filter { !$0.isToken }
+            .uniqueProperties(\.blockchainNetwork)
 
         return blockchainNetworks.reduce(into: []) { partialResult, blockchainNetwork in
             let userTokens = userTokensGroupedByBlockchainNetworks[blockchainNetwork] ?? []
