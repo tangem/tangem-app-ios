@@ -1,5 +1,5 @@
 //
-//  ConcealBalanceProvider.swift
+//  SensitiveTextVisibilityService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 import Combine
 
-class ConcealBalanceProvider: ObservableObject {
-    static let shared = ConcealBalanceProvider()
+class SensitiveTextVisibilityService: ObservableObject {
+    static let shared = SensitiveTextVisibilityService()
 
     @Published private(set) var isConceal: Bool
     private var orientationDidChangeBag: AnyCancellable?
@@ -33,7 +33,7 @@ class ConcealBalanceProvider: ObservableObject {
     }
 }
 
-private extension ConcealBalanceProvider {
+private extension SensitiveTextVisibilityService {
     func bind() {
         orientationDidChangeBag = NotificationCenter
             .default
