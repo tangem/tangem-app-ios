@@ -17,7 +17,7 @@ class SensitiveTextVisibilityService: ObservableObject {
     private var orientationDidChangeBag: AnyCancellable?
 
     private init() {
-        isHidden = AppSettings.shared.isHideSensitiveInformation
+        isHidden = AppSettings.shared.isHiddenSensitiveInformation
         bind()
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     }
@@ -28,7 +28,7 @@ class SensitiveTextVisibilityService: ObservableObject {
 
     func toggleIsConceal() {
         isHidden.toggle()
-        AppSettings.shared.isHideSensitiveInformation = isHidden
+        AppSettings.shared.isHiddenSensitiveInformation = isHidden
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }
