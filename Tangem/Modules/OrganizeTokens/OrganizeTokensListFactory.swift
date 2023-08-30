@@ -19,7 +19,7 @@ struct OrganizeTokensListFactory {
     }
 
     func makeListSection(
-        from sectionType: OrganizeTokensSectionsAdapter.SectionType,
+        from sectionType: TokenSectionsAdapter.SectionType,
         with itemViewModels: [OrganizeTokensListItemViewModel],
         atIndex index: Int
     ) -> OrganizeTokensListSection {
@@ -41,7 +41,7 @@ struct OrganizeTokensListFactory {
     }
 
     func makeListItemViewModel(
-        sectionItem: OrganizeTokensSectionsAdapter.SectionItem,
+        sectionItem: TokenSectionsAdapter.SectionItem,
         isDraggable: Bool,
         inGroupedSection: Bool
     ) -> OrganizeTokensListItemViewModel {
@@ -87,7 +87,7 @@ struct OrganizeTokensListFactory {
     }
 
     private func makeListItemViewModel(
-        userToken: OrganizeTokensSectionsAdapter.UserToken,
+        userToken: TokenSectionsAdapter.UserToken,
         isDraggable: Bool,
         inGroupedSection: Bool
     ) -> OrganizeTokensListItemViewModel {
@@ -126,7 +126,7 @@ struct OrganizeTokensListFactory {
     }
 
     private func token(
-        from userToken: OrganizeTokensSectionsAdapter.UserToken
+        from userToken: TokenSectionsAdapter.UserToken
     ) -> BlockchainSdk.Token? {
         guard let contractAddress = userToken.contractAddress else { return nil }
 
