@@ -70,8 +70,8 @@ struct OrganizeTokensHeaderView_Previews: PreviewProvider {
     static var previews: some View {
         let optionsManager = OrganizeTokensOptionsManagerStub()
         let viewModel = OrganizeTokensHeaderViewModel(
-            organizeTokensOptionsProviding: optionsManager,
-            organizeTokensOptionsEditing: optionsManager
+            optionsProviding: optionsManager,
+            optionsEditing: optionsManager
         )
         return OrganizeTokensHeaderView(viewModel: viewModel)
     }
