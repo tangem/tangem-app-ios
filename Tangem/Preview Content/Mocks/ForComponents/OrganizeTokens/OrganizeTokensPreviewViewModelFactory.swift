@@ -13,18 +13,18 @@ struct OrganizeTokensPreviewViewModelFactory {
         let coordinator = OrganizeTokensRoutableStub()
         let userWalletModel = UserWalletModelMock()
         let optionsManager = OrganizeTokensOptionsManagerStub()
-        let organizeTokensSectionsAdapter = OrganizeTokensSectionsAdapter(
+        let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            organizeTokensOptionsProviding: optionsManager,
+            optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
 
         return OrganizeTokensViewModel(
             coordinator: coordinator,
             walletModelsManager: userWalletModel.walletModelsManager,
-            organizeTokensSectionsAdapter: organizeTokensSectionsAdapter,
-            organizeTokensOptionsProviding: optionsManager,
-            organizeTokensOptionsEditing: optionsManager
+            tokenSectionsAdapter: tokenSectionsAdapter,
+            optionsProviding: optionsManager,
+            optionsEditing: optionsManager
         )
     }
 }
