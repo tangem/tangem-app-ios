@@ -29,19 +29,32 @@ struct CommonWalletModelsFactory {
 
 extension CommonWalletModelsFactory: WalletModelsFactory {
     func makeWalletModels(from walletManager: WalletManager) -> [WalletModel] {
+        var types: [Amount.AmountType] = [.coin]
+        types += walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
+        return makeWalletModels(for: types, walletManager: walletManager)
+    }
+
+    func makeWalletModels(for types: [Amount.AmountType], walletManager: WalletManager) -> [WalletModel] {
+        var models: [WalletModel] = []
+
         let currentBlockchain = walletManager.wallet.blockchain
         let currentDerivation = walletManager.wallet.publicKey.derivationPath
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
 
-        let mainCoinModel = WalletModel(walletManager: walletManager, amountType: .coin, isCustom: isMainCoinCustom)
-
-        let tokenModels = walletManager.cardTokens.map { token in
-            let amountType: Amount.AmountType = .token(value: token)
-            let isTokenCustom = isMainCoinCustom || token.id == nil
-            let tokenModel = WalletModel(walletManager: walletManager, amountType: amountType, isCustom: isTokenCustom)
-            return tokenModel
+        if types.contains(.coin) {
+            let mainCoinModel = WalletModel(walletManager: walletManager, amountType: .coin, isCustom: isMainCoinCustom)
+            models.append(mainCoinModel)
         }
 
-        return [mainCoinModel] + tokenModels
+        walletManager.cardTokens.forEach { token in
+            let amountType: Amount.AmountType = .token(value: token)
+            if types.contains(amountType) {
+                let isTokenCustom = isMainCoinCustom || token.id == nil
+                let tokenModel = WalletModel(walletManager: walletManager, amountType: amountType, isCustom: isTokenCustom)
+                models.append(tokenModel)
+            }
+        }
+
+        return models
     }
 }
