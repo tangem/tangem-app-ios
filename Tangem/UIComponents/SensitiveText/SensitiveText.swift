@@ -28,11 +28,11 @@ struct SensitiveText: View {
     var body: some View {
         switch textType {
         case .string(let string):
-            Text(viewModel.isConceal ? Constants.maskedBalanceString : string)
+            Text(viewModel.isHidden ? Constants.maskedBalanceString : string)
         case .attributed(let string):
-            Text(viewModel.isConceal ? NSAttributedString(string: Constants.maskedBalanceString) : string)
+            Text(viewModel.isHidden ? NSAttributedString(string: Constants.maskedBalanceString) : string)
         case .modified(let string, let modify):
-            Text(modify(viewModel.isConceal ? Constants.maskedBalanceString : string))
+            Text(modify(viewModel.isHidden ? Constants.maskedBalanceString : string))
         }
     }
 }
