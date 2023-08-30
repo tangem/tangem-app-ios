@@ -37,7 +37,7 @@ struct UserTokenListConverter {
                     contractAddress: entry.contractAddress
                 )
             }
-            .unique() /// Additional uniqueness check for remote tokens (replicates old behavior)
+            .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
 
         return UserTokenList(
             tokens: tokens,
@@ -92,8 +92,9 @@ struct UserTokenListConverter {
                 )
 
                 if let contractAddress = token.contractAddress {
-                    /// Additional uniqueness check for remote tokens (replicates old behavior)
-                    if addedTokens[network, default: []].insert(contractAddress).inserted {
+                    // Additional uniqueness check for remote tokens (replicates old behavior)
+                    // Comparison logic here must match the implementation of `Equatable` for `BlockchainSdk.Token`
+                    if addedTokens[network, default: []].insert(contractAddress.lowercased()).inserted {
                         return token
                     }
                     return nil // Duplicate token detected
