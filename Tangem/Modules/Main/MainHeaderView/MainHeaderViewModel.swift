@@ -19,7 +19,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published var isLoadingFiatBalance: Bool = true
     @Published var isLoadingSubtitle: Bool = true
 
-    var isSubtitleContainsSensitiveInfo: Bool {
+    var subtitleContainsSensitiveInfo: Bool {
         subtitleProvider.containsSensitiveInfo
     }
 
