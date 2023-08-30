@@ -718,8 +718,11 @@ extension LegacyMainViewModel: LegacySingleWalletContentViewModelOutput {
 
 extension LegacyMainViewModel: LegacyMultiWalletContentViewModelOutput {
     func openTokensList() {
+        var blockchains = cardModel.config.supportedBlockchains
+        blockchains.remove(.ducatus)
+
         let settings = LegacyManageTokensSettings(
-            supportedBlockchains: cardModel.supportedBlockchains,
+            supportedBlockchains: blockchains,
             hdWalletsSupported: cardModel.config.hasFeature(.hdWallets),
             longHashesSupported: cardModel.config.hasFeature(.longHashes),
             derivationStyle: cardModel.config.derivationStyle,
