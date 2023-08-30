@@ -55,7 +55,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private let userWalletModel: UserWalletModel
     private unowned let coordinator: MultiWalletMainContentRoutable
-    private let sectionsAdapter: OrganizeTokensSectionsAdapter
+    private let tokenSectionsAdapter: TokenSectionsAdapter
     private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
 
     private var cachedTokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
@@ -71,12 +71,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         coordinator: MultiWalletMainContentRoutable,
-        sectionsAdapter: OrganizeTokensSectionsAdapter,
+        tokenSectionsAdapter: TokenSectionsAdapter,
         canManageTokens: Bool
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
-        self.sectionsAdapter = sectionsAdapter
+        self.tokenSectionsAdapter = tokenSectionsAdapter
         self.canManageTokens = canManageTokens
 
         setup()
@@ -155,7 +155,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletModelsManager
             .walletModelsPublisher
 
-        let organizedTokensSectionsPublisher = sectionsAdapter
+        let organizedTokensSectionsPublisher = tokenSectionsAdapter
             .organizedSections(from: walletModelsPublisher, on: mappingQueue)
             .share(replay: 1)
 
@@ -183,7 +183,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func convertToSections(
-        _ sections: [OrganizeTokensSectionsAdapter.Section]
+        _ sections: [TokenSectionsAdapter.Section]
     ) -> [Section] {
         let factory = MultiWalletTokenItemsSectionFactory()
 
@@ -210,7 +210,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func makeSectionItemViewModel(
-        from sectionItem: OrganizeTokensSectionsAdapter.SectionItem,
+        from sectionItem: TokenSectionsAdapter.SectionItem,
         using factory: MultiWalletTokenItemsSectionFactory
     ) -> TokenItemViewModel {
         return factory.makeSectionItemViewModel(from: sectionItem) { [weak self] walletModelId in
@@ -218,7 +218,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
-    private func evictOldCachedTokenItemViewModels(_ sections: [OrganizeTokensSectionsAdapter.Section]) {
+    private func evictOldCachedTokenItemViewModels(_ sections: [TokenSectionsAdapter.Section]) {
         let cacheKeys = sections
             .flatMap(\.walletModels)
             .map(ObjectIdentifier.init)
@@ -273,7 +273,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
 // MARK: - Convenience extensions
 
-private extension OrganizeTokensSectionsAdapter.SectionItem {
+private extension TokenSectionsAdapter.SectionItem {
     var walletModel: WalletModel? {
         switch self {
         case .default(let walletModel):
@@ -284,7 +284,7 @@ private extension OrganizeTokensSectionsAdapter.SectionItem {
     }
 }
 
-private extension OrganizeTokensSectionsAdapter.Section {
+private extension TokenSectionsAdapter.Section {
     var walletModels: [WalletModel] {
         return items.compactMap(\.walletModel)
     }
