@@ -72,7 +72,7 @@ struct MainHeaderView: View {
             Button {
                 sensitiveTextVisibilityService.toggleIsConceal()
             } label: {
-                Image(systemName: !sensitiveTextVisibilityService.isConceal ? "eye" : "eye.slash")
+                Image(systemName: sensitiveTextVisibilityService.isHidden ? "eye.slash" : "eye")
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
             }
