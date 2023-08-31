@@ -90,7 +90,7 @@ struct BackupStoryPage: View {
 
             Spacer()
 
-            StoriesBottomButtons(scanColorStyle: .secondary, orderColorStyle: .primary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
