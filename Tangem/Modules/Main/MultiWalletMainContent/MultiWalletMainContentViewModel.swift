@@ -12,15 +12,6 @@ import CombineExt
 import SwiftUI
 
 final class MultiWalletMainContentViewModel: ObservableObject {
-    // MARK: - Types
-
-    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
-
-    struct SectionViewModel: Identifiable {
-        let id: AnyHashable
-        let title: String?
-    }
-
     // MARK: - ViewState
 
     @Published var isLoadingTokenList: Bool = true
@@ -268,6 +259,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let factory = NotificationSettingsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension MultiWalletMainContentViewModel {
+    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
+
+    struct SectionViewModel: Identifiable {
+        let id: AnyHashable
+        let title: String?
     }
 }
 
