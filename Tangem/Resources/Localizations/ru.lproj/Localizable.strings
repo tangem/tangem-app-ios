@@ -91,10 +91,11 @@
 "common_receive" = "Получить";
 "common_reject" = "Отклонить";
 "common_reload" = "Перезагрузить";
+"common_rename" = "Переименовать";
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_search" = "Искать";
-"common_search_tokens" = "Поиск валют";
+"common_search_tokens" = "Поиск токенов";
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Выберите действие";
 "common_sell" = "Продать";
@@ -109,6 +110,7 @@
 "common_success" = "Успешно";
 "common_swap" = "Обмен";
 "common_terms_and_conditions" = "условия участия";
+"common_transactions" = "Транзакции";
 "common_transfer" = "Перевод";
 "common_understand" = "Я понял";
 "common_unlock_needed" = "Необходима разблокировка";
@@ -181,6 +183,7 @@
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту для входа";
 "mail_error_no_accounts_body" = "Пожалуйста, настройте учетную запись для отправки электронной почты";
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
+"main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens.";
 "main_get_bonus_subtitle" = "Вы успешно прошли все уроки и теперь можете получить 1INCH токены";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
@@ -192,6 +195,7 @@
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
 "main_tokens" = "Токены";
 "main_warning_missing_derivation_title" = "Некоторые адреса отсутствуют";
+"notification_title_not_enough_funds" = "Невозможно покрыть %1$@ комиссию";
 "onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты";
@@ -308,7 +312,7 @@
 "reset_card_to_factory_button_title" = "Сбросить карту";
 "reset_card_with_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты. Вы не сможете восстановить текущий кошелек или использовать данную карту для восстановления кода доступа.";
 "reset_card_without_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты. Вы не сможете восстановить текущий кошелек.";
-"russian_bank_card_warning_subtitle" = "У вас есть карта банка другой страны или платежной системы UnionPay?";
+"russian_bank_card_warning_subtitle" = "У вас есть карта банка другой страны, а также вид на жительство или регистрация вне РФ?";
 "russian_bank_card_warning_title" = "Карты банков РФ в данный момент не принимаются";
 "save_user_wallet_agreement_access_description" = "Войдите в приложение и следите за своим балансом без сканирования карты";
 "save_user_wallet_agreement_access_title" = "Доступ в приложение";
@@ -501,6 +505,8 @@
 "wallet_connect_tx_not_found" = "Не удалось найти хэш транзакции";
 "wallet_currency_subtitle" = "Сеть %@";
 "wallet_error_no_account" = "Аккаунт не создан";
+"wallet_marketplace_block_title" = "Рыночная цена %s";
+"wallet_marketprice_block_update_time" = "за 24 часа";
 "wallet_network_group_title" = "Сеть %@";
 "wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
 "wallet_pending_tx_receiving" = "Получение";
@@ -534,5 +540,5 @@
 "welcome_interrupted_backup_discard_title" = "Это необратимое действие";
 "welcome_unlock" = "Войти с %@";
 "welcome_unlock_card" = "Сканировать карту";
-"welcome_unlock_description" = "Используйте %@ или код доступа для входа в приложение";
+"welcome_unlock_description" = "Используйте %@ или отсканируйте карту для входа в приложение";
 "welcome_unlock_title" = "C возвращением!";
