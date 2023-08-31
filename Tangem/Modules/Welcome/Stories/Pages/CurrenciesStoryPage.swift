@@ -79,7 +79,7 @@ struct CurrenciesStoryPage: View {
                 .padding(.horizontal, 16)
             }
 
-            StoriesBottomButtons(scanColorStyle: .secondary, orderColorStyle: .primary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
