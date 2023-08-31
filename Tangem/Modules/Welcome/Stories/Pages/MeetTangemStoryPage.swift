@@ -63,7 +63,7 @@ struct MeetTangemStoryPage: View {
                     ))
 
                 Text(Localization.storyMeetTitle)
-                    .font(.system(size: 60, weight: .semibold))
+                    .font(.system(size: 48, weight: .semibold))
                     .lineLimit(2)
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
