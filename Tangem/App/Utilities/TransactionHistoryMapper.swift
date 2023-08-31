@@ -67,8 +67,7 @@ struct TransactionHistoryMapper {
 
 private extension TransactionHistoryMapper {
     func transferAmount(from record: TransactionRecord) -> String {
-        switch record.isOutgoing {
-        case true:
+        if record.isOutgoing {
             let sent: Decimal = {
                 switch record.source {
                 case .single(let source):
@@ -90,7 +89,7 @@ private extension TransactionHistoryMapper {
             let amount = sent - change
             return formatted(amount: amount, isOutgoing: record.isOutgoing)
 
-        case false:
+        } else {
             let received: Decimal = {
                 switch record.destination {
                 case .single(let destination):
