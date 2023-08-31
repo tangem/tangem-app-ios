@@ -25,19 +25,17 @@ struct CurrenciesStoryPage: View {
 
             VStack(spacing: 16) {
                 Text(Localization.storyCurrenciesTitle)
-                    .font(.system(size: 36, weight: .semibold))
+                    .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
                 Text(Localization.storyCurrenciesDescription)
-                    .font(.system(size: 22))
+                    .style(Fonts.Regular.callout, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
+            .padding(.horizontal, 28)
             .fixedSize(horizontal: false, vertical: true)
 
             ZStack(alignment: .bottom) {
