@@ -85,16 +85,8 @@ struct MultiWalletMainContentView: View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.sections) { section in
                 LazyVStack(alignment: .leading, spacing: 0) {
-                    if let title = section.model.title {
-                        Text(title)
-                            .style(
-                                Fonts.Bold.footnote,
-                                color: Colors.Text.tertiary
-                            )
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 14)
-                    }
-
+                    TokenSectionView(title: section.model.title)
+                    
                     ForEach(section.items) { item in
                         TokenItemView(viewModel: item)
                     }
