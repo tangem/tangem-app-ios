@@ -47,12 +47,7 @@ class SingleTokenBaseViewModel {
     }
 
     var canSignLongTransactions: Bool {
-        if NFCUtils.isPoorNfcQualityDevice,
-           blockchain.hasLongTransactions {
-            return false
-        } else {
-            return true
-        }
+        AppUtils().canSignLongTransactions(network: blockchainNetwork)
     }
 
     var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
