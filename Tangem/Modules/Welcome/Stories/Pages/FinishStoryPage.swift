@@ -39,23 +39,21 @@ struct FinishStoryPage: View {
 
             Spacer()
 
-            Assets.Stories.amazement.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .overlay(
-                    LinearGradient(stops: [
-                        Gradient.Stop(color: Color("tangem_story_background").opacity(0), location: 0.5),
-                        Gradient.Stop(color: Color("tangem_story_background"), location: 1),
-                    ], startPoint: .top, endPoint: .bottom)
-                        .frame(minWidth: 1000)
-                )
-                .storyImageAppearanceModifier(
-                    progress: progress,
-                    start: 0,
-                    fastMovementStartCoefficient: 1,
-                    fastMovementSpeedCoefficient: -45,
-                    fastMovementEnd: 0.15,
-                    slowMovementSpeedCoefficient: 0.15
+            Color.clear
+                .background(
+                    Assets.Stories.handWithCard.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .edgesIgnoringSafeArea(.bottom)
+                        .overlay(
+                            LinearGradient(stops: [
+                                Gradient.Stop(color: Color("tangem_story_background").opacity(0), location: 0.7),
+                                Gradient.Stop(color: Color("tangem_story_background"), location: 1),
+                            ], startPoint: .top, endPoint: .bottom)
+                                .frame(minWidth: 1000)
+                        ),
+                    alignment: .top
                 )
 
             Spacer()
