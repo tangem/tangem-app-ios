@@ -125,7 +125,7 @@ class SingleTokenBaseViewModel {
             }
     }
 
-    func openBuy() {
+    private func openBuy() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
