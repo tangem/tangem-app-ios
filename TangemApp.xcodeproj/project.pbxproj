@@ -502,6 +502,7 @@
 		B6E932C22A2F2D860068D466 /* OrganizeTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932BD2A2F2D860068D466 /* OrganizeTokensView.swift */; };
 		B6E932C32A2F2D860068D466 /* OrganizeTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932BE2A2F2D860068D466 /* OrganizeTokensViewModel.swift */; };
 		B6E932C52A2F2D860068D466 /* OrganizeTokensRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932C02A2F2D860068D466 /* OrganizeTokensRoutable.swift */; };
+		B6E972202AA0266C00D2B1D1 /* TokenSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9721F2AA0266C00D2B1D1 /* TokenSectionView.swift */; };
 		B6E9A8C52A997B09005CF137 /* MainBottomOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9A8C42A997B09005CF137 /* MainBottomOverlayView.swift */; };
 		B6E9A8C72A9A35B5005CF137 /* MainBottomOverlayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9A8C62A9A35B5005CF137 /* MainBottomOverlayViewModel.swift */; };
 		B6E9A8C92A9A410A005CF137 /* CardsInfoPagerView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9A8C82A9A410A005CF137 /* CardsInfoPagerView+.swift */; };
@@ -1655,6 +1656,7 @@
 		B6E932BD2A2F2D860068D466 /* OrganizeTokensView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensView.swift; sourceTree = "<group>"; };
 		B6E932BE2A2F2D860068D466 /* OrganizeTokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensViewModel.swift; sourceTree = "<group>"; };
 		B6E932C02A2F2D860068D466 /* OrganizeTokensRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensRoutable.swift; sourceTree = "<group>"; };
+		B6E9721F2AA0266C00D2B1D1 /* TokenSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionView.swift; sourceTree = "<group>"; };
 		B6E9A8C42A997B09005CF137 /* MainBottomOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomOverlayView.swift; sourceTree = "<group>"; };
 		B6E9A8C62A9A35B5005CF137 /* MainBottomOverlayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomOverlayViewModel.swift; sourceTree = "<group>"; };
 		B6E9A8C82A9A410A005CF137 /* CardsInfoPagerView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardsInfoPagerView+.swift"; sourceTree = "<group>"; };
@@ -3354,6 +3356,7 @@
 				B003BDA82A0291A200B282F7 /* TokenIcon */,
 				2DDF91922A14DA2700B31113 /* TokenItemMenuActions */,
 				B0958BA229F6A789007CD76D /* TokenItemView */,
+				B6E9721C2AA0262D00D2B1D1 /* TokenSectionView */,
 				B6C3B3052A3AD14B0007525E /* TokenListLoadingPlaceholders */,
 				EFBE76922A7C3FCC00CD918B /* TransactionView */,
 				B05A859329937D2400E87C6E /* TransactionHistory */,
@@ -4040,6 +4043,14 @@
 				B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */,
 			);
 			path = TokenListLoadingPlaceholders;
+			sourceTree = "<group>";
+		};
+		B6E9721C2AA0262D00D2B1D1 /* TokenSectionView */ = {
+			isa = PBXGroup;
+			children = (
+				B6E9721F2AA0266C00D2B1D1 /* TokenSectionView.swift */,
+			);
+			path = TokenSectionView;
 			sourceTree = "<group>";
 		};
 		B6E9A8C32A997AE5005CF137 /* MainBottomOverlayView */ = {
@@ -6761,6 +6772,7 @@
 				5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */,
 				B0A1B4802A42C78300376FCC /* TokenDetailsHeaderViewModel.swift in Sources */,
 				DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */,
+				B6E972202AA0266C00D2B1D1 /* TokenSectionView.swift in Sources */,
 				EF053DF32938D4BC006FD13A /* UserWalletListOutput.swift in Sources */,
 				B6180C862A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift in Sources */,
 				65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */,
