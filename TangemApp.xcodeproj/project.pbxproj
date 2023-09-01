@@ -990,9 +990,9 @@
 		EFAD02422A7D5E9100E9B959 /* LegacyTransactionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD02412A7D5E9100E9B959 /* LegacyTransactionRecord.swift */; };
 		EFAD02472A824E6700E9B959 /* TransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD02462A824E6600E9B959 /* TransactionViewModel.swift */; };
 		EFAD02492A8274D500E9B959 /* CoinsResponseMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD02482A8274D500E9B959 /* CoinsResponseMapper.swift */; };
-		EFAD40AA2A976E2800364D65 /* FetchMore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD40A92A976E2800364D65 /* FetchMore.swift */; };
 		EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD40AB2A976E7500364D65 /* TransactionListItem.swift */; };
 		EFAD40B62A9CB22500364D65 /* SensitiveTextVisibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD40B52A9CB22500364D65 /* SensitiveTextVisibilityService.swift */; };
+		EFAD40AF2A9898B000364D65 /* FetchMore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD40AE2A9898B000364D65 /* FetchMore.swift */; };
 		EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF63E82927CA63004B3227 /* Setupable.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFBA17E42987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */; };
@@ -1983,6 +1983,7 @@
 		EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoyaProvider+AsyncRequest.swift"; sourceTree = "<group>"; };
 		EF29BEF129349C2900D7C782 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
 		EF29BEF329349F4200D7C782 /* Moya.Task+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya.Task+.swift"; sourceTree = "<group>"; };
+		EF2EB7A52A963BC90036DA24 /* FetchMore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMore.swift; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
@@ -2166,9 +2167,9 @@
 		EFAD02412A7D5E9100E9B959 /* LegacyTransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTransactionRecord.swift; sourceTree = "<group>"; };
 		EFAD02462A824E6600E9B959 /* TransactionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionViewModel.swift; sourceTree = "<group>"; };
 		EFAD02482A8274D500E9B959 /* CoinsResponseMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsResponseMapper.swift; sourceTree = "<group>"; };
-		EFAD40A92A976E2800364D65 /* FetchMore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchMore.swift; sourceTree = "<group>"; };
 		EFAD40AB2A976E7500364D65 /* TransactionListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionListItem.swift; sourceTree = "<group>"; };
 		EFAD40B52A9CB22500364D65 /* SensitiveTextVisibilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveTextVisibilityService.swift; sourceTree = "<group>"; };
+		EFAD40AE2A9898B000364D65 /* FetchMore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchMore.swift; sourceTree = "<group>"; };
 		EFAF63E82927CA63004B3227 /* Setupable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setupable.swift; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		EFBA17E32987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetworkNavigationTitleView.swift; sourceTree = "<group>"; };
@@ -3341,7 +3342,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
-				EFAD40A82A976E2800364D65 /* Types */,
+				EFAD40AD2A9898B000364D65 /* Types */,
 				B0A4C49E2A270F490060E039 /* BalanceWithButtonsView */,
 				EF666C242A2DF9D60044986F /* BottomSheet */,
 				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
@@ -3641,6 +3642,7 @@
 			isa = PBXGroup;
 			children = (
 				B0DB73FE2A8CBDE400F6376E /* LockedWalletMainContentView.swift */,
+				EF2EB7A52A963BC90036DA24 /* FetchMore.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -5465,10 +5467,10 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
-		EFAD40A82A976E2800364D65 /* Types */ = {
+		EFAD40AD2A9898B000364D65 /* Types */ = {
 			isa = PBXGroup;
 			children = (
-				EFAD40A92A976E2800364D65 /* FetchMore.swift */,
+				EFAD40AE2A9898B000364D65 /* FetchMore.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -6340,7 +6342,6 @@
 				EFAD02402A7D17BB00E9B959 /* CommonTransactionHistoryService.swift in Sources */,
 				B68B356B2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift in Sources */,
 				2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */,
-				EFAD40AA2A976E2800364D65 /* FetchMore.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				B605224B2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift in Sources */,
 				EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */,
@@ -6805,6 +6806,7 @@
 				EFD1645B2949F11C000E56C7 /* CurrencyAmount.swift in Sources */,
 				DC72548E2A02BB810003FE1B /* CardInteractorMocks.swift in Sources */,
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
+				EFAD40AF2A9898B000364D65 /* FetchMore.swift in Sources */,
 				DC22535B28A4FDE90094F30C /* WarningEventsFactory.swift in Sources */,
 				65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */,
 				EF5769442A8BB90100901571 /* FakeTransactionHistoryService.swift in Sources */,
@@ -7433,6 +7435,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -7594,6 +7597,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
 				PRODUCT_NAME = "$(inherited)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIPFLAGS = "-rSTx";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
