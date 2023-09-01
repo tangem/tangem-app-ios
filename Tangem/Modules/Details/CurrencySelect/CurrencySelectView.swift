@@ -37,7 +37,7 @@ struct CurrencySelectView: View {
                                     if viewModel.isSelected(currency) {
                                         Image(systemName: "checkmark.circle")
                                             .font(.system(size: 18, weight: .regular, design: .default))
-                                            .foregroundColor(Colors.Icon.accent)
+                                            .foregroundColor(Color.tangemGreen)
                                     }
                                 }
                                 .contentShape(Rectangle())
