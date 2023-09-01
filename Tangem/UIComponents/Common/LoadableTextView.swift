@@ -25,10 +25,12 @@ struct LoadableTextView: View {
         case .initialized:
             Text(" ")
                 .frame(size: loaderSize)
+                .fixedSize(horizontal: false, vertical: true)
         case .noData:
             Text("–")
                 .style(font, color: textColor)
                 .frame(minHeight: loaderSize.height)
+                .fixedSize(horizontal: false, vertical: true)
         case .loading:
             SkeletonView()
                 .frame(size: loaderSize)
@@ -39,6 +41,7 @@ struct LoadableTextView: View {
                 .style(font, color: textColor)
                 .lineLimit(lineLimit)
                 .frame(minHeight: loaderSize.height)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
