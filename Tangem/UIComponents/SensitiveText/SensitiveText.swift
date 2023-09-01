@@ -21,8 +21,8 @@ struct SensitiveText: View {
         textType = .attributed(text)
     }
 
-    init(_ text: String, wrap block: @escaping (String) -> String) {
-        textType = .wrapped(text, block)
+    init(builder: @escaping (String) -> String, sensitive: String) {
+        textType = .builder(builder: builder, sensitive: sensitive)
     }
 
     var body: some View {
@@ -31,8 +31,8 @@ struct SensitiveText: View {
             Text(viewModel.isHidden ? Constants.maskedBalanceString : string)
         case .attributed(let string):
             Text(viewModel.isHidden ? NSAttributedString(string: Constants.maskedBalanceString) : string)
-        case .wrapped(let string, let wrap):
-            Text(wrap(viewModel.isHidden ? Constants.maskedBalanceString : string))
+        case .builder(let builder, let sensitive):
+            Text(builder(viewModel.isHidden ? Constants.maskedBalanceString : sensitive))
         }
     }
 }
@@ -41,7 +41,7 @@ extension SensitiveText {
     enum TextType {
         case string(String)
         case attributed(NSAttributedString)
-        case wrapped(String, _ modify: (String) -> String)
+        case builder(builder: (String) -> String, sensitive: String)
     }
 }
 
