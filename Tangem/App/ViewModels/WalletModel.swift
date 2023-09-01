@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class WalletModel {
     @Injected(\.ratesRepository) private var ratesRepository: RatesRepository
+    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
 
     var walletModelId: WalletModel.Id {
         .init(blockchainNetwork: blockchainNetwork, amountType: amountType)
@@ -97,6 +98,10 @@ class WalletModel {
         guard let rate else { return "" }
 
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
+    }
+
+    var quote: TokenQuote? {
+        tokenQuotesRepository.quote(for: tokenItem)
     }
 
     var hasPendingTransactions: Bool {
@@ -233,7 +238,10 @@ class WalletModel {
                     return Just(()).eraseToAnyPublisher()
                 }
 
-                return loadRates()
+                return Publishers
+                    .CombineLatest(loadRates(), loadQuotes())
+                    .mapToVoid()
+                    .eraseToAnyPublisher()
             }
             .sink(receiveValue: {})
             .store(in: &bag)
@@ -303,9 +311,9 @@ class WalletModel {
 
         updateWalletModelSubscription = walletManager
             .updatePublisher()
-            .combineLatest(loadRates())
+            .combineLatest(loadRates(), loadQuotes())
             .receive(on: updateQueue)
-            .sink { [weak self] newState, _ in
+            .sink { [weak self] newState, _, _ in
                 guard let self else { return }
 
                 AppLog.shared.debug("🔄 Finished common update for \(self)")
@@ -373,6 +381,22 @@ class WalletModel {
             .loadRates(coinIds: [currencyId])
             .handleEvents(receiveOutput: { [weak self] _ in
                 AppLog.shared.debug("🔄 Finished loading rates for \(String(describing: self))")
+            })
+            .mapVoid()
+            .eraseToAnyPublisher()
+    }
+
+    private func loadQuotes() -> AnyPublisher<Void, Never> {
+        guard let currencyId = tokenItem.currencyId else {
+            return .just(output: ())
+        }
+
+        AppLog.shared.debug("🔄 Start loading quotes for \(self)")
+
+        return tokenQuotesRepository
+            .loadQuotes(coinIds: [currencyId])
+            .handleEvents(receiveOutput: { [weak self] _ in
+                AppLog.shared.debug("🔄 Finished loading quotes for \(String(describing: self))")
             })
             .mapVoid()
             .eraseToAnyPublisher()
