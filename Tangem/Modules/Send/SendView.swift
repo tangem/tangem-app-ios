@@ -40,7 +40,7 @@ struct SendView: View {
                                 CircleActionButton(
                                     action: viewModel.openQRScanner,
                                     diameter: 34,
-                                    backgroundColor: Colors.Button.secondary,
+                                    backgroundColor: Colors.Button.paste,
                                     systemImageName: "qrcode.viewfinder",
                                     imageColor: .white
                                 )
@@ -264,14 +264,14 @@ struct SendView: View {
                     viewModel.pasteClipboardTapped(strings)
                 }
             }
-            .tint(Colors.Button.secondary)
+            .tint(Colors.Button.paste)
             .labelStyle(.iconOnly)
             .buttonBorderShape(.capsule)
         } else {
             CircleActionButton(
                 action: { viewModel.pasteClipboardTapped() },
                 diameter: 34,
-                backgroundColor: Colors.Button.secondary,
+                backgroundColor: Colors.Button.paste,
                 systemImageName: viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
                 imageColor: .white,
                 isDisabled: viewModel.validatedClipboard == nil
