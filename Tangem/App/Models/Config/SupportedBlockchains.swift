@@ -102,6 +102,7 @@ struct SupportedBlockchains {
             .cronos,
             .octa,
             .chia(testnet: false),
+            .ducatus,
         ]
     }
 
