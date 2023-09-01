@@ -36,7 +36,7 @@ struct ReceiveCurrencyView: View {
 
             Spacer()
 
-            SensitiveText(viewModel.balanceString, wrap: Localization.commonBalance)
+            SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
