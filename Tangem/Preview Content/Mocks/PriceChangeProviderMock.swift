@@ -10,10 +10,9 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class PriceChangeProviderMock: PriceChangeProvider {
-    var priceChangePublisher: AnyPublisher<Void, Never> { .just }
+class TokenQuotesRepositoryMock: TokenQuotesRepository {
+    var pricesPublisher: AnyPublisher<Quotes, Never> { .just(output: .init()) }
 
-    func change(for currencyCode: String, in blockchain: Blockchain) -> Double {
-        0
-    }
+    func quote(for item: TokenItem) -> TokenQuote? { nil }
+    func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never> { .just(output: []) }
 }
