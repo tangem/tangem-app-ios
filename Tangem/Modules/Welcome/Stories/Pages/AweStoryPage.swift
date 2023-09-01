@@ -36,23 +36,13 @@ struct AweStoryPage: View {
 
             Spacer()
 
-            Assets.Stories.coinShower.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .overlay(
-                    LinearGradient(stops: [
-                        Gradient.Stop(color: Color("tangem_story_background").opacity(0), location: 0.5),
-                        Gradient.Stop(color: Color("tangem_story_background"), location: 1),
-                    ], startPoint: .top, endPoint: .bottom)
-                        .frame(minWidth: 1000)
-                )
-                .storyImageAppearanceModifier(
-                    progress: progress,
-                    start: 0,
-                    fastMovementStartCoefficient: 1,
-                    fastMovementSpeedCoefficient: -45,
-                    fastMovementEnd: 0.15,
-                    slowMovementSpeedCoefficient: 0.15
+            Color.clear
+                .background(
+                    Assets.Stories.tangemMain.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .fixedSize(horizontal: false, vertical: true),
+                    alignment: .top
                 )
 
             StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
