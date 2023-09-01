@@ -358,14 +358,6 @@
 "story_finish_title" = "適合每個人的冷錢包";
 "story_learn_description" = "Take three lessons, get a discount on your Tangem Wallet, and receive 1INCH tokens to your wallet";
 "story_learn_learn" = "Learn";
-"story_meet_borrow" = "借入";
-"story_meet_buy" = "購買";
-"story_meet_exchange" = "交易";
-"story_meet_lend" = "借出";
-"story_meet_pay" = "付款";
-"story_meet_send" = "發送";
-"story_meet_stake" = "質押";
-"story_meet_store" = "保存";
 "story_meet_title" = "認識Tangem";
 "story_web3_description" = "交易、購買NFT、自由穿梭於100+去中心化服務";
 "story_web3_title" = "兼容DeFi";
