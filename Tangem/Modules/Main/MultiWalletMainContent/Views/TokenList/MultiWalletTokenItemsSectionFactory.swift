@@ -20,8 +20,7 @@ struct MultiWalletTokenItemsSectionFactory {
                     tokenIcon: iconInfoBuilder.build(from: tokenItem),
                     tokenItem: tokenItem,
                     tokenTapped: tapAction,
-                    infoProvider: infoProvider,
-                    priceChangeProvider: PriceChangeProviderMock()
+                    infoProvider: infoProvider
                 )
             }
             return .init(
