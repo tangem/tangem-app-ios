@@ -16,8 +16,6 @@ struct MainButton: View {
     private let isDisabled: Bool
     private let action: () -> Void
 
-    private let cornerRadius = 14.0
-
     init(
         title: String,
         icon: Icon? = nil,
@@ -116,7 +114,7 @@ struct MainButton: View {
     @ViewBuilder
     private var border: some View {
         if let borderColor = style.border(isDisabled: isDisabled) {
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
                 .stroke(borderColor)
         }
     }
