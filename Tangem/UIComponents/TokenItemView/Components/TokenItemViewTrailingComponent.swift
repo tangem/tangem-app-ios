@@ -12,7 +12,7 @@ struct TokenItemViewTrailingComponent: View {
     let hasError: Bool
     let errorMessage: String?
     let balanceFiat: LoadableTextView.State
-    let changePercentage: LoadableTextView.State
+    let priceChangeState: TokenPriceChangeView.State
 
     var body: some View {
         VStack(alignment: .trailing) {
@@ -28,13 +28,7 @@ struct TokenItemViewTrailingComponent: View {
                     loaderTopPadding: 4
                 )
 
-                LoadableTextView(
-                    state: changePercentage,
-                    font: Fonts.Regular.footnote,
-                    textColor: Colors.Text.tertiary,
-                    loaderSize: .init(width: 40, height: 12),
-                    loaderTopPadding: 6
-                )
+                TokenPriceChangeView(state: priceChangeState)
             }
         }
     }
