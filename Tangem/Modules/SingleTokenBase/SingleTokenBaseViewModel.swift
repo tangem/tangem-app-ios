@@ -48,7 +48,7 @@ class SingleTokenBaseViewModel {
 
     var canSignLongTransactions: Bool {
         if NFCUtils.isPoorNfcQualityDevice,
-           case .solana = blockchain {
+           blockchain.hasLongTransactions {
             return false
         } else {
             return true
