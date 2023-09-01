@@ -157,7 +157,7 @@ struct RefreshableScrollView<Content: View>: View {
                 if loading { // If loading, show the activity control
                     VStack {
                         Spacer()
-                        ActivityRep()
+                        ProgressView()
                         Spacer()
                     }.frame(height: height).fixedSize()
                         .offset(y: -height + (loading && frozen ? height : 0.0))
@@ -231,23 +231,6 @@ private enum RefreshableKeyTypes {
         }
 
         typealias Value = [PrefData]
-    }
-}
-
-private struct ActivityRep: UIViewRepresentable {
-    func makeUIView(
-        context: UIViewRepresentableContext<ActivityRep>
-    ) -> UIActivityIndicatorView {
-        return UIActivityIndicatorView()
-    }
-
-    func updateUIView(
-        _ uiView: UIActivityIndicatorView,
-        context: UIViewRepresentableContext<ActivityRep>
-    ) {
-        if !uiView.isAnimating {
-            uiView.startAnimating()
-        }
     }
 }
 
