@@ -70,7 +70,6 @@ extension CardsInfoPagerScrollState {
     }
 }
 
-
 // MARK: - Constants
 
 private extension CardsInfoPagerScrollState {
