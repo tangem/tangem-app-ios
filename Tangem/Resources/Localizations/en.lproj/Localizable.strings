@@ -359,15 +359,7 @@
 "story_finish_title" = "The Wallet for Everyone";
 "story_learn_description" = "Take three lessons, get a discount on your Tangem Wallet, and receive 1INCH tokens to your wallet";
 "story_learn_learn" = "Learn";
-"story_meet_borrow" = "Borrow";
-"story_meet_buy" = "Buy";
-"story_meet_exchange" = "Exchange";
-"story_meet_lend" = "Lend";
-"story_meet_pay" = "Pay";
-"story_meet_send" = "Send";
-"story_meet_stake" = "Stake";
-"story_meet_store" = "Store";
-"story_meet_title" = "Meet\nTangem";
+"story_meet_title" = "Meet Tangem";
 "story_web3_description" = "Exchange, buy NFT's, make loans and deposits in more than 100 different decentralized services";
 "story_web3_title" = "DeFi Compatible";
 "swapping_approve_information_text" = "Approvals are considered an industry standard across all decentralized exchanges and protect your wallet from being accessed by a smart contract without your permission. By design, smart contracts can't access your tokens unless you approve access from your end. By \"unlocking\" your tokens, you are give permission to the 1inch smart contract to spend your assets. The miners of the network are compensated with a gas fee (paid by you) to record this action on the blockchain. Once permission has been granted you will be able to swap your token.";
