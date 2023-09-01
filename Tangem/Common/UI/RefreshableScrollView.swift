@@ -88,6 +88,7 @@ struct RefreshableScrollView<Content: View>: View {
     }
 
     private func refreshLogic(values: [RefreshableKeyTypes.PrefData]) {
+        // `DispatchQueue.main.async` used here to allow publishing changes during view update
         DispatchQueue.main.async {
             // Calculating scroll offset
             let movingBounds = values.first { $0.vType == .movingView }?.bounds ?? .zero
