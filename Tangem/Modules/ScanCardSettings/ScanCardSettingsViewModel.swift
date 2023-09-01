@@ -47,6 +47,7 @@ extension ScanCardSettingsViewModel {
 
     private func processSuccessScan(for cardInfo: CardInfo) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
+
         guard let userWalletIdSeed = config.userWalletIdSeed else {
             return
         }
@@ -58,12 +59,18 @@ extension ScanCardSettingsViewModel {
             return
         }
 
+        var cardInfo = cardInfo
+
         // [REDACTED_TODO_COMMENT]
-        guard let cardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CardViewModel else {
+        if let existingCardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CardViewModel {
+            cardInfo.name = existingCardModel.name
+        }
+
+        guard let newCardViewModel = CardViewModel(cardInfo: cardInfo) else {
             return
         }
 
-        coordinator.openCardSettings(cardModel: cardModel)
+        coordinator.openCardSettings(cardModel: newCardViewModel)
     }
 }
 
