@@ -22,10 +22,13 @@ enum WarningEvent: Equatable {
     case legacyDerivation
     case systemDeprecationTemporary
     case systemDeprecationPermanent(String)
+    case missingDerivation(numberOfNetworks: Int)
+    case walletLocked
+    case missingBackup
 }
 
 // For Notifications
-extension WarningEvent {
+extension WarningEvent: NotificationEvent {
     var defaultTitle: String {
         Localization.commonWarning
     }
@@ -46,10 +49,16 @@ extension WarningEvent {
             return Localization.warningSystemDeprecationTitle
         case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect, .legacyDerivation:
             return defaultTitle
+        case .missingDerivation:
+            return Localization.mainWarningMissingDerivationTitle
+        case .walletLocked:
+            return Localization.commonUnlockNeeded
+        case .missingBackup:
+            return Localization.mainNoBackupWarningTitle
         }
     }
 
-    var description: String {
+    var description: String? {
         switch self {
         case .numberOfSignedHashesIncorrect:
             return Localization.alertCardSignedTransactions
@@ -78,12 +87,18 @@ extension WarningEvent {
         case .systemDeprecationPermanent(let dateString):
             return String(format: Localization.warningSystemDeprecationWithDateMessage(dateString))
                 .replacingOccurrences(of: "..", with: ".")
+        case .missingDerivation(numberOfNetworks: let numberOfNetworks):
+            return Localization.mainWarningMissingDerivationDescription(numberOfNetworks)
+        case .walletLocked:
+            return Localization.unlockWalletDescriptionShort(BiometricAuthorizationUtils.biometryType.name)
+        case .missingBackup:
+            return Localization.mainNoBackupWarningSubtitle
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .rateApp:
+        case .rateApp, .missingDerivation, .missingBackup:
             return .white
         default:
             return .gray
@@ -96,12 +111,18 @@ extension WarningEvent {
             return .init(image: Assets.attentionRed.image)
         case .rateApp, .oldDeviceOldCard, .oldCard, .systemDeprecationTemporary:
             return .init(image: Assets.attention.image)
+        case .missingDerivation:
+            return .init(image: Assets.blueCircleWarning.image)
+        case .walletLocked:
+            return .init(image: Assets.lock.image, color: Colors.Icon.primary1)
+        case .missingBackup:
+            return .init(image: Assets.attention.image)
         }
     }
 
     var isDismissable: Bool {
         switch self {
-        case .multiWalletSignedHashes, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .multiWalletSignedHashes, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
@@ -110,7 +131,7 @@ extension WarningEvent {
 
     var hasAction: Bool {
         switch self {
-        case .multiWalletSignedHashes:
+        case .multiWalletSignedHashes, .walletLocked:
             return true
         default:
             return false
