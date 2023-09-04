@@ -37,8 +37,7 @@ struct MeetTangemStoryPage: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .fixedSize(horizontal: false, vertical: true)
-                        .offset(y: -40)
-                        .layoutPriority(-1),
+                        .offset(y: -40),
                     alignment: .top
                 )
 
