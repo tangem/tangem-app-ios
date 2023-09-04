@@ -109,7 +109,9 @@ struct RefreshableScrollView<Content: View>: View {
                 // To prevent it, we're notifying the consumer of this view about triggered pull-to-refresh with some delay.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     onRefresh {
-                        refreshing = false
+                        withAnimation {
+                            refreshing = false
+                        }
                     }
                 }
             }
