@@ -74,6 +74,6 @@ extension CardsInfoPagerScrollState {
 
 private extension CardsInfoPagerScrollState {
     enum Constants {
-        static let debounceInterval: DispatchQueue.SchedulerTimeType.Stride = 1.0
+        static let debounceInterval: DispatchQueue.SchedulerTimeType.Stride = 0.5
     }
 }
