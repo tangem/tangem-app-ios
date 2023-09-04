@@ -30,9 +30,6 @@ class AppSettings {
     @AppStorageCompat(StorageType.cardsStartedActivation)
     var cardsStartedActivation: [String] = []
 
-    @AppStorageCompat(StorageType.didDisplayMainScreenStories)
-    var didDisplayMainScreenStories: Bool = false
-
     @AppStorageCompat(StorageType.validatedSignedHashesCards)
     var validatedSignedHashesCards: [String] = []
 
