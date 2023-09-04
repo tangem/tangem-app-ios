@@ -85,7 +85,24 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        guard isDemo else {
+            return nil
+        }
+
+        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+
+        let entries: [StorageEntry] = blockchains.map {
+            if let derivationStyle = derivationStyle {
+                let derivationPath = $0.derivationPath(for: derivationStyle)
+                let network = BlockchainNetwork($0, derivationPath: derivationPath)
+                return .init(blockchainNetwork: network, tokens: [])
+            }
+
+            let network = BlockchainNetwork($0, derivationPath: nil)
+            return .init(blockchainNetwork: network, tokens: [])
+        }
+
+        return entries
     }
 
     var embeddedBlockchain: StorageEntry? {
@@ -93,7 +110,12 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        let warnings = WarningEventsFactory().makeWarningEvents(for: card)
+        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
+
+        if isDemo, !AppEnvironment.current.isTestnet {
+            warnings.append(.demoCard)
+        }
+
         return warnings
     }
 
@@ -207,6 +229,10 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     func makeWalletModelsFactory() -> WalletModelsFactory {
+        if isDemo {
+            return DemoWalletModelsFactory(derivationStyle: derivationStyle)
+        }
+
         return CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 
