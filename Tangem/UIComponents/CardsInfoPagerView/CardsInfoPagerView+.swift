@@ -71,3 +71,10 @@ extension CardsInfoPagerView where Data.Element: Identifiable, Data.Element.ID =
         )
     }
 }
+
+// MARK: - Auxiliary types
+
+enum CardsInfoPageChangeReason {
+    case byGesture
+    case programmatically
+}
