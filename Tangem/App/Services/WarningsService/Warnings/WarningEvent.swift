@@ -87,7 +87,7 @@ extension WarningEvent: NotificationEvent {
         case .systemDeprecationPermanent(let dateString):
             return String(format: Localization.warningSystemDeprecationWithDateMessage(dateString))
                 .replacingOccurrences(of: "..", with: ".")
-        case .missingDerivation(numberOfNetworks: let numberOfNetworks):
+        case .missingDerivation(let numberOfNetworks):
             return Localization.mainWarningMissingDerivationDescription(numberOfNetworks)
         case .walletLocked:
             return Localization.unlockWalletDescriptionShort(BiometricAuthorizationUtils.biometryType.name)
