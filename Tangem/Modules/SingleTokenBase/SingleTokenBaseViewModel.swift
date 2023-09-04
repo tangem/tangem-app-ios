@@ -38,7 +38,17 @@ class SingleTokenBaseViewModel {
 
     var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
 
-    var canSend: Bool { walletModel.canSendTransaction }
+    var canSend: Bool {
+        guard canSignLongTransactions else {
+            return false
+        }
+
+        return walletModel.wallet.canSend(amountType: amountType)
+    }
+
+    var canSignLongTransactions: Bool {
+        AppUtils().canSignLongTransactions(network: blockchainNetwork)
+    }
 
     var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
 
