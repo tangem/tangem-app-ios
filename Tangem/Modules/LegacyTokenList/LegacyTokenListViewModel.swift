@@ -364,7 +364,7 @@ private extension LegacyTokenListViewModel {
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         Analytics.log(event: .tokenSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.state(for: tokenIsSelected).rawValue,
+            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
         ])
     }
