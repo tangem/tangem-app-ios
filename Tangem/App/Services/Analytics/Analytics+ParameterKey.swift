@@ -53,6 +53,7 @@ extension Analytics {
         case validation = "Validation"
         case memo = "Memo"
         case walletsCount = "Wallets Count"
+        case walletHasBackup = "Backuped"
         case exceptionHost = "exception_host"
         case selectedHost = "selected_host"
         case region
@@ -61,5 +62,7 @@ extension Analytics {
         case dAppName = "DApp Name"
         case dAppUrl = "DApp Url"
         case methodName = "Method Name"
+        case groupType = "Group"
+        case sortType = "Sort"
     }
 }
