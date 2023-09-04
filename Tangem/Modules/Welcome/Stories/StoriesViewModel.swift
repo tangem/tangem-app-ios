@@ -172,9 +172,6 @@ class StoriesViewModel: ObservableObject {
 
         currentPage = nextPage
         restartTimer()
-        if currentPage != pages.first {
-            AppSettings.shared.didDisplayMainScreenStories = true
-        }
     }
 
     private func timerIsRunning() -> Bool {
