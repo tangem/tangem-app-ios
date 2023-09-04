@@ -125,7 +125,7 @@ struct NotificationView: View {
 extension NotificationView: Setupable {
     /// Toggles `MainButton` to new state.
     /// - Note: This will only work for notifications with `.withButtons` style. Also note that all buttons simultaneously will change `isLoading` state
-    func setButtonsIsLoadingState(to isLoading: Bool) -> Self {
+    func setButtonsLoadingState(to isLoading: Bool) -> Self {
         map { $0.isLoading = isLoading }
     }
 }
