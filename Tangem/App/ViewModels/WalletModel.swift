@@ -175,42 +175,6 @@ class WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    var canSendTransaction: Bool {
-        guard AppUtils().canSignLongTransactions(network: blockchainNetwork) else {
-            return false
-        }
-
-        return wallet.canSend(amountType: amountType)
-    }
-
-    var sendBlockedReason: SendBlockedReason? {
-        if !AppUtils().canSignLongTransactions(network: blockchainNetwork) {
-            return .cantSignLongTransactions
-        }
-
-        guard
-            let currentAmount = wallet.amounts[amountType],
-            let token = amountType.token
-        else {
-            return nil
-        }
-
-        if wallet.hasPendingTx, !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
-            return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
-        }
-
-        // no fee
-        if !wallet.hasPendingTx, !canSendTransaction, !currentAmount.isZero {
-            return .notEnoughtFeeForTokenTx(
-                tokenName: token.name,
-                networkName: blockchainNetwork.blockchain.displayName,
-                coinSymbol: blockchainNetwork.blockchain.currencySymbol
-            )
-        }
-
-        return nil
-    }
-
     var isDemo: Bool { demoBalance != nil }
     var demoBalance: Decimal?
 
@@ -527,6 +491,142 @@ extension WalletModel {
     }
 }
 
+// MARK: - States
+
+extension WalletModel {
+    enum State: Hashable {
+        case created
+        case idle
+        case loading
+        case noAccount(message: String)
+        case failed(error: String)
+        case noDerivation
+
+        var isLoading: Bool {
+            switch self {
+            case .loading, .created:
+                return true
+            default:
+                return false
+            }
+        }
+
+        var isSuccesfullyLoaded: Bool {
+            switch self {
+            case .idle, .noAccount:
+                return true
+            default:
+                return false
+            }
+        }
+
+        var isBlockchainUnreachable: Bool {
+            switch self {
+            case .failed:
+                return true
+            default:
+                return false
+            }
+        }
+
+        var isNoAccount: Bool {
+            switch self {
+            case .noAccount:
+                return true
+            default:
+                return false
+            }
+        }
+
+        var errorDescription: String? {
+            switch self {
+            case .failed(let localizedDescription):
+                return localizedDescription
+            case .noAccount(let message):
+                return message
+            default:
+                return nil
+            }
+        }
+
+        var failureDescription: String? {
+            switch self {
+            case .failed(let localizedDescription):
+                return localizedDescription
+            default:
+                return nil
+            }
+        }
+
+        fileprivate var canCreateOrPurgeWallet: Bool {
+            switch self {
+            case .failed, .loading, .created, .noDerivation:
+                return false
+            case .noAccount, .idle:
+                return true
+            }
+        }
+    }
+
+    enum WalletManagerUpdateResult: Hashable {
+        case success
+        case noAccount(message: String)
+    }
+}
+
+extension WalletModel: Equatable {
+    static func == (lhs: WalletModel, rhs: WalletModel) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+extension WalletModel: Identifiable {
+    var id: Int {
+        Id(blockchainNetwork: blockchainNetwork, amountType: amountType).id
+    }
+}
+
+extension WalletModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        let id = Id(blockchainNetwork: blockchainNetwork, amountType: amountType)
+        hasher.combine(id)
+    }
+}
+
+extension WalletModel {
+    enum TransactionHistoryState: CustomStringConvertible {
+        case notSupported
+        case notLoaded
+        case loading
+        case loaded(items: [TransactionRecord])
+        case error(Error)
+
+        var description: String {
+            switch self {
+            case .notSupported:
+                return "TransactionHistoryState.notSupported"
+            case .notLoaded:
+                return "TransactionHistoryState.notLoaded"
+            case .loading:
+                return "TransactionHistoryState.loading"
+            case .loaded(let items):
+                return "TransactionHistoryState.loaded with items: \(items.count)"
+            case .error(let error):
+                return "TransactionHistoryState.error with \(error.localizedDescription)"
+            }
+        }
+    }
+}
+
+extension WalletModel {
+    struct Id: Hashable, Identifiable, Equatable {
+        var id: Int { hashValue }
+
+        let blockchainNetwork: BlockchainNetwork
+        let amountType: Amount.AmountType
+    }
+}
+
 // MARK: - ExistentialDepositProvider
 
 extension WalletModel {
@@ -565,6 +665,21 @@ extension WalletModel {
             }
             .replaceError(with: nil)
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension WalletModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "name": name,
+                "isMainToken": isMainToken,
+                "tokenItem": "\(tokenItem.name) (\(tokenItem.networkName))",
+            ]
+        )
     }
 }
 
