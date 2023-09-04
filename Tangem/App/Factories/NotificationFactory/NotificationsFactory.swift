@@ -10,36 +10,15 @@ import Foundation
 
 struct NotificationsFactory {
     func buildMissingDerivationNotificationSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
-        .init(
-            colorScheme: .white,
-            icon: .init(image: Assets.blueCircleWarning.image),
-            title: Localization.mainWarningMissingDerivationTitle,
-            description: Localization.mainWarningMissingDerivationDescription(numberOfNetworks),
-            isDismissable: false,
-            dismissAction: nil
-        )
+        .init(event: WarningEvent.missingDerivation(numberOfNetworks: numberOfNetworks), dismissAction: nil)
     }
 
     func lockedWalletNotificationSettings() -> NotificationView.Settings {
-        .init(
-            colorScheme: .gray,
-            icon: .init(image: Assets.lock.image, color: Colors.Icon.primary1),
-            title: Localization.commonUnlockNeeded,
-            description: Localization.unlockWalletDescriptionShort(BiometricAuthorizationUtils.biometryType.name),
-            isDismissable: false,
-            dismissAction: nil
-        )
+        .init(event: WarningEvent.walletLocked, dismissAction: nil)
     }
 
     func missingBackupNotificationSettings() -> NotificationView.Settings {
-        .init(
-            colorScheme: .white,
-            icon: .init(image: Assets.attention.image),
-            title: Localization.mainNoBackupWarningTitle,
-            description: Localization.mainNoBackupWarningSubtitle,
-            isDismissable: false,
-            dismissAction: nil
-        )
+        .init(event: WarningEvent.missingBackup, dismissAction: nil)
     }
 
     func buildNotificationInputs(
