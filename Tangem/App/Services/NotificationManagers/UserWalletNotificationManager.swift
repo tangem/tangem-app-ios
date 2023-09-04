@@ -11,8 +11,8 @@ import Combine
 import BlockchainSdk
 
 protocol NotificationTapDelegate: AnyObject {
-    func tapNotification(with id: NotificationViewId)
-    func tapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType)
+    func didTapNotification(with id: NotificationViewId)
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType)
 }
 
 /// Manager for handling Notifications related to UserWalletModel.
@@ -42,7 +42,7 @@ final class UserWalletNotificationManager {
     private func createNotifications() {
         let factory = NotificationsFactory()
         let action: NotificationView.NotificationAction = { [weak self] id in
-            self?.delegate?.tapNotification(with: id)
+            self?.delegate?.didTapNotification(with: id)
         }
         let dismissAction: NotificationView.NotificationAction = { [weak self] id in
             self?.dismissNotification(with: id)
@@ -106,7 +106,7 @@ final class UserWalletNotificationManager {
             didFinishCountingHashes()
             let notification = factory.buildNotificationInput(
                 for: .multiWalletSignedHashes,
-                action: delegate?.tapNotification(with:) ?? { _ in },
+                action: delegate?.didTapNotification(with:) ?? { _ in },
                 dismissAction: dismissNotification(with:)
             )
             notificationInputsSubject.value.append(notification)
@@ -117,7 +117,7 @@ final class UserWalletNotificationManager {
             didFinishCountingHashes()
             let notification = factory.buildNotificationInput(
                 for: .numberOfSignedHashesIncorrect,
-                action: delegate?.tapNotification(with:) ?? { _ in },
+                action: delegate?.didTapNotification(with:) ?? { _ in },
                 dismissAction: dismissNotification(with:)
             )
             notificationInputsSubject.value.append(notification)
@@ -138,7 +138,7 @@ final class UserWalletNotificationManager {
                 case .failure:
                     let notification = factory.buildNotificationInput(
                         for: .numberOfSignedHashesIncorrect,
-                        action: { id in self?.delegate?.tapNotification(with: id) },
+                        action: { id in self?.delegate?.didTapNotification(with: id) },
                         dismissAction: { id in self?.dismissNotification(with: id) }
                     )
                     self?.notificationInputsSubject.value.append(notification)
