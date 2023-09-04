@@ -377,10 +377,10 @@ struct CardsInfoPagerView<
     ) -> CGFloat {
         let multiplier: CGFloat
         if oldSelectedIndex < newSelectedIndex {
-            // Successfull navigation to the next page (forward)
+            // Successful navigation to the next page (forward)
             multiplier = -1.0
         } else if oldSelectedIndex > newSelectedIndex {
-            // Successfull navigation to the previous page (reverse)
+            // Successful navigation to the previous page (reverse)
             multiplier = 1.0
         } else {
             // Page switch threshold hasn't been exceeded, no page switching has been made
