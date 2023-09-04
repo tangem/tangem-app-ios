@@ -36,18 +36,30 @@ struct AweStoryPage: View {
 
             Spacer()
 
-            Color.clear
-                .background(
-                    Assets.Stories.tangemMain.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .fixedSize(horizontal: false, vertical: true),
-                    alignment: .top
-                )
+            ZStack(alignment: .bottom) {
+                Color.clear
+                    .background(
+                        Assets.Stories.tangemMain.image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .fixedSize(horizontal: false, vertical: true),
 
-            StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
-                .padding(.horizontal)
-                .padding(.bottom)
+                        alignment: .top
+                    )
+                    .overlay(
+                        LinearGradient(colors: [
+                            .white.opacity(0),
+                            Color("tangem_story_background"),
+                            Color("tangem_story_background"),
+                        ], startPoint: .top, endPoint: .bottom)
+                            .frame(height: 100),
+                        alignment: .bottom
+                    )
+
+                StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
