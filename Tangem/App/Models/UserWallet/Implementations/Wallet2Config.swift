@@ -13,9 +13,11 @@ import BlockchainSdk
 // [REDACTED_TODO_COMMENT]
 struct Wallet2Config {
     let card: CardDTO
+    private let isDemo: Bool
 
-    init(card: CardDTO) {
+    init(card: CardDTO, isDemo: Bool) {
         self.card = card
+        self.isDemo = isDemo
     }
 }
 
@@ -49,6 +51,10 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var canSkipBackup: Bool {
+        if isDemo {
+            return true
+        }
+
         return false
     }
 
@@ -132,6 +138,10 @@ extension Wallet2Config: UserWalletConfig {
         case .signedHashesCounter:
             return .hidden
         case .backup:
+            if isDemo {
+                return .demoStub
+            }
+
             if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
                 return .available
             }
@@ -140,12 +150,24 @@ extension Wallet2Config: UserWalletConfig {
         case .twinning:
             return .hidden
         case .exchange:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .walletConnect:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .multiCurrency:
             return .available
         case .resetToFactory:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .receive:
             return .available
@@ -162,8 +184,16 @@ extension Wallet2Config: UserWalletConfig {
         case .tokenSynchronization:
             return .available
         case .referralProgram:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .swapping:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .displayHashesCount:
             return .available
