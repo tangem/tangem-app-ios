@@ -45,7 +45,7 @@ struct MultiWalletMainContentView: View {
                 FixedSizeButtonWithLeadingIcon(
                     title: Localization.organizeTokensTitle,
                     icon: Assets.OrganizeTokens.filterIcon.image,
-                    action: viewModel.openOrganizeTokens
+                    action: viewModel.onOpenOrganizeTokensButtonTap
                 )
                 .infinityFrame(axis: .horizontal)
             }
