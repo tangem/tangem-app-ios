@@ -18,18 +18,18 @@ struct MultiWalletMainContentView: View {
             if let settings = viewModel.missingDerivationNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        action: viewModel.tapNotificationButton(with:action:),
+                        action: viewModel.didTapNotificationButton(with:action:),
                         actionType: .generateAddresses
                     ),
                 ])
-                .setButtonsIsLoadingState(to: viewModel.isScannerBusy)
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
                 .transition(notificationTransition)
             }
 
             if let settings = viewModel.missingBackupNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        action: viewModel.tapNotificationButton(with:action:),
+                        action: viewModel.didTapNotificationButton(with:action:),
                         actionType: .backupCard
                     ),
                 ])
