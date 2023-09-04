@@ -211,7 +211,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 }
 
 extension MultiWalletMainContentViewModel: NotificationTapDelegate {
-    func tapNotification(with id: NotificationViewId) {
+    func didTapNotification(with id: NotificationViewId) {
         guard let notification = notificationInputs.first(where: { $0.id == id }) else {
             userWalletNotificationManager.dismissNotification(with: id)
             return
@@ -225,7 +225,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         }
     }
 
-    func tapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .generateAddresses:
             deriveEntriesWithoutDerivation()
