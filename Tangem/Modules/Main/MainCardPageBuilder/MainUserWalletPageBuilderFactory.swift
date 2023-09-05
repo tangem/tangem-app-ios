@@ -18,7 +18,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
-        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model)
+        let containsDefaultToken = (model.config.defaultBlockchains.first?.tokens.count ?? 0) > 0
+        let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
+        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
         let headerModel = MainHeaderViewModel(
             infoProvider: model,
             subtitleProvider: subtitleProvider,
@@ -31,21 +33,19 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 headerModel: headerModel,
                 bodyModel: .init(
                     userWalletModel: model,
+                    isMultiWallet: isMultiWalletPage,
                     lockedUserWalletDelegate: lockedUserWalletDelegate
                 )
             )
         }
 
-        if model.isMultiWallet {
+        if isMultiWalletPage {
+            let sectionsAdapter = makeSectionsAdapter(for: model)
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 coordinator: coordinator,
-                // [REDACTED_TODO_COMMENT]
-                sectionsProvider: GroupedTokenListInfoProvider(
-                    userWalletId: id,
-                    userTokenListManager: model.userTokenListManager,
-                    walletModelsManager: model.walletModelsManager
-                )
+                tokenSectionsAdapter: sectionsAdapter,
+                canManageTokens: model.isMultiWallet // [REDACTED_TODO_COMMENT]
             )
 
             return .multiWallet(
@@ -82,5 +82,15 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
     func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> [MainUserWalletPageBuilder] {
         return models.compactMap { createPage(for: $0, lockedUserWalletDelegate: lockedUserWalletDelegate) }
+    }
+
+    private func makeSectionsAdapter(for model: UserWalletModel) -> TokenSectionsAdapter {
+        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: model.userTokensManager)
+
+        return TokenSectionsAdapter(
+            userTokenListManager: model.userTokenListManager,
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
+        )
     }
 }
