@@ -36,7 +36,7 @@ struct SwappingView: View {
             // For animate button below informationSection
             .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
         }
-        .navigationBarTitle(Text(Localization.swappingSwap), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
     }
 
