@@ -32,16 +32,32 @@ class LockedWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    var isMultiWallet: Bool {
-        userWalletModel.isMultiWallet
+    var bottomOverlayViewModel: MainBottomOverlayViewModel? {
+        guard canManageTokens else { return nil }
+
+        return MainBottomOverlayViewModel(
+            isButtonDisabled: true,
+            buttonTitle: Localization.mainManageTokens,
+            buttonAction: {}
+        )
     }
 
+    let isMultiWallet: Bool
+
     private let userWalletModel: UserWalletModel
+    private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
 
-    init(userWalletModel: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate?) {
+    init(
+        userWalletModel: UserWalletModel,
+        isMultiWallet: Bool,
+        lockedUserWalletDelegate: MainLockedUserWalletDelegate?
+    ) {
         self.userWalletModel = userWalletModel
+        self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
+
+        canManageTokens = userWalletModel.isMultiWallet
     }
 
     private func openUnlockSheet() {
