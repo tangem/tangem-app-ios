@@ -11,6 +11,7 @@ import SwiftUI
 
 struct NetworkIcon: View {
     let imageName: String
+    let isActive: Bool
     let isMainIndicatorVisible: Bool
     var size: CGSize = .init(width: 20, height: 20)
 
@@ -19,6 +20,15 @@ struct NetworkIcon: View {
             .resizable()
             .frame(width: size.width, height: size.height)
             .overlay(indicatorOverlay)
+            .background(background)
+    }
+
+    @ViewBuilder
+    private var background: some View {
+        if !isActive {
+            Circle()
+                .foregroundColor(Colors.Button.secondary)
+        }
     }
 
     @ViewBuilder
@@ -42,8 +52,8 @@ private struct MainNetworkIndicator: View {
 
     var body: some View {
         Circle()
-            .foregroundColor(.tangemGreen2)
+            .foregroundColor(Colors.Icon.accent)
             .padding(borderPadding)
-            .background(Circle().fill(Color.white))
+            .background(Circle().fill(Colors.Background.primary))
     }
 }
