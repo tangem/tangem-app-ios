@@ -610,4 +610,8 @@ extension WalletModel {
     var transactionHistoryService: TransactionHistoryService? {
         _transactionHistoryService
     }
+
+    var signatureCountValidator: SignatureCountValidator? {
+        walletManager as? SignatureCountValidator
+    }
 }

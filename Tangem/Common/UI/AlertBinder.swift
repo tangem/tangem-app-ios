@@ -145,4 +145,34 @@ enum AlertBuilder {
 
         return alert
     }
+
+    static func makeAlert(title: String, message: String, with buttons: Buttons) -> AlertBinder {
+        .init(
+            alert: .init(
+                title: Text(title),
+                message: Text(message),
+                primaryButton: buttons.primaryButton,
+                secondaryButton: buttons.secondaryButton
+            )
+        )
+    }
+}
+
+extension AlertBuilder {
+    struct Buttons {
+        let primaryButton: Alert.Button
+        let secondaryButton: Alert.Button
+
+        init(primaryButton: Alert.Button, secondaryButton: Alert.Button) {
+            self.primaryButton = primaryButton
+            self.secondaryButton = secondaryButton
+        }
+
+        static func withPrimaryCancelButton(secondaryTitle: String, secondaryAction: @escaping () -> Void) -> Buttons {
+            .init(
+                primaryButton: .cancel(),
+                secondaryButton: .default(Text(secondaryTitle), action: secondaryAction)
+            )
+        }
+    }
 }
