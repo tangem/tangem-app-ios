@@ -11,6 +11,12 @@ import SwiftUI
 struct OrganizeTokensHeaderView: View {
     @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var buttonShadowOpacity: CGFloat {
+        return colorScheme == .light ? Constants.lightModeButtonShadowOpacity : Constants.darkModeButtonShadowOpacity
+    }
+
     var body: some View {
         HStack(spacing: 8.0) {
             Group {
@@ -20,16 +26,14 @@ struct OrganizeTokensHeaderView: View {
                     isToggled: !viewModel.isSortByBalanceEnabled,
                     action: viewModel.toggleSortState
                 )
-                // [REDACTED_TODO_COMMENT]
-                .shadow(color: Colors.Button.primary.opacity(sortByBalanceButtonShadowOpacity), radius: 5.0)
+                .shadow(color: Colors.Icon.inactive.opacity(sortByBalanceButtonShadowOpacity), radius: 4.0)
 
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
                     action: viewModel.toggleGroupState
                 )
-                // [REDACTED_TODO_COMMENT]
-                .shadow(color: Colors.Button.primary.opacity(groupingButtonShadowOpacity), radius: 5.0)
+                .shadow(color: Colors.Icon.inactive.opacity(groupingButtonShadowOpacity), radius: 4.0)
             }
             .background(
                 Colors.Background
@@ -41,11 +45,11 @@ struct OrganizeTokensHeaderView: View {
     }
 
     private var sortByBalanceButtonShadowOpacity: CGFloat {
-        return Constants.buttonShadowOpacity / (viewModel.isSortByBalanceEnabled ? 1.0 : 3.0)
+        return buttonShadowOpacity / (viewModel.isSortByBalanceEnabled ? 1.0 : 3.0)
     }
 
     private var groupingButtonShadowOpacity: CGFloat {
-        return Constants.buttonShadowOpacity
+        return buttonShadowOpacity
     }
 }
 
@@ -53,7 +57,8 @@ struct OrganizeTokensHeaderView: View {
 
 private extension OrganizeTokensHeaderView {
     enum Constants {
-        static let buttonShadowOpacity = 0.1
+        static let lightModeButtonShadowOpacity = 0.37
+        static let darkModeButtonShadowOpacity = 0.57
     }
 }
 
