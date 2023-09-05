@@ -10,6 +10,9 @@ import Combine
 import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
+    let emailData: [EmailCollectedData] = []
+    let backupInput: OnboardingInput? = nil
+
     var cardHeaderImage: ImageType?
 
     var isUserWalletLocked: Bool { false }
