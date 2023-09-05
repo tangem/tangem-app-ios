@@ -19,6 +19,6 @@ protocol UserTokenListManager: UserTokensSyncService {
 
     func update(with userTokenList: StoredUserTokenList)
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
-    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void)
+    func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, Error>) -> Void)
     func upload()
 }
