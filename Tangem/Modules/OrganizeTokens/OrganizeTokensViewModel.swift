@@ -43,7 +43,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     private var bag: Set<AnyCancellable> = []
     private var didBind = false
-    private var didReportScreenOpened = false
 
     init(
         coordinator: OrganizeTokensRoutable,
@@ -61,7 +60,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     func onViewAppear() {
         bind()
-        reportScreenOpened()
     }
 
     func onCancelButtonTap() {
@@ -220,13 +218,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         case .group:
             return true
         }
-    }
-
-    private func reportScreenOpened() {
-        if didReportScreenOpened { return }
-
-        Analytics.log(.organizeTokensScreenOpened)
-        didReportScreenOpened = true
     }
 
     private func reportOnSaveButtonTap(
