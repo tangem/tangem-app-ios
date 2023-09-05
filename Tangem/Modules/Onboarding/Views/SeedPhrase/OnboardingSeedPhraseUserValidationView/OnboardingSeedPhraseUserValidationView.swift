@@ -51,7 +51,7 @@ struct OnboardingSeedPhraseUserValidationView: View {
                 .padding(.top, 20)
 
                 Color.clear
-                    .frame(minHeight: containerSize.height - contentSize.height)
+                    .frame(minHeight: max(20, containerSize.height - contentSize.height))
 
                 MainButton(
                     title: Localization.onboardingCreateWalletButtonCreateWallet,
