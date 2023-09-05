@@ -11,18 +11,47 @@ import SwiftUI
 struct MultiWalletMainContentView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
+    private let notificationTransition: AnyTransition = .scale.combined(with: .opacity)
+
     var body: some View {
         VStack(spacing: 14) {
+            if let settings = viewModel.missingDerivationNotificationSettings {
+                NotificationView(settings: settings, buttons: [
+                    .init(
+                        title: Localization.commonGenerateAddresses,
+                        icon: .trailing(Assets.tangemIcon),
+                        size: .notification,
+                        isLoading: viewModel.isScannerBusy,
+                        action: viewModel.deriveEntriesWithoutDerivation
+                    ),
+                ])
+                .transition(notificationTransition)
+            }
+
+            if let settings = viewModel.missingBackupNotificationSettings {
+                NotificationView(settings: settings, buttons: [
+                    .init(
+                        title: Localization.buttonStartBackupProcess,
+                        style: .secondary,
+                        size: .notification,
+                        action: viewModel.startBackupProcess
+                    ),
+                ])
+            }
+
             tokensContent
 
-            FixedSizeButtonWithLeadingIcon(
-                title: Localization.organizeTokensTitle,
-                icon: Assets.OrganizeTokens.filterIcon.image,
-                action: viewModel.openOrganizeTokens
-            )
-            .infinityFrame(axis: .horizontal)
+            if viewModel.isOrganizeTokensVisible {
+                FixedSizeButtonWithLeadingIcon(
+                    title: Localization.organizeTokensTitle,
+                    icon: Assets.OrganizeTokens.filterIcon.image,
+                    action: viewModel.openOrganizeTokens
+                )
+                .infinityFrame(axis: .horizontal)
+            }
         }
-        .padding(.bottom, 40)
+        .animation(.default, value: viewModel.missingDerivationNotificationSettings)
+        .padding(.horizontal, 16)
     }
 
     private var tokensContent: some View {
@@ -38,7 +67,6 @@ struct MultiWalletMainContentView: View {
             }
         }
         .cornerRadiusContinuous(14)
-        .padding(.horizontal, 16)
     }
 
     private var emptyList: some View {
@@ -84,6 +112,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         let mainCoordinator = MainCoordinator()
         let userWalletModel = repo.models.first!
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+        InjectedValues[\.tangemApiService] = FakeTangemApiService()
         sectionProvider = GroupedTokenListInfoProvider(
             userTokenListManager: userWalletModel.userTokenListManager,
             walletModelsManager: userWalletModel.walletModelsManager
@@ -91,7 +120,8 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             coordinator: mainCoordinator,
-            sectionsProvider: sectionProvider
+            sectionsProvider: sectionProvider,
+            canManageTokens: userWalletModel.isMultiWallet
         )
     }()
 
