@@ -26,7 +26,6 @@ struct MultiWalletTokenItemsSectionFactory {
         tapAction: @escaping (WalletModel.ID) -> Void
     ) -> TokenItemViewModel {
         let infoProvider = makeSectionItemInfoProvider(from: sectionItem)
-        let priceChangeProvider = makeSectionItemPriceChangeProvider(from: sectionItem)
         let iconInfoBuilder = TokenIconInfoBuilder()
         let tokenItem = infoProvider.tokenItem
         let tokenIcon = iconInfoBuilder.build(from: tokenItem)
@@ -36,7 +35,6 @@ struct MultiWalletTokenItemsSectionFactory {
             tokenIcon: tokenIcon,
             isTestnetToken: tokenItem.blockchain.isTestnet,
             infoProvider: infoProvider,
-            priceChangeProvider: priceChangeProvider,
             tokenTapped: tapAction
         )
     }
@@ -64,11 +62,5 @@ struct MultiWalletTokenItemsSectionFactory {
                 tokenItem: .blockchain(blockchain)
             )
         }
-    }
-
-    private func makeSectionItemPriceChangeProvider(
-        from sectionItem: TokenSectionsAdapter.SectionItem
-    ) -> PriceChangeProvider {
-        PriceChangeProviderMock()
     }
 }
