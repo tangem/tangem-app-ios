@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 
 class FakeWalletModelsManager: WalletModelsManager {
     var walletModels: [WalletModel] {
@@ -20,8 +19,6 @@ class FakeWalletModelsManager: WalletModelsManager {
             .delay(for: 5, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
-
-    var signatureCountValidator: SignatureCountValidator? { nil }
 
     private let walletModelsSubject: CurrentValueSubject<[WalletModel], Never>
     private var updateAllSubscription: AnyCancellable?
