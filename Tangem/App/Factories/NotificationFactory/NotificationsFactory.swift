@@ -1,5 +1,5 @@
 //
-//  NotificationSettingsFactory.swift
+//  NotificationsFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct NotificationSettingsFactory {
+struct NotificationsFactory {
     func buildMissingDerivationNotificationSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
         .init(
             colorScheme: .white,
@@ -40,5 +40,34 @@ struct NotificationSettingsFactory {
             isDismissable: false,
             dismissAction: nil
         )
+    }
+
+    func buildNotificationInputs(
+        for events: [WarningEvent],
+        action: @escaping NotificationView.NotificationAction,
+        dismissAction: @escaping NotificationView.NotificationAction
+    ) -> [NotificationViewInput] {
+        return events.map { event in
+            buildNotificationInput(for: event, action: action, dismissAction: dismissAction)
+        }
+    }
+
+    func buildNotificationInput(
+        for event: WarningEvent,
+        action: @escaping NotificationView.NotificationAction,
+        dismissAction: @escaping NotificationView.NotificationAction
+    ) -> NotificationViewInput {
+        return NotificationViewInput(
+            style: notificationStyle(for: event, action: action),
+            settings: .init(event: event, dismissAction: dismissAction)
+        )
+    }
+
+    private func notificationStyle(for event: WarningEvent, action: @escaping NotificationView.NotificationAction) -> NotificationView.Style {
+        if event.hasAction {
+            return .tappable(action: action)
+        } else {
+            return .plain
+        }
     }
 }
