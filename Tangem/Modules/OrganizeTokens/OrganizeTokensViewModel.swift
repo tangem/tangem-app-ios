@@ -42,6 +42,9 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     )
 
     private var bag: Set<AnyCancellable> = []
+
+    // Due to some SwiftUI bugs `onViewAppear` will be called twice (at least on iOS 14/15),
+    // so these flags are used to guarantee one-time setup/init logic in the view model
     private var didBind = false
     private var didReportScreenOpened = false
 
