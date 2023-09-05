@@ -8,19 +8,13 @@
 
 import SwiftUI
 
-struct TransactionListItem: Hashable, Identifiable {
-    var id: Int { hashValue }
-
-    let header: String
-    let items: [LegacyTransactionRecord]
-}
-
 struct TransactionsListView: View {
     let state: State
     let exploreAction: () -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
     let buyButtonAction: (() -> Void)?
+    let fetchMore: FetchMore?
 
     var body: some View {
         content
@@ -138,24 +132,33 @@ struct TransactionsListView: View {
         } else {
             LazyVStack(spacing: 12) {
                 header
+                    .padding(.horizontal, 16)
 
                 ForEach(transactionItems, id: \.id) { item in
-                    Section {
-                        LazyVStack(spacing: 12) {
-                            ForEach(item.items, id: \.id) { record in
-                                TransactionView(LegacyTransactionRecord: record)
-                            }
-                        }
-                    } header: {
-                        HStack {
-                            Text(item.header)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                            Spacer()
-                        }
+                    HStack {
+                        Text(item.header)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+
+                    ForEach(item.items, id: \.id) { item in
+                        TransactionView(viewModel: item)
                     }
                 }
+
+                if let fetchMore {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
+                        .padding(.vertical)
+                        .onAppear {
+                            fetchMore.start()
+                        }
+                        .id(fetchMore.id)
+                }
             }
-            .padding(12)
+            .padding(.vertical, 12)
         }
     }
 
@@ -210,111 +213,56 @@ struct TransactionsListView_Previews: PreviewProvider {
     static let listItems = [
         TransactionListItem(
             header: "Today",
-            items: [
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "01:00",
-                    transferAmount: "-15 wxDAI",
-                    transactionType: .send,
-                    status: .inProgress
-                ),
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "02:00",
-                    transferAmount: "-15 wxDAI",
-                    transactionType: .send,
-                    status: .confirmed
-                ),
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "05:00",
-                    transferAmount: "+15 wxDAI",
-                    transactionType: .receive,
-                    status: .confirmed
-                ),
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "08:00",
-                    transferAmount: "-15 wxDAI",
-                    transactionType: .send,
-                    status: .confirmed
-                ),
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: LegacyTransactionRecord.TransactionType.receive.localizeDestination(for: "0x0123...baced"),
-                    timeFormatted: "15:00",
-                    transferAmount: "+15 wxDAI",
-                    transactionType: .receive,
-                    status: .confirmed
-                ),
-            ]
+            items: TransactionView_Previews.previewViewModels
         ),
         TransactionListItem(
             header: "Yesterday",
-            items: [
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "05:00",
-                    transferAmount: "-15 wxDAI",
-                    transactionType: .send,
-                    status: .confirmed
-                ),
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "09:00",
-                    transferAmount: "-15 wxDAI",
-                    transactionType: .send,
-                    status: .confirmed
-                ),
-            ]
+            items: TransactionView_Previews.previewViewModels
         ),
         TransactionListItem(
             header: "02.05.23",
-            items: [
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "05:00",
-                    transferAmount: "-15 wxDAI",
-                    transactionType: .send,
-                    status: .confirmed
-                ),
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: "0x0123...baced",
-                    timeFormatted: "08:00",
-                    transferAmount: "-15 wxDAI",
-                    transactionType: .send,
-                    status: .confirmed
-                ),
-                LegacyTransactionRecord(
-                    amountType: .coin,
-                    destination: LegacyTransactionRecord.TransactionType.approval.localizeDestination(for: "0x0123...baced"),
-                    timeFormatted: "18:32",
-                    transferAmount: "-0.0012 ETH",
-                    transactionType: .approval,
-                    status: .confirmed
-                ),
-            ]
+            items: TransactionView_Previews.previewViewModels
         ),
     ]
 
     static var previews: some View {
         ScrollView {
             VStack(spacing: 16) {
-                TransactionsListView(state: .notSupported, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(
+                    state: .notSupported,
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    fetchMore: nil
+                )
 
-                TransactionsListView(state: .loading, exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(
+                    state: .loading,
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    fetchMore: nil
+                )
 
-                TransactionsListView(state: .loaded([]), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(
+                    state: .loaded([]),
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    fetchMore: nil
+                )
 
-                TransactionsListView(state: .error(""), exploreAction: {}, reloadButtonAction: {}, isReloadButtonBusy: false, buyButtonAction: {})
+                TransactionsListView(
+                    state: .error(""),
+                    exploreAction: {},
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    buyButtonAction: {},
+                    fetchMore: nil
+                )
             }
             .padding(.horizontal, 16)
         }
@@ -327,7 +275,8 @@ struct TransactionsListView_Previews: PreviewProvider {
                 exploreAction: {},
                 reloadButtonAction: {},
                 isReloadButtonBusy: false,
-                buyButtonAction: {}
+                buyButtonAction: {},
+                fetchMore: nil
             )
             .padding(.horizontal, 16)
         }
