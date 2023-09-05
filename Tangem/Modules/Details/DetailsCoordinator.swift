@@ -45,13 +45,13 @@ class DetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: DetailsCoordinator.Options) {
-        detailsViewModel = DetailsViewModel(cardModel: options.cardModel, coordinator: self)
+        detailsViewModel = DetailsViewModel(userWalletModel: options.userWalletModel, coordinator: self)
     }
 }
 
 extension DetailsCoordinator {
     struct Options {
-        let cardModel: CardViewModel
+        let userWalletModel: UserWalletModel
     }
 }
 
