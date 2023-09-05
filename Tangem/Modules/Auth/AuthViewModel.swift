@@ -58,10 +58,8 @@ final class AuthViewModel: ObservableObject {
             didFinishUnlocking(result)
 
             switch result {
-            case .success, .partial:
-                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(
-                    for: userWalletRepository.selectedModel?.hasBackupCards ?? false
-                )
+            case .success(let cardViewModel), .partial(let cardViewModel, _):
+                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: cardViewModel.hasBackupCards)
                 Analytics.log(event: .signedIn, params: [
                     .signInType: Analytics.ParameterValue.signInTypeBiometrics.rawValue,
                     .walletsCount: "\(userWalletRepository.count)",
@@ -83,10 +81,8 @@ final class AuthViewModel: ObservableObject {
             didFinishUnlocking(result)
 
             switch result {
-            case .success, .partial:
-                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(
-                    for: userWalletRepository.selectedModel?.hasBackupCards ?? false
-                )
+            case .success(let cardViewModel), .partial(let cardViewModel, _):
+                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: cardViewModel.hasBackupCards)
                 Analytics.log(event: .signedIn, params: [
                     .signInType: Analytics.ParameterValue.signInTypeCard.rawValue,
                     .walletsCount: "\(userWalletRepository.count)",
