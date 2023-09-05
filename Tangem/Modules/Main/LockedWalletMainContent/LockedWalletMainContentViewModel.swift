@@ -14,7 +14,7 @@ protocol MainLockedUserWalletDelegate: AnyObject {
 
 class LockedWalletMainContentViewModel: ObservableObject {
     lazy var lockedNotificationInput: NotificationViewInput = {
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         return .init(
             style: .tappable(action: { [weak self] _ in
                 self?.openUnlockSheet()
