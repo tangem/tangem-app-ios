@@ -51,9 +51,14 @@ struct MainButton: View {
             content
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))
-                .cornerRadiusContinuous(14)
+                .cornerRadiusContinuous(Constants.cornerRadius)
         }
         .buttonStyle(BorderlessButtonStyle())
+        // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
+        .background(
+            Colors.Background.primary
+                .cornerRadiusContinuous(Constants.cornerRadius)
+        )
         .disabled(isDisabled || isLoading)
     }
 
@@ -107,7 +112,7 @@ struct MainButton: View {
 }
 
 extension MainButton {
-    enum Icon {
+    enum Icon: Hashable {
         case leading(_ icon: ImageType)
         case trailing(_ icon: ImageType)
     }
@@ -165,7 +170,7 @@ extension MainButton {
         }
     }
 
-    enum Size {
+    enum Size: Hashable {
         /// Height: 46
         case `default`
         /// Height: 40
@@ -179,7 +184,7 @@ extension MainButton {
         }
     }
 
-    struct Settings {
+    struct Settings: Identifiable, Hashable {
         let title: String
         let icon: Icon?
         let style: Style
@@ -187,6 +192,8 @@ extension MainButton {
         let isLoading: Bool
         var isDisabled: Bool
         let action: () -> Void
+
+        var id: Int { hashValue }
 
         init(
             title: String,
@@ -205,8 +212,31 @@ extension MainButton {
             self.isDisabled = isDisabled
             self.action = action
         }
+
+        static func == (lhs: MainButton.Settings, rhs: MainButton.Settings) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(title)
+            hasher.combine(icon)
+            hasher.combine(style)
+            hasher.combine(size)
+            hasher.combine(isLoading)
+            hasher.combine(isDisabled)
+        }
     }
 }
+
+// MARK: - Constants
+
+private extension MainButton {
+    enum Constants {
+        static let cornerRadius = 14.0
+    }
+}
+
+// MARK: - Previews
 
 struct MainButton_Previews: PreviewProvider {
     static var previews: some View {
