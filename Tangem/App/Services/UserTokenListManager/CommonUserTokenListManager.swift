@@ -13,6 +13,8 @@ import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
 
 class CommonUserTokenListManager {
+    typealias Completion = (Result<Void, Swift.Error>) -> Void
+
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let userWalletId: Data
@@ -25,6 +27,7 @@ class CommonUserTokenListManager {
     private let userTokensListSubject: CurrentValueSubject<StoredUserTokenList, Never>
 
     private var pendingTokensToUpdate: UserTokenList?
+    private var pendingUpdateLocalRepositoryFromServerCompletions: [Completion] = []
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
 
@@ -113,7 +116,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
     }
 
-    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
+    func updateLocalRepositoryFromServer(result: @escaping Completion) {
         guard hasTokenSynchronization else {
             result(.success(()))
             return
@@ -151,14 +154,20 @@ private extension CommonUserTokenListManager {
 
     // MARK: - Requests
 
-    func loadUserTokenList(result: @escaping (Result<Void, Error>) -> Void) {
+    func loadUserTokenList(result: @escaping Completion) {
         if let list = pendingTokensToUpdate {
             let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
 
             tokenItemsRepository.update(converter.convertRemoteToStored(list))
-            updateTokensOnServer(list: list, result: result)
+            updateTokensOnServer(list: list, completions: [result])
             pendingTokensToUpdate = nil
 
+            return
+        }
+
+        // Non-nil `loadTokensCancellable` means that there is an ongoing 'load tokens' request and we should re-use it
+        guard loadTokensCancellable == nil else {
+            pendingUpdateLocalRepositoryFromServerCompletions.append(result)
             return
         }
 
@@ -168,12 +177,21 @@ private extension CommonUserTokenListManager {
         self.loadTokensCancellable = loadTokensPublisher
             .combineLatest(upgradeTokensPublisher)
             .sink { [unowned self] completion in
-                guard case .failure(let error) = completion else { return }
+                defer {
+                    pendingUpdateLocalRepositoryFromServerCompletions.removeAll()
+                    loadTokensCancellable = nil
+                }
 
-                if error.code == .notFound {
-                    updateTokensOnServer(result: result)
-                } else {
-                    result(.failure(error as Error))
+                var completions = pendingUpdateLocalRepositoryFromServerCompletions
+                completions.append(result)
+
+                switch completion {
+                case .finished:
+                    completions.forEach { $0(.success(())) }
+                case .failure(let error) where error.code == .notFound:
+                    updateTokensOnServer(completions: completions)
+                case .failure(let error):
+                    completions.forEach { $0(.failure(error)) }
                 }
             } receiveValue: { [unowned self] list, _ in
                 let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
@@ -181,14 +199,10 @@ private extension CommonUserTokenListManager {
 
                 tokenItemsRepository.update(updatedUserTokenList)
                 notifyAboutTokenListUpdates(with: updatedUserTokenList)
-                result(.success(()))
             }
     }
 
-    func updateTokensOnServer(
-        list: UserTokenList? = nil,
-        result: @escaping (Result<Void, Error>) -> Void = { _ in }
-    ) {
+    func updateTokensOnServer(list: UserTokenList? = nil, completions: [Completion] = []) {
         let listToUpdate = list ?? getUserTokenList()
 
         saveTokensCancellable = tangemApiService
@@ -196,10 +210,10 @@ private extension CommonUserTokenListManager {
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    result(.success(()))
+                    completions.forEach { $0(.success(())) }
                 case .failure(let error):
                     self.pendingTokensToUpdate = listToUpdate
-                    result(.failure(error))
+                    completions.forEach { $0(.failure(error)) }
                 }
             }
     }
