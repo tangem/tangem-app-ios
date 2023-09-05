@@ -11,16 +11,16 @@ import Combine
 import CombineExt
 
 final class OrganizeTokensOptionsManager {
-    private let userTokenListManager: UserTokenListManager
+    private let userTokensReorderer: UserTokensReordering
     private let editingThrottleInterval: TimeInterval
-    private let editedGroupingOption = PassthroughSubject<OrganizeTokensOptions.Grouping, Never>()
-    private let editedSortingOption = PassthroughSubject<OrganizeTokensOptions.Sorting, Never>()
+    private let editedGroupingOption = PassthroughSubject<UserTokensReorderingOptions.Grouping, Never>()
+    private let editedSortingOption = PassthroughSubject<UserTokensReorderingOptions.Sorting, Never>()
 
     init(
-        userTokenListManager: UserTokenListManager,
+        userTokensReorderer: UserTokensReordering,
         editingThrottleInterval: TimeInterval
     ) {
-        self.userTokenListManager = userTokenListManager
+        self.userTokensReorderer = userTokensReorderer
         self.editingThrottleInterval = editingThrottleInterval
     }
 }
@@ -28,7 +28,7 @@ final class OrganizeTokensOptionsManager {
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
-    var groupingOption: AnyPublisher<OrganizeTokensOptions.Grouping, Never> {
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let editedGroupingOption = editedGroupingOption
             .throttle(
                 for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
@@ -37,19 +37,18 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
             )
             .eraseToAnyPublisher()
 
-        let groupingOptionFromUserTokenList = userTokenListManager
-            .userTokenList
+        let currentGroupingOption = userTokensReorderer
+            .groupingOption
             .prefix(untilOutputFrom: editedGroupingOption)
-            .map { OrganizeTokensOptionsConverter().convert($0.group) }
             .eraseToAnyPublisher()
 
         return [
             editedGroupingOption,
-            groupingOptionFromUserTokenList,
+            currentGroupingOption,
         ].merge()
     }
 
-    var sortingOption: AnyPublisher<OrganizeTokensOptions.Sorting, Never> {
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let editedSortingOption = editedSortingOption
             .throttle(
                 for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
@@ -58,15 +57,14 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
             )
             .eraseToAnyPublisher()
 
-        let sortingOptionFromUserTokenList = userTokenListManager
-            .userTokenList
+        let currentSortingOption = userTokensReorderer
+            .sortingOption
             .prefix(untilOutputFrom: editedSortingOption)
-            .map { OrganizeTokensOptionsConverter().convert($0.sort) }
             .eraseToAnyPublisher()
 
         return [
             editedSortingOption,
-            sortingOptionFromUserTokenList,
+            currentSortingOption,
         ].merge()
     }
 }
@@ -74,31 +72,29 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
 // MARK: - OrganizeTokensOptionsEditing protocol conformance
 
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
-    func group(by groupingOption: OrganizeTokensOptions.Grouping) {
+    func group(by groupingOption: UserTokensReorderingOptions.Grouping) {
         editedGroupingOption.send(groupingOption)
     }
 
-    func sort(by sortingOption: OrganizeTokensOptions.Sorting) {
+    func sort(by sortingOption: UserTokensReorderingOptions.Sorting) {
         editedSortingOption.send(sortingOption)
     }
 
-    func save() -> AnyPublisher<Void, Never> {
+    func save(
+        reorderedWalletModelIds: [WalletModel.ID]
+    ) -> AnyPublisher<Void, Never> {
         return .just
-            .withLatestFrom(groupingOption, sortingOption, userTokenListManager.userTokenList)
+            .withLatestFrom(groupingOption, sortingOption)
             .withWeakCaptureOf(self)
             .flatMapLatest { input in
-                let (manager, (grouping, sorting, userTokenList)) = input
+                let (manager, (grouping, sorting)) = input
 
-                return Deferred {
-                    Future<Void, Never> { [userTokenListManager = manager.userTokenListManager] promise in
-                        let converter = OrganizeTokensOptionsConverter()
-                        var updatedUserTokenList = userTokenList
-                        updatedUserTokenList.group = converter.convert(grouping)
-                        updatedUserTokenList.sort = converter.convert(sorting)
-                        userTokenListManager.update(with: updatedUserTokenList) // [REDACTED_TODO_COMMENT]
-                        promise(.success(()))
-                    }
-                }
+                // [REDACTED_TODO_COMMENT]
+                return manager.userTokensReorderer.reorder([
+                    .setGroupingOption(option: grouping),
+                    .setSortingOption(option: sorting),
+                    .reorder(reorderedWalletModelIds: reorderedWalletModelIds),
+                ])
             }
             .eraseToAnyPublisher()
     }
