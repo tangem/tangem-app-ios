@@ -12,9 +12,10 @@ struct MainButton: View {
     private let icon: Icon?
     private let style: Style
     private let size: Size
-    private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
+
+    private var isLoading: Bool
 
     init(
         title: String,
@@ -52,6 +53,7 @@ struct MainButton: View {
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))
                 .cornerRadiusContinuous(Constants.cornerRadius)
+                .overlay(border)
         }
         .buttonStyle(BorderlessButtonStyle())
         // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
@@ -108,6 +110,14 @@ struct MainButton: View {
             .renderingMode(.template)
             .frame(width: 20, height: 20)
             .foregroundColor(style.iconColor(isDisabled: isDisabled))
+    }
+
+    @ViewBuilder
+    private var border: some View {
+        if let borderColor = style.border(isDisabled: isDisabled) {
+            RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+                .stroke(borderColor)
+        }
     }
 }
 
@@ -168,6 +178,14 @@ extension MainButton {
                 return Colors.Button.secondary
             }
         }
+
+        func border(isDisabled: Bool) -> Color? {
+            guard isDisabled else {
+                return nil
+            }
+
+            return Colors.Stroke.primary
+        }
     }
 
     enum Size: Hashable {
@@ -225,6 +243,12 @@ extension MainButton {
             hasher.combine(isLoading)
             hasher.combine(isDisabled)
         }
+    }
+}
+
+extension MainButton: Setupable {
+    func setIsLoading(to isLoading: Bool) -> Self {
+        map { $0.isLoading = isLoading }
     }
 }
 
