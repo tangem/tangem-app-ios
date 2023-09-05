@@ -11,17 +11,30 @@ import Combine
 import CombineExt
 
 final class OrganizeTokensOptionsManager {
+    private typealias OptionChange<T> = (currentValue: T, newValue: T?)
+
     private let userTokensReorderer: UserTokensReordering
-    private let editingThrottleInterval: TimeInterval
-    private let editedGroupingOption = PassthroughSubject<UserTokensReorderingOptions.Grouping, Never>()
-    private let editedSortingOption = PassthroughSubject<UserTokensReorderingOptions.Sorting, Never>()
+    private let editedGroupingOption = CurrentValueSubject<UserTokensReorderingOptions.Grouping?, Never>(nil)
+    private let editedSortingOption = CurrentValueSubject<UserTokensReorderingOptions.Sorting?, Never>(nil)
+
+    private var groupingOptionToSave: AnyPublisher<OptionChange<UserTokensReorderingOptions.Grouping>, Never> {
+        return editedGroupingOption
+            .prepend(nil)
+            .withLatestFrom(userTokensReorderer.groupingOption) { (currentValue: $1, newValue: $0) }
+            .eraseToAnyPublisher()
+    }
+
+    private var sortingOptionToSave: AnyPublisher<OptionChange<UserTokensReorderingOptions.Sorting>, Never> {
+        return editedSortingOption
+            .prepend(nil)
+            .withLatestFrom(userTokensReorderer.sortingOption) { (currentValue: $1, newValue: $0) }
+            .eraseToAnyPublisher()
+    }
 
     init(
-        userTokensReorderer: UserTokensReordering,
-        editingThrottleInterval: TimeInterval
+        userTokensReorderer: UserTokensReordering
     ) {
         self.userTokensReorderer = userTokensReorderer
-        self.editingThrottleInterval = editingThrottleInterval
     }
 }
 
@@ -30,11 +43,8 @@ final class OrganizeTokensOptionsManager {
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
     var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let editedGroupingOption = editedGroupingOption
-            .throttle(
-                for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
-                scheduler: RunLoop.main,
-                latest: false
-            )
+            .compactMap { $0 }
+            .removeDuplicates()
             .eraseToAnyPublisher()
 
         let currentGroupingOption = userTokensReorderer
@@ -50,11 +60,8 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
 
     var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let editedSortingOption = editedSortingOption
-            .throttle(
-                for: RunLoop.SchedulerTimeType.Stride(editingThrottleInterval),
-                scheduler: RunLoop.main,
-                latest: false
-            )
+            .compactMap { $0 }
+            .removeDuplicates()
             .eraseToAnyPublisher()
 
         let currentSortingOption = userTokensReorderer
@@ -84,17 +91,25 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
         reorderedWalletModelIds: [WalletModel.ID]
     ) -> AnyPublisher<Void, Never> {
         return .just
-            .withLatestFrom(groupingOption, sortingOption)
+            .withLatestFrom(userTokensReorderer.orderedWalletModelIds, groupingOptionToSave, sortingOptionToSave)
             .withWeakCaptureOf(self)
             .flatMapLatest { input in
-                let (manager, (grouping, sorting)) = input
+                let (manager, (orderedWalletModelIds, groupingOption, sortingOption)) = input
+                var reorderingActions: [UserTokensReorderingAction] = []
 
-                // [REDACTED_TODO_COMMENT]
-                return manager.userTokensReorderer.reorder([
-                    .setGroupingOption(option: grouping),
-                    .setSortingOption(option: sorting),
-                    .reorder(reorderedWalletModelIds: reorderedWalletModelIds),
-                ])
+                if let newValue = groupingOption.newValue, newValue != groupingOption.currentValue {
+                    reorderingActions.append(.setGroupingOption(option: newValue))
+                }
+
+                if let newValue = sortingOption.newValue, newValue != sortingOption.currentValue {
+                    reorderingActions.append(.setSortingOption(option: newValue))
+                }
+
+                if reorderedWalletModelIds != orderedWalletModelIds {
+                    reorderingActions.append(.reorder(reorderedWalletModelIds: reorderedWalletModelIds))
+                }
+
+                return manager.userTokensReorderer.reorder(reorderingActions)
             }
             .eraseToAnyPublisher()
     }
