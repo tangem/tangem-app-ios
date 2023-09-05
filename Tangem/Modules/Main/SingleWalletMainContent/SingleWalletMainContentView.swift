@@ -22,6 +22,11 @@ struct SingleWalletMainContentView: View {
                     .transition(notificationTransition)
             }
 
+            ForEach(viewModel.tokenNotificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(notificationTransition)
+            }
+
             TransactionsListView(
                 state: viewModel.transactionHistoryState,
                 exploreAction: viewModel.openExplorer,
@@ -33,6 +38,7 @@ struct SingleWalletMainContentView: View {
             .padding(.bottom, 40)
         }
         .animation(.default, value: viewModel.notificationInputs)
+        .animation(.default, value: viewModel.tokenNotificationInputs)
         .padding(.horizontal, 16)
     }
 }
@@ -55,6 +61,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             userTokensManager: userWalletModel.userTokensManager,
             exchangeUtility: cryptoUtility,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            tokenNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator
         )
     }()
