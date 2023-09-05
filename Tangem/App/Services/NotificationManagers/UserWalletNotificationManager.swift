@@ -10,8 +10,9 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-protocol UserWalletNotificationDelegate: AnyObject {
-    func tapUserWalletNotification(with id: NotificationViewId)
+protocol NotificationTapDelegate: AnyObject {
+    func didTapNotification(with id: NotificationViewId)
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType)
 }
 
 /// Manager for handling Notifications related to UserWalletModel.
@@ -23,7 +24,7 @@ final class UserWalletNotificationManager {
     private let signatureCountValidator: SignatureCountValidator?
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
-    private weak var delegate: UserWalletNotificationDelegate?
+    private weak var delegate: NotificationTapDelegate?
     private var updateSubscription: AnyCancellable?
 
     init(userWalletModel: UserWalletModel, signatureCountValidator: SignatureCountValidator?) {
@@ -31,7 +32,7 @@ final class UserWalletNotificationManager {
         self.signatureCountValidator = signatureCountValidator
     }
 
-    func setupManager(with delegate: UserWalletNotificationDelegate? = nil) {
+    func setupManager(with delegate: NotificationTapDelegate? = nil) {
         self.delegate = delegate
 
         createNotifications()
@@ -41,7 +42,7 @@ final class UserWalletNotificationManager {
     private func createNotifications() {
         let factory = NotificationsFactory()
         let action: NotificationView.NotificationAction = { [weak self] id in
-            self?.delegate?.tapUserWalletNotification(with: id)
+            self?.delegate?.didTapNotification(with: id)
         }
         let dismissAction: NotificationView.NotificationAction = { [weak self] id in
             self?.dismissNotification(with: id)
@@ -105,7 +106,7 @@ final class UserWalletNotificationManager {
             didFinishCountingHashes()
             let notification = factory.buildNotificationInput(
                 for: .multiWalletSignedHashes,
-                action: delegate?.tapUserWalletNotification(with:) ?? { _ in },
+                action: delegate?.didTapNotification(with:) ?? { _ in },
                 dismissAction: dismissNotification(with:)
             )
             notificationInputsSubject.value.append(notification)
@@ -116,7 +117,7 @@ final class UserWalletNotificationManager {
             didFinishCountingHashes()
             let notification = factory.buildNotificationInput(
                 for: .numberOfSignedHashesIncorrect,
-                action: delegate?.tapUserWalletNotification(with:) ?? { _ in },
+                action: delegate?.didTapNotification(with:) ?? { _ in },
                 dismissAction: dismissNotification(with:)
             )
             notificationInputsSubject.value.append(notification)
@@ -137,7 +138,7 @@ final class UserWalletNotificationManager {
                 case .failure:
                     let notification = factory.buildNotificationInput(
                         for: .numberOfSignedHashesIncorrect,
-                        action: { id in self?.delegate?.tapUserWalletNotification(with: id) },
+                        action: { id in self?.delegate?.didTapNotification(with: id) },
                         dismissAction: { id in self?.dismissNotification(with: id) }
                     )
                     self?.notificationInputsSubject.value.append(notification)
@@ -168,7 +169,11 @@ extension UserWalletNotificationManager: NotificationManager {
             return
         }
 
-        switch notification.settings.event {
+        guard let event = notification.settings.event as? WarningEvent else {
+            return
+        }
+
+        switch event {
         case .systemDeprecationTemporary, .systemDeprecationPermanent:
             recordDeprecationNotificationDismissal()
         case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect:
