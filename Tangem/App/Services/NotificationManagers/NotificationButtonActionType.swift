@@ -11,6 +11,7 @@ import Foundation
 enum NotificationButtonActionType: Identifiable, Hashable {
     case generateAddresses
     case backupCard
+    case buyCrypto(currencySymbol: String?)
 
     var id: Int { hashValue }
 
@@ -20,6 +21,11 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.commonGenerateAddresses
         case .backupCard:
             return Localization.buttonStartBackupProcess
+        case .buyCrypto(let currencySymbol):
+            guard let currencySymbol else {
+                return "Top up card"
+            }
+            return "Buy \(currencySymbol)"
         }
     }
 
@@ -27,7 +33,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .trailing(Assets.tangemIcon)
-        case .backupCard:
+        case .backupCard, .buyCrypto:
             return nil
         }
     }
@@ -36,7 +42,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard:
+        case .backupCard, .buyCrypto:
             return .secondary
         }
     }
