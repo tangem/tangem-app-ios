@@ -31,7 +31,6 @@ class FakeTokenItemInfoProvider: ObservableObject {
                 tokenIcon: makeTokenIconInfo(for: walletModel),
                 isTestnetToken: walletModel.blockchainNetwork.blockchain.isTestnet,
                 infoProvider: DefaultTokenItemInfoProvider(walletModel: walletModel),
-                priceChangeProvider: self,
                 tokenTapped: modelTapped(with:)
             )
         }
