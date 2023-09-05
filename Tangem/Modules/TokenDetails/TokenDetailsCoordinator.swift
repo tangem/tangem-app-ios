@@ -44,14 +44,20 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
+        let notificationManager = SingleTokenNotificationManager(
+            walletModel: options.walletModel,
+            isNoteWallet: false
+        )
 
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
             userTokensManager: options.userTokensManager,
             walletModel: options.walletModel,
             exchangeUtility: exchangeUtility,
+            notificationManager: notificationManager,
             coordinator: self
         )
+        notificationManager.setupManager(with: tokenDetailsViewModel)
     }
 }
 
