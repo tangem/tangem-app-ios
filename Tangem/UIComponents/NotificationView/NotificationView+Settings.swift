@@ -10,42 +10,12 @@ import SwiftUI
 
 extension NotificationView {
     typealias NotificationAction = (NotificationViewId) -> Void
+    typealias NotificationButtonTapAction = (NotificationViewId, NotificationButtonActionType) -> Void
+
     struct Settings: Identifiable, Hashable {
         let id: NotificationViewId = UUID().uuidString
-        let colorScheme: NotificationView.ColorScheme
-        let icon: NotificationView.MessageIcon
-        let title: String
-        let description: String?
-        let event: WarningEvent?
-        let isDismissable: Bool
+        let event: NotificationEvent
         let dismissAction: NotificationAction?
-
-        init(
-            colorScheme: NotificationView.ColorScheme,
-            icon: NotificationView.MessageIcon,
-            title: String,
-            description: String? = nil,
-            isDismissable: Bool,
-            dismissAction: NotificationView.NotificationAction? = nil
-        ) {
-            self.colorScheme = colorScheme
-            self.icon = icon
-            self.title = title
-            self.description = description
-            event = nil
-            self.isDismissable = isDismissable
-            self.dismissAction = dismissAction
-        }
-
-        init(event: WarningEvent, dismissAction: NotificationAction?) {
-            self.event = event
-            colorScheme = event.colorScheme
-            icon = event.icon
-            title = event.title
-            description = event.description
-            isDismissable = event.isDismissable
-            self.dismissAction = dismissAction
-        }
 
         static func == (lhs: Settings, rhs: Settings) -> Bool {
             return lhs.id == rhs.id
@@ -56,9 +26,20 @@ extension NotificationView {
         }
     }
 
+    struct NotificationButton: Identifiable, Equatable {
+        let action: NotificationButtonTapAction
+        let actionType: NotificationButtonActionType
+
+        var id: Int { actionType.id }
+
+        static func == (lhs: NotificationButton, rhs: NotificationButton) -> Bool {
+            return lhs.actionType == rhs.actionType
+        }
+    }
+
     enum Style: Equatable {
         case tappable(action: NotificationAction)
-        case withButtons([MainButton.Settings])
+        case withButtons([NotificationButton])
         case plain
 
         static func == (lhs: NotificationView.Style, rhs: NotificationView.Style) -> Bool {
