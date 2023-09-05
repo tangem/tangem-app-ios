@@ -19,7 +19,6 @@ class SingleTokenBaseViewModel {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
-
     @Published var actionButtons: [ButtonWithIconInfo] = []
 
     private unowned let coordinator: SingleTokenBaseRoutable
@@ -34,6 +33,7 @@ class SingleTokenBaseViewModel {
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     var availableActions: [TokenActionType] = []
+    private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
     var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
@@ -65,6 +65,8 @@ class SingleTokenBaseViewModel {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
 
+    lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
+
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
@@ -90,19 +92,40 @@ class SingleTokenBaseViewModel {
         openExplorer(at: url)
     }
 
+    func fetchMoreHistory() -> FetchMore? {
+        guard let transactionHistoryService = walletModel.transactionHistoryService,
+              transactionHistoryService.canFetchMore else {
+            return nil
+        }
+
+        return FetchMore { [weak self] in
+            self?.loadHistory()
+        }
+    }
+
     func reloadHistory() {
+        Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
+
+        // We should reset transaction history to initial state here
+        walletModel.transactionHistoryService?.reset()
+
         DispatchQueue.main.async {
             self.isReloadingTransactionHistory = true
         }
-        walletModel.updateTransactionsHistory()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.isReloadingTransactionHistory = false
-            } receiveValue: { _ in }
-            .store(in: &bag)
+
+        loadHistory()
     }
 
-    func openBuy() {
+    func loadHistory() {
+        transactionHistoryBag = walletModel
+            .updateTransactionsHistory()
+            .receive(on: DispatchQueue.main)
+            .receiveCompletion { [weak self] _ in
+                self?.isReloadingTransactionHistory = false
+            }
+    }
+
+    private func openBuy() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -138,6 +161,7 @@ extension SingleTokenBaseViewModel {
         setupActionButtons()
         loadSwappingState()
         updateActionButtons()
+        loadHistory()
     }
 
     private func setupActionButtons() {
@@ -182,18 +206,15 @@ extension SingleTokenBaseViewModel {
             transactionHistoryState = .notSupported
         case .notLoaded:
             transactionHistoryState = .loading
-            walletModel.updateTransactionsHistory()
-                .sink()
-                .store(in: &bag)
         case .loading:
             if case .notLoaded = newState {
                 transactionHistoryState = .loading
             }
-        case .failedToLoad(let error):
+        case .error(let error):
             transactionHistoryState = .error(error)
-        case .loaded:
-            let txListItems = TransactionHistoryMapper().makeTransactionListItems(from: walletModel.transactions)
-            transactionHistoryState = .loaded(txListItems)
+        case .loaded(let records):
+            let listItems = transactionHistoryMapper.mapTransactionListItem(from: records)
+            transactionHistoryState = .loaded(listItems)
         }
     }
 
@@ -245,6 +266,8 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     func openReceive() {
+        Analytics.log(event: .buttonReceive, params: [.token: currencySymbol])
+
         let infos = walletModel.wallet.addresses.map { address in
             ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
         }
@@ -252,7 +275,7 @@ extension SingleTokenBaseViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buttonBuy)
+        Analytics.log(event: .buttonBuy, params: [.token: currencySymbol])
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning { [weak self] in
                 self?.openBuy()
@@ -271,7 +294,7 @@ extension SingleTokenBaseViewModel {
             let cardViewModel = userWalletModel as? CardViewModel
         else { return }
 
-        Analytics.log(.buttonSend)
+        Analytics.log(event: .buttonSend, params: [.token: currencySymbol])
         coordinator.openSend(
             amountToSend: amountToSend,
             blockchainNetwork: blockchainNetwork,
@@ -280,6 +303,8 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExchange() {
+        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
+
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -316,7 +341,7 @@ extension SingleTokenBaseViewModel {
     }
 
     func openSell() {
-        Analytics.log(.buttonSell)
+        Analytics.log(event: .buttonSell, params: [.token: currencySymbol])
 
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
@@ -350,7 +375,7 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExplorer(at url: URL) {
-        Analytics.log(.buttonExplore)
+        Analytics.log(event: .buttonExplore, params: [.token: currencySymbol])
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 }
