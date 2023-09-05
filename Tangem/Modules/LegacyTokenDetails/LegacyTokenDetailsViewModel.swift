@@ -188,13 +188,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     private var canSignLongTransactions: Bool {
-        if let blockchain = walletModel?.blockchainNetwork.blockchain,
-           NFCUtils.isPoorNfcQualityDevice,
-           blockchain.hasLongTransactions {
-            return false
-        } else {
-            return true
-        }
+        AppUtils().canSignLongTransactions(network: blockchainNetwork)
     }
 
     private var isCustomToken: Bool {
