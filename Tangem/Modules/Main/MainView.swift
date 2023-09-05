@@ -17,9 +17,21 @@ struct MainView: View {
             selectedIndex: $viewModel.selectedCardIndex,
             headerFactory: { info in
                 info.header
+                    .contextMenu {
+                        Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
+
+                        if #available(iOS 15, *) {
+                            Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                        } else {
+                            Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                        }
+                    }
             },
             contentFactory: { info in
                 info.body
+            },
+            bottomOverlayFactory: { info in
+                info.bottomOverlay
             },
             onPullToRefresh: viewModel.onPullToRefresh(completionHandler:)
         )
@@ -30,7 +42,6 @@ struct MainView: View {
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
-        .edgesIgnoringSafeArea(.bottom)
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarLeading) {
                 Assets.newTangemLogo.image
@@ -46,6 +57,22 @@ struct MainView: View {
                 .offset(x: 10)
             }
         })
+        .alert(item: $viewModel.errorAlert) { $0.alert }
+        .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
+            ActionSheet(
+                title: Text(Localization.userWalletListDeletePrompt),
+                buttons: [
+                    .destructive(Text(Localization.commonDelete), action: viewModel.didConfirmWalletDeletion),
+                    .cancel(Text(Localization.commonCancel)),
+                ]
+            )
+        }
+        .bottomSheet(
+            item: $viewModel.unlockWalletBottomSheetViewModel,
+            settings: .init(backgroundColor: Colors.Background.primary)
+        ) { model in
+            UnlockUserWalletBottomSheetView(viewModel: model)
+        }
         .background(
             ScanTroubleshootingView(
                 isPresented: $viewModel.showTroubleshootingView,
@@ -53,7 +80,6 @@ struct MainView: View {
                 requestSupportAction: viewModel.requestSupport
             )
         )
-        .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
     var scanCardButton: some View {
@@ -73,6 +99,22 @@ struct MainView: View {
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
         .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+    }
+
+    @ViewBuilder
+    private func editButtonLabel() -> some View {
+        HStack {
+            Text(Localization.userWalletListRename)
+            Image(systemName: "pencil")
+        }
+    }
+
+    @ViewBuilder
+    private func deleteButtonLabel() -> some View {
+        HStack {
+            Text(Localization.commonDelete)
+            Image(systemName: "trash")
+        }
     }
 }
 
