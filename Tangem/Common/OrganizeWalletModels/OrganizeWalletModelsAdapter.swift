@@ -9,14 +9,12 @@
 import Foundation
 import Combine
 import CombineExt
-import struct BlockchainSdk.Amount // [REDACTED_TODO_COMMENT]
-import enum BlockchainSdk.Blockchain // [REDACTED_TODO_COMMENT]
 
 final class OrganizeWalletModelsAdapter {
     typealias Section = OrganizeWalletModelsSection<SectionType>
-    typealias UserToken = UserTokenList.Token // [REDACTED_TODO_COMMENT]
-    typealias GroupingOption = OrganizeTokensOptions.Grouping
-    typealias SortingOption = OrganizeTokensOptions.Sorting
+    typealias UserToken = StoredUserTokenList.Entry
+    typealias GroupingOption = UserTokensReorderingOptions.Grouping
+    typealias SortingOption = UserTokensReorderingOptions.Sorting
 
     enum SectionType {
         case group(by: BlockchainNetwork)
@@ -24,18 +22,15 @@ final class OrganizeWalletModelsAdapter {
     }
 
     private let userTokenListManager: UserTokenListManager
-    private let walletModelComponentsBuilder: WalletModelComponentsBuilder
     private let organizeTokensOptionsProviding: OrganizeTokensOptionsProviding
     private let organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
 
     init(
         userTokenListManager: UserTokenListManager,
-        walletModelComponentsBuilder: WalletModelComponentsBuilder,
         organizeTokensOptionsProviding: OrganizeTokensOptionsProviding,
         organizeTokensOptionsEditing: OrganizeTokensOptionsEditing
     ) {
         self.userTokenListManager = userTokenListManager
-        self.walletModelComponentsBuilder = walletModelComponentsBuilder
         self.organizeTokensOptionsProviding = organizeTokensOptionsProviding
         self.organizeTokensOptionsEditing = organizeTokensOptionsEditing
     }
@@ -46,7 +41,7 @@ final class OrganizeWalletModelsAdapter {
     ) -> some Publisher<[Section], Never> {
         return walletModels
             .combineLatest(
-                userTokenListManager.userTokenList.map(\.tokens),
+                userTokenListManager.userTokensListPublisher.map(\.entries),
                 organizeTokensOptionsProviding.groupingOption,
                 organizeTokensOptionsProviding.sortingOption
             )
@@ -93,28 +88,15 @@ final class OrganizeWalletModelsAdapter {
         userTokens: [UserToken],
         sortingOption: SortingOption
     ) -> [Section] {
-        let blockchainNetworks = userTokens
-            .compactMap { walletModelComponentsBuilder.buildBlockchainNetwork(from: $0) }
-            .unique()
-
-        let userTokensGroupedByBlockchainNetworks: [BlockchainNetwork: [UserToken]] = userTokens
-            .reduce(into: [:]) { partialResult, element in
-                guard let blockchainNetwork = walletModelComponentsBuilder.buildBlockchainNetwork(from: element) else {
-                    return
-                }
-
-                partialResult[blockchainNetwork, default: []].append(element)
-            }
+        let userTokensGroupedByBlockchainNetworks = userTokens.grouped(by: \.blockchainNetwork)
+        let blockchainNetworks = userTokens.uniqueProperties(\.blockchainNetwork)
 
         return blockchainNetworks.map { blockchainNetwork in
             let userTokensForBlockchainNetwork = userTokensGroupedByBlockchainNetworks[blockchainNetwork, default: []]
-            let walletModelsForBlockchainNetwork = userTokensForBlockchainNetwork.compactMap { token -> WalletModel? in
-                guard let walletModelID = walletModelComponentsBuilder.buildWalletModelID(from: token) else {
-                    return nil
-                }
 
-                return walletModelsKeyedByID[walletModelID]
-            }
+            let walletModelsForBlockchainNetwork = userTokensForBlockchainNetwork
+                .compactMap { walletModelsKeyedByID[$0.walletModelId] }
+
             let sortedWalletModelsForBlockchainNetwork = self.walletModels(
                 walletModelsForBlockchainNetwork,
                 sortedBy: sortingOption
@@ -131,13 +113,8 @@ final class OrganizeWalletModelsAdapter {
         userTokens: [UserToken],
         sortingOption: SortingOption
     ) -> [Section] {
-        let walletModels = userTokens.compactMap { token -> WalletModel? in
-            guard let walletModelID = walletModelComponentsBuilder.buildWalletModelID(from: token) else {
-                return nil
-            }
+        let walletModels = userTokens.compactMap { walletModelsKeyedByID[$0.walletModelId] }
 
-            return walletModelsKeyedByID[walletModelID]
-        }
         let sortedWalletModels = self.walletModels(
             walletModels,
             sortedBy: sortingOption
