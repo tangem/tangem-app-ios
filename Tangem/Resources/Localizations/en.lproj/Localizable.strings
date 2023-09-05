@@ -32,6 +32,7 @@
 "app_settings_warning_subtitle" = "Go to settings to enable biometric authentication in the Tangem app";
 "app_settings_warning_title" = "Enable biometric authentication";
 "biometry_touch_id_reason" = "Touch ID is used to save your cards in the app";
+"button_start_backup_process" = "Start backup process";
 "card_settings_access_code_recovery_disabled_description" = "Disable this option if you don't want this card to be used to reset access codes on other cards in this wallet. Please note that this will also prevent you from resetting the access code on this card.";
 "card_settings_access_code_recovery_enabled_description" = "Allows you to use this card to reset access code on other cards in this wallet";
 "card_settings_access_code_recovery_footer" = "Disable the ability to reset the access code on this card or other cards in this wallet";
@@ -75,12 +76,14 @@
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
+"common_generate_addresses" = "Generate addresses";
 "common_import" = "Import";
 "common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Like";
 "common_locked" = "Locked";
 "common_main_network" = "Main network";
 "common_no" = "No";
+"common_no_address" = "No address";
 "common_no_data" = "No data";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
@@ -108,6 +111,7 @@
 "common_terms_and_conditions" = "terms and conditions";
 "common_transfer" = "Transfer";
 "common_understand" = "I understand";
+"common_unlock_needed" = "Unlock needed";
 "common_unreachable" = "Unreachable";
 "common_warning" = "Warning";
 "common_yes" = "Yes";
@@ -180,13 +184,14 @@
 "main_get_bonus_subtitle" = "You have completed all of the lessons, and are now eligible to receive your 1INCH tokens";
 "main_manage_tokens" = "Manage tokens";
 "main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
-"main_no_backup_warning_title" = "Your wallet has not been backed up";
+"main_no_backup_warning_title" = "Your wallet hasn't been backed up";
 "main_page_balance" = "Total balance";
 "main_processing_full_amount" = "The amount does not include some of your funds";
 "main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 48 hours";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card";
 "main_tokens" = "Tokens";
+"main_warning_missing_derivation_title" = "Some addresses are missing";
 "onboarding_access_code_feature_1_description" = "You have to set up a single access code to protect all your wallets";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "You can set up an individual access code on each card later";
@@ -410,6 +415,7 @@
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
+"transaction_history_multiple_addresses" = "Multiple addresses";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_title" = "Transactions";
 "transaction_history_transaction_from_address" = "from: %@";
@@ -426,6 +432,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.";
 "twins_scan_twin_with_number" = "Tap the twin card with number %@ and do not remove until the end of the operation";
+"unlock_wallet_description_full" = "Use %@ or scan a card to have an access to your wallet";
+"unlock_wallet_description_short" = "Use %@ or scan a card";
 "user_wallet_list_add_button" = "Add new wallet";
 "user_wallet_list_delete_prompt" = "Are you sure you want to delete this wallet?";
 "user_wallet_list_error_wallet_already_saved" = "This wallet has already been saved, you can add another one";
