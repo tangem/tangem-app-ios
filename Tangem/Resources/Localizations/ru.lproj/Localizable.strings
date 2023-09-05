@@ -91,6 +91,7 @@
 "common_receive" = "Получить";
 "common_reject" = "Отклонить";
 "common_reload" = "Перезагрузить";
+"common_rename" = "Переименовать";
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_search" = "Искать";
@@ -109,6 +110,7 @@
 "common_success" = "Успешно";
 "common_swap" = "Обмен";
 "common_terms_and_conditions" = "условия участия";
+"common_transactions" = "Транзакции";
 "common_transfer" = "Перевод";
 "common_understand" = "Я понял";
 "common_unlock_needed" = "Необходима разблокировка";
@@ -393,7 +395,6 @@
 "swapping_permit_and_swap" = "Разрешить и обменять";
 "swapping_success_view_explorer_button_title" = "Открыть в обозревателе";
 "swapping_success_view_title" = "В процессе";
-"swapping_swap" = "Обмен";
 "swapping_swap_action" = "Обменять";
 "swapping_swap_of_to" = "Обмен %@ на";
 "swapping_tangem_fee_disclaimer" = "Котировки включают дополнительную комиссию Tangem в размере %@. Это помогает нам предоставлять первоклассный продукт.";
@@ -417,7 +418,6 @@
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
 "transaction_history_multiple_addresses" = "Несколько адресов";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
-"transaction_history_title" = "Транзакции";
 "transaction_history_transaction_from_address" = "от: %@";
 "transaction_history_transaction_to_address" = "на: %@";
 "transaction_history_tx_in_progress" = "В процессе…";
@@ -438,7 +438,6 @@
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите удалить этот кошелек?";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
 "user_wallet_list_multi_header" = "Мультивалютные";
-"user_wallet_list_rename" = "Переименовать";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
 "user_wallet_list_single_header" = "Одновалютные";

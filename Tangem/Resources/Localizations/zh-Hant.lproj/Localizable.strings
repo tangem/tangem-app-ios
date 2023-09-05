@@ -91,6 +91,7 @@
 "common_receive" = "Receive";
 "common_reject" = "拒絕";
 "common_reload" = "Reload";
+"common_rename" = "重新命名";
 "common_retry" = "重試";
 "common_save_changes" = "保存設置";
 "common_search" = "搜索";
@@ -107,8 +108,9 @@
 "common_start" = "開始";
 "common_submit" = "提交";
 "common_success" = "成功";
-"common_swap" = "Swap";
+"common_swap" = "交換";
 "common_terms_and_conditions" = "條款和條件";
+"common_transactions" = "交易";
 "common_transfer" = "Transfer";
 "common_understand" = "我了解";
 "common_unlock_needed" = "Unlock needed";
@@ -393,7 +395,6 @@
 "swapping_permit_and_swap" = "許可和交換";
 "swapping_success_view_explorer_button_title" = "在瀏覽器中查看";
 "swapping_success_view_title" = "進行中";
-"swapping_swap" = "交換";
 "swapping_swap_action" = "交易";
 "swapping_swap_of_to" = "交易 %@ 至";
 "swapping_tangem_fee_disclaimer" = "此外，報價包括%@的 Tangem 費用。這有助於我們提供一流的產品";
@@ -417,7 +418,6 @@
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
 "transaction_history_multiple_addresses" = "Multiple addresses";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
-"transaction_history_title" = "交易";
 "transaction_history_transaction_from_address" = "from: %@";
 "transaction_history_transaction_to_address" = "to: %@";
 "transaction_history_tx_in_progress" = "進行中…";
@@ -438,7 +438,6 @@
 "user_wallet_list_delete_prompt" = "您確定要刪除此錢包?";
 "user_wallet_list_error_wallet_already_saved" = "此錢包已保存，您可以再添加一個";
 "user_wallet_list_multi_header" = "多幣種";
-"user_wallet_list_rename" = "重新命名";
 "user_wallet_list_rename_popup_placeholder" = "錢包名稱";
 "user_wallet_list_rename_popup_title" = "重新命名錢包";
 "user_wallet_list_single_header" = "單一幣種";
