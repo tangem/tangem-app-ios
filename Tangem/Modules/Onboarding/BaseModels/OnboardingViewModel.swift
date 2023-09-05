@@ -55,6 +55,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     var mainButtonSettings: MainButton.Settings? {
         MainButton.Settings(
             title: mainButtonTitle,
+            icon: mainButtonIcon,
             style: .primary,
             isLoading: isMainButtonBusy,
             action: mainButtonAction
@@ -67,6 +68,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var mainButtonTitle: String {
         currentStep.mainButtonTitle
+    }
+
+    var mainButtonIcon: MainButton.Icon? {
+        if let icon = currentStep.mainButtonIcon {
+            return .trailing(icon)
+        }
+
+        return nil
     }
 
     var supplementButtonSettings: TangemButtonSettings? {
@@ -168,15 +177,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func handleUserWalletOnFinish() throws {
-        guard
-            AppSettings.shared.saveUserWallets,
-            let cardModel = cardModel
-        else {
+        guard let cardModel = cardModel else {
             return
         }
 
-        userWalletRepository.save(cardModel)
-        userWalletRepository.setSelectedUserWalletId(cardModel.userWalletId.value, reason: .inserted)
+        userWalletRepository.add(cardModel)
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
