@@ -95,7 +95,9 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .eraseToAnyPublisher()
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, _ in
-                viewModel.organizeTokensOptionsEditing.save()
+                // [REDACTED_TODO_COMMENT]
+                /* viewModel.organizeTokensOptionsEditing.save(reorderedWalletModelIds: []) */
+                return Just(())
             }
             .sink()
             .store(in: &bag)
@@ -103,7 +105,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     private static func map(
         walletModelsSections: [OrganizeWalletModelsAdapter.Section],
-        sortingOption: OrganizeTokensOptions.Sorting
+        sortingOption: UserTokensReorderingOptions.Sorting
     ) -> [OrganizeTokensListSectionViewModel] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let isListItemsDraggable = isListItemDraggable(sortingOption: sortingOption)
@@ -174,7 +176,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     }
 
     private static func isListItemDraggable(
-        sortingOption: OrganizeTokensOptions.Sorting
+        sortingOption: UserTokensReorderingOptions.Sorting
     ) -> Bool {
         switch sortingOption {
         case .dragAndDrop:
