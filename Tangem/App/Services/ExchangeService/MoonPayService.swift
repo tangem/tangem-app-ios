@@ -134,6 +134,10 @@ class MoonPayService {
         MoonpaySupportedCurrency(networkCode: .bnbChain, contractAddress: nil),
     ]
 
+    private var useDarkTheme: Bool {
+        UITraitCollection.isDarkMode
+    }
+
     private(set) var canBuyCrypto = true
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
