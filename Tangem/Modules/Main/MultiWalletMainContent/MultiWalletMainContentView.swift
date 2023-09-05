@@ -39,6 +39,11 @@ struct MultiWalletMainContentView: View {
                 ])
             }
 
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(notificationTransition)
+            }
+
             tokensContent
 
             if viewModel.isOrganizeTokensVisible {
@@ -51,7 +56,12 @@ struct MultiWalletMainContentView: View {
             }
         }
         .animation(.default, value: viewModel.missingDerivationNotificationSettings)
+        .animation(.default, value: viewModel.notificationInputs)
         .padding(.horizontal, 16)
+        .background(
+            Color.clear
+                .alert(item: $viewModel.error, content: { $0.alert })
+        )
     }
 
     private var tokensContent: some View {
@@ -113,6 +123,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
 
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
+            userWalletNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
             tokenSectionsAdapter: tokenSectionsAdapter,
             canManageTokens: userWalletModel.isMultiWallet
