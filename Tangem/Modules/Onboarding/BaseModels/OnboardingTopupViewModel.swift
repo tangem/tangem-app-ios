@@ -22,14 +22,11 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
     var buyCryptoURL: URL? {
         if let wallet = cardModel?.walletModelsManager.walletModels.first?.wallet {
-            let useDarkTheme = UITraitCollection.isDarkMode
-
             return exchangeService.getBuyUrl(
                 currencySymbol: wallet.blockchain.currencySymbol,
                 amountType: .coin,
                 blockchain: wallet.blockchain,
-                walletAddress: wallet.address,
-                useDarkTheme: useDarkTheme
+                walletAddress: wallet.address
             )
         }
 

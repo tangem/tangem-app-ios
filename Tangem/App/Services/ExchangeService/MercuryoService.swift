@@ -92,7 +92,7 @@ extension MercuryoService: ExchangeService {
         return false
     }
 
-    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String, useDarkTheme: Bool) -> URL? {
+    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard
             canBuy(currencySymbol, amountType: amountType, blockchain: blockchain)
         else {
@@ -126,7 +126,7 @@ extension MercuryoService: ExchangeService {
         return url
     }
 
-    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String, useDarkTheme: Bool) -> URL? {
+    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         fatalError("[REDACTED_TODO_COMMENT]")
     }
 
