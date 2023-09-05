@@ -23,6 +23,7 @@ struct TokenItemViewMiddleComponent: View {
                         color: hasError ? Colors.Text.tertiary : Colors.Text.primary1
                     )
                     .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 if hasPendingTransactions {
                     Assets.pendingTxIndicator.image
