@@ -135,6 +135,7 @@ struct OrganizeTokensView: View {
                         .onTouchesBegan(onTouchesBegan(atLocation:))
                         .readGeometry(
                             \.frame.maxY,
+                            inCoordinateSpace: .global,
                             throttleInterval: throttleInterval,
                             bindTo: $tokenListContentFrameMaxY
                         )
@@ -149,7 +150,7 @@ struct OrganizeTokensView: View {
                             .id(scrollViewBottomContentInsetSpacerIdentifier)
                     }
                 }
-                .readGeometry(\.frame) { newValue in
+                .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
                     dragAndDropController.viewportSizeSubject.send(newValue.size)
                     visibleViewportFrame = newValue
                         .divided(atDistance: scrollViewTopContentInset, from: .minYEdge)
@@ -273,7 +274,7 @@ struct OrganizeTokensView: View {
             horizontalInset: Constants.contentHorizontalInset
         )
         .animation(.linear(duration: 0.1), value: isTokenListFooterGradientHidden)
-        .readGeometry { geometryInfo in
+        .readGeometry(inCoordinateSpace: .global) { geometryInfo in
             $tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
             $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height + Constants.contentVerticalInset
         }
@@ -543,7 +544,7 @@ struct OrganizeTokensView: View {
 
         content()
             .frame(width: width)
-            .readGeometry(\.frame, bindTo: $draggedItemFrame)
+            .readGeometry(\.frame, inCoordinateSpace: .global, bindTo: $draggedItemFrame)
             .scaleEffect(Constants.draggableViewScale)
             .offset(y: totalOffsetTransitionValue)
             .transition(
