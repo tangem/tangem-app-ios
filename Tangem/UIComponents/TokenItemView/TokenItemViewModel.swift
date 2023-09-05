@@ -8,7 +8,6 @@
 
 import Combine
 import BlockchainSdk
-import SwiftUI
 
 typealias WalletModelId = Int
 
