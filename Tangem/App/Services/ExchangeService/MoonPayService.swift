@@ -184,7 +184,7 @@ extension MoonPayService: ExchangeService {
         })
     }
 
-    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String, useDarkTheme: Bool) -> URL? {
+    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard canBuy(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
@@ -213,7 +213,7 @@ extension MoonPayService: ExchangeService {
         return url
     }
 
-    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String, useDarkTheme: Bool) -> URL? {
+    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard canSell(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
