@@ -28,11 +28,12 @@ struct TokenIcon: View {
         if let iconName = blockchainIconName {
             NetworkIcon(
                 imageName: iconName,
+                isActive: true,
                 isMainIndicatorVisible: false,
                 size: networkIconSize
             )
             .background(
-                Color.white
+                Colors.Background.primary
                     .clipShape(Circle())
                     .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
             )
