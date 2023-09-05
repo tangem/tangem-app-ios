@@ -99,7 +99,7 @@ extension UtorgService: ExchangeService {
         return false
     }
 
-    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String, useDarkTheme: Bool) -> URL? {
+    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard let utorgCurrency = currency(with: currencySymbol, blockchain: blockchain) else {
             return nil
         }
@@ -120,7 +120,7 @@ extension UtorgService: ExchangeService {
         return url
     }
 
-    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String, useDarkTheme: Bool) -> URL? {
+    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         return nil
     }
 
