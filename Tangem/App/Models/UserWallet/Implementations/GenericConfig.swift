@@ -40,7 +40,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var mandatoryCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bip0340, .bls12381_G2_AUG]
+        [.secp256k1, .ed25519, .bls12381_G2_AUG]
     }
 
     var derivationStyle: DerivationStyle? {
@@ -194,7 +194,7 @@ extension GenericConfig: UserWalletConfig {
         return CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
             return GenericWalletManagerFactory()
         } else {
