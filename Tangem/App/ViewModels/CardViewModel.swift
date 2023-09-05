@@ -84,15 +84,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.displayHashesCount)
     }
 
-    var emailData: [EmailCollectedData] {
-        var data = config.emailData
-
-        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
-        data.append(userWalletIdItem)
-
-        return data
-    }
-
     var emailConfig: EmailConfig? {
         config.emailConfig
     }
@@ -542,6 +533,15 @@ extension CardViewModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CardViewModel: UserWalletModel {
+    var emailData: [EmailCollectedData] {
+        var data = config.emailData
+
+        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
+        data.append(userWalletIdItem)
+
+        return data
+    }
+
     var updatePublisher: AnyPublisher<Void, Never> {
         _updatePublisher.eraseToAnyPublisher()
     }
