@@ -335,7 +335,7 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(
             for: config,
             card: cardInfo.card,
-            validator: walletManagersRepository.signatureCountValidator
+            validator: walletModelsManager.walletModels.first?.signatureCountValidator
         )
     }
 
