@@ -32,6 +32,7 @@
 "app_settings_warning_subtitle" = "Перейдите в настройки, чтобы включить биометрическую аутентификацию в приложении Tangem";
 "app_settings_warning_title" = "Включите биометрическую аутентификацию";
 "biometry_touch_id_reason" = "Touch ID используется для сохранения карт в приложении";
+"button_start_backup_process" = "Начать резервное копирование";
 "card_settings_access_code_recovery_disabled_description" = "Отключите эту опцию, если не хотите, чтобы эта карта использовалась для сброса кодов доступа на другие карты этого кошелька. Обратите внимание, сброс кода также не будет доступен на этой карте.";
 "card_settings_access_code_recovery_enabled_description" = "Использовать эту карту для сброса кода доступа на других картах в этом кошельке";
 "card_settings_access_code_recovery_footer" = "Отключить возможность сброса кода доступа на этой карте или других картах этого кошелька";
@@ -75,12 +76,14 @@
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
+"common_generate_addresses" = "Сгенерировать адреса";
 "common_import" = "Импортировать";
 "common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Нравится";
 "common_locked" = "Заблокирован";
 "common_main_network" = "Основная сеть";
 "common_no" = "Нет";
+"common_no_address" = "Нет адреса";
 "common_no_data" = "Нет данных";
 "common_ok" = "OK";
 "common_origin_card" = "Основная карта";
@@ -108,6 +111,7 @@
 "common_terms_and_conditions" = "условия участия";
 "common_transfer" = "Перевод";
 "common_understand" = "Я понял";
+"common_unlock_needed" = "Необходима разблокировка";
 "common_unreachable" = "Недоступно";
 "common_warning" = "Предупреждение";
 "common_yes" = "Да";
@@ -180,13 +184,14 @@
 "main_get_bonus_subtitle" = "Вы успешно прошли все уроки и теперь можете получить 1INCH токены";
 "main_manage_tokens" = "Управление токенами";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
-"main_no_backup_warning_title" = "Бэкап кошелька не был произведен";
+"main_no_backup_warning_title" = "Резервное копирование не выполнено";
 "main_page_balance" = "Баланс";
 "main_processing_full_amount" = "В сумме учтены не все монеты";
 "main_promotion_credited" = "1INCH токены будут зачислены на адрес вашего кошелька в сети %@ в течение 48 часов";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
 "main_tokens" = "Токены";
+"main_warning_missing_derivation_title" = "Некоторые адреса отсутствуют";
 "onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты";
@@ -410,6 +415,7 @@
 "transaction_history_contract_address" = "контракт: %@";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
+"transaction_history_multiple_addresses" = "Несколько адресов";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
 "transaction_history_title" = "Транзакции";
 "transaction_history_transaction_from_address" = "от: %@";
@@ -426,6 +432,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Это действие необратимо. У вас не будет доступа к старому кошельку.";
 "twins_scan_twin_with_number" = "Приложите twin-карту с номером %@ и не убирайте до окончания операции";
+"unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту, чтобы получить доступ к своему кошельку";
+"unlock_wallet_description_short" = "Используйте %@ или отсканируйте карту";
 "user_wallet_list_add_button" = "Добавить новый кошелек";
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите удалить этот кошелек?";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
