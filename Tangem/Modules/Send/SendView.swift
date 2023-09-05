@@ -122,11 +122,15 @@ struct SendView: View {
                                 .foregroundColor((viewModel.amountHint?.isError ?? false) ?
                                     Color.red : Color.tangemGrayDark)
                             Spacer()
-                            Text(viewModel.walletTotalBalanceFormatted)
-                                .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                .lineLimit(2)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .foregroundColor(Color.tangemGrayDark)
+
+                            SensitiveText(
+                                builder: Localization.commonBalance,
+                                sensitive: viewModel.walletTotalBalanceFormatted
+                            )
+                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .foregroundColor(Color.tangemGrayDark)
                         }
                     }
                     if viewModel.shouldShowNetworkBlock {
