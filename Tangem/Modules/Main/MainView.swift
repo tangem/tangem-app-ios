@@ -105,7 +105,7 @@ struct MainView: View {
     @ViewBuilder
     private func editButtonLabel() -> some View {
         HStack {
-            Text(Localization.userWalletListRename)
+            Text(Localization.commonRename)
             Image(systemName: "pencil")
         }
     }
