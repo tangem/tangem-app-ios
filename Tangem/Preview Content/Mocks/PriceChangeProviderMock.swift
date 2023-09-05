@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 
+// [REDACTED_TODO_COMMENT]
 class PriceChangeProviderMock: PriceChangeProvider {
     var priceChangePublisher: AnyPublisher<Void, Never> { .just }
 
