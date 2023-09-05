@@ -18,23 +18,19 @@ struct MultiWalletMainContentView: View {
             if let settings = viewModel.missingDerivationNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.commonGenerateAddresses,
-                        icon: .trailing(Assets.tangemIcon),
-                        size: .notification,
-                        isLoading: viewModel.isScannerBusy,
-                        action: viewModel.deriveEntriesWithoutDerivation
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .generateAddresses
                     ),
                 ])
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
                 .transition(notificationTransition)
             }
 
             if let settings = viewModel.missingBackupNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.buttonStartBackupProcess,
-                        style: .secondary,
-                        size: .notification,
-                        action: viewModel.startBackupProcess
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .backupCard
                     ),
                 ])
             }
