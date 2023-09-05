@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensOptionsConverter.swift
+//  UserTokensReorderingOptionsConverter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,48 +8,48 @@
 
 import Foundation
 
-struct OrganizeTokensOptionsConverter {
+struct UserTokensReorderingOptionsConverter {
     func convert(
-        _ groupType: UserTokenList.GroupType
-    ) -> OrganizeTokensOptions.Grouping {
+        _ groupType: StoredUserTokenList.Grouping
+    ) -> UserTokensReorderingOptions.Grouping {
         switch groupType {
         case .none:
             return .none
-        case .network:
+        case .byBlockchainNetwork:
             return .byBlockchainNetwork
         }
     }
 
     func convert(
-        _ sortType: UserTokenList.SortType
-    ) -> OrganizeTokensOptions.Sorting {
+        _ sortType: StoredUserTokenList.Sorting
+    ) -> UserTokensReorderingOptions.Sorting {
         switch sortType {
         case .manual:
             return .dragAndDrop
-        case .balance:
+        case .byBalance:
             return .byBalance
         }
     }
 
     func convert(
-        _ groupType: OrganizeTokensOptions.Grouping
-    ) -> UserTokenList.GroupType {
+        _ groupType: UserTokensReorderingOptions.Grouping
+    ) -> StoredUserTokenList.Grouping {
         switch groupType {
         case .none:
             return .none
         case .byBlockchainNetwork:
-            return .network
+            return .byBlockchainNetwork
         }
     }
 
     func convert(
-        _ sortType: OrganizeTokensOptions.Sorting
-    ) -> UserTokenList.SortType {
+        _ sortType: UserTokensReorderingOptions.Sorting
+    ) -> StoredUserTokenList.Sorting {
         switch sortType {
         case .dragAndDrop:
             return .manual
         case .byBalance:
-            return .balance
+            return .byBalance
         }
     }
 }
