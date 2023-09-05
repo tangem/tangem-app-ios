@@ -13,6 +13,8 @@ struct OrganizeTokensView: View {
 
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
     // MARK: - Coordinate spaces
 
     // Semantically, this is the same as `UIScrollView.frameLayoutGuide` from UIKit
@@ -560,7 +562,7 @@ struct OrganizeTokensView: View {
                             removalOffset: totalOffsetTransitionValue + additionalOffsetRemovalTransitionValue
                         )
                     )
-                    .combined(with: .shadow)
+                    .combined(with: .shadow(colorScheme: colorScheme))
                     .combined(with: .onViewRemoval { dragAndDropSourceViewModelIdentifier = nil })
             )
             .onDisappear {
@@ -577,10 +579,24 @@ struct OrganizeTokensView: View {
 // MARK: - Convenience extensions
 
 private extension AnyTransition {
-    static var shadow: AnyTransition {
-        let color = Color.black.opacity(0.08)
-        let radius = 14.0
-        let offset = CGPoint(x: 0.0, y: 8.0)
+    static func shadow(colorScheme: ColorScheme) -> AnyTransition {
+        let color: Color
+        let radius: CGFloat
+        let offset: CGPoint
+
+        switch colorScheme {
+        case .dark:
+            color = Color.black.opacity(0.26)
+            radius = 20.0
+            offset = CGPoint(x: 0.0, y: 2.0)
+        case .light:
+            fallthrough
+        @unknown default:
+            color = Color.black.opacity(0.08)
+            radius = 14.0
+            offset = CGPoint(x: 0.0, y: 8.0)
+        }
+
         return .modifier(
             active: ShadowAnimatableModifier(progress: 0.0, color: color, radius: radius, offset: offset),
             identity: ShadowAnimatableModifier(progress: 1.0, color: color, radius: radius, offset: offset)
