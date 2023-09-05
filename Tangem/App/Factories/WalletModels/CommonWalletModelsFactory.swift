@@ -25,6 +25,23 @@ struct CommonWalletModelsFactory {
         let defaultDerivation = blockchain.derivationPath(for: derivationStyle)
         return derivationPath == defaultDerivation
     }
+
+    private func makeTransactionHistoryService(tokenItem: TokenItem, address: String) -> TransactionHistoryService? {
+        if FeatureStorage().useFakeTxHistory {
+            return FakeTransactionHistoryService(blockchain: tokenItem.blockchain, address: address)
+        }
+
+        let factory = TransactionHistoryFactoryProvider().factory
+        guard let provider = factory.makeProvider(for: tokenItem.blockchain) else {
+            return nil
+        }
+
+        return CommonTransactionHistoryService(
+            tokenItem: tokenItem,
+            address: address,
+            transactionHistoryProvider: provider
+        )
+    }
 }
 
 extension CommonWalletModelsFactory: WalletModelsFactory {
@@ -40,9 +57,18 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let currentBlockchain = walletManager.wallet.blockchain
         let currentDerivation = walletManager.wallet.publicKey.derivationPath
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
+        let transactionHistoryService = makeTransactionHistoryService(
+            tokenItem: .blockchain(currentBlockchain),
+            address: walletManager.wallet.address
+        )
 
         if types.contains(.coin) {
-            let mainCoinModel = WalletModel(walletManager: walletManager, amountType: .coin, isCustom: isMainCoinCustom)
+            let mainCoinModel = WalletModel(
+                walletManager: walletManager,
+                transactionHistoryService: transactionHistoryService,
+                amountType: .coin,
+                isCustom: isMainCoinCustom
+            )
             models.append(mainCoinModel)
         }
 
@@ -50,7 +76,16 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
             let amountType: Amount.AmountType = .token(value: token)
             if types.contains(amountType) {
                 let isTokenCustom = isMainCoinCustom || token.id == nil
-                let tokenModel = WalletModel(walletManager: walletManager, amountType: amountType, isCustom: isTokenCustom)
+                let transactionHistoryService = makeTransactionHistoryService(
+                    tokenItem: .token(token, currentBlockchain),
+                    address: walletManager.wallet.address
+                )
+                let tokenModel = WalletModel(
+                    walletManager: walletManager,
+                    transactionHistoryService: transactionHistoryService,
+                    amountType: amountType,
+                    isCustom: isTokenCustom
+                )
                 models.append(tokenModel)
             }
         }
