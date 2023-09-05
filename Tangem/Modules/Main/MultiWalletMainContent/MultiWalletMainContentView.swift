@@ -18,25 +18,26 @@ struct MultiWalletMainContentView: View {
             if let settings = viewModel.missingDerivationNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.commonGenerateAddresses,
-                        icon: .trailing(Assets.tangemIcon),
-                        size: .notification,
-                        isLoading: viewModel.isScannerBusy,
-                        action: viewModel.deriveEntriesWithoutDerivation
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .generateAddresses
                     ),
                 ])
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
                 .transition(notificationTransition)
             }
 
             if let settings = viewModel.missingBackupNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.buttonStartBackupProcess,
-                        style: .secondary,
-                        size: .notification,
-                        action: viewModel.startBackupProcess
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .backupCard
                     ),
                 ])
+            }
+
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(notificationTransition)
             }
 
             tokensContent
@@ -51,7 +52,12 @@ struct MultiWalletMainContentView: View {
             }
         }
         .animation(.default, value: viewModel.missingDerivationNotificationSettings)
+        .animation(.default, value: viewModel.notificationInputs)
         .padding(.horizontal, 16)
+        .background(
+            Color.clear
+                .alert(item: $viewModel.error, content: { $0.alert })
+        )
     }
 
     private var tokensContent: some View {
@@ -84,20 +90,10 @@ struct MultiWalletMainContentView: View {
     private var tokensList: some View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.sections) { section in
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    if let title = section.title {
-                        Text(title)
-                            .style(
-                                Fonts.Bold.footnote,
-                                color: Colors.Text.tertiary
-                            )
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 14)
-                    }
+                TokenSectionView(title: section.model.title)
 
-                    ForEach(section.tokenItemModels) { item in
-                        TokenItemView(viewModel: item)
-                    }
+                ForEach(section.items) { item in
+                    TokenItemView(viewModel: item)
                 }
             }
         }
@@ -106,21 +102,26 @@ struct MultiWalletMainContentView: View {
 }
 
 struct MultiWalletContentView_Preview: PreviewProvider {
-    static var sectionProvider: TokenListInfoProvider = EmptyTokenListInfoProvider()
     static let viewModel: MultiWalletMainContentViewModel = {
         let repo = FakeUserWalletRepository()
         let mainCoordinator = MainCoordinator()
         let userWalletModel = repo.models.first!
+
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
-        sectionProvider = GroupedTokenListInfoProvider(
+
+        let optionsManager = OrganizeTokensOptionsManagerStub()
+        let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            walletModelsManager: userWalletModel.walletModelsManager
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
+
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
+            userWalletNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
-            sectionsProvider: sectionProvider,
+            tokenSectionsAdapter: tokenSectionsAdapter,
             canManageTokens: userWalletModel.isMultiWallet
         )
     }()
