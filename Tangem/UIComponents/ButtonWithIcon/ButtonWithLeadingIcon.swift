@@ -55,8 +55,8 @@ struct FlexySizeButtonWithLeadingIcon: View {
 
     var body: some View {
         let colorConfiguration = ButtonWithLeadingIconContentView.ColorConfiguration(
-            textColor: isToggled ? Colors.Text.secondary : Colors.Text.primary1,
-            iconColor: isToggled ? Colors.Text.secondary : Colors.Text.primary1,
+            textColor: isToggled ? Colors.Text.tertiary : Colors.Text.primary1,
+            iconColor: isToggled ? Colors.Icon.informative : Colors.Text.primary1,
             backgroundColor: Colors.Background.primary
         )
         ButtonWithLeadingIconContentView(
