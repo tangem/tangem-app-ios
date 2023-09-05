@@ -10,6 +10,6 @@ import Foundation
 import Combine
 
 protocol OrganizeTokensOptionsProviding {
-    var groupingOption: AnyPublisher<OrganizeTokensOptions.Grouping, Never> { get }
-    var sortingOption: AnyPublisher<OrganizeTokensOptions.Sorting, Never> { get }
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { get }
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { get }
 }
