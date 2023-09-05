@@ -176,6 +176,7 @@ class WalletModel {
     }
 
     var canSendTransaction: Bool {
+        return false
         guard AppUtils().canSignLongTransactions(network: blockchainNetwork) else {
             return false
         }
