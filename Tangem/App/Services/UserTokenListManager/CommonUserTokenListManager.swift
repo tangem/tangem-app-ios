@@ -116,13 +116,13 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
     }
 
-    func updateLocalRepositoryFromServer(result: @escaping Completion) {
+    func updateLocalRepositoryFromServer(_ completion: @escaping Completion) {
         guard hasTokenSynchronization else {
-            result(.success(()))
+            completion(.success(()))
             return
         }
 
-        loadUserTokenList(result: result)
+        loadUserTokenList(completion)
     }
 
     func upload() {
@@ -154,12 +154,12 @@ private extension CommonUserTokenListManager {
 
     // MARK: - Requests
 
-    func loadUserTokenList(result: @escaping Completion) {
+    func loadUserTokenList(_ completion: @escaping Completion) {
         if let list = pendingTokensToUpdate {
             let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
 
             tokenItemsRepository.update(converter.convertRemoteToStored(list))
-            updateTokensOnServer(list: list, completions: [result])
+            updateTokensOnServer(list: list, completions: [completion])
             pendingTokensToUpdate = nil
 
             return
@@ -167,7 +167,7 @@ private extension CommonUserTokenListManager {
 
         // Non-nil `loadTokensCancellable` means that there is an ongoing 'load tokens' request and we should re-use it
         guard loadTokensCancellable == nil else {
-            pendingUpdateLocalRepositoryFromServerCompletions.append(result)
+            pendingUpdateLocalRepositoryFromServerCompletions.append(completion)
             return
         }
 
@@ -176,16 +176,16 @@ private extension CommonUserTokenListManager {
 
         self.loadTokensCancellable = loadTokensPublisher
             .combineLatest(upgradeTokensPublisher)
-            .sink { [unowned self] completion in
+            .sink { [unowned self] subscriberCompletion in
                 defer {
                     pendingUpdateLocalRepositoryFromServerCompletions.removeAll()
                     loadTokensCancellable = nil
                 }
 
                 var completions = pendingUpdateLocalRepositoryFromServerCompletions
-                completions.append(result)
+                completions.append(completion)
 
-                switch completion {
+                switch subscriberCompletion {
                 case .finished:
                     completions.forEach { $0(.success(())) }
                 case .failure(let error) where error.code == .notFound:
@@ -207,8 +207,8 @@ private extension CommonUserTokenListManager {
 
         saveTokensCancellable = tangemApiService
             .saveTokens(list: listToUpdate, for: userWalletId.hexString)
-            .receiveCompletion { [unowned self] completion in
-                switch completion {
+            .receiveCompletion { [unowned self] subscriberCompletion in
+                switch subscriberCompletion {
                 case .finished:
                     completions.forEach { $0(.success(())) }
                 case .failure(let error):
