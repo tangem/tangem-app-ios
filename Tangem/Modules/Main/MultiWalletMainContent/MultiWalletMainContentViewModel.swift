@@ -273,16 +273,33 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 }
 
-extension MultiWalletMainContentViewModel: UserWalletNotificationDelegate {
-    func tapUserWalletNotification(with id: NotificationViewId) {
-        guard
-            let notification = notificationInputs.first(where: { $0.id == id }),
-            let event = notification.settings.event
-        else {
+extension MultiWalletMainContentViewModel: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId) {
+        guard let notification = notificationInputs.first(where: { $0.id == id }) else {
             userWalletNotificationManager.dismissNotification(with: id)
             return
         }
 
+        switch notification.settings.event {
+        case let userWalletEvent as WarningEvent:
+            handleUserWalletNotificationTap(event: userWalletEvent, id: id)
+        default:
+            break
+        }
+    }
+
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .generateAddresses:
+            deriveEntriesWithoutDerivation()
+        case .backupCard:
+            startBackupProcess()
+        default:
+            return
+        }
+    }
+
+    private func handleUserWalletNotificationTap(event: WarningEvent, id: NotificationViewId) {
         switch event {
         case .multiWalletSignedHashes:
             error = AlertBuilder.makeAlert(
