@@ -128,6 +128,11 @@ extension Color {
 }
 
 extension UIColor {
+    // This is taken from the new palette
+    @nonobjc static var backgroundPrimary: UIColor {
+        return UIColor(named: "BackgroundPrimary")!
+    }
+
     // DO NOT remove this
     // This is a UIColor from the new palette, used in UITextField's accessory view
     // There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
@@ -167,6 +172,10 @@ extension UIColor {
 
     @nonobjc static var tangemCritical: UIColor {
         UIColor(named: "tangem_critical")!
+    }
+
+    @nonobjc static var iconAccent: UIColor {
+        UIColor(named: "IconAccent")!
     }
 }
 
