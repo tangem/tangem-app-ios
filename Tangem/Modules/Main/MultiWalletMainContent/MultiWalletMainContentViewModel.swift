@@ -15,11 +15,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var isLoadingTokenList: Bool = true
-    @Published var sections: [MultiWalletTokenItemsSection] = []
+    @Published var sections: [Section] = []
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
     @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
+    @Published var notificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
+    @Published var error: AlertBinder? = nil
 
     var bottomOverlayViewModel: MainBottomOverlayViewModel? {
         guard canManageTokens else { return nil }
@@ -36,7 +38,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return false
         }
 
-        let numberOfTokens = sections.reduce(0) { $0 + $1.tokenItemModels.count }
+        let numberOfTokens = sections.reduce(0) { $0 + $1.items.count }
         let requiredNumberOfTokens = 2
 
         return numberOfTokens >= requiredNumberOfTokens
@@ -45,22 +47,32 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
+    private let userWalletNotificationManager: NotificationManager
     private unowned let coordinator: MultiWalletMainContentRoutable
-    private var sectionsProvider: TokenListInfoProvider
+    private let tokenSectionsAdapter: TokenSectionsAdapter
     private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
+
+    private var cachedTokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
+
+    private let mappingQueue = DispatchQueue(
+        label: "com.tangem.MultiWalletMainContentViewModel.mappingQueue",
+        qos: .userInitiated
+    )
 
     private var isUpdating = false
     private var bag = Set<AnyCancellable>()
 
     init(
         userWalletModel: UserWalletModel,
+        userWalletNotificationManager: NotificationManager,
         coordinator: MultiWalletMainContentRoutable,
-        sectionsProvider: TokenListInfoProvider,
+        tokenSectionsAdapter: TokenSectionsAdapter,
         canManageTokens: Bool
     ) {
         self.userWalletModel = userWalletModel
+        self.userWalletNotificationManager = userWalletNotificationManager
         self.coordinator = coordinator
-        self.sectionsProvider = sectionsProvider
+        self.tokenSectionsAdapter = tokenSectionsAdapter
         self.canManageTokens = canManageTokens
 
         setup()
@@ -135,9 +147,28 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             })
             .store(in: &bag)
 
-        sectionsProvider.sectionsPublisher
-            .map(convertToSections(_:))
+        let walletModelsPublisher = userWalletModel
+            .walletModelsManager
+            .walletModelsPublisher
+
+        let organizedTokensSectionsPublisher = tokenSectionsAdapter
+            .organizedSections(from: walletModelsPublisher, on: mappingQueue)
+            .share(replay: 1)
+
+        organizedTokensSectionsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, sections in
+                return viewModel.convertToSections(sections)
+            }
+            .receive(on: DispatchQueue.main)
             .assign(to: \.sections, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        organizedTokensSectionsPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, sections in
+                viewModel.removeOldCachedTokenViewModels(sections)
+            }
             .store(in: &bag)
 
         userWalletModel.updatePublisher
@@ -145,6 +176,57 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 self?.updateBackupStatus()
             }
             .store(in: &bag)
+
+        userWalletNotificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func convertToSections(
+        _ sections: [TokenSectionsAdapter.Section]
+    ) -> [Section] {
+        let factory = MultiWalletTokenItemsSectionFactory()
+
+        return sections.enumerated().map { index, section in
+            let sectionViewModel = factory.makeSectionViewModel(from: section.model, atIndex: index)
+            let itemViewModels = section.items.map { item in
+                switch item {
+                case .default(let walletModel):
+                    // Fetching existing cached View Model for this Wallet Model, if available
+                    let cacheKey = ObjectIdentifier(walletModel)
+                    if let cachedViewModel = cachedTokenItemViewModels[cacheKey] {
+                        return cachedViewModel
+                    }
+                    let viewModel = makeTokenItemViewModel(from: item, using: factory)
+                    cachedTokenItemViewModels[cacheKey] = viewModel
+                    return viewModel
+                case .withoutDerivation:
+                    return makeTokenItemViewModel(from: item, using: factory)
+                }
+            }
+
+            return Section(model: sectionViewModel, items: itemViewModels)
+        }
+    }
+
+    private func makeTokenItemViewModel(
+        from sectionItem: TokenSectionsAdapter.SectionItem,
+        using factory: MultiWalletTokenItemsSectionFactory
+    ) -> TokenItemViewModel {
+        return factory.makeSectionItemViewModel(from: sectionItem) { [weak self] walletModelId in
+            self?.tokenItemTapped(walletModelId)
+        }
+    }
+
+    private func removeOldCachedTokenViewModels(_ sections: [TokenSectionsAdapter.Section]) {
+        let cacheKeys = sections
+            .flatMap(\.walletModels)
+            .map(ObjectIdentifier.init)
+            .toSet()
+
+        cachedTokenItemViewModels = cachedTokenItemViewModels.filter { cacheKeys.contains($0.key) }
     }
 
     private func subscribeToTokenListUpdatesIfNeeded() {
@@ -162,14 +244,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             })
     }
 
-    private func convertToSections(_ sections: [TokenListSectionInfo]) -> [MultiWalletTokenItemsSection] {
-        // [REDACTED_TODO_COMMENT]
-        // Or need to replace `unowned` references to `TokenItemInfoProvider` with `weak` references
-        // Will be done in [REDACTED_INFO]
-        MultiWalletTokenItemsSectionFactory()
-            .makeSections(from: sections, tapAction: tokenItemTapped(_:))
-    }
-
     private func tokenItemTapped(_ walletModelId: WalletModelId) {
         guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return
@@ -184,7 +258,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
     }
 
@@ -194,7 +268,82 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
+    }
+}
+
+extension MultiWalletMainContentViewModel: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId) {
+        guard let notification = notificationInputs.first(where: { $0.id == id }) else {
+            userWalletNotificationManager.dismissNotification(with: id)
+            return
+        }
+
+        switch notification.settings.event {
+        case let userWalletEvent as WarningEvent:
+            handleUserWalletNotificationTap(event: userWalletEvent, id: id)
+        default:
+            break
+        }
+    }
+
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .generateAddresses:
+            deriveEntriesWithoutDerivation()
+        case .backupCard:
+            startBackupProcess()
+        default:
+            return
+        }
+    }
+
+    private func handleUserWalletNotificationTap(event: WarningEvent, id: NotificationViewId) {
+        switch event {
+        case .multiWalletSignedHashes:
+            error = AlertBuilder.makeAlert(
+                title: event.title,
+                message: Localization.alertSignedHashesMessage,
+                with: .withPrimaryCancelButton(
+                    secondaryTitle: Localization.commonUnderstand,
+                    secondaryAction: { [weak self] in
+                        self?.userWalletNotificationManager.dismissNotification(with: id)
+                    }
+                )
+            )
+        default:
+            assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
+        }
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension MultiWalletMainContentViewModel {
+    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
+
+    struct SectionViewModel: Identifiable {
+        let id: AnyHashable
+        let title: String?
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension TokenSectionsAdapter.SectionItem {
+    var walletModel: WalletModel? {
+        switch self {
+        case .default(let walletModel):
+            return walletModel
+        case .withoutDerivation:
+            return nil
+        }
+    }
+}
+
+private extension TokenSectionsAdapter.Section {
+    var walletModels: [WalletModel] {
+        return items.compactMap(\.walletModel)
     }
 }

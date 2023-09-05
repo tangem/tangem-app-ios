@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 protocol MainUserWalletPageBuilderFactory {
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder?
@@ -27,6 +28,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             balanceProvider: model
         )
 
+        let signatureCountValidator = selectSignatureCountValidator(for: model)
+        let userWalletNotificationManager = UserWalletNotificationManager(
+            userWalletModel: model,
+            signatureCountValidator: signatureCountValidator
+        )
+
         if model.isUserWalletLocked {
             return .lockedWallet(
                 id: id,
@@ -40,17 +47,15 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         }
 
         if isMultiWalletPage {
+            let sectionsAdapter = makeSectionsAdapter(for: model)
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
+                userWalletNotificationManager: userWalletNotificationManager,
                 coordinator: coordinator,
-                // [REDACTED_TODO_COMMENT]
-                sectionsProvider: GroupedTokenListInfoProvider(
-                    userWalletId: id,
-                    userTokenListManager: model.userTokenListManager,
-                    walletModelsManager: model.walletModelsManager
-                ),
+                tokenSectionsAdapter: sectionsAdapter,
                 canManageTokens: model.isMultiWallet // [REDACTED_TODO_COMMENT]
             )
+            userWalletNotificationManager.setupManager(with: viewModel)
 
             return .multiWallet(
                 id: id,
@@ -74,8 +79,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModel: walletModel,
             userTokensManager: model.userTokensManager,
             exchangeUtility: exchangeUtility,
+            userWalletNotificationManager: userWalletNotificationManager,
             coordinator: coordinator
         )
+        userWalletNotificationManager.setupManager()
 
         return .singleWallet(
             id: id,
@@ -86,5 +93,23 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
     func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> [MainUserWalletPageBuilder] {
         return models.compactMap { createPage(for: $0, lockedUserWalletDelegate: lockedUserWalletDelegate) }
+    }
+
+    private func makeSectionsAdapter(for model: UserWalletModel) -> TokenSectionsAdapter {
+        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: model.userTokensManager)
+
+        return TokenSectionsAdapter(
+            userTokenListManager: model.userTokenListManager,
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
+        )
+    }
+
+    private func selectSignatureCountValidator(for userWalletModel: UserWalletModel) -> SignatureCountValidator? {
+        if userWalletModel.isMultiWallet {
+            return nil
+        }
+
+        return userWalletModel.walletModelsManager.walletModels.first?.signatureCountValidator
     }
 }
