@@ -49,6 +49,10 @@ class MercuryoService {
         keysManager.mercuryoSecret
     }
 
+    private var useDarkTheme: Bool {
+        UITraitCollection.isDarkMode
+    }
+
     private var availableCryptoCurrencyCodes: [String] = []
     private var networkCodeByCurrencyCode: [String: String] = [:]
 
