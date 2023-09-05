@@ -120,14 +120,9 @@ struct NotificationView_Previews: PreviewProvider {
                 style: .tappable(action: { [weak self] id in
                     self?.notificationTapped(with: id)
                 }),
-                settings: .init(
-                    colorScheme: .gray,
-                    icon: .init(image: Assets.attentionRed.image),
-                    title: "Used card",
-                    description: "The card signed transactions in the past",
-                    isDismissable: false,
-                    dismissAction: nil
-                )
+                settings: .init(event: .multiWalletSignedHashes, dismissAction: { [weak self] id in
+                    self?.removeNotification(with: id)
+                })
             ),
             .init(
                 style: .withButtons([
@@ -193,11 +188,7 @@ struct NotificationView_Previews: PreviewProvider {
             .init(
                 style: .plain,
                 settings: .init(
-                    colorScheme: .gray,
-                    icon: .init(image: Assets.attentionRed.image),
-                    title: "Development card",
-                    description: "The card you scanned is a development card. Don't accept it as a payment",
-                    isDismissable: false,
+                    event: .devCard,
                     dismissAction: nil
                 )
             ),
@@ -219,11 +210,7 @@ struct NotificationView_Previews: PreviewProvider {
         @Published var notifications: [NotificationViewInput] = []
 
         init() {
-            notifications = [
-                notificationInputs[notificationInputs.count - 2],
-                notificationInputs[3],
-                notificationInputs[2],
-            ]
+            notifications = notificationInputs
         }
 
         func addNotification() {
