@@ -9,14 +9,43 @@
 import SwiftUI
 
 extension NotificationView {
+    typealias NotificationAction = (NotificationViewId) -> Void
     struct Settings: Identifiable, Hashable {
         let id: NotificationViewId = UUID().uuidString
         let colorScheme: NotificationView.ColorScheme
         let icon: NotificationView.MessageIcon
         let title: String
         let description: String?
+        let event: WarningEvent?
         let isDismissable: Bool
-        let dismissAction: ((NotificationViewId) -> Void)?
+        let dismissAction: NotificationAction?
+
+        init(
+            colorScheme: NotificationView.ColorScheme,
+            icon: NotificationView.MessageIcon,
+            title: String,
+            description: String? = nil,
+            isDismissable: Bool,
+            dismissAction: NotificationView.NotificationAction? = nil
+        ) {
+            self.colorScheme = colorScheme
+            self.icon = icon
+            self.title = title
+            self.description = description
+            event = nil
+            self.isDismissable = isDismissable
+            self.dismissAction = dismissAction
+        }
+
+        init(event: WarningEvent, dismissAction: NotificationAction?) {
+            self.event = event
+            colorScheme = event.colorScheme
+            icon = event.icon
+            title = event.title
+            description = event.description
+            isDismissable = event.isDismissable
+            self.dismissAction = dismissAction
+        }
 
         static func == (lhs: Settings, rhs: Settings) -> Bool {
             return lhs.id == rhs.id
@@ -28,7 +57,7 @@ extension NotificationView {
     }
 
     enum Style: Equatable {
-        case tappable(action: (NotificationViewId) -> Void)
+        case tappable(action: NotificationAction)
         case withButtons([MainButton.Settings])
         case plain
 
@@ -50,7 +79,7 @@ extension NotificationView {
         var color: Color {
             switch self {
             case .white: return Colors.Background.primary
-            case .gray: return Colors.Button.secondary
+            case .gray: return Colors.Button.disabled
             }
         }
     }
