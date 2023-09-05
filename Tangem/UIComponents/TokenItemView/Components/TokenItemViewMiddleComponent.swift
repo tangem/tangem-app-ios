@@ -35,7 +35,8 @@ struct TokenItemViewMiddleComponent: View {
                     font: Fonts.Regular.footnote,
                     textColor: Colors.Text.tertiary,
                     loaderSize: .init(width: 52, height: 12),
-                    loaderTopPadding: 4
+                    loaderTopPadding: 4,
+                    isSensitiveText: true
                 )
             }
         }

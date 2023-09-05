@@ -19,7 +19,6 @@ class SingleTokenBaseViewModel {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
-    @Published var canFetchMoreTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
 
     private unowned let coordinator: SingleTokenBaseRoutable
@@ -48,12 +47,7 @@ class SingleTokenBaseViewModel {
     }
 
     var canSignLongTransactions: Bool {
-        if NFCUtils.isPoorNfcQualityDevice,
-           case .solana = blockchain {
-            return false
-        } else {
-            return true
-        }
+        AppUtils().canSignLongTransactions(network: blockchainNetwork)
     }
 
     var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
@@ -93,6 +87,17 @@ class SingleTokenBaseViewModel {
         openExplorer(at: url)
     }
 
+    func fetchMoreHistory() -> FetchMore? {
+        guard let transactionHistoryService = walletModel.transactionHistoryService,
+              transactionHistoryService.canFetchMore else {
+            return nil
+        }
+
+        return FetchMore { [weak self] in
+            self?.loadHistory()
+        }
+    }
+
     func reloadHistory() {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
@@ -115,7 +120,7 @@ class SingleTokenBaseViewModel {
             }
     }
 
-    func openBuy() {
+    private func openBuy() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -205,7 +210,6 @@ extension SingleTokenBaseViewModel {
         case .loaded(let records):
             let listItems = transactionHistoryMapper.mapTransactionListItem(from: records)
             transactionHistoryState = .loaded(listItems)
-            canFetchMoreTransactionHistory = walletModel.transactionHistoryService?.canFetchMore ?? false
         }
     }
 
