@@ -19,6 +19,7 @@ struct TokenItemViewTrailingComponent: View {
             if hasError, let errorMessage {
                 Text(errorMessage)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             } else {
                 LoadableTextView(
                     state: balanceFiat,
