@@ -53,6 +53,7 @@ struct MainButton: View {
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))
                 .cornerRadiusContinuous(Constants.cornerRadius)
+                .overlay(border)
         }
         .buttonStyle(BorderlessButtonStyle())
         // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
@@ -109,6 +110,14 @@ struct MainButton: View {
             .renderingMode(.template)
             .frame(width: 20, height: 20)
             .foregroundColor(style.iconColor(isDisabled: isDisabled))
+    }
+
+    @ViewBuilder
+    private var border: some View {
+        if let borderColor = style.border(isDisabled: isDisabled) {
+            RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+                .stroke(borderColor)
+        }
     }
 }
 
@@ -168,6 +177,14 @@ extension MainButton {
             case .secondary:
                 return Colors.Button.secondary
             }
+        }
+
+        func border(isDisabled: Bool) -> Color? {
+            guard isDisabled else {
+                return nil
+            }
+
+            return Colors.Stroke.primary
         }
     }
 
