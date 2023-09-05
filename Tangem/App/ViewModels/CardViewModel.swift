@@ -225,10 +225,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.promotion)
     }
 
-    var supportedBlockchains: Set<Blockchain> {
-        config.supportedBlockchains
-    }
-
     var backupInput: OnboardingInput? {
         let factory = OnboardingInputFactory(
             cardInfo: cardInfo,
@@ -300,7 +296,7 @@ class CardViewModel: Identifiable, ObservableObject {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
         guard let userWalletIdSeed = config.userWalletIdSeed,
-              let walletManagerFactory = try? config.makeAnyWalletManagerFacrory() else {
+              let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
             return nil
         }
 
@@ -310,10 +306,10 @@ class CardViewModel: Identifiable, ObservableObject {
 
         userWalletId = UserWalletId(with: userWalletIdSeed)
         userTokenListManager = CommonUserTokenListManager(
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
-            hdWalletsSupported: config.hasFeature(.hdWallets)
+            hdWalletsSupported: config.hasFeature(.hdWallets),
+            hasTokenSynchronization: config.hasFeature(.tokenSynchronization)
         )
 
         walletManagersRepository = CommonWalletManagersRepository(
@@ -595,7 +591,10 @@ extension CardViewModel: DerivationManagerDelegate {
 
 extension CardViewModel: CardDerivableProvider {
     var cardDerivableInteractor: CardDerivable {
-        cardInteractor
+        // [REDACTED_TODO_COMMENT]
+        let shouldSkipCardId = cardInfo.card.backupStatus?.isActive ?? false
+        let cardId = shouldSkipCardId ? nil : cardInfo.card.cardId
+        return CardInteractor(tangemSdk: config.makeTangemSdk(), cardId: cardId)
     }
 }
 
