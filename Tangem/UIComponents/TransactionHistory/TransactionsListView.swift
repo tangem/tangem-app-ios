@@ -26,7 +26,7 @@ struct TransactionsListView: View {
     @ViewBuilder
     private var header: some View {
         HStack {
-            Text(Localization.transactionHistoryTitle)
+            Text(Localization.commonTransactions)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
