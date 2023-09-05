@@ -12,6 +12,7 @@ import Combine
 import BlockchainSdk
 import SwiftUI
 
+@available(*, deprecated, message: "Use NotificationManager instead")
 class WarningsService {
     @Injected(\.deprecationService) var deprecationService: DeprecationServicing
 
@@ -48,6 +49,7 @@ class WarningsService {
     }
 }
 
+@available(*, deprecated, message: "Use NotificationManager instead")
 extension WarningsService {
     var warningsUpdatePublisher: AnyPublisher<Void, Never> { warningsUpdateSubject.eraseToAnyPublisher() }
 
@@ -86,6 +88,7 @@ extension WarningsService {
     }
 }
 
+@available(*, deprecated, message: "Use NotificationManager instead")
 private extension WarningsService {
     func appendWarning(for event: WarningEvent) {
         let warning = event.warning

@@ -17,6 +17,6 @@ struct NotificationViewInput: Identifiable, Equatable {
     var id: NotificationViewId { settings.id }
 
     static func == (lhs: NotificationViewInput, rhs: NotificationViewInput) -> Bool {
-        lhs.settings == rhs.settings
+        lhs.settings.id == rhs.settings.id
     }
 }
