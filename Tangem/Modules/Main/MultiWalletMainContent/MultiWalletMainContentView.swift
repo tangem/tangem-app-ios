@@ -120,8 +120,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             coordinator: mainCoordinator,
-            sectionsProvider: sectionProvider,
-            canManageTokens: userWalletModel.isMultiWallet
+            sectionsProvider: sectionProvider
         )
     }()
 
