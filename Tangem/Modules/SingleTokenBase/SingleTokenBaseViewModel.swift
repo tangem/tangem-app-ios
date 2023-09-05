@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemSwapping
 
-class SingleTokenBaseViewModel {
+class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.keysManager) var keysManager: KeysManager
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
@@ -20,19 +20,21 @@ class SingleTokenBaseViewModel {
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
+    @Published private(set) var tokenNotificationInputs: [NotificationViewInput] = []
 
-    private unowned let coordinator: SingleTokenBaseRoutable
+    lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     let swappingUtils = SwappingAvailableUtils()
     let exchangeUtility: ExchangeCryptoUtility
+    let notificationManager: NotificationManager
 
     let userWalletModel: UserWalletModel
     let walletModel: WalletModel
     let userTokensManager: UserTokensManager
 
-    lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
-
     var availableActions: [TokenActionType] = []
+
+    private unowned let coordinator: SingleTokenBaseRoutable
     private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
@@ -57,12 +59,14 @@ class SingleTokenBaseViewModel {
         walletModel: WalletModel,
         userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
+        notificationManager: NotificationManager,
         coordinator: SingleTokenBaseRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
         self.userTokensManager = userTokensManager
         self.exchangeUtility = exchangeUtility
+        self.notificationManager = notificationManager
         self.coordinator = coordinator
 
         prepareSelf()
@@ -108,6 +112,21 @@ class SingleTokenBaseViewModel {
             .receiveCompletion { [weak self] _ in
                 self?.isReloadingTransactionHistory = false
             }
+    }
+
+    // We need to keep this not in extension because we may want to override this logic and
+    // implementation from extensions can't be overriden
+    func didTapNotification(with id: NotificationViewId) {}
+
+    // We need to keep this not in extension because we may want to override this logic and
+    // implementation from extensions can't be overriden
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .buyCrypto:
+            openBuyCryptoIfPossible()
+        default:
+            break
+        }
     }
 
     private func openBuy() {
@@ -170,6 +189,12 @@ extension SingleTokenBaseViewModel {
                 AppLog.shared.debug("New transaction history state: \(newState)")
                 self?.updateHistoryState(to: newState)
             }
+            .store(in: &bag)
+
+        notificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
