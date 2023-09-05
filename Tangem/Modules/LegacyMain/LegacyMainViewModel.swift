@@ -341,8 +341,7 @@ class LegacyMainViewModel: ObservableObject {
 
     func deriveEntriesWithoutDerivation() {
         Analytics.log(.noticeScanYourCardTapped)
-        // [REDACTED_TODO_COMMENT]
-        cardModel.derivationManager?.deriveKeys(cardInteractor: cardModel.cardDerivableInteractor, completion: { _ in })
+        cardModel.userTokensManager.deriveIfNeeded(completion: { _ in })
     }
 
     func extractSellCryptoRequest(from response: String) {
@@ -395,7 +394,7 @@ class LegacyMainViewModel: ObservableObject {
 // MARK: - Warnings related
 
 extension LegacyMainViewModel {
-    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
+    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningView.WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
         func registerValidatedSignedHashesCard() {
