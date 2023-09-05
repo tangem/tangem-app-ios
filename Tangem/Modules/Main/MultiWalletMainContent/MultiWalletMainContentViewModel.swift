@@ -47,7 +47,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let coordinator: MultiWalletMainContentRoutable
     private var sectionsProvider: TokenListInfoProvider
-    private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
+    private var canManageTokens: Bool { userWalletModel.isMultiWallet }
 
     private var isUpdating = false
     private var bag = Set<AnyCancellable>()
@@ -55,13 +55,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         coordinator: MultiWalletMainContentRoutable,
-        sectionsProvider: TokenListInfoProvider,
-        canManageTokens: Bool
+        sectionsProvider: TokenListInfoProvider
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         self.sectionsProvider = sectionsProvider
-        self.canManageTokens = canManageTokens
 
         setup()
     }
@@ -103,7 +101,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         coordinator.openOrganizeTokens(for: userWalletModel)
     }
 
-    // [REDACTED_TODO_COMMENT]
     func openManageTokens() {
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
 
