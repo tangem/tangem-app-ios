@@ -43,7 +43,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let isTestnetToken: Bool
     private let tokenTapped: (WalletModelId) -> Void
     private let infoProvider: TokenItemInfoProvider
-    private let priceChangeProvider: PriceChangeProvider
 
     private var percentFormatter = PercentFormatter()
     private var bag = Set<AnyCancellable>()
@@ -110,7 +109,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func updatePriceChange() {
-        guard let quote = infoProvider?.quote else {
+        guard let quote = infoProvider.quote else {
             priceChangeState = .noData
             return
         }
