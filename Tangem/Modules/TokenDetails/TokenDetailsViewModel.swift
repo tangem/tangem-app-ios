@@ -44,6 +44,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         userTokensManager: UserTokensManager,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
+        notificationManager: NotificationManager,
         coordinator: TokenDetailsRoutable
     ) {
         tokenDetailsCoordinator = coordinator
@@ -52,6 +53,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             walletModel: walletModel,
             userTokensManager: userTokensManager,
             exchangeUtility: exchangeUtility,
+            notificationManager: notificationManager,
             coordinator: coordinator
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
