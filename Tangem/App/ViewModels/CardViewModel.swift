@@ -136,10 +136,6 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.backupStatus?.isActive ?? false
     }
 
-    var shouldShowWC: Bool {
-        !config.getFeatureAvailability(.walletConnect).isHidden
-    }
-
     var cardDisclaimer: TOU {
         config.tou
     }
@@ -207,38 +203,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.withdrawal)
     }
 
-    var canParticipateInReferralProgram: Bool {
-        // [REDACTED_TODO_COMMENT]
-        !config.getFeatureAvailability(.referralProgram).isHidden
-    }
-
     var canParticipateInPromotion: Bool {
         config.hasFeature(.promotion)
-    }
-
-    var backupInput: OnboardingInput? {
-        let factory = OnboardingInputFactory(
-            cardInfo: cardInfo,
-            cardModel: self,
-            sdkFactory: config,
-            onboardingStepsBuilderFactory: config
-        )
-
-        return factory.makeBackupInput()
-    }
-
-    var twinInput: OnboardingInput? {
-        guard let twinData = cardInfo.walletData.twinData else {
-            return nil
-        }
-
-        let factory = TwinInputFactory(
-            cardInput: .cardModel(self),
-            userWalletToDelete: userWallet,
-            twinData: twinData,
-            sdkFactory: config
-        )
-        return factory.makeTwinInput()
     }
 
     var resetToFactoryAvailability: UserWalletFeature.Availability {
@@ -540,6 +506,31 @@ extension CardViewModel: UserWalletModel {
         data.append(userWalletIdItem)
 
         return data
+    }
+
+    var backupInput: OnboardingInput? {
+        let factory = OnboardingInputFactory(
+            cardInfo: cardInfo,
+            cardModel: self,
+            sdkFactory: config,
+            onboardingStepsBuilderFactory: config
+        )
+
+        return factory.makeBackupInput()
+    }
+
+    var twinInput: OnboardingInput? {
+        guard let twinData = cardInfo.walletData.twinData else {
+            return nil
+        }
+
+        let factory = TwinInputFactory(
+            cardInput: .cardModel(self),
+            userWalletToDelete: userWallet,
+            twinData: twinData,
+            sdkFactory: config
+        )
+        return factory.makeTwinInput()
     }
 
     var updatePublisher: AnyPublisher<Void, Never> {
