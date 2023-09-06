@@ -615,4 +615,8 @@ extension WalletModel {
     var signatureCountValidator: SignatureCountValidator? {
         walletManager as? SignatureCountValidator
     }
+
+    var hasRent: Bool {
+        walletManager is RentProvider
+    }
 }
