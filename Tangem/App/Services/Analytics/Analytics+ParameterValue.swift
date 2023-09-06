@@ -14,6 +14,8 @@ extension Analytics {
         case walletOnboarding = "wallet_onboarding"
         case on = "On"
         case off = "Off"
+        case yes = "Yes"
+        case no = "No"
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
@@ -72,6 +74,9 @@ extension Analytics {
         case old = "Old"
         case new = "New"
 
+        case sortTypeByBalance = "By Balance"
+        case sortTypeManual = "Manually"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
@@ -89,12 +94,16 @@ extension Analytics {
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
 
-        static func state(for toggle: Bool) -> ParameterValue {
-            return toggle ? .on : .off
-        }
-
         static func state(for balance: Decimal) -> ParameterValue {
             return balance > 0 ? .full : .empty
+        }
+
+        static func toggleState(for boolean: Bool) -> ParameterValue {
+            return boolean ? .on : .off
+        }
+
+        static func affirmativeOrNegative(for boolean: Bool) -> ParameterValue {
+            return boolean ? .yes : .no
         }
     }
 }
