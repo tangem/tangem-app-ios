@@ -60,9 +60,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     func onViewAppear() {
         bind()
+        reportScreenOpened()
     }
 
     func onCancelButtonTap() {
+        Analytics.log(.organizeTokensButtonCancel)
         coordinator.didTapCancelButton()
     }
 
@@ -137,8 +139,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        onSave
+        let onSavePublisher = onSave
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
+            .share(replay: 1)
+
+        onSavePublisher
             .receive(on: mappingQueue)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, _ in
@@ -153,6 +158,18 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { viewModel, _ in
                 viewModel.coordinator.didTapSaveButton()
+            }
+            .store(in: &bag)
+
+        onSavePublisher
+            .withLatestFrom(
+                optionsProviding.sortingOption,
+                optionsProviding.groupingOption
+            )
+            .withWeakCaptureOf(self)
+            .sink { input in
+                let (viewModel, (sortingOption, groupingOption)) = input
+                viewModel.reportOnSaveButtonTap(sortingOption: sortingOption, groupingOption: groupingOption)
             }
             .store(in: &bag)
 
@@ -202,6 +219,33 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         case .group:
             return true
         }
+    }
+
+    private func reportScreenOpened() {
+        Analytics.log(.organizeTokensScreenOpened)
+    }
+
+    private func reportOnSaveButtonTap(
+        sortingOption: UserTokensReorderingOptions.Sorting,
+        groupingOption: UserTokensReorderingOptions.Grouping
+    ) {
+        let sortTypeParameterValue: Analytics.ParameterValue
+        switch sortingOption {
+        case .dragAndDrop:
+            sortTypeParameterValue = .sortTypeManual
+        case .byBalance:
+            sortTypeParameterValue = .sortTypeByBalance
+        }
+
+        let groupTypeParameterValue = Analytics.ParameterValue.toggleState(for: groupingOption.isGrouped)
+
+        Analytics.log(
+            .organizeTokensButtonApply,
+            params: [
+                .groupType: groupTypeParameterValue,
+                .sortType: sortTypeParameterValue,
+            ]
+        )
     }
 }
 
