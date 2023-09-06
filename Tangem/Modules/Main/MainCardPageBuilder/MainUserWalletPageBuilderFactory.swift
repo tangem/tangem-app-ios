@@ -48,9 +48,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         if isMultiWalletPage {
             let sectionsAdapter = makeSectionsAdapter(for: model)
+            let multiWalletNotificationManager = MultiWalletNotificationManager(walletModelsManager: model.walletModelsManager)
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
+                tokensNotificationManager: multiWalletNotificationManager,
                 coordinator: coordinator,
                 tokenSectionsAdapter: sectionsAdapter,
                 canManageTokens: model.isMultiWallet // [REDACTED_TODO_COMMENT]
