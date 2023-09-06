@@ -10,8 +10,6 @@ import Foundation
 import SwiftUI
 
 enum TokenNotificationEvent: Hashable {
-    // [REDACTED_TODO_COMMENT]
-    case unableToCoverFee(tokenItem: TokenItem)
     case networkUnreachable
     case someNetworksUnreachable
     case rentFee(rentMessage: String)
@@ -35,8 +33,6 @@ enum TokenNotificationEvent: Hashable {
 
     var buttonAction: NotificationButtonActionType? {
         switch self {
-        case .unableToCoverFee:
-            return nil
         case .noAccount(_, _, let currencySymbol):
             return .buyCrypto(currencySymbol: currencySymbol)
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
@@ -52,16 +48,18 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var title: String {
         switch self {
-        case .unableToCoverFee(let tokenItem):
-            return "Unable to cover \(tokenItem.blockchain.displayName) fee"
         case .networkUnreachable:
+            // [REDACTED_TODO_COMMENT]
             return "Network is uncreachable"
         case .someNetworksUnreachable:
+            // [REDACTED_TODO_COMMENT]
             return "Some networks are unreachable"
         case .rentFee:
+            // [REDACTED_TODO_COMMENT]
             return "Network rent fee"
         case .noAccount(_, let isNoteWallet, _):
             if isNoteWallet {
+                // [REDACTED_TODO_COMMENT]
                 return "Note top up"
             }
 
@@ -79,22 +77,11 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var description: String? {
         switch self {
-        case .unableToCoverFee(let tokenItem):
-            guard let token = tokenItem.token else {
-                return "Top up right here"
-            }
-
-            let blockchain = tokenItem.blockchain
-            return Localization.tokenDetailsSendBlockedFeeFormat(
-                token.name,
-                blockchain.displayName,
-                token.name,
-                blockchain.displayName,
-                blockchain.currencySymbol
-            )
         case .networkUnreachable:
+            // [REDACTED_TODO_COMMENT]
             return "Network currently is unreachable. Please try again later."
         case .someNetworksUnreachable:
+            // [REDACTED_TODO_COMMENT]
             return "Some networks currently are unreachable. Please try again later."
         case .rentFee(let message):
             return message
@@ -113,12 +100,6 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .unableToCoverFee(let tokenItem):
-            if tokenItem.token == nil {
-                return .white
-            }
-
-            return .gray
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
             return .gray
         case .noAccount(_, let isNoteWallet, _):
@@ -128,8 +109,6 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .unableToCoverFee(let tokenItem):
-            return .init(image: Image(name: tokenItem.blockchain.iconNameFilled))
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .noAccount, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
             return .init(image: Assets.attention.image)
         case .existentialDepositWarning:
@@ -141,7 +120,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .rentFee, .noAccount:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .unableToCoverFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
             return false
         }
     }
