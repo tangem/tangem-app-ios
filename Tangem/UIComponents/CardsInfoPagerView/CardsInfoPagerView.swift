@@ -15,11 +15,7 @@ struct CardsInfoPagerView<
     typealias ContentFactory = (_ element: Data.Element) -> Body
     typealias BottomOverlayFactory = (_ element: Data.Element) -> BottomOverlay
     typealias OnPullToRefresh = OnRefresh
-
-    private enum PageSwitchMethod {
-        case byGesture(DragGesture.Value)
-        case programmatically(selectedIndex: Int)
-    }
+    typealias OnPageChange = (_ pageChangeReason: CardsInfoPageChangeReason) -> Void
 
     // MARK: - Dependencies
 
@@ -131,6 +127,7 @@ struct CardsInfoPagerView<
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
     private var pageSwitchAnimationDuration: TimeInterval = Constants.pageSwitchAnimationDuration
     private var isHorizontalScrollDisabled = false
+    private var onPageChangeCallbacks: [OnPageChange] = []
 
     // MARK: - Body
 
@@ -370,10 +367,10 @@ struct CardsInfoPagerView<
     ) -> CGFloat {
         let multiplier: CGFloat
         if oldSelectedIndex < newSelectedIndex {
-            // Successfull navigation to the next page (forward)
+            // Successful navigation to the next page (forward)
             multiplier = -1.0
         } else if oldSelectedIndex > newSelectedIndex {
-            // Successfull navigation to the previous page (reverse)
+            // Successful navigation to the previous page (reverse)
             multiplier = 1.0
         } else {
             // Page switch threshold hasn't been exceeded, no page switching has been made
@@ -423,6 +420,10 @@ struct CardsInfoPagerView<
             cumulativeHorizontalTranslation = -CGFloat(newSelectedIndex) * totalWidth
             pageSwitchProgress = finalPageSwitchProgress
         }
+
+        if pageHasBeenSwitched {
+            notifyAboutSuccessfulPageChange(method: method)
+        }
     }
 
     private func newSelectedIndex(from method: PageSwitchMethod, totalWidth: CGFloat) -> Int {
@@ -458,6 +459,10 @@ struct CardsInfoPagerView<
             pageSwitchProgress = 0.0
             hasValidIndexToSelect = true
         }
+    }
+
+    private func notifyAboutSuccessfulPageChange(method: PageSwitchMethod) {
+        onPageChangeCallbacks.forEach { $0(method.asPageChangeReason) }
     }
 
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
@@ -566,6 +571,33 @@ extension CardsInfoPagerView: Setupable {
 
     func horizontalScrollDisabled(_ disabled: Bool) -> Self {
         map { $0.isHorizontalScrollDisabled = disabled }
+    }
+
+    func onPageChange(_ onPageChange: @escaping OnPageChange) -> Self {
+        map { $0.onPageChangeCallbacks.append(onPageChange) }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CardsInfoPagerView {
+    enum ProposedHeaderState {
+        case collapsed
+        case expanded
+    }
+
+    enum PageSwitchMethod {
+        case byGesture(DragGesture.Value)
+        case programmatically(selectedIndex: Int)
+
+        var asPageChangeReason: CardsInfoPageChangeReason {
+            switch self {
+            case .byGesture:
+                return .byGesture
+            case .programmatically:
+                return .programmatically
+            }
+        }
     }
 }
 
