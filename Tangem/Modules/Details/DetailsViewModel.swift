@@ -16,8 +16,9 @@ class DetailsViewModel: ObservableObject {
     // MARK: - View State
 
     @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
-    @Published var supportSectionModels: [DefaultRowViewModel] = []
+    @Published var commonSectionViewModels: [DefaultRowViewModel] = []
     @Published var settingsSectionViewModels: [DefaultRowViewModel] = []
+    @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var legalSectionViewModel: DefaultRowViewModel?
     @Published var environmentSetupViewModel: DefaultRowViewModel?
     @Published var alert: AlertBinder?
@@ -171,8 +172,9 @@ extension DetailsViewModel {
 extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
-        setupSupportSectionModels()
+        setupCommonSectionViewModels()
         setupSettingsSectionViewModels()
+        setupSupportSectionModels()
         setupLegalSectionViewModels()
         setupEnvironmentSetupSection()
     }
@@ -217,12 +219,6 @@ extension DetailsViewModel {
         var viewModels: [DefaultRowViewModel] = []
 
         viewModels.append(DefaultRowViewModel(
-            title: Localization.detailsRowTitleCurrency,
-            detailsType: .text(selectedCurrencyCode),
-            action: coordinator.openCurrencySelection
-        ))
-
-        viewModels.append(DefaultRowViewModel(
             title: Localization.cardSettingsTitle,
             action: openCardSettings
         ))
@@ -233,13 +229,6 @@ extension DetailsViewModel {
             title: Localization.appSettingsTitle,
             action: openAppSettings
         ))
-
-        if canCreateBackup {
-            viewModels.append(DefaultRowViewModel(
-                title: Localization.detailsRowTitleCreateBackup,
-                action: prepareBackup
-            ))
-        }
 
         settingsSectionViewModels = viewModels
     }
@@ -255,5 +244,18 @@ extension DetailsViewModel {
         if !AppEnvironment.current.isProduction {
             environmentSetupViewModel = DefaultRowViewModel(title: "Environment setup", action: openEnvironmentSetup)
         }
+    }
+
+    func setupCommonSectionViewModels() {
+        var viewModels: [DefaultRowViewModel] = []
+
+        if canCreateBackup {
+            viewModels.append(DefaultRowViewModel(
+                title: Localization.detailsRowTitleCreateBackup,
+                action: prepareBackup
+            ))
+        }
+
+        commonSectionViewModels = viewModels
     }
 }
