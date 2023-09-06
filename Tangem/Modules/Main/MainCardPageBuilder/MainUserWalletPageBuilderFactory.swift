@@ -52,8 +52,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 coordinator: coordinator,
-                tokenSectionsAdapter: sectionsAdapter,
-                canManageTokens: model.isMultiWallet // [REDACTED_TODO_COMMENT]
+                tokenSectionsAdapter: sectionsAdapter
             )
             userWalletNotificationManager.setupManager(with: viewModel)
 
