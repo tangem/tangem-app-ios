@@ -19,6 +19,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
     @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
     @Published var notificationInputs: [NotificationViewInput] = []
+    @Published var tokensNotificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
@@ -48,6 +49,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
+    private let tokensNotificationManager: NotificationManager
     private unowned let coordinator: MultiWalletMainContentRoutable
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
@@ -65,12 +67,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
+        tokensNotificationManager: NotificationManager,
         coordinator: MultiWalletMainContentRoutable,
         tokenSectionsAdapter: TokenSectionsAdapter,
         canManageTokens: Bool
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
+        self.tokensNotificationManager = tokensNotificationManager
         self.coordinator = coordinator
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.canManageTokens = canManageTokens
@@ -181,6 +185,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        tokensNotificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
