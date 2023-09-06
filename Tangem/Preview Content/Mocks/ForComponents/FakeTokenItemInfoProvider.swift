@@ -10,12 +10,8 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class FakeTokenItemInfoProvider: PriceChangeProvider, ObservableObject {
-    var priceChangePublisher: AnyPublisher<Void, Never> { priceChangedSubject.eraseToAnyPublisher() }
-
+class FakeTokenItemInfoProvider: ObservableObject {
     let pendingTransactionNotifier = PassthroughSubject<(WalletModelId, Bool), Never>()
-
-    let priceChangedSubject = PassthroughSubject<Void, Never>()
 
     private var amountsIndex = 0
     private var previouslyTappedModelId: Int?
@@ -35,14 +31,9 @@ class FakeTokenItemInfoProvider: PriceChangeProvider, ObservableObject {
                 tokenIcon: makeTokenIconInfo(for: walletModel),
                 isTestnetToken: walletModel.blockchainNetwork.blockchain.isTestnet,
                 infoProvider: DefaultTokenItemInfoProvider(walletModel: walletModel),
-                priceChangeProvider: self,
                 tokenTapped: modelTapped(with:)
             )
         }
-    }
-
-    func change(for currencyCode: String, in blockchain: BlockchainSdk.Blockchain) -> Double {
-        0
     }
 
     func modelTapped(with id: Int) {
