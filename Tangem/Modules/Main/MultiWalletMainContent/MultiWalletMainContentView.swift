@@ -11,8 +11,6 @@ import SwiftUI
 struct MultiWalletMainContentView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
-    private let notificationTransition: AnyTransition = .scale.combined(with: .opacity)
-
     var body: some View {
         VStack(spacing: 14) {
             if let settings = viewModel.missingDerivationNotificationSettings {
@@ -23,7 +21,7 @@ struct MultiWalletMainContentView: View {
                     ),
                 ])
                 .setButtonsLoadingState(to: viewModel.isScannerBusy)
-                .transition(notificationTransition)
+                .transition(.scaleOpacity)
             }
 
             if let settings = viewModel.missingBackupNotificationSettings {
@@ -37,7 +35,12 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(notificationTransition)
+                    .transition(.scaleOpacity)
+            }
+
+            ForEach(viewModel.tokensNotificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.scaleOpacity)
             }
 
             tokensContent
@@ -53,6 +56,7 @@ struct MultiWalletMainContentView: View {
         }
         .animation(.default, value: viewModel.missingDerivationNotificationSettings)
         .animation(.default, value: viewModel.notificationInputs)
+        .animation(.default, value: viewModel.tokensNotificationInputs)
         .padding(.horizontal, 16)
         .background(
             Color.clear
@@ -120,6 +124,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            tokensNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
             tokenSectionsAdapter: tokenSectionsAdapter,
             canManageTokens: userWalletModel.isMultiWallet
