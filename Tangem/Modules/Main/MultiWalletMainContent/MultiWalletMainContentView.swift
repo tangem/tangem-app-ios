@@ -46,7 +46,7 @@ struct MultiWalletMainContentView: View {
                 FixedSizeButtonWithLeadingIcon(
                     title: Localization.organizeTokensTitle,
                     icon: Assets.OrganizeTokens.filterIcon.image,
-                    action: viewModel.openOrganizeTokens
+                    action: viewModel.onOpenOrganizeTokensButtonTap
                 )
                 .infinityFrame(axis: .horizontal)
             }
@@ -121,8 +121,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletModel: userWalletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
-            tokenSectionsAdapter: tokenSectionsAdapter,
-            canManageTokens: userWalletModel.isMultiWallet
+            tokenSectionsAdapter: tokenSectionsAdapter
         )
     }()
 
