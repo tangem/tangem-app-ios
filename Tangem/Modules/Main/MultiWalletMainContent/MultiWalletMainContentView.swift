@@ -18,25 +18,26 @@ struct MultiWalletMainContentView: View {
             if let settings = viewModel.missingDerivationNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.commonGenerateAddresses,
-                        icon: .trailing(Assets.tangemIcon),
-                        size: .notification,
-                        isLoading: viewModel.isScannerBusy,
-                        action: viewModel.deriveEntriesWithoutDerivation
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .generateAddresses
                     ),
                 ])
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
                 .transition(notificationTransition)
             }
 
             if let settings = viewModel.missingBackupNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.buttonStartBackupProcess,
-                        style: .secondary,
-                        size: .notification,
-                        action: viewModel.startBackupProcess
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .backupCard
                     ),
                 ])
+            }
+
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(notificationTransition)
             }
 
             tokensContent
@@ -45,13 +46,18 @@ struct MultiWalletMainContentView: View {
                 FixedSizeButtonWithLeadingIcon(
                     title: Localization.organizeTokensTitle,
                     icon: Assets.OrganizeTokens.filterIcon.image,
-                    action: viewModel.openOrganizeTokens
+                    action: viewModel.onOpenOrganizeTokensButtonTap
                 )
                 .infinityFrame(axis: .horizontal)
             }
         }
         .animation(.default, value: viewModel.missingDerivationNotificationSettings)
+        .animation(.default, value: viewModel.notificationInputs)
         .padding(.horizontal, 16)
+        .background(
+            Color.clear
+                .alert(item: $viewModel.error, content: { $0.alert })
+        )
     }
 
     private var tokensContent: some View {
@@ -113,6 +119,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
 
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
+            userWalletNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
             tokenSectionsAdapter: tokenSectionsAdapter
         )
