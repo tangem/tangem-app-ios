@@ -242,6 +242,7 @@ struct OrganizeTokensView: View {
                         \.frame,
                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                     ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                    .padding(.top, sectionIndex == 0 ? 0.0 : 10.0)
                 }
             )
         }
@@ -496,24 +497,18 @@ struct OrganizeTokensView: View {
                 cornerRadius: Constants.draggableViewCornerRadius
             )
 
-            if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
-                makeDraggableView(
-                    width: width,
-                    indexPath: dragAndDropDestinationIndexPath,
-                    itemFrame: dragAndDropSourceItemFrame
-                ) {
+            makeDraggableView(
+                width: width,
+                indexPath: dragAndDropDestinationIndexPath,
+                itemFrame: dragAndDropSourceItemFrame
+            ) {
+                if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
                     makeSection(
                         from: section,
                         atIndex: dragAndDropSourceIndexPath.section,
                         parametersProvider: parametersProvider
                     )
-                }
-            } else if let itemViewModel = viewModel.itemViewModel(for: dragAndDropSourceViewModelIdentifier) {
-                makeDraggableView(
-                    width: width,
-                    indexPath: dragAndDropDestinationIndexPath,
-                    itemFrame: dragAndDropSourceItemFrame
-                ) {
+                } else if let itemViewModel = viewModel.itemViewModel(for: dragAndDropSourceViewModelIdentifier) {
                     makeCell(
                         viewModel: itemViewModel,
                         indexPath: dragAndDropSourceIndexPath,
