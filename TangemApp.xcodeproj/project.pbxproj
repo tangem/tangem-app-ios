@@ -2397,7 +2397,6 @@
 			children = (
 				EF4662372924E00400346B6C /* WalletConnectRow */,
 				DC51185D28609CA5004FB954 /* CardOperation */,
-				5D3951652559A859002CC452 /* CurrencySelect */,
 				5D384B9324FD51C000C2C92C /* DetailsViewModel.swift */,
 				65C9FCAD28644F9D00FDE63E /* DetailsView.swift */,
 				DC66BC07285B6E6400CDF765 /* DetailsRoutable.swift */,
@@ -5492,6 +5491,7 @@
 		EF9CFC1B2890223F00329BE0 /* AppSettings */ = {
 			isa = PBXGroup;
 			children = (
+				5D3951652559A859002CC452 /* CurrencySelect */,
 				EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */,
 				EF0F99A6289028F8008B01DF /* AppSettingsCoordinatorView.swift */,
 				EF0F99A9289028F8008B01DF /* AppSettingsRoutable.swift */,
