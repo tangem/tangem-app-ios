@@ -363,15 +363,7 @@
 "story_finish_title" = "Кошелек для каждого";
 "story_learn_description" = "Пройдите 3 урока, получите скидку на покупку Tangem Wallet и 1INCH токены";
 "story_learn_learn" = "Пройти обучение";
-"story_meet_borrow" = "Занимайте";
-"story_meet_buy" = "Покупайте";
-"story_meet_exchange" = "Обменивайте";
-"story_meet_lend" = "Вкладывайте";
-"story_meet_pay" = "Расплачивайтесь";
-"story_meet_send" = "Отправляйте";
-"story_meet_stake" = "Стейкайте";
-"story_meet_store" = "Храните";
-"story_meet_title" = "Встречайте\nTangem";
+"story_meet_title" = "Встречайте Tangem";
 "story_web3_description" = "Обменивайте, покупайте NFT, получайте займы и делайте вклады в более чем 100 различных децентрализованных сервисах";
 "story_web3_title" = "Поддержка DeFi";
 "swapping_approve_information_text" = "Подтверждения считаются отраслевым стандартом для всех децентрализованных бирж и защищают ваш кошелек от доступа со стороны смарт-контракта без вашего разрешения. По замыслу смарт-контракты не могут получить доступ к вашим токенам, если вы не одобрите доступ со своей стороны. «Разблокируя» свои токены, вы даете смарт-контракту 1inch разрешение тратить ваши активы. Майнеры сети получают компенсацию за газ (оплачиваемый вами) за запись этого действия в блокчейне. Как только разрешение будет предоставлено, вы сможете обменять свой токен.";
@@ -397,7 +389,6 @@
 "swapping_permit_and_swap" = "Разрешить и обменять";
 "swapping_success_view_explorer_button_title" = "Открыть в обозревателе";
 "swapping_success_view_title" = "В процессе";
-"swapping_swap" = "Обмен";
 "swapping_swap_action" = "Обменять";
 "swapping_swap_of_to" = "Обмен %@ на";
 "swapping_tangem_fee_disclaimer" = "Котировки включают дополнительную комиссию Tangem в размере %@. Это помогает нам предоставлять первоклассный продукт.";
@@ -421,7 +412,6 @@
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
 "transaction_history_multiple_addresses" = "Несколько адресов";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
-"transaction_history_title" = "Транзакции";
 "transaction_history_transaction_from_address" = "от: %@";
 "transaction_history_transaction_to_address" = "на: %@";
 "transaction_history_tx_in_progress" = "В процессе…";
@@ -442,7 +432,6 @@
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите удалить этот кошелек?";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
 "user_wallet_list_multi_header" = "Мультивалютные";
-"user_wallet_list_rename" = "Переименовать";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
 "user_wallet_list_single_header" = "Одновалютные";
