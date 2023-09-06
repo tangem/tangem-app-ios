@@ -36,6 +36,7 @@ class LockedUserWallet: UserWalletModel {
     }
 
     let backupInput: OnboardingInput? = nil
+    let twinInput: OnboardingInput? = nil
 
     private(set) var userWallet: UserWallet
 
