@@ -11,20 +11,18 @@ import SwiftUI
 struct SingleWalletMainContentView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
-    private let notificationTransition: AnyTransition = .scale.combined(with: .opacity)
-
     var body: some View {
         VStack(spacing: 14) {
             ScrollableButtonsView(itemsHorizontalOffset: 16, buttonsInfo: viewModel.actionButtons)
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(notificationTransition)
+                    .transition(.scaleOpacity)
             }
 
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(notificationTransition)
+                    .transition(.scaleOpacity)
             }
 
             TransactionsListView(
