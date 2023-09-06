@@ -14,10 +14,10 @@ protocol MainLockedUserWalletDelegate: AnyObject {
 
 class LockedWalletMainContentViewModel: ObservableObject {
     lazy var lockedNotificationInput: NotificationViewInput = {
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         return .init(
             style: .tappable(action: { [weak self] _ in
-                self?.openUnlockSheet()
+                self?.onLockedWalletNotificationTap()
             }),
             settings: factory.lockedWalletNotificationSettings()
         )
@@ -56,6 +56,11 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
+    }
+
+    private func onLockedWalletNotificationTap() {
+        Analytics.log(.mainNoticeWalletLocked)
+        openUnlockSheet()
     }
 
     private func openUnlockSheet() {
