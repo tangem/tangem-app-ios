@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-enum TokenNotificationEvent {
+enum TokenNotificationEvent: Hashable {
     // [REDACTED_TODO_COMMENT]
     case unableToCoverFee(tokenItem: TokenItem)
     case networkUnreachable
