@@ -73,6 +73,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
+                Analytics.log(.organizeTokensButtonSortByBalance)
                 viewModel.optionsEditing.sort(
                     by: viewModel.isSortByBalanceEnabled ? .dragAndDrop : .byBalance
                 )
@@ -83,6 +84,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
+                Analytics.log(.organizeTokensButtonGroup)
                 viewModel.optionsEditing.group(
                     by: viewModel.isGroupingEnabled ? .none : .byBlockchainNetwork
                 )
