@@ -22,7 +22,7 @@ protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, MultiWa
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var emailData: [EmailCollectedData] { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
-
+    var twinInput: OnboardingInput? { get }
     func initialUpdate()
     func updateWalletName(_ name: String)
 }
