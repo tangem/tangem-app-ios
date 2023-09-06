@@ -224,13 +224,11 @@ extension DetailsViewModel {
     func setupSettingsSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = []
 
-        if !cardModel.isMultiWallet {
-            viewModels.append(DefaultRowViewModel(
-                title: Localization.detailsRowTitleCurrency,
-                detailsType: .text(selectedCurrencyCode),
-                action: coordinator.openCurrencySelection
-            ))
-        }
+        viewModels.append(DefaultRowViewModel(
+            title: Localization.detailsRowTitleCurrency,
+            detailsType: .text(selectedCurrencyCode),
+            action: coordinator.openCurrencySelection
+        ))
 
         viewModels.append(DefaultRowViewModel(
             title: Localization.cardSettingsTitle,
