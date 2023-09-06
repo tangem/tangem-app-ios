@@ -58,10 +58,12 @@ final class AuthViewModel: ObservableObject {
             didFinishUnlocking(result)
 
             switch result {
-            case .success, .partial:
+            case .success(let cardViewModel), .partial(let cardViewModel, _):
+                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: cardViewModel.hasBackupCards)
                 Analytics.log(event: .signedIn, params: [
                     .signInType: Analytics.ParameterValue.signInTypeBiometrics.rawValue,
                     .walletsCount: "\(userWalletRepository.count)",
+                    .walletHasBackup: walletHasBackup.rawValue,
                 ])
             default:
                 break
@@ -79,10 +81,12 @@ final class AuthViewModel: ObservableObject {
             didFinishUnlocking(result)
 
             switch result {
-            case .success, .partial:
+            case .success(let cardViewModel), .partial(let cardViewModel, _):
+                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: cardViewModel.hasBackupCards)
                 Analytics.log(event: .signedIn, params: [
                     .signInType: Analytics.ParameterValue.signInTypeCard.rawValue,
                     .walletsCount: "\(userWalletRepository.count)",
+                    .walletHasBackup: walletHasBackup.rawValue,
                 ])
             default:
                 break
