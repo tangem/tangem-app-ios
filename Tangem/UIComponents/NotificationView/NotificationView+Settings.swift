@@ -9,14 +9,13 @@
 import SwiftUI
 
 extension NotificationView {
+    typealias NotificationAction = (NotificationViewId) -> Void
+    typealias NotificationButtonTapAction = (NotificationViewId, NotificationButtonActionType) -> Void
+
     struct Settings: Identifiable, Hashable {
         let id: NotificationViewId = UUID().uuidString
-        let colorScheme: NotificationView.ColorScheme
-        let icon: NotificationView.MessageIcon
-        let title: String
-        let description: String?
-        let isDismissable: Bool
-        let dismissAction: ((NotificationViewId) -> Void)?
+        let event: NotificationEvent
+        let dismissAction: NotificationAction?
 
         static func == (lhs: Settings, rhs: Settings) -> Bool {
             return lhs.id == rhs.id
@@ -27,9 +26,20 @@ extension NotificationView {
         }
     }
 
+    struct NotificationButton: Identifiable, Equatable {
+        let action: NotificationButtonTapAction
+        let actionType: NotificationButtonActionType
+
+        var id: Int { actionType.id }
+
+        static func == (lhs: NotificationButton, rhs: NotificationButton) -> Bool {
+            return lhs.actionType == rhs.actionType
+        }
+    }
+
     enum Style: Equatable {
-        case tappable(action: (NotificationViewId) -> Void)
-        case withButtons([MainButton.Settings])
+        case tappable(action: NotificationAction)
+        case withButtons([NotificationButton])
         case plain
 
         static func == (lhs: NotificationView.Style, rhs: NotificationView.Style) -> Bool {
@@ -50,7 +60,7 @@ extension NotificationView {
         var color: Color {
             switch self {
             case .white: return Colors.Background.primary
-            case .gray: return Colors.Button.secondary
+            case .gray: return Colors.Button.disabled
             }
         }
     }
