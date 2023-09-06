@@ -105,31 +105,41 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = LegacySendCoordinator { [weak self] in
-            self?.legacySendCoordinator = nil
+        guard FeatureProvider.isAvailable(.sendV2) else {
+            let coordinator = LegacySendCoordinator { [weak self] in
+                self?.legacySendCoordinator = nil
+            }
+            let options = LegacySendCoordinator.Options(
+                amountToSend: amountToSend,
+                destination: nil,
+                blockchainNetwork: blockchainNetwork,
+                cardViewModel: cardViewModel
+            )
+            coordinator.start(with: options)
+            legacySendCoordinator = coordinator
+            return
         }
-        let options = LegacySendCoordinator.Options(
-            amountToSend: amountToSend,
-            destination: nil,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
-        coordinator.start(with: options)
-        legacySendCoordinator = coordinator
+
+        assertionFailure("[REDACTED_TODO_COMMENT]")
     }
 
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = LegacySendCoordinator { [weak self] in
-            self?.legacySendCoordinator = nil
+        guard FeatureProvider.isAvailable(.sendV2) else {
+            let coordinator = LegacySendCoordinator { [weak self] in
+                self?.legacySendCoordinator = nil
+            }
+            let options = LegacySendCoordinator.Options(
+                amountToSend: amountToSend,
+                destination: destination,
+                blockchainNetwork: blockchainNetwork,
+                cardViewModel: cardViewModel
+            )
+            coordinator.start(with: options)
+            legacySendCoordinator = coordinator
+            return
         }
-        let options = LegacySendCoordinator.Options(
-            amountToSend: amountToSend,
-            destination: destination,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
-        coordinator.start(with: options)
-        legacySendCoordinator = coordinator
+
+        assertionFailure("[REDACTED_TODO_COMMENT]")
     }
 
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
