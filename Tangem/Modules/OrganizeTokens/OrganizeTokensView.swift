@@ -643,7 +643,7 @@ private extension OrganizeTokensView {
         static let contentHorizontalInset = 16.0
         static let dragLiftLongPressGestureDuration = 0.1
         static let dragLiftAnimationDuration = 0.25
-        static let dropAnimationProgressThresholdForViewRemoval = 0.05
+        static let dropAnimationProgressThresholdForViewRemoval = 0.1
         static let dragAndDropDestinationItemSelectionThresholdRatio = 0.5
         static let draggableViewScale = 1.035
         static let draggableViewCornerRadius = 7.0
