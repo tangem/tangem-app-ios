@@ -12,6 +12,7 @@ import BlockchainSdk
 class UserWalletModelMock: UserWalletModel {
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
+    let twinInput: OnboardingInput? = nil
 
     var cardHeaderImage: ImageType?
 
