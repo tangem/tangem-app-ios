@@ -82,7 +82,7 @@ private extension AppSettingsViewModel {
     func isSavingWalletRequestChange(saveWallet: Bool) {
         Analytics.log(
             .saveUserWalletSwitcherChanged,
-            params: [.state: Analytics.ParameterValue.state(for: saveWallet)]
+            params: [.state: Analytics.ParameterValue.toggleState(for: saveWallet)]
         )
 
         if saveWallet {
@@ -111,7 +111,7 @@ private extension AppSettingsViewModel {
     func isSavingAccessCodesRequestChange(saveAccessCodes: Bool) {
         Analytics.log(
             .saveAccessCodeSwitcherChanged,
-            params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes)]
+            params: [.state: Analytics.ParameterValue.toggleState(for: saveAccessCodes)]
         )
 
         if saveAccessCodes {

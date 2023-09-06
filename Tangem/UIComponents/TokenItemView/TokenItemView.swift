@@ -34,7 +34,7 @@ struct TokenItemView: View {
                     hasError: viewModel.networkUnreachable || viewModel.missingDerivation,
                     errorMessage: viewModel.errorMessage,
                     balanceFiat: viewModel.balanceFiat,
-                    changePercentage: viewModel.changePercentage
+                    priceChangeState: viewModel.priceChangeState
                 )
             }
         }
