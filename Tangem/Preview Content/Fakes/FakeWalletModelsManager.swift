@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 
 class FakeWalletModelsManager: WalletModelsManager {
     var walletModels: [WalletModel] {
