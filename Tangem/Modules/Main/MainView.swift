@@ -38,6 +38,7 @@ struct MainView: View {
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .onPageChange(viewModel.onPageChange(dueTo:))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -57,7 +58,12 @@ struct MainView: View {
                 .offset(x: 10)
             }
         })
-        .alert(item: $viewModel.errorAlert) { $0.alert }
+        .background(
+            // We need to hold alert modified in nested view such as background view
+            // Otherwise all nested views won't be able to use alert modifier to display alert
+            Color.clear
+                .alert(item: $viewModel.errorAlert) { $0.alert }
+        )
         .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
             ActionSheet(
                 title: Text(Localization.userWalletListDeletePrompt),
@@ -104,7 +110,7 @@ struct MainView: View {
     @ViewBuilder
     private func editButtonLabel() -> some View {
         HStack {
-            Text(Localization.userWalletListRename)
+            Text(Localization.commonRename)
             Image(systemName: "pencil")
         }
     }

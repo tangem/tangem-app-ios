@@ -97,6 +97,12 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
+        guard reason == .byGesture else { return }
+
+        Analytics.log(.mainScreenWalletChangedBySwipe)
+    }
+
     func updateIsBackupAllowed() {
         // [REDACTED_TODO_COMMENT]
     }
