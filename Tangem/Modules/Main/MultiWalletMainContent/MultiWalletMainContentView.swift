@@ -121,8 +121,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletModel: userWalletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
-            tokenSectionsAdapter: tokenSectionsAdapter,
-            canManageTokens: userWalletModel.isMultiWallet
+            tokenSectionsAdapter: tokenSectionsAdapter
         )
     }()
 
