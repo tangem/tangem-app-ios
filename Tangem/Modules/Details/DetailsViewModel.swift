@@ -52,10 +52,6 @@ class DetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
 
-    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
-    @AppStorageCompat(StorageType.selectedCurrencyCode)
-    private var selectedCurrencyCode: String = "USD"
-
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
@@ -185,13 +181,6 @@ extension DetailsViewModel {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-
-        $selectedCurrencyCode
-            .dropFirst()
-            .sink { [weak self] _ in
-                self?.setupSettingsSectionViewModels()
-            }
-            .store(in: &bag)
     }
 
     func setupWalletConnectRowViewModel() {
@@ -223,12 +212,6 @@ extension DetailsViewModel {
 
     func setupSettingsSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = []
-
-        viewModels.append(DefaultRowViewModel(
-            title: Localization.detailsRowTitleCurrency,
-            detailsType: .text(selectedCurrencyCode),
-            action: coordinator.openCurrencySelection
-        ))
 
         viewModels.append(DefaultRowViewModel(
             title: Localization.cardSettingsTitle,
