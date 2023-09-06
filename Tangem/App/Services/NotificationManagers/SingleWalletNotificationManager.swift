@@ -18,7 +18,7 @@ class SingleTokenNotificationManager {
 
     private let notificationInputs: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
-    private var rentWarningSubscription: AnyCancellable?
+    private var rentWarningTask: Task<String?, Error>?
 
     init(walletModel: WalletModel, isNoteWallet: Bool) {
         self.walletModel = walletModel
@@ -73,9 +73,16 @@ class SingleTokenNotificationManager {
                 }
         }
 
-        notificationInputs.send(inputs)
+        Task { [weak self] in
+            var inputs = inputs
+            if let rentInput = await self?.loadRentNotificationIfNeeded() {
+                inputs.append(rentInput)
+            }
 
-        updateRentWarningIfNeeded()
+            await runOnMain {
+                self?.notificationInputs.send(inputs)
+            }
+        }
     }
 
     private func setupNetworkUnreachable() {
@@ -110,27 +117,26 @@ class SingleTokenNotificationManager {
             ])
     }
 
-    private func updateRentWarningIfNeeded() {
-        if rentWarningSubscription != nil {
-            return
-        }
+    private func loadRentNotificationIfNeeded() async -> NotificationViewInput? {
+        guard walletModel.hasRent else { return nil }
 
-        walletModel.updateRentWarning()
-            .sink { [weak self] _ in
-                self?.rentWarningSubscription = nil
-            } receiveValue: { [weak self] rentWarningMessage in
-                guard let rentWarningMessage else {
-                    return
-                }
+        rentWarningTask?.cancel()
 
-                self?.appendRentWarning(with: rentWarningMessage)
+        rentWarningTask = Task { await walletModel.updateRentWarning().async() }
+
+        defer { rentWarningTask = nil }
+        do {
+            guard let rentMessage = try await rentWarningTask?.value else {
+                return nil
             }
-    }
 
-    private func appendRentWarning(with message: String) {
-        let factory = NotificationsFactory()
-        let input = factory.buildNotificationInput(for: .rentFee(rentMessage: message))
-        notificationInputs.value.append(input)
+            let factory = NotificationsFactory()
+            let input = factory.buildNotificationInput(for: .rentFee(rentMessage: rentMessage))
+            return input
+        } catch {
+            AppLog.shared.debug("Failed to load rent warning: \(error)")
+            return nil
+        }
     }
 }
 
