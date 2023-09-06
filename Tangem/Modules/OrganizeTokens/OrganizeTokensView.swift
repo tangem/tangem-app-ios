@@ -239,8 +239,8 @@ struct OrganizeTokensView: View {
                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                     ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
                     .onTouchesBegan { _ in onTouchesBegan(for: identifier, isDraggable: sectionViewModel.isDraggable) }
-                    .padding(.top, sectionIndex == 0 ? 0.0 : 10.0)
                     .id(identifier)
+                    .padding(.top, sectionIndex == 0 ? 0.0 : Constants.headerBottomInset)
                 }
             )
         }
