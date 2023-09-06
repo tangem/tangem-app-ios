@@ -17,7 +17,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
         let factory = NotificationsFactory()
         return .init(
             style: .tappable(action: { [weak self] _ in
-                self?.openUnlockSheet()
+                self?.onLockedWalletNotificationTap()
             }),
             settings: factory.lockedWalletNotificationSettings()
         )
@@ -58,6 +58,11 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
 
         canManageTokens = userWalletModel.isMultiWallet
+    }
+
+    private func onLockedWalletNotificationTap() {
+        Analytics.log(.mainNoticeWalletLocked)
+        openUnlockSheet()
     }
 
     private func openUnlockSheet() {
