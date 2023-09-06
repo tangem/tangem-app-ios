@@ -18,8 +18,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var sections: [Section] = []
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
     @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
+    @Published var notificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
+    @Published var error: AlertBinder? = nil
 
     var bottomOverlayViewModel: MainBottomOverlayViewModel? {
         guard canManageTokens else { return nil }
@@ -45,6 +47,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
+    private let userWalletNotificationManager: NotificationManager
     private unowned let coordinator: MultiWalletMainContentRoutable
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private var canManageTokens: Bool { userWalletModel.isMultiWallet }
@@ -61,10 +64,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     init(
         userWalletModel: UserWalletModel,
+        userWalletNotificationManager: NotificationManager,
         coordinator: MultiWalletMainContentRoutable,
         tokenSectionsAdapter: TokenSectionsAdapter
     ) {
         self.userWalletModel = userWalletModel
+        self.userWalletNotificationManager = userWalletNotificationManager
         self.coordinator = coordinator
         self.tokenSectionsAdapter = tokenSectionsAdapter
 
@@ -104,8 +109,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
-    func openOrganizeTokens() {
-        coordinator.openOrganizeTokens(for: userWalletModel)
+    func onOpenOrganizeTokensButtonTap() {
+        Analytics.log(.buttonOrganizeTokens)
+        openOrganizeTokens()
     }
 
     func openManageTokens() {
@@ -167,6 +173,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .sink { [weak self] in
                 self?.updateBackupStatus()
             }
+            .store(in: &bag)
+
+        userWalletNotificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -244,7 +256,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
     }
 
@@ -254,8 +266,57 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = NotificationSettingsFactory()
+        let factory = NotificationsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
+    }
+
+    private func openOrganizeTokens() {
+        coordinator.openOrganizeTokens(for: userWalletModel)
+    }
+}
+
+extension MultiWalletMainContentViewModel: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId) {
+        guard let notification = notificationInputs.first(where: { $0.id == id }) else {
+            userWalletNotificationManager.dismissNotification(with: id)
+            return
+        }
+
+        switch notification.settings.event {
+        case let userWalletEvent as WarningEvent:
+            handleUserWalletNotificationTap(event: userWalletEvent, id: id)
+        default:
+            break
+        }
+    }
+
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .generateAddresses:
+            deriveEntriesWithoutDerivation()
+        case .backupCard:
+            startBackupProcess()
+        default:
+            return
+        }
+    }
+
+    private func handleUserWalletNotificationTap(event: WarningEvent, id: NotificationViewId) {
+        switch event {
+        case .multiWalletSignedHashes:
+            error = AlertBuilder.makeAlert(
+                title: event.title,
+                message: Localization.alertSignedHashesMessage,
+                with: .withPrimaryCancelButton(
+                    secondaryTitle: Localization.commonUnderstand,
+                    secondaryAction: { [weak self] in
+                        self?.userWalletNotificationManager.dismissNotification(with: id)
+                    }
+                )
+            )
+        default:
+            assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
+        }
     }
 }
 
