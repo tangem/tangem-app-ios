@@ -45,12 +45,7 @@ struct OrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
-    // Index path for a view that received a new touch.
-    // `Initial` here means 'at the beginning of the drag and drop gesture'.
-    //
-    // Contains meaningful value only until the long press gesture successfully ends,
-    // mustn't be used after that (use `dragAndDropSourceIndexPath` property instead)
-    @State private var dragAndDropInitialIndexPath: IndexPath?
+    @StateObject private var initialViewModelIdentifierStorage = InitialViewModelIdentifierStorage()
 
     @GestureState private var dragAndDropSourceIndexPath: IndexPath?
 
@@ -132,7 +127,6 @@ struct OrganizeTokensView: View {
                         .animation(.spring(), value: viewModel.sections)
                         .padding(.horizontal, Constants.contentHorizontalInset)
                         .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
-                        .onTouchesBegan(onTouchesBegan(atLocation:))
                         .readGeometry(
                             \.frame.maxY,
                             inCoordinateSpace: .global,
@@ -214,35 +208,39 @@ struct OrganizeTokensView: View {
                 content: {
                     ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
                         let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
+                        let identifier = itemViewModel.id
 
                         makeCell(
                             viewModel: itemViewModel,
                             indexPath: indexPath,
                             parametersProvider: parametersProvider
                         )
-                        .hidden(itemViewModel.id.asAnyHashable == dragAndDropSourceViewModelIdentifier)
-                        .id(itemViewModel.id)
+                        .hidden(identifier.asAnyHashable == dragAndDropSourceViewModelIdentifier)
                         .readGeometry(
                             \.frame,
                             inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                         ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                        .onTouchesBegan { _ in onTouchesBegan(for: identifier, isDraggable: itemViewModel.isDraggable) }
+                        .id(identifier)
                     }
                 },
                 header: {
                     let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
+                    let identifier = sectionViewModel.id
 
                     makeSection(
                         from: sectionViewModel,
                         atIndex: sectionIndex,
                         parametersProvider: parametersProvider
                     )
-                    .hidden(sectionViewModel.id == dragAndDropSourceViewModelIdentifier)
-                    .id(sectionViewModel.id)
+                    .hidden(identifier == dragAndDropSourceViewModelIdentifier)
                     .readGeometry(
                         \.frame,
                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                     ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                    .onTouchesBegan { _ in onTouchesBegan(for: identifier, isDraggable: sectionViewModel.isDraggable) }
                     .padding(.top, sectionIndex == 0 ? 0.0 : 10.0)
+                    .id(identifier)
                 }
             )
         }
@@ -338,7 +336,7 @@ struct OrganizeTokensView: View {
                     state = dragGestureValue.translation
                 }
             }
-            .updating($dragAndDropSourceIndexPath) { [initialIndexPath = dragAndDropInitialIndexPath] value, state, _ in
+            .updating($dragAndDropSourceIndexPath) { value, state, _ in
                 switch value {
                 case .first(let isLongPressGestureBegins):
                     // Long press gesture began (equivalent of `UIGestureRecognizer.State.began`)
@@ -348,10 +346,15 @@ struct OrganizeTokensView: View {
                 case .second(let isLongPressGestureEnded, let dragGestureValue):
                     // Long press gesture successfully ended (equivalent of `UIGestureRecognizer.State.ended`),
                     // drag gesture began, but hasn't been dragged yet (equivalent of `UIGestureRecognizer.State.began`)
+
+                    // Effectively consumes value in `initialViewModelIdentifierStorage`, so it can't be used anymore
+                    defer { initialViewModelIdentifierStorage.value = nil }
+
                     guard
                         isLongPressGestureEnded,
                         dragGestureValue == nil,
-                        let sourceIndexPath = initialIndexPath
+                        let sourceViewModelIdentifier = initialViewModelIdentifierStorage.value,
+                        let sourceIndexPath = viewModel.indexPath(for: sourceViewModelIdentifier)
                     else {
                         return
                     }
@@ -361,12 +364,10 @@ struct OrganizeTokensView: View {
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
-                        // Effectively consumes `dragAndDropInitialIndexPath`, so it can't be used anymore
-                        dragAndDropInitialIndexPath = nil
                         // Set initial state for `dragAndDropDestinationIndexPath` after successfully ended long press gesture
                         dragAndDropDestinationIndexPath = sourceIndexPath
                         dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
-                        dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
+                        dragAndDropSourceViewModelIdentifier = sourceViewModelIdentifier
 
                         dragAndDropController.onDragStart()
                         viewModel.onDragStart(at: sourceIndexPath)
@@ -375,15 +376,9 @@ struct OrganizeTokensView: View {
             }
     }
 
-    private func onTouchesBegan(atLocation location: CGPoint) {
+    private func onTouchesBegan(for identifier: AnyHashable, isDraggable: Bool) {
         newDragAndDropSessionPrecondition()
-
-        if let initialIndexPath = dragAndDropController.indexPath(for: location),
-           viewModel.canStartDragAndDropSession(at: initialIndexPath) {
-            dragAndDropInitialIndexPath = initialIndexPath
-        } else {
-            dragAndDropInitialIndexPath = nil
-        }
+        initialViewModelIdentifierStorage.value = isDraggable ? identifier : nil
     }
 
     // MARK: - Drag and drop support
@@ -654,6 +649,18 @@ private extension OrganizeTokensView {
         static let draggableViewCornerRadius = 7.0
         static let autoScrollFrequency = 0.2
         static let autoScrollTriggerHeightDiff = 10.0
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension OrganizeTokensView {
+    /// A separate dummy storage, used instead of a plain `@State` var because `@State` vars
+    /// sometimes have old values at the time when the long-press gesture is finally recognized.
+    ///
+    /// `Initial` here means 'at the beginning of the drag and drop gesture'.
+    final class InitialViewModelIdentifierStorage: ObservableObject {
+        var value: AnyHashable?
     }
 }
 
