@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 protocol MainUserWalletPageBuilderFactory {
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder?
@@ -27,6 +28,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             balanceProvider: model
         )
 
+        let signatureCountValidator = selectSignatureCountValidator(for: model)
+        let userWalletNotificationManager = UserWalletNotificationManager(
+            userWalletModel: model,
+            signatureCountValidator: signatureCountValidator
+        )
+
         if model.isUserWalletLocked {
             return .lockedWallet(
                 id: id,
@@ -43,9 +50,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             let sectionsAdapter = makeSectionsAdapter(for: model)
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
+                userWalletNotificationManager: userWalletNotificationManager,
                 coordinator: coordinator,
                 tokenSectionsAdapter: sectionsAdapter
             )
+            userWalletNotificationManager.setupManager(with: viewModel)
 
             return .multiWallet(
                 id: id,
@@ -69,8 +78,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModel: walletModel,
             userTokensManager: model.userTokensManager,
             exchangeUtility: exchangeUtility,
+            userWalletNotificationManager: userWalletNotificationManager,
             coordinator: coordinator
         )
+        userWalletNotificationManager.setupManager()
 
         return .singleWallet(
             id: id,
@@ -91,5 +102,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
+    }
+
+    private func selectSignatureCountValidator(for userWalletModel: UserWalletModel) -> SignatureCountValidator? {
+        if userWalletModel.isMultiWallet {
+            return nil
+        }
+
+        return userWalletModel.walletModelsManager.walletModels.first?.signatureCountValidator
     }
 }
