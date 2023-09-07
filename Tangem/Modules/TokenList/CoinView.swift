@@ -8,77 +8,11 @@
 
 import Foundation
 import SwiftUI
-import Kingfisher
-
-extension Colors {
-//    static var blueBlue =
-}
-
-enum PriceChangeDirection {
-    case up
-    case same
-    case down
-
-    init(_ percentage: Decimal) {
-        if percentage.isEqual(to: .zero) {
-            self = .same
-        } else if percentage > 0 {
-            self = .up
-        } else {
-            self = .down
-        }
-    }
-}
 
 enum CoinViewManageButtonType {
     case add
     case edit
     case info
-}
-
-struct PriceChangeView: View {
-    let priceChangeDirection: PriceChangeDirection
-    let priceChangePercentage: String
-
-    var body: some View {
-        #warning("The image from Figma contains hardcoded padding")
-        HStack(spacing: 3) {
-            Image(systemName: "triangle.fill")
-                .resizable()
-                .renderingMode(.template)
-                .frame(width: 8, height: 6)
-                .rotationEffect(priceChangeDirection.iconRotation)
-                .foregroundColor(priceChangeDirection.color)
-
-            Text(priceChangePercentage)
-                .lineLimit(1)
-                .style(Fonts.Regular.footnote, color: priceChangeDirection.color)
-        }
-    }
-}
-
-extension PriceChangeDirection {
-    var color: Color {
-        switch self {
-        case .up:
-            return Color(hex: "0099FF")!
-        case .same:
-            return Color.black
-        case .down:
-            return Color(hex: "FF3333")!
-        }
-    }
-
-    var iconRotation: Angle {
-        switch self {
-        case .up:
-            return .zero
-        case .same:
-            return Angle(degrees: 90)
-        case .down:
-            return Angle(degrees: 180)
-        }
-    }
 }
 
 struct CoinView: View {
@@ -113,8 +47,8 @@ struct CoinView: View {
                         Text(model.price)
                             .lineLimit(1)
                             .style(Fonts.Regular.footnote, color: Color(hex: "919191")!)
-
-                        PriceChangeView(priceChangeDirection: model.priceChangeDirection, priceChangePercentage: model.priceChangePercentage)
+                        
+                        TokenPriceChangeView(state: model.priceChange)
                     }
                 }
 
@@ -190,8 +124,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 name: "Bitcoin",
                 symbol: "BTC",
                 price: "$23,034.83",
-                priceChangeDirection: .up,
-                priceChangePercentage: "10.5%",
+                priceChange: .loaded(signType: .positive, text: "10.5%"),
                 manageType: .add
             ))
 //            .border(Color.blue.opacity(0.3))
@@ -201,8 +134,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 name: "Ethereum",
                 symbol: "ETH",
                 price: "$1,340.33",
-                priceChangeDirection: .down,
-                priceChangePercentage: "10.5%",
+                priceChange: .loaded(signType: .negative, text: "10.5%"),
                 manageType: .add
             ))
 
@@ -211,8 +143,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 name: "Solana",
                 symbol: "SOL",
                 price: "$33.00",
-                priceChangeDirection: .up,
-                priceChangePercentage: "1.3%",
+                priceChange: .loaded(signType: .positive, text: "1.3%"),
                 manageType: .add
             ))
 
@@ -221,8 +152,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 name: "Polygon",
                 symbol: "MATIC",
                 price: "$34.83",
-                priceChangeDirection: .same,
-                priceChangePercentage: "0.0%",
+                priceChange: .loaded(signType: .same, text: "0.0%"),
                 manageType: .edit
             ))
 
@@ -231,8 +161,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 name: "Very long token name is very long",
                 symbol: "BUS",
                 price: "$23,341,324,034.83",
-                priceChangeDirection: .up,
-                priceChangePercentage: "1,340,340.0%",
+                priceChange: .loaded(signType: .positive, text: "1,340,340.0%"),
                 manageType: .info
             ))
 
