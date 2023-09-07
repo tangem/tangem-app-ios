@@ -60,9 +60,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     func onViewAppear() {
         bind()
+        reportScreenOpened()
     }
 
     func onCancelButtonTap() {
+        Analytics.log(.organizeTokensButtonCancel)
         coordinator.didTapCancelButton()
     }
 
@@ -137,8 +139,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        onSave
+        let onSavePublisher = onSave
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
+            .share(replay: 1)
+
+        onSavePublisher
             .receive(on: mappingQueue)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, _ in
@@ -153,6 +158,18 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { viewModel, _ in
                 viewModel.coordinator.didTapSaveButton()
+            }
+            .store(in: &bag)
+
+        onSavePublisher
+            .withLatestFrom(
+                optionsProviding.sortingOption,
+                optionsProviding.groupingOption
+            )
+            .withWeakCaptureOf(self)
+            .sink { input in
+                let (viewModel, (sortingOption, groupingOption)) = input
+                viewModel.reportOnSaveButtonTap(sortingOption: sortingOption, groupingOption: groupingOption)
             }
             .store(in: &bag)
 
@@ -203,11 +220,53 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             return true
         }
     }
+
+    private func reportScreenOpened() {
+        Analytics.log(.organizeTokensScreenOpened)
+    }
+
+    private func reportOnSaveButtonTap(
+        sortingOption: UserTokensReorderingOptions.Sorting,
+        groupingOption: UserTokensReorderingOptions.Grouping
+    ) {
+        let sortTypeParameterValue: Analytics.ParameterValue
+        switch sortingOption {
+        case .dragAndDrop:
+            sortTypeParameterValue = .sortTypeManual
+        case .byBalance:
+            sortTypeParameterValue = .sortTypeByBalance
+        }
+
+        let groupTypeParameterValue = Analytics.ParameterValue.toggleState(for: groupingOption.isGrouped)
+
+        Analytics.log(
+            .organizeTokensButtonApply,
+            params: [
+                .groupType: groupTypeParameterValue,
+                .sortType: sortTypeParameterValue,
+            ]
+        )
+    }
 }
 
 // MARK: - Drag and drop support
 
 extension OrganizeTokensViewModel {
+    func indexPath(for identifier: AnyHashable) -> IndexPath? {
+        for (sectionIndex, section) in sections.enumerated() {
+            if section.id == identifier {
+                return IndexPath(item: sectionHeaderItemIndex, section: sectionIndex)
+            }
+            for (itemIndex, item) in section.items.enumerated() {
+                if item.id.asAnyHashable == identifier {
+                    return IndexPath(item: itemIndex, section: sectionIndex)
+                }
+            }
+        }
+
+        return nil
+    }
+
     func itemViewModel(for identifier: AnyHashable) -> OrganizeTokensListItemViewModel? {
         return sections
             .flatMap { $0.items }
@@ -217,10 +276,6 @@ extension OrganizeTokensViewModel {
     func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
         return sections
             .first { $0.id == identifier }
-    }
-
-    func viewModelIdentifier(at indexPath: IndexPath) -> AnyHashable {
-        return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.asAnyHashable
     }
 
     func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
@@ -249,10 +304,6 @@ extension OrganizeTokensViewModel {
         }
     }
 
-    func canStartDragAndDropSession(at indexPath: IndexPath) -> Bool {
-        return section(at: indexPath)?.isDraggable ?? itemViewModel(at: indexPath).isDraggable
-    }
-
     func onDragStart(at indexPath: IndexPath) {
         // A started drag-and-drop session always disables sorting by balance
         optionsEditing.sort(by: .dragAndDrop)
@@ -265,7 +316,7 @@ extension OrganizeTokensViewModel {
         // we must wait for this update to finish before collapsing the dragged section
         // (by calling `beginDragAndDropSession(forSectionWithIdentifier:)`), otherwise UI glitches may appear
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            self.beginDragAndDropSession(forSectionWithIdentifier: self.sections[indexPath.section].id)
+            self.beginDragAndDropSession(forSectionAtIndex: indexPath.section)
         }
     }
 
@@ -273,21 +324,19 @@ extension OrganizeTokensViewModel {
         endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded()
     }
 
-    private func beginDragAndDropSession(forSectionWithIdentifier identifier: AnyHashable) {
-        guard let index = index(forSectionWithIdentifier: identifier) else { return }
-
+    private func beginDragAndDropSession(forSectionAtIndex sectionIndex: Int) {
         assert(
             currentlyDraggedSectionIdentifier == nil,
             "Attempting to start a new drag and drop session without finishing the previous one"
         )
 
-        currentlyDraggedSectionIdentifier = identifier
-        currentlyDraggedSectionItems = sections[index].items
-        sections[index].items.removeAll()
+        currentlyDraggedSectionIdentifier = sections[sectionIndex].id
+        currentlyDraggedSectionItems = sections[sectionIndex].items
+        sections[sectionIndex].items.removeAll()
     }
 
     private func endDragAndDropSession(forSectionWithIdentifier identifier: AnyHashable) {
-        guard let index = index(forSectionWithIdentifier: identifier) else { return }
+        guard let index = indexPath(for: identifier)?.section else { return }
 
         sections[index].items = currentlyDraggedSectionItems
         currentlyDraggedSectionItems.removeAll()
@@ -296,10 +345,6 @@ extension OrganizeTokensViewModel {
     private func endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded() {
         currentlyDraggedSectionIdentifier.map(endDragAndDropSession(forSectionWithIdentifier:))
         currentlyDraggedSectionIdentifier = nil
-    }
-
-    private func index(forSectionWithIdentifier identifier: AnyHashable) -> Int? {
-        return sections.firstIndex { $0.id == identifier }
     }
 
     private func itemViewModel(at indexPath: IndexPath) -> OrganizeTokensListItemViewModel {
@@ -340,6 +385,6 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         _ controller: OrganizeTokensDragAndDropController,
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
-        return viewModelIdentifier(at: indexPath)
+        return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.asAnyHashable
     }
 }
