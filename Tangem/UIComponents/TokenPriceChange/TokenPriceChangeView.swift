@@ -36,6 +36,7 @@ struct TokenPriceChangeView: View {
 
                 Text(text)
                     .lineLimit(1)
+                    .truncationMode(.middle)
             }
             .style(Fonts.Regular.footnote, color: signType.textColor)
             .frame(minHeight: loaderSize.height)
