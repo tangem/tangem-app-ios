@@ -76,45 +76,58 @@ struct CoinView: View {
     }
 
     @ViewBuilder
-    func manageButton(for type: CoinViewManageButtonType) -> some View {
+    private func manageButton(for type: CoinViewManageButtonType) -> some View {
         ZStack {
             switch type {
             case .add:
                 Button {
                     print("add")
                 } label: {
-                    Text("Add")
-                        .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
-                        .background(Colors.Button.primary)
-                        .clipShape(Capsule())
+                    AddButtonView()
                 }
             case .edit:
                 Button {
                     print("edit")
                 } label: {
-                    Text("Edit")
-                        .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
-                        .background(Colors.Button.primary)
-                        .clipShape(Capsule())
+                    EditButtonView()
                 }
             case .info:
                 Image(systemName: "info.circle")
             }
 
-            Text("Add")
-                .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
-                .padding(.horizontal, 12)
+            AddButtonView()
                 .hidden()
 
-            Text("Edit")
-                .style(Fonts.Bold.caption1, color: Colors.Text.primary2)
-                .padding(.horizontal, 12)
+            EditButtonView()
                 .hidden()
         }
+    }
+}
+
+private struct AddButtonView: View {
+    var body: some View {
+        TextButtonView(text: "Add", foreground: Colors.Text.primary2, background: Colors.Button.primary)
+    }
+}
+
+private struct EditButtonView: View {
+    var body: some View {
+        TextButtonView(text: "Edit", foreground: Colors.Text.primary1, background: Colors.Button.secondary)
+    }
+}
+
+private struct TextButtonView: View {
+    let text: String
+    let foreground: Color
+    let background: Color
+
+    var body: some View {
+        Text(text)
+            .style(Fonts.Bold.caption1, color: foreground)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+            .background(background)
+            .clipShape(Capsule())
     }
 }
 
