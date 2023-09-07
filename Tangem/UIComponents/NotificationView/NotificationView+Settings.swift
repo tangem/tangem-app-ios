@@ -13,9 +13,10 @@ extension NotificationView {
     typealias NotificationButtonTapAction = (NotificationViewId, NotificationButtonActionType) -> Void
 
     struct Settings: Identifiable, Hashable {
-        let id: NotificationViewId = UUID().uuidString
-        let event: NotificationEvent
+        let event: any NotificationEvent
         let dismissAction: NotificationAction?
+
+        var id: NotificationViewId { event.hashValue }
 
         static func == (lhs: Settings, rhs: Settings) -> Bool {
             return lhs.id == rhs.id
