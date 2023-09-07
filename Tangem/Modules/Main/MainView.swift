@@ -30,8 +30,8 @@ struct MainView: View {
             contentFactory: { info in
                 info.body
             },
-                info.bottomOverlay
             bottomOverlayFactory: { info, didScrollToBottom in
+                info.makeBottomOverlay(didScrollToBottom: didScrollToBottom)
             },
             onPullToRefresh: viewModel.onPullToRefresh(completionHandler:)
         )
