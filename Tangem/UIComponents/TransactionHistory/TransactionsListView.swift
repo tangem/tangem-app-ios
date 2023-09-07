@@ -11,6 +11,7 @@ import SwiftUI
 struct TransactionsListView: View {
     let state: State
     let exploreAction: () -> Void
+    let exploreTransactionAction: (String) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
     let buyButtonAction: (() -> Void)?
@@ -135,8 +136,12 @@ struct TransactionsListView: View {
                     makeSectionHeader(for: item, atIndex: sectionIndex)
 
                     ForEach(item.items, id: \.id) { item in
-                        TransactionView(viewModel: item)
-                            .ios14FixedHeight(Constants.ios14ListItemHeight)
+                        Button {
+                            exploreTransactionAction(item.hash)
+                        } label: {
+                            TransactionView(viewModel: item)
+                                .ios14FixedHeight(Constants.ios14ListItemHeight)
+                        }
                     }
                 }
 
@@ -254,6 +259,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionsListView(
                     state: .notSupported,
                     exploreAction: {},
+                    exploreTransactionAction: { _ in },
                     reloadButtonAction: {},
                     isReloadButtonBusy: false,
                     buyButtonAction: {},
@@ -263,6 +269,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionsListView(
                     state: .loading,
                     exploreAction: {},
+                    exploreTransactionAction: { _ in },
                     reloadButtonAction: {},
                     isReloadButtonBusy: false,
                     buyButtonAction: {},
@@ -272,6 +279,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionsListView(
                     state: .loaded([]),
                     exploreAction: {},
+                    exploreTransactionAction: { _ in },
                     reloadButtonAction: {},
                     isReloadButtonBusy: false,
                     buyButtonAction: {},
@@ -281,6 +289,7 @@ struct TransactionsListView_Previews: PreviewProvider {
                 TransactionsListView(
                     state: .error(""),
                     exploreAction: {},
+                    exploreTransactionAction: { _ in },
                     reloadButtonAction: {},
                     isReloadButtonBusy: false,
                     buyButtonAction: {},
@@ -296,6 +305,7 @@ struct TransactionsListView_Previews: PreviewProvider {
             TransactionsListView(
                 state: .loaded(listItems),
                 exploreAction: {},
+                exploreTransactionAction: { _ in },
                 reloadButtonAction: {},
                 isReloadButtonBusy: false,
                 buyButtonAction: {},
