@@ -58,9 +58,11 @@ extension DetailsCoordinator {
 
 extension DetailsCoordinator: DetailsRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
             self?.modalOnboardingCoordinator = nil
-            self?.detailsViewModel?.didFinishOnboarding()
+            if result.isSuccessful {
+                self?.dismiss()
+            }
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
