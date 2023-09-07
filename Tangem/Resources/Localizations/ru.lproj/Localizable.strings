@@ -57,6 +57,7 @@
 "common_back" = "Назад";
 "common_balance" = "Баланс: %@";
 "common_buy" = "Купить";
+"common_buy_currency" = "Купить %1$@";
 "common_camera_alert_button_settings" = "Настройки";
 "common_camera_denied_alert_message" = "Вы не предоставили доступ к камере, пожалуйста, измените настройки конфиденциальности.";
 "common_camera_denied_alert_title" = "Доступ к камере запрещен";
