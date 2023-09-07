@@ -54,13 +54,15 @@ struct CoinView: View {
 
                 Spacer(minLength: 13)
 
-                LineChartView(
-                    color: Color(hex: "#0099FF")!,
-                    data: [1, 7, 3, 5, 13]
-                )
-                .frame(width: 50, height: 37, alignment: .center)
+                if let priceHistory = model.priceHistory {
+                    LineChartView(
+                        color: model.priceHistoryChangeType.textColor,
+                        data: priceHistory
+                    )
+                    .frame(width: 50, height: 37, alignment: .center)
+                }
 
-                Spacer(minLength: 43)
+                Spacer(minLength: 24)
 
                 manageButton(for: model.manageType)
             }
@@ -125,6 +127,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "BTC",
                 price: "$23,034.83",
                 priceChange: .loaded(signType: .positive, text: "10.5%"),
+                priceHistory: [1, 7, 3, 5, 13],
                 manageType: .add
             ))
 //            .border(Color.blue.opacity(0.3))
@@ -135,6 +138,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "ETH",
                 price: "$1,340.33",
                 priceChange: .loaded(signType: .negative, text: "10.5%"),
+                priceHistory: [1, 7, 3, 5, 13].reversed(),
                 manageType: .add
             ))
 
@@ -144,6 +148,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "SOL",
                 price: "$33.00",
                 priceChange: .loaded(signType: .positive, text: "1.3%"),
+                priceHistory: [1, 7, 3, 5, 13],
                 manageType: .add
             ))
 
@@ -153,6 +158,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "MATIC",
                 price: "$34.83",
                 priceChange: .loaded(signType: .same, text: "0.0%"),
+                priceHistory: [4, 7, 3, 5, 4],
                 manageType: .edit
             ))
 
@@ -162,7 +168,18 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 symbol: "BUS",
                 price: "$23,341,324,034.83",
                 priceChange: .loaded(signType: .positive, text: "1,340,340.0%"),
+                priceHistory: [1, 7, 3, 5, 13],
                 manageType: .info
+            ))
+            
+            CoinView(model: CoinViewModel(
+                imageURL: nil,
+                name: "Custom Token",
+                symbol: "CT",
+                price: "$100.83",
+                priceChange: .loaded(signType: .positive, text: "1.0%"),
+                priceHistory: nil,
+                manageType: .add
             ))
 
             Spacer()
