@@ -18,6 +18,7 @@ class AppSettingsViewModel: ObservableObject {
     @Published var warningViewModel: DefaultWarningRowViewModel?
     @Published var savingWalletViewModel: DefaultToggleRowViewModel?
     @Published var savingAccessCodesViewModel: DefaultToggleRowViewModel?
+    @Published var currencySelectionViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
 
@@ -44,6 +45,10 @@ class AppSettingsViewModel: ObservableObject {
         }
     }
 
+    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
+    @AppStorageCompat(StorageType.selectedCurrencyCode)
+    private var selectedCurrencyCode: String = "USD"
+
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
@@ -65,12 +70,19 @@ private extension AppSettingsViewModel {
                 self?.updateView()
             }
             .store(in: &bag)
+
+        $selectedCurrencyCode
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.setupView()
+            }
+            .store(in: &bag)
     }
 
     func isSavingWalletRequestChange(saveWallet: Bool) {
         Analytics.log(
             .saveUserWalletSwitcherChanged,
-            params: [.state: Analytics.ParameterValue.state(for: saveWallet)]
+            params: [.state: Analytics.ParameterValue.toggleState(for: saveWallet)]
         )
 
         if saveWallet {
@@ -99,7 +111,7 @@ private extension AppSettingsViewModel {
     func isSavingAccessCodesRequestChange(saveAccessCodes: Bool) {
         Analytics.log(
             .saveAccessCodeSwitcherChanged,
-            params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes)]
+            params: [.state: Analytics.ParameterValue.toggleState(for: saveAccessCodes)]
         )
 
         if saveAccessCodes {
@@ -132,6 +144,12 @@ private extension AppSettingsViewModel {
             title: Localization.appSettingsSavedAccessCodes,
             isDisabled: !isBiometryAvailable,
             isOn: isSavingAccessCodesBinding()
+        )
+
+        currencySelectionViewModel = DefaultRowViewModel(
+            title: Localization.detailsRowTitleCurrency,
+            detailsType: .text(selectedCurrencyCode),
+            action: coordinator.openCurrencySelection
         )
     }
 

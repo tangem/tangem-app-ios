@@ -25,7 +25,7 @@ struct LegacyTokenListView: View {
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
-            AlertToast(type: .complete(Color.tangemGreen), title: Localization.contractAddressCopiedMessage)
+            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.contractAddressCopiedMessage)
         }
         .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
