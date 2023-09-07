@@ -20,7 +20,6 @@ struct ResetToFactoryView: View {
             VStack(alignment: .center, spacing: 28) {
                 ZStack {
                     Assets.attentionRed.image
-                        .offset(y: 0)
                 }
                 .frame(
                     minWidth: geometry.size.width,
