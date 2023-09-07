@@ -17,14 +17,34 @@ class CoinViewModel: Identifiable, ObservableObject {
     let price: String
     let priceChange: TokenPriceChangeView.State
 
+    let priceHistory: [Double]?
+    var priceHistoryChangeType: TokenPriceChangeView.ChangeSignType {
+        guard
+            let priceHistory,
+            let firstValue = priceHistory.first,
+            let lastValue = priceHistory.last
+        else {
+            return .same
+        }
+
+        if abs(lastValue - firstValue) < .ulpOfOne {
+            return .same
+        } else if lastValue > firstValue {
+            return .positive
+        } else {
+            return .negative
+        }
+    }
+
     let manageType: CoinViewManageButtonType
 
-    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, manageType: CoinViewManageButtonType) {
+    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, priceHistory: [Double]?, manageType: CoinViewManageButtonType) {
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
         self.price = price
         self.priceChange = priceChange
+        self.priceHistory = priceHistory
         self.manageType = manageType
     }
 
