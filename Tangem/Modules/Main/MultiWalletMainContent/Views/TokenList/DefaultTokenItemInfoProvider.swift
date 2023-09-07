@@ -33,4 +33,6 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var balance: String { walletModel.balance }
 
     var fiatBalance: String { walletModel.fiatBalance }
+
+    var quote: TokenQuote? { walletModel.quote }
 }
