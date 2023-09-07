@@ -33,7 +33,7 @@ struct CardsInfoPagerContentSwitchingModifier: AnimatableModifier {
         let pageSwitchThresholdHasBeenExceeded = finalPageSwitchProgress > 0.5
 
         if pageSwitchThresholdHasBeenExceeded {
-            // Successfull navigation to the next/previous page
+            // Successful navigation to the next/previous page
             return progress > 0.5 ? finalSelectedIndex : initialSelectedIndex
         } else {
             // Page switch threshold hasn't been exceeded, restoring previously selected page
