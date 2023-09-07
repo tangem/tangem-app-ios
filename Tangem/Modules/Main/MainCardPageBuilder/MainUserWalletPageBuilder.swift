@@ -60,17 +60,17 @@ enum MainUserWalletPageBuilder: Identifiable {
     }
 
     @ViewBuilder
-    var bottomOverlay: some View {
+    func makeBottomOverlay(didScrollToBottom: Bool) -> some View {
         switch self {
         case .singleWallet:
             EmptyView()
         case .multiWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.bottomOverlayViewModel {
-                MainBottomOverlayView(viewModel: viewModel)
+            if let viewModel = bodyModel.footerViewModel {
+                MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
             }
         case .lockedWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.bottomOverlayViewModel {
-                MainBottomOverlayView(viewModel: viewModel)
+            if let viewModel = bodyModel.footerViewModel {
+                MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
             }
         }
     }
