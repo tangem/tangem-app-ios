@@ -57,6 +57,7 @@
 "common_back" = "Back";
 "common_balance" = "Bilanz: %@";
 "common_buy" = "Buy";
+"common_buy_currency" = "Buy %1$@";
 "common_camera_alert_button_settings" = "Einstellungen";
 "common_camera_denied_alert_message" = "Sie haben keinen Zugang zur Kamera erteilt, bitte passen Sie Ihre Datenschutzeinstellungen an";
 "common_camera_denied_alert_title" = "Der Kamerazugriff wurde verweigert";
