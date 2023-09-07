@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensListFooterOverlayView.swift
+//  ListFooterOverlayShadowView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct OrganizeTokensListFooterOverlayView: View {
+struct ListFooterOverlayShadowView: View {
     var body: some View {
         LinearGradient(
             colors: [
