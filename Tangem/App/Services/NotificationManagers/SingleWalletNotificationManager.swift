@@ -18,7 +18,7 @@ class SingleTokenNotificationManager {
 
     private let notificationInputs: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
-    private var rentWarningTask: Task<String?, Error>?
+    private var notificationsUpdateTask: Task<Void, Never>?
 
     init(walletModel: WalletModel, isNoteWallet: Bool) {
         self.walletModel = walletModel
@@ -66,14 +66,19 @@ class SingleTokenNotificationManager {
 
         let inputs = events.map {
             factory.buildNotificationInput(
-                for: $0) { [weak self] id, actionType in
+                for: $0,
+                buttonAction: { [weak self] id, actionType in
                     self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-                } dismissAction: { [weak self] id in
+                },
+                dismissAction: { [weak self] id in
                     self?.dismissNotification(with: id)
                 }
+            )
         }
 
-        Task { [weak self] in
+        notificationsUpdateTask?.cancel()
+
+        notificationsUpdateTask = Task { [weak self] in
             var inputs = inputs
             if let rentInput = await self?.loadRentNotificationIfNeeded() {
                 inputs.append(rentInput)
@@ -89,9 +94,12 @@ class SingleTokenNotificationManager {
         let factory = NotificationsFactory()
         notificationInputs
             .send([
-                factory.buildNotificationInput(for: .networkUnreachable, dismissAction: { [weak self] id in
-                    self?.dismissNotification(with: id)
-                }),
+                factory.buildNotificationInput(
+                    for: .networkUnreachable,
+                    dismissAction: { [weak self] id in
+                        self?.dismissNotification(with: id)
+                    }
+                ),
             ])
     }
 
@@ -110,7 +118,8 @@ class SingleTokenNotificationManager {
                     for: event,
                     buttonAction: { [weak self] id, actionType in
                         self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-                    }, dismissAction: { [weak self] id in
+                    },
+                    dismissAction: { [weak self] id in
                         self?.dismissNotification(with: id)
                     }
                 ),
@@ -120,23 +129,17 @@ class SingleTokenNotificationManager {
     private func loadRentNotificationIfNeeded() async -> NotificationViewInput? {
         guard walletModel.hasRent else { return nil }
 
-        rentWarningTask?.cancel()
-
-        rentWarningTask = Task { await walletModel.updateRentWarning().async() }
-
-        defer { rentWarningTask = nil }
-        do {
-            guard let rentMessage = try await rentWarningTask?.value else {
-                return nil
-            }
-
-            let factory = NotificationsFactory()
-            let input = factory.buildNotificationInput(for: .rentFee(rentMessage: rentMessage))
-            return input
-        } catch {
-            AppLog.shared.debug("Failed to load rent warning: \(error)")
+        guard let rentMessage = await walletModel.updateRentWarning().async() else {
             return nil
         }
+
+        if Task.isCancelled {
+            return nil
+        }
+
+        let factory = NotificationsFactory()
+        let input = factory.buildNotificationInput(for: .rentFee(rentMessage: rentMessage))
+        return input
     }
 }
 
