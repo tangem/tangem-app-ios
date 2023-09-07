@@ -48,9 +48,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         if isMultiWalletPage {
             let sectionsAdapter = makeSectionsAdapter(for: model)
+            let multiWalletNotificationManager = MultiWalletNotificationManager(walletModelsManager: model.walletModelsManager)
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
+                tokensNotificationManager: multiWalletNotificationManager,
                 coordinator: coordinator,
                 tokenSectionsAdapter: sectionsAdapter
             )
@@ -67,6 +69,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             return nil
         }
 
+        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel, isNoteWallet: true)
         let exchangeUtility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,
             address: walletModel.wallet.address,
@@ -79,9 +82,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userTokensManager: model.userTokensManager,
             exchangeUtility: exchangeUtility,
             userWalletNotificationManager: userWalletNotificationManager,
+            tokenNotificationManager: singleWalletNotificationManager,
             coordinator: coordinator
         )
         userWalletNotificationManager.setupManager()
+        singleWalletNotificationManager.setupManager(with: viewModel)
 
         return .singleWallet(
             id: id,
