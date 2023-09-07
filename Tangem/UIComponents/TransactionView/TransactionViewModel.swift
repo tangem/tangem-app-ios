@@ -10,7 +10,8 @@ import Foundation
 import SwiftUI
 
 struct TransactionViewModel: Hashable, Identifiable {
-    let id: String
+    var id: String { hash }
+    let hash: String
     private let interactionAddress: InteractionAddressType
     private let timeFormatted: String?
     private let amount: String
@@ -19,7 +20,7 @@ struct TransactionViewModel: Hashable, Identifiable {
     private let status: Status
 
     init(
-        id: String,
+        hash: String,
         interactionAddress: InteractionAddressType,
         timeFormatted: String?,
         amount: String,
@@ -27,7 +28,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         transactionType: TransactionViewModel.TransactionType,
         status: TransactionViewModel.Status
     ) {
-        self.id = id
+        self.hash = hash
         self.interactionAddress = interactionAddress
         self.timeFormatted = timeFormatted
         self.amount = amount
