@@ -15,18 +15,16 @@ class CoinViewModel: Identifiable, ObservableObject {
     let symbol: String
 
     let price: String
-    let priceChangeDirection: PriceChangeDirection
-    let priceChangePercentage: String
+    let priceChange: TokenPriceChangeView.State
 
     let manageType: CoinViewManageButtonType
 
-    init(imageURL: URL?, name: String, symbol: String, price: String, priceChangeDirection: PriceChangeDirection, priceChangePercentage: String, manageType: CoinViewManageButtonType) {
+    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, manageType: CoinViewManageButtonType) {
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
         self.price = price
-        self.priceChangeDirection = priceChangeDirection
-        self.priceChangePercentage = priceChangePercentage
+        self.priceChange = priceChange
         self.manageType = manageType
     }
 
