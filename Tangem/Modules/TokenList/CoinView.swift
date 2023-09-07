@@ -46,6 +46,7 @@ struct CoinView: View {
                     HStack(spacing: 4) {
                         Text(model.price)
                             .lineLimit(1)
+                            .truncationMode(.middle)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
                         TokenPriceChangeView(state: model.priceChange)
@@ -170,7 +171,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 name: "Polygon",
                 symbol: "MATIC",
                 price: "$34.83",
-                priceChange: .loaded(signType: .same, text: "0.0%"),
+                priceChange: .loaded(signType: .positive, text: "0.0%"),
                 priceHistory: [4, 7, 3, 5, 4],
                 manageType: .edit
             ))
@@ -180,11 +181,11 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 name: "Very long token name is very long",
                 symbol: "BUS",
                 price: "$23,341,324,034.83",
-                priceChange: .loaded(signType: .positive, text: "1,340,340.0%"),
+                priceChange: .loaded(signType: .positive, text: "1,444,340,340.0%"),
                 priceHistory: [1, 7, 3, 5, 13],
                 manageType: .info
             ))
-            
+
             CoinView(model: CoinViewModel(
                 imageURL: nil,
                 name: "Custom Token",
