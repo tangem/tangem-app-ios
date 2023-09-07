@@ -25,7 +25,7 @@ extension CardsInfoPagerView where BottomOverlay == EmptyView {
             selectedIndex: selectedIndex,
             headerFactory: headerFactory,
             contentFactory: contentFactory,
-            bottomOverlayFactory: { _ in EmptyView() },
+            bottomOverlayFactory: { _, _ in EmptyView() },
             onPullToRefresh: onPullToRefresh
         )
     }
@@ -66,7 +66,7 @@ extension CardsInfoPagerView where Data.Element: Identifiable, Data.Element.ID =
             selectedIndex: selectedIndex,
             headerFactory: headerFactory,
             contentFactory: contentFactory,
-            bottomOverlayFactory: { _ in EmptyView() },
+            bottomOverlayFactory: { _, _ in EmptyView() },
             onPullToRefresh: onPullToRefresh
         )
     }
