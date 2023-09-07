@@ -38,6 +38,11 @@ struct TokenDetailsView: View {
 
                 BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
 
+                ForEach(viewModel.tokenNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(.scaleOpacity)
+                }
+
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
@@ -54,6 +59,7 @@ struct TokenDetailsView: View {
                 bindTo: $contentOffset
             )
         }
+        .animation(.default, value: viewModel.tokenNotificationInputs)
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
