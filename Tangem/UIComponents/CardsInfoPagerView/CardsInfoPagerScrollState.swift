@@ -25,6 +25,10 @@ final class CardsInfoPagerScrollState: ObservableObject {
     var viewportSizeSubject: some Subject<CGSize, Never> { _viewportSizeSubject }
     private let _viewportSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
 
+    @Published private(set) var didScrollToBottom = false
+    var bottomContentInsetSubject: some Subject<CGFloat, Never> { _bottomContentInsetSubject }
+    private let _bottomContentInsetSubject = CurrentValueSubject<CGFloat, Never>(.zero)
+
     private var bag: Set<AnyCancellable> = []
     private var didBind = false
 
@@ -55,6 +59,22 @@ final class CardsInfoPagerScrollState: ObservableObject {
             .debounce(for: Constants.debounceInterval, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.viewportSize, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        _contentOffsetSubject
+            .removeDuplicates()
+            .combineLatest(
+                _contentSizeSubject,
+                _viewportSizeSubject,
+                _bottomContentInsetSubject
+            ) { contentOffset, contentSize, viewportSize, bottomContentInset in
+                return (contentOffset, contentSize.height - viewportSize.height + bottomContentInset)
+            }
+            .map { contentOffset, contentSizeHeight in
+                return contentOffset.y >= contentSizeHeight
+            }
+            .removeDuplicates()
+            .assign(to: \.didScrollToBottom, on: self, ownership: .weak)
             .store(in: &bag)
 
         didBind = true
