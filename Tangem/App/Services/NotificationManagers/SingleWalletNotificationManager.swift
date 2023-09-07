@@ -39,7 +39,7 @@ class SingleTokenNotificationManager {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.notificationsUpdateTask?.cancel()
-                
+
                 switch state {
                 case .failed:
                     self?.setupNetworkUnreachable()
@@ -138,7 +138,12 @@ class SingleTokenNotificationManager {
         }
 
         let factory = NotificationsFactory()
-        let input = factory.buildNotificationInput(for: .rentFee(rentMessage: rentMessage))
+        let input = factory.buildNotificationInput(
+            for: .rentFee(rentMessage: rentMessage),
+            dismissAction: { [weak self] id in
+                self?.dismissNotification(with: id)
+            }
+        )
         return input
     }
 }
