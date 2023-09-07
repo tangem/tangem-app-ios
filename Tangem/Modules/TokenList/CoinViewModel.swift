@@ -27,9 +27,7 @@ class CoinViewModel: Identifiable, ObservableObject {
             return .same
         }
 
-        if abs(lastValue - firstValue) < .ulpOfOne {
-            return .same
-        } else if lastValue > firstValue {
+        if lastValue >= firstValue {
             return .positive
         } else {
             return .negative
