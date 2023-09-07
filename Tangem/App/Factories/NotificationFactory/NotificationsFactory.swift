@@ -42,11 +42,38 @@ struct NotificationsFactory {
         )
     }
 
+    func buildNotificationInput(
+        for tokenEvent: TokenNotificationEvent,
+        buttonAction: NotificationView.NotificationButtonTapAction? = nil,
+        dismissAction: NotificationView.NotificationAction? = nil
+    ) -> NotificationViewInput {
+        return .init(
+            style: tokenNotificationStyle(for: tokenEvent, action: buttonAction),
+            settings: .init(event: tokenEvent, dismissAction: dismissAction)
+        )
+    }
+
     private func notificationStyle(for event: WarningEvent, action: @escaping NotificationView.NotificationAction) -> NotificationView.Style {
         if event.hasAction {
             return .tappable(action: action)
         } else {
             return .plain
         }
+    }
+
+    private func tokenNotificationStyle(
+        for event: TokenNotificationEvent,
+        action: NotificationView.NotificationButtonTapAction?
+    ) -> NotificationView.Style {
+        guard
+            let action,
+            let actionType = event.buttonAction
+        else {
+            return .plain
+        }
+
+        return .withButtons([
+            .init(action: action, actionType: actionType),
+        ])
     }
 }
