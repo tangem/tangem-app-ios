@@ -24,10 +24,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
 
-    var bottomOverlayViewModel: MainBottomOverlayViewModel? {
+    var footerViewModel: MainFooterViewModel? {
         guard canManageTokens else { return nil }
 
-        return MainBottomOverlayViewModel(
+        return MainFooterViewModel(
             isButtonDisabled: false,
             buttonTitle: Localization.mainManageTokens,
             buttonAction: openManageTokens
