@@ -17,14 +17,10 @@ struct ResetToFactoryView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(alignment: .center, spacing: 0) {
+            VStack(alignment: .center, spacing: 28) {
                 ZStack {
-                    Assets.attentionBg.image
-                        .resizable()
-                        .fixedSize(horizontal: false, vertical: true)
-
                     Assets.attentionRed.image
-                        .offset(y: 30)
+                        .offset(y: 0)
                 }
                 .frame(
                     minWidth: geometry.size.width,
@@ -44,8 +40,6 @@ struct ResetToFactoryView: View {
 
     private var informationViews: some View {
         VStack {
-            Spacer()
-
             mainInformationView
                 .layoutPriority(1)
 
@@ -64,7 +58,7 @@ struct ResetToFactoryView: View {
             Text(viewModel.message)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 46)
         }
     }
 
