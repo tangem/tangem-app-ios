@@ -19,14 +19,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
     @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
     @Published var notificationInputs: [NotificationViewInput] = []
+    @Published var tokensNotificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
 
-    var bottomOverlayViewModel: MainBottomOverlayViewModel? {
+    var footerViewModel: MainFooterViewModel? {
         guard canManageTokens else { return nil }
 
-        return MainBottomOverlayViewModel(
+        return MainFooterViewModel(
             isButtonDisabled: false,
             buttonTitle: Localization.mainManageTokens,
             buttonAction: openManageTokens
@@ -48,9 +49,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
+    private let tokensNotificationManager: NotificationManager
     private unowned let coordinator: MultiWalletMainContentRoutable
     private let tokenSectionsAdapter: TokenSectionsAdapter
-    private let canManageTokens: Bool // [REDACTED_TODO_COMMENT]
+    private var canManageTokens: Bool { userWalletModel.isMultiWallet }
 
     private var cachedTokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
 
@@ -65,15 +67,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
+        tokensNotificationManager: NotificationManager,
         coordinator: MultiWalletMainContentRoutable,
-        tokenSectionsAdapter: TokenSectionsAdapter,
-        canManageTokens: Bool
+        tokenSectionsAdapter: TokenSectionsAdapter
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
+        self.tokensNotificationManager = tokensNotificationManager
         self.coordinator = coordinator
         self.tokenSectionsAdapter = tokenSectionsAdapter
-        self.canManageTokens = canManageTokens
 
         setup()
     }
@@ -111,11 +113,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
     }
 
-    func openOrganizeTokens() {
-        coordinator.openOrganizeTokens(for: userWalletModel)
+    func onOpenOrganizeTokensButtonTap() {
+        Analytics.log(.buttonOrganizeTokens)
+        openOrganizeTokens()
     }
 
-    // [REDACTED_TODO_COMMENT]
     func openManageTokens() {
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
 
@@ -181,6 +183,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        tokensNotificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -270,6 +278,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let factory = NotificationsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
+    }
+
+    private func openOrganizeTokens() {
+        coordinator.openOrganizeTokens(for: userWalletModel)
     }
 }
 
