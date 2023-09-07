@@ -95,13 +95,11 @@ struct OrganizeTokensView: View {
 
     var body: some View {
         ZStack {
-            Group {
-                tokenList
+            tokenList
 
-                tokenListHeader
+            tokenListHeader
 
-                tokenListFooter
-            }
+            tokenListFooter
         }
         .background(
             Colors.Background.secondary
