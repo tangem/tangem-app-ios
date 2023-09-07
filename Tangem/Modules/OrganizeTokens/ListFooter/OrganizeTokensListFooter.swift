@@ -55,7 +55,7 @@ struct OrganizeTokensListFooter: View {
             }
         }
         .background(
-            OrganizeTokensListFooterOverlayView()
+            ListFooterOverlayShadowView()
                 .padding(.top, overlayViewTopPadding)
                 .hidden(isTokenListFooterGradientHidden)
         )
