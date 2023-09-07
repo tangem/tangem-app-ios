@@ -1,5 +1,5 @@
 //
-//  MainBottomOverlayView.swift
+//  MainFooterView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct MainBottomOverlayView: View {
-    let viewModel: MainBottomOverlayViewModel
+struct MainFooterView: View {
+    let viewModel: MainFooterViewModel
 
     let didScrollToBottom: Bool
 
