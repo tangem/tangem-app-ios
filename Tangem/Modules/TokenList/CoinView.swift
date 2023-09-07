@@ -46,8 +46,8 @@ struct CoinView: View {
                     HStack(spacing: 4) {
                         Text(model.price)
                             .lineLimit(1)
-                            .style(Fonts.Regular.footnote, color: Color(hex: "919191")!)
-                        
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
                         TokenPriceChangeView(state: model.priceChange)
                     }
                 }
