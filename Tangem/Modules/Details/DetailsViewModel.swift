@@ -13,6 +13,11 @@ import TangemSdk
 import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
+    // MARK: - Injected
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+
     // MARK: - View State
 
     @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
@@ -22,6 +27,7 @@ class DetailsViewModel: ObservableObject {
     @Published var legalSectionViewModel: DefaultRowViewModel?
     @Published var environmentSetupViewModel: DefaultRowViewModel?
     @Published var alert: AlertBinder?
+    @Published var showTroubleshootingView: Bool = false
 
     var canCreateBackup: Bool {
         !userWalletModel.config.getFeatureAvailability(.backup).isHidden
@@ -51,6 +57,7 @@ class DetailsViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
+    @Published var isScanning: Bool = false
 
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
@@ -69,10 +76,6 @@ class DetailsViewModel: ObservableObject {
         if let backupInput = userWalletModel.backupInput {
             openOnboarding(with: backupInput)
         }
-    }
-
-    func didFinishOnboarding() {
-        setupView()
     }
 }
 
@@ -165,6 +168,16 @@ extension DetailsViewModel {
     func onAppear() {
         Analytics.log(.settingsScreenOpened)
     }
+
+    func tryAgain() {
+        addNewUserWallet()
+    }
+
+    func requestSupport() {
+        Analytics.log(.buttonRequestSupport)
+        failedCardScanTracker.resetCounter()
+        coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient, emailType: .failedToScanCard)
+    }
 }
 
 // MARK: - Private
@@ -249,6 +262,14 @@ extension DetailsViewModel {
     func setupCommonSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = []
 
+        if FeatureProvider.isAvailable(.mainV2) {
+            viewModels.append(DefaultRowViewModel(
+                title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
+                detailsType: isScanning ? .loader : .none,
+                action: isScanning ? nil : addNewUserWallet
+            ))
+        }
+
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
                 title: Localization.detailsRowTitleCreateBackup,
@@ -257,5 +278,36 @@ extension DetailsViewModel {
         }
 
         commonSectionViewModels = viewModels
+    }
+
+    func addNewUserWallet() {
+        Analytics.beginLoggingCardScan(source: .myWalletsNewCard)
+
+        isScanning = true
+        setupCommonSectionViewModels()
+
+        userWalletRepository.add { [weak self] result in
+            guard let self, let result else {
+                return
+            }
+
+            isScanning = false
+            setupCommonSectionViewModels()
+
+            switch result {
+            case .troubleshooting:
+                showTroubleshootingView = true
+            case .onboarding(let input):
+                coordinator.openOnboardingModal(with: input)
+            case .error(let error):
+                if let userWalletRepositoryError = error as? UserWalletRepositoryError {
+                    alert = userWalletRepositoryError.alertBinder
+                } else {
+                    alert = error.alertBinder
+                }
+            case .success, .partial:
+                coordinator.dismiss()
+            }
+        }
     }
 }
