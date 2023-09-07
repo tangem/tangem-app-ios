@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol NotificationEvent {
+protocol NotificationEvent: Hashable {
     var title: String { get }
     var description: String? { get }
     var colorScheme: NotificationView.ColorScheme { get }
