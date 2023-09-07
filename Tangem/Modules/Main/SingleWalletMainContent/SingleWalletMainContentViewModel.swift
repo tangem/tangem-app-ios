@@ -29,6 +29,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
+        tokenNotificationManager: NotificationManager,
         coordinator: SingleWalletMainContentRoutable
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
@@ -39,6 +40,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             walletModel: walletModel,
             userTokensManager: userTokensManager,
             exchangeUtility: exchangeUtility,
+            notificationManager: tokenNotificationManager,
             coordinator: coordinator
         )
 
