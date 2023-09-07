@@ -38,6 +38,8 @@ class SingleTokenNotificationManager {
             .walletDidChangePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
+                self?.notificationsUpdateTask?.cancel()
+                
                 switch state {
                 case .failed:
                     self?.setupNetworkUnreachable()
@@ -75,8 +77,6 @@ class SingleTokenNotificationManager {
                 }
             )
         }
-
-        notificationsUpdateTask?.cancel()
 
         notificationsUpdateTask = Task { [weak self] in
             var inputs = inputs
