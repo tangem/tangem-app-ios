@@ -57,6 +57,7 @@
 "common_back" = "返回";
 "common_balance" = "餘額: %@";
 "common_buy" = "購買";
+"common_buy_currency" = "Buy %1$@";
 "common_camera_alert_button_settings" = "設定";
 "common_camera_denied_alert_message" = "您尚未授予相機訪問權限，請更改您的隱私設置";
 "common_camera_denied_alert_title" = "相機存取權遭拒";
