@@ -23,8 +23,6 @@ struct CoinView: View {
 
     @State private var isExpanded = false
 
-    private var symbolFormatted: String { " \(model.symbol)" }
-
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
@@ -36,7 +34,7 @@ struct CoinView: View {
                         Text(model.name)
                             .lineLimit(1)
 
-                        Text(symbolFormatted)
+                        Text(model.symbol)
                             .lineLimit(1)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     }
