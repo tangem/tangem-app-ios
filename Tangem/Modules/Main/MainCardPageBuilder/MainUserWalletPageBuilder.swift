@@ -65,12 +65,12 @@ enum MainUserWalletPageBuilder: Identifiable {
         case .singleWallet:
             EmptyView()
         case .multiWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.bottomOverlayViewModel {
-                MainBottomOverlayView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
+            if let viewModel = bodyModel.footerViewModel {
+                MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
             }
         case .lockedWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.bottomOverlayViewModel {
-                MainBottomOverlayView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
+            if let viewModel = bodyModel.footerViewModel {
+                MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
             }
         }
     }
