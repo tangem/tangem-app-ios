@@ -28,6 +28,7 @@ struct SingleWalletMainContentView: View {
             TransactionsListView(
                 state: viewModel.transactionHistoryState,
                 exploreAction: viewModel.openExplorer,
+                exploreTransactionAction: viewModel.openTransactionExplorer,
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
                 buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
