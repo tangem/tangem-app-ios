@@ -91,7 +91,9 @@ struct CoinView: View {
                     EditButtonView()
                 }
             case .info:
-                Image(systemName: "info.circle")
+                Assets.infoIconMini.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
             }
 
             AddButtonView()
