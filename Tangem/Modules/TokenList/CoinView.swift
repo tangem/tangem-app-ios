@@ -27,7 +27,7 @@ struct CoinView: View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
                 IconView(url: model.imageURL, size: CGSize(width: iconWidth, height: iconWidth), forceKingfisher: true)
-                    .padding(.trailing, 14)
+                    .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 4) {
@@ -51,7 +51,7 @@ struct CoinView: View {
                     }
                 }
 
-                Spacer(minLength: 13)
+                Spacer(minLength: 24)
 
                 if let priceHistory = model.priceHistory {
                     LineChartView(
@@ -59,9 +59,9 @@ struct CoinView: View {
                         data: priceHistory
                     )
                     .frame(width: 50, height: 37, alignment: .center)
+                    .padding(.trailing, 24)
                 }
 
-                Spacer(minLength: 24)
 
                 manageButton(for: model.manageType)
             }
