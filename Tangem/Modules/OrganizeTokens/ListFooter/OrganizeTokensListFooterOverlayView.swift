@@ -19,7 +19,6 @@ struct OrganizeTokensListFooterOverlayView: View {
             endPoint: .bottom
         )
         .allowsHitTesting(false)
-        .infinityFrame(alignment: .top)
         .ignoresSafeArea(edges: .bottom)
     }
 }
