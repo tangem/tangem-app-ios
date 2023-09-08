@@ -1,5 +1,5 @@
 //
-//  SendCoordinatorView.swift
+//  LegacySendCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import SwiftUI
 
-struct SendCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: SendCoordinator
+struct LegacySendCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: LegacySendCoordinator
 
     var body: some View {
         ZStack {
             if let model = coordinator.sendViewModel {
-                SendView(viewModel: model)
+                LegacySendView(viewModel: model)
             }
 
             sheets
