@@ -28,7 +28,12 @@ class DetailsViewModel: ObservableObject {
     @Published var environmentSetupViewModel: DefaultRowViewModel?
     @Published var alert: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
-    @Published var isScanning: Bool = false
+
+    private var isScanning: Bool = false {
+        didSet {
+            setupCommonSectionViewModels()
+        }
+    }
 
     var canCreateBackup: Bool {
         !userWalletModel.config.getFeatureAvailability(.backup).isHidden
@@ -265,8 +270,8 @@ extension DetailsViewModel {
         if FeatureProvider.isAvailable(.mainV2) {
             viewModels.append(DefaultRowViewModel(
                 title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-                detailsType: /* isScanning ? .loader : */ .none,
-                action: /* isScanning ? nil : */ addNewUserWallet
+                detailsType: isScanning ? .loader : .none,
+                action: isScanning ? nil : addNewUserWallet
             ))
         }
 
@@ -282,19 +287,18 @@ extension DetailsViewModel {
 
     func addNewUserWallet() {
         Analytics.beginLoggingCardScan(source: .myWalletsNewCard)
-
         isScanning = true
-        setupCommonSectionViewModels()
 
         userWalletRepository.add { [weak self] result in
-            guard let self, let result else {
+            guard let self else {
                 return
             }
 
             isScanning = false
-            setupCommonSectionViewModels()
 
             switch result {
+            case .none:
+                break
             case .troubleshooting:
                 showTroubleshootingView = true
             case .onboarding(let input):
