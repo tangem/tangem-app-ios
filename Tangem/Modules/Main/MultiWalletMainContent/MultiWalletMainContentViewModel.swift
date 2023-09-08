@@ -50,8 +50,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
-    private unowned let coordinator: MultiWalletMainContentRoutable
     private let tokenSectionsAdapter: TokenSectionsAdapter
+    private unowned let coordinator: MultiWalletMainContentRoutable
+    private let tokenRouter: SingleTokenRoutable
+
     private var canManageTokens: Bool { userWalletModel.isMultiWallet }
 
     private var cachedTokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
@@ -69,13 +71,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         coordinator: MultiWalletMainContentRoutable,
-        tokenSectionsAdapter: TokenSectionsAdapter
+        tokenSectionsAdapter: TokenSectionsAdapter,
+        tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
         self.coordinator = coordinator
         self.tokenSectionsAdapter = tokenSectionsAdapter
+        self.tokenRouter = tokenRouter
 
         setup()
     }
@@ -116,21 +120,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     func onOpenOrganizeTokensButtonTap() {
         Analytics.log(.buttonOrganizeTokens)
         openOrganizeTokens()
-    }
-
-    func openManageTokens() {
-        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
-
-        let settings = LegacyManageTokensSettings(
-            supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
-            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
-            derivationStyle: userWalletModel.config.derivationStyle,
-            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
-        )
-
-        coordinator.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
     }
 
     private func setup() {
@@ -279,11 +268,32 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let factory = NotificationsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
     }
+}
+
+// MARK: Navigation
+
+extension MultiWalletMainContentViewModel {
+    func openManageTokens() {
+        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+
+        let settings = LegacyManageTokensSettings(
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
+            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
+            derivationStyle: userWalletModel.config.derivationStyle,
+            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
+            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
+        )
+
+        coordinator.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
+    }
 
     private func openOrganizeTokens() {
         coordinator.openOrganizeTokens(for: userWalletModel)
     }
 }
+
+// MARK: - Notification tap delegate
 
 extension MultiWalletMainContentViewModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId) {
