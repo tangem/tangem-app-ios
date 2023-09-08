@@ -46,21 +46,28 @@ struct UnlockUserWalletBottomSheetView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 10)
         .alert(item: $viewModel.error) { $0.alert }
+        .background(
+            ScanTroubleshootingView(
+                isPresented: $viewModel.showTroubleshootingView,
+                tryAgainAction: viewModel.unlockWithCard,
+                requestSupportAction: viewModel.requestSupport
+            )
+        )
     }
 }
 
 struct UnlockUserWalletBottomSheetView_Previews: PreviewProvider {
     class FakeUnlockUserWalletDelegate: UnlockUserWalletBottomSheetDelegate {
+        func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+            print("Open mail")
+        }
+
         func unlockedWithBiometry() {
             print("Unlocked with biometry")
         }
 
         func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
             print("Unlocked with card: \(userWalletModel.userWalletId.stringValue)")
-        }
-
-        func showTroubleshooting() {
-            print("Request troubleshooting")
         }
     }
 
