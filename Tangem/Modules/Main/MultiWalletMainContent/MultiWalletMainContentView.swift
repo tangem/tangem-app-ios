@@ -126,7 +126,8 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
-            tokenSectionsAdapter: tokenSectionsAdapter
+            tokenSectionsAdapter: tokenSectionsAdapter,
+            tokenRouter: SingleTokenRoutableMock()
         )
     }()
 
