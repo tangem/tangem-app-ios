@@ -242,6 +242,7 @@ extension SingleTokenBaseViewModel {
         case .receive: return openReceive
         case .exchange: return openExchange
         case .sell: return openSell
+        case .copyAddress, .hide: return nil
         }
     }
 }
