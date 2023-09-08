@@ -28,6 +28,7 @@ class DetailsViewModel: ObservableObject {
     @Published var environmentSetupViewModel: DefaultRowViewModel?
     @Published var alert: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
+    @Published var isScanning: Bool = false
 
     var canCreateBackup: Bool {
         !userWalletModel.config.getFeatureAvailability(.backup).isHidden
@@ -57,7 +58,6 @@ class DetailsViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
-    @Published var isScanning: Bool = false
 
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
@@ -265,8 +265,8 @@ extension DetailsViewModel {
         if FeatureProvider.isAvailable(.mainV2) {
             viewModels.append(DefaultRowViewModel(
                 title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-                detailsType: isScanning ? .loader : .none,
-                action: isScanning ? nil : addNewUserWallet
+                detailsType: /* isScanning ? .loader : */ .none,
+                action: /* isScanning ? nil : */ addNewUserWallet
             ))
         }
 
