@@ -27,7 +27,6 @@ class SingleTokenRouter: SingleTokenRoutable {
 
     private let userWalletModel: UserWalletModel
     private let coordinator: SingleTokenBaseRoutable
-    private let errorAlertSubject: PassthroughSubject<AlertBinder?, Never> = .init()
 
     init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable) {
         self.userWalletModel = userWalletModel
