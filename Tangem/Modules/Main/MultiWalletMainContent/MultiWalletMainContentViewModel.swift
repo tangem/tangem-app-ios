@@ -24,6 +24,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
 
+    weak var delegate: MultiWalletContentDelegate?
+
     var footerViewModel: MainFooterViewModel? {
         guard canManageTokens else { return nil }
 
@@ -120,6 +122,58 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     func onOpenOrganizeTokensButtonTap() {
         Analytics.log(.buttonOrganizeTokens)
         openOrganizeTokens()
+    }
+
+    func contextActions(for tokenItem: TokenItemViewModel) -> [TokenActionType] {
+        guard
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+        else {
+            return []
+        }
+
+        let actionsBuilder = TokenActionListBuilder()
+        let utility = ExchangeCryptoUtility(
+            blockchain: walletModel.blockchainNetwork.blockchain,
+            address: walletModel.defaultAddress,
+            amountType: walletModel.amountType
+        )
+        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
+        var actions = actionsBuilder.buildActions(canExchange: canExchange, exchangeUtility: utility)
+        actions.insert(.copyAddress, at: 0)
+
+        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
+            actions.append(.hide)
+        }
+
+        return actions
+    }
+
+    func didTapContextAction(_ action: TokenActionType, for tokenItem: TokenItemViewModel) {
+        guard
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+        else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            switch action {
+            case .buy:
+                self.tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
+            case .send:
+                self.tokenRouter.openSend(walletModel: walletModel)
+            case .receive:
+                self.tokenRouter.openReceive(walletModel: walletModel)
+            case .sell:
+                self.tokenRouter.openSell(for: walletModel)
+            case .copyAddress:
+                UIPasteboard.general.string = walletModel.defaultAddress
+                self.delegate?.displayAddressCopiedToast()
+            case .hide:
+                self.userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+            case .exchange:
+                return
+            }
+        }
     }
 
     private func setup() {
