@@ -11,11 +11,9 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 import TangemSwapping
+import CombineExt
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
-    @Injected(\.keysManager) var keysManager: KeysManager
-    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
@@ -30,11 +28,11 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     let userWalletModel: UserWalletModel
     let walletModel: WalletModel
-    let userTokensManager: UserTokensManager
 
     var availableActions: [TokenActionType] = []
 
-    private unowned let coordinator: SingleTokenBaseRoutable
+    private let tokenRouter: SingleTokenRoutable
+
     private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
@@ -57,17 +55,15 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
-        userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
-        coordinator: SingleTokenBaseRoutable
+        tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
-        self.userTokensManager = userTokensManager
         self.exchangeUtility = exchangeUtility
         self.notificationManager = notificationManager
-        self.coordinator = coordinator
+        self.tokenRouter = tokenRouter
 
         prepareSelf()
     }
@@ -128,33 +124,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             break
         }
     }
-
-    private func openBuy() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
-        if let token = amountType.token, blockchain == .ethereum(testnet: true) {
-            testnetBuyCryptoService.buyCrypto(.erc20Token(
-                token,
-                walletModel: walletModel,
-                signer: userWalletModel.signer
-            ))
-            return
-        }
-
-        guard let url = exchangeUtility.buyURL else { return }
-
-        coordinator.openBuyCrypto(at: url, closeUrl: exchangeUtility.buyCryptoCloseURL) { [weak self] _ in
-            guard let self else { return }
-            Analytics.log(event: .tokenBought, params: [.token: currencySymbol])
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.walletModel.update(silent: true)
-            }
-        }
-    }
 }
 
 // MARK: - Setup functions
@@ -195,6 +164,11 @@ extension SingleTokenBaseViewModel {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        tokenRouter.errorAlertPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.alert, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -276,117 +250,31 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     func openReceive() {
-        Analytics.log(event: .buttonReceive, params: [.token: currencySymbol])
-
-        let infos = walletModel.wallet.addresses.map { address in
-            ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
-        }
-        coordinator.openReceiveScreen(amountType: amountType, blockchain: blockchain, addressInfos: infos)
+        tokenRouter.openReceive(walletModel: walletModel)
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(event: .buttonBuy, params: [.token: currencySymbol])
-        if tangemApiService.geoIpRegionCode == LanguageCode.ru {
-            coordinator.openBankWarning { [weak self] in
-                self?.openBuy()
-            } declineCallback: { [weak self] in
-                self?.coordinator.openP2PTutorial()
-            }
-        } else {
-            openBuy()
-        }
+        tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
     }
 
     func openSend() {
-        guard
-            let amountToSend = walletModel.wallet.amounts[amountType],
-            // [REDACTED_TODO_COMMENT]
-            let cardViewModel = userWalletModel as? CardViewModel
-        else { return }
-
-        Analytics.log(event: .buttonSend, params: [.token: currencySymbol])
-        coordinator.openSend(
-            amountToSend: amountToSend,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
+        tokenRouter.openSend(walletModel: walletModel)
     }
 
     func openExchange() {
-        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
-
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
-        guard
-            let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: amountType, in: blockchain),
-            let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
-            let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
-        else { return }
-
-        var referrer: SwappingReferrerAccount?
-
-        if let account = keysManager.swapReferrerAccount {
-            referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
-        }
-
-        let input = CommonSwappingModulesFactory.InputModel(
-            userTokensManager: userTokensManager,
-            wallet: walletModel.wallet,
-            blockchainNetwork: walletModel.blockchainNetwork,
-            sender: walletModel.transactionSender,
-            signer: userWalletModel.signer,
-            transactionCreator: walletModel.transactionCreator,
-            ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionProcessor: ethereumTransactionProcessor,
-            logger: AppLog.shared,
-            referrer: referrer,
-            source: sourceCurrency,
-            walletModelTokens: userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
-        )
-
-        coordinator.openSwapping(input: input)
+        tokenRouter.openExchange(walletModel: walletModel)
     }
 
     func openSell() {
-        Analytics.log(event: .buttonSell, params: [.token: currencySymbol])
-
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
-        guard let url = exchangeUtility.sellURL else {
-            return
-        }
-
-        coordinator.openSellCrypto(at: url, sellRequestUrl: exchangeUtility.sellCryptoCloseURL) { [weak self] response in
-            if let request = self?.exchangeUtility.extractSellCryptoRequest(from: response) {
-                self?.openSendToSell(with: request)
-            }
-        }
+        tokenRouter.openSell(for: walletModel)
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        // [REDACTED_TODO_COMMENT]
-        guard let cardViewModel = userWalletModel as? CardViewModel else {
-            return
-        }
-
-        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
-        coordinator.openSendToSell(
-            amountToSend: amount,
-            destination: request.targetAddress,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
+        tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
     func openExplorer(at url: URL) {
-        Analytics.log(event: .buttonExplore, params: [.token: currencySymbol])
-        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
+        tokenRouter.openExplorer(at: url, for: walletModel)
     }
 }
 
