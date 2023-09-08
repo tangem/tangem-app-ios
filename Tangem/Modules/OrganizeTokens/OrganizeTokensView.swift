@@ -268,12 +268,13 @@ struct OrganizeTokensView: View {
             viewModel: viewModel,
             isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
             cornerRadius: Constants.contentCornerRadius,
+            topInset: Constants.contentVerticalInset,
             horizontalInset: Constants.contentHorizontalInset
         )
         .animation(.linear(duration: 0.1), value: isTokenListFooterGradientHidden)
         .readGeometry(inCoordinateSpace: .global) { geometryInfo in
-            $tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
-            $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height + Constants.contentVerticalInset
+            $tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY + Constants.contentVerticalInset
+            $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
         }
         .infinityFrame(alignment: .bottom)
     }
