@@ -155,24 +155,22 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            switch action {
-            case .buy:
-                self.tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
-            case .send:
-                self.tokenRouter.openSend(walletModel: walletModel)
-            case .receive:
-                self.tokenRouter.openReceive(walletModel: walletModel)
-            case .sell:
-                self.tokenRouter.openSell(for: walletModel)
-            case .copyAddress:
-                UIPasteboard.general.string = walletModel.defaultAddress
-                self.delegate?.displayAddressCopiedToast()
-            case .hide:
-                self.userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
-            case .exchange:
-                return
-            }
+        switch action {
+        case .buy:
+            openBuy(for: walletModel)
+        case .send:
+            tokenRouter.openSend(walletModel: walletModel)
+        case .receive:
+            tokenRouter.openReceive(walletModel: walletModel)
+        case .sell:
+            openSell(for: walletModel)
+        case .copyAddress:
+            UIPasteboard.general.string = walletModel.defaultAddress
+            delegate?.displayAddressCopiedToast()
+        case .hide:
+            userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        case .exchange:
+            return
         }
     }
 
@@ -344,6 +342,24 @@ extension MultiWalletMainContentViewModel {
 
     private func openOrganizeTokens() {
         coordinator.openOrganizeTokens(for: userWalletModel)
+    }
+
+    private func openBuy(for walletModel: WalletModel) {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
+    }
+
+    private func openSell(for walletModel: WalletModel) {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        tokenRouter.openSell(for: walletModel)
     }
 }
 
