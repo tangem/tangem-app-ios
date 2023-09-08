@@ -22,6 +22,7 @@ final class MainViewModel: ObservableObject {
     @Published var errorAlert: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
     @Published var showingDeleteConfirmation = false
+    @Published var showAddressCopiedToast = false
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
 
@@ -42,7 +43,11 @@ final class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
-        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models, lockedUserWalletDelegate: self)
+        pages = mainUserWalletPageBuilderFactory.createPages(
+            from: userWalletRepository.models,
+            lockedUserWalletDelegate: self,
+            multiWalletContentDelegate: self
+        )
         bind()
     }
 
@@ -178,7 +183,13 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        guard let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self) else {
+        guard
+            let newPage = mainUserWalletPageBuilderFactory.createPage(
+                for: userWalletModel,
+                lockedUserWalletDelegate: self,
+                multiWalletContentDelegate: self
+            )
+        else {
             return
         }
 
@@ -194,7 +205,11 @@ final class MainViewModel: ObservableObject {
     }
 
     private func recreatePages() {
-        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models, lockedUserWalletDelegate: self)
+        pages = mainUserWalletPageBuilderFactory.createPages(
+            from: userWalletRepository.models,
+            lockedUserWalletDelegate: self,
+            multiWalletContentDelegate: self
+        )
     }
 
     // MARK: - Private functions
@@ -276,7 +291,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
         guard
             let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }),
-            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self)
+            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self, multiWalletContentDelegate: self)
         else {
             return
         }
@@ -290,5 +305,11 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.showTroubleshootingView = true
         }
+    }
+}
+
+extension MainViewModel: MultiWalletContentDelegate {
+    func displayAddressCopiedToast() {
+        showAddressCopiedToast = true
     }
 }
