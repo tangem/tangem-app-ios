@@ -18,7 +18,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
-    private unowned let singleWalletCoordinator: SingleWalletMainContentRoutable
 
     private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
@@ -26,22 +25,19 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
-        userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
-        coordinator: SingleWalletMainContentRoutable
+        tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
-        singleWalletCoordinator = coordinator
 
         super.init(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            userTokensManager: userTokensManager,
             exchangeUtility: exchangeUtility,
             notificationManager: tokenNotificationManager,
-            coordinator: coordinator
+            tokenRouter: tokenRouter
         )
 
         bind()
