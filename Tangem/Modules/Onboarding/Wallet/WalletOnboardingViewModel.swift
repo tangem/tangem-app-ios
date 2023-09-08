@@ -837,8 +837,8 @@ extension WalletOnboardingViewModel {
         default:
             websiteLanguageCode = LanguageCode.en
         }
-
-        let url = URL(string: "https://tangem.com/\(websiteLanguageCode)/blog/post/seed-phrase-a-risky-solution/")!
+        let baseUrl = AppEnvironment.current.tangemComBaseUrl
+        let url = baseUrl.appendingPathComponent("seed-phrase-\(websiteLanguageCode).html")
         coordinator.openWebView(with: url)
         Analytics.log(.onboardingSeedButtonReadMore)
     }
