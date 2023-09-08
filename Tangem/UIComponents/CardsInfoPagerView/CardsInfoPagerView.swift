@@ -13,7 +13,7 @@ struct CardsInfoPagerView<
 >: View where Data: RandomAccessCollection, ID: Hashable, Header: View, Body: View, BottomOverlay: View, Data.Index == Int {
     typealias HeaderFactory = (_ element: Data.Element) -> Header
     typealias ContentFactory = (_ element: Data.Element) -> Body
-    typealias BottomOverlayFactory = (_ element: Data.Element) -> BottomOverlay
+    typealias BottomOverlayFactory = (_ element: Data.Element, _ didScrollToBottom: Bool) -> BottomOverlay
     typealias OnPullToRefresh = OnRefresh
     typealias OnPageChange = (_ pageChangeReason: CardsInfoPageChangeReason) -> Void
 
@@ -133,37 +133,42 @@ struct CardsInfoPagerView<
 
     var body: some View {
         GeometryReader { proxy in
-            makeScrollView(with: proxy)
-                .onAppear {
-                    // `DispatchQueue.main.async` used here to allow publishing changes during view updates
-                    DispatchQueue.main.async {
-                        // Applying initial view's state based on the initial value of `selectedIndex`
-                        cumulativeHorizontalTranslation = -CGFloat(selectedIndex) * proxy.size.width
+            ZStack(alignment: .bottom) {
+                makeScrollView(with: proxy)
+                    .onAppear {
+                        // `DispatchQueue.main.async` used here to allow publishing changes during view updates
+                        DispatchQueue.main.async {
+                            // Applying initial view's state based on the initial value of `selectedIndex`
+                            cumulativeHorizontalTranslation = -CGFloat(selectedIndex) * proxy.size.width
+                        }
+                        scrollDetector.startDetectingScroll()
+                        scrollState.onViewAppear()
                     }
-                    scrollDetector.startDetectingScroll()
-                    scrollState.onViewAppear()
-                }
-                .onDisappear(perform: scrollDetector.stopDetectingScroll)
-                .onReceive(scrollState.contentOffsetSubject) { _ in
-                    // Vertical scrolling may delay or even cancel horizontal scroll animations,
-                    // which in turn may lead to desynchronization between `selectedIndex` and
-                    // `contentSelectedIndex` properties.
-                    // Therefore, we sync them forcefully when vertical scrolling starts.
-                    synchronizeContentSelectedIndexIfNeeded()
-                }
-                .onChange(of: externalSelectedIndex) { newValue in
-                    // Synchronizing external and private selected indices if needed
-                    if newValue != selectedIndex {
-                        switchPageProgrammatically(to: newValue, geometryProxy: proxy)
+                    .onDisappear(perform: scrollDetector.stopDetectingScroll)
+                    .onReceive(scrollState.contentOffsetSubject) { _ in
+                        // Vertical scrolling may delay or even cancel horizontal scroll animations,
+                        // which in turn may lead to desynchronization between `selectedIndex` and
+                        // `contentSelectedIndex` properties.
+                        // Therefore, we sync them forcefully when vertical scrolling starts.
+                        synchronizeContentSelectedIndexIfNeeded()
                     }
-                }
-                .onChange(of: data.count) { newValue in
-                    // Handling edge cases when the very last page is selected and that page is being deleted
-                    let clampedSelectedIndex = clamp(selectedIndex, min: selectedIndexLowerBound, max: newValue - 1)
-                    if selectedIndex < clampedSelectedIndex || selectedIndex > clampedSelectedIndex {
-                        switchPageProgrammatically(to: clampedSelectedIndex, geometryProxy: proxy)
+                    .onChange(of: externalSelectedIndex) { newValue in
+                        // Synchronizing external and private selected indices if needed
+                        if newValue != selectedIndex {
+                            switchPageProgrammatically(to: newValue, geometryProxy: proxy)
+                        }
                     }
-                }
+                    .onChange(of: data.count) { newValue in
+                        // Handling edge cases when the very last page is selected and that page is being deleted
+                        let clampedSelectedIndex = clamp(selectedIndex, min: selectedIndexLowerBound, max: newValue - 1)
+                        if selectedIndex < clampedSelectedIndex || selectedIndex > clampedSelectedIndex {
+                            switchPageProgrammatically(to: clampedSelectedIndex, geometryProxy: proxy)
+                        }
+                    }
+                    .layoutPriority(1.0)
+
+                makeBottomOverlay()
+            }
         }
         .modifier(
             CardsInfoPagerContentSwitchingModifier(
@@ -257,7 +262,6 @@ struct CardsInfoPagerView<
             .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
             .readGeometry(\.size, bindTo: scrollState.viewportSizeSubject.asWriteOnlyBinding(.zero))
         }
-        .overlay(makeBottomOverlay(with: geometryProxy), alignment: .bottom)
     }
 
     @ViewBuilder
@@ -311,11 +315,14 @@ struct CardsInfoPagerView<
     }
 
     @ViewBuilder
-    private func makeBottomOverlay(with geometryProxy: GeometryProxy) -> some View {
-        bottomOverlayFactory(data[clampedContentSelectedIndex])
+    private func makeBottomOverlay() -> some View {
+        bottomOverlayFactory(data[clampedContentSelectedIndex], scrollState.didScrollToBottom)
+            .animation(.linear(duration: 0.1), value: scrollState.didScrollToBottom)
             .modifier(contentAnimationModifier)
-            .padding(.bottom, geometryProxy.safeAreaInsets.bottom > 0.0 ? 0.0 : 10.0) // Padding is added only on notchless devices
-            .readGeometry(\.size.height, bindTo: $scrollViewBottomContentInset)
+            .readGeometry(\.size.height) { newValue in
+                scrollViewBottomContentInset = newValue
+                scrollState.bottomContentInsetSubject.send(newValue - Constants.scrollStateBottomContentInsetDiff)
+            }
     }
 
     // MARK: - Gestures
@@ -614,6 +621,7 @@ private extension CardsInfoPagerView {
         static var pageSwitchThreshold: CGFloat { 0.5 }
         static var pageSwitchAnimationDuration: TimeInterval { 0.7 }
         static var minRemainingPageSwitchProgress: CGFloat { 1.0 / 3.0 }
+        static var scrollStateBottomContentInsetDiff: CGFloat { 14.0 }
     }
 }
 
