@@ -566,6 +566,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return
         }
 
+        cardModel.initialUpdate()
         models[index] = cardModel
     }
 
