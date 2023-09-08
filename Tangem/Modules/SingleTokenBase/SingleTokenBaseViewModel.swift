@@ -165,11 +165,6 @@ extension SingleTokenBaseViewModel {
             .removeDuplicates()
             .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
-
-        tokenRouter.errorAlertPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.alert, on: self, ownership: .weak)
-            .store(in: &bag)
     }
 
     private func updateActionButtons() {
@@ -255,6 +250,11 @@ extension SingleTokenBaseViewModel {
     }
 
     func openBuyCryptoIfPossible() {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
         tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
     }
 
@@ -263,10 +263,20 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExchange() {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
         tokenRouter.openExchange(walletModel: walletModel)
     }
 
     func openSell() {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
         tokenRouter.openSell(for: walletModel)
     }
 
