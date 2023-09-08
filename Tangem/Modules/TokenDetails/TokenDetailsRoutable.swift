@@ -9,6 +9,6 @@
 import Foundation
 import BlockchainSdk
 
-protocol TokenDetailsRoutable: SingleTokenBaseRoutable {
+protocol TokenDetailsRoutable: AnyObject {
     func dismiss()
 }
