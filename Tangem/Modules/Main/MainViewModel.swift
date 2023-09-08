@@ -12,15 +12,12 @@ import UIKit
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedCardScanTracker
 
     // MARK: - ViewState
 
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var errorAlert: AlertBinder?
-    @Published var showTroubleshootingView: Bool = false
     @Published var showingDeleteConfirmation = false
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
@@ -60,23 +57,9 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
-    func scanCardAction() {
-        Analytics.beginLoggingCardScan(source: .main)
-        if AppSettings.shared.saveUserWallets {
-            scanCard()
-        } else {
-            coordinator?.close(newScan: true)
-        }
-    }
-
     func openDetails() {
-        // [REDACTED_TODO_COMMENT]
-        guard let cardViewModel = userWalletRepository.models[selectedCardIndex] as? CardViewModel else {
-            log("Failed to cast user wallet model to CardViewModel")
-            return
-        }
-
-        coordinator?.openDetails(for: cardViewModel)
+        let userWalletModel = userWalletRepository.models[selectedCardIndex]
+        coordinator?.openDetails(for: userWalletModel)
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
@@ -140,32 +123,6 @@ final class MainViewModel: ObservableObject {
         guard let userWalletModel = userWalletRepository.selectedModel else { return }
 
         userWalletRepository.delete(userWalletModel.userWallet, logoutIfNeeded: true)
-    }
-
-    // MARK: - Scan card
-
-    private func scanCard() {
-        userWalletRepository.add { [weak self] result in
-            guard let self, let result else {
-                return
-            }
-
-            switch result {
-            case .troubleshooting:
-                showTroubleshooting()
-            case .onboarding(let input):
-                openOnboarding(with: input)
-            case .error(let error):
-                if let userWalletRepositoryError = error as? UserWalletRepositoryError {
-                    errorAlert = userWalletRepositoryError.alertBinder
-                } else {
-                    errorAlert = error.alertBinder
-                }
-            case .success(_), .partial:
-                // Will be handled through `updated` user wallet repo event
-                break
-            }
-        }
     }
 
     private func addNewPage(for userWalletModel: UserWalletModel) {
@@ -245,19 +202,6 @@ final class MainViewModel: ObservableObject {
 
 // MARK: - Navigation
 
-extension MainViewModel {
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator?.openOnboardingModal(with: input)
-    }
-
-    func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
-        failedCardScanTracker.resetCounter()
-
-        coordinator?.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
-    }
-}
-
 extension MainViewModel: MainLockedUserWalletDelegate {
     func openUnlockUserWalletBottomSheet(for userWalletModel: UserWalletModel) {
         unlockWalletBottomSheetViewModel = .init(
@@ -285,10 +229,10 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
         unlockWalletBottomSheetViewModel = nil
     }
 
-    func showTroubleshooting() {
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         unlockWalletBottomSheetViewModel = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.showTroubleshootingView = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
         }
     }
 }
