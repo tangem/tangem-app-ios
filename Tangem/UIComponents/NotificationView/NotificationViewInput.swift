@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias NotificationViewId = String
+typealias NotificationViewId = Int
 
 struct NotificationViewInput: Identifiable, Equatable {
     let style: NotificationView.Style
