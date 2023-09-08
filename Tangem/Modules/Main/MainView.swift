@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -86,6 +87,9 @@ struct MainView: View {
                 requestSupportAction: viewModel.requestSupport
             )
         )
+        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
+            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
+        })
     }
 
     var scanCardButton: some View {
