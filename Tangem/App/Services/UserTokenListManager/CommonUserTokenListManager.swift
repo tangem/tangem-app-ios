@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import enum BlockchainSdk.Blockchain
 import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
@@ -230,7 +231,7 @@ private extension CommonUserTokenListManager {
 
         return Publishers.MergeMany(publishers)
             .collect(publishers.count)
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
