@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import BlockchainSdk
 
 class WalletModel {
@@ -418,7 +419,7 @@ class WalletModel {
             .handleEvents(receiveOutput: { [weak self] _ in
                 AppLog.shared.debug("🔄 Finished loading rates for \(String(describing: self))")
             })
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -434,7 +435,7 @@ class WalletModel {
             .handleEvents(receiveOutput: { [weak self] _ in
                 AppLog.shared.debug("🔄 Finished loading quotes for \(String(describing: self))")
             })
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -461,7 +462,7 @@ class WalletModel {
                 hash: Data.randomData(count: 32),
                 walletPublicKey: wallet.publicKey
             )
-            .mapVoid()
+            .mapToVoid()
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
         }
@@ -472,7 +473,7 @@ class WalletModel {
                 self?.startUpdatingTimer()
             })
             .receive(on: DispatchQueue.main)
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
