@@ -106,7 +106,7 @@ private extension ListDataLoader {
         if cached.isEmpty {
             itemsPublisher = loadCoinsFromLocalJsonPublisher(requestModel: requestModel)
         } else {
-            itemsPublisher = Just(cached).eraseToAnyPublisher()
+            itemsPublisher = .just(output: cached)
         }
 
         return itemsPublisher
