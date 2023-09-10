@@ -57,19 +57,18 @@ extension Publisher where Failure == Never {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 public extension Publisher {
     /// Subscribes to current publisher without handling events
     func sink() -> AnyCancellable {
         return sink(receiveCompletion: { _ in }, receiveValue: { _ in })
     }
 
-    /// `receiveValue` clouser from default `sink` method
+    /// An overload of the default `sink` method with the only `receiveValue` required closure.
     func receiveValue(_ receiveValue: @escaping ((Self.Output) -> Void)) -> AnyCancellable {
         sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
     }
 
-    /// `receiveCompletion` clouser from default `sink` method
+    /// An overload of the default `sink` method with the only `receiveCompletion` required closure.
     func receiveCompletion(_ receiveCompletion: @escaping ((Subscribers.Completion<Self.Failure>) -> Void)) -> AnyCancellable {
         sink(receiveCompletion: receiveCompletion, receiveValue: { _ in })
     }
