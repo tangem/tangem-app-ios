@@ -82,14 +82,12 @@ public extension Publisher {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher where Output == Void, Failure == Error {
     static var just: AnyPublisher<Output, Failure> {
         Just(()).setFailureType(to: Failure.self).eraseToAnyPublisher()
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher where Output == Void, Failure == Never {
     static var just: AnyPublisher<Output, Failure> {
         Just(()).eraseToAnyPublisher()
