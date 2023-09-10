@@ -6,8 +6,10 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import SwiftUI
 import Combine
+import CombineExt
 import TangemSdk
 import BlockchainSdk
 
@@ -634,7 +636,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
-            .mapVoid()
+            .mapToVoid()
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
