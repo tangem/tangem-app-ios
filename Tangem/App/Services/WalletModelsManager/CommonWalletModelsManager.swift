@@ -6,8 +6,10 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
+import Foundation
 import Combine
+import CombineExt
+import BlockchainSdk
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
@@ -107,7 +109,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
         updateAllSubscription = Publishers
             .MergeMany(publishers)
             .collect(publishers.count)
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
             .receive(on: RunLoop.main)
             .receiveCompletion { _ in

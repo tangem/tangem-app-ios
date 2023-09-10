@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import Moya
 import BlockchainSdk
 
@@ -66,7 +67,7 @@ extension CommonTangemApiService: TangemApiService {
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .mapTangemAPIError()
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
