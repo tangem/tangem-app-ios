@@ -74,11 +74,6 @@ public extension Publisher {
         sink(receiveCompletion: receiveCompletion, receiveValue: { _ in })
     }
 
-    /// Transforms any received value to Void
-    func mapVoid() -> Publishers.Map<Self, Void> {
-        map { _ in }
-    }
-
     func eraseError() -> AnyPublisher<Output, Error> {
         return mapError { error -> Error in
             return error as Error
