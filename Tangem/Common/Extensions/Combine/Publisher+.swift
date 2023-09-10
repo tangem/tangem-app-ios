@@ -94,7 +94,6 @@ extension Publisher where Output == Void, Failure == Never {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher {
     func asyncMap<T>(
         _ transform: @escaping (Output) async throws -> T
@@ -127,7 +126,6 @@ extension Publisher {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 @available(iOS, deprecated: 15.0, message: "AsyncCompatibilityKit is only useful when targeting iOS versions earlier than 15")
 public extension Publisher where Failure == Never {
     /// Convert this publisher into an `AsyncStream` that can
