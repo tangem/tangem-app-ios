@@ -13,14 +13,14 @@ struct CoinView: View {
     @ObservedObject var model: CoinViewModel
     var subtitle: String = Localization.currencySubtitleExpanded
 
-    let iconWidth: Double = 46
+    let iconSize: Double = 46
 
     @State private var isExpanded = false
 
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
-                IconView(url: model.imageURL, size: CGSize(width: iconWidth, height: iconWidth), forceKingfisher: true)
+                IconView(url: model.imageURL, size: CGSize(width: iconSize, height: iconSize), forceKingfisher: true)
                     .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
