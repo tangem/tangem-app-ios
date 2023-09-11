@@ -9,6 +9,12 @@
 import Foundation
 
 class CoinViewModel: Identifiable, ObservableObject {
+    enum Action {
+        case add
+        case edit
+        case info
+    }
+
     let id: UUID = .init()
     let imageURL: URL?
     let name: String
@@ -34,18 +40,18 @@ class CoinViewModel: Identifiable, ObservableObject {
         }
     }
 
-    let manageType: CoinViewManageButtonType
+    let action: Action
 
-    let didTapAction: (CoinViewManageButtonType) -> Void
+    let didTapAction: (Action) -> Void
 
-    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, priceHistory: [Double]?, manageType: CoinViewManageButtonType, didTapAction: @escaping (CoinViewManageButtonType) -> Void) {
+    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, priceHistory: [Double]?, action: Action, didTapAction: @escaping (Action) -> Void) {
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
         self.price = price
         self.priceChange = priceChange
         self.priceHistory = priceHistory
-        self.manageType = manageType
+        self.action = action
         self.didTapAction = didTapAction
     }
 }
