@@ -311,7 +311,7 @@ class WalletModel {
             .removeDuplicates()
             .combineLatest(_rate.removeDuplicates(), walletManager.walletPublisher)
             .map { $0.0 }
-            .weakAssign(to: \._walletDidChangePublisher.value, on: self)
+            .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
