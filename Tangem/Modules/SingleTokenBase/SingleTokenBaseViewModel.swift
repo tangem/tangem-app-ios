@@ -39,6 +39,10 @@ class SingleTokenBaseViewModel {
     var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
 
     var canSend: Bool {
+        guard card.canSend else {
+            return false
+        }
+
         guard canSignLongTransactions else {
             return false
         }
