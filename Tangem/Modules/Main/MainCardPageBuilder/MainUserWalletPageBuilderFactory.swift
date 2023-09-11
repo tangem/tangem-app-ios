@@ -15,7 +15,8 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    let coordinator: MultiWalletMainContentRoutable & SingleWalletMainContentRoutable
+    typealias MainContentRoutable = MultiWalletMainContentRoutable
+    let coordinator: MainContentRoutable
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
@@ -46,6 +47,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
+        let tokenRouter = SingleTokenRouter(userWalletModel: model, coordinator: coordinator)
+
         if isMultiWalletPage {
             let sectionsAdapter = makeSectionsAdapter(for: model)
             let multiWalletNotificationManager = MultiWalletNotificationManager(walletModelsManager: model.walletModelsManager)
@@ -54,7 +57,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
                 coordinator: coordinator,
-                tokenSectionsAdapter: sectionsAdapter
+                tokenSectionsAdapter: sectionsAdapter,
+                tokenRouter: tokenRouter
             )
             userWalletNotificationManager.setupManager(with: viewModel)
 
@@ -79,11 +83,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: walletModel,
-            userTokensManager: model.userTokensManager,
             exchangeUtility: exchangeUtility,
             userWalletNotificationManager: userWalletNotificationManager,
             tokenNotificationManager: singleWalletNotificationManager,
-            coordinator: coordinator
+            tokenRouter: tokenRouter
         )
         userWalletNotificationManager.setupManager()
         singleWalletNotificationManager.setupManager(with: viewModel)
