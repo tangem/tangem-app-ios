@@ -186,6 +186,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     ) -> [Section] {
         let factory = MultiWalletTokenItemsSectionFactory()
 
+        if sections.count == 1, sections[0].items.isEmpty {
+            return []
+        }
+
         return sections.enumerated().map { index, section in
             let sectionViewModel = factory.makeSectionViewModel(from: section.model, atIndex: index)
             let itemViewModels = section.items.map { item in
