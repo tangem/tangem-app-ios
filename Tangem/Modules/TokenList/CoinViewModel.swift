@@ -44,7 +44,16 @@ class CoinViewModel: Identifiable, ObservableObject {
 
     let didTapAction: (Action) -> Void
 
-    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, priceHistory: [Double]?, action: Action, didTapAction: @escaping (Action) -> Void) {
+    init(
+        imageURL: URL?,
+        name: String,
+        symbol: String,
+        price: String,
+        priceChange: TokenPriceChangeView.State,
+        priceHistory: [Double]?,
+        action: Action,
+        didTapAction: @escaping (Action) -> Void
+    ) {
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
