@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import SwiftUI
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher where Output: Equatable {
     var uiPublisher: AnyPublisher<Output, Failure> {
         dropFirst()
