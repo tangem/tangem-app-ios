@@ -32,10 +32,10 @@ class LockedWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    var bottomOverlayViewModel: MainBottomOverlayViewModel? {
+    var footerViewModel: MainFooterViewModel? {
         guard canManageTokens else { return nil }
 
-        return MainBottomOverlayViewModel(
+        return MainFooterViewModel(
             isButtonDisabled: true,
             buttonTitle: Localization.mainManageTokens,
             buttonAction: {}
