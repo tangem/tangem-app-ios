@@ -33,13 +33,13 @@ struct CoinView: View {
                     HStack(spacing: 4) {
                         Text(model.name)
                             .lineLimit(1)
+                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                         Text(model.symbol)
                             .lineLimit(1)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                     HStack(spacing: 4) {
                         Text(model.price)
@@ -61,7 +61,6 @@ struct CoinView: View {
                     .frame(width: 50, height: 37, alignment: .center)
                     .padding(.trailing, 24)
                 }
-
 
                 manageButton(for: model.manageType)
             }
