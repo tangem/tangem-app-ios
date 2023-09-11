@@ -39,7 +39,7 @@ class SingleTokenBaseViewModel {
     var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
 
     var canSend: Bool {
-        guard card.canSend else {
+        guard userWalletModel.config.hasFeature(.send) else {
             return false
         }
 
