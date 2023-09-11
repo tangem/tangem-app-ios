@@ -365,7 +365,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         CardImageProvider()
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .map { $0.image }
-            .weakAssign(to: \.cardImage, on: self)
+            .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
