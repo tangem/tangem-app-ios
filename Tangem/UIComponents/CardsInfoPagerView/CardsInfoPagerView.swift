@@ -145,7 +145,7 @@ struct CardsInfoPagerView<
                         scrollState.onViewAppear()
                     }
                     .onDisappear(perform: scrollDetector.stopDetectingScroll)
-                    .onReceive(scrollState.contentOffsetSubject) { _ in
+                    .onChange(of: scrollState.contentOffset) { _ in
                         // Vertical scrolling may delay or even cancel horizontal scroll animations,
                         // which in turn may lead to desynchronization between `selectedIndex` and
                         // `contentSelectedIndex` properties.
@@ -475,7 +475,7 @@ struct CardsInfoPagerView<
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
 
     func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
-        let yOffset = scrollState.contentOffset.y - Constants.headerVerticalPadding
+        let yOffset = scrollState.rawContentOffset.y - Constants.headerVerticalPadding
 
         guard 0.0 <= yOffset, yOffset < headerHeight else { return }
 
