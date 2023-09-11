@@ -102,8 +102,6 @@ struct MultiWalletMainContentView: View {
 
                 ForEach(section.items) { item in
                     TokenItemView(viewModel: item)
-                        // We need this background because long tap gesture not correctly drawing cell
-                        .background(Colors.Background.primary.cornerRadiusContinuous(13))
                         .contextMenu {
                             ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
                                 contextMenuButton(for: menuAction, tokenItem: item)
@@ -136,11 +134,8 @@ struct MultiWalletMainContentView: View {
     private func labelForContextButton(with action: TokenActionType) -> some View {
         HStack {
             Text(action.title)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
-
             action.icon.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.primary1)
         }
     }
 }
