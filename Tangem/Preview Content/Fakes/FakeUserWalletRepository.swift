@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 class FakeUserWalletRepository: UserWalletRepository {
+    var hasSavedWallets: Bool { true }
+
     var models: [UserWalletModel] = []
 
     var userWallets: [UserWallet] = []
