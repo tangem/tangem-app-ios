@@ -106,13 +106,13 @@ struct CoinView: View {
 
 private struct AddButtonView: View {
     var body: some View {
-        TextButtonView(text: "Add", foreground: Colors.Text.primary2, background: Colors.Button.primary)
+        TextButtonView(text: Localization.manageTokensAdd, foreground: Colors.Text.primary2, background: Colors.Button.primary)
     }
 }
 
 private struct EditButtonView: View {
     var body: some View {
-        TextButtonView(text: "Edit", foreground: Colors.Text.primary1, background: Colors.Button.secondary)
+        TextButtonView(text: Localization.manageTokensEdit, foreground: Colors.Text.primary1, background: Colors.Button.secondary)
     }
 }
 
