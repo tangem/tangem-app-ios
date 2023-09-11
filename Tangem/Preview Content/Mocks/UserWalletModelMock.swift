@@ -46,6 +46,8 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
+    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
+
     var updatePublisher: AnyPublisher<Void, Never> { .just }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
