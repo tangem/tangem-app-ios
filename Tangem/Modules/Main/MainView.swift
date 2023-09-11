@@ -30,8 +30,8 @@ struct MainView: View {
             contentFactory: { info in
                 info.body
             },
-            bottomOverlayFactory: { info in
-                info.bottomOverlay
+            bottomOverlayFactory: { info, didScrollToBottom in
+                info.makeBottomOverlay(didScrollToBottom: didScrollToBottom)
             },
             onPullToRefresh: viewModel.onPullToRefresh(completionHandler:)
         )
@@ -51,19 +51,11 @@ struct MainView: View {
 
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 0) {
-                    scanCardButton
-
                     detailsNavigationButton
                 }
                 .offset(x: 10)
             }
         })
-        .background(
-            // We need to hold alert modified in nested view such as background view
-            // Otherwise all nested views won't be able to use alert modifier to display alert
-            Color.clear
-                .alert(item: $viewModel.errorAlert) { $0.alert }
-        )
         .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
             ActionSheet(
                 title: Text(Localization.userWalletListDeletePrompt),
@@ -79,23 +71,6 @@ struct MainView: View {
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
-        .background(
-            ScanTroubleshootingView(
-                isPresented: $viewModel.showTroubleshootingView,
-                tryAgainAction: viewModel.scanCardAction,
-                requestSupportAction: viewModel.requestSupport
-            )
-        )
-    }
-
-    var scanCardButton: some View {
-        Button(action: viewModel.scanCardAction) {
-            Assets.scanWithPhone.image
-                .foregroundColor(Colors.Icon.primary1)
-                .frame(width: 44, height: 44)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .animation(nil)
     }
 
     var detailsNavigationButton: some View {
