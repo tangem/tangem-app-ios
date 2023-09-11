@@ -9,12 +9,6 @@
 import Foundation
 import SwiftUI
 
-enum CoinViewManageButtonType {
-    case add
-    case edit
-    case info
-}
-
 struct CoinView: View {
     @ObservedObject var model: CoinViewModel
     var subtitle: String = Localization.currencySubtitleExpanded
@@ -62,7 +56,7 @@ struct CoinView: View {
                     .padding(.trailing, 24)
                 }
 
-                manageButton(for: model.manageType)
+                manageButton(for: model.action)
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -74,9 +68,9 @@ struct CoinView: View {
     }
 
     @ViewBuilder
-    private func manageButton(for type: CoinViewManageButtonType) -> some View {
+    private func manageButton(for action: CoinViewModel.Action) -> some View {
         ZStack {
-            switch type {
+            switch action {
             case .add:
                 Button {
                     model.didTapAction(.add)
@@ -145,7 +139,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$23,034.83",
                 priceChange: .loaded(signType: .positive, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                manageType: .add,
+                action: .add,
                 didTapAction: { _ in }
             ))
 
@@ -156,7 +150,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$1,340.33",
                 priceChange: .loaded(signType: .negative, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13].reversed(),
-                manageType: .add,
+                action: .add,
                 didTapAction: { _ in }
             ))
 
@@ -167,7 +161,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$33.00",
                 priceChange: .loaded(signType: .positive, text: "1.3%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                manageType: .add,
+                action: .add,
                 didTapAction: { _ in }
             ))
 
@@ -178,7 +172,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$34.83",
                 priceChange: .loaded(signType: .positive, text: "0.0%"),
                 priceHistory: [4, 7, 3, 5, 4],
-                manageType: .edit,
+                action: .edit,
                 didTapAction: { _ in }
             ))
 
@@ -189,7 +183,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$23,341,324,034.83",
                 priceChange: .loaded(signType: .positive, text: "1,444,340,340.0%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                manageType: .info,
+                action: .info,
                 didTapAction: { _ in }
             ))
 
@@ -200,7 +194,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$100.83",
                 priceChange: .loaded(signType: .positive, text: "1.0%"),
                 priceHistory: nil,
-                manageType: .add,
+                action: .add,
                 didTapAction: { _ in }
             ))
 
