@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol MultiWalletMainContentRoutable: AnyObject {
+protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTokenDetails(for model: WalletModel, userWalletModel: UserWalletModel)
     func openOrganizeTokens(for userWalletModel: UserWalletModel)
     func openOnboardingModal(with input: OnboardingInput)
