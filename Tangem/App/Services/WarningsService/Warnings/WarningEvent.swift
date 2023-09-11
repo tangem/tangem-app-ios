@@ -108,7 +108,7 @@ extension WarningEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect, .failedToValidateCard, .testnetCard, .devCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
-            return .init(image: Assets.attentionRed.image)
+            return .init(image: Assets.attentionRedFill.image)
         case .rateApp, .oldDeviceOldCard, .oldCard, .systemDeprecationTemporary:
             return .init(image: Assets.attention.image)
         case .missingDerivation:
