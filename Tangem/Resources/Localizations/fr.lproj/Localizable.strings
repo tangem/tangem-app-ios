@@ -196,6 +196,8 @@
 "main_scan_card_warning_view_title" = "Scan your card";
 "main_tokens" = "Tokens";
 "main_warning_missing_derivation_title" = "Some addresses are missing";
+"manage_tokens_add" = "Add";
+"manage_tokens_edit" = "Edit";
 "notification_title_not_enough_funds" = "Unable to cover %1$@ fee";
 "onboarding_access_code_feature_1_description" = "You have to set up a single access code to protect all your wallets";
 "onboarding_access_code_feature_1_title" = "Protect";
