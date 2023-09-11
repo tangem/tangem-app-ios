@@ -13,7 +13,7 @@ enum TokenNotificationEvent: Hashable {
     case networkUnreachable
     case someNetworksUnreachable
     case rentFee(rentMessage: String)
-    case noAccount(message: String, isNoteWallet: Bool, currencySymbol: String?)
+    case noAccount(message: String, isNoteWallet: Bool)
     case existentialDepositWarning(message: String)
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
@@ -33,9 +33,8 @@ enum TokenNotificationEvent: Hashable {
 
     var buttonAction: NotificationButtonActionType? {
         switch self {
-        case .noAccount(_, _, let currencySymbol):
-            return .buyCrypto(currencySymbol: currencySymbol)
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
+        // One notification with button action will be added later
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return nil
         }
     }
@@ -57,7 +56,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .rentFee:
             // [REDACTED_TODO_COMMENT]
             return "Network rent fee"
-        case .noAccount(_, let isNoteWallet, _):
+        case .noAccount(_, let isNoteWallet):
             if isNoteWallet {
                 // [REDACTED_TODO_COMMENT]
                 return "Note top up"
@@ -85,7 +84,7 @@ extension TokenNotificationEvent: NotificationEvent {
             return "Some networks currently are unreachable. Please try again later."
         case .rentFee(let message):
             return message
-        case .noAccount(let message, _, _):
+        case .noAccount(let message, _):
             return message
         case .existentialDepositWarning(let message):
             return message
@@ -100,10 +99,9 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return .gray
-        case .noAccount(_, let isNoteWallet, _):
-            return isNoteWallet ? .white : .gray
+            // One white notification will be added later
         }
     }
 
@@ -112,15 +110,15 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .noAccount, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
             return .init(image: Assets.attention.image)
         case .existentialDepositWarning:
-            return .init(image: Assets.attentionRed.image)
+            return .init(image: Assets.attentionRedFill.image)
         }
     }
 
     var isDismissable: Bool {
         switch self {
-        case .rentFee, .noAccount:
+        case .rentFee:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return false
         }
     }
