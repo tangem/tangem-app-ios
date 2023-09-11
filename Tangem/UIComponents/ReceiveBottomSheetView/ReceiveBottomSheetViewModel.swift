@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import Combine
 import UIKit
+import Combine
+import CombineExt
 
 class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     @Published var isUserUnderstandsAddressNetworkRequirements: Bool
@@ -78,6 +79,6 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     private func bind() {
         indexUpdateSubscription = addressIndexUpdateNotifier
-            .weakAssign(to: \.currentIndex, on: self)
+            .assign(to: \.currentIndex, on: self, ownership: .weak)
     }
 }
