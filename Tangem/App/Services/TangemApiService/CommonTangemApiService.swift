@@ -216,9 +216,10 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusAndRedirectCodes()
             .map(GeoResponse.self)
             .map(\.code)
+            .map(Optional.some)
             .replaceError(with: fallbackRegionCode)
             .subscribe(on: DispatchQueue.global())
-            .weakAssign(to: \._geoIpRegionCode, on: self)
+            .assign(to: \._geoIpRegionCode, on: self, ownership: .weak)
             .store(in: &bag)
 
         AppLog.shared.debug("CommonTangemApiService initialized")
