@@ -36,7 +36,9 @@ class CoinViewModel: Identifiable, ObservableObject {
 
     let manageType: CoinViewManageButtonType
 
-    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, priceHistory: [Double]?, manageType: CoinViewManageButtonType) {
+    let didTapAction: (CoinViewManageButtonType) -> Void
+
+    init(imageURL: URL?, name: String, symbol: String, price: String, priceChange: TokenPriceChangeView.State, priceHistory: [Double]?, manageType: CoinViewManageButtonType, didTapAction: @escaping (CoinViewManageButtonType) -> Void) {
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
@@ -44,6 +46,7 @@ class CoinViewModel: Identifiable, ObservableObject {
         self.priceChange = priceChange
         self.priceHistory = priceHistory
         self.manageType = manageType
+        self.didTapAction = didTapAction
     }
 }
 
