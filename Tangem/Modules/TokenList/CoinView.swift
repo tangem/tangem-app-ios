@@ -31,7 +31,6 @@ struct CoinView: View {
                             .lineLimit(1)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
 
                     HStack(spacing: 4) {
                         Text(model.price)
@@ -56,32 +55,25 @@ struct CoinView: View {
 
                 manageButton(for: model.action)
             }
-            .contentShape(Rectangle())
         }
-        .padding(.vertical, 10)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .contentShape(Rectangle())
         .animation(nil) // Disable animations on scroll reuse
     }
 
     @ViewBuilder
     private func manageButton(for action: CoinViewModel.Action) -> some View {
         ZStack {
-            switch action {
-            case .add:
-                Button {
-                    model.didTapAction(.add)
-                } label: {
+            Button {
+                model.didTapAction(action)
+            } label: {
+                switch action {
+                case .add:
                     AddButtonView()
-                }
-            case .edit:
-                Button {
-                    model.didTapAction(.edit)
-                } label: {
+                case .edit:
                     EditButtonView()
-                }
-            case .info:
-                Button {
-                    model.didTapAction(.info)
-                } label: {
+                case .info:
                     Assets.infoIconMini.image
                         .renderingMode(.template)
                         .foregroundColor(Colors.Icon.informative)
@@ -195,6 +187,5 @@ struct CurrencyViewNew_Previews: PreviewProvider {
 
             Spacer()
         }
-        .padding()
     }
 }
