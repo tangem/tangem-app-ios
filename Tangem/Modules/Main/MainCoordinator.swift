@@ -285,10 +285,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 }
 
-// MARK: - SingleWalletMainContentRoutable protocol conformance
-
-extension MainCoordinator: SingleWalletMainContentRoutable {}
-
 // MARK: - OrganizeTokensRoutable protocol conformance
 
 extension MainCoordinator: OrganizeTokensRoutable {
