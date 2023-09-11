@@ -138,8 +138,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             amountType: walletModel.amountType
         )
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
-        var actions = actionsBuilder.buildActions(canExchange: canExchange, exchangeUtility: utility)
-        actions.insert(.copyAddress, at: 0)
+        var actions = [TokenActionType.copyAddress]
+        actions.append(contentsOf: actionsBuilder.buildActions(canExchange: canExchange, exchangeUtility: utility))
 
         if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
             actions.append(.hide)
