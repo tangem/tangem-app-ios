@@ -184,7 +184,7 @@
 "key_invalidated_warning_description" = "You have updated biometrics, scan your card to enter";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 "mail_error_no_accounts_title" = "No Mail accounts";
-"main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens.";
+"main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens";
 "main_get_bonus_subtitle" = "You have completed all of the lessons, and are now eligible to receive your 1INCH tokens";
 "main_manage_tokens" = "Manage tokens";
 "main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
