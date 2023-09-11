@@ -58,7 +58,7 @@ extension Publisher where Output == Void, Failure == Error {
 
 extension Publisher where Output == Void, Failure == Never {
     static var just: AnyPublisher<Output, Failure> {
-        Just(()).eraseToAnyPublisher()
+        .just(output: ())
     }
 }
 
