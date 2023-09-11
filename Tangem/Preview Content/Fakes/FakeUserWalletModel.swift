@@ -83,6 +83,8 @@ extension FakeUserWalletModel: MainHeaderInfoProvider {
     var cardHeaderImage: ImageType? {
         UserWalletConfigFactory(userWallet.cardInfo()).makeConfig().cardHeaderImage
     }
+
+    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 }
 
 extension FakeUserWalletModel {
