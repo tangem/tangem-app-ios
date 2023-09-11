@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import Combine
 import SwiftUI
+import Combine
+import CombineExt
 
 extension Publisher where Output: Equatable {
     var uiPublisher: AnyPublisher<Output, Failure> {
@@ -25,32 +26,35 @@ extension Publisher where Output: Equatable {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher where Failure == Never {
-    func weakAssign<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output>, on root: Root) -> AnyCancellable {
-        sink { [weak root] in
-            root?[keyPath: keyPath] = $0
-        }
-    }
-
-    func weakAssign<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output?>, on root: Root) -> AnyCancellable {
-        sink { [weak root] in
-            root?[keyPath: keyPath] = $0
-        }
-    }
-
-    func weakAssignAnimated<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output>, on root: Root) -> AnyCancellable {
-        sink { [weak root] value in
-            withAnimation {
-                root?[keyPath: keyPath] = value
+    /// - Warning: Using this method is discouraged for at least two reasons:
+    ///  * This makes it impossible to set or control an underlying animation.
+    ///  * This breaks the single-responsibility principle: now view model knows about animations in the view.
+    func assignAnimated<Root: AnyObject>(
+        to keyPath: ReferenceWritableKeyPath<Root, Self.Output>,
+        on object: Root,
+        ownership: ObjectOwnership = .strong
+    ) -> AnyCancellable {
+        switch ownership {
+        case .weak:
+            return sink { [weak object] value in
+                withAnimation {
+                    object?[keyPath: keyPath] = value
+                }
             }
-        }
-    }
-
-    func weakAssignAnimated<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output?>, on root: Root) -> AnyCancellable {
-        sink { [weak root] value in
-            withAnimation {
-                root?[keyPath: keyPath] = value
+        case .unowned:
+            return sink { [unowned object] value in
+                withAnimation {
+                    object[keyPath: keyPath] = value
+                }
+            }
+        case .strong:
+            fallthrough
+        @unknown default:
+            return sink { value in
+                withAnimation {
+                    object[keyPath: keyPath] = value
+                }
             }
         }
     }
