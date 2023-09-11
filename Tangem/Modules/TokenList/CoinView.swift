@@ -79,20 +79,24 @@ struct CoinView: View {
             switch type {
             case .add:
                 Button {
-                    print("add")
+                    model.didTapAction(.add)
                 } label: {
                     AddButtonView()
                 }
             case .edit:
                 Button {
-                    print("edit")
+                    model.didTapAction(.edit)
                 } label: {
                     EditButtonView()
                 }
             case .info:
-                Assets.infoIconMini.image
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.informative)
+                Button {
+                    model.didTapAction(.info)
+                } label: {
+                    Assets.infoIconMini.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.informative)
+                }
             }
 
             AddButtonView()
@@ -141,7 +145,8 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$23,034.83",
                 priceChange: .loaded(signType: .positive, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                manageType: .add
+                manageType: .add,
+                didTapAction: { _ in }
             ))
 
             CoinView(model: CoinViewModel(
@@ -151,7 +156,8 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$1,340.33",
                 priceChange: .loaded(signType: .negative, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13].reversed(),
-                manageType: .add
+                manageType: .add,
+                didTapAction: { _ in }
             ))
 
             CoinView(model: CoinViewModel(
@@ -161,7 +167,8 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$33.00",
                 priceChange: .loaded(signType: .positive, text: "1.3%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                manageType: .add
+                manageType: .add,
+                didTapAction: { _ in }
             ))
 
             CoinView(model: CoinViewModel(
@@ -171,7 +178,8 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$34.83",
                 priceChange: .loaded(signType: .positive, text: "0.0%"),
                 priceHistory: [4, 7, 3, 5, 4],
-                manageType: .edit
+                manageType: .edit,
+                didTapAction: { _ in }
             ))
 
             CoinView(model: CoinViewModel(
@@ -181,7 +189,8 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$23,341,324,034.83",
                 priceChange: .loaded(signType: .positive, text: "1,444,340,340.0%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                manageType: .info
+                manageType: .info,
+                didTapAction: { _ in }
             ))
 
             CoinView(model: CoinViewModel(
@@ -191,7 +200,8 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 price: "$100.83",
                 priceChange: .loaded(signType: .positive, text: "1.0%"),
                 priceHistory: nil,
-                manageType: .add
+                manageType: .add,
+                didTapAction: { _ in }
             ))
 
             Spacer()
