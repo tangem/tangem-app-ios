@@ -110,7 +110,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.canSend else {
+        guard userWalletModel.config.hasFeature(.send) else {
             return false
         }
 
