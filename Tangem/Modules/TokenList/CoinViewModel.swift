@@ -45,12 +45,6 @@ class CoinViewModel: Identifiable, ObservableObject {
         self.priceHistory = priceHistory
         self.manageType = manageType
     }
-
-//    init(with model: CoinModel) {
-//        name = model.name
-//        symbol = model.symbol
-//        imageURL = model.imageURL
-//    }
 }
 
 extension CoinViewModel: Hashable {
