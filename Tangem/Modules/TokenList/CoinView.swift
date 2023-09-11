@@ -143,7 +143,6 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceHistory: [1, 7, 3, 5, 13],
                 manageType: .add
             ))
-//            .border(Color.blue.opacity(0.3))
 
             CoinView(model: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
@@ -197,7 +196,6 @@ struct CurrencyViewNew_Previews: PreviewProvider {
 
             Spacer()
         }
-//        .border(Color.blue.opacity(0.3))
         .padding()
     }
 }
