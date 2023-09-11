@@ -13,7 +13,9 @@ import CombineExt
 final class CardsInfoPagerScrollState: ObservableObject {
     private(set) var proposedHeaderState: ProposedHeaderState = .expanded
 
-    var contentOffset: CGPoint { _contentOffsetSubject.value }
+    /// Raw content offset without throttling or filtering duplicates. A non-published plain property.
+    var rawContentOffset: CGPoint { _contentOffsetSubject.value }
+    @Published private(set) var contentOffset: CGPoint = .zero
     var contentOffsetSubject: some Subject<CGPoint, Never> { _contentOffsetSubject }
     private let _contentOffsetSubject = CurrentValueSubject<CGPoint, Never>(.zero)
 
@@ -39,8 +41,16 @@ final class CardsInfoPagerScrollState: ObservableObject {
     private func bind() {
         if didBind { return }
 
-        _contentOffsetSubject
+        let contentOffsetSubject = _contentOffsetSubject
             .removeDuplicates()
+            .share(replay: 1)
+
+        contentOffsetSubject
+            .throttle(for: Constants.throttleInterval, scheduler: DispatchQueue.main, latest: true)
+            .assign(to: \.contentOffset, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        contentOffsetSubject
             .pairwise()
             .map { oldValue, newValue -> ProposedHeaderState in
                 return oldValue.y > newValue.y ? .expanded : .collapsed
@@ -49,20 +59,7 @@ final class CardsInfoPagerScrollState: ObservableObject {
             .assign(to: \.proposedHeaderState, on: self, ownership: .weak)
             .store(in: &bag)
 
-        _contentSizeSubject
-            .debounce(for: Constants.debounceInterval, scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.contentSize, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        _viewportSizeSubject
-            .debounce(for: Constants.debounceInterval, scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.viewportSize, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        _contentOffsetSubject
-            .removeDuplicates()
+        contentOffsetSubject
             .combineLatest(
                 _contentSizeSubject,
                 _viewportSizeSubject,
@@ -75,6 +72,18 @@ final class CardsInfoPagerScrollState: ObservableObject {
             }
             .removeDuplicates()
             .assign(to: \.didScrollToBottom, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        _contentSizeSubject
+            .debounce(for: Constants.debounceInterval, scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.contentSize, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        _viewportSizeSubject
+            .debounce(for: Constants.debounceInterval, scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.viewportSize, on: self, ownership: .weak)
             .store(in: &bag)
 
         didBind = true
@@ -94,6 +103,7 @@ extension CardsInfoPagerScrollState {
 
 private extension CardsInfoPagerScrollState {
     enum Constants {
+        static let throttleInterval: DispatchQueue.SchedulerTimeType.Stride = 1.0
         static let debounceInterval: DispatchQueue.SchedulerTimeType.Stride = 0.5
     }
 }
