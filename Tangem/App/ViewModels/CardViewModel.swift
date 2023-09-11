@@ -208,6 +208,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.longHashes)
     }
 
+    var canSend: Bool {
+        config.hasFeature(.send)
+    }
+
     var cardSetLabel: String? {
         config.cardSetLabel
     }
