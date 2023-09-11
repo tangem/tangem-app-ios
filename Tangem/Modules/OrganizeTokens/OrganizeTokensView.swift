@@ -268,8 +268,12 @@ struct OrganizeTokensView: View {
             viewModel: viewModel,
             isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
             cornerRadius: Constants.contentCornerRadius,
-            topInset: Constants.contentVerticalInset,
-            horizontalInset: Constants.contentHorizontalInset
+            contentInsets: EdgeInsets(
+                top: Constants.contentVerticalInset,
+                leading: Constants.contentHorizontalInset,
+                bottom: 0.0,
+                trailing: Constants.contentHorizontalInset
+            )
         )
         .animation(.linear(duration: 0.1), value: isTokenListFooterGradientHidden)
         .readGeometry(inCoordinateSpace: .global) { geometryInfo in
