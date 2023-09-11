@@ -18,7 +18,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
-    private unowned let tokenDetailsCoordinator: TokenDetailsRoutable
+    private unowned let coordinator: TokenDetailsRoutable
     private var bag = Set<AnyCancellable>()
     private var refreshCancellable: AnyCancellable?
 
@@ -41,20 +41,19 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     init(
         cardModel: CardViewModel,
-        userTokensManager: UserTokensManager,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
-        coordinator: TokenDetailsRoutable
+        coordinator: TokenDetailsRoutable,
+        tokenRouter: SingleTokenRoutable
     ) {
-        tokenDetailsCoordinator = coordinator
+        self.coordinator = coordinator
         super.init(
             userWalletModel: cardModel,
             walletModel: walletModel,
-            userTokensManager: userTokensManager,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
-            coordinator: coordinator
+            tokenRouter: tokenRouter
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
 
@@ -87,7 +86,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
+        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -121,7 +120,7 @@ extension TokenDetailsViewModel {
     private func hideToken() {
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
-        userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         dismiss()
     }
 }
@@ -166,7 +165,7 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     func dismiss() {
-        tokenDetailsCoordinator.dismiss()
+        coordinator.dismiss()
     }
 }
 
