@@ -26,40 +26,6 @@ extension Publisher where Output: Equatable {
     }
 }
 
-extension Publisher where Failure == Never {
-    /// - Warning: Using this method is discouraged for at least two reasons:
-    ///  * This makes it impossible to set or control an underlying animation.
-    ///  * This breaks the single-responsibility principle: now view model knows about animations in the view.
-    func assignAnimated<Root: AnyObject>(
-        to keyPath: ReferenceWritableKeyPath<Root, Self.Output>,
-        on object: Root,
-        ownership: ObjectOwnership = .strong
-    ) -> AnyCancellable {
-        switch ownership {
-        case .weak:
-            return sink { [weak object] value in
-                withAnimation {
-                    object?[keyPath: keyPath] = value
-                }
-            }
-        case .unowned:
-            return sink { [unowned object] value in
-                withAnimation {
-                    object[keyPath: keyPath] = value
-                }
-            }
-        case .strong:
-            fallthrough
-        @unknown default:
-            return sink { value in
-                withAnimation {
-                    object[keyPath: keyPath] = value
-                }
-            }
-        }
-    }
-}
-
 public extension Publisher {
     /// Subscribes to current publisher without handling events
     func sink() -> AnyCancellable {
