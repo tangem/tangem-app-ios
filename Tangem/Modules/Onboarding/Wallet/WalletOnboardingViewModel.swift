@@ -6,7 +6,6 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 import Combine
 import CombineExt
