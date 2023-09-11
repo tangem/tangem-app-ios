@@ -25,6 +25,10 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     var selectedUserWalletId: Data?
 
+    var hasSavedWallets: Bool {
+        !savedUserWallets(withSensitiveData: false).isEmpty
+    }
+
     var isEmpty: Bool {
         userWallets.isEmpty
     }
