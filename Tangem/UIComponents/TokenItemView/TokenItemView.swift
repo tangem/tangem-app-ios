@@ -37,6 +37,9 @@ struct TokenItemView: View {
             )
         }
         .padding(14)
+        // We need this background for correctly handling tap gesture
+        // and because long tap gesture not correctly drawing cell
+        .background(Colors.Background.primary.cornerRadiusContinuous(13))
         .onTapGesture(perform: viewModel.tapAction)
     }
 }
