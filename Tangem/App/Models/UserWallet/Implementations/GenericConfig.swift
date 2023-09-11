@@ -62,7 +62,10 @@ extension GenericConfig: UserWalletConfig {
 
     var defaultBlockchains: [StorageEntry] {
         let isTestnet = AppEnvironment.current.isTestnet
-        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
+        let blockchains: [Blockchain] = [
+            .bitcoin(testnet: isTestnet),
+            .ethereum(testnet: isTestnet),
+        ]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
