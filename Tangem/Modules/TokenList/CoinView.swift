@@ -15,8 +15,6 @@ struct CoinView: View {
 
     let iconSize: Double = 46
 
-    @State private var isExpanded = false
-
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
@@ -59,9 +57,6 @@ struct CoinView: View {
                 manageButton(for: model.action)
             }
             .contentShape(Rectangle())
-            .onTapGesture {
-                isExpanded.toggle()
-            }
         }
         .padding(.vertical, 10)
         .animation(nil) // Disable animations on scroll reuse
