@@ -105,12 +105,7 @@ class SingleTokenNotificationManager {
 
     private func setupNoAccountNotification(with message: String) {
         let factory = NotificationsFactory()
-        let currencySymbol = isNoteWallet ? nil : walletModel.blockchainNetwork.blockchain.currencySymbol
-        let event = TokenNotificationEvent.noAccount(
-            message: message,
-            isNoteWallet: isNoteWallet,
-            currencySymbol: currencySymbol
-        )
+        let event = TokenNotificationEvent.noAccount(message: message, isNoteWallet: isNoteWallet)
 
         notificationInputs
             .send([
