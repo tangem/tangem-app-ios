@@ -10,7 +10,7 @@ import SwiftUI
 
 struct GenerateAddressesView: View {
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 Colors.Icon.accent
                     .frame(size: CGSize(bothDimensions: 36))
@@ -35,8 +35,11 @@ struct GenerateAddressesView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Colors.Background.action)
+        .padding(.bottom, UIApplication.safeAreaInsets.bottom)
+        .background(Colors.Background.action.ignoresSafeArea())
         .cornerRadius(24, corners: [.topLeft, .topRight])
+        .offset(y: UIApplication.safeAreaInsets.bottom)
+        .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: -5)
     }
 }
 
