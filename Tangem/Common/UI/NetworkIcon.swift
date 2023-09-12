@@ -51,7 +51,7 @@ struct NetworkIcon: View {
 }
 
 private struct MainNetworkIndicator: View {
-    let borderPadding: CGFloat = 1.5
+    let borderPadding: CGFloat = 1
 
     var body: some View {
         Circle()
