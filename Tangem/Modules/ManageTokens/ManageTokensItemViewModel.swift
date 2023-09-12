@@ -1,5 +1,5 @@
 //
-//  LegacyCoinViewModel.swift
+//  ManageTokensItemViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class CoinViewModel: Identifiable, ObservableObject {
+class ManageTokensItemViewModel: Identifiable, ObservableObject {
     enum Action {
         case add
         case edit
@@ -65,12 +65,12 @@ class CoinViewModel: Identifiable, ObservableObject {
     }
 }
 
-extension CoinViewModel: Hashable {
+extension ManageTokensItemViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 
-    static func == (lhs: CoinViewModel, rhs: CoinViewModel) -> Bool {
+    static func == (lhs: ManageTokensItemViewModel, rhs: ManageTokensItemViewModel) -> Bool {
         lhs.id == rhs.id
     }
 }
