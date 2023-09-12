@@ -12,7 +12,7 @@ struct MeetTangemStoryPage: View {
     @Binding var progress: Double
     var immediatelyShowTangemLogo: Bool
     var immediatelyShowButtons: Bool
-    let useWallet2Image: Bool
+    let handWithCardImage: Image
     @Binding var isScanning: Bool
     let didReachWalletImage: () -> Void
     let scanCard: () -> Void
@@ -145,19 +145,11 @@ struct MeetTangemStoryPage: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
     }
-
-    private var handWithCardImage: Image {
-        if useWallet2Image {
-            return Assets.Stories.handWithCard.image
-        } else {
-            return Assets.Stories.handWithCardOld.image
-        }
-    }
 }
 
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowTangemLogo: false, immediatelyShowButtons: false, useWallet2Image: true, isScanning: .constant(false)) {} scanCard: {} orderCard: {}
+        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowTangemLogo: false, immediatelyShowButtons: false, handWithCardImage: Assets.Stories.handWithCard.image, isScanning: .constant(false)) {} scanCard: {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
             .environment(\.colorScheme, .dark)
     }
