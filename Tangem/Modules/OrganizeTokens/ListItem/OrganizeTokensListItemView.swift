@@ -12,13 +12,19 @@ struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
 
     var body: some View {
-        HStack(spacing: 12.0) {
+        HStack(spacing: 0.0) {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
                 blockchainIconName: viewModel.blockchainIconName,
                 hasMonochromeIcon: viewModel.hasMonochromeIcon
             )
+
+            // Fixed size spacer
+            Color.clear
+                .frame(width: Constants.spacerLength, height: 0.0)
+                .layoutPriority(1000.0)
+                .hidden()
 
             // According to the mockups, error state on the Organize Tokens
             // screen looks different than on the main screen
@@ -28,7 +34,8 @@ struct OrganizeTokensListItemView: View {
                 defaultMiddleComponent
             }
 
-            Spacer(minLength: 0.0)
+            // Flexible size spacer
+            Spacer(minLength: viewModel.isDraggable ? Constants.spacerLength : 0.0)
 
             if viewModel.isDraggable {
                 Assets.OrganizeTokens.itemDragAndDropIcon
@@ -59,6 +66,14 @@ struct OrganizeTokensListItemView: View {
                 .lineLimit(1)
         }
         .padding(.vertical, 2.0)
+    }
+}
+
+// MARK: - Constants
+
+private extension OrganizeTokensListItemView {
+    enum Constants {
+        static let spacerLength = 12.0
     }
 }
 
