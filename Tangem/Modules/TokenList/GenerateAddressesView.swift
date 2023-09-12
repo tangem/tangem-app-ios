@@ -42,9 +42,7 @@ struct GenerateAddressesView: View {
 
 struct GenerateAddressesView_Previews: PreviewProvider {
     static var previews: some View {
-        Color.gray
-            .overlay(
-                GenerateAddressesView()
-            )
+        Colors.Background.primary.ignoresSafeArea()
+            .overlay(GenerateAddressesView(), alignment: .bottom)
     }
 }
