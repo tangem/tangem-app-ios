@@ -10,49 +10,49 @@ import Foundation
 import SwiftUI
 
 struct CoinView: View {
-    @ObservedObject var model: CoinViewModel
+    @ObservedObject var viewModel: CoinViewModel
 
     private let iconSize = CGSize(bothDimensions: 46)
 
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
-                IconView(url: model.imageURL, size: iconSize, forceKingfisher: true)
+                IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
                     .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 4) {
-                        Text(model.name)
+                        Text(viewModel.name)
                             .lineLimit(1)
                             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                        Text(model.symbol)
+                        Text(viewModel.symbol)
                             .lineLimit(1)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     }
 
                     HStack(spacing: 4) {
-                        Text(model.price)
+                        Text(viewModel.price)
                             .lineLimit(1)
                             .truncationMode(.middle)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-                        TokenPriceChangeView(state: model.priceChange)
+                        TokenPriceChangeView(state: viewModel.priceChange)
                     }
                 }
 
                 Spacer(minLength: 24)
 
-                if let priceHistory = model.priceHistory {
+                if let priceHistory = viewModel.priceHistory {
                     LineChartView(
-                        color: model.priceHistoryChangeType.textColor,
+                        color: viewModel.priceHistoryChangeType.textColor,
                         data: priceHistory
                     )
                     .frame(width: 50, height: 37, alignment: .center)
                     .padding(.trailing, 24)
                 }
 
-                manageButton(for: model.action)
+                manageButton(for: viewModel.action)
             }
         }
         .padding(.horizontal, 16)
@@ -65,7 +65,7 @@ struct CoinView: View {
     private func manageButton(for action: CoinViewModel.Action) -> some View {
         ZStack {
             Button {
-                model.didTapAction(action)
+                viewModel.didTapAction(action)
             } label: {
                 switch action {
                 case .add:
@@ -118,7 +118,7 @@ private struct TextButtonView: View {
 struct CurrencyViewNew_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            CoinView(model: CoinViewModel(
+            CoinView(viewModel: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png")!,
                 name: "Bitcoin",
                 symbol: "BTC",
@@ -129,7 +129,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(model: CoinViewModel(
+            CoinView(viewModel: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
                 name: "Ethereum",
                 symbol: "ETH",
@@ -140,7 +140,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(model: CoinViewModel(
+            CoinView(viewModel: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png")!,
                 name: "Solana",
                 symbol: "SOL",
@@ -151,7 +151,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(model: CoinViewModel(
+            CoinView(viewModel: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png")!,
                 name: "Polygon",
                 symbol: "MATIC",
@@ -162,7 +162,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(model: CoinViewModel(
+            CoinView(viewModel: CoinViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/acalaevm/info/logo.png")!,
                 name: "Very long token name is very long",
                 symbol: "BUS",
@@ -173,7 +173,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(model: CoinViewModel(
+            CoinView(viewModel: CoinViewModel(
                 imageURL: nil,
                 name: "Custom Token",
                 symbol: "CT",
