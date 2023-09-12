@@ -49,13 +49,18 @@ class TokenDetailsCoordinator: CoordinatorObject {
             isNoteWallet: false
         )
 
+        let tokenRouter = SingleTokenRouter(
+            userWalletModel: options.cardModel,
+            coordinator: self
+        )
+
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
-            userTokensManager: options.userTokensManager,
             walletModel: options.walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
-            coordinator: self
+            coordinator: self,
+            tokenRouter: tokenRouter
         )
         notificationManager.setupManager(with: tokenDetailsViewModel)
     }
@@ -73,7 +78,9 @@ extension TokenDetailsCoordinator {
 
 // MARK: - TokenDetailsRoutable
 
-extension TokenDetailsCoordinator: TokenDetailsRoutable {
+extension TokenDetailsCoordinator: TokenDetailsRoutable {}
+
+extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
         let tokenItem: TokenItem
         switch amountType {

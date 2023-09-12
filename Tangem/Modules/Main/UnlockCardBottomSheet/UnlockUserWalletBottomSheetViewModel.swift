@@ -12,14 +12,16 @@ import Combine
 protocol UnlockUserWalletBottomSheetDelegate: AnyObject {
     func unlockedWithBiometry()
     func userWalletUnlocked(_ userWalletModel: UserWalletModel)
-    func showTroubleshooting()
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
 }
 
 class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
+    @Published var showTroubleshootingView: Bool = false
 
     private let userWalletModel: UserWalletModel
     private weak var delegate: UnlockUserWalletBottomSheetDelegate?
@@ -58,11 +60,23 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                 case .error(let error), .partial(_, let error):
                     self?.error = error.alertBinder
                 case .troubleshooting:
-                    self?.delegate?.showTroubleshooting()
+                    self?.showTroubleshooting()
                 default:
                     break
                 }
             }
         }
+    }
+
+    func showTroubleshooting() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.showTroubleshootingView = true
+        }
+    }
+
+    func requestSupport() {
+        Analytics.log(.buttonRequestSupport)
+        failedCardScanTracker.resetCounter()
+        delegate?.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient, emailType: .failedToScanCard)
     }
 }
