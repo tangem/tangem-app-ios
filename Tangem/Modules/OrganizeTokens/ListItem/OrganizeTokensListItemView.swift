@@ -21,10 +21,8 @@ struct OrganizeTokensListItemView: View {
             )
 
             // Fixed size spacer
-            Color.clear
-                .frame(width: Constants.spacerLength, height: 0.0)
+            FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
                 .layoutPriority(1000.0)
-                .hidden()
 
             // According to the mockups, error state on the Organize Tokens
             // screen looks different than on the main screen
