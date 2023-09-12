@@ -102,10 +102,41 @@ struct MultiWalletMainContentView: View {
 
                 ForEach(section.items) { item in
                     TokenItemView(viewModel: item)
+                        .contextMenu {
+                            ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
+                                contextMenuButton(for: menuAction, tokenItem: item)
+                            }
+                        }
                 }
             }
         }
         .background(Colors.Background.primary)
+    }
+
+    @ViewBuilder
+    private func contextMenuButton(for actionType: TokenActionType, tokenItem: TokenItemViewModel) -> some View {
+        let action = { viewModel.didTapContextAction(actionType, for: tokenItem) }
+        if #available(iOS 15, *), actionType.isDestructive {
+            Button(
+                role: .destructive,
+                action: action,
+                label: {
+                    labelForContextButton(with: actionType)
+                }
+            )
+        } else {
+            Button(action: action, label: {
+                labelForContextButton(with: actionType)
+            })
+        }
+    }
+
+    private func labelForContextButton(with action: TokenActionType) -> some View {
+        HStack {
+            Text(action.title)
+            action.icon.image
+                .renderingMode(.template)
+        }
     }
 }
 
