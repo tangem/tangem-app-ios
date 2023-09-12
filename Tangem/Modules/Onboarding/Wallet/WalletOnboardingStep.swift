@@ -130,7 +130,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var mainButtonIcon: ImageType? {
         switch self {
-        case .createWallet, .createWalletSelector, .scanPrimaryCard, .selectBackupCards:
+        case .createWallet, .createWalletSelector, .scanPrimaryCard, .selectBackupCards, .backupCards:
             return Assets.tangemIcon
         default:
             return nil
