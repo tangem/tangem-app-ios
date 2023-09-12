@@ -1,5 +1,5 @@
 //
-//  TokenDetailsRoutable.swift
+//  MultiWalletMainContentDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import BlockchainSdk
 
-protocol TokenDetailsRoutable: AnyObject {
-    func dismiss()
+protocol MultiWalletContentDelegate: AnyObject {
+    func displayAddressCopiedToast()
 }
