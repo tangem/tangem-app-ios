@@ -15,7 +15,8 @@ class StoriesViewModel: ObservableObject {
 
     @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
-    @Published var useWallet2Image = true
+    @Published var handWithCardImage = Assets.Stories.handWithCard.image
+    @Published var cardImage = Assets.Stories.tangemCard.image
     @Published var checkingPromotionAvailability = true
 
     var currentPageIndex: Int {
@@ -96,11 +97,11 @@ class StoriesViewModel: ObservableObject {
         case WelcomeStoryPage.learn:
             LearnAndEarnStoryPage(learn: openPromotion)
         case WelcomeStoryPage.meetTangem:
-            MeetTangemStoryPage(progress: progressBinding, immediatelyShowTangemLogo: showLearnPage, immediatelyShowButtons: AppSettings.shared.didDisplayMainScreenStories || showLearnPage, useWallet2Image: useWallet2Image, isScanning: isScanning, didReachWalletImage: didReachWalletImage, scanCard: scanCard, orderCard: orderCard)
+            MeetTangemStoryPage(progress: progressBinding, immediatelyShowTangemLogo: showLearnPage, immediatelyShowButtons: AppSettings.shared.didDisplayMainScreenStories || showLearnPage, handWithCardImage: handWithCardImage, isScanning: isScanning, didReachWalletImage: didReachWalletImage, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
             AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
-            BackupStoryPage(progress: progressBinding, isScanning: isScanning, useWallet2Image: useWallet2Image, scanCard: scanCard, orderCard: orderCard)
+            BackupStoryPage(progress: progressBinding, isScanning: isScanning, cardImage: cardImage, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.currencies:
             CurrenciesStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
 //        case WelcomeStoryPage.web3:
@@ -117,9 +118,10 @@ class StoriesViewModel: ObservableObject {
 
         switch tangemApiService.geoIpRegionCode {
         case LanguageCode.ru, LanguageCode.by:
-            useWallet2Image = false
+            cardImage = Assets.Onboarding.walletCard.image
+            handWithCardImage = Assets.Stories.handWithCardOld.image
         default:
-            useWallet2Image = true
+            break
         }
 
         didChooseWalletImage = true
