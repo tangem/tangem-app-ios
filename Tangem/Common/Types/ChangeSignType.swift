@@ -13,6 +13,16 @@ enum ChangeSignType: Int, Hashable {
     case negative
     case same
 
+    init(from value: Decimal) {
+        if value > 0 {
+            self = .positive
+        } else if value < 0 {
+            self = .negative
+        } else {
+            self = .same
+        }
+    }
+
     var imageType: ImageType? {
         switch self {
         case .positive:
