@@ -80,15 +80,19 @@ struct MultiWalletMainContentView: View {
     }
 
     private var emptyList: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("To begin tracking your crypto assets and transactions, add tokens.")
-            .multilineTextAlignment(.center)
-            .style(
-                Fonts.Regular.caption1,
-                color: Colors.Text.tertiary
-            )
-            .padding(.top, 150)
-            .padding(.horizontal, 48)
+        VStack(spacing: 16) {
+            Assets.emptyTokenList.image
+                .foregroundColor(Colors.Icon.inactive)
+
+            Text(Localization.mainEmptyTokensListMessage)
+                .multilineTextAlignment(.center)
+                .style(
+                    Fonts.Regular.caption1,
+                    color: Colors.Text.tertiary
+                )
+        }
+        .padding(.top, 96)
+        .padding(.horizontal, 48)
     }
 
     private var tokensList: some View {
@@ -98,10 +102,41 @@ struct MultiWalletMainContentView: View {
 
                 ForEach(section.items) { item in
                     TokenItemView(viewModel: item)
+                        .contextMenu {
+                            ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
+                                contextMenuButton(for: menuAction, tokenItem: item)
+                            }
+                        }
                 }
             }
         }
         .background(Colors.Background.primary)
+    }
+
+    @ViewBuilder
+    private func contextMenuButton(for actionType: TokenActionType, tokenItem: TokenItemViewModel) -> some View {
+        let action = { viewModel.didTapContextAction(actionType, for: tokenItem) }
+        if #available(iOS 15, *), actionType.isDestructive {
+            Button(
+                role: .destructive,
+                action: action,
+                label: {
+                    labelForContextButton(with: actionType)
+                }
+            )
+        } else {
+            Button(action: action, label: {
+                labelForContextButton(with: actionType)
+            })
+        }
+    }
+
+    private func labelForContextButton(with action: TokenActionType) -> some View {
+        HStack {
+            Text(action.title)
+            action.icon.image
+                .renderingMode(.template)
+        }
     }
 }
 
