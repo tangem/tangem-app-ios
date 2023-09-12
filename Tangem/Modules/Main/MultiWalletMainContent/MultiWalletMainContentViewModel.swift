@@ -24,6 +24,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
 
+    weak var delegate: MultiWalletContentDelegate?
+
     var footerViewModel: MainFooterViewModel? {
         guard canManageTokens else { return nil }
 
@@ -122,6 +124,56 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         openOrganizeTokens()
     }
 
+    func contextActions(for tokenItem: TokenItemViewModel) -> [TokenActionType] {
+        guard
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+        else {
+            return []
+        }
+
+        let actionsBuilder = TokenActionListBuilder()
+        let utility = ExchangeCryptoUtility(
+            blockchain: walletModel.blockchainNetwork.blockchain,
+            address: walletModel.defaultAddress,
+            amountType: walletModel.amountType
+        )
+        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
+        var actions = [TokenActionType.copyAddress]
+        actions.append(contentsOf: actionsBuilder.buildActions(canExchange: canExchange, exchangeUtility: utility))
+
+        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
+            actions.append(.hide)
+        }
+
+        return actions
+    }
+
+    func didTapContextAction(_ action: TokenActionType, for tokenItem: TokenItemViewModel) {
+        guard
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+        else {
+            return
+        }
+
+        switch action {
+        case .buy:
+            openBuy(for: walletModel)
+        case .send:
+            tokenRouter.openSend(walletModel: walletModel)
+        case .receive:
+            tokenRouter.openReceive(walletModel: walletModel)
+        case .sell:
+            openSell(for: walletModel)
+        case .copyAddress:
+            UIPasteboard.general.string = walletModel.defaultAddress
+            delegate?.displayAddressCopiedToast()
+        case .hide:
+            userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        case .exchange:
+            return
+        }
+    }
+
     private func setup() {
         updateBackupStatus()
         subscribeToTokenListUpdatesIfNeeded()
@@ -185,6 +237,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         _ sections: [TokenSectionsAdapter.Section]
     ) -> [Section] {
         let factory = MultiWalletTokenItemsSectionFactory()
+
+        if sections.count == 1, sections[0].items.isEmpty {
+            return []
+        }
 
         return sections.enumerated().map { index, section in
             let sectionViewModel = factory.makeSectionViewModel(from: section.model, atIndex: index)
@@ -290,6 +346,24 @@ extension MultiWalletMainContentViewModel {
 
     private func openOrganizeTokens() {
         coordinator.openOrganizeTokens(for: userWalletModel)
+    }
+
+    private func openBuy(for walletModel: WalletModel) {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
+    }
+
+    private func openSell(for walletModel: WalletModel) {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        tokenRouter.openSell(for: walletModel)
     }
 }
 
