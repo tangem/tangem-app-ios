@@ -11,15 +11,12 @@ import SwiftUI
 enum ChangeSignType: Int, Hashable {
     case positive
     case negative
-    case same
 
     init(from value: Decimal) {
-        if value > 0 {
+        if value >= 0 {
             self = .positive
-        } else if value < 0 {
-            self = .negative
         } else {
-            self = .same
+            self = .negative
         }
     }
 
@@ -29,8 +26,6 @@ enum ChangeSignType: Int, Hashable {
             return Assets.quotePositive
         case .negative:
             return Assets.quoteNegative
-        case .same:
-            return nil
         }
     }
 
@@ -40,8 +35,6 @@ enum ChangeSignType: Int, Hashable {
             return Colors.Text.accent
         case .negative:
             return Colors.Text.warning
-        case .same:
-            return Colors.Text.tertiary
         }
     }
 }
