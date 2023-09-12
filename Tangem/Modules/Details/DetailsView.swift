@@ -39,6 +39,13 @@ struct DetailsView: View {
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(
+            ScanTroubleshootingView(
+                isPresented: $viewModel.showTroubleshootingView,
+                tryAgainAction: viewModel.tryAgain,
+                requestSupportAction: viewModel.requestSupport
+            )
+        )
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitle(Text(Localization.detailsTitle), displayMode: .inline)
         .onAppear(perform: viewModel.onAppear)
