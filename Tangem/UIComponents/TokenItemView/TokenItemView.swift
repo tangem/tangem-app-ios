@@ -11,8 +11,10 @@ import SwiftUI
 struct TokenItemView: View {
     @ObservedObject var viewModel: TokenItemViewModel
 
+    @State private var totalWidth: CGFloat = .zero
+
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: 0.0) {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
@@ -20,29 +22,51 @@ struct TokenItemView: View {
                 hasMonochromeIcon: viewModel.hasMonochromeIcon
             )
 
-            TokenItemViewMiddleComponent(
-                name: viewModel.name,
-                balance: viewModel.balanceCrypto,
-                hasPendingTransactions: viewModel.hasPendingTransactions,
-                hasError: viewModel.networkUnreachable || viewModel.missingDerivation
-            )
+            // Fixed size spacer
+            Color.clear
+                .frame(width: Constants.spacerLength, height: 0.0)
+                .layoutPriority(1000.0)
+                .hidden()
 
-            Spacer(minLength: 0.0)
+            HStack(alignment: .top, spacing: 0.0) {
+                TokenItemViewMiddleComponent(
+                    name: viewModel.name,
+                    balance: viewModel.balanceCrypto,
+                    hasPendingTransactions: viewModel.hasPendingTransactions,
+                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation
+                )
 
-            TokenItemViewTrailingComponent(
-                hasError: viewModel.networkUnreachable || viewModel.missingDerivation,
-                errorMessage: viewModel.errorMessage,
-                balanceFiat: viewModel.balanceFiat,
-                priceChangeState: viewModel.priceChangeState
-            )
+                // Flexible size spacer
+                Spacer(minLength: Constants.spacerLength)
+
+                TokenItemViewTrailingComponent(
+                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation,
+                    errorMessage: viewModel.errorMessage,
+                    balanceFiat: viewModel.balanceFiat,
+                    priceChangeState: viewModel.priceChangeState
+                )
+                .frame(maxWidth: totalWidth * 0.3, alignment: .trailing)
+                .fixedSize(horizontal: true, vertical: false)
+            }
         }
-        .padding(14)
+        .padding(14.0)
+        .readGeometry(\.size.width, bindTo: $totalWidth)
         // We need this background for correctly handling tap gesture
         // and because long tap gesture not correctly drawing cell
         .background(Colors.Background.primary.cornerRadiusContinuous(13))
         .onTapGesture(perform: viewModel.tapAction)
     }
 }
+
+// MARK: - Constants
+
+private extension TokenItemView {
+    enum Constants {
+        static let spacerLength = 12.0
+    }
+}
+
+// MARK: - Previews
 
 struct TokenItemView_Previews: PreviewProvider {
     static let infoProvider = FakeTokenItemInfoProvider(walletManagers: [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager])
