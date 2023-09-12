@@ -15,7 +15,7 @@ struct TokenItemViewTrailingComponent: View {
     let priceChangeState: TokenPriceChangeView.State
 
     var body: some View {
-        VStack(alignment: .trailing) {
+        VStack(alignment: .trailing, spacing: 8.0) {
             if hasError, let errorMessage {
                 Text(errorMessage)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
