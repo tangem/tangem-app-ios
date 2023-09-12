@@ -34,12 +34,15 @@ struct NetworkIcon: View {
     @ViewBuilder
     private var indicatorOverlay: some View {
         if isMainIndicatorVisible {
-            let indicatorSize: CGSize = .init(width: size.width / 3, height: size.height / 3)
+            let indicatorSize: CGSize = .init(width: 6, height: 6)
+            let radius = size.width / 2
+            let indicatorDistance = radius * sin(Double.pi / 4)
+            
             MainNetworkIndicator()
                 .frame(width: indicatorSize.width, height: indicatorSize.height)
                 .offset(
-                    x: size.width / 2 - indicatorSize.width / 2,
-                    y: -size.height / 2 + indicatorSize.height / 2
+                    x: indicatorDistance,
+                    y: -indicatorDistance
                 )
         } else {
             EmptyView()
