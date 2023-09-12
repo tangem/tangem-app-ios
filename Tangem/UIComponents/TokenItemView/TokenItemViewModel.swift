@@ -113,7 +113,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             return
         }
 
-        let signType: TokenPriceChangeView.ChangeSignType
+        let signType: ChangeSignType
         if quote.change > 0 {
             signType = .positive
         } else if quote.change < 0 {
