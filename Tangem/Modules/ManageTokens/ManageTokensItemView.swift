@@ -1,5 +1,5 @@
 //
-//  CoinView.swift
+//  ManageTokensItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 
-struct CoinView: View {
-    @ObservedObject var viewModel: CoinViewModel
+struct ManageTokensItemView: View {
+    @ObservedObject var viewModel: ManageTokensItemViewModel
 
     private let iconSize = CGSize(bothDimensions: 46)
 
@@ -62,7 +62,7 @@ struct CoinView: View {
     }
 
     @ViewBuilder
-    private func manageButton(for action: CoinViewModel.Action) -> some View {
+    private func manageButton(for action: ManageTokensItemViewModel.Action) -> some View {
         ZStack {
             Button {
                 viewModel.didTapAction(action)
@@ -118,7 +118,7 @@ private struct TextButtonView: View {
 struct CurrencyViewNew_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            CoinView(viewModel: CoinViewModel(
+            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png")!,
                 name: "Bitcoin",
                 symbol: "BTC",
@@ -129,7 +129,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(viewModel: CoinViewModel(
+            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
                 name: "Ethereum",
                 symbol: "ETH",
@@ -140,7 +140,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(viewModel: CoinViewModel(
+            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png")!,
                 name: "Solana",
                 symbol: "SOL",
@@ -151,7 +151,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(viewModel: CoinViewModel(
+            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png")!,
                 name: "Polygon",
                 symbol: "MATIC",
@@ -162,7 +162,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(viewModel: CoinViewModel(
+            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
                 imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/acalaevm/info/logo.png")!,
                 name: "Very long token name is very long",
                 symbol: "BUS",
@@ -173,7 +173,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 didTapAction: { _ in }
             ))
 
-            CoinView(viewModel: CoinViewModel(
+            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
                 imageURL: nil,
                 name: "Custom Token",
                 symbol: "CT",
