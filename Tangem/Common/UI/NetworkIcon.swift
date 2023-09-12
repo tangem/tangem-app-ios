@@ -60,3 +60,16 @@ private struct MainNetworkIndicator: View {
             .background(Circle().fill(Colors.Background.primary))
     }
 }
+
+struct NetworkIcon_Previews: PreviewProvider {
+    static let blockchainIconNames = "solana.fill"
+    static var previews: some View {
+        VStack {
+            NetworkIcon(imageName: blockchainIconNames, isActive: true, isMainIndicatorVisible: true)
+            
+            NetworkIcon(imageName: blockchainIconNames, isActive: true, isMainIndicatorVisible: true, size: CGSize(bothDimensions: 36))
+        }
+        .padding()
+        .previewLayout(.sizeThatFits)
+    }
+}
