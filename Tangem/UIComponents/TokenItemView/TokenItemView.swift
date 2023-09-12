@@ -28,19 +28,19 @@ struct TokenItemView: View {
                 .layoutPriority(1000.0)
                 .hidden()
 
-            HStack(alignment: .top, spacing: 0.0) {
+            HStack(alignment: viewModel.hasError ? .center : .top, spacing: 0.0) {
                 TokenItemViewMiddleComponent(
                     name: viewModel.name,
                     balance: viewModel.balanceCrypto,
                     hasPendingTransactions: viewModel.hasPendingTransactions,
-                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation
+                    hasError: viewModel.hasError
                 )
 
                 // Flexible size spacer
                 Spacer(minLength: Constants.spacerLength)
 
                 TokenItemViewTrailingComponent(
-                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation,
+                    hasError: viewModel.hasError,
                     errorMessage: viewModel.errorMessage,
                     balanceFiat: viewModel.balanceFiat,
                     priceChangeState: viewModel.priceChangeState
