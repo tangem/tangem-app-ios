@@ -67,4 +67,6 @@ extension LockedUserWallet: MainHeaderInfoProvider {
     var cardHeaderImage: ImageType? {
         config.cardHeaderImage
     }
+
+    var isWalletModelListEmpty: Bool { false }
 }
