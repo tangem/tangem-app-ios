@@ -23,10 +23,8 @@ struct TokenItemView: View {
             )
 
             // Fixed size spacer
-            Color.clear
-                .frame(width: Constants.spacerLength, height: 0.0)
+            FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
                 .layoutPriority(1000.0)
-                .hidden()
 
             HStack(alignment: viewModel.hasError ? .center : .top, spacing: 0.0) {
                 TokenItemViewMiddleComponent(
