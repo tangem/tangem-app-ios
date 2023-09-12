@@ -11,7 +11,7 @@ import SwiftUI
 struct BackupStoryPage: View {
     @Binding var progress: Double
     @Binding var isScanning: Bool
-    let useWallet2Image: Bool
+    let cardImage: Image
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -98,19 +98,11 @@ struct BackupStoryPage: View {
         .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
-    private var cardImage: Image {
-        if useWallet2Image {
-            return Assets.Stories.tangemCard.image
-        } else {
-            return Assets.Onboarding.walletCard.image
-        }
-    }
 }
 
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        BackupStoryPage(progress: .constant(1), isScanning: .constant(false), useWallet2Image: true) {} orderCard: {}
+        BackupStoryPage(progress: .constant(1), isScanning: .constant(false), cardImage: Assets.Stories.tangemCard.image) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
