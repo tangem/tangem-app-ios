@@ -18,20 +18,21 @@ struct TokenItemView: View {
                     name: viewModel.name,
                     imageURL: viewModel.imageURL,
                     blockchainIconName: viewModel.blockchainIconName,
-                    networkUnreachable: viewModel.networkUnreachable
+                    hasMonochromeIcon: viewModel.hasMonochromeIcon
                 )
 
                 TokenItemViewMiddleComponent(
                     name: viewModel.name,
                     balance: viewModel.balanceCrypto,
                     hasPendingTransactions: viewModel.hasPendingTransactions,
-                    networkUnreachable: viewModel.networkUnreachable
+                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation
                 )
 
                 Spacer(minLength: 0.0)
 
                 TokenItemViewTrailingComponent(
-                    networkUnreachable: viewModel.networkUnreachable,
+                    hasError: viewModel.networkUnreachable || viewModel.missingDerivation,
+                    errorMessage: viewModel.errorMessage,
                     balanceFiat: viewModel.balanceFiat,
                     changePercentage: viewModel.changePercentage
                 )
@@ -42,7 +43,7 @@ struct TokenItemView: View {
 }
 
 struct TokenItemView_Previews: PreviewProvider {
-    static let infoProvider = FakeTokenItemInfoProvider()
+    static let infoProvider = FakeTokenItemInfoProvider(walletManagers: [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager])
 
     static var previews: some View {
         VStack(spacing: 0) {
