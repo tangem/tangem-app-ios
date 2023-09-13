@@ -11,8 +11,8 @@ import Combine
 import BlockchainSdk
 
 class TokenDetailsCoordinator: CoordinatorObject {
-    let dismissAction: Action
-    let popToRootAction: ParamsAction<PopToRootOptions>
+    let dismissAction: Action<Void>
+    let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
@@ -31,8 +31,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
 
     required init(
-        dismissAction: @escaping Action,
-        popToRootAction: @escaping ParamsAction<PopToRootOptions>
+        dismissAction: @escaping Action<Void>,
+        popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -40,16 +40,15 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let exchangeUtility = ExchangeCryptoUtility(
-            blockchain: options.blockchainNetwork.blockchain,
+            blockchain: options.walletModel.blockchainNetwork.blockchain,
             address: options.walletModel.wallet.address,
-            amountType: options.amountType
+            amountType: options.walletModel.amountType
         )
 
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
+            userTokensManager: options.userTokensManager,
             walletModel: options.walletModel,
-            blockchainNetwork: options.blockchainNetwork,
-            amountType: options.amountType,
             exchangeUtility: exchangeUtility,
             coordinator: self
         )
@@ -62,8 +61,7 @@ extension TokenDetailsCoordinator {
     struct Options {
         let cardModel: CardViewModel
         let walletModel: WalletModel
-        let blockchainNetwork: BlockchainNetwork
-        let amountType: Amount.AmountType
+        let userTokensManager: UserTokensManager
     }
 }
 
@@ -160,7 +158,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.swappingCoordinator = nil
         }
 

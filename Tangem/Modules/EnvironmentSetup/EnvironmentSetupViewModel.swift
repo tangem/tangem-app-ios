@@ -16,6 +16,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     @Published var appSettingsTogglesViewModels: [DefaultToggleRowViewModel] = []
     @Published var featureStateViewModels: [FeatureStateRowViewModel] = []
+    @Published var additionalSettingsViewModels: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
 
     // Promotion
@@ -26,11 +27,11 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage()
-    private let cardId: String
+    private unowned let coordinator: EnvironmentSetupRoutable
     private var bag: Set<AnyCancellable> = []
 
-    init(cardId: String) {
-        self.cardId = cardId
+    init(coordinator: EnvironmentSetupRoutable) {
+        self.coordinator = coordinator
 
         setupView()
     }
@@ -86,6 +87,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
             )
         }
 
+        additionalSettingsViewModels = [
+            DefaultRowViewModel(title: "Supported Blockchains") { [weak self] in
+                self?.coordinator.openSupportedBlockchainsPreferences()
+            },
+        ]
+
         updateCurrentPromoCode()
 
         updateFinishedPromotionNames()
@@ -112,18 +119,19 @@ final class EnvironmentSetupViewModel: ObservableObject {
     }
 
     func resetAward() {
-        runTask { [weak self] in
-            guard let self else { return }
-
-            let success = (try? await promotionService.resetAward(cardId: cardId)) != nil
-
-            DispatchQueue.main.async {
-                let feedbackGenerator = UINotificationFeedbackGenerator()
-                feedbackGenerator.notificationOccurred(success ? .success : .error)
-
-                self.updateAwardedPromotionNames()
-            }
-        }
+        // [REDACTED_TODO_COMMENT]
+//        runTask { [weak self] in
+//            guard let self else { return }
+//
+//            let success = (try? await promotionService.resetAward(cardId: cardId)) != nil
+//
+//            DispatchQueue.main.async {
+//                let feedbackGenerator = UINotificationFeedbackGenerator()
+//                feedbackGenerator.notificationOccurred(success ? .success : .error)
+//
+//                self.updateAwardedPromotionNames()
+//            }
+//        }
     }
 
     func showExitAlert() {
