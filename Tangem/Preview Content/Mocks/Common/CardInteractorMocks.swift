@@ -10,10 +10,10 @@ import Foundation
 import TangemSdk
 
 class CardInitializerMock: CardInitializable {
-    func initializeCard(seed: Data?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
+    func initializeCard(mnemonic: Mnemonic?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             let cardInfo = CardInfo(
-                card: .init(card: .card),
+                card: .init(card: .walletWithBackup),
                 walletData: .none,
                 name: "",
                 artwork: .noArtwork,

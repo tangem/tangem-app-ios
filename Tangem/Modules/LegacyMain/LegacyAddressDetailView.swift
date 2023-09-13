@@ -90,7 +90,7 @@ struct LegacyAddressDetailView: View {
             .padding(.horizontal, 24.0)
             .padding(.top, 16.0)
 
-            Text(walletModel.getQRReceiveMessage())
+            Text(walletModel.qrReceiveMessage)
                 .font(.system(size: 16, weight: .regular))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemGrayDark)
@@ -110,7 +110,7 @@ struct LegacyAddressDetailView_Previews: PreviewProvider {
             Color.tangemBgGray
             LegacyAddressDetailView(
                 selectedAddressIndex: .constant(0),
-                walletModel: PreviewCard.v4.cardModel.walletModels.first!,
+                walletModel: PreviewCard.v4.cardModel.walletModelsManager.walletModels.first!,
                 copyAddress: {},
                 showQr: {},
                 showExplorerURL: { _ in }

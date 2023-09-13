@@ -38,12 +38,17 @@ enum PreviewCard {
                     kaspaSecondaryApiUrl: nil,
                     tronGridApiKey: "",
                     tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
+                    fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
+                    chiaTangemApiKeys: .init(mainnetApiKey: ""),
                     quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                     quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
                     blockscoutCredentials: .init(login: "", password: "")
                 )
             )
-            let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
+            let walletManager = try! factory.makeWalletManager(
+                blockchain: blockchain,
+                publicKey: .init(seedKey: publicKey, derivationType: .none)
+            )
         }
 
         // [REDACTED_TODO_COMMENT]
@@ -75,9 +80,9 @@ enum PreviewCard {
         case .ethereum:
             return .ethereum(testnet: false)
         case .stellar:
-            return .stellar(testnet: false)
+            return .stellar(curve: .ed25519_slip0010, testnet: false)
         case .cardanoNote:
-            return .cardano(shelley: true)
+            return .cardano(extended: false)
         default:
             return nil
         }
@@ -109,7 +114,7 @@ enum PreviewCard {
         case .tangemWalletBackuped:
             return .walletWithBackup
         default:
-            return .card
+            return .walletV2
         }
     }
 }
