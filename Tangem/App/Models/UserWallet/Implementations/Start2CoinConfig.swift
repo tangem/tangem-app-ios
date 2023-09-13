@@ -88,6 +88,10 @@ extension Start2CoinConfig: UserWalletConfig {
         .start2coin
     }
 
+    var cardHeaderImage: ImageType? {
+        Assets.Cards.s2c
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .send:
@@ -140,8 +144,6 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .transactionHistory:
             return .hidden
-        case .seedPhrase:
-            return .hidden
         case .accessCodeRecoverySettings:
             return .hidden
         case .promotion:
@@ -149,22 +151,16 @@ extension Start2CoinConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
-            throw CommonError.noData
-        }
-
-        let factory = WalletModelsFactory()
-        return try factory.makeSingleWallet(
-            walletPublicKey: walletPublicKey,
-            blockchain: defaultBlockchain,
-            token: nil,
-            derivationStyle: card.derivationStyle
-        )
+    func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
+        return Start2CoinOnboardingStepsBuilder(hasWallets: !card.wallets.isEmpty, touId: tou.id)
     }
 
-    func makeOnboardingStepsBuilder(backupService: BackupService) -> OnboardingStepsBuilder {
-        return Start2CoinOnboardingStepsBuilder(card: card, touId: tou.id)
+    func makeWalletModelsFactory() -> WalletModelsFactory {
+        return CommonWalletModelsFactory(derivationStyle: nil)
+    }
+
+    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+        return SimpleWalletManagerFactory()
     }
 }
 
