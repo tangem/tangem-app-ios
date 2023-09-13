@@ -104,7 +104,7 @@ struct MainButton: View {
         Text(title)
             .style(
                 Fonts.Bold.callout,
-                color: style.textColor(isDisabled: isDisabled)
+                color: style.titleColor(isDisabled: isDisabled)
             )
             .lineLimit(1)
     }
@@ -113,7 +113,7 @@ struct MainButton: View {
     private var subtitleView: some View {
         if let subtitle {
             Text(subtitle)
-                .style(Fonts.Regular.caption2, color: Colors.Text.disabled)
+                .style(Fonts.Regular.caption2, color: style.subtitleColor())
                 .lineLimit(1)
         }
     }
@@ -159,7 +159,7 @@ extension MainButton {
             }
         }
 
-        func textColor(isDisabled: Bool) -> Color {
+        func titleColor(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Text.disabled
             }
@@ -170,6 +170,10 @@ extension MainButton {
             case .secondary:
                 return Colors.Text.primary1
             }
+        }
+
+        func subtitleColor() -> Color {
+            Colors.Text.disabled
         }
 
         func loaderColor() -> Color {
