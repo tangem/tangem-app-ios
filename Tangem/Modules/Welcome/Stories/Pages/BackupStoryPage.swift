@@ -11,7 +11,6 @@ import SwiftUI
 struct BackupStoryPage: View {
     @Binding var progress: Double
     @Binding var isScanning: Bool
-    let cardImage: Image
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -44,7 +43,7 @@ struct BackupStoryPage: View {
                 Color.clear
                     .background(
                         // Bottom card
-                        cardImage
+                        Assets.Stories.tangemCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.7 * geometry.size.width)
@@ -59,7 +58,7 @@ struct BackupStoryPage: View {
                     )
                     .background(
                         // Top left
-                        cardImage
+                        Assets.Stories.tangemCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.65 * geometry.size.width)
@@ -73,7 +72,7 @@ struct BackupStoryPage: View {
                     )
                     .background(
                         // Top right
-                        cardImage
+                        Assets.Stories.tangemCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.5 * geometry.size.width)
@@ -101,7 +100,7 @@ struct BackupStoryPage: View {
 
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        BackupStoryPage(progress: .constant(1), isScanning: .constant(false), cardImage: Assets.Stories.tangemCard.image) {} orderCard: {}
+        BackupStoryPage(progress: .constant(1), isScanning: .constant(false)) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
