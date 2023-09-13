@@ -11,20 +11,26 @@ import SwiftUI
 import Combine
 
 class ManageTokensNetworkSelectorViewModel: ObservableObject {
-    let isMain: Bool
-    let iconName: String
-    let networkName: String
-    let tokenTypeName: String?
+    var iconName: String {
+        selectedPublisher ? _iconNameSelected : _iconName
+    }
 
     var isSelected: Binding<Bool>
 
+    let networkName: String
+    let isMain: Bool
+    let tokenTypeName: String?
+
     @Published var selectedPublisher: Bool
 
+    private let _iconName: String
+    private let _iconNameSelected: String
     private var bag = Set<AnyCancellable>()
 
-    init(isMain: Bool, iconName: String, networkName: String, tokenTypeName: String?, isSelected: Binding<Bool>) {
+    init(isMain: Bool, iconName: String, iconNameSelected: String, networkName: String, tokenTypeName: String?, isSelected: Binding<Bool>) {
         self.isMain = isMain
-        self.iconName = iconName
+        _iconName = iconName
+        _iconNameSelected = iconNameSelected
         self.networkName = networkName
         self.tokenTypeName = tokenTypeName
         self.isSelected = isSelected
