@@ -17,7 +17,7 @@ struct WalletSelectorCellView: View {
     private let maxImageWidth = 50.0
 
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             if let image = image {
                 Image(uiImage: image)
                     .resizable()
@@ -31,7 +31,11 @@ struct WalletSelectorCellView: View {
 
             Text(name)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+            
+            Spacer()
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 19)
     }
 }
 
