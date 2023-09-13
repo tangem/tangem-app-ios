@@ -54,10 +54,9 @@ struct LegacyTokenDetailsView: View {
                     VStack(spacing: 8.0) {
                         ForEach(pendingTransactionViews) { $0 }
 
-                        if let walletModel = viewModel.walletModel {
+                        if let model = viewModel.balanceAddressViewModel {
                             BalanceAddressView(
-                                walletModel: walletModel,
-                                amountType: viewModel.amountType,
+                                viewModel: model,
                                 isRefreshing: viewModel.isRefreshing,
                                 showExplorerURL: viewModel.showExplorerURL
                             )
@@ -78,7 +77,7 @@ struct LegacyTokenDetailsView: View {
                             AlertCardView(title: Localization.commonWarning, message: transactionLengthWarning)
                         }
 
-                        if let solanaRentWarning = viewModel.solanaRentWarning {
+                        if let solanaRentWarning = viewModel.rentWarning {
                             AlertCardView(title: Localization.commonWarning, message: solanaRentWarning)
                         }
                     }
