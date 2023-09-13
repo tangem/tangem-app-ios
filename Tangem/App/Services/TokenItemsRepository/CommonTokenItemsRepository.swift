@@ -29,6 +29,11 @@ class CommonTokenItemsRepository {
 // MARK: - TokenItemsRepository
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
+    var containsFile: Bool {
+        let entries: [StorageEntry]? = try? persistanceStorage.value(for: .wallets(cid: key))
+        return entries != nil
+    }
+
     func update(_ entries: [StorageEntry]) {
         lockQueue.sync {
             save(entries, for: key)
@@ -118,7 +123,7 @@ private extension CommonTokenItemsRepository {
                 let tokens = groupedTokens[blockchain]?.map { $0.newToken } ?? []
                 let network = BlockchainNetwork(
                     blockchain,
-                    derivationPath: blockchain.derivationPaths(for: .v1)[.default]
+                    derivationPath: blockchain.derivationPath(for: .v1)
                 )
                 return StorageEntry(blockchainNetwork: network, tokens: tokens)
             }
