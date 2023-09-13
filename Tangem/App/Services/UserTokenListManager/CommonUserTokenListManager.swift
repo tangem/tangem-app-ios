@@ -15,28 +15,66 @@ import struct TangemSdk.DerivationPath
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private(set) var didPerformInitialLoading: Bool = false
-
     private let userWalletId: Data
     private let tokenItemsRepository: TokenItemsRepository
+    private let supportedBlockchains: Set<Blockchain>
 
     private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
     private let hasTokenSynchronization: Bool
+    private let hdWalletsSupported: Bool // hotfix migration
+    /// Bool flag for migration custom token to token form our API
+    private var migrated = false
 
-    init(hasTokenSynchronization: Bool, userWalletId: Data) {
+    private let initialTokenSyncSubject: CurrentValueSubject<Bool, Never>
+    private var _userTokens: CurrentValueSubject<[StorageEntry], Never>
+    private var _userTokenList: CurrentValueSubject<UserTokenList, Never>
+
+    init(hasTokenSynchronization: Bool, userWalletId: Data, supportedBlockchains: Set<Blockchain>, hdWalletsSupported: Bool) {
         self.hasTokenSynchronization = hasTokenSynchronization
         self.userWalletId = userWalletId
-
+        self.supportedBlockchains = supportedBlockchains
+        self.hdWalletsSupported = hdWalletsSupported
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
+        initialTokenSyncSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
+        _userTokens = .init(tokenItemsRepository.getItems())
+        _userTokenList = .init(.empty)
+        removeInvalidTokens()
+        performInitialSync()
+    }
+
+    private func performInitialSync() {
+        if isInitialSyncPerformed {
+            return
+        }
+
+        updateLocalRepositoryFromServer { [weak self] _ in
+            self?.initialTokenSyncSubject.send(true)
+        }
     }
 }
 
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func update(_ type: CommonUserTokenListManager.UpdateType) {
+    var userTokens: [StorageEntry] {
+        _userTokens.value
+    }
+
+    var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
+        _userTokens.eraseToAnyPublisher()
+    }
+
+    var userTokenList: AnyPublisher<UserTokenList, Never> {
+        _userTokenList.eraseToAnyPublisher()
+    }
+
+    func update(with userTokenList: UserTokenList) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
         switch type {
         case .rewrite(let entries):
             tokenItemsRepository.update(entries)
@@ -48,31 +86,53 @@ extension CommonUserTokenListManager: UserTokenListManager {
             tokenItemsRepository.remove([token], blockchainNetwork: network)
         }
 
-        if hasTokenSynchronization {
+        updateUserTokens()
+
+        if shouldUpload {
             updateTokensOnServer()
         }
     }
 
-    func getEntriesFromRepository() -> [StorageEntry] {
-        tokenItemsRepository.getItems()
+    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
+        guard hasTokenSynchronization else {
+            result(.success(()))
+            return
+        }
+
+        loadUserTokenList(result: result)
     }
 
-    func clearRepository(completion: @escaping () -> Void) {
-        tokenItemsRepository.removeAll()
+    func upload() {
+        guard hasTokenSynchronization else { return }
+
         updateTokensOnServer()
     }
+}
 
-    func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        loadUserTokenList(result: result)
+extension CommonUserTokenListManager: UserTokensSyncService {
+    var isInitialSyncPerformed: Bool {
+        tokenItemsRepository.containsFile
+    }
+
+    var initialSyncPublisher: AnyPublisher<Bool, Never> {
+        initialTokenSyncSubject.eraseToAnyPublisher()
     }
 }
 
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
+    func updateUserTokens() {
+        _userTokens.send(tokenItemsRepository.getItems())
+    }
+
+    func updateUserTokenList(with userTokenList: UserTokenList) {
+        _userTokenList.send(userTokenList)
+    }
+
     // MARK: - Requests
 
-    func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func loadUserTokenList(result: @escaping (Result<Void, Error>) -> Void) {
         if let list = pendingTokensToUpdate {
             tokenItemsRepository.update(mapToEntries(list: list))
             updateTokensOnServer(list: list, result: result)
@@ -81,9 +141,11 @@ private extension CommonUserTokenListManager {
             return
         }
 
-        didPerformInitialLoading = true
-        self.loadTokensCancellable = tangemApiService
-            .loadTokens(for: userWalletId.hexString)
+        let loadTokensPublisher = tangemApiService.loadTokens(for: userWalletId.hexString)
+        let upgradeTokensPublisher = tryMigrateTokens().setFailureType(to: TangemAPIError.self)
+
+        self.loadTokensCancellable = loadTokensPublisher
+            .combineLatest(upgradeTokensPublisher)
             .sink { [unowned self] completion in
                 guard case .failure(let error) = completion else { return }
 
@@ -92,15 +154,17 @@ private extension CommonUserTokenListManager {
                 } else {
                     result(.failure(error as Error))
                 }
-            } receiveValue: { [unowned self] list in
+            } receiveValue: { [unowned self] list, _ in
                 tokenItemsRepository.update(mapToEntries(list: list))
-                result(.success(list))
+                updateUserTokens()
+                updateUserTokenList(with: list)
+                result(.success(()))
             }
     }
 
     func updateTokensOnServer(
         list: UserTokenList? = nil,
-        result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }
+        result: @escaping (Result<Void, Error>) -> Void = { _ in }
     ) {
         let listToUpdate = list ?? getUserTokenList()
 
@@ -109,7 +173,7 @@ private extension CommonUserTokenListManager {
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    result(.success(listToUpdate))
+                    result(.success(()))
                 case .failure(let error):
                     self.pendingTokensToUpdate = listToUpdate
                     result(.failure(error))
@@ -120,7 +184,11 @@ private extension CommonUserTokenListManager {
     func getUserTokenList() -> UserTokenList {
         let entries = tokenItemsRepository.getItems()
         let tokens = mapToTokens(entries: entries)
-        return UserTokenList(tokens: tokens)
+        return UserTokenList(
+            tokens: tokens,
+            group: .none,
+            sort: .manual
+        )
     }
 
     // MARK: - Mapping
@@ -129,7 +197,7 @@ private extension CommonUserTokenListManager {
         entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
             let blockchainToken = UserTokenList.Token(
-                id: blockchain.id,
+                id: blockchain.coinId,
                 networkId: blockchain.networkId,
                 name: blockchain.displayName,
                 symbol: blockchain.currencySymbol,
@@ -163,7 +231,7 @@ private extension CommonUserTokenListManager {
         let blockchains = list.tokens
             .filter { $0.contractAddress == nil }
             .compactMap { token -> BlockchainNetwork? in
-                guard let blockchain = Blockchain(from: token.networkId) else {
+                guard let blockchain = supportedBlockchains[token.networkId] else {
                     return nil
                 }
 
@@ -195,13 +263,75 @@ private extension CommonUserTokenListManager {
 
         return entries
     }
-}
 
-extension CommonUserTokenListManager {
-    enum UpdateType {
-        case rewrite(_ entries: [StorageEntry])
-        case append(_ entries: [StorageEntry])
-        case removeBlockchain(_ blockchain: BlockchainNetwork)
-        case removeToken(_ token: Token, in: BlockchainNetwork)
+    // MARK: - Token upgrading
+
+    func tryMigrateTokens() -> AnyPublisher<Void, Never> {
+        if migrated {
+            return .just
+        }
+
+        migrated = true
+
+        let items = tokenItemsRepository.getItems()
+        let itemsWithCustomTokens = items.filter { item in
+            return item.tokens.contains(where: { $0.isCustom })
+        }
+
+        if itemsWithCustomTokens.isEmpty {
+            return .just
+        }
+
+        let publishers: [AnyPublisher<Bool, Never>] = itemsWithCustomTokens.reduce(into: []) { result, item in
+            result += item.tokens.filter { $0.isCustom }.map { token -> AnyPublisher<Bool, Never> in
+                updateCustomToken(token: token, in: item.blockchainNetwork)
+            }
+        }
+
+        return Publishers.MergeMany(publishers)
+            .collect(publishers.count)
+            .mapVoid()
+            .eraseToAnyPublisher()
+    }
+
+    func updateCustomToken(token: Token, in blockchainNetwork: BlockchainNetwork) -> AnyPublisher<Bool, Never> {
+        let requestModel = CoinsList.Request(
+            supportedBlockchains: [blockchainNetwork.blockchain],
+            contractAddress: token.contractAddress
+        )
+
+        // [REDACTED_TODO_COMMENT]
+        return tangemApiService
+            .loadCoins(requestModel: requestModel)
+            .replaceError(with: [])
+            .flatMap { [weak self] models -> AnyPublisher<Bool, Never> in
+                guard let token = models.first?.items.compactMap({ $0.token }).first else {
+                    return Just(false).eraseToAnyPublisher()
+                }
+
+                return Future<Bool, Never> { promise in
+                    let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
+                    self?.update(.append([entry]), shouldUpload: true)
+                    promise(.success(true))
+                }
+                .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    // Remove tokens with derivation for cards without derivation
+    private func removeInvalidTokens() {
+        guard !hdWalletsSupported else {
+            return
+        }
+
+        let allItems = tokenItemsRepository.getItems()
+        let badItems = allItems.filter { $0.blockchainNetwork.derivationPath != nil }
+        guard !badItems.isEmpty else {
+            return
+        }
+
+        let networks = badItems.map { $0.blockchainNetwork }
+        tokenItemsRepository.remove(networks)
     }
 }
