@@ -64,16 +64,20 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     private func updateBalances(for newBalance: BalanceInfo) {
         let formatter = BalanceFormatter()
 
-        cryptoBalance = formatter.formatCryptoBalance(newBalance.balance, formattingOptions: .makeDefaultCryptoFormattingOptions(for: newBalance.currencyCode))
+        cryptoBalance = formatter.formatCryptoBalance(newBalance.balance, currencyCode: newBalance.currencyCode)
 
         fiatUpdatingTask?.cancel()
         fiatUpdatingTask = Task { [weak self] in
             let converter = BalanceConverter()
-            let fiatFormattingOptions = BalanceFormattingOptions.defaultFiatFormattingOptions
 
             do {
-                let fiatBalance = try await converter.convertToFiat(value: newBalance.balance, from: newBalance.currencyCode, to: fiatFormattingOptions.currencyCode)
-                let formattedFiat = formatter.formatFiatBalance(fiatBalance, formattingOptions: .defaultFiatFormattingOptions)
+                let fiatBalance: Decimal?
+                if let currencyId = newBalance.currencyId {
+                    fiatBalance = try await converter.convertToFiat(value: newBalance.balance, from: currencyId)
+                } else {
+                    fiatBalance = nil
+                }
+                let formattedFiat = formatter.formatFiatBalance(fiatBalance)
                 let attributedFiatBalance = formatter.formatTotalBalanceForMain(fiatBalance: formattedFiat, formattingOptions: .defaultOptions)
 
                 await runOnMain {

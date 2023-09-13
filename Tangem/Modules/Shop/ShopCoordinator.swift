@@ -9,8 +9,8 @@
 import Foundation
 
 class ShopCoordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    var dismissAction: Action<Void>
+    var popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Main view model
 
@@ -26,7 +26,7 @@ class ShopCoordinator: CoordinatorObject {
 
     @Published var emptyModel: Int? = nil // Fix single navigation link issue
 
-    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -37,6 +37,7 @@ class ShopCoordinator: CoordinatorObject {
         if let webShopUrl = ShopWebHelper().webShopUrl {
             self.webShopUrl = webShopUrl
         } else {
+            fatalError("Did you return the availability of Shopify? There's an untested dynamic Shopify system that hasn't been tested yet ([REDACTED_INFO])")
             shopViewModel = ShopViewModel(coordinator: self)
         }
     }
