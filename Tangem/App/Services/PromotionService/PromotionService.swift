@@ -13,6 +13,7 @@ import Moya
 
 class PromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     var readyForAwardPublisher: AnyPublisher<Void, Never> {
         readyForAwardSubject.eraseToAnyPublisher()
@@ -30,6 +31,9 @@ class PromotionService {
     var promotionAvailable: Bool = false
 
     private let readyForAwardSubject = PassthroughSubject<Void, Never>()
+    private var supportedBlockchains: Set<Blockchain> {
+        userWalletRepository.selectedModel?.config.supportedBlockchains ?? []
+    }
 
     init() {}
 }
@@ -151,8 +155,8 @@ extension PromotionService: PromotionServiceProtocol {
         }
     }
 
-    func claimReward(userWalletId: String, storageEntryAdding: StorageEntryAdding) async throws -> Blockchain? {
-        guard let awardDetails = try await awardDetails(storageEntryAdding: storageEntryAdding) else { return nil }
+    func claimReward(userWalletId: String, userTokensManager: UserTokensManager) async throws -> Blockchain? {
+        guard let awardDetails = try await awardDetails(userTokensManager: userTokensManager) else { return nil }
 
         let address = awardDetails.address
 
@@ -213,22 +217,18 @@ extension PromotionService {
         let address: String
     }
 
-    private func awardDetails(storageEntryAdding: StorageEntryAdding) async throws -> AwardDetails? {
+    private func awardDetails(userTokensManager: UserTokensManager) async throws -> AwardDetails? {
         let promotion = try await tangemApiService.promotion(programName: currentProgramName, timeout: nil)
 
         guard
-            let awardBlockchain = Blockchain(from: promotion.awardPaymentToken.networkId),
+            let awardBlockchain = supportedBlockchains[promotion.awardPaymentToken.networkId],
             let awardToken = promotion.awardPaymentToken.storageToken
         else {
             throw TangemAPIError(code: .decode)
         }
 
-        let blockchainNetwork = storageEntryAdding.getBlockchainNetwork(for: awardBlockchain, derivationPath: nil)
-
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: awardToken)
-
         do {
-            let address = try await storageEntryAdding.add(entry: entry)
+            let address = try await userTokensManager.add(.token(awardToken, awardBlockchain), derivationPath: nil)
             return AwardDetails(blockchain: awardBlockchain, address: address)
         } catch {
             if error.toTangemSdkError().isUserCancelled {
