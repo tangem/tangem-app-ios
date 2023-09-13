@@ -37,7 +37,7 @@ struct NetworkIcon: View {
             let indicatorSize: CGSize = .init(width: 6, height: 6)
             let radius = size.width / 2
             let indicatorDistance = radius * sin(Double.pi / 4)
-            
+
             MainNetworkIndicator()
                 .frame(width: indicatorSize.width, height: indicatorSize.height)
                 .offset(
@@ -66,7 +66,7 @@ struct NetworkIcon_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             NetworkIcon(imageName: blockchainIconNames, isActive: true, isMainIndicatorVisible: true)
-            
+
             NetworkIcon(imageName: blockchainIconNames, isActive: true, isMainIndicatorVisible: true, size: CGSize(bothDimensions: 36))
         }
         .padding()
