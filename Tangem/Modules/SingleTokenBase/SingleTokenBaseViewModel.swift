@@ -77,6 +77,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         openExplorer(at: url)
     }
 
+    func openTransactionExplorer(transaction hash: String) {
+        guard let url = walletModel.exploreTransactionURL(for: hash) else {
+            return
+        }
+
+        openExplorer(at: url)
+    }
+
     func fetchMoreHistory() -> FetchMore? {
         guard let transactionHistoryService = walletModel.transactionHistoryService,
               transactionHistoryService.canFetchMore else {
