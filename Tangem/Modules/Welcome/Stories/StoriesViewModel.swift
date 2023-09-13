@@ -11,12 +11,9 @@ import SwiftUI
 
 class StoriesViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
-    @Published var handWithCardImage = Assets.Stories.handWithCard.image
-    @Published var cardImage = Assets.Stories.tangemCard.image
     @Published var checkingPromotionAvailability = true
 
     var currentPageIndex: Int {
@@ -35,7 +32,6 @@ class StoriesViewModel: ObservableObject {
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
     private let promotionCheckTimeout: TimeInterval = 5
-    private var didChooseWalletImage = false
 
     init() {
         runTask { [weak self] in
@@ -58,14 +54,6 @@ class StoriesViewModel: ObservableObject {
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .sink { [weak self] _ in
                 self?.resumeTimer()
-            }
-            .store(in: &bag)
-
-        $currentPage
-            .sink { [weak self] page in
-                if case .backup = page {
-                    self?.didReachWalletImage()
-                }
             }
             .store(in: &bag)
 
@@ -101,7 +89,7 @@ class StoriesViewModel: ObservableObject {
         case WelcomeStoryPage.awe:
             AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
-            BackupStoryPage(progress: progressBinding, isScanning: isScanning, cardImage: cardImage, scanCard: scanCard, orderCard: orderCard)
+            BackupStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.currencies:
             CurrenciesStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
 //        case WelcomeStoryPage.web3:
@@ -109,22 +97,6 @@ class StoriesViewModel: ObservableObject {
         case WelcomeStoryPage.finish:
             FinishStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         }
-    }
-
-    func didReachWalletImage() {
-        if didChooseWalletImage {
-            return
-        }
-
-        switch tangemApiService.geoIpRegionCode {
-        case LanguageCode.ru, LanguageCode.by:
-            cardImage = Assets.Onboarding.walletCard.image
-            handWithCardImage = Assets.Stories.handWithCardOld.image
-        default:
-            break
-        }
-
-        didChooseWalletImage = true
     }
 
     func didDrag(_ current: CGPoint) {
