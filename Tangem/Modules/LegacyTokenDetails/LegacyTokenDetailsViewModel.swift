@@ -69,7 +69,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     var buyCryptoUrl: URL? {
         if let wallet = wallet {
             if blockchainNetwork.blockchain.isTestnet {
-                return blockchainNetwork.blockchain.testnetFaucetURL
+                return wallet.getTestnetFaucetURL()
             }
 
             let address = wallet.address
