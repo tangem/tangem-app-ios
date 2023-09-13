@@ -11,6 +11,8 @@ import SwiftUI
 import TangemSdk
 
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     let id = UUID()
 
     @Published var isLoading: Bool = false
@@ -44,14 +46,31 @@ extension ScanCardSettingsViewModel {
     }
 
     private func processSuccessScan(for cardInfo: CardInfo) {
-        guard let cardModel = CardViewModel(cardInfo: cardInfo) else { return }
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        guard cardModel.userWalletId.value == expectedUserWalletId else {
+        guard let userWalletIdSeed = config.userWalletIdSeed else {
+            return
+        }
+
+        let userWalletId = UserWalletId(with: userWalletIdSeed)
+
+        guard userWalletId.value == expectedUserWalletId else {
             showErrorAlert(error: AppError.wrongCardWasTapped)
             return
         }
 
-        coordinator.openCardSettings(cardModel: cardModel)
+        var cardInfo = cardInfo
+
+        // [REDACTED_TODO_COMMENT]
+        if let existingCardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CardViewModel {
+            cardInfo.name = existingCardModel.name
+        }
+
+        guard let newCardViewModel = CardViewModel(cardInfo: cardInfo) else {
+            return
+        }
+
+        coordinator.openCardSettings(cardModel: newCardViewModel)
     }
 }
 
