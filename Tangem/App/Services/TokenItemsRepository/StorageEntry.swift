@@ -6,7 +6,8 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
+import Foundation
+import struct BlockchainSdk.Token
 
 struct StorageEntry: Hashable, Codable, Equatable {
     let blockchainNetwork: BlockchainNetwork
@@ -25,5 +26,15 @@ struct StorageEntry: Hashable, Codable, Equatable {
         } else {
             tokens = []
         }
+    }
+}
+
+extension StorageEntry {
+    var walletModelIds: [WalletModel.ID] {
+        let mainCoinId = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: .coin).id
+        let tokenCoinIds = tokens.map {
+            WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: .token(value: $0)).id
+        }
+        return [mainCoinId] + tokenCoinIds
     }
 }
