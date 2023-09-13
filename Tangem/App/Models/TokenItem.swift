@@ -23,7 +23,16 @@ enum TokenItem: Hashable {
         case .token(let token, _):
             return token.id
         case .blockchain(let blockchain):
-            return blockchain.id
+            return blockchain.coinId
+        }
+    }
+
+    var currencyId: String? {
+        switch self {
+        case .token(let token, _):
+            return token.id
+        case .blockchain(let blockchain):
+            return blockchain.currencyId
         }
     }
 

@@ -13,11 +13,13 @@ import BlockchainSdk
 struct UserCurrenciesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let walletModel: WalletModel
+    private let blockchain: Blockchain
+    private let walletModelTokens: [Token]
     private let currencyMapper: CurrencyMapping
 
-    init(walletModel: WalletModel, currencyMapper: CurrencyMapping) {
-        self.walletModel = walletModel
+    init(blockchain: Blockchain, walletModelTokens: [Token], currencyMapper: CurrencyMapping) {
+        self.blockchain = blockchain
+        self.walletModelTokens = walletModelTokens
         self.currencyMapper = currencyMapper
     }
 }
@@ -26,28 +28,21 @@ struct UserCurrenciesProvider {
 
 extension UserCurrenciesProvider: UserCurrenciesProviding {
     func getCurrencies(blockchain swappingBlockchain: SwappingBlockchain) async -> [Currency] {
-        let blockchain = walletModel.blockchainNetwork.blockchain
-
-        guard blockchain.networkId == swappingBlockchain.networkId else {
-            assertionFailure("incorrect blockchain in WalletModel")
-            return []
-        }
-
         var currencies: [Currency] = []
         if let coinCurrency = currencyMapper.mapToCurrency(blockchain: blockchain) {
             currencies.append(coinCurrency)
         }
 
-        let userTokens = walletModel.getTokens()
-        if userTokens.isEmpty {
+        let tokenIds = walletModelTokens.compactMap(\.id)
+        if tokenIds.isEmpty {
             return currencies
         }
 
         // Get user tokens from API with filled in fields
         // For checking exchangeable
         let filledTokens = await getTokens(
-            networkId: swappingBlockchain.networkId,
-            ids: userTokens.compactMap { $0.id }
+            blockchain: blockchain,
+            ids: tokenIds
         )
 
         currencies += filledTokens.compactMap { token in
@@ -63,9 +58,9 @@ extension UserCurrenciesProvider: UserCurrenciesProviding {
 }
 
 private extension UserCurrenciesProvider {
-    func getTokens(networkId: String, ids: [String]) async -> [Token] {
+    func getTokens(blockchain: Blockchain, ids: [String]) async -> [Token] {
         let coins = try? await tangemApiService.loadCoins(
-            requestModel: CoinsListRequestModel(networkIds: [networkId], ids: ids)
+            requestModel: CoinsList.Request(supportedBlockchains: [blockchain], ids: ids)
         ).async()
 
         return coins?.compactMap { coin in
