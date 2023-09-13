@@ -583,6 +583,8 @@
 		DA7444242A27889600F926A9 /* PromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444222A27889600F926A9 /* PromotionService.swift */; };
 		DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */; };
 		DA798E3D2A6FC3B3009BC25C /* SalesDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA798E3C2A6FC3B3009BC25C /* SalesDetails.swift */; };
+		DA7EBD002AB20D4500912FD4 /* WalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EBCFF2AB20D4500912FD4 /* WalletSelectorView.swift */; };
+		DA7EBD042AB212A400912FD4 /* WalletSelectorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EBD032AB212A400912FD4 /* WalletSelectorCellView.swift */; };
 		DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
@@ -1764,6 +1766,8 @@
 		DA7444222A27889600F926A9 /* PromotionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionService.swift; sourceTree = "<group>"; };
 		DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionServiceProtocol.swift; sourceTree = "<group>"; };
 		DA798E3C2A6FC3B3009BC25C /* SalesDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesDetails.swift; sourceTree = "<group>"; };
+		DA7EBCFF2AB20D4500912FD4 /* WalletSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
+		DA7EBD032AB212A400912FD4 /* WalletSelectorCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectorCellView.swift; sourceTree = "<group>"; };
 		DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchGradientViews.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
@@ -4264,6 +4268,15 @@
 			path = PromotionService;
 			sourceTree = "<group>";
 		};
+		DA7EBCFE2AB20D1F00912FD4 /* ManageTokens */ = {
+			isa = PBXGroup;
+			children = (
+				DA7EBCFF2AB20D4500912FD4 /* WalletSelectorView.swift */,
+				DA7EBD032AB212A400912FD4 /* WalletSelectorCellView.swift */,
+			);
+			path = ManageTokens;
+			sourceTree = "<group>";
+		};
 		DA8BBF952A0248E300B085DC /* SensitiveText */ = {
 			isa = PBXGroup;
 			children = (
@@ -4818,6 +4831,7 @@
 				6563B8B72858B912009A8A7D /* SupportChat */,
 				5D384B9224FD51B200C2C92C /* Details */,
 				DA43718D2A7D1937006215CA /* LegacyTokenList */,
+				DA7EBCFE2AB20D1F00912FD4 /* ManageTokens */,
 				5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */,
 				B0DD16182A331BF300CB23AA /* TokenDetails */,
 				5D011A222530776A00758010 /* Disclaimer */,
@@ -7045,6 +7059,7 @@
 				6596AD4B28738F0100508D0A /* WarningBankCardViewModel.swift in Sources */,
 				DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */,
 				EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */,
+				DA7EBD002AB20D4500912FD4 /* WalletSelectorView.swift in Sources */,
 				EF9F6F4428D499F600D6B190 /* LoadingValue.swift in Sources */,
 				DA4371AA2A7D1937006215CA /* LegacyTokenListRoutable.swift in Sources */,
 				EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */,
@@ -7081,6 +7096,7 @@
 				DC13D04329DF31A60003895C /* WalletOnboardingStepsBuilder.swift in Sources */,
 				DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */,
 				EF94A86E298A557D008F2C3F /* ExplorerURLProviding.swift in Sources */,
+				DA7EBD042AB212A400912FD4 /* WalletSelectorCellView.swift in Sources */,
 				B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */,
 				65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */,
 				B00371C02A8A5ECE00D77A4B /* FakeTangemApiService.swift in Sources */,
