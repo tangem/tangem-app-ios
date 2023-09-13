@@ -11,6 +11,7 @@ import SwiftUI
 struct MeetTangemStoryPage: View {
     @Binding var progress: Double
     @Binding var isScanning: Bool
+    let didReachWalletImage: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -57,5 +58,32 @@ struct MeetTangemStoryPage_Previews: PreviewProvider {
         MeetTangemStoryPage(progress: .constant(0.8), isScanning: .constant(false)) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
             .environment(\.colorScheme, .dark)
+    }
+}
+
+private struct ProgressCheckerModifier: AnimatableModifier {
+    enum PreferenceKey: SwiftUI.PreferenceKey {
+        static var defaultValue: Bool { false }
+
+        static func reduce(value: inout Bool, nextValue: () -> Bool) {
+            value = nextValue()
+        }
+    }
+
+    var progress: Double
+    let threshold: Double
+
+    var animatableData: CGFloat {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    private var reachedThreshold: Bool {
+        return progress >= threshold
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .preference(key: PreferenceKey.self, value: reachedThreshold)
     }
 }
