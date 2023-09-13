@@ -603,6 +603,17 @@
                 }
             ]
         },
+        {
+            "id": "chia",
+            "name": "Chia",
+            "symbol": "TXCH",
+            "networks": [
+                {
+                    "networkId": "chia/test",
+                    "exchangeable": false
+                }
+            ]
+        },
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"
