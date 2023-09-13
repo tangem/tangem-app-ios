@@ -123,7 +123,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         coordinator.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
     }
 
-    func edit(_ userWallet: UserWallet) {
+    func edit(_ userWalletId: Data) {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }) else {
+            return
+        }
+
         Analytics.log(.buttonEditWalletTapped)
 
         let alert = UIAlertController(title: Localization.userWalletListRenamePopupTitle, message: nil, preferredStyle: .alert)
@@ -134,7 +138,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         alert.addTextField { textField in
             nameTextField = textField
             nameTextField?.placeholder = Localization.userWalletListRenamePopupPlaceholder
-            nameTextField?.text = userWallet.name
+            nameTextField?.text = userWalletModel.userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
         }
@@ -142,9 +146,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         let acceptButton = UIAlertAction(title: Localization.commonOk, style: .default) { [weak self, nameTextField] _ in
             let newName = nameTextField?.text ?? ""
 
-            guard userWallet.name != newName else { return }
+            guard userWalletModel.userWallet.name != newName else { return }
 
-            var newUserWallet = userWallet
+            var newUserWallet = userWalletModel.userWallet
             newUserWallet.name = newName
 
             self?.userWalletRepository.save(newUserWallet)
@@ -154,11 +158,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         AppPresenter.shared.show(alert)
     }
 
-    func showDeletionConfirmation(_ userWallet: UserWallet) {
+    func showDeletionConfirmation(_ userWalletId: Data) {
         Analytics.log(.buttonDeleteWalletTapped)
 
         showingDeleteConfirmation = true
-        userWalletIdToBeDeleted = userWallet.userWalletId
+        userWalletIdToBeDeleted = userWalletId
     }
 
     func didCancelWalletDeletion() {
@@ -266,9 +270,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             }
             self?.userWalletRepository.setSelectedUserWalletId(userWallet.userWalletId, reason: .userSelected)
         } didEditUserWallet: { [weak self] in
-            self?.edit(userWallet)
+            self?.edit(userWallet.userWalletId)
         } didDeleteUserWallet: { [weak self] in
-            self?.showDeletionConfirmation(userWallet)
+            self?.showDeletionConfirmation(userWallet.userWalletId)
         }
     }
 }
