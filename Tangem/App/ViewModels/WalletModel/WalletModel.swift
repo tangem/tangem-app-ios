@@ -509,6 +509,14 @@ extension WalletModel {
         return wallet.getExploreURL(for: wallet.addresses[index].value, token: token)
     }
 
+    func exploreTransactionURL(for hash: String) -> URL? {
+        if isDemo {
+            return nil
+        }
+
+        return wallet.getExploreURL(for: hash)
+    }
+
     func getDecimalBalance(for type: Amount.AmountType) -> Decimal? {
         return wallet.amounts[type]?.value
     }
