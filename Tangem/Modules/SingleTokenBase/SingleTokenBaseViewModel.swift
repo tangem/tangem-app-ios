@@ -39,6 +39,10 @@ class SingleTokenBaseViewModel {
     var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
 
     var canSend: Bool {
+        guard userWalletModel.config.hasFeature(.send) else {
+            return false
+        }
+
         guard canSignLongTransactions else {
             return false
         }
