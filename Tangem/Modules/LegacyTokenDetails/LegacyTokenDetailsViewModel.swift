@@ -32,13 +32,29 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return walletModel?.wallet
     }
 
+    var balanceAddressViewModel: BalanceAddressViewModel? {
+        guard let walletModel else { return nil }
+
+        return .init(
+            state: walletModel.state,
+            wallet: walletModel.wallet,
+            tokenItem: walletModel.tokenItem,
+            hasTransactionInProgress: walletModel.hasPendingTransactions,
+            name: walletModel.name,
+            fiatBalance: walletModel.fiatBalance,
+            balance: walletModel.balance,
+            isTestnet: walletModel.isTestnet,
+            isDemo: walletModel.isDemo
+        )
+    }
+
     var walletModel: WalletModel?
 
-    var incomingTransactions: [TransactionRecord] {
+    var incomingTransactions: [LegacyTransactionRecord] {
         walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
-    var outgoingTransactions: [TransactionRecord] {
+    var outgoingTransactions: [LegacyTransactionRecord] {
         walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
@@ -94,10 +110,6 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.canSend else {
-            return false
-        }
-
         guard canSignLongTransactions else {
             return false
         }
@@ -133,17 +145,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var existentialDepositWarning: String? {
-        guard
-            let blockchain = walletModel?.blockchainNetwork.blockchain,
-            let existentialDepositProvider = walletModel?.walletManager as? ExistentialDepositProvider
-        else {
-            return nil
-        }
-
-        let blockchainName = blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
-
-        return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
+        walletModel?.existentialDepositWarning
     }
 
     var transactionLengthWarning: String? {
@@ -170,7 +172,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return Localization.walletCurrencySubtitle(blockchainNetwork.blockchain.displayName)
     }
 
-    @Published var solanaRentWarning: String? = nil
+    @Published var rentWarning: String? = nil
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
 
@@ -188,7 +190,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private var canSignLongTransactions: Bool {
         if let blockchain = walletModel?.blockchainNetwork.blockchain,
            NFCUtils.isPoorNfcQualityDevice,
-           case .solana = blockchain {
+           blockchain.hasLongTransactions {
             return false
         } else {
             return true
@@ -205,7 +207,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         self.amountType = amountType
         self.coordinator = coordinator
 
-        walletModel = card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
+        walletModel = card.walletModelsManager.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
 
         bind()
         updateSwapAvailability()
@@ -218,12 +220,6 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
-        if isCustomToken {
-            canSwap = false
-            updateExchangeButtons()
-            return
-        }
-
         // For a coin we can check it locally
         if amountType == .coin {
             canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchainNetwork.blockchain)
@@ -231,13 +227,18 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
+        // For a custom token id == nil
+        guard let currencyId = amountType.token?.id, !isCustomToken else {
+            canSwap = false
+            updateExchangeButtons()
+            return
+        }
+
         exchangeButtonIsLoading = true
 
         let networkId = blockchainNetwork.blockchain.networkId
-        let currencyId = amountType.token?.id ?? blockchainNetwork.blockchain.id
-
         tangemApiService
-            .loadCoins(requestModel: CoinsListRequestModel(networkIds: [networkId], ids: [currencyId]))
+            .loadCoins(requestModel: CoinsList.Request(supportedBlockchains: [blockchainNetwork.blockchain], ids: [currencyId]))
             .sink { [weak self] completion in
                 if case .failure = completion {
                     self?.canSwap = false
@@ -310,7 +311,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     func onAppear() {
         Analytics.log(.detailsScreenOpened)
         rentWarningSubscription = walletModel?
-            .$state
+            .walletDidChangePublisher
             .filter { !$0.isLoading }
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -324,7 +325,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
-        if walletModel.canRemove(amountType: amountType) {
+        if card.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
             showWarningDeleteAlert()
         } else {
             showUnableToHideAlert()
@@ -351,7 +352,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        walletModel?.walletManager.walletPublisher
+        walletModel?.walletDidChangePublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
@@ -385,26 +386,9 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     private func updateRentWarning() {
-        guard let rentProvider = walletModel?.walletManager as? RentProvider else {
-            return
-        }
-
-        rentProvider.rentAmount()
-            .zip(rentProvider.minimalBalanceForRentExemption())
-            .receive(on: RunLoop.main)
-            .sink { _ in
-
-            } receiveValue: { [weak self] rentAmount, minimalBalanceForRentExemption in
-                guard
-                    let self = self,
-                    let amount = walletModel?.wallet.amounts[.coin],
-                    amount < minimalBalanceForRentExemption
-                else {
-                    self?.solanaRentWarning = nil
-                    return
-                }
-                solanaRentWarning = Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
-            }
+        walletModel?
+            .updateRentWarning()
+            .weakAssign(to: \.rentWarning, on: self)
             .store(in: &bag)
     }
 
@@ -416,7 +400,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
 
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
-        card.remove(amountType: amountType, blockchainNetwork: walletModel.blockchainNetwork)
+        card.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         dismiss()
     }
 
@@ -507,7 +491,7 @@ extension LegacyTokenDetailsViewModel {
         if let walletModel = walletModel,
            let token = amountType.token,
            blockchainNetwork.blockchain == .ethereum(testnet: true) {
-            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: card.signer))
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletModel: walletModel, signer: card.signer))
             return
         }
 
@@ -549,6 +533,8 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openSwapping() {
+        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
+
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -556,7 +542,9 @@ extension LegacyTokenDetailsViewModel {
 
         guard FeatureProvider.isAvailable(.exchange),
               let walletModel = walletModel,
-              let source = sourceCurrency
+              let source = sourceCurrency,
+              let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
+              let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
         else {
             return
         }
@@ -568,13 +556,18 @@ extension LegacyTokenDetailsViewModel {
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
-            userWalletModel: card,
-            walletModel: walletModel,
-            sender: walletModel.walletManager,
+            userTokensManager: card.userTokensManager,
+            wallet: walletModel.wallet,
+            blockchainNetwork: walletModel.blockchainNetwork,
+            sender: walletModel.transactionSender,
             signer: card.signer,
+            transactionCreator: walletModel.transactionCreator,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
             referrer: referrer,
-            source: source
+            source: source,
+            walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
         )
 
         coordinator.openSwapping(input: input)
