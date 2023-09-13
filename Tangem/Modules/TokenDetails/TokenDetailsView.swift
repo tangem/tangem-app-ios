@@ -13,13 +13,9 @@ struct TokenDetailsView: View {
 
     @State private var contentOffset: CGPoint = .zero
 
-    private let tokenIconSizeSettings: TokenIconView.SizeSettings = .tokenDetails
+    private let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
     private let headerTopPadding: CGFloat = 14
     private let coorditateSpaceName = "token_details_scroll_space"
-
-    private var tokenIconViewModel: TokenIconViewModel {
-        TokenIconViewModel(id: viewModel.tokenItem.id, name: viewModel.tokenItem.name, style: .blockchain)
-    }
 
     private var toolbarIconOpacity: Double {
         let iconSize = tokenIconSizeSettings.iconSize
@@ -47,7 +43,8 @@ struct TokenDetailsView: View {
                     exploreAction: viewModel.openExplorer,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuy : nil
+                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
+                    fetchMore: viewModel.fetchMoreHistory()
                 )
                 .padding(.bottom, 40)
             }
@@ -66,7 +63,7 @@ struct TokenDetailsView: View {
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
-                TokenIconView(viewModel: tokenIconViewModel, sizeSettings: .tokenDetailsToolbar)
+                IconView(url: viewModel.iconUrl, sizeSettings: .tokenDetailsToolbar)
                     .opacity(toolbarIconOpacity)
             }
 
@@ -85,6 +82,7 @@ struct TokenDetailsView: View {
             }
         } label: {
             NavbarDotsImage()
+                .offset(x: 11)
         }
     }
 }
