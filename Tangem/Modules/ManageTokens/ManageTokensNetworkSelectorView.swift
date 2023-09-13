@@ -46,11 +46,11 @@ struct ManageTokensNetworkSelectorView: View {
 struct ManageTokensNetworkSelectorView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            ManageTokensNetworkSelectorView(viewModel: .init(isMain: true, iconName: "ethereum.fill", networkName: "Ethereum", tokenTypeName: "ERC20", isSelected: .constant(true)))
+            ManageTokensNetworkSelectorView(viewModel: .init(isMain: true, iconName: "ethereum", iconNameSelected: "ethereum.fill", networkName: "Ethereum", tokenTypeName: "ERC20", isSelected: .constant(true)))
 
-            ManageTokensNetworkSelectorView(viewModel: .init(isMain: false, iconName: "solana.fill", networkName: "Solana", tokenTypeName: nil, isSelected: .constant(false)))
+            ManageTokensNetworkSelectorView(viewModel: .init(isMain: false, iconName: "solana", iconNameSelected: "solana.fill", networkName: "Solana", tokenTypeName: nil, isSelected: .constant(false)))
 
-            ManageTokensNetworkSelectorView(viewModel: .init(isMain: false, iconName: "bsc.fill", networkName: "Binance smartest chain on the planet", tokenTypeName: "BEEP-BEEP 20", isSelected: .constant(false)))
+            ManageTokensNetworkSelectorView(viewModel: .init(isMain: false, iconName: "bsc", iconNameSelected: "bsc.fill", networkName: "Binance smartest chain on the planet", tokenTypeName: "BEEP-BEEP 20", isSelected: .constant(false)))
         }
         .previewLayout(.fixed(width: 400, height: 300))
     }
