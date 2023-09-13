@@ -122,9 +122,8 @@ class LegacyMainViewModel: ObservableObject {
 
     var buyCryptoURL: URL? {
         if let wallet {
-            let blockchain = wallet.blockchain
-            if blockchain.isTestnet {
-                return blockchain.testnetFaucetURL
+            if wallet.blockchain.isTestnet {
+                return wallet.getTestnetFaucetURL()
             }
 
             return exchangeService.getBuyUrl(
