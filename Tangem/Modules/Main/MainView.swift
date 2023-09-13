@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -71,6 +72,9 @@ struct MainView: View {
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
+        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
+            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
+        })
     }
 
     var detailsNavigationButton: some View {
