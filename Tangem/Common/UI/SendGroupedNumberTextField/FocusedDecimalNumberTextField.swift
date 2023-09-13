@@ -44,8 +44,7 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
                 Button {
                     isInputActive = false
                 } label: {
-                    Image(systemName: "keyboard.chevron.compact.down")
-                        .resizable()
+                    Assets.hideKeyboard.image
                 }
             }
         }
