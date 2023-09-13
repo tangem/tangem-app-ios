@@ -23,6 +23,10 @@ struct IconView: View {
         self.forceKingfisher = forceKingfisher
     }
 
+    init(url: URL?, sizeSettings: IconViewSizeSettings, forceKingfisher: Bool = false) {
+        self.init(url: url, size: sizeSettings.iconSize, forceKingfisher: forceKingfisher)
+    }
+
     var body: some View {
         if forceKingfisher {
             kfImage
@@ -63,11 +67,9 @@ struct IconView: View {
     var kfImage: some View {
         KFImage(url)
             .cancelOnDisappear(true)
-            .setProcessor(DownsamplingImageProcessor(size: size))
             .placeholder { CircleImageTextView(name: "", color: .tangemSkeletonGray) }
             .fade(duration: 0.3)
             .cacheOriginalImage()
-            .scaleFactor(UIScreen.main.scale)
             .resizable()
             .scaledToFit()
             .frame(size: size)
@@ -84,7 +86,7 @@ struct IconView: View {
 struct IconView_Preview: PreviewProvider {
     static var previews: some View {
         IconView(
-            url: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: "arbitrum-one", size: .small),
+            url: TokenIconURLBuilder().iconURL(id: "arbitrum-one", size: .small),
             size: CGSize(width: 40, height: 40)
         )
     }
