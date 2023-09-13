@@ -110,6 +110,10 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
+        guard card.config.hasFeature(.send) else {
+            return false
+        }
+
         guard canSignLongTransactions else {
             return false
         }
