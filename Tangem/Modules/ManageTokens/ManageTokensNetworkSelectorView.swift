@@ -7,22 +7,51 @@
 //
 
 import SwiftUI
-import BlockchainSdk
 
 struct ManageTokensNetworkSelectorView: View {
-    let blockchain: Blockchain
+    @ObservedObject var viewModel: ManageTokensNetworkSelectorViewModel
 
     var body: some View {
-        HStack {
-            Text("Hello, World!")
+        HStack(spacing: 12) {
+            NetworkIcon(
+                imageName: viewModel.iconName,
+                isActive: false,
+                isMainIndicatorVisible: viewModel.isMain,
+                size: CGSize(bothDimensions: 36)
+            )
 
-            NetworkIcon(imageName: blockchain.iconNameFilled, isActive: false, isMainIndicatorVisible: false)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(viewModel.networkName)
+                    .lineLimit(1)
+                    .layoutPriority(-1)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+
+                if let tokenTypeName = viewModel.tokenTypeName {
+                    Text(tokenTypeName)
+                        .lineLimit(1)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            Toggle("", isOn: $viewModel.selectedPublisher)
+                .labelsHidden()
+                .toggleStyleCompat(Colors.Control.checked)
         }
+        .padding(16)
     }
 }
 
 struct ManageTokensNetworkSelectorView_Previews: PreviewProvider {
     static var previews: some View {
-        ManageTokensNetworkSelectorView(blockchain: .ethereum(testnet: false))
+        VStack {
+            ManageTokensNetworkSelectorView(viewModel: .init(isMain: true, iconName: "ethereum.fill", networkName: "Ethereum", tokenTypeName: "ERC20", isSelected: .constant(true)))
+
+            ManageTokensNetworkSelectorView(viewModel: .init(isMain: false, iconName: "solana.fill", networkName: "Solana", tokenTypeName: nil, isSelected: .constant(false)))
+
+            ManageTokensNetworkSelectorView(viewModel: .init(isMain: false, iconName: "bsc.fill", networkName: "Binance smartest chain on the planet", tokenTypeName: "BEEP-BEEP 20", isSelected: .constant(false)))
+        }
+        .previewLayout(.fixed(width: 400, height: 300))
     }
 }
