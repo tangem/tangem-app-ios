@@ -10,7 +10,6 @@ import SwiftUI
 
 struct MainHeaderView: View {
     @ObservedObject var viewModel: MainHeaderViewModel
-    @ObservedObject var sensitiveTextVisibilityService: SensitiveTextVisibilityService = .shared
 
     private let imageSize: CGSize = .init(width: 120, height: 106)
     private let horizontalSpacing: CGFloat = 6
@@ -65,18 +64,8 @@ struct MainHeaderView: View {
     }
 
     @ViewBuilder private var titleView: some View {
-        HStack(spacing: 4) {
-            Text(viewModel.userWalletName)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-            Button {
-                sensitiveTextVisibilityService.toggleVisibility()
-            } label: {
-                Image(systemName: sensitiveTextVisibilityService.isHidden ? "eye.slash" : "eye")
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.informative)
-            }
-        }
+        Text(viewModel.userWalletName)
+            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
     @ViewBuilder private var subtitleText: some View {
