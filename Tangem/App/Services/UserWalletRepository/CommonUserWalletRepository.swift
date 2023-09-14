@@ -25,6 +25,10 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     var selectedUserWalletId: Data?
 
+    var hasSavedWallets: Bool {
+        !savedUserWallets(withSensitiveData: false).isEmpty
+    }
+
     var isEmpty: Bool {
         userWallets.isEmpty
     }
@@ -98,6 +102,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 cardInfo.name = config.cardName
 
+                // [REDACTED_TODO_COMMENT]
                 let cardModel = CardViewModel(cardInfo: cardInfo)
                 if let cardModel {
                     initializeServices(for: cardModel, cardInfo: cardInfo)
@@ -566,6 +571,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return
         }
 
+        cardModel.initialUpdate()
         models[index] = cardModel
     }
 
@@ -599,12 +605,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
 extension CommonUserWalletRepository {
     func initialize() {
-        // Removing UserWallet-related data from Keychain
-        if AppSettings.shared.numberOfLaunches == 1 {
-            AppLog.shared.debug("Clean CommonUserWalletRepository")
-            clearUserWalletStorage()
-        }
-
         let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
         selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
