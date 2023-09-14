@@ -9,11 +9,24 @@
 import Foundation
 
 struct TokenActionListBuilder {
-    func buildActions(canExchange: Bool, exchangeUtility: ExchangeCryptoUtility) -> [TokenActionType] {
+    func buildActionsForButtonsList(canShowSwap: Bool) -> [TokenActionType] {
+        var actions: [TokenActionType] = [.buy, .send, .receive, .sell]
+        if canShowSwap {
+            actions.append(.exchange)
+        }
+
+        return actions
+    }
+
+    func buildTokenContextActions(
+        canExchange: Bool,
+        exchangeUtility: ExchangeCryptoUtility,
+        canHide: Bool
+    ) -> [TokenActionType] {
         let canBuy = exchangeUtility.buyAvailable
         let canSell = exchangeUtility.sellAvailable
 
-        var availableActions: [TokenActionType] = [.send, .receive]
+        var availableActions: [TokenActionType] = [.copyAddress, .send, .receive]
 
         if canExchange {
             if canBuy {
@@ -22,6 +35,10 @@ struct TokenActionListBuilder {
             if canSell {
                 availableActions.append(.sell)
             }
+        }
+
+        if canHide {
+            availableActions.append(.hide)
         }
 
         return availableActions
