@@ -33,6 +33,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private let tokenRouter: SingleTokenRoutable
 
+    private var isSwapAvailable = false
     private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
@@ -71,6 +72,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     func openExplorer() {
         #warning("This will be changed after, for now there is no solution for tx history with multiple addresses")
         guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
+            return
+        }
+
+        openExplorer(at: url)
+    }
+
+    func openTransactionExplorer(transaction hash: String) {
+        guard let url = walletModel.exploreTransactionURL(for: hash) else {
             return
         }
 
@@ -139,8 +148,9 @@ extension SingleTokenBaseViewModel {
 
     private func setupActionButtons() {
         let listBuilder = TokenActionListBuilder()
-        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
-        availableActions = listBuilder.buildActions(canExchange: canExchange, exchangeUtility: exchangeUtility)
+        let isSwapFeatureAvailable = FeatureProvider.isAvailable(.exchange)
+        let canShowSwap = userWalletModel.config.hasFeature(.swapping)
+        availableActions = listBuilder.buildActionsForButtonsList(canShowSwap: canShowSwap && isSwapFeatureAvailable)
     }
 
     private func bind() {
@@ -176,7 +186,13 @@ extension SingleTokenBaseViewModel {
             }, disabled: isDisabled)
         }
 
-        actionButtons = buttons
+        actionButtons = buttons.sorted(by: { lhs, rhs in
+            if !lhs.disabled, !rhs.disabled {
+                return false
+            }
+
+            return !lhs.disabled
+        })
     }
 
     private func updateHistoryState(to newState: WalletModel.TransactionHistoryState) {
@@ -207,27 +223,30 @@ extension SingleTokenBaseViewModel {
             .canSwapPublisher(amountType: amountType, blockchain: blockchain)
             .receive(on: DispatchQueue.main)
             .sink { completion in
-                swappingSubscription = nil
                 AppLog.shared.debug("Load swapping availability state completion: \(completion)")
+                withExtendedLifetime(swappingSubscription) {}
             } receiveValue: { [weak self] isSwapAvailable in
-                guard isSwapAvailable else { return }
-
-                if let receiveIndex = self?.availableActions.firstIndex(of: .receive) {
-                    self?.availableActions.insert(.exchange, at: receiveIndex + 1)
-                } else {
-                    self?.availableActions.append(.exchange)
-                }
-
+                self?.isSwapAvailable = isSwapAvailable
                 self?.updateActionButtons()
             }
     }
 
     private func isButtonDisabled(with type: TokenActionType) -> Bool {
-        guard case .send = type else {
+        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
+        switch type {
+        case .buy:
+            return !(canExchange && exchangeUtility.buyAvailable)
+        case .send:
+            return !canSend
+        case .receive:
             return false
+        case .exchange:
+            return !isSwapAvailable
+        case .sell:
+            return !(canExchange && exchangeUtility.sellAvailable)
+        case .copyAddress, .hide:
+            return true
         }
-
-        return !canSend
     }
 
     private func action(for buttonType: TokenActionType) -> (() -> Void)? {
