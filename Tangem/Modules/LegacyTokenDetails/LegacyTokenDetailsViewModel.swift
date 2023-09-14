@@ -114,8 +114,8 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         guard card.config.hasFeature(.send) else {
             return false
         }
-        
-        walletModel?.canSendTransaction ?? false
+
+        return walletModel?.canSendTransaction ?? false
     }
 
     var sendBlockedReason: String? {
