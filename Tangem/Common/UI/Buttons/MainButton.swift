@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainButton: View {
     private let title: String
+    private let subtitle: String?
     private let icon: Icon?
     private let style: Style
     private let size: Size
@@ -19,6 +20,7 @@ struct MainButton: View {
 
     init(
         title: String,
+        subtitle: String? = nil,
         icon: Icon? = nil,
         style: Style = .primary,
         size: Size = .default,
@@ -27,6 +29,7 @@ struct MainButton: View {
         action: @escaping (() -> Void)
     ) {
         self.title = title
+        self.subtitle = subtitle
         self.icon = icon
         self.style = style
         self.size = size
@@ -38,6 +41,7 @@ struct MainButton: View {
     init(settings: Settings) {
         self.init(
             title: settings.title,
+            subtitle: settings.subtitle,
             icon: settings.icon,
             style: settings.style,
             size: settings.size,
@@ -70,37 +74,48 @@ struct MainButton: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: style.loaderColor()))
         } else {
-            Group {
+            VStack(spacing: 0) {
                 switch icon {
                 case .none:
-                    textView
+                    titleView
 
                 case .leading(let icon):
                     HStack(alignment: .center, spacing: 10) {
                         iconView(icon: icon)
 
-                        textView
+                        titleView
                     }
                 case .trailing(let icon):
                     HStack(alignment: .center, spacing: 10) {
-                        textView
+                        titleView
 
                         iconView(icon: icon)
                     }
                 }
+
+                subtitleView
             }
             .padding(.horizontal, 16)
         }
     }
 
     @ViewBuilder
-    private var textView: some View {
+    private var titleView: some View {
         Text(title)
             .style(
                 Fonts.Bold.callout,
-                color: style.textColor(isDisabled: isDisabled)
+                color: style.titleColor(isDisabled: isDisabled)
             )
             .lineLimit(1)
+    }
+
+    @ViewBuilder
+    private var subtitleView: some View {
+        if let subtitle {
+            Text(subtitle)
+                .style(Fonts.Regular.caption2, color: style.subtitleColor())
+                .lineLimit(1)
+        }
     }
 
     @ViewBuilder
@@ -144,7 +159,7 @@ extension MainButton {
             }
         }
 
-        func textColor(isDisabled: Bool) -> Color {
+        func titleColor(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Text.disabled
             }
@@ -155,6 +170,10 @@ extension MainButton {
             case .secondary:
                 return Colors.Text.primary1
             }
+        }
+
+        func subtitleColor() -> Color {
+            Colors.Text.disabled
         }
 
         func loaderColor() -> Color {
@@ -204,6 +223,7 @@ extension MainButton {
 
     struct Settings: Identifiable, Hashable {
         let title: String
+        let subtitle: String?
         let icon: Icon?
         let style: Style
         let size: Size
@@ -215,6 +235,7 @@ extension MainButton {
 
         init(
             title: String,
+            subtitle: String? = nil,
             icon: Icon? = nil,
             style: Style = .primary,
             size: Size = .default,
@@ -223,6 +244,7 @@ extension MainButton {
             action: @escaping (() -> Void)
         ) {
             self.title = title
+            self.subtitle = subtitle
             self.icon = icon
             self.style = style
             self.size = size
@@ -237,6 +259,7 @@ extension MainButton {
 
         func hash(into hasher: inout Hasher) {
             hasher.combine(title)
+            hasher.combine(subtitle)
             hasher.combine(icon)
             hasher.combine(style)
             hasher.combine(size)
@@ -330,6 +353,33 @@ struct MainButton_Previews: PreviewProvider {
                     icon: .leading(Assets.tangemIcon),
                     style: style,
                     size: .notification
+                ) {}
+            }
+
+            Group {
+                MainButton(
+                    title: "Do something",
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Do something else",
+                    subtitle: "Or don't do it at all",
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    subtitle: "Blahblah",
+                    icon: .leading(Assets.tangemIcon),
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    subtitle: "Blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah",
+                    icon: .trailing(Assets.tangemIcon),
+                    style: style
                 ) {}
             }
         }
