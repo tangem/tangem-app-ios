@@ -64,9 +64,7 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
                 switch newState {
                 case .failed(let error):
                     formatErrorMessage(with: error)
-                case .noAccount(let message):
-                    formatErrorMessage(with: message)
-                case .idle:
+                case .idle, .noAccount:
                     formatBalanceMessage()
                 case .created, .loading, .noDerivation:
                     break
