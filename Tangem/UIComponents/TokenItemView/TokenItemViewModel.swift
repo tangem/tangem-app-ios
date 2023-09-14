@@ -116,14 +116,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             return
         }
 
-        let signType: TokenPriceChangeView.ChangeSignType
-        if quote.change > 0 {
-            signType = .positive
-        } else if quote.change < 0 {
-            signType = .negative
-        } else {
-            signType = .same
-        }
+        let signType = ChangeSignType(from: quote.change)
 
         let percent = percentFormatter.percentFormat(value: quote.change)
         priceChangeState = .loaded(signType: signType, text: percent)
