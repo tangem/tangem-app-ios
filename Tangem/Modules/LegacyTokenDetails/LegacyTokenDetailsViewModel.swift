@@ -69,7 +69,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     var buyCryptoUrl: URL? {
         if let wallet = wallet {
             if blockchainNetwork.blockchain.isTestnet {
-                return blockchainNetwork.blockchain.testnetFaucetURL
+                return wallet.getTestnetFaucetURL()
             }
 
             let address = wallet.address
@@ -433,7 +433,7 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
+        let amount = Amount(with: blockchainNetwork.blockchain, type: amountType, value: request.amount)
         coordinator.openSendToSell(
             amountToSend: amount,
             destination: request.targetAddress,
