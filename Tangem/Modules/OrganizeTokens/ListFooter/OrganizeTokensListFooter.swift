@@ -12,16 +12,17 @@ struct OrganizeTokensListFooter: View {
     let viewModel: OrganizeTokensViewModel
     let isTokenListFooterGradientHidden: Bool
     let cornerRadius: CGFloat
-    let horizontalInset: CGFloat
+    let contentInsets: EdgeInsets
 
     @State private var hasBottomSafeAreaInset = false
 
     private let buttonSize: MainButton.Size = .default
 
     private var buttonsPadding: EdgeInsets {
-        // Different padding on devices with/without notch
-        let bottomPadding = hasBottomSafeAreaInset ? 6.0 : 12.0
-        return EdgeInsets(top: 14.0, leading: horizontalInset, bottom: bottomPadding, trailing: horizontalInset)
+        var contentInsets = contentInsets
+        contentInsets.bottom += (hasBottomSafeAreaInset ? 6.0 : 12.0) // Different padding on devices with/without notch
+
+        return contentInsets
     }
 
     private var overlayViewTopPadding: CGFloat {
