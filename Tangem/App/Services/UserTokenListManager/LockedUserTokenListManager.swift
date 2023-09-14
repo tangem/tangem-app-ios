@@ -26,8 +26,8 @@ struct LockedUserTokenListManager: UserTokenListManager {
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {}
 
-    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void) {
-        result(.success(()))
+    func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, Error>) -> Void) {
+        completion(.success(()))
     }
 
     func upload() {}
