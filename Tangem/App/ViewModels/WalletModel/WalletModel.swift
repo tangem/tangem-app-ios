@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import BlockchainSdk
 
 class WalletModel {
@@ -310,7 +311,7 @@ class WalletModel {
             .removeDuplicates()
             .combineLatest(_rate.removeDuplicates(), walletManager.walletPublisher)
             .map { $0.0 }
-            .weakAssign(to: \._walletDidChangePublisher.value, on: self)
+            .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -418,7 +419,7 @@ class WalletModel {
             .handleEvents(receiveOutput: { [weak self] _ in
                 AppLog.shared.debug("🔄 Finished loading rates for \(String(describing: self))")
             })
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -434,7 +435,7 @@ class WalletModel {
             .handleEvents(receiveOutput: { [weak self] _ in
                 AppLog.shared.debug("🔄 Finished loading quotes for \(String(describing: self))")
             })
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -461,7 +462,7 @@ class WalletModel {
                 hash: Data.randomData(count: 32),
                 walletPublicKey: wallet.publicKey
             )
-            .mapVoid()
+            .mapToVoid()
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
         }
@@ -472,7 +473,7 @@ class WalletModel {
                 self?.startUpdatingTimer()
             })
             .receive(on: DispatchQueue.main)
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -507,6 +508,14 @@ extension WalletModel {
         }
 
         return wallet.getExploreURL(for: wallet.addresses[index].value, token: token)
+    }
+
+    func exploreTransactionURL(for hash: String) -> URL? {
+        if isDemo {
+            return nil
+        }
+
+        return wallet.getExploreURL(for: hash)
     }
 
     func getDecimalBalance(for type: Amount.AmountType) -> Decimal? {
