@@ -62,24 +62,32 @@ final class MainHeaderViewModel: ObservableObject {
         balanceProvider.totalBalancePublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newValue in
-                if self?.infoProvider.isUserWalletLocked ?? false {
+                guard let self else {
+                    return
+                }
+
+                if infoProvider.isUserWalletLocked {
                     return
                 }
 
                 switch newValue {
                 case .loading:
-                    self?.isLoadingFiatBalance = true
+                    isLoadingFiatBalance = true
                 case .loaded(let balance):
-                    self?.isLoadingFiatBalance = false
+                    isLoadingFiatBalance = false
 
                     let balanceFormatter = BalanceFormatter()
-                    let fiatBalanceFormatted = balanceFormatter.formatFiatBalance(balance.balance, formattingOptions: .defaultFiatFormattingOptions)
-                    self?.balance = balanceFormatter.formatTotalBalanceForMain(fiatBalance: fiatBalanceFormatted, formattingOptions: .defaultOptions)
+                    var balanceToFormat = balance.balance
+                    if balanceToFormat == nil, infoProvider.isWalletModelListEmpty {
+                        balanceToFormat = 0
+                    }
+                    let fiatBalanceFormatted = balanceFormatter.formatFiatBalance(balanceToFormat, formattingOptions: .defaultFiatFormattingOptions)
+                    self.balance = balanceFormatter.formatTotalBalanceForMain(fiatBalance: fiatBalanceFormatted, formattingOptions: .defaultOptions)
                 case .failedToLoad(let error):
                     AppLog.shared.debug("Failed to load total balance. Reason: \(error)")
-                    self?.isLoadingFiatBalance = false
+                    isLoadingFiatBalance = false
 
-                    self?.balance = NSAttributedString(string: BalanceFormatter.defaultEmptyBalanceString)
+                    balance = NSAttributedString(string: BalanceFormatter.defaultEmptyBalanceString)
                 }
             }
             .store(in: &bag)
