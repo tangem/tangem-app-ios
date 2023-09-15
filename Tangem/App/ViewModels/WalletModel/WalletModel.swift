@@ -124,35 +124,11 @@ class WalletModel {
     }
 
     var incomingPendingTransactions: [LegacyTransactionRecord] {
-        wallet.pendingIncomingTransactions.map {
-            LegacyTransactionRecord(
-                amountType: $0.amount.type,
-                destination: $0.sourceAddress,
-                timeFormatted: "",
-                transferAmount: formatter.formatCryptoBalance(
-                    $0.amount.value,
-                    currencyCode: $0.amount.currencySymbol
-                ),
-                transactionType: .receive,
-                status: .inProgress
-            )
-        }
+        legacyTransactionMapper.mapToIncomingRecords(wallet.pendingIncomingTransactions)
     }
 
     var outgoingPendingTransactions: [LegacyTransactionRecord] {
-        return wallet.pendingOutgoingTransactions.map {
-            return LegacyTransactionRecord(
-                amountType: $0.amount.type,
-                destination: $0.destinationAddress,
-                timeFormatted: "",
-                transferAmount: formatter.formatCryptoBalance(
-                    $0.amount.value,
-                    currencyCode: $0.amount.currencySymbol
-                ),
-                transactionType: .send,
-                status: .inProgress
-            )
-        }
+        legacyTransactionMapper.mapToOutgoingRecords(wallet.pendingOutgoingTransactions)
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {
@@ -245,6 +221,9 @@ class WalletModel {
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
+    private var legacyTransactionMapper: LegacyTransactionMapper {
+        LegacyTransactionMapper(formatter: formatter)
+    }
 
     deinit {
         AppLog.shared.debug("🗑 \(self) deinit")
