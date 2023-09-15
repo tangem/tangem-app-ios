@@ -21,7 +21,9 @@ class CardViewModel: Identifiable, ObservableObject {
 
     let walletModelsManager: WalletModelsManager
 
-    lazy var userTokensManager: UserTokensManager = CommonUserTokensManager(
+    var userTokensManager: UserTokensManager { _userTokensManager }
+
+    private lazy var _userTokensManager = CommonUserTokensManager(
         userTokenListManager: userTokenListManager,
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
@@ -549,7 +551,7 @@ extension CardViewModel: UserWalletModel {
 
         didPerformInitialUpdate = true
 
-        userTokensManager.updateUserTokens()
+        _userTokensManager.updateUserTokens()
     }
 
     func updateWalletName(_ name: String) {
@@ -564,6 +566,8 @@ extension CardViewModel: MainHeaderInfoProvider {
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
+
+    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 }
 
 // [REDACTED_TODO_COMMENT]
