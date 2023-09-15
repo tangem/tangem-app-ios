@@ -19,6 +19,7 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     case facebook
     case linkedin
     case youtube
+    case github
 
     var icon: ImageType {
         switch self {
@@ -38,6 +39,8 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
             return Assets.SocialNetwork.discord
         case .reddit:
             return Assets.SocialNetwork.reddit
+        case .github:
+            return Assets.SocialNetwork.github
         }
     }
 
@@ -64,6 +67,8 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
             return URL(string: "https://discord.gg/7AqTVyqdGS")
         case .reddit:
             return URL(string: "https://www.reddit.com/r/Tangem/")
+        case .github:
+            return URL(string: "https://github.com/tangem")
         }
     }
 
@@ -85,6 +90,24 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
             return "Discord"
         case .reddit:
             return "Reddit"
+        case .github:
+            return "GitHub"
         }
+    }
+
+    var line: Line {
+        switch self {
+        case .twitter, .telegram, .instagram, .facebook, .linkedin, .youtube:
+            return .first
+        case .discord, .reddit, .github:
+            return .second
+        }
+    }
+}
+
+extension SocialNetwork {
+    enum Line: Int {
+        case first
+        case second
     }
 }
