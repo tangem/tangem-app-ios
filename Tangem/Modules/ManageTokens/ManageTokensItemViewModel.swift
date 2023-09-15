@@ -24,20 +24,16 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     let priceChange: TokenPriceChangeView.State
 
     let priceHistory: [Double]?
-    var priceHistoryChangeType: TokenPriceChangeView.ChangeSignType {
+    var priceHistoryChangeType: ChangeSignType {
         guard
             let priceHistory,
             let firstValue = priceHistory.first,
             let lastValue = priceHistory.last
         else {
-            return .same
+            return .positive
         }
 
-        if lastValue >= firstValue {
-            return .positive
-        } else {
-            return .negative
-        }
+        return ChangeSignType(from: Decimal(lastValue - firstValue))
     }
 
     let action: Action
