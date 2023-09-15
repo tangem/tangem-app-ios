@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import CombineExt
 import BlockchainSdk
 
 class TotalSumBalanceViewModel: ObservableObject {
@@ -48,19 +49,19 @@ class TotalSumBalanceViewModel: ObservableObject {
                 checkPositiveBalance()
                 return addAttributeForBalance(balance)
             }
-            .weakAssign(to: \.totalFiatValueString, on: self)
+            .assign(to: \.totalFiatValueString, on: self, ownership: .weak)
             .store(in: &bag)
 
         // Skeleton subscription
         totalBalanceProvider.totalBalancePublisher()
             .map { $0.isLoading }
-            .weakAssignAnimated(to: \.isLoading, on: self)
+            .assign(to: \.isLoading, on: self, ownership: .weak)
             .store(in: &bag)
 
         totalBalanceProvider.totalBalancePublisher()
             .compactMap { $0.value?.hasError }
             .removeDuplicates()
-            .weakAssign(to: \.hasError, on: self)
+            .assign(to: \.hasError, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
