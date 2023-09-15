@@ -9,21 +9,6 @@
 import Foundation
 
 class ManageTokensItemViewModel: Identifiable, ObservableObject {
-    enum Action {
-        case add
-        case edit
-        case info
-    }
-
-    let id: UUID = .init()
-    let imageURL: URL?
-    let name: String
-    let symbol: String
-
-    let price: String
-    let priceChange: TokenPriceChangeView.State
-
-    let priceHistory: [Double]?
     var priceHistoryChangeType: ChangeSignType {
         guard
             let priceHistory,
@@ -35,9 +20,15 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
 
         return ChangeSignType(from: Decimal(lastValue - firstValue))
     }
-
+    
+    let id: UUID = .init()
+    let imageURL: URL?
+    let name: String
+    let symbol: String
+    let price: String
+    let priceChange: TokenPriceChangeView.State
+    let priceHistory: [Double]?
     let action: Action
-
     let didTapAction: (Action) -> Void
 
     init(
@@ -68,5 +59,13 @@ extension ManageTokensItemViewModel: Hashable {
 
     static func == (lhs: ManageTokensItemViewModel, rhs: ManageTokensItemViewModel) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+extension ManageTokensItemViewModel {
+    enum Action {
+        case add
+        case edit
+        case info
     }
 }
