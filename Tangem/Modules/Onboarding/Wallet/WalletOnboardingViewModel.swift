@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import CombineExt
 import TangemSdk
 import BlockchainSdk
 
@@ -363,7 +364,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         CardImageProvider()
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .map { $0.image }
-            .weakAssign(to: \.cardImage, on: self)
+            .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -634,7 +635,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
-            .mapVoid()
+            .mapToVoid()
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
