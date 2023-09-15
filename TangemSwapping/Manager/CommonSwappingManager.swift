@@ -86,6 +86,8 @@ extension CommonSwappingManager: SwappingManager {
     }
 
     func isEnoughAllowance() -> Bool {
+        // These local variables are introduced as part of the [REDACTED_INFO] bug investigation;
+        // feel free to get rid of them if the bug is fixed
         let sourceItems = swappingItems.source
         let allowanceLimit = swappingAllowanceLimit
 
