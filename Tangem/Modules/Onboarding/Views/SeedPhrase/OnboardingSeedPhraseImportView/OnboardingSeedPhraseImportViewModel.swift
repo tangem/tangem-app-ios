@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemSdk
 
 class OnboardingSeedPhraseImportViewModel: ObservableObject {
@@ -57,17 +58,17 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
     private func bind() {
         inputProcessor.isSeedPhraseValidPublisher
             .receive(on: DispatchQueue.main)
-            .weakAssign(to: \.isSeedPhraseValid, on: self)
+            .assign(to: \.isSeedPhraseValid, on: self, ownership: .weak)
             .store(in: &bag)
 
         inputProcessor.$inputError
             .receive(on: DispatchQueue.main)
-            .weakAssign(to: \.inputError, on: self)
+            .assign(to: \.inputError, on: self, ownership: .weak)
             .store(in: &bag)
 
         inputProcessor.$suggestions
             .receive(on: DispatchQueue.main)
-            .weakAssign(to: \.suggestions, on: self)
+            .assign(to: \.suggestions, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
