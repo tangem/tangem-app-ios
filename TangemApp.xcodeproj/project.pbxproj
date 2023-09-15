@@ -4267,16 +4267,6 @@
 			path = AddCustomToken;
 			sourceTree = "<group>";
 		};
-		DA7046102AAA17E500808FA8 /* ManageTokens */ = {
-			isa = PBXGroup;
-			children = (
-				DA7046112AAA17E500808FA8 /* ManageTokensItemViewModel.swift */,
-				DA7046122AAA17E500808FA8 /* ManageTokensItemView.swift */,
-			);
-			name = ManageTokens;
-			path = Tangem/Modules/ManageTokens;
-			sourceTree = SOURCE_ROOT;
-		};
 		DA7046152AAA180900808FA8 /* Charts */ = {
 			isa = PBXGroup;
 			children = (
@@ -4393,6 +4383,8 @@
 		DAD98A752AB2E3240051CFBE /* ManageTokens */ = {
 			isa = PBXGroup;
 			children = (
+				DA7046112AAA17E500808FA8 /* ManageTokensItemViewModel.swift */,
+				DA7046122AAA17E500808FA8 /* ManageTokensItemView.swift */,
 				DAD98A762AB2E3240051CFBE /* ManageTokensNetworkSelectorViewModel.swift */,
 				DAD98A772AB2E3240051CFBE /* ManageTokensNetworkSelectorView.swift */,
 			);
@@ -4859,7 +4851,6 @@
 				5D384B9224FD51B200C2C92C /* Details */,
 				DAD98A752AB2E3240051CFBE /* ManageTokens */,
 				DA43718D2A7D1937006215CA /* LegacyTokenList */,
-				DA7046102AAA17E500808FA8 /* ManageTokens */,
 				5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */,
 				B0DD16182A331BF300CB23AA /* TokenDetails */,
 				5D011A222530776A00758010 /* Disclaimer */,
