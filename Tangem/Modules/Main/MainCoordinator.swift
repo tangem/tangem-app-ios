@@ -150,7 +150,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             self?.manageTokensCoordinator = nil
         }
 
-        if FeatureProvider.isAvailable(.tokenListV2) {
+        if FeatureProvider.isAvailable(.manageTokens) {
             let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
             let options = ManageTokensCoordinator.Options()
             coordinator.start(with: options)
