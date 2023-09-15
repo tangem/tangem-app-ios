@@ -9,6 +9,9 @@
 import SwiftUI
 
 struct GenerateAddressesView: View {
+    let currentWalletNumber: Int
+    let totalWalletNumber: Int
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
@@ -29,6 +32,7 @@ struct GenerateAddressesView: View {
 
             MainButton(
                 title: Localization.commonGenerateAddresses,
+                subtitle: Localization.manageTokensNumberOfWallets(currentWalletNumber, totalWalletNumber),
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary
             ) {}
@@ -46,6 +50,6 @@ struct GenerateAddressesView: View {
 struct GenerateAddressesView_Previews: PreviewProvider {
     static var previews: some View {
         Colors.Background.primary.ignoresSafeArea()
-            .overlay(GenerateAddressesView(), alignment: .bottom)
+            .overlay(GenerateAddressesView(currentWalletNumber: 1, totalWalletNumber: 2), alignment: .bottom)
     }
 }
