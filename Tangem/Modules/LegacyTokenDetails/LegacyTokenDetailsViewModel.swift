@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import CombineExt
 import TangemSdk
 import TangemSwapping
 
@@ -363,7 +364,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private func updateRentWarning() {
         walletModel?
             .updateRentWarning()
-            .weakAssign(to: \.rentWarning, on: self)
+            .assign(to: \.rentWarning, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -433,7 +434,7 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
+        let amount = Amount(with: blockchainNetwork.blockchain, type: amountType, value: request.amount)
         coordinator.openSendToSell(
             amountToSend: amount,
             destination: request.targetAddress,
