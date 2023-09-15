@@ -12,8 +12,6 @@ class ManageTokensCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
-    func start(with options: ManageTokensCoordinator.Options) {}
-
     // MARK: - Published
 
     @Published private(set) var manageTokensViewModel: ManageTokensViewModel? = nil
@@ -24,13 +22,16 @@ class ManageTokensCoordinator: CoordinatorObject {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
+
+    // MARK: - Implmentation
+
+    func start(with options: ManageTokensCoordinator.Options) {
+        manageTokensViewModel = .init()
+    }
 }
 
 extension ManageTokensCoordinator {
     struct Options {}
 }
 
-extension ManageTokensCoordinator: ManageTokensRoutable {
-    func close() {}
-    func openAddCustom() {}
-}
+extension ManageTokensCoordinator: ManageTokensRoutable {}
