@@ -10,7 +10,11 @@ import Foundation
 import BlockchainSdk
 
 struct LegacyTransactionMapper {
-    private let formatter = BalanceFormatter()
+    private let formatter: BalanceFormatter
+
+    init(formatter: BalanceFormatter) {
+        self.formatter = formatter
+    }
 
     func mapToIncomingRecords(_ transactions: [Transaction]) -> [LegacyTransactionRecord] {
         transactions.map {
