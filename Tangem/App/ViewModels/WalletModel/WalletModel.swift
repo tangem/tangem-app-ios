@@ -220,7 +220,9 @@ class WalletModel {
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
-    private let legacyTransactionMapper = LegacyTransactionMapper()
+    private var legacyTransactionMapper: LegacyTransactionMapper {
+        LegacyTransactionMapper(formatter: formatter)
+    }
 
     deinit {
         AppLog.shared.debug("🗑 \(self) deinit")
