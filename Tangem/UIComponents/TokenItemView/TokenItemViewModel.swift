@@ -17,14 +17,17 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published var balanceCrypto: LoadableTextView.State = .loading
     @Published var balanceFiat: LoadableTextView.State = .loading
     @Published var priceChangeState: TokenPriceChangeView.State = .loading
-    @Published var missingDerivation: Bool = false
-    @Published var networkUnreachable: Bool = false
     @Published var hasPendingTransactions: Bool = false
+
+    @Published private var missingDerivation: Bool = false
+    @Published private var networkUnreachable: Bool = false
 
     var name: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || isTestnetToken }
+
+    var hasError: Bool { missingDerivation || networkUnreachable }
     var errorMessage: String? {
         // Don't forget to add check in trailing item in `TokenItemView` when adding new error here
         if missingDerivation {
@@ -113,14 +116,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             return
         }
 
-        let signType: TokenPriceChangeView.ChangeSignType
-        if quote.change > 0 {
-            signType = .positive
-        } else if quote.change < 0 {
-            signType = .negative
-        } else {
-            signType = .same
-        }
+        let signType = ChangeSignType(from: quote.change)
 
         let percent = percentFormatter.percentFormat(value: quote.change)
         priceChangeState = .loaded(signType: signType, text: percent)
