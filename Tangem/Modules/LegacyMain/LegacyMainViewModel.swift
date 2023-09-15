@@ -6,10 +6,11 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
-import Combine
 import Foundation
 import SwiftUI
+import Combine
+import CombineExt
+import BlockchainSdk
 import TangemSdk
 
 class LegacyMainViewModel: ObservableObject {
@@ -122,9 +123,8 @@ class LegacyMainViewModel: ObservableObject {
 
     var buyCryptoURL: URL? {
         if let wallet {
-            let blockchain = wallet.blockchain
-            if blockchain.isTestnet {
-                return blockchain.testnetFaucetURL
+            if wallet.blockchain.isTestnet {
+                return wallet.getTestnetFaucetURL()
             }
 
             return exchangeService.getBuyUrl(
@@ -213,7 +213,7 @@ class LegacyMainViewModel: ObservableObject {
         cardModel.derivationManager?.hasPendingDerivations
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .weakAssign(to: \.hasPendingDerivations, on: self)
+            .assign(to: \.hasPendingDerivations, on: self, ownership: .weak)
             .store(in: &bag)
 
         AppSettings.shared.$saveUserWallets
