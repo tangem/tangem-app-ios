@@ -8,7 +8,4 @@
 
 import Foundation
 
-protocol ManageTokensRoutable: AnyObject {
-    func close()
-    func openAddCustom()
-}
+protocol ManageTokensRoutable: AnyObject {}
