@@ -16,7 +16,7 @@ struct AccessCodeRecoverySettingsView: View {
             GroupedScrollView {
                 SelectableGropedSection(
                     viewModel.viewModels,
-                    selection: $viewModel.accessCodeRecoveryEnabled
+                    selection: $viewModel.isUserCodeRecoveryAllowed
                 ) {
                     DefaultSelectableRowView(viewModel: $0)
                 }
@@ -44,7 +44,7 @@ struct AccessCodeRecoverySettingsView: View {
 }
 
 struct AccessCodeRecoverySettingsView_Previews: PreviewProvider {
-    private static let viewModel = AccessCodeRecoverySettingsViewModel(settingsProvider: AccessCodeRecoverySettingsProviderMock())
+    private static let viewModel = AccessCodeRecoverySettingsViewModel(with: UserCodeRecoveringMock())
     static var previews: some View {
         AccessCodeRecoverySettingsView(viewModel: viewModel)
     }

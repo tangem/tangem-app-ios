@@ -12,7 +12,7 @@ protocol CardSettingsRoutable: AnyObject {
     func openOnboarding(with input: OnboardingInput, hasOtherCards: Bool)
     func openSecurityMode(cardModel: CardViewModel)
     func openResetCardToFactoryWarning(with input: ResetToFactoryViewModel.Input)
-    func openAccessCodeRecoverySettings(using provider: AccessCodeRecoverySettingsProvider)
+    func openAccessCodeRecoverySettings(with cardInteractor: UserCodeRecovering)
     func dismiss()
     func popToRoot()
 }
