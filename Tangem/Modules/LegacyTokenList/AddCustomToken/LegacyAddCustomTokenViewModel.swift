@@ -83,8 +83,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
                 self.isLoading = true
 
                 guard !contractAddress.isEmpty else {
-                    return Just([])
-                        .eraseToAnyPublisher()
+                    return .just(output: [])
                 }
 
                 return self.findToken(contractAddress: contractAddress)
@@ -343,8 +342,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         if let currentCurrencyModel = foundStandardToken,
            let token = currentCurrencyModel.items.first?.token,
            token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame {
-            return Just([currentCurrencyModel])
-                .eraseToAnyPublisher()
+            return .just(output: [currentCurrencyModel])
         }
 
         let requestModel = CoinsList.Request(
