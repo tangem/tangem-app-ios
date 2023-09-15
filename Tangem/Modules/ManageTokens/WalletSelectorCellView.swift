@@ -30,9 +30,16 @@ struct WalletSelectorCellView: View {
             }
 
             Text(name)
+                .lineLimit(1)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-            
-            Spacer()
+
+            Spacer(minLength: 0)
+
+            if isSelected {
+                Assets.check.image
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(Colors.Icon.accent)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 19)
@@ -42,7 +49,11 @@ struct WalletSelectorCellView: View {
 struct WalletSelectorCellView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            WalletSelectorCellView(image: nil, name: "My Wallet", isSelected: true)
+            WalletSelectorCellView(image: nil, name: "My Wallet", isSelected: false)
+
+            WalletSelectorCellView(image: UIImage(named: "tangem-card"), name: "My Wallet 2.0", isSelected: true)
+
+            WalletSelectorCellView(image: UIImage(named: "tangem-card"), name: "My Wallet 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0", isSelected: false)
         }
     }
 }
