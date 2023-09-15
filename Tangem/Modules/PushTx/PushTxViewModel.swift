@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import BlockchainSdk
 import Combine
+import CombineExt
+import BlockchainSdk
 
 class PushTxViewModel: ObservableObject {
     var destination: String { transaction.destinationAddress }
@@ -183,7 +184,7 @@ class PushTxViewModel: ObservableObject {
                 let fee = fees[feeLevel]
                 return fee
             }
-            .weakAssign(to: \.selectedFee, on: self)
+            .assign(to: \.selectedFee, on: self, ownership: .weak)
             .store(in: &bag)
 
         $fees
@@ -193,7 +194,7 @@ class PushTxViewModel: ObservableObject {
 
                 return values[selectedFeeLevel]
             }
-            .weakAssign(to: \.selectedFee, on: self)
+            .assign(to: \.selectedFee, on: self, ownership: .weak)
             .store(in: &bag)
 
         $isFeeIncluded
