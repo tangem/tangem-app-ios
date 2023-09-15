@@ -4272,14 +4272,6 @@
 			path = PromotionService;
 			sourceTree = "<group>";
 		};
-		DA7859DF2AB044D5004FAE04 /* TokenList */ = {
-			isa = PBXGroup;
-			children = (
-				DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */,
-			);
-			path = TokenList;
-			sourceTree = "<group>";
-		};
 		DA8BBF952A0248E300B085DC /* SensitiveText */ = {
 			isa = PBXGroup;
 			children = (
@@ -4380,6 +4372,7 @@
 			children = (
 				DAD98A762AB2E3240051CFBE /* ManageTokensNetworkSelectorViewModel.swift */,
 				DAD98A772AB2E3240051CFBE /* ManageTokensNetworkSelectorView.swift */,
+				DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */,
 			);
 			path = ManageTokens;
 			sourceTree = "<group>";
@@ -4844,7 +4837,6 @@
 				5D384B9224FD51B200C2C92C /* Details */,
 				DAD98A752AB2E3240051CFBE /* ManageTokens */,
 				DA43718D2A7D1937006215CA /* LegacyTokenList */,
-				DA7859DF2AB044D5004FAE04 /* TokenList */,
 				5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */,
 				B0DD16182A331BF300CB23AA /* TokenDetails */,
 				5D011A222530776A00758010 /* Disclaimer */,
