@@ -20,7 +20,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
 
         return ChangeSignType(from: Decimal(lastValue - firstValue))
     }
-    
+
     let id: UUID = .init()
     let imageURL: URL?
     let name: String
