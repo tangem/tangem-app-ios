@@ -86,11 +86,18 @@ extension CommonSwappingManager: SwappingManager {
     }
 
     func isEnoughAllowance() -> Bool {
-        guard swappingItems.source.isToken, let amount, amount > 0 else {
+        let sourceItems = swappingItems.source
+        let allowanceLimit = swappingAllowanceLimit
+
+        guard
+            sourceItems.isToken,
+            let amount = amount,
+            amount > 0
+        else {
             return true
         }
 
-        guard let allowance = swappingAllowanceLimit[swappingItems.source] else {
+        guard let allowance = allowanceLimit[sourceItems] else {
             return false
         }
 
