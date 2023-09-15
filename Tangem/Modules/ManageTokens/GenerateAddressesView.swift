@@ -9,8 +9,10 @@
 import SwiftUI
 
 struct GenerateAddressesView: View {
+    let numberOfNetworks: Int
     let currentWalletNumber: Int
     let totalWalletNumber: Int
+    let didTapGenerate: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -25,7 +27,7 @@ struct GenerateAddressesView: View {
                     Text(Localization.mainWarningMissingDerivationTitle)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                    Text(Localization.mainWarningMissingDerivationDescription(1))
+                    Text(Localization.mainWarningMissingDerivationDescription(numberOfNetworks))
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
             }
@@ -34,8 +36,9 @@ struct GenerateAddressesView: View {
                 title: Localization.commonGenerateAddresses,
                 subtitle: Localization.manageTokensNumberOfWallets(currentWalletNumber, totalWalletNumber),
                 icon: .trailing(Assets.tangemIcon),
-                style: .primary
-            ) {}
+                style: .primary,
+                action: didTapGenerate
+            )
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -50,6 +53,6 @@ struct GenerateAddressesView: View {
 struct GenerateAddressesView_Previews: PreviewProvider {
     static var previews: some View {
         Colors.Background.primary.ignoresSafeArea()
-            .overlay(GenerateAddressesView(currentWalletNumber: 1, totalWalletNumber: 2), alignment: .bottom)
+            .overlay(GenerateAddressesView(numberOfNetworks: 3, currentWalletNumber: 1, totalWalletNumber: 2, didTapGenerate: {}), alignment: .bottom)
     }
 }
