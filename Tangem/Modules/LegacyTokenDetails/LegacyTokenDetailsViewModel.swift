@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import CombineExt
 import TangemSdk
 import TangemSwapping
 
@@ -110,7 +111,11 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        walletModel?.canSendTransaction ?? false
+        guard card.config.hasFeature(.send) else {
+            return false
+        }
+
+        return walletModel?.canSendTransaction ?? false
     }
 
     var sendBlockedReason: String? {
@@ -363,7 +368,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private func updateRentWarning() {
         walletModel?
             .updateRentWarning()
-            .weakAssign(to: \.rentWarning, on: self)
+            .assign(to: \.rentWarning, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
