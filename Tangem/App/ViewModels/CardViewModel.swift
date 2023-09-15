@@ -53,7 +53,6 @@ class CardViewModel: Identifiable, ObservableObject {
     let warningsService = WarningsService()
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-    @Published private(set) var accessCodeRecoveryEnabled: Bool
 
     var signer: TangemSigner { _signer }
 
@@ -283,7 +282,6 @@ class CardViewModel: Identifiable, ObservableObject {
         )
 
         _signer = config.tangemSigner
-        accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
         _userWalletNamePublisher = .init(cardInfo.name)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
@@ -467,27 +465,6 @@ extension CardViewModel {
 extension CardViewModel: WalletConnectUserWalletInfoProvider {
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-}
-
-// MARK: Access code recovery settings provider
-
-extension CardViewModel: AccessCodeRecoverySettingsProvider {
-    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let tangemSdk = makeTangemSdk()
-        self.tangemSdk = tangemSdk
-
-        tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success:
-                cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
-                accessCodeRecoveryEnabled = enabled
-                completionHandler(.success(()))
-            case .failure(let error):
-                completionHandler(.failure(error))
-            }
-        }
     }
 }
 
