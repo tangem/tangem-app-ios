@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		068390D11B726EAFF947C74D /* Pods_TangemTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9007851926D769366ABB833A /* Pods_TangemTests.framework */; };
 		2D0E4F532A8D114E00001D8E /* GenericWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0E4F522A8D114E00001D8E /* GenericWalletManagerFactory.swift */; };
+		2D4CF47A2AB445520064CB80 /* ManageTokensCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4CF4792AB445520064CB80 /* ManageTokensCoordinatorView.swift */; };
 		2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */; };
 		2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */; };
 		2D535E732A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */; };
@@ -1145,6 +1146,7 @@
 		237ACDF8B2D838E0662A7DE4 /* Pods-Tangem-TangemUITests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		2875C875BFA3A1A1BAFFD016 /* Pods-TangemTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		2D0E4F522A8D114E00001D8E /* GenericWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericWalletManagerFactory.swift; sourceTree = "<group>"; };
+		2D4CF4792AB445520064CB80 /* ManageTokensCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensCoordinatorView.swift; sourceTree = "<group>"; };
 		2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoView.swift; sourceTree = "<group>"; };
 		2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoViewModel.swift; sourceTree = "<group>"; };
@@ -2348,6 +2350,7 @@
 				2D53E8F22AB3473000F50376 /* ManageTokensRoutable.swift */,
 				2D53E8F02AB3471300F50376 /* ManageTokensView.swift */,
 				2D53E8EE2AB3469800F50376 /* ManageTokensViewModel.swift */,
+				2D4CF4792AB445520064CB80 /* ManageTokensCoordinatorView.swift */,
 			);
 			path = ManageTokens;
 			sourceTree = "<group>";
@@ -7001,6 +7004,7 @@
 				EF130EBA28E1D33000D37EFC /* LegacySingleWalletContentView.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */,
 				DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */,
+				2D4CF47A2AB445520064CB80 /* ManageTokensCoordinatorView.swift in Sources */,
 				DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				B62E42512A79328A0045AB31 /* Collection+.swift in Sources */,
