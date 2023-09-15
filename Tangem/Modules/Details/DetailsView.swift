@@ -93,9 +93,15 @@ struct DetailsView: View {
     }
 
     private var socialNetworks: some View {
-        VStack(alignment: .center, spacing: 20) {
+        VStack(alignment: .center, spacing: 16) {
             HStack(spacing: 16) {
-                ForEach(SocialNetwork.allCases) { network in
+                ForEach(SocialNetwork.allCases.filter { $0.line == .first }) { network in
+                    socialNetworkView(network: network)
+                }
+            }
+
+            HStack(spacing: 16) {
+                ForEach(SocialNetwork.allCases.filter { $0.line == .second }) { network in
                     socialNetworkView(network: network)
                 }
             }
