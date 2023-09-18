@@ -10,14 +10,14 @@ import Foundation
 import Combine
 
 class WalletSelectorViewModel: ObservableObject {
-    var itemViewModels: [WalletSelectorCellViewModel] = []
+    var itemViewModels: [WalletSelectorItemViewModel] = []
 
     private unowned let coordinator: WalletSelectorRoutable
 
     init(userWallets: [UserWallet], currentUserWalletId: Data, coordinator: WalletSelectorRoutable) {
         self.coordinator = coordinator
         itemViewModels = userWallets.map { userWallet in
-            WalletSelectorCellViewModel(
+            WalletSelectorItemViewModel(
                 userWallet: userWallet,
                 isSelected: userWallet.userWalletId == currentUserWalletId,
                 cardImageProvider: CardImageProvider()
