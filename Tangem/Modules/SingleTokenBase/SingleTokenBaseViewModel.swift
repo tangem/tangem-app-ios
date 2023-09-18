@@ -39,7 +39,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
 
-    var canSend: Bool { walletModel.canSendTransaction }
+    var canSend: Bool {
+        guard userWalletModel.config.hasFeature(.send) else {
+            return false
+        }
+
+        return walletModel.canSendTransaction
+    }
 
     var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
 
