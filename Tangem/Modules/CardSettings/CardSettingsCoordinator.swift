@@ -83,8 +83,8 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         )
     }
 
-    func openAccessCodeRecoverySettings(with cardInteractor: UserCodeRecovering) {
-        accessCodeRecoverySettingsViewModel = .init(with: cardInteractor)
+    func openAccessCodeRecoverySettings(with recoveryInteractor: UserCodeRecovering) {
+        accessCodeRecoverySettingsViewModel = .init(with: recoveryInteractor)
     }
 }
 
