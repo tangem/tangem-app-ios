@@ -9,33 +9,30 @@
 import SwiftUI
 
 struct WalletSelectorCellView: View {
-    var image: UIImage?
-    let name: String
-    let isSelected: Bool
+    @ObservedObject var viewModel: WalletSelectorCellViewModel
 
-    private let imageHeight = 30.0
     private let maxImageWidth = 50.0
 
     var body: some View {
         HStack(spacing: 12) {
-            if let image = image {
+            if let image = viewModel.image {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: maxImageWidth, minHeight: imageHeight, maxHeight: imageHeight)
+                    .frame(maxWidth: maxImageWidth, minHeight: viewModel.imageHeight, maxHeight: viewModel.imageHeight)
             } else {
                 SkeletonView()
                     .cornerRadius(3)
-                    .frame(width: maxImageWidth, height: imageHeight)
+                    .frame(width: maxImageWidth, height: viewModel.imageHeight)
             }
 
-            Text(name)
+            Text(viewModel.name)
                 .lineLimit(1)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
             Spacer(minLength: 0)
 
-            if isSelected {
+            if viewModel.isSelected {
                 Assets.check.image
                     .frame(width: 20, height: 20)
                     .foregroundColor(Colors.Icon.accent)
@@ -43,17 +40,19 @@ struct WalletSelectorCellView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 19)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            viewModel.didTapWallet()
+        }
     }
 }
 
 struct WalletSelectorCellView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            WalletSelectorCellView(image: nil, name: "My Wallet", isSelected: false)
+            WalletSelectorCellView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: true, cardImageProvider: CardImageProvider(), didTapWallet: {}))
 
-            WalletSelectorCellView(image: UIImage(named: "tangem-card"), name: "My Wallet 2.0", isSelected: true)
-
-            WalletSelectorCellView(image: UIImage(named: "tangem-card"), name: "My Wallet 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0", isSelected: false)
+            WalletSelectorCellView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: false, cardImageProvider: CardImageProvider(), didTapWallet: {}))
         }
     }
 }
