@@ -24,8 +24,8 @@ class WalletSelectorCellViewModel: ObservableObject, Identifiable {
 
     let didTapWallet: () -> Void
     let imageHeight = 30.0
+    let userWallet: UserWallet
 
-    private let userWallet: UserWallet
     private let cardImageProvider: CardImageProviding
     private var bag: Set<AnyCancellable> = []
 
