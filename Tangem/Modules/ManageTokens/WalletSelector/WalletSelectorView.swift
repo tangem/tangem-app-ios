@@ -22,7 +22,7 @@ struct WalletSelectorView: View {
 
             VStack {
                 ForEach(viewModel.itemViewModels) { itemViewModel in
-                    WalletSelectorCellView(viewModel: itemViewModel)
+                    WalletSelectorItemView(viewModel: itemViewModel)
                 }
             }
             .background(Colors.Background.action)
