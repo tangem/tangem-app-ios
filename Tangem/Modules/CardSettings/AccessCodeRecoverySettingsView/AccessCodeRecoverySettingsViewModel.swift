@@ -16,21 +16,21 @@ class AccessCodeRecoverySettingsViewModel: ObservableObject {
     @Published var errorAlert: AlertBinder?
 
     var actionButtonDisabled: Bool {
-        isUserCodeRecoveryAllowed == cardInteractor.isUserCodeRecoveryAllowed
+        isUserCodeRecoveryAllowed == recoveryInteractor.isUserCodeRecoveryAllowed
     }
 
-    private let cardInteractor: UserCodeRecovering
+    private let recoveryInteractor: UserCodeRecovering
 
-    init(with cardInteractor: UserCodeRecovering) {
-        self.cardInteractor = cardInteractor
-        isUserCodeRecoveryAllowed = cardInteractor.isUserCodeRecoveryAllowed
+    init(with recoveryInteractor: UserCodeRecovering) {
+        self.recoveryInteractor = recoveryInteractor
+        isUserCodeRecoveryAllowed = recoveryInteractor.isUserCodeRecoveryAllowed
         setupViews()
     }
 
     func actionButtonDidTap() {
         isLoading = true
 
-        cardInteractor.toggleUserCodeRecoveryAllowed { [weak self] result in
+        recoveryInteractor.toggleUserCodeRecoveryAllowed { [weak self] result in
             guard let self else { return }
 
             switch result {
