@@ -10,9 +10,13 @@ import Foundation
 import Combine
 import UIKit
 
-class WalletSelectorCellViewModel: ObservableObject {
+class WalletSelectorCellViewModel: ObservableObject, Identifiable {
     @Published var image: UIImage? = nil
     @Published var isSelected: Bool = false
+
+    var id: Data {
+        userWallet.userWalletId
+    }
 
     var name: String {
         userWallet.name
