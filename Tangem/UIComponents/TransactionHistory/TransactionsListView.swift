@@ -220,11 +220,21 @@ struct TransactionsListView: View {
 }
 
 extension TransactionsListView {
-    enum State {
+    enum State: Equatable {
         case loading
         case error(Error)
         case loaded([TransactionListItem])
         case notSupported
+
+        static func == (lhs: State, rhs: State) -> Bool {
+            switch (lhs, rhs) {
+            case (.loading, .loading): return true
+            case (.error, .error): return true
+            case (.loaded(let lhsItems), .loaded(let rhsItems)): return lhsItems == rhsItems
+            case (.notSupported, .notSupported): return true
+            default: return false
+            }
+        }
     }
 }
 
@@ -238,82 +248,82 @@ extension TransactionsListView {
 }
 
 struct TransactionsListView_Previews: PreviewProvider {
-    static let listItems = [
-        TransactionListItem(
-            header: "Today",
-            items: TransactionView_Previews.previewViewModels
-        ),
-        TransactionListItem(
-            header: "Yesterday",
-            items: TransactionView_Previews.previewViewModels
-        ),
-        TransactionListItem(
-            header: "02.05.23",
-            items: TransactionView_Previews.previewViewModels
-        ),
-    ]
+    class TxHistoryModel: ObservableObject {
+        @Published var state: TransactionsListView.State
+
+        let oldItems = [
+            TransactionListItem(
+                header: "Yesterday",
+                items: TransactionView_Previews.previewViewModels
+            ),
+            TransactionListItem(
+                header: "02.05.23",
+                items: TransactionView_Previews.previewViewModels
+            ),
+        ]
+
+        let todayItems = [
+            TransactionListItem(
+                header: "Today",
+                items: TransactionView_Previews.previewViewModels
+            ),
+        ]
+
+        private var onlyOldItems = true
+
+        init() {
+            state = .loaded(oldItems)
+        }
+
+        func toggleState() {
+            switch state {
+            case .loading:
+                state = .loaded(oldItems)
+            case .loaded:
+                if onlyOldItems {
+                    state = .loaded(todayItems + oldItems)
+                    onlyOldItems = false
+                    return
+                }
+
+                state = .error("Don't touch this!!!")
+                onlyOldItems = true
+            case .error:
+                state = .notSupported
+            case .notSupported:
+                state = .loading
+            }
+        }
+    }
+
+    struct PreviewView: View {
+        @ObservedObject var model: TxHistoryModel = .init()
+
+        var body: some View {
+            VStack {
+                Button(action: model.toggleState) {
+                    Text("Toggle state")
+                }
+
+                ScrollView {
+                    TransactionsListView(
+                        state: model.state,
+                        exploreAction: {},
+                        exploreTransactionAction: { _ in },
+                        reloadButtonAction: {},
+                        isReloadButtonBusy: false,
+                        buyButtonAction: {},
+                        fetchMore: nil
+                    )
+                    .animation(.default, value: model.state)
+                    .padding(.horizontal, 16)
+                }
+            }
+            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        }
+    }
 
     static var previews: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                TransactionsListView(
-                    state: .notSupported,
-                    exploreAction: {},
-                    exploreTransactionAction: { _ in },
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-
-                TransactionsListView(
-                    state: .loading,
-                    exploreAction: {},
-                    exploreTransactionAction: { _ in },
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-
-                TransactionsListView(
-                    state: .loaded([]),
-                    exploreAction: {},
-                    exploreTransactionAction: { _ in },
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-
-                TransactionsListView(
-                    state: .error(""),
-                    exploreAction: {},
-                    exploreTransactionAction: { _ in },
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-            }
-            .padding(.horizontal, 16)
-        }
-        .preferredColorScheme(.dark)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-
-        ScrollView {
-            TransactionsListView(
-                state: .loaded(listItems),
-                exploreAction: {},
-                exploreTransactionAction: { _ in },
-                reloadButtonAction: {},
-                isReloadButtonBusy: false,
-                buyButtonAction: {},
-                fetchMore: nil
-            )
-            .padding(.horizontal, 16)
-        }
-        .preferredColorScheme(.dark)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        PreviewView()
     }
 }
