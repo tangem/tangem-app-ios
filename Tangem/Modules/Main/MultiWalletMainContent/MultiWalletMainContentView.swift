@@ -99,9 +99,11 @@ struct MultiWalletMainContentView: View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.sections) { section in
                 TokenSectionView(title: section.model.title)
+                    .background(Colors.Background.primary)
 
                 ForEach(section.items) { item in
                     TokenItemView(viewModel: item)
+                        .background(Colors.Background.primary)
                         .previewContentShape(cornerRadius: Constants.cornerRadius)
                         .contextMenu {
                             ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
