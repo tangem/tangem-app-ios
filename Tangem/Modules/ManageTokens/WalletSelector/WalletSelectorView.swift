@@ -28,10 +28,10 @@ struct WalletSelectorView: View {
             .background(Colors.Background.action)
             .cornerRadiusContinuous(14)
             .padding(16)
-            
+
             Spacer()
         }
-        .background(Colors.Background.secondary)
+        .background(Colors.Background.secondary.ignoresSafeArea())
     }
 }
 
