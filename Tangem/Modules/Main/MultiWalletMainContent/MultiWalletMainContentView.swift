@@ -76,7 +76,7 @@ struct MultiWalletMainContentView: View {
                 }
             }
         }
-        .cornerRadiusContinuous(14)
+        .cornerRadiusContinuous(Constants.cornerRadius)
     }
 
     private var emptyList: some View {
@@ -102,6 +102,7 @@ struct MultiWalletMainContentView: View {
 
                 ForEach(section.items) { item in
                     TokenItemView(viewModel: item)
+                        .previewContentShape(cornerRadius: Constants.cornerRadius)
                         .contextMenu {
                             ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
                                 contextMenuButton(for: menuAction, tokenItem: item)
@@ -171,5 +172,13 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             MultiWalletMainContentView(viewModel: viewModel)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    }
+}
+
+// MARK: - Constants
+
+private extension MultiWalletMainContentView {
+    enum Constants {
+        static let cornerRadius = 14.0
     }
 }
