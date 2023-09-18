@@ -14,45 +14,43 @@ struct TokenItemView: View {
     @State private var totalWidth: CGFloat = .zero
 
     var body: some View {
-        HStack(alignment: .center, spacing: 0.0) {
-            TokenItemViewLeadingComponent(
-                name: viewModel.name,
-                imageURL: viewModel.imageURL,
-                blockchainIconName: viewModel.blockchainIconName,
-                hasMonochromeIcon: viewModel.hasMonochromeIcon
-            )
-
-            // Fixed size spacer
-            FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
-                .layoutPriority(1000.0)
-
-            HStack(alignment: viewModel.hasError ? .center : .top, spacing: 0.0) {
-                TokenItemViewMiddleComponent(
+        Button(action: viewModel.tapAction) {
+            HStack(alignment: .center, spacing: 0.0) {
+                TokenItemViewLeadingComponent(
                     name: viewModel.name,
-                    balance: viewModel.balanceCrypto,
-                    hasPendingTransactions: viewModel.hasPendingTransactions,
-                    hasError: viewModel.hasError
+                    imageURL: viewModel.imageURL,
+                    blockchainIconName: viewModel.blockchainIconName,
+                    hasMonochromeIcon: viewModel.hasMonochromeIcon
                 )
 
-                // Flexible size spacer
-                Spacer(minLength: Constants.spacerLength)
+                // Fixed size spacer
+                FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
+                    .layoutPriority(1000.0)
 
-                TokenItemViewTrailingComponent(
-                    hasError: viewModel.hasError,
-                    errorMessage: viewModel.errorMessage,
-                    balanceFiat: viewModel.balanceFiat,
-                    priceChangeState: viewModel.priceChangeState
-                )
-                .frame(maxWidth: totalWidth * 0.3, alignment: .trailing)
-                .fixedSize(horizontal: true, vertical: false)
+                HStack(alignment: viewModel.hasError ? .center : .top, spacing: 0.0) {
+                    TokenItemViewMiddleComponent(
+                        name: viewModel.name,
+                        balance: viewModel.balanceCrypto,
+                        hasPendingTransactions: viewModel.hasPendingTransactions,
+                        hasError: viewModel.hasError
+                    )
+
+                    // Flexible size spacer
+                    Spacer(minLength: Constants.spacerLength)
+
+                    TokenItemViewTrailingComponent(
+                        hasError: viewModel.hasError,
+                        errorMessage: viewModel.errorMessage,
+                        balanceFiat: viewModel.balanceFiat,
+                        priceChangeState: viewModel.priceChangeState
+                    )
+                    .frame(maxWidth: totalWidth * 0.3, alignment: .trailing)
+                    .fixedSize(horizontal: true, vertical: false)
+                }
             }
         }
         .padding(14.0)
         .readGeometry(\.size.width, bindTo: $totalWidth)
-        // We need this background for correctly handling tap gesture
-        // and because long tap gesture not correctly drawing cell
-        .background(Colors.Background.primary.cornerRadiusContinuous(13))
-        .onTapGesture(perform: viewModel.tapAction)
     }
 }
 
