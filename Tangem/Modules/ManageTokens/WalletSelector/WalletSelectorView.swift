@@ -37,6 +37,6 @@ struct WalletSelectorView: View {
 
 struct WalletSelectorView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletSelectorView(viewModel: WalletSelectorViewModel(userWallets: FakeUserWalletModel.allFakeWalletModels.map { $0.userWallet }, currentUserWalletId: FakeUserWalletModel.allFakeWalletModels.first?.userWallet.userWalletId ?? Data()))
+        WalletSelectorView(viewModel: WalletSelectorViewModel(userWallets: FakeUserWalletModel.allFakeWalletModels.map { $0.userWallet }, currentUserWalletId: FakeUserWalletModel.allFakeWalletModels.first?.userWallet.userWalletId ?? Data(), coordinator: WalletSelectorCoordinator()))
     }
 }
