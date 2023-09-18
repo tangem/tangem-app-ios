@@ -11,8 +11,8 @@ import Combine
 import TangemSdk
 
 class UserCodeRecoveringCardInteractor {
-    private var cardInfo: CardInfo
     private let tangemSdk: TangemSdk
+    private var cardInfo: CardInfo
     private var _isUserCodeRecoveryAllowed: CurrentValueSubject<Bool, Never>
 
     init(with cardInfo: CardInfo) {
