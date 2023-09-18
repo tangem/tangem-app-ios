@@ -19,7 +19,7 @@ class CommonSwappingManager {
 
     // MARK: - Internal
 
-    private var swappingItems: SwappingItems
+    private let swappingItems: ThreadSafeContainer<SwappingItems>
     private var amount: Decimal?
     private var approvePolicy: SwappingApprovePolicy = .unlimited
     private var gasPricePolicy: SwappingGasPricePolicy = .normal
@@ -53,7 +53,7 @@ class CommonSwappingManager {
         self.walletDataProvider = walletDataProvider
         self.logger = logger
         self.referrer = referrer
-        self.swappingItems = swappingItems
+        self.swappingItems = .init(swappingItems)
         self.amount = amount
 
         Task { [weak self] in
@@ -70,7 +70,7 @@ extension CommonSwappingManager: SwappingManager {
     }
 
     func getSwappingItems() -> SwappingItems {
-        return swappingItems
+        return swappingItems.read()
     }
 
     func getReferrerAccount() -> SwappingReferrerAccount? {
@@ -86,11 +86,20 @@ extension CommonSwappingManager: SwappingManager {
     }
 
     func isEnoughAllowance() -> Bool {
-        guard swappingItems.source.isToken, let amount, amount > 0 else {
+        // These local variables are introduced as part of the [REDACTED_INFO] bug investigation;
+        // feel free to get rid of them if the bug is fixed
+        let sourceItems = swappingItems.source
+        let allowanceLimit = swappingAllowanceLimit
+
+        guard
+            sourceItems.isToken,
+            let amount = amount,
+            amount > 0
+        else {
             return true
         }
 
-        guard let allowance = swappingAllowanceLimit[swappingItems.source] else {
+        guard let allowance = allowanceLimit[sourceItems] else {
             return false
         }
 
@@ -98,7 +107,7 @@ extension CommonSwappingManager: SwappingManager {
     }
 
     func update(swappingItems: SwappingItems) {
-        self.swappingItems = swappingItems
+        self.swappingItems.mutate { $0 = swappingItems }
     }
 
     func update(amount: Decimal?) {
@@ -115,7 +124,7 @@ extension CommonSwappingManager: SwappingManager {
 
     func refreshBalances() async -> SwappingItems {
         try? await updateSwappingItemsBalances()
-        return swappingItems
+        return swappingItems.read()
     }
 
     func refresh(type: SwappingManagerRefreshType) async -> SwappingAvailabilityState {
@@ -252,7 +261,7 @@ private extension CommonSwappingManager {
         }
 
         return try await swappingProvider.fetchQuote(
-            items: swappingItems,
+            items: swappingItems.read(),
             amount: formattedAmount,
             referrer: referrer
         )
@@ -275,7 +284,7 @@ private extension CommonSwappingManager {
         }
 
         return try await swappingProvider.fetchSwappingData(
-            items: swappingItems,
+            items: swappingItems.read(),
             walletAddress: walletAddress,
             amount: formattedAmount,
             referrer: referrer
@@ -289,12 +298,12 @@ private extension CommonSwappingManager {
         if let destination = swappingItems.destination {
             let balance = try await walletDataProvider.getBalance(for: destination)
             if swappingItems.destinationBalance != balance {
-                swappingItems.destinationBalance = balance
+                swappingItems.mutate { $0.destinationBalance = balance }
             }
         }
 
         if swappingItems.sourceBalance != balance {
-            swappingItems.sourceBalance = balance
+            swappingItems.mutate { $0.sourceBalance = balance }
         }
     }
 
