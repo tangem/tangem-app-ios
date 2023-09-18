@@ -539,6 +539,7 @@
 		DA207C122AB86C41005CC5E3 /* WalletSelectorCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA207C102AB86C41005CC5E3 /* WalletSelectorCellView.swift */; };
 		DA207C132AB86C41005CC5E3 /* WalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA207C112AB86C41005CC5E3 /* WalletSelectorView.swift */; };
 		DA207C162AB87062005CC5E3 /* WalletSelectorCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA207C152AB87062005CC5E3 /* WalletSelectorCellViewModel.swift */; };
+		DA207C182AB87CDC005CC5E3 /* WalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA207C172AB87CDC005CC5E3 /* WalletSelectorViewModel.swift */; };
 		DA23787A27B24222009795A8 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786B27B24221009795A8 /* Address.swift */; };
 		DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786C27B24221009795A8 /* ProductVariant.swift */; };
 		DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786D27B24221009795A8 /* ShopifyService.swift */; };
@@ -1735,6 +1736,7 @@
 		DA207C102AB86C41005CC5E3 /* WalletSelectorCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorCellView.swift; sourceTree = "<group>"; };
 		DA207C112AB86C41005CC5E3 /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
 		DA207C152AB87062005CC5E3 /* WalletSelectorCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectorCellViewModel.swift; sourceTree = "<group>"; };
+		DA207C172AB87CDC005CC5E3 /* WalletSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectorViewModel.swift; sourceTree = "<group>"; };
 		DA23786B27B24221009795A8 /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		DA23786C27B24221009795A8 /* ProductVariant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductVariant.swift; sourceTree = "<group>"; };
 		DA23786D27B24221009795A8 /* ShopifyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyService.swift; sourceTree = "<group>"; };
@@ -4234,6 +4236,7 @@
 			isa = PBXGroup;
 			children = (
 				DA207C112AB86C41005CC5E3 /* WalletSelectorView.swift */,
+				DA207C172AB87CDC005CC5E3 /* WalletSelectorViewModel.swift */,
 				DA207C102AB86C41005CC5E3 /* WalletSelectorCellView.swift */,
 				DA207C152AB87062005CC5E3 /* WalletSelectorCellViewModel.swift */,
 			);
@@ -6863,6 +6866,7 @@
 				EFD39C972A6A916C0055D215 /* EnvironmentSetupCoordinator.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
 				B018F2FD2591FE8600D8F89A /* AppWarning.swift in Sources */,
+				DA207C182AB87CDC005CC5E3 /* WalletSelectorViewModel.swift in Sources */,
 				B04CD33C29122C5C001EA84A /* ReferralView.swift in Sources */,
 				B0FB4EF72A8511A40057F4C2 /* UserTokenListStubs.swift in Sources */,
 				B04126ED29CC31C700A8BB43 /* OnboardingSeedPhraseUserValidationView.swift in Sources */,
