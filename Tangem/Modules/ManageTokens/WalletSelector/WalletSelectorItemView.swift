@@ -1,5 +1,5 @@
 //
-//  WalletSelectorCellView.swift
+//  WalletSelectorItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct WalletSelectorCellView: View {
-    @ObservedObject var viewModel: WalletSelectorCellViewModel
+struct WalletSelectorItemView: View {
+    @ObservedObject var viewModel: WalletSelectorItemViewModel
 
     private let maxImageWidth = 50.0
 
@@ -47,12 +47,12 @@ struct WalletSelectorCellView: View {
     }
 }
 
-struct WalletSelectorCellView_Previews: PreviewProvider {
+struct WalletSelectorItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            WalletSelectorCellView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: true, cardImageProvider: CardImageProvider(), didTapWallet: {}))
+            WalletSelectorItemView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: true, cardImageProvider: CardImageProvider(), didTapWallet: {}))
 
-            WalletSelectorCellView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: false, cardImageProvider: CardImageProvider(), didTapWallet: {}))
+            WalletSelectorItemView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: false, cardImageProvider: CardImageProvider(), didTapWallet: {}))
         }
     }
 }

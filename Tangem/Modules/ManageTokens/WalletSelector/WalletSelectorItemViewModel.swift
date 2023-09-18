@@ -1,5 +1,5 @@
 //
-//  WalletSelectorCellViewModel.swift
+//  WalletSelectorItemViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import UIKit
 
-class WalletSelectorCellViewModel: ObservableObject, Identifiable {
+class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var image: UIImage? = nil
     @Published var isSelected: Bool = false
 
