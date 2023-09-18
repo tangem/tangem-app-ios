@@ -25,6 +25,8 @@ class WalletSelectorViewModel: ObservableObject {
     }
 
     func didTapWallet(with userWallet: UserWallet) {
-        print("DID TAP:", userWallet.name)
+        for itemViewModel in itemViewModels {
+            itemViewModel.isSelected = userWallet.userWalletId == itemViewModel.userWallet.userWalletId
+        }
     }
 }
