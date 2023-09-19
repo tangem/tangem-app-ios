@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemSdk
 
 class AddCustomTokenDerivationPathSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -29,7 +30,14 @@ class AddCustomTokenDerivationPathSelectorCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: Options) {}
+    func start(with options: Options) {
+        rootViewModel = AddCustomTokenDerivationPathSelectorViewModel(
+            selectedDerivationOption: options.selectedDerivationOption,
+            defaultDerivationPath: options.defaultDerivationPath,
+            blockchainDerivationOptions: options.blockchainDerivationOptions,
+            coordinator: self
+        )
+    }
 }
 
 // MARK: - Options
@@ -37,6 +45,7 @@ class AddCustomTokenDerivationPathSelectorCoordinator: CoordinatorObject {
 extension AddCustomTokenDerivationPathSelectorCoordinator {
     struct Options {
         let selectedDerivationOption: AddCustomTokenDerivationOption
+        let defaultDerivationPath: DerivationPath
         let blockchainDerivationOptions: [AddCustomTokenDerivationOption]
     }
 }
