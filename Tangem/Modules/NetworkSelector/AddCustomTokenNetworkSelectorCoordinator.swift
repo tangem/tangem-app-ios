@@ -1,5 +1,5 @@
 //
-//  NetworkSelectorCoordinator.swift
+//  AddCustomTokenNetworkSelectorCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import Combine
 
-class NetworkSelectorCoordinator: CoordinatorObject {
+class AddCustomTokenNetworkSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: NetworkSelectorViewModel?
+    @Published private(set) var rootViewModel: AddCustomTokenNetworkSelectorViewModel?
 
     // MARK: - Child coordinators
 
@@ -34,10 +34,10 @@ class NetworkSelectorCoordinator: CoordinatorObject {
 
 // MARK: - Options
 
-extension NetworkSelectorCoordinator {
+extension AddCustomTokenNetworkSelectorCoordinator {
     enum Options {}
 }
 
-// MARK: - NetworkSelectorRoutable
+// MARK: - AddCustomTokenNetworkSelectorRoutable
 
-extension NetworkSelectorCoordinator: NetworkSelectorRoutable {}
+extension AddCustomTokenNetworkSelectorCoordinator: AddCustomTokenNetworkSelectorRoutable {}
