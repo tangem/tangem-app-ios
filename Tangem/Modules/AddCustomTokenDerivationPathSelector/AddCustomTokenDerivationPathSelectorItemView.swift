@@ -35,7 +35,6 @@ struct AddCustomTokenDerivationPathSelectorItemView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 13)
-        .background(Colors.Background.primary)
         .contentShape(Rectangle())
         .onTapGesture {
             viewModel.didTapOption()
