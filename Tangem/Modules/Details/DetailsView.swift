@@ -32,7 +32,6 @@ struct DetailsView: View {
 
             socialNetworks
         }
-        .ignoresSafeArea(.container, edges: .bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .background(
             ScanTroubleshootingView(
@@ -104,7 +103,6 @@ struct DetailsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 16)
-        .padding(.bottom, max(16, UIApplication.safeAreaInsets.bottom))
     }
 
     @ViewBuilder
