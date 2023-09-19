@@ -12,7 +12,9 @@ struct MeetTangemStoryPage: View {
     @Binding var progress: Double
     var immediatelyShowTangemLogo: Bool
     var immediatelyShowButtons: Bool
+    let handWithCardImage: Image
     @Binding var isScanning: Bool
+    let didReachWalletImage: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -88,7 +90,7 @@ struct MeetTangemStoryPage: View {
 
                 Color.clear
                     .background(
-                        Assets.Stories.handWithCard.image
+                        handWithCardImage
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
@@ -112,7 +114,16 @@ struct MeetTangemStoryPage: View {
                                 progress: progress,
                                 start: wordListProgressEnd,
                                 end: 1
-                            )),
+                            ))
+                            .modifier(ProgressCheckerModifier(
+                                progress: progress,
+                                threshold: wordListProgressEnd
+                            ))
+                            .onPreferenceChange(ProgressCheckerModifier.PreferenceKey.self) { finishedShowingWordList in
+                                if finishedShowingWordList {
+                                    didReachWalletImage()
+                                }
+                            },
 
                         alignment: .top
                     )
@@ -138,8 +149,35 @@ struct MeetTangemStoryPage: View {
 
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowTangemLogo: false, immediatelyShowButtons: false, isScanning: .constant(false)) {} orderCard: {}
+        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowTangemLogo: false, immediatelyShowButtons: false, handWithCardImage: Assets.Stories.handWithCard.image, isScanning: .constant(false)) {} scanCard: {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
             .environment(\.colorScheme, .dark)
+    }
+}
+
+private struct ProgressCheckerModifier: AnimatableModifier {
+    enum PreferenceKey: SwiftUI.PreferenceKey {
+        static var defaultValue: Bool { false }
+
+        static func reduce(value: inout Bool, nextValue: () -> Bool) {
+            value = nextValue()
+        }
+    }
+
+    var progress: Double
+    let threshold: Double
+
+    var animatableData: CGFloat {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    private var reachedThreshold: Bool {
+        return progress >= threshold
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .preference(key: PreferenceKey.self, value: reachedThreshold)
     }
 }
