@@ -26,7 +26,7 @@ final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
                 networkId: blockchain.networkId,
                 iconName: blockchain.iconNameFilled,
                 networkName: blockchain.displayName,
-                currencyCode: blockchain.currencySymbol,
+                currencySymbol: blockchain.currencySymbol,
                 isSelected: blockchain == selectedBlockchain
             ) { [weak self] in
                 self?.didTapNetwork(blockchain)
