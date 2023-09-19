@@ -16,14 +16,23 @@ struct AddCustomTokenNetworkSelectorView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Hello, World!")
+        ScrollView(.vertical) {
+            VStack(spacing: 0) {
+                ForEach(viewModel.itemViewModels, id: \.networkId) { itemViewModel in
+                    AddCustomTokenNetworkSelectorItemView(viewModel: itemViewModel)
+                }
+            }
+            .background(Colors.Background.action)
+            .cornerRadius(14)
+            .padding(.horizontal, 16)
         }
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
     }
 }
 
 struct AddCustomTokenNetworkSelectorView_Preview: PreviewProvider {
-    static let viewModel = AddCustomTokenNetworkSelectorViewModel(coordinator: AddCustomTokenNetworkSelectorCoordinator())
+    static let viewModel = AddCustomTokenNetworkSelectorViewModel(selectedBlockchain: .ethereum(testnet: true), blockchains: SupportedBlockchains.all.filter(\.isTestnet), coordinator: AddCustomTokenNetworkSelectorCoordinator())
 
     static var previews: some View {
         AddCustomTokenNetworkSelectorView(viewModel: viewModel)
