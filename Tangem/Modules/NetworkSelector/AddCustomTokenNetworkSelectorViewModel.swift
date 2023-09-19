@@ -1,5 +1,5 @@
 //
-//  NetworkSelectorViewModel.swift
+//  AddCustomTokenNetworkSelectorViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,15 +9,15 @@
 import Combine
 import SwiftUI
 
-final class NetworkSelectorViewModel: ObservableObject {
+final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
     // MARK: - ViewState
 
     // MARK: - Dependencies
 
-    private unowned let coordinator: NetworkSelectorRoutable
+    private unowned let coordinator: AddCustomTokenNetworkSelectorRoutable
 
     init(
-        coordinator: NetworkSelectorRoutable
+        coordinator: AddCustomTokenNetworkSelectorRoutable
     ) {
         self.coordinator = coordinator
     }
