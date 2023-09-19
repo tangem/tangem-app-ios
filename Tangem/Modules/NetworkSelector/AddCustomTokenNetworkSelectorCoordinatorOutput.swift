@@ -1,5 +1,5 @@
 //
-//  AddCustomTokenNetworkSelectorRoutable.swift
+//  AddCustomTokenNetworkSelectorCoordinatorOutput.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import BlockchainSdk
 
-protocol AddCustomTokenNetworkSelectorRoutable: AnyObject {
+protocol AddCustomTokenNetworkSelectorCoordinatorOutput: AnyObject {
     func didSelectNetwork(blockchain: Blockchain)
 }
