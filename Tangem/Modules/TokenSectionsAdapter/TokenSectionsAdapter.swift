@@ -26,6 +26,15 @@ final class TokenSectionsAdapter {
         /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
         case `default`(WalletModel)
         case withoutDerivation(TokenSectionsAdapter.UserToken)
+
+        var isCustom: Bool {
+            switch self {
+            case .default(let walletModel):
+                return walletModel.isCustom
+            case .withoutDerivation(let userToken):
+                return userToken.isCustom
+            }
+        }
     }
 
     private let userTokenListManager: UserTokenListManager
