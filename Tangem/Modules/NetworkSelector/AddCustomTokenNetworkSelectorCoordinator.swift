@@ -10,9 +10,9 @@ import Combine
 import BlockchainSdk
 
 class AddCustomTokenNetworkSelectorCoordinator: CoordinatorObject {
+    let output: AddCustomTokenNetworkSelectorCoordinatorOutput
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
-    let output: AddCustomTokenNetworkSelectorCoordinatorOutput
 
     // MARK: - Root view model
 
