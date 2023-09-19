@@ -27,6 +27,8 @@ struct AppSettingsView: View {
                 savingWalletSection
 
                 savingAccessCodesSection
+
+                sensitiveTextAvailabilitySection
             }
         }
         .alert(item: $viewModel.alert) { $0.alert }
@@ -60,6 +62,14 @@ struct AppSettingsView: View {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
             DefaultFooterView(Localization.appSettingsSavedAccessCodesFooter)
+        }
+    }
+
+    private var sensitiveTextAvailabilitySection: some View {
+        GroupedSection(viewModel.sensitiveTextAvailabilityViewModel) {
+            DefaultToggleRowView(viewModel: $0)
+        } footer: {
+            DefaultFooterView("Flip your device screen down to quickly hide and show balances")
         }
     }
 }
