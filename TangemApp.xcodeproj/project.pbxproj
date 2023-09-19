@@ -638,6 +638,8 @@
 		DAF3E62E2AB984410050ADBF /* NetworkSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6292AB984410050ADBF /* NetworkSelectorView.swift */; };
 		DAF3E62F2AB984410050ADBF /* NetworkSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E62A2AB984410050ADBF /* NetworkSelectorViewModel.swift */; };
 		DAF3E6302AB984410050ADBF /* NetworkSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E62B2AB984410050ADBF /* NetworkSelectorRoutable.swift */; };
+		DAF3E6352AB9856D0050ADBF /* AddCustomTokenNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6342AB9856C0050ADBF /* AddCustomTokenNetworkSelectorItemView.swift */; };
+		DAF3E6362AB9856D0050ADBF /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6332AB9856C0050ADBF /* AddCustomTokenNetworkSelectorItemViewModel.swift */; };
 		DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */; };
 		DC01329E299A786700B95145 /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
 		DC0132A0299A7B8E00B95145 /* notReferralMock.json in Resources */ = {isa = PBXBuildFile; fileRef = B0332D3229251A4A00553AD9 /* notReferralMock.json */; };
@@ -1841,6 +1843,8 @@
 		DAF3E6292AB984410050ADBF /* NetworkSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSelectorView.swift; sourceTree = "<group>"; };
 		DAF3E62A2AB984410050ADBF /* NetworkSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSelectorViewModel.swift; sourceTree = "<group>"; };
 		DAF3E62B2AB984410050ADBF /* NetworkSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSelectorRoutable.swift; sourceTree = "<group>"; };
+		DAF3E6332AB9856C0050ADBF /* AddCustomTokenNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
+		DAF3E6342AB9856C0050ADBF /* AddCustomTokenNetworkSelectorItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		DAF466A599E954AB0543E190 /* Pods-TangemSwapping.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombinedExchangeService.swift; sourceTree = "<group>"; };
 		DC0A57D42822A3C80031BECC /* InjectionKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectionKey.swift; sourceTree = "<group>"; };
@@ -4451,6 +4455,8 @@
 				DAF3E6282AB984410050ADBF /* NetworkSelectorCoordinatorView.swift */,
 				DAF3E6292AB984410050ADBF /* NetworkSelectorView.swift */,
 				DAF3E62A2AB984410050ADBF /* NetworkSelectorViewModel.swift */,
+				DAF3E6342AB9856C0050ADBF /* AddCustomTokenNetworkSelectorItemView.swift */,
+				DAF3E6332AB9856C0050ADBF /* AddCustomTokenNetworkSelectorItemViewModel.swift */,
 				DAF3E62B2AB984410050ADBF /* NetworkSelectorRoutable.swift */,
 			);
 			path = NetworkSelector;
@@ -6677,6 +6683,7 @@
 				B04EADEA2A80D62E009B5768 /* SingleTokenBaseRoutable.swift in Sources */,
 				B0B335DE29FA959B00E2082E /* TokenIcon.swift in Sources */,
 				DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */,
+				DAF3E6362AB9856D0050ADBF /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */,
 				DC0A5818282526E30031BECC /* RateAppService.swift in Sources */,
 				B65D3FCD2A6712BB00FEEFE8 /* CardsInfoPagerContentSwitchingModifier.swift in Sources */,
 				B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */,
@@ -7148,6 +7155,7 @@
 				DC295B3C2861C19C006CB7B6 /* LegacyMainCoordinator.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
+				DAF3E6352AB9856D0050ADBF /* AddCustomTokenNetworkSelectorItemView.swift in Sources */,
 				DC7D39FF29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift in Sources */,
 				B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
