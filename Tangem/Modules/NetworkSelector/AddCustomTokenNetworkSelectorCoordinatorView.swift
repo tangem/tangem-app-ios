@@ -1,5 +1,5 @@
 //
-//  NetworkSelectorCoordinatorView.swift
+//  AddCustomTokenNetworkSelectorCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,17 +8,17 @@
 
 import SwiftUI
 
-struct NetworkSelectorCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: NetworkSelectorCoordinator
+struct AddCustomTokenNetworkSelectorCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: AddCustomTokenNetworkSelectorCoordinator
 
-    init(coordinator: NetworkSelectorCoordinator) {
+    init(coordinator: AddCustomTokenNetworkSelectorCoordinator) {
         self.coordinator = coordinator
     }
 
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                NetworkSelectorView(viewModel: rootViewModel)
+                AddCustomTokenNetworkSelectorView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
 
