@@ -102,18 +102,48 @@ struct MultiWalletMainContentView: View {
                     .background(Colors.Background.primary)
 
                 ForEach(section.items) { item in
-                    TokenItemView(viewModel: item)
-                        .background(Colors.Background.primary)
-                        .previewContentShape(cornerRadius: Constants.cornerRadius)
-                        .contextMenu {
-                            ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
-                                contextMenuButton(for: menuAction, tokenItem: item)
-                            }
-                        }
+                    makeTokenItemViewModel(for: item)
                 }
             }
         }
         .background(Colors.Background.primary)
+    }
+
+    @ViewBuilder
+    private func makeTokenItemViewModel(for itemViewModel: TokenItemViewModel) -> some View {
+        let tokenItemView = TokenItemView(viewModel: itemViewModel)
+            .background(Colors.Background.primary)
+
+        if #available(iOS 16.0, *) {
+            Button(action: itemViewModel.tapAction) { tokenItemView }
+                .previewContentShape(cornerRadius: Constants.cornerRadius)
+                .contextMenu(
+                    menuItems: {
+                        ForEach(viewModel.contextActions(for: itemViewModel), id: \.self) { menuAction in
+                            contextMenuButton(for: menuAction, tokenItem: itemViewModel)
+                        }
+                    },
+                    preview: { tokenItemView }
+                )
+        } else {
+            // On iOS versions lower than 16.0 it isn't possible to add a custom preview for the native context menu,
+            // resulting in the `SwiftUI.Button` 'pressed' appearance being applied to the context menu preview.
+            // Two workarounds are used here to mitigate this issue:
+            // - `SwiftUI.Button` is replaced with a plain tap gesture.
+            // - `highlightable` modifier is used to simulate the highlighted state in a regular SwiftUI view
+            // (similar to the highlighted state in `UITableViewCell`).
+            // It doesn't look as fancy as a native highlighted appearance, but it's better than nothing.
+            tokenItemView
+                .onTapGesture(perform: itemViewModel.tapAction)
+                .highlightable(color: Colors.Button.primary.opacity(0.05))
+                // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
+                .previewContentShape(cornerRadius: Constants.cornerRadius)
+                .contextMenu {
+                    ForEach(viewModel.contextActions(for: itemViewModel), id: \.self) { menuAction in
+                        contextMenuButton(for: menuAction, tokenItem: itemViewModel)
+                    }
+                }
+        }
     }
 
     @ViewBuilder
