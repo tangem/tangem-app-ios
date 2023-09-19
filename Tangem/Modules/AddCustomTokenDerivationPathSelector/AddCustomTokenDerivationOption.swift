@@ -18,11 +18,11 @@ enum AddCustomTokenDerivationOption {
 extension AddCustomTokenDerivationOption {
     var id: String {
         switch self {
-        case .custom(let derivationPath):
+        case .custom:
             return "custom"
-        case .default(let derivationPath):
+        case .default:
             return "default"
-        case .blockchain(let name, let derivationPath):
+        case .blockchain(let name, _):
             return name
         }
     }
@@ -30,7 +30,7 @@ extension AddCustomTokenDerivationOption {
     var name: String {
         switch self {
         case .custom:
-            return Localization.manageTokensCustom
+            return Localization.customTokenCustomDerivation
         case .default:
             return Localization.customTokenDerivationPathDefault
         case .blockchain(let name, _):
