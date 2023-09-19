@@ -23,7 +23,7 @@ struct AddCustomTokenNetworkSelectorView: View {
                 }
             }
             .background(Colors.Background.action)
-            .cornerRadius(14)
+            .cornerRadiusContinuous(14)
             .padding(.horizontal, 16)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
