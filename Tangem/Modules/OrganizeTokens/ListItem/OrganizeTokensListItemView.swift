@@ -12,23 +12,28 @@ struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
 
     var body: some View {
-        HStack(spacing: 12.0) {
+        HStack(spacing: 0.0) {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
                 blockchainIconName: viewModel.blockchainIconName,
-                networkUnreachable: viewModel.networkUnreachable
+                hasMonochromeIcon: viewModel.hasMonochromeIcon
             )
 
-            // According to the mockups, network unreachable state on the organize tokens screen
-            // looks different than on the main screen
-            if viewModel.networkUnreachable {
-                networkUnreachableMiddleComponent
+            // Fixed size spacer
+            FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
+                .layoutPriority(1000.0)
+
+            // According to the mockups, error state on the Organize Tokens
+            // screen looks different than on the main screen
+            if let errorMessage = viewModel.errorMessage {
+                makeMiddleComponent(withErrorMessage: errorMessage)
             } else {
                 defaultMiddleComponent
             }
 
-            Spacer(minLength: 0.0)
+            // Flexible size spacer
+            Spacer(minLength: viewModel.isDraggable ? Constants.spacerLength : 0.0)
 
             if viewModel.isDraggable {
                 Assets.OrganizeTokens.itemDragAndDropIcon
@@ -39,26 +44,34 @@ struct OrganizeTokensListItemView: View {
         .padding(14.0)
     }
 
-    private var networkUnreachableMiddleComponent: some View {
+    private var defaultMiddleComponent: some View {
+        TokenItemViewMiddleComponent(
+            name: viewModel.name,
+            balance: viewModel.balance,
+            hasPendingTransactions: false, // Pending transactions aren't shown on the Organize Tokens screen
+            hasError: false // Errors are handled by the dedicated component made in `makeMiddleComponent(withErrorMessage:)`
+        )
+    }
+
+    private func makeMiddleComponent(withErrorMessage errorMessage: String) -> some View {
         VStack(alignment: .leading, spacing: 2.0) {
             Text(viewModel.name)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                 .lineLimit(2)
 
-            Text(Localization.commonUnreachable)
+            Text(errorMessage)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
         }
         .padding(.vertical, 2.0)
     }
+}
 
-    private var defaultMiddleComponent: some View {
-        TokenItemViewMiddleComponent(
-            name: viewModel.name,
-            balance: viewModel.balance,
-            hasPendingTransactions: viewModel.hasPendingTransactions,
-            networkUnreachable: viewModel.networkUnreachable
-        )
+// MARK: - Constants
+
+private extension OrganizeTokensListItemView {
+    enum Constants {
+        static let spacerLength = 12.0
     }
 }
 
