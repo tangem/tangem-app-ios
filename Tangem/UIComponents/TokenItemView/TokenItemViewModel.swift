@@ -26,6 +26,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     var imageURL: URL? { tokenIcon.imageURL }
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || isTestnetToken }
+    var isCustom: Bool { tokenIcon.isCustom }
     var tokenItem: TokenItem { infoProvider.tokenItem }
 
     var hasError: Bool { missingDerivation || networkUnreachable }
