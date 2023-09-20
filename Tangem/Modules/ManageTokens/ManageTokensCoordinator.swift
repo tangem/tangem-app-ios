@@ -16,6 +16,10 @@ class ManageTokensCoordinator: CoordinatorObject {
 
     @Published private(set) var manageTokensViewModel: ManageTokensViewModel? = nil
 
+    // MARK: - Child ViewModels
+
+    @Published var addCustomTokenViewModel: LegacyAddCustomTokenViewModel? = nil
+
     // MARK: - Init
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -26,12 +30,43 @@ class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Implmentation
 
     func start(with options: ManageTokensCoordinator.Options) {
-        manageTokensViewModel = .init()
+        manageTokensViewModel = .init(
+            settings: options.settings,
+            userTokensManager: options.userTokensManager,
+            tokenQuotesRepository: options.tokenQuotesRepository,
+            coordinator: self
+        )
     }
 }
 
 extension ManageTokensCoordinator {
-    struct Options {}
+    struct Options {
+        let settings: LegacyManageTokensSettings
+        let userTokensManager: UserTokensManager
+        let tokenQuotesRepository: TokenQuotesRepository
+    }
 }
 
-extension ManageTokensCoordinator: ManageTokensRoutable {}
+extension ManageTokensCoordinator: ManageTokensRoutable {
+    func openInfoTokenModule() {}
+
+    func openAddTokenModule() {}
+
+    func openEditTokenModule() {}
+
+    func openAddCustomTokenModule(settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
+        addCustomTokenViewModel = .init(
+            settings: settings,
+            userTokensManager: userTokensManager,
+            coordinator: self
+        )
+    }
+}
+
+// MARK: - LegacyAddCustomTokenRoutable
+
+extension ManageTokensCoordinator: LegacyAddCustomTokenRoutable {
+    func closeModule() {
+        dismiss()
+    }
+}
