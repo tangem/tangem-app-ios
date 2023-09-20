@@ -123,4 +123,56 @@ enum AlertBuilder {
             ))
         }
     }
+
+    static func makeAlertControllerWithTextField(title: String, fieldPlaceholder: String, fieldText: String, action: @escaping (String) -> Void) -> UIAlertController {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
+        alert.addAction(cancelAction)
+
+        var nameTextField: UITextField?
+        alert.addTextField { textField in
+            nameTextField = textField
+            nameTextField?.placeholder = fieldPlaceholder
+            nameTextField?.text = fieldText
+            nameTextField?.clearButtonMode = .whileEditing
+            nameTextField?.autocapitalizationType = .sentences
+        }
+
+        let acceptButton = UIAlertAction(title: Localization.commonOk, style: .default) { [nameTextField] _ in
+            action(nameTextField?.text ?? "")
+        }
+        alert.addAction(acceptButton)
+
+        return alert
+    }
+
+    static func makeAlert(title: String, message: String, with buttons: Buttons) -> AlertBinder {
+        .init(
+            alert: .init(
+                title: Text(title),
+                message: Text(message),
+                primaryButton: buttons.primaryButton,
+                secondaryButton: buttons.secondaryButton
+            )
+        )
+    }
+}
+
+extension AlertBuilder {
+    struct Buttons {
+        let primaryButton: Alert.Button
+        let secondaryButton: Alert.Button
+
+        init(primaryButton: Alert.Button, secondaryButton: Alert.Button) {
+            self.primaryButton = primaryButton
+            self.secondaryButton = secondaryButton
+        }
+
+        static func withPrimaryCancelButton(secondaryTitle: String, secondaryAction: @escaping () -> Void) -> Buttons {
+            .init(
+                primaryButton: .cancel(),
+                secondaryButton: .default(Text(secondaryTitle), action: secondaryAction)
+            )
+        }
+    }
 }

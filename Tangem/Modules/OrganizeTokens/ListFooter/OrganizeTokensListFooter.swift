@@ -10,12 +10,25 @@ import SwiftUI
 
 struct OrganizeTokensListFooter: View {
     let viewModel: OrganizeTokensViewModel
-    let tokenListFooterFrameMinY: Binding<CGFloat>
-    let scrollViewBottomContentInset: Binding<CGFloat>
     let isTokenListFooterGradientHidden: Bool
     let cornerRadius: CGFloat
-    let contentHorizontalInset: CGFloat
-    let overlayViewAdditionalVerticalInset: CGFloat
+    let contentInsets: EdgeInsets
+
+    @State private var hasBottomSafeAreaInset = false
+
+    private let buttonSize: MainButton.Size = .default
+
+    private var buttonsPadding: EdgeInsets {
+        var contentInsets = contentInsets
+        contentInsets.bottom += (hasBottomSafeAreaInset ? 6.0 : 12.0) // Different padding on devices with/without notch
+
+        return contentInsets
+    }
+
+    private var overlayViewTopPadding: CGFloat {
+        // 75pt is derived from mockups
+        return -max(75.0 - buttonsPadding.top - buttonSize.height, 0.0)
+    }
 
     var body: some View {
         HStack(spacing: 8.0) {
@@ -23,27 +36,29 @@ struct OrganizeTokensListFooter: View {
                 MainButton(
                     title: Localization.commonCancel,
                     style: .secondary,
+                    size: buttonSize,
                     action: viewModel.onCancelButtonTap
                 )
 
                 MainButton(
                     title: Localization.commonApply,
                     style: .primary,
+                    size: buttonSize,
                     action: viewModel.onApplyButtonTap
                 )
             }
-            .background(
-                Colors.Background
-                    .primary
-                    .cornerRadiusContinuous(cornerRadius)
-            )
         }
-        .padding(.horizontal, contentHorizontalInset)
-        .background(OrganizeTokensListFooterOverlayView().hidden(isTokenListFooterGradientHidden))
-        .readGeometry { geometryInfo in
-            tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
-            scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height + overlayViewAdditionalVerticalInset
+        .padding(buttonsPadding)
+        .readGeometry(\.safeAreaInsets.bottom) { [oldValue = hasBottomSafeAreaInset] bottomInset in
+            let newValue = bottomInset != 0.0
+            if newValue != oldValue {
+                hasBottomSafeAreaInset = newValue
+            }
         }
-        .infinityFrame(alignment: .bottom)
+        .background(
+            ListFooterOverlayShadowView()
+                .padding(.top, overlayViewTopPadding)
+                .hidden(isTokenListFooterGradientHidden)
+        )
     }
 }

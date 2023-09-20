@@ -34,7 +34,8 @@ struct HDWalletManagerFactory: AnyWalletManagerFactory {
         }
 
         let factory = WalletManagerFactoryProvider().factory
-        let publicKey = Wallet.PublicKey(seedKey: seedKey, derivation: .init(path: derivationPath, derivedKey: derivedKey))
+        let hdKey = Wallet.PublicKey.HDKey(path: derivationPath, extendedPublicKey: derivedKey)
+        let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(hdKey))
         let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
 
         walletManager.addTokens(token.tokens)

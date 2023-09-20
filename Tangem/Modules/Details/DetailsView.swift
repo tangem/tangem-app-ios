@@ -21,11 +21,11 @@ struct DetailsView: View {
             GroupedScrollView {
                 walletConnectSection
 
-                GroupedSection(viewModel.supportSectionModels) {
-                    DefaultRowView(viewModel: $0)
-                }
+                commonSection
 
                 settingsSection
+
+                supportSection
 
                 legalSection
 
@@ -39,6 +39,13 @@ struct DetailsView: View {
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(
+            ScanTroubleshootingView(
+                isPresented: $viewModel.showTroubleshootingView,
+                tryAgainAction: viewModel.tryAgain,
+                requestSupportAction: viewModel.requestSupport
+            )
+        )
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitle(Text(Localization.detailsTitle), displayMode: .inline)
         .onAppear(perform: viewModel.onAppear)
@@ -73,10 +80,28 @@ struct DetailsView: View {
         }
     }
 
+    private var supportSection: some View {
+        GroupedSection(viewModel.supportSectionModels) {
+            DefaultRowView(viewModel: $0)
+        }
+    }
+
+    private var commonSection: some View {
+        GroupedSection(viewModel.commonSectionViewModels) {
+            DefaultRowView(viewModel: $0)
+        }
+    }
+
     private var socialNetworks: some View {
-        VStack(alignment: .center, spacing: 20) {
+        VStack(alignment: .center, spacing: 16) {
             HStack(spacing: 16) {
-                ForEach(SocialNetwork.allCases) { network in
+                ForEach(SocialNetwork.allCases.filter { $0.line == .first }) { network in
+                    socialNetworkView(network: network)
+                }
+            }
+
+            HStack(spacing: 16) {
+                ForEach(SocialNetwork.allCases.filter { $0.line == .second }) { network in
                     socialNetworkView(network: network)
                 }
             }
@@ -118,7 +143,7 @@ struct SettingsView_Previews: PreviewProvider {
         NavigationView {
             DetailsView(
                 viewModel: DetailsViewModel(
-                    cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                    userWalletModel: PreviewCard.tangemWalletEmpty.cardModel,
                     coordinator: DetailsCoordinator()
                 )
             )
