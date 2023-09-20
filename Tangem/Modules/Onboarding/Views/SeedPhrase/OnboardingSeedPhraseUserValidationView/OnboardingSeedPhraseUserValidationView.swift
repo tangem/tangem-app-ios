@@ -14,6 +14,8 @@ struct OnboardingSeedPhraseUserValidationView: View {
     @State private var containerSize: CGSize = .zero
     @State private var contentSize: CGSize = .zero
 
+    @State private var isButtonPositionAnimationEnabled = false
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -49,11 +51,11 @@ struct OnboardingSeedPhraseUserValidationView: View {
                 .padding(.top, 20)
 
                 Color.clear
-                    .frame(minHeight: containerSize.height - contentSize.height)
+                    .frame(minHeight: max(20, containerSize.height - contentSize.height))
 
                 MainButton(
                     title: Localization.onboardingCreateWalletButtonCreateWallet,
-                    icon: .leading(Assets.tangemIcon),
+                    icon: .trailing(Assets.tangemIcon),
                     style: .primary,
                     isLoading: false,
                     isDisabled: !viewModel.isCreateWalletButtonEnabled,
@@ -67,11 +69,13 @@ struct OnboardingSeedPhraseUserValidationView: View {
                 }
             }
         }
-        .readGeometry(\.size) { contentSize in
-            if containerSize == .zero {
-                containerSize = containerSize
+        .readGeometry(\.size, inCoordinateSpace: .local) { containerSize in
+            if self.containerSize != .zero, !isButtonPositionAnimationEnabled {
+                isButtonPositionAnimationEnabled = true
             }
+            self.containerSize = containerSize
         }
+        .animation(isButtonPositionAnimationEnabled ? .easeOut(duration: 0.35) : nil, value: containerSize)
         .padding(.horizontal, 16)
     }
 }
@@ -116,12 +120,13 @@ private struct WordInputView: View {
             }
         }
         .frame(minHeight: 46)
+        .background(Colors.Field.focused)
+        .cornerRadiusContinuous(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
                 .stroke(hasError ? Colors.Icon.warning : .clear, lineWidth: 1)
+                .padding(.horizontal, 1) // offset the border to the inside, otherwise it cuts off
         )
-        .background(Colors.Field.focused)
-        .cornerRadiusContinuous(14)
         .simultaneousGesture(TapGesture().onEnded {
             isResponder = true
         })
