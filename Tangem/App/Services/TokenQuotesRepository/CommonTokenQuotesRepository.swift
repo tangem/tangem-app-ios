@@ -37,6 +37,10 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
         _quotes.eraseToAnyPublisher()
     }
 
+    func quote(for coinId: String) -> TokenQuote? {
+        return _quotes.value[coinId]
+    }
+
     func quote(for item: TokenItem) -> TokenQuote? {
         guard let id = item.currencyId else {
             return nil
