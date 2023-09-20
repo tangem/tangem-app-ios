@@ -8,12 +8,14 @@
 
 import SwiftUI
 
-/// Spacer with fixed height
+/// A spacer with fixed dimensions.
 struct FixedSpacer: View {
-    let height: CGFloat
+    var width: CGFloat? = nil
+    var height: CGFloat? = nil
+    var length: CGFloat? = nil
 
     var body: some View {
-        Spacer()
-            .frame(height: height)
+        Spacer(minLength: length)
+            .frame(width: width, height: height)
     }
 }
