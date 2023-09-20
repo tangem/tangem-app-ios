@@ -14,5 +14,7 @@ class TokenQuotesRepositoryMock: TokenQuotesRepository {
     var pricesPublisher: AnyPublisher<Quotes, Never> { .just(output: .init()) }
 
     func quote(for item: TokenItem) -> TokenQuote? { nil }
+    func quote(for coinId: String) -> TokenQuote? { nil }
+
     func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never> { .just(output: []) }
 }
