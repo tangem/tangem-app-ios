@@ -19,6 +19,7 @@ private enum QueryKey: String {
     case currencyCode
     case walletAddress
     case redirectURL
+    case theme
     case baseCurrencyCode
     case refundWalletAddress
     case signature
@@ -59,28 +60,28 @@ private struct MoonpayCurrency: Decodable {
         case polygon
         case unknown
 
-        func blockchain(testnet: Bool) -> Blockchain? {
+        func blockchainId() -> String? {
             switch self {
             case .unknown:
                 return nil
             case .bitcoin:
-                return .bitcoin(testnet: testnet)
+                return Blockchain.bitcoin(testnet: false).coinId
             case .bitcoinCash:
-                return .bitcoinCash(testnet: testnet)
+                return Blockchain.bitcoinCash(testnet: false).coinId
             case .ethereum:
-                return .ethereum(testnet: testnet)
+                return Blockchain.ethereum(testnet: false).coinId
             case .bnbChain:
-                return .binance(testnet: testnet)
+                return Blockchain.binance(testnet: false).coinId
             case .solana:
-                return .solana(testnet: testnet)
+                return Blockchain.solana(curve: .ed25519_slip0010, testnet: false).coinId
             case .litecoin:
-                return .litecoin
+                return Blockchain.litecoin.coinId
             case .stellar:
-                return .stellar(testnet: testnet)
+                return Blockchain.stellar(curve: .ed25519_slip0010, testnet: false).coinId
             case .tron:
-                return .tron(testnet: testnet)
+                return Blockchain.tron(testnet: false).coinId
             case .polygon:
-                return .polygon(testnet: testnet)
+                return Blockchain.polygon(testnet: false).coinId
             }
         }
 
@@ -133,9 +134,14 @@ class MoonPayService {
         MoonpaySupportedCurrency(networkCode: .bnbChain, contractAddress: nil),
     ]
 
+    private var useDarkTheme: Bool {
+        UITraitCollection.isDarkMode
+    }
+
     private(set) var canBuyCrypto = true
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
+    private let darkThemeName = "dark"
 
     deinit {
         AppLog.shared.debug("MoonPay deinit")
@@ -173,7 +179,7 @@ extension MoonPayService: ExchangeService {
         return availableToSell.contains(where: {
             switch amountType {
             case .coin:
-                return $0.networkCode.blockchain(testnet: blockchain.isTestnet) == blockchain
+                return $0.networkCode.blockchainId() == blockchain.coinId
             case .token(let value):
                 return $0.contractAddress?.caseInsensitiveCompare(value.contractAddress) == .orderedSame
             case .reserve:
@@ -197,6 +203,11 @@ extension MoonPayService: ExchangeService {
         queryItems.append(.init(key: .walletAddress, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .redirectURL, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
         queryItems.append(.init(key: .baseCurrencyCode, value: "USD".addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+
+        if useDarkTheme {
+            queryItems.append(.init(key: .theme, value: darkThemeName))
+        }
+
         urlComponents.percentEncodedQueryItems = queryItems
         let signatureItem = makeSignature(for: urlComponents)
         queryItems.append(signatureItem)
@@ -220,6 +231,10 @@ extension MoonPayService: ExchangeService {
         queryItems.append(.init(key: .baseCurrencyCode, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .refundWalletAddress, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .redirectURL, value: sellRequestUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
+
+        if useDarkTheme {
+            queryItems.append(.init(key: .theme, value: darkThemeName))
+        }
 
         components.percentEncodedQueryItems = queryItems
         let signature = makeSignature(for: components)
