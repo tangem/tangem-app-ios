@@ -19,7 +19,8 @@ struct TokenItemView: View {
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
                 blockchainIconName: viewModel.blockchainIconName,
-                hasMonochromeIcon: viewModel.hasMonochromeIcon
+                hasMonochromeIcon: viewModel.hasMonochromeIcon,
+                isCustom: viewModel.isCustom
             )
 
             // Fixed size spacer
