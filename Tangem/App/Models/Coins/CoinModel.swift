@@ -16,3 +16,13 @@ struct CoinModel {
     let symbol: String
     let items: [TokenItem]
 }
+
+extension CoinModel {
+    var blockchain: Blockchain? {
+        if let coin = items.first(where: { $0.isBlockchain }) {
+            return coin.blockchain
+        } else {
+            return items.first?.blockchain
+        }
+    }
+}
