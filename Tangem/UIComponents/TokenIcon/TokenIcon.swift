@@ -19,7 +19,7 @@ struct TokenIcon: View {
     var networkIconBorderWidth: Double = 2
 
     var body: some View {
-        IconView(url: imageURL, size: size)
+        IconView(url: imageURL, size: size, forceKingfisher: true)
             .overlay(networkIcon.offset(x: 4, y: -4), alignment: .topTrailing)
     }
 
@@ -28,11 +28,12 @@ struct TokenIcon: View {
         if let iconName = blockchainIconName {
             NetworkIcon(
                 imageName: iconName,
+                isActive: true,
                 isMainIndicatorVisible: false,
                 size: networkIconSize
             )
             .background(
-                Color.white
+                Colors.Background.primary
                     .clipShape(Circle())
                     .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
             )
@@ -61,7 +62,7 @@ struct TokenIcon_Preview: PreviewProvider {
             VStack {
                 ForEach(coins, id: \.id) { coin in
                     TokenIcon(
-                        name: coin.id, imageURL: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: coin.id, size: .large),
+                        name: coin.id, imageURL: TokenIconURLBuilder().iconURL(id: coin.id, size: .large),
                         blockchainIconName: coin.iconName
                     )
                 }

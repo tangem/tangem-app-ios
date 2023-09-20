@@ -8,11 +8,12 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 
 class LockedUserWallet: UserWalletModel {
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
+    let userTokensManager: UserTokensManager = LockedUserTokensManager()
+    let config: UserWalletConfig
     var signer: TangemSigner
 
     var tokensCount: Int? { nil }
@@ -25,9 +26,19 @@ class LockedUserWallet: UserWalletModel {
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
 
-    private(set) var userWallet: UserWallet
+    var emailData: [EmailCollectedData] {
+        var data = config.emailData
 
-    private let config: UserWalletConfig
+        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
+        data.append(userWalletIdItem)
+
+        return data
+    }
+
+    let backupInput: OnboardingInput? = nil
+    let twinInput: OnboardingInput? = nil
+
+    private(set) var userWallet: UserWallet
 
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
@@ -38,10 +49,24 @@ class LockedUserWallet: UserWalletModel {
     func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
-        userWallet.name = name
+        // Renaming locked wallets is prohibited
     }
 
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
         .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
     }
+}
+
+extension LockedUserWallet: MainHeaderInfoProvider {
+    var isUserWalletLocked: Bool { true }
+
+    var userWalletNamePublisher: AnyPublisher<String, Never> {
+        .just(output: userWallet.name)
+    }
+
+    var cardHeaderImage: ImageType? {
+        config.cardHeaderImage
+    }
+
+    var isWalletModelListEmpty: Bool { false }
 }
