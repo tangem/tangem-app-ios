@@ -9,31 +9,29 @@
 import SwiftUI
 
 struct TokenItemViewTrailingComponent: View {
-    let networkUnreachable: Bool
+    let hasError: Bool
+    let errorMessage: String?
     let balanceFiat: LoadableTextView.State
-    let changePercentage: LoadableTextView.State
+    let priceChangeState: TokenPriceChangeView.State
 
     var body: some View {
-        VStack(alignment: .trailing) {
-            if networkUnreachable {
-                Text(Localization.commonUnreachable)
+        VStack(alignment: .trailing, spacing: 8.0) {
+            if hasError, let errorMessage {
+                Text(errorMessage)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(2)
             } else {
                 LoadableTextView(
                     state: balanceFiat,
                     font: Fonts.Regular.subheadline,
                     textColor: Colors.Text.primary1,
                     loaderSize: .init(width: 40, height: 12),
-                    loaderTopPadding: 4
+                    loaderTopPadding: 4,
+                    isSensitiveText: true
                 )
 
-                LoadableTextView(
-                    state: changePercentage,
-                    font: Fonts.Regular.footnote,
-                    textColor: Colors.Text.tertiary,
-                    loaderSize: .init(width: 40, height: 12),
-                    loaderTopPadding: 6
-                )
+                TokenPriceChangeView(state: priceChangeState)
             }
         }
     }

@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import CombineExt
 import TangemSdk
 import TangemSwapping
 
@@ -32,13 +33,29 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         return walletModel?.wallet
     }
 
+    var balanceAddressViewModel: BalanceAddressViewModel? {
+        guard let walletModel else { return nil }
+
+        return .init(
+            state: walletModel.state,
+            wallet: walletModel.wallet,
+            tokenItem: walletModel.tokenItem,
+            hasTransactionInProgress: walletModel.hasPendingTransactions,
+            name: walletModel.name,
+            fiatBalance: walletModel.fiatBalance,
+            balance: walletModel.balance,
+            isTestnet: walletModel.isTestnet,
+            isDemo: walletModel.isDemo
+        )
+    }
+
     var walletModel: WalletModel?
 
-    var incomingTransactions: [TransactionRecord] {
+    var incomingTransactions: [LegacyTransactionRecord] {
         walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
-    var outgoingTransactions: [TransactionRecord] {
+    var outgoingTransactions: [LegacyTransactionRecord] {
         walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
 
@@ -53,7 +70,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     var buyCryptoUrl: URL? {
         if let wallet = wallet {
             if blockchainNetwork.blockchain.isTestnet {
-                return blockchainNetwork.blockchain.testnetFaucetURL
+                return wallet.getTestnetFaucetURL()
             }
 
             let address = wallet.address
@@ -94,38 +111,23 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard canSignLongTransactions else {
+        guard card.config.hasFeature(.send) else {
             return false
         }
 
-        return wallet?.canSend(amountType: amountType) ?? false
+        return walletModel?.canSendTransaction ?? false
     }
 
     var sendBlockedReason: String? {
-        guard
-            let wallet = walletModel?.wallet,
-            let currentAmount = wallet.amounts[amountType],
-            let token = amountType.token
-        else {
+        guard let reason = walletModel?.sendBlockedReason else {
             return nil
         }
 
-        if wallet.hasPendingTx, !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
-            return Localization.tokenDetailsSendBlockedTxFormat(wallet.amounts[.coin]?.currencySymbol ?? "")
+        if case .cantSignLongTransactions = reason {
+            return nil
         }
 
-        // no fee
-        if !wallet.hasPendingTx, !canSend, !currentAmount.isZero {
-            return Localization.tokenDetailsSendBlockedFeeFormat(
-                token.name,
-                wallet.blockchain.displayName,
-                token.name,
-                wallet.blockchain.displayName,
-                wallet.blockchain.currencySymbol
-            )
-        }
-
-        return nil
+        return reason.description
     }
 
     var existentialDepositWarning: String? {
@@ -172,13 +174,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     private var canSignLongTransactions: Bool {
-        if let blockchain = walletModel?.blockchainNetwork.blockchain,
-           NFCUtils.isPoorNfcQualityDevice,
-           case .solana = blockchain {
-            return false
-        } else {
-            return true
-        }
+        AppUtils().canSignLongTransactions(network: blockchainNetwork)
     }
 
     private var isCustomToken: Bool {
@@ -191,7 +187,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         self.amountType = amountType
         self.coordinator = coordinator
 
-        walletModel = card.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
+        walletModel = card.walletModelsManager.walletModels.first(where: { $0.amountType == amountType && $0.blockchainNetwork == blockchainNetwork })
 
         bind()
         updateSwapAvailability()
@@ -204,12 +200,6 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
-        if isCustomToken {
-            canSwap = false
-            updateExchangeButtons()
-            return
-        }
-
         // For a coin we can check it locally
         if amountType == .coin {
             canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchainNetwork.blockchain)
@@ -217,13 +207,18 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
+        // For a custom token id == nil
+        guard let currencyId = amountType.token?.id, !isCustomToken else {
+            canSwap = false
+            updateExchangeButtons()
+            return
+        }
+
         exchangeButtonIsLoading = true
 
         let networkId = blockchainNetwork.blockchain.networkId
-        let currencyId = amountType.token?.id ?? blockchainNetwork.blockchain.id
-
         tangemApiService
-            .loadCoins(requestModel: CoinsListRequestModel(networkIds: [networkId], ids: [currencyId]))
+            .loadCoins(requestModel: CoinsList.Request(supportedBlockchains: [blockchainNetwork.blockchain], ids: [currencyId]))
             .sink { [weak self] completion in
                 if case .failure = completion {
                     self?.canSwap = false
@@ -373,7 +368,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     private func updateRentWarning() {
         walletModel?
             .updateRentWarning()
-            .weakAssign(to: \.rentWarning, on: self)
+            .assign(to: \.rentWarning, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -443,7 +438,7 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
+        let amount = Amount(with: blockchainNetwork.blockchain, type: amountType, value: request.amount)
         coordinator.openSendToSell(
             amountToSend: amount,
             destination: request.targetAddress,
@@ -518,6 +513,8 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openSwapping() {
+        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
+
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
