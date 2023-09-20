@@ -7,10 +7,19 @@
 //
 
 import Foundation
+import Combine
 import TangemSdk
 import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
+    var isInitialSyncPerformed: Bool { true }
+
+    var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+
+    var derivationManager: DerivationManager? { nil }
+
+    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
+
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
@@ -36,4 +45,18 @@ struct UserTokensManagerMock: UserTokensManager {
     }
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
+
+    func updateUserTokens() {}
+}
+
+// MARK: - UserTokensReordering protocol conformance
+
+extension UserTokensManagerMock: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+
+    func reorder(_ reorderingActions: [UserTokensReorderingAction]) -> AnyPublisher<Void, Never> { .just }
 }
