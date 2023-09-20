@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import Moya
 import BlockchainSdk
 
@@ -26,6 +27,9 @@ class CommonTangemApiService {
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
     private var _geoIpRegionCode: String?
     private var authData: TangemApiTarget.AuthData?
+
+    private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
+    private let currenciesQueue = DispatchQueue(label: "currencies_request_queue", qos: .default)
 
     deinit {
         AppLog.shared.debug("CommonTangemApiService deinit")
@@ -63,28 +67,27 @@ extension CommonTangemApiService: TangemApiService {
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .mapTangemAPIError()
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
-    func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
-        return provider
+    func loadCoins(requestModel: CoinsList.Request) -> AnyPublisher<[CoinModel], Error> {
+        provider
             .requestPublisher(TangemApiTarget(type: .coins(requestModel), authData: authData))
             .filterSuccessfulStatusCodes()
-            .map(CoinsResponse.self)
+            .map(CoinsList.Response.self)
             .eraseError()
-            .map { list -> [CoinModel] in
-                list.coins.map { CoinModel(with: $0, baseImageURL: list.imageHost) }
-            }
-            .map { coinModels in
+            .map { response in
+                let mapper = CoinsResponseMapper(supportedBlockchains: requestModel.supportedBlockchains)
+                let coinModels = mapper.mapToCoinModels(response)
+
                 guard let contractAddress = requestModel.contractAddress else {
                     return coinModels
                 }
 
                 return coinModels.compactMap { coinModel in
-                    let items = coinModel.items.filter {
-                        let itemContractAddress = $0.contractAddress ?? ""
-                        return itemContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
+                    let items = coinModel.items.filter { item in
+                        item.contractAddress?.caseInsensitiveCompare(contractAddress) == .orderedSame
                     }
 
                     guard !items.isEmpty else {
@@ -95,12 +98,11 @@ extension CommonTangemApiService: TangemApiService {
                         id: coinModel.id,
                         name: coinModel.name,
                         symbol: coinModel.symbol,
-                        imageURL: coinModel.imageURL,
                         items: items
                     )
                 }
             }
-            .subscribe(on: DispatchQueue.global())
+            .subscribe(on: coinsQueue)
             .eraseToAnyPublisher()
     }
 
@@ -125,7 +127,7 @@ extension CommonTangemApiService: TangemApiService {
             .map(CurrenciesResponse.self)
             .map { $0.currencies.sorted(by: { $0.name < $1.name }) }
             .mapError { _ in AppError.serverUnavailable }
-            .subscribe(on: DispatchQueue.global())
+            .subscribe(on: currenciesQueue)
             .eraseToAnyPublisher()
     }
 
@@ -214,9 +216,10 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusAndRedirectCodes()
             .map(GeoResponse.self)
             .map(\.code)
+            .map(Optional.some)
             .replaceError(with: fallbackRegionCode)
             .subscribe(on: DispatchQueue.global())
-            .weakAssign(to: \._geoIpRegionCode, on: self)
+            .assign(to: \._geoIpRegionCode, on: self, ownership: .weak)
             .store(in: &bag)
 
         AppLog.shared.debug("CommonTangemApiService initialized")
