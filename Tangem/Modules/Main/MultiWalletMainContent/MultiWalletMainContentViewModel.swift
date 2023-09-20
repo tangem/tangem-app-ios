@@ -337,16 +337,25 @@ private extension MultiWalletMainContentViewModel {
             return
         }
 
-        hideToken(tokenItem: tokenItemViewModel.tokenItem, blockchainNetwork: blockchainNetwork)
-    }
-
-    func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
         let derivation = blockchainNetwork.derivationPath
+        let tokenItem = tokenItemViewModel.tokenItem
+
         if userWalletModel.userTokensManager.canRemove(tokenItem, derivationPath: derivation) {
-            userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
+            showHideWarningAlert(tokenItem: tokenItemViewModel.tokenItem, blockchainNetwork: blockchainNetwork)
         } else {
             showUnableToHideAlert(currencySymbol: tokenItem.currencySymbol, blockchainName: tokenItem.blockchain.displayName)
         }
+    }
+
+    func showHideWarningAlert(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
+        error = AlertBuilder.makeAlert(
+            title: Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol),
+            message: Localization.tokenDetailsHideAlertMessage,
+            primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide)) { [weak self] in
+                self?.hideToken(tokenItem: tokenItem, blockchainNetwork: blockchainNetwork)
+            },
+            secondaryButton: .cancel()
+        )
     }
 
     func showUnableToHideAlert(currencySymbol: String, blockchainName: String) {
@@ -360,6 +369,12 @@ private extension MultiWalletMainContentViewModel {
             message: message,
             primaryButton: .default(Text(Localization.commonOk))
         )
+    }
+
+    func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
+        // [REDACTED_TODO_COMMENT]
+        let derivation = blockchainNetwork.derivationPath
+        userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
     }
 }
 
