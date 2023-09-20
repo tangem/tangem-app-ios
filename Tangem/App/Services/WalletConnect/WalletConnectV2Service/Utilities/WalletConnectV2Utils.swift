@@ -36,8 +36,8 @@ struct WalletConnectV2Utils {
     /// in an alert with new session connection request
     /// - Returns:
     /// Array of strings with the blockchain names
-    func getBlockchainNamesFromNamespaces(_ namespaces: [String: SessionNamespace], using walletModels: [WalletModel]) -> [String] {
-        let blockchainNetworks = mapBlockchainNetworks(from: namespaces, using: walletModels)
+    func getBlockchainNamesFromNamespaces(_ namespaces: [String: SessionNamespace], walletModelProvider: WalletConnectWalletModelProvider) -> [String] {
+        let blockchainNetworks = mapBlockchainNetworks(from: namespaces, walletModelProvider: walletModelProvider)
 
         return blockchainNetworks.map { $0.blockchain.displayName }
     }
@@ -82,8 +82,7 @@ struct WalletConnectV2Utils {
     /// - Returns:
     /// Dictionary with `chains` (`WalletConnectSwiftV2` terminology) as keys and session settings as values.
     /// - Throws:Error with list of unsupported blockchain names or a list of not added to user token list blockchain names
-    func createSessionNamespaces(from namespaces: [String: ProposalNamespace], optionalNamespaces: [String: ProposalNamespace]?, for wallets: [WalletModel]) throws -> [String: SessionNamespace] {
-        let wallets = wallets.filter { $0.isMainToken }
+    func createSessionNamespaces(from namespaces: [String: ProposalNamespace], optionalNamespaces: [String: ProposalNamespace]?, walletModelProvider: WalletConnectWalletModelProvider) throws -> [String: SessionNamespace] {
         var sessionNamespaces: [String: SessionNamespace] = [:]
         var missingBlockchains: [String] = []
         var unsupportedEVMBlockchains: [String] = []
@@ -101,7 +100,7 @@ struct WalletConnectV2Utils {
                 }
 
                 supportedChains.insert(wcBlockchain)
-                let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain.id == blockchain.id }
+                let filteredWallets = walletModelProvider.getModels(with: blockchain.id)
                 if filteredWallets.isEmpty {
                     missingBlockchains.append(blockchain.displayName)
                     return nil
@@ -131,7 +130,7 @@ struct WalletConnectV2Utils {
                 }
 
                 supportedChains.insert(wcBlockchain)
-                let filteredWallets = wallets.filter { $0.blockchainNetwork.blockchain.id == blockchain.id }
+                let filteredWallets = walletModelProvider.getModels(with: blockchain.id)
                 if filteredWallets.isEmpty {
                     return nil
                 }
@@ -205,7 +204,7 @@ struct WalletConnectV2Utils {
                 .first(where: { $0.chainId == wcChainId })
                 .map {
                     BlockchainMeta(
-                        id: $0.id,
+                        id: $0.coinId,
                         currencySymbol: $0.currencySymbol,
                         displayName: $0.displayName
                     )
@@ -215,12 +214,12 @@ struct WalletConnectV2Utils {
         }
     }
 
-    private func mapBlockchainNetworks(from namespaces: [String: SessionNamespace], using wallets: [WalletModel]) -> [BlockchainNetwork] {
+    private func mapBlockchainNetworks(from namespaces: [String: SessionNamespace], walletModelProvider: WalletConnectWalletModelProvider) -> [BlockchainNetwork] {
         return namespaces.values.flatMap {
             let wcBlockchains = $0.accounts.compactMap { ($0.blockchain, $0.address) }
 
             let tangemBlockchains = wcBlockchains.compactMap {
-                createBlockchainNetwork(from: $0.0, with: $0.1, using: wallets)
+                createBlockchainNetwork(from: $0.0, with: $0.1, walletModelProvider: walletModelProvider)
             }
             return tangemBlockchains
         }
@@ -229,13 +228,13 @@ struct WalletConnectV2Utils {
     private func createBlockchainNetwork(
         from wcBlockchain: WalletConnectSwiftV2.Blockchain,
         with address: String,
-        using walletModels: [WalletModel]
+        walletModelProvider: WalletConnectWalletModelProvider
     ) -> BlockchainNetwork? {
         switch wcBlockchain.namespace {
         case evmNamespace:
             guard
                 let blockchain = createBlockchain(for: wcBlockchain),
-                let walletModel = walletModels.first(where: { $0.wallet.blockchain.id == blockchain.id && $0.wallet.address == address })
+                let walletModel = try? walletModelProvider.getModel(with: address, blockchainId: blockchain.id)
             else {
                 return nil
             }
