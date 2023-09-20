@@ -56,12 +56,20 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     func makeWalletModelsFactory() -> WalletModelsFactory
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory
 }
 
 extension UserWalletConfig {
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
+    }
+
+    func isFeatureVisible(_ feature: UserWalletFeature) -> Bool {
+        !getFeatureAvailability(feature).isHidden
+    }
+
+    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
+        getFeatureAvailability(feature).disabledLocalizedReason
     }
 
     var tou: TOU {

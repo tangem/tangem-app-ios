@@ -142,7 +142,17 @@ extension LegacyConfig: UserWalletConfig {
 
     var cardHeaderImage: ImageType? {
         if walletData == nil {
-            return Assets.Cards.multiWalletWhite
+            let multiWalletWhiteBatch = "CB79"
+            let devKitBatch = "CB83"
+
+            switch card.batchId {
+            case multiWalletWhiteBatch:
+                return Assets.Cards.multiWalletWhite
+            case devKitBatch:
+                return Assets.Cards.developer
+            default:
+                break
+            }
         }
 
         return nil
@@ -220,7 +230,7 @@ extension LegacyConfig: UserWalletConfig {
         return CommonWalletModelsFactory(derivationStyle: nil)
     }
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         return SimpleWalletManagerFactory()
     }
 }

@@ -25,7 +25,6 @@ enum StorageType: String {
     case isMigratedToNewUserDefaults = "tangem_tap_migrate_to_new_defaults"
     case cardsStartedActivation = "tangem_cards_started_activation"
     case cardsFinishedActivation = "tangem_cards_finished_activation"
-    case didDisplayMainScreenStories = "tangem_tap_did_display_main_screen_stories"
     case termsOfServicesAccepted = "tangem_tap_terms_of_services_accepted"
     case askedToSaveUserWallets = "tangem_asked_to_save_user_wallets"
     case saveUserWallets = "tangem_save_user_wallets"
@@ -34,7 +33,5 @@ enum StorageType: String {
     case systemDeprecationWarningDismissDate = "tangem_system_deprecation_warning_dismiss_date"
     case understandsAddressNetworkRequirements = "tangem_understands_address_network_requirements"
     case promotionQuestionnaireFinished = "promotion_questionnaire_finished"
-
-    // Temp migrated cards storage. Remove with LegacyCardMigrator
-    case migratedCardsWithDefaultTokens = "tangem_migrated_cards_default_tokens"
+    case hideSensitiveInformation = "hide_sensitive_information"
 }

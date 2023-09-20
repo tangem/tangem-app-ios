@@ -24,7 +24,7 @@ struct OnboardingSeedPhraseIntroView: View {
                     Fonts.Bold.caption2,
                     color: Colors.Icon.warning
                 )
-                .padding(.vertical, 6)
+                .padding(.vertical, 5)
                 .padding(.horizontal, 10)
                 .background(Colors.Icon.warning.opacity(0.12))
                 .cornerRadiusContinuous(8)
@@ -35,6 +35,7 @@ struct OnboardingSeedPhraseIntroView: View {
                     Fonts.Bold.title1,
                     color: Colors.Text.primary1
                 )
+                .multilineTextAlignment(.center)
                 .padding(.top, 14)
 
             Text(Localization.onboardingSeedIntroMessage)
@@ -43,13 +44,14 @@ struct OnboardingSeedPhraseIntroView: View {
                     color: Colors.Text.secondary
                 )
                 .multilineTextAlignment(.center)
-                .lineSpacing(5)
+                .lineSpacing(2)
                 .padding(.horizontal, 44)
                 .padding(.top, 14)
 
             Button(action: readMoreAction) {
                 HStack {
                     Assets.arrowRightUpMini.image
+                        .renderingMode(.template)
                         .foregroundColor(Colors.Icon.primary1)
 
                     Text(Localization.onboardingSeedButtonReadMore)
@@ -58,7 +60,7 @@ struct OnboardingSeedPhraseIntroView: View {
                             color: Colors.Text.primary1
                         )
                 }
-                .padding(.vertical, 12)
+                .padding(.vertical, 7)
                 .padding(.horizontal, 14)
                 .background(
                     RoundedRectangle(cornerRadius: 10)

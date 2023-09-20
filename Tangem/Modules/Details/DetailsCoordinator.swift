@@ -11,8 +11,8 @@ import UIKit
 import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    var dismissAction: Action<Void>
+    var popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Main view model
 
@@ -28,7 +28,6 @@ class DetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
@@ -39,34 +38,31 @@ class DetailsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
-    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: DetailsCoordinator.Options) {
-        detailsViewModel = DetailsViewModel(cardModel: options.cardModel, coordinator: self)
+        detailsViewModel = DetailsViewModel(userWalletModel: options.userWalletModel, coordinator: self)
     }
 }
 
 extension DetailsCoordinator {
     struct Options {
-        let cardModel: CardViewModel
+        let userWalletModel: UserWalletModel
     }
 }
 
 // MARK: - DetailsRoutable
 
 extension DetailsCoordinator: DetailsRoutable {
-    func openCurrencySelection() {
-        currencySelectViewModel = CurrencySelectViewModel()
-        currencySelectViewModel?.dismissAfterSelection = false
-    }
-
     func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action = { [weak self] in
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
             self?.modalOnboardingCoordinator = nil
-            self?.detailsViewModel?.didFinishOnboarding()
+            if result.isSuccessful {
+                self?.dismiss()
+            }
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
@@ -80,9 +76,9 @@ extension DetailsCoordinator: DetailsRoutable {
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
     }
 
-    func openWalletConnect(with cardModel: CardViewModel) {
+    func openWalletConnect(with disabledLocalizedReason: String?) {
         let coordinator = WalletConnectCoordinator()
-        let options = WalletConnectCoordinator.Options(cardModel: cardModel)
+        let options = WalletConnectCoordinator.Options(disabledLocalizedReason: disabledLocalizedReason)
         coordinator.start(with: options)
         walletConnectCoordinator = coordinator
     }
@@ -95,9 +91,9 @@ extension DetailsCoordinator: DetailsRoutable {
         scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, sdk: sdk, coordinator: self)
     }
 
-    func openAppSettings(userWallet: CardViewModel) {
+    func openAppSettings() {
         let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
-        coordinator.start(with: .default(userWallet: userWallet))
+        coordinator.start(with: .init())
         appSettingsCoordinator = coordinator
     }
 
@@ -110,23 +106,20 @@ extension DetailsCoordinator: DetailsRoutable {
         UIApplication.shared.open(url)
     }
 
-    func openEnvironmentSetup(with cardId: String) {
+    func openEnvironmentSetup() {
         let coordinator = EnvironmentSetupCoordinator(popToRootAction: popToRootAction)
-        coordinator.start(with: .init(cardId: cardId))
+        coordinator.start(with: .init())
 
         environmentSetupCoordinator = coordinator
     }
 
-    func openReferral(with cardModel: CardViewModel, userWalletId: Data) {
-        let dismissAction: Action = { [weak self] in
+    func openReferral(input: ReferralInputModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
             self?.referralCoordinator = nil
         }
 
         let coordinator = ReferralCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(
-            userWalletId: userWalletId,
-            userTokensManager: cardModel.userTokensManager
-        ))
+        coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
     }

@@ -7,20 +7,21 @@
 //
 
 import Foundation
-import Combine
 import UIKit
+import Combine
+import CombineExt
 
 class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     @Published var isUserUnderstandsAddressNetworkRequirements: Bool
     @Published var showToast: Bool = false
-
-    let tokenIconViewModel: TokenIconViewModel
 
     let addressInfos: [ReceiveAddressInfo]
     let networkWarningMessage: String
 
     let id = UUID()
     let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
+
+    let iconURL: URL?
 
     private let tokenItem: TokenItem
 
@@ -33,7 +34,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     init(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         self.tokenItem = tokenItem
-        tokenIconViewModel = .init(tokenItem: tokenItem)
+        iconURL = tokenItem.id != nil ? TokenIconURLBuilder().iconURL(id: tokenItem.id!) : nil
         self.addressInfos = addressInfos
 
         networkWarningMessage = Localization.receiveBottomSheetWarningMessage(
@@ -56,18 +57,20 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func understandNetworkRequirements() {
+        Analytics.log(event: .buttonUnderstand, params: [.token: tokenItem.currencySymbol])
+
         AppSettings.shared.understandsAddressNetworkRequirements.append(tokenItem.networkName)
         isUserUnderstandsAddressNetworkRequirements = true
     }
 
     func copyToClipboard() {
-        Analytics.log(.buttonCopyAddress)
+        Analytics.log(event: .buttonCopyAddress, params: [.token: tokenItem.currencySymbol])
         UIPasteboard.general.string = addressInfos[currentIndex].address
         showToast = true
     }
 
     func share() {
-        Analytics.log(.buttonShareAddress)
+        Analytics.log(event: .buttonShareAddress, params: [.token: tokenItem.currencySymbol])
         let address = addressInfos[currentIndex].address
         // [REDACTED_TODO_COMMENT]
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
@@ -76,6 +79,6 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     private func bind() {
         indexUpdateSubscription = addressIndexUpdateNotifier
-            .weakAssign(to: \.currentIndex, on: self)
+            .assign(to: \.currentIndex, on: self, ownership: .weak)
     }
 }

@@ -12,15 +12,25 @@ import Kingfisher
 struct IconView: View {
     private let url: URL?
     private let size: CGSize
+    private let lowContrastBackgroundColor: UIColor
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_TODO_COMMENT]
     private let forceKingfisher: Bool
 
-    init(url: URL?, size: CGSize, forceKingfisher: Bool = false) {
+    private static var defaultLowContrastBackgroundColor: UIColor {
+        UIColor.backgroundPrimary.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
+    }
+
+    init(url: URL?, size: CGSize, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
         self.url = url
         self.size = size
+        self.lowContrastBackgroundColor = lowContrastBackgroundColor
         self.forceKingfisher = forceKingfisher
+    }
+
+    init(url: URL?, sizeSettings: IconViewSizeSettings, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
+        self.init(url: url, size: sizeSettings.iconSize, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher)
     }
 
     var body: some View {
@@ -62,12 +72,11 @@ struct IconView: View {
 
     var kfImage: some View {
         KFImage(url)
+            .appendProcessor(ContrastBackgroundImageProcessor(backgroundColor: lowContrastBackgroundColor))
             .cancelOnDisappear(true)
-            .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder { CircleImageTextView(name: "", color: .tangemSkeletonGray) }
+            .placeholder { CircleImageTextView(name: "", color: Colors.Button.secondary, size: size) }
             .fade(duration: 0.3)
             .cacheOriginalImage()
-            .scaleFactor(UIScreen.main.scale)
             .resizable()
             .scaledToFit()
             .frame(size: size)
@@ -84,7 +93,7 @@ struct IconView: View {
 struct IconView_Preview: PreviewProvider {
     static var previews: some View {
         IconView(
-            url: TokenIconURLBuilder(baseURL: CoinsResponse.baseURL).iconURL(id: "arbitrum-one", size: .small),
+            url: TokenIconURLBuilder().iconURL(id: "arbitrum-one", size: .small),
             size: CGSize(width: 40, height: 40)
         )
     }

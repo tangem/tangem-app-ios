@@ -15,7 +15,7 @@ struct WalletConnectView: View {
     var navBarButton: some View {
         NavigationBusyButton(
             isBusy: viewModel.isServiceBusy,
-            color: .tangemBlue,
+            color: UIColor.iconAccent,
             systemImageName: "plus",
             action: viewModel.openSession
         )
@@ -73,7 +73,7 @@ struct WalletConnectView: View {
 
 struct WalletConnectView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletConnectView(viewModel: .init(cardModel: PreviewCard.cardanoNote.cardModel, coordinator: WalletConnectCoordinator()))
+        WalletConnectView(viewModel: .init(disabledLocalizedReason: nil, coordinator: WalletConnectCoordinator()))
             .previewGroup(devices: [.iPhone12Pro])
     }
 }
