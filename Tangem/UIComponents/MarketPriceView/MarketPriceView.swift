@@ -24,11 +24,15 @@ struct MarketPriceView: View {
                 HStack(spacing: 6) {
                     Text(price)
                         .lineLimit(1)
+                        .layoutPriority(1)
+                        .truncationMode(.middle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
 
                     TokenPriceChangeView(state: priceChangeState)
 
                     Text(Localization.walletMarketpriceBlockUpdateTime)
+                        .lineLimit(1)
+                        .layoutPriority(-1)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
             }
