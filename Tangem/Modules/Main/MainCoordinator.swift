@@ -152,7 +152,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
         if FeatureProvider.isAvailable(.manageTokens) {
             let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
-            let options = ManageTokensCoordinator.Options()
+            let options = ManageTokensCoordinator.Options(
+                settings: settings,
+                userTokensManager: userTokensManager,
+                tokenQuotesRepository: CommonTokenQuotesRepository()
+            )
             coordinator.start(with: options)
             manageTokensCoordinator = coordinator
             return
