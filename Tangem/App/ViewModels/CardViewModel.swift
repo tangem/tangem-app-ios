@@ -21,7 +21,9 @@ class CardViewModel: Identifiable, ObservableObject {
 
     let walletModelsManager: WalletModelsManager
 
-    lazy var userTokensManager: UserTokensManager = CommonUserTokensManager(
+    var userTokensManager: UserTokensManager { _userTokensManager }
+
+    private lazy var _userTokensManager = CommonUserTokensManager(
         userTokenListManager: userTokenListManager,
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
@@ -84,15 +86,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.displayHashesCount)
     }
 
-    var emailData: [EmailCollectedData] {
-        var data = config.emailData
-
-        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
-        data.append(userWalletIdItem)
-
-        return data
-    }
-
     var emailConfig: EmailConfig? {
         config.emailConfig
     }
@@ -143,10 +136,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var hasBackupCards: Bool {
         cardInfo.card.backupStatus?.isActive ?? false
-    }
-
-    var shouldShowWC: Bool {
-        !config.getFeatureAvailability(.walletConnect).isHidden
     }
 
     var cardDisclaimer: TOU {
@@ -216,42 +205,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.withdrawal)
     }
 
-    var canParticipateInReferralProgram: Bool {
-        // [REDACTED_TODO_COMMENT]
-        !config.getFeatureAvailability(.referralProgram).isHidden
-    }
-
     var canParticipateInPromotion: Bool {
         config.hasFeature(.promotion)
-    }
-
-    var supportedBlockchains: Set<Blockchain> {
-        config.supportedBlockchains
-    }
-
-    var backupInput: OnboardingInput? {
-        let factory = OnboardingInputFactory(
-            cardInfo: cardInfo,
-            cardModel: self,
-            sdkFactory: config,
-            onboardingStepsBuilderFactory: config
-        )
-
-        return factory.makeBackupInput()
-    }
-
-    var twinInput: OnboardingInput? {
-        guard let twinData = cardInfo.walletData.twinData else {
-            return nil
-        }
-
-        let factory = TwinInputFactory(
-            cardInput: .cardModel(self),
-            userWalletToDelete: userWallet,
-            twinData: twinData,
-            sdkFactory: config
-        )
-        return factory.makeTwinInput()
     }
 
     var resetToFactoryAvailability: UserWalletFeature.Availability {
@@ -281,6 +236,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
+    private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -299,7 +255,7 @@ class CardViewModel: Identifiable, ObservableObject {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
         guard let userWalletIdSeed = config.userWalletIdSeed,
-              let walletManagerFactory = try? config.makeAnyWalletManagerFacrory() else {
+              let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
             return nil
         }
 
@@ -309,9 +265,10 @@ class CardViewModel: Identifiable, ObservableObject {
 
         userWalletId = UserWalletId(with: userWalletIdSeed)
         userTokenListManager = CommonUserTokenListManager(
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
             userWalletId: userWalletId.value,
-            hdWalletsSupported: config.hasFeature(.hdWallets)
+            supportedBlockchains: config.supportedBlockchains,
+            hdWalletsSupported: config.hasFeature(.hdWallets),
+            hasTokenSynchronization: config.hasFeature(.tokenSynchronization)
         )
 
         walletManagersRepository = CommonWalletManagersRepository(
@@ -327,6 +284,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         _signer = config.tangemSigner
         accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
+        _userWalletNamePublisher = .init(cardInfo.name)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
@@ -336,7 +294,7 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(
             for: config,
             card: cardInfo.card,
-            validator: walletManagersRepository.signatureCountValidator
+            validator: walletModelsManager.walletModels.first?.signatureCountValidator
         )
     }
 
@@ -459,12 +417,15 @@ class CardViewModel: Identifiable, ObservableObject {
         config = UserWalletConfigFactory(cardInfo).makeConfig()
         _signer = config.tangemSigner
         updateModel()
-        userWalletRepository.save(userWallet)
+        // prevent save until onboarding completed
+        if userWalletRepository.contains(userWallet) {
+            userWalletRepository.save(userWallet)
+        }
         _updatePublisher.send()
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
-        config.getFeatureAvailability(feature).disabledLocalizedReason
+        config.getDisabledLocalizedReason(for: feature)
     }
 
     private func updateModel() {
@@ -504,9 +465,8 @@ extension CardViewModel {
 }
 
 extension CardViewModel: WalletConnectUserWalletInfoProvider {
-    // [REDACTED_TODO_COMMENT]
-    var walletModels: [WalletModel] {
-        walletModelsManager.walletModels
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 }
 
@@ -541,6 +501,40 @@ extension CardViewModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CardViewModel: UserWalletModel {
+    var emailData: [EmailCollectedData] {
+        var data = config.emailData
+
+        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
+        data.append(userWalletIdItem)
+
+        return data
+    }
+
+    var backupInput: OnboardingInput? {
+        let factory = OnboardingInputFactory(
+            cardInfo: cardInfo,
+            cardModel: self,
+            sdkFactory: config,
+            onboardingStepsBuilderFactory: config
+        )
+
+        return factory.makeBackupInput()
+    }
+
+    var twinInput: OnboardingInput? {
+        guard let twinData = cardInfo.walletData.twinData else {
+            return nil
+        }
+
+        let factory = TwinInputFactory(
+            cardInput: .cardModel(self),
+            userWalletToDelete: userWallet,
+            twinData: twinData,
+            sdkFactory: config
+        )
+        return factory.makeTwinInput()
+    }
+
     var updatePublisher: AnyPublisher<Void, Never> {
         _updatePublisher.eraseToAnyPublisher()
     }
@@ -557,14 +551,23 @@ extension CardViewModel: UserWalletModel {
 
         didPerformInitialUpdate = true
 
-        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            self?.walletModelsManager.updateAll(silent: false, completion: {})
-        }
+        _userTokensManager.updateUserTokens()
     }
 
     func updateWalletName(_ name: String) {
         cardInfo.name = name
+        _userWalletNamePublisher.send(name)
     }
+}
+
+extension CardViewModel: MainHeaderInfoProvider {
+    var cardHeaderImage: ImageType? { config.cardHeaderImage }
+
+    var isUserWalletLocked: Bool { userWallet.isLocked }
+
+    var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
+
+    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 }
 
 // [REDACTED_TODO_COMMENT]
@@ -583,7 +586,10 @@ extension CardViewModel: DerivationManagerDelegate {
 
 extension CardViewModel: CardDerivableProvider {
     var cardDerivableInteractor: CardDerivable {
-        cardInteractor
+        // [REDACTED_TODO_COMMENT]
+        let shouldSkipCardId = cardInfo.card.backupStatus?.isActive ?? false
+        let cardId = shouldSkipCardId ? nil : cardInfo.card.cardId
+        return CardInteractor(tangemSdk: config.makeTangemSdk(), cardId: cardId)
     }
 }
 
