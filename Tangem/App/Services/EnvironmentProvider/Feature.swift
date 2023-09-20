@@ -16,6 +16,9 @@ enum Feature: String, Hashable, CaseIterable {
     case learnToEarn
     case tokenDetailsV2
     case enableBlockchainSdkEvents
+    case mainV2
+    case sendV2
+    case manageTokens
 
     var name: String {
         switch self {
@@ -26,18 +29,24 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return "Learn to Earn"
         case .tokenDetailsV2: return "Token details 2.0"
         case .enableBlockchainSdkEvents: return "Enable send BlockchainSdk events"
+        case .mainV2: return "Main page 2.0"
+        case .sendV2: return "Send screen 2.0"
+        case .manageTokens: return "Manage tokens screen [TokenList 2.0]"
         }
     }
 
     var releaseVersion: ReleaseVersion {
         switch self {
         case .exchange: return .version("4.2")
-        case .importSeedPhrase: return .unspecified
-        case .accessCodeRecoverySettings: return .unspecified
+        case .importSeedPhrase: return .version("4.10")
+        case .accessCodeRecoverySettings: return .version("4.10")
         case .disableFirmwareVersionLimit: return .unspecified
-        case .learnToEarn: return .version("4.9")
+        case .learnToEarn: return .unspecified
         case .tokenDetailsV2: return .unspecified
         case .enableBlockchainSdkEvents: return .unspecified
+        case .mainV2: return .unspecified
+        case .sendV2: return .unspecified
+        case .manageTokens: return .unspecified
         }
     }
 }
