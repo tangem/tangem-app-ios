@@ -15,6 +15,7 @@ typealias Quotes = [String: TokenQuote]
 protocol TokenQuotesRepository: AnyObject {
     var pricesPublisher: AnyPublisher<Quotes, Never> { get }
 
+    func quote(for coinId: String) -> TokenQuote?
     func quote(for item: TokenItem) -> TokenQuote?
     func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never>
 }
