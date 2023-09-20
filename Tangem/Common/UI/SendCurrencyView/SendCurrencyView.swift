@@ -46,7 +46,7 @@ struct SendCurrencyView: View {
                     .frame(width: 100, height: 13)
                     .cornerRadius(6)
             case .loaded:
-                Text(viewModel.balanceString)
+                SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -109,7 +109,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: true,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
                     symbol: "BTC"
                 )
             )
@@ -121,7 +121,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: true,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "bitcoin", size: .large),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
                     symbol: "BTC"
                 )
             )

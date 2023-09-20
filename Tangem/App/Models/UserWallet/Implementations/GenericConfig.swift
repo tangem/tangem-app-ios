@@ -40,7 +40,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var mandatoryCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519]
+        [.secp256k1, .ed25519, .bls12381_G2_AUG]
     }
 
     var derivationStyle: DerivationStyle? {
@@ -57,13 +57,15 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = SupportedBlockchains(version: .v1).blockchains()
-        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
+        SupportedBlockchains(version: .v1).blockchains()
     }
 
     var defaultBlockchains: [StorageEntry] {
         let isTestnet = AppEnvironment.current.isTestnet
-        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
+        let blockchains: [Blockchain] = [
+            .bitcoin(testnet: isTestnet),
+            .ethereum(testnet: isTestnet),
+        ]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
@@ -195,9 +197,9 @@ extension GenericConfig: UserWalletConfig {
         return CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
-            return HDWalletManagerFactory()
+            return GenericWalletManagerFactory()
         } else {
             return SimpleWalletManagerFactory()
         }

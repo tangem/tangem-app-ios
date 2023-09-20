@@ -25,6 +25,10 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     var selectedUserWalletId: Data?
 
+    var hasSavedWallets: Bool {
+        !savedUserWallets(withSensitiveData: false).isEmpty
+    }
+
     var isEmpty: Bool {
         userWallets.isEmpty
     }
@@ -90,12 +94,15 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 let cardDTO = CardDTO(card: response.card)
                 didScan(card: cardDTO, walletData: response.walletData)
-                let cardInfo = response.getCardInfo()
+                var cardInfo = response.getCardInfo()
                 resetServices()
 
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
+                cardInfo.name = config.cardName
+
+                // [REDACTED_TODO_COMMENT]
                 let cardModel = CardViewModel(cardInfo: cardInfo)
                 if let cardModel {
                     initializeServices(for: cardModel, cardInfo: cardInfo)
@@ -187,6 +194,17 @@ class CommonUserWalletRepository: UserWalletRepository {
         userWallets.contains { $0.userWalletId == userWallet.userWalletId }
     }
 
+    func add(_ userWalletModel: UserWalletModel) {
+        if AppSettings.shared.saveUserWallets {
+            save(userWalletModel)
+        } else {
+            models = [userWalletModel]
+            userWallets = [userWalletModel.userWallet]
+        }
+
+        setSelectedUserWalletId(userWalletModel.userWalletId.value, reason: .inserted)
+    }
+
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         scanPublisher()
             .receive(on: DispatchQueue.main)
@@ -214,12 +232,28 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func save(_ cardViewModel: CardViewModel) {
-        if !models.contains(where: { $0.userWalletId == cardViewModel.userWalletId }) {
+    func save(_ cardViewModel: UserWalletModel) {
+        if models.isEmpty, !userWallets.isEmpty {
+            loadModels()
+        }
+
+        if let index = models.firstIndex(where: { $0.userWalletId == cardViewModel.userWalletId }) {
+            models[index] = cardViewModel
+        } else {
             models.append(cardViewModel)
         }
 
         save(cardViewModel.userWallet)
+    }
+
+    func setSaving(_ enabled: Bool) {
+        if enabled {
+            if let selectedModel {
+                save(selectedModel)
+            }
+        } else {
+            clearNonSelectedUserWallets()
+        }
     }
 
     func save(_ userWallet: UserWallet) {
@@ -316,7 +350,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool) {
-        resetServices()
+        if selectedUserWalletId == userWallet.userWalletId {
+            resetServices()
+        }
+
         let userWalletId = userWallet.userWalletId
         encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
@@ -347,7 +384,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.toHexString())
-        sendEvent(.deleted(userWalletId: userWalletId))
+        sendEvent(.deleted(userWalletIds: [userWalletId]))
     }
 
     func lock(reason: UserWalletRepositoryLockReason) {
@@ -358,11 +395,14 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.locked(reason: reason))
     }
 
-    func clear() {
-        clearUserWallets()
-        discardSensitiveData()
+    func clearNonSelectedUserWallets() {
+        let selectedModel = selectedModel
+        let otherUserWallets = userWallets.filter { $0.userWalletId != selectedUserWalletId }
 
-        setSelectedUserWalletId(nil, reason: .deleted)
+        clearUserWalletStorage()
+        discardSensitiveData(except: selectedModel)
+
+        sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }))
     }
 
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
@@ -378,7 +418,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         walletConnectService.initialize(with: cardModel)
     }
 
-    private func clearUserWallets() {
+    private func clearUserWalletStorage() {
         let userWalletRepositoryUtil = UserWalletRepositoryUtil()
         userWalletRepositoryUtil.saveUserWallets([])
         userWalletRepositoryUtil.removePublicDataEncryptionKey()
@@ -386,10 +426,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         encryptionKeyStorage.clear()
     }
 
-    private func discardSensitiveData() {
+    private func discardSensitiveData(except userWalletModelToKeep: UserWalletModel? = nil) {
         encryptionKeyByUserWalletId = [:]
-        models = []
-        userWallets = savedUserWallets(withSensitiveData: false)
+
+        if let userWalletModelToKeep {
+            models = [userWalletModelToKeep]
+            userWallets = [userWalletModelToKeep.userWallet]
+        } else {
+            models = []
+            userWallets = []
+        }
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -461,7 +507,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 if let requiredUserWallet,
                    scannedUserWallet.userWalletId != requiredUserWallet.userWalletId {
-                    completion(.error(TangemSdkError.cardError))
+                    completion(.error(UserWalletRepositoryError.cardWithWrongUserWalletIdScanned))
                     return
                 }
 
@@ -525,6 +571,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return
         }
 
+        cardModel.initialUpdate()
         models[index] = cardModel
     }
 
@@ -558,16 +605,16 @@ class CommonUserWalletRepository: UserWalletRepository {
 
 extension CommonUserWalletRepository {
     func initialize() {
-        // Removing UserWallet-related data from Keychain
-        if AppSettings.shared.numberOfLaunches == 1 {
-            AppLog.shared.debug("Clean CommonUserWalletRepository")
-            clearUserWallets()
-        }
-
         let savedSelectedUserWalletId = AppSettings.shared.selectedUserWalletId
         selectedUserWalletId = savedSelectedUserWalletId.isEmpty ? nil : savedSelectedUserWalletId
 
         userWallets = savedUserWallets(withSensitiveData: false)
         AppLog.shared.debug("CommonUserWalletRepository initialized")
+    }
+
+    func initialClean() {
+        // Removing UserWallet-related data from Keychain
+        AppLog.shared.debug("Clean CommonUserWalletRepository")
+        clearUserWalletStorage()
     }
 }
