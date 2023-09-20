@@ -10,11 +10,11 @@ import Foundation
 import struct UIKit.UIRectCorner
 
 struct OrganizeTokensListCornerRadiusParametersProvider {
-    private let sections: [OrganizeTokensListSectionViewModel]
+    private let sections: [OrganizeTokensListSection]
     private let cornerRadius: CGFloat
 
     init(
-        sections: [OrganizeTokensListSectionViewModel],
+        sections: [OrganizeTokensListSection],
         cornerRadius: CGFloat
     ) {
         self.sections = sections
@@ -22,28 +22,32 @@ struct OrganizeTokensListCornerRadiusParametersProvider {
     }
 
     func cornerRadius(forSectionAtIndex sectionIndex: Int) -> CGFloat {
-        return sectionIndex == 0 ? cornerRadius : 0.0
+        switch sections[sectionIndex].model.style {
+        case .invisible:
+            return 0.0
+        case .draggable, .fixed:
+            return cornerRadius
+        }
     }
 
     func rectCorners(forSectionAtIndex sectionIndex: Int) -> UIRectCorner {
-        return sectionIndex == 0 ? [.topLeft, .topRight] : []
+        switch sections[sectionIndex].model.style {
+        case .invisible:
+            return []
+        case .draggable, .fixed:
+            return [.topLeft, .topRight]
+        }
     }
 
     func cornerRadius(
         forItemAt indexPath: IndexPath
     ) -> CGFloat {
-        if indexPath.section == sections.count - 1,
-           indexPath.item == sections[indexPath.section].items.count - 1 {
-            return cornerRadius
+        switch sections[indexPath.section].model.style {
+        case .invisible:
+            return (isFirstItemInSection(at: indexPath) || isLastItemInSection(at: indexPath)) ? cornerRadius : 0.0
+        case .draggable, .fixed:
+            return isLastItemInSection(at: indexPath) ? cornerRadius : 0.0
         }
-
-        if case .invisible = sections[indexPath.section].style,
-           indexPath.section == 0,
-           indexPath.item == 0 {
-            return cornerRadius
-        }
-
-        return 0.0
     }
 
     func rectCorners(
@@ -51,19 +55,31 @@ struct OrganizeTokensListCornerRadiusParametersProvider {
     ) -> UIRectCorner {
         var rectCorners = UIRectCorner()
 
-        if indexPath.section == sections.count - 1,
-           indexPath.item == sections[indexPath.section].items.count - 1 {
-            rectCorners.insert(.bottomLeft)
-            rectCorners.insert(.bottomRight)
-        }
-
-        if case .invisible = sections[indexPath.section].style,
-           indexPath.section == 0,
-           indexPath.item == 0 {
-            rectCorners.insert(.topLeft)
-            rectCorners.insert(.topRight)
+        switch sections[indexPath.section].model.style {
+        case .invisible:
+            if isFirstItemInSection(at: indexPath) {
+                rectCorners.insert(.topLeft)
+                rectCorners.insert(.topRight)
+            }
+            if isLastItemInSection(at: indexPath) {
+                rectCorners.insert(.bottomLeft)
+                rectCorners.insert(.bottomRight)
+            }
+        case .draggable, .fixed:
+            if isLastItemInSection(at: indexPath) {
+                rectCorners.insert(.bottomLeft)
+                rectCorners.insert(.bottomRight)
+            }
         }
 
         return rectCorners
+    }
+
+    private func isFirstItemInSection(at indexPath: IndexPath) -> Bool {
+        return indexPath.item == 0
+    }
+
+    private func isLastItemInSection(at indexPath: IndexPath) -> Bool {
+        return indexPath.item == sections[indexPath.section].items.count - 1
     }
 }
