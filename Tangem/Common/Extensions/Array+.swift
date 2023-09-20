@@ -10,14 +10,18 @@ import Foundation
 
 extension Array where Element: Hashable {
     mutating func insert(_ element: Element) {
-        var set = Set(self)
+        var set = toSet()
         set.insert(element)
         self = Array(set)
     }
 
     mutating func remove(_ element: Element) {
-        var set = Set(self)
+        var set = toSet()
         set.remove(element)
         self = Array(set)
+    }
+
+    func toSet() -> Set<Element> {
+        return Set(self)
     }
 }
