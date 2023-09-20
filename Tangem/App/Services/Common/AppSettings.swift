@@ -30,13 +30,6 @@ class AppSettings {
     @AppStorageCompat(StorageType.cardsStartedActivation)
     var cardsStartedActivation: [String] = []
 
-    @AppStorageCompat(StorageType.didDisplayMainScreenStories)
-    var didDisplayMainScreenStories: Bool = false
-
-    // Temp migrated cards storage. Remove with LegacyCardMigrator
-    @AppStorageCompat(StorageType.migratedCardsWithDefaultTokens)
-    var migratedCardsWithDefaultTokens: [String] = []
-
     @AppStorageCompat(StorageType.validatedSignedHashesCards)
     var validatedSignedHashesCards: [String] = []
 
@@ -66,6 +59,9 @@ class AppSettings {
 
     @AppStorageCompat(StorageType.promotionQuestionnaireFinished)
     var promotionQuestionnaireFinished: Bool = false
+
+    @AppStorageCompat(StorageType.hideSensitiveInformation)
+    var isHidingSensitiveInformation: Bool = false
 
     static let shared: AppSettings = .init()
 

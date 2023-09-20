@@ -7,10 +7,20 @@
 //
 
 import Foundation
+import Combine
 import TangemSdk
 import BlockchainSdk
 
-protocol UserTokensManager {
+protocol UserTokensSyncService {
+    var isInitialSyncPerformed: Bool { get }
+    var initialSyncPublisher: AnyPublisher<Bool, Never> { get }
+}
+
+protocol UserTokensManager: UserTokensSyncService, UserTokensReordering {
+    var derivationManager: DerivationManager? { get }
+
+    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
 

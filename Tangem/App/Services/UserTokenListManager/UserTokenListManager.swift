@@ -9,11 +9,16 @@
 import Combine
 import BlockchainSdk
 
-protocol UserTokenListManager {
+// [REDACTED_TODO_COMMENT]
+protocol UserTokenListManager: UserTokensSyncService {
     var userTokens: [StorageEntry] { get }
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> { get }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, shouldUpload: Bool)
+    var userTokensList: StoredUserTokenList { get }
+    var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> { get }
+
+    func update(with userTokenList: StoredUserTokenList)
+    func update(_ type: UserTokenListUpdateType, shouldUpload: Bool)
+    func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, Error>) -> Void)
     func upload()
-    func updateLocalRepositoryFromServer(result: @escaping (Result<Void, Error>) -> Void)
 }
