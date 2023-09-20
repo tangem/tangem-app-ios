@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import SwiftUI
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -20,6 +21,7 @@ final class MainViewModel: ObservableObject {
     @Published var isHorizontalScrollDisabled = false
     @Published var showingDeleteConfirmation = false
     @Published var showAddressCopiedToast = false
+    @Published var actionSheet: ActionSheetBinder?
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
 

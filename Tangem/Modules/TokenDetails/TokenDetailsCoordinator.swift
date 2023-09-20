@@ -204,4 +204,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             withCloseButton: true
         )
     }
+
+    func openChooseAddress(from addresses: [BlockchainSdk.Address], callback: @escaping (BlockchainSdk.Address) -> Void) {}
 }
