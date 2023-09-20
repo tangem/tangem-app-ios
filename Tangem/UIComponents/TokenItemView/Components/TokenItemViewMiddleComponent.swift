@@ -12,7 +12,7 @@ struct TokenItemViewMiddleComponent: View {
     let name: String
     let balance: LoadableTextView.State
     let hasPendingTransactions: Bool
-    let networkUnreachable: Bool
+    let hasError: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -20,22 +20,24 @@ struct TokenItemViewMiddleComponent: View {
                 Text(name)
                     .style(
                         Fonts.Bold.subheadline,
-                        color: networkUnreachable ? Colors.Text.tertiary : Colors.Text.primary1
+                        color: hasError ? Colors.Text.tertiary : Colors.Text.primary1
                     )
                     .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 if hasPendingTransactions {
                     Assets.pendingTxIndicator.image
                 }
             }
 
-            if !networkUnreachable {
+            if !hasError {
                 LoadableTextView(
                     state: balance,
                     font: Fonts.Regular.footnote,
                     textColor: Colors.Text.tertiary,
                     loaderSize: .init(width: 52, height: 12),
-                    loaderTopPadding: 4
+                    loaderTopPadding: 4,
+                    isSensitiveText: true
                 )
             }
         }
