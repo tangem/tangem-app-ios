@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemSdk
 import BlockchainSdk
 import TangemSwapping
@@ -76,12 +77,24 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func openExplorer() {
-        #warning("This will be changed after, for now there is no solution for tx history with multiple addresses")
-        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
-            return
-        }
+//        let sheet = ActionSheet(
+//            title: Text(Localization.cardSettingsActionSheetTitle),
+//            buttons: [
+//                .destructive(Text(Localization.cardSettingsActionSheetReset)) { [weak self] in
+        ////                    self?.resetCardToFactory()
+//                },
+//                .cancel(Text(Localization.commonCancel)),
+//            ]
+//        )
 
-        openExplorer(at: url)
+//        actionSheet = ActionSheetBinder(sheet: sheet)
+
+//        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
+//            return
+//        }
+//
+//        openExplorer(at: url)
+        openChooseWallet()
     }
 
     func openTransactionExplorer(transaction hash: String) {
@@ -311,6 +324,12 @@ extension SingleTokenBaseViewModel {
 
     func openExplorer(at url: URL) {
         tokenRouter.openExplorer(at: url, for: walletModel)
+    }
+
+    func openChooseWallet() {
+        tokenRouter.openChooseAddress(from: walletModel) { a in
+            print("ZZZ", a.localizedName, a.value)
+        }
     }
 }
 
