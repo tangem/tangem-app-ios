@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 class SingleTokenRoutableMock: SingleTokenRoutable {
     var errorAlertPublisher: AnyPublisher<AlertBinder?, Never> { .just(output: nil) }
@@ -25,4 +26,6 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
     func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel) {}
 
     func openExplorer(at url: URL, for walletModel: WalletModel) {}
+
+    func openChooseAddress(from walletModel: WalletModel, callback: @escaping (BlockchainSdk.Address) -> Void) {}
 }

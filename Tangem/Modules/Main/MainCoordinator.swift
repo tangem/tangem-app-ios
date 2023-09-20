@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import SwiftUI
 
 class MainCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -292,6 +293,22 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             title: Localization.commonExplorerFormat(blockchainDisplayName),
             withCloseButton: true
         )
+    }
+
+    func openChooseAddress(from addresses: [BlockchainSdk.Address], callback: @escaping (BlockchainSdk.Address) -> Void) {
+        let addressButtons: [Alert.Button] = addresses.map { address in
+            .default(Text(address.localizedName)) {
+//                print("ZZZ", address.localizedName, address.value)
+                callback(address)
+            }
+        }
+
+        let sheet = ActionSheet(
+            title: Text(""),
+            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
+        )
+
+        mainViewModel?.actionSheet = ActionSheetBinder(sheet: sheet)
     }
 }
 
