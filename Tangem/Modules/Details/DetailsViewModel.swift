@@ -204,6 +204,12 @@ extension DetailsViewModel {
                 self?.setupSettingsSectionViewModels()
             }
             .store(in: &bag)
+
+        AppSettings.shared.$saveUserWallets
+            .sink { [weak self] _ in
+                self?.setupCommonSectionViewModels()
+            }
+            .store(in: &bag)
     }
 
     func setupWalletConnectRowViewModel() {
