@@ -9,10 +9,12 @@
 import SwiftUI
 import Combine
 
+// [REDACTED_TODO_COMMENT]
 struct BottomScrollableSheet<Header: View, Content: View>: View {
-    @ObservedObject private var stateObject: BottomScrollableSheetStateObject
     @ViewBuilder private let header: () -> Header
     @ViewBuilder private let content: () -> Content
+
+    @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
     private let backgroundViewOpacity: CGFloat = 0.5
     private let indicatorSize = CGSize(width: 32, height: 4)
@@ -58,12 +60,16 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             .ignoresSafeArea(.all)
     }
 
+    @ViewBuilder
     private func sheet(proxy: GeometryProxy) -> some View {
         ZStack(alignment: .bottom) {
             Color.white
+                .opacity(0.5) // [REDACTED_TODO_COMMENT]
 
-            VStack(spacing: 20) {
+            VStack(spacing: 0.0) {
                 headerView(proxy: proxy)
+                    .debugBorder(color: .blue, width: 5.0)
+                    .overlay(Color.blue.frame(width: 50.0, height: 100.0), alignment: .topTrailing) // [REDACTED_TODO_COMMENT]
 
                 scrollView(proxy: proxy)
             }
@@ -105,27 +111,5 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             .onEnded { value in
                 stateObject.headerDragGesture(onEnded: value)
             }
-    }
-}
-
-public struct BottomScrollableSheet_Preview: PreviewProvider {
-    public static var previews: some View {
-        ContentView()
-    }
-
-    public struct ContentView: View {
-        @ObservedObject private var viewModel = ManageTokensSheetViewModel()
-        @ObservedObject private var stateObject = BottomScrollableSheetStateObject()
-        public init() {}
-
-        public var body: some View {
-            ManageTokensSheetView(viewModel: viewModel, stateObject: stateObject) {
-                Color.blue
-                    .cornerRadius(14)
-                    .scaleEffect(abs(1 - stateObject.percent / 10), anchor: .center)
-                    .edgesIgnoringSafeArea(.all)
-            }
-            .background(Color.black.ignoresSafeArea())
-        }
     }
 }
