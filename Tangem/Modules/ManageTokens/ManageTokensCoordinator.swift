@@ -33,7 +33,6 @@ class ManageTokensCoordinator: CoordinatorObject {
         manageTokensViewModel = .init(
             settings: options.settings,
             userTokensManager: options.userTokensManager,
-            tokenQuotesRepository: options.tokenQuotesRepository,
             coordinator: self
         )
     }
@@ -50,9 +49,9 @@ extension ManageTokensCoordinator {
 extension ManageTokensCoordinator: ManageTokensRoutable {
     func openInfoTokenModule() {}
 
-    func openAddTokenModule() {}
-
     func openEditTokenModule() {}
+
+    func openAddTokenModule(with tokenItem: TokenItem) {}
 
     func openAddCustomTokenModule(settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
         addCustomTokenViewModel = .init(
