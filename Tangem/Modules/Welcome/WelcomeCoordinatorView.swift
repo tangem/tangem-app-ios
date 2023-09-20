@@ -27,8 +27,11 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.mainCoordinator) {
+            .navigation(item: $coordinator.legacyMainCoordinator) {
                 LegacyMainCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.mainCoordinator) {
+                MainCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.pushedOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -44,8 +47,11 @@ struct WelcomeCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.promotionCoordinator) {
                 PromotionCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.tokenListCoordinator) {
-                TokenListCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.legacyTokenListCoordinator) {
+                LegacyTokenListCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.manageTokensCoordinator) {
+                ManageTokensCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
