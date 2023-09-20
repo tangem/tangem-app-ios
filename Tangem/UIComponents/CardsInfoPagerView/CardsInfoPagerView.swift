@@ -9,16 +9,13 @@
 import SwiftUI
 
 struct CardsInfoPagerView<
-    Data, ID, Header, Body
->: View where Data: RandomAccessCollection, ID: Hashable, Header: View, Body: View, Data.Index == Int {
+    Data, ID, Header, Body, BottomOverlay
+>: View where Data: RandomAccessCollection, ID: Hashable, Header: View, Body: View, BottomOverlay: View, Data.Index == Int {
     typealias HeaderFactory = (_ element: Data.Element) -> Header
     typealias ContentFactory = (_ element: Data.Element) -> Body
+    typealias BottomOverlayFactory = (_ element: Data.Element, _ didScrollToBottom: Bool) -> BottomOverlay
     typealias OnPullToRefresh = OnRefresh
-
-    private enum ProposedHeaderState {
-        case collapsed
-        case expanded
-    }
+    typealias OnPageChange = (_ pageChangeReason: CardsInfoPageChangeReason) -> Void
 
     // MARK: - Dependencies
 
@@ -26,11 +23,15 @@ struct CardsInfoPagerView<
     private let idProvider: KeyPath<(Data.Index, Data.Element), ID>
     private let headerFactory: HeaderFactory
     private let contentFactory: ContentFactory
+    private let bottomOverlayFactory: BottomOverlayFactory
     private let onPullToRefresh: OnPullToRefresh?
 
     // MARK: - Selected index
 
-    @Binding private var selectedIndex: Int
+    @State private var selectedIndex: Int
+
+    /// `External` here means 'driven from the outside' (by the consumer of this pager view).
+    @Binding private var externalSelectedIndex: Int
 
     /// Contains previous value of the `selectedIndex` property.
     @State private var previouslySelectedIndex: Int
@@ -40,6 +41,10 @@ struct CardsInfoPagerView<
     /// instead of the `selectedIndex` (`selectedIndex` is updated just after the drag gesture ends,
     /// whereas `content` part must be updated exactly in the middle of the current gesture/animation).
     @State private var contentSelectedIndex: Int
+
+    private var clampedContentSelectedIndex: Int {
+        return clamp(contentSelectedIndex, min: selectedIndexLowerBound, max: selectedIndexUpperBound)
+    }
 
     @State private var scheduledContentSelectedIndexUpdate: DispatchWorkItem?
 
@@ -85,11 +90,27 @@ struct CardsInfoPagerView<
         return offset
     }
 
+    private var animationsFactory: CardsInfoPagerAnimationFactory {
+        return CardsInfoPagerAnimationFactory(
+            hasValidIndexToSelect: hasValidIndexToSelect,
+            currentPageSwitchProgress: pageSwitchProgress,
+            minRemainingPageSwitchProgress: Constants.minRemainingPageSwitchProgress,
+            pageSwitchAnimationDuration: pageSwitchAnimationDuration
+        )
+    }
+
+    private var contentAnimationModifier: some AnimatableModifier {
+        return CardsInfoPagerContentAnimationModifier(
+            progress: pageSwitchProgress,
+            verticalOffset: contentViewVerticalOffset,
+            hasValidIndexToSelect: hasValidIndexToSelect
+        )
+    }
+
     // MARK: - Vertical auto scrolling (collapsible/expandable header)
 
     @StateObject private var scrollDetector = ScrollDetector()
-
-    @State private var proposedHeaderState: ProposedHeaderState = .expanded
+    @StateObject private var scrollState = CardsInfoPagerScrollState()
 
     private let expandedHeaderScrollTargetIdentifier = UUID()
     private let collapsedHeaderScrollTargetIdentifier = UUID()
@@ -98,39 +119,56 @@ struct CardsInfoPagerView<
     /// Different headers for different pages are expected to have the same height (otherwise visual glitches may occur).
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var headerHeight: CGFloat = .zero
-    @State private var verticalContentOffset: CGPoint = .zero
-    @State private var contentSize: CGSize = .zero
-    @State private var viewportSize: CGSize = .zero
+    @State private var scrollViewBottomContentInset: CGFloat = .zero
 
     // MARK: - Configuration
 
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
-    private var pageSwitchAnimationDuration: CGFloat = Constants.pageSwitchAnimationDuration
+    private var pageSwitchAnimationDuration: TimeInterval = Constants.pageSwitchAnimationDuration
     private var isHorizontalScrollDisabled = false
+    private var onPageChangeCallbacks: [OnPageChange] = []
 
     // MARK: - Body
 
     var body: some View {
         GeometryReader { proxy in
-            makeScrollView(with: proxy)
-                .onAppear(perform: scrollDetector.startDetectingScroll)
-                .onDisappear(perform: scrollDetector.stopDetectingScroll)
-                .onAppear {
-                    // `DispatchQueue.main.async` used here to allow publishing changes during view updates
-                    DispatchQueue.main.async {
-                        // Applying initial view's state based on the initial value of `selectedIndex`
-                        cumulativeHorizontalTranslation = -CGFloat(selectedIndex) * proxy.size.width
+            ZStack(alignment: .bottom) {
+                makeScrollView(with: proxy)
+                    .onAppear {
+                        // `DispatchQueue.main.async` used here to allow publishing changes during view updates
+                        DispatchQueue.main.async {
+                            // Applying initial view's state based on the initial value of `selectedIndex`
+                            cumulativeHorizontalTranslation = -CGFloat(selectedIndex) * proxy.size.width
+                        }
+                        scrollDetector.startDetectingScroll()
+                        scrollState.onViewAppear()
                     }
-                }
-                .onChange(of: verticalContentOffset) { [oldValue = verticalContentOffset] newValue in
-                    proposedHeaderState = oldValue.y > newValue.y ? .expanded : .collapsed
-                    // Vertical scrolling may delay or even cancel horizontal scroll animations,
-                    // which in turn may lead to desynchronization between `selectedIndex` and
-                    // `contentSelectedIndex` properties.
-                    // Therefore, we sync them forcefully when vertical scrolling starts.
-                    synchronizeContentSelectedIndex()
-                }
+                    .onDisappear(perform: scrollDetector.stopDetectingScroll)
+                    .onChange(of: scrollState.contentOffset) { _ in
+                        // Vertical scrolling may delay or even cancel horizontal scroll animations,
+                        // which in turn may lead to desynchronization between `selectedIndex` and
+                        // `contentSelectedIndex` properties.
+                        // Therefore, we sync them forcefully when vertical scrolling starts.
+                        synchronizeContentSelectedIndexIfNeeded()
+                    }
+                    .onChange(of: externalSelectedIndex) { newValue in
+                        // Synchronizing external and private selected indices if needed
+                        if newValue != selectedIndex {
+                            switchPageProgrammatically(to: newValue, geometryProxy: proxy)
+                        }
+                    }
+                    .onChange(of: data.count) { newValue in
+                        // Handling edge cases when the very last page is selected and that page is being deleted
+                        let clampedSelectedIndex = clamp(selectedIndex, min: selectedIndexLowerBound, max: newValue - 1)
+                        if selectedIndex < clampedSelectedIndex || selectedIndex > clampedSelectedIndex {
+                            switchPageProgrammatically(to: clampedSelectedIndex, geometryProxy: proxy)
+                        }
+                    }
+                    .layoutPriority(1.0)
+
+                makeBottomOverlay()
+            }
         }
         .modifier(
             CardsInfoPagerContentSwitchingModifier(
@@ -147,10 +185,14 @@ struct CardsInfoPagerView<
             // The desynchronization is hard to reproduce and the reasons for such behavior are unknown.
             // This workaround guarantees that at the end of all animations, the values in `selectedIndex`
             // and `contentSelectedIndex` properties will be in sync.
-            synchronizeContentSelectedIndex()
+            synchronizeContentSelectedIndexIfNeeded()
         }
         .onPreferenceChange(CardsInfoPagerContentSwitchingModifier.PreferenceKey.self) { newValue in
             scheduleContentSelectedIndexUpdateIfNeeded(toNewValue: newValue)
+        }
+        .onChange(of: selectedIndex) { newValue in
+            // Synchronizing private and external selected indices
+            externalSelectedIndex = newValue
         }
     }
 
@@ -162,15 +204,18 @@ struct CardsInfoPagerView<
         selectedIndex: Binding<Int>,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder contentFactory: @escaping ContentFactory,
+        @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory,
         onPullToRefresh: OnPullToRefresh? = nil
     ) {
         self.data = data
         self.idProvider = idProvider
-        _selectedIndex = selectedIndex
+        _selectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _previouslySelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _contentSelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
+        _externalSelectedIndex = selectedIndex
         self.headerFactory = headerFactory
         self.contentFactory = contentFactory
+        self.bottomOverlayFactory = bottomOverlayFactory
         self.onPullToRefresh = onPullToRefresh
     }
 
@@ -183,9 +228,9 @@ struct CardsInfoPagerView<
             ForEach(data.indexed(), id: idProvider) { index, element in
                 headerFactory(element)
                     .frame(width: max(proxy.size.width - Constants.headerItemHorizontalOffset * 2.0, 0.0))
-                    .readGeometry(\.size.height, bindTo: $headerHeight)
             }
         }
+        .readGeometry(\.size.height, bindTo: $headerHeight)
         // This offset translates the page based on swipe
         .offset(x: currentHorizontalTranslation)
         // This offset determines which page is shown
@@ -214,8 +259,8 @@ struct CardsInfoPagerView<
                     performVerticalScrollIfNeeded(with: scrollViewProxy)
                 }
             }
-            .readGeometry(\.size, bindTo: $viewportSize)
             .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+            .readGeometry(\.size, bindTo: scrollState.viewportSizeSubject.asWriteOnlyBinding(.zero))
         }
     }
 
@@ -247,28 +292,37 @@ struct CardsInfoPagerView<
                     .fixedSize()
                     .id(collapsedHeaderScrollTargetIdentifier)
 
-                contentFactory(data[contentSelectedIndex])
-                    .modifier(
-                        CardsInfoPagerContentAnimationModifier(
-                            progress: pageSwitchProgress,
-                            verticalOffset: contentViewVerticalOffset,
-                            hasValidIndexToSelect: hasValidIndexToSelect
-                        )
-                    )
+                if !data.isEmpty {
+                    contentFactory(data[clampedContentSelectedIndex])
+                        .modifier(contentAnimationModifier)
+                }
             }
-            .readGeometry(\.size, bindTo: $contentSize)
+            .readGeometry(\.size, bindTo: scrollState.contentSizeSubject.asWriteOnlyBinding(.zero))
             .readContentOffset(
                 inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                bindTo: $verticalContentOffset
+                throttleInterval: .zero,
+                bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
 
             CardsInfoPagerFlexibleFooterView(
-                contentSize: contentSize,
-                viewportSize: viewportSize,
+                contentSize: scrollState.contentSize,
+                viewportSize: scrollState.viewportSize,
                 headerTopInset: Constants.headerVerticalPadding,
-                headerHeight: headerHeight + Constants.headerAdditionalSpacingHeight
+                headerHeight: headerHeight + Constants.headerAdditionalSpacingHeight,
+                bottomContentInset: scrollViewBottomContentInset
             )
         }
+    }
+
+    @ViewBuilder
+    private func makeBottomOverlay() -> some View {
+        bottomOverlayFactory(data[clampedContentSelectedIndex], scrollState.didScrollToBottom)
+            .animation(.linear(duration: 0.1), value: scrollState.didScrollToBottom)
+            .modifier(contentAnimationModifier)
+            .readGeometry(\.size.height) { newValue in
+                scrollViewBottomContentInset = newValue
+                scrollState.bottomContentInsetSubject.send(newValue - Constants.scrollStateBottomContentInsetDiff)
+            }
     }
 
     // MARK: - Gestures
@@ -298,56 +352,16 @@ struct CardsInfoPagerView<
                 )
 
                 // The presence/absence of the next index to select must be determined as soon as possible
-                // when drag gesture starts, therefore `nextPageThreshold` equals `ulpOfOne` here
+                // when drag gesture starts, therefore `nextPageThreshold` is a relatively small value here
                 let nextIndexToSelect = nextIndexToSelectFiltered(
                     translation: value.translation.width,
                     totalWidth: totalWidth,
-                    nextPageThreshold: .ulpOfOne
+                    nextPageThreshold: 1.0 / 100000.0 // 0.001%
                 )
                 hasValidIndexToSelect = nextIndexToSelect != nil && nextIndexToSelect != selectedIndex
             }
             .onEnded { value in
-                let totalWidth = proxy.size.width
-
-                let newSelectedIndex = nextIndexToSelectClamped(
-                    translation: value.predictedEndTranslation.width,
-                    totalWidth: totalWidth,
-                    nextPageThreshold: pageSwitchThreshold
-                )
-                let pageHasBeenSwitched = newSelectedIndex != selectedIndex
-
-                cumulativeHorizontalTranslation += valueWithRubberbandingIfNeeded(value.translation.width)
-                cumulativeHorizontalTranslation += additionalHorizontalTranslation(
-                    oldSelectedIndex: selectedIndex,
-                    newSelectedIndex: newSelectedIndex
-                )
-
-                if pageSwitchThreshold > 0.5, !pageHasBeenSwitched {
-                    // Fixes edge cases for page switch thresholds > 0.5 when page switch threshold
-                    // hasn't been exceeded: reverse animation should restore `contentSelectedIndex`
-                    // back to `selectedIndex` value exactly in the middle of the animation.
-                    // In order to achieve that we have to assign `previouslySelectedIndex` to a
-                    // different value, or SwiftUI's `onChange(of:perform:)` callback won't be triggered.
-                    previouslySelectedIndex = contentSelectedIndex
-                } else {
-                    previouslySelectedIndex = selectedIndex
-                }
-
-                selectedIndex = newSelectedIndex
-                initialPageSwitchProgress = pageSwitchProgress
-                finalPageSwitchProgress = pageHasBeenSwitched ? 1.0 : 0.0
-
-                let animation = makeHorizontalScrollAnimation(
-                    totalWidth: totalWidth,
-                    dragGestureVelocity: value.velocityCompat,
-                    currentPageSwitchProgress: pageSwitchProgress,
-                    pageHasBeenSwitched: pageHasBeenSwitched
-                )
-
-                withAnimation(animation) {
-                    cumulativeHorizontalTranslation = -CGFloat(newSelectedIndex) * totalWidth
-                    pageSwitchProgress = finalPageSwitchProgress
-                }
+                switchPage(method: .byGesture(value), geometryProxy: proxy)
             }
     }
 
@@ -360,10 +374,10 @@ struct CardsInfoPagerView<
     ) -> CGFloat {
         let multiplier: CGFloat
         if oldSelectedIndex < newSelectedIndex {
-            // Successfull navigation to the next page (forward)
+            // Successful navigation to the next page (forward)
             multiplier = -1.0
         } else if oldSelectedIndex > newSelectedIndex {
-            // Successfull navigation to the previous page (reverse)
+            // Successful navigation to the previous page (reverse)
             multiplier = 1.0
         } else {
             // Page switch threshold hasn't been exceeded, no page switching has been made
@@ -373,85 +387,100 @@ struct CardsInfoPagerView<
         return (Constants.headerItemHorizontalOffset + Constants.headerInteritemSpacing) * multiplier
     }
 
-    private func makeHorizontalScrollAnimation(
-        totalWidth: CGFloat,
-        dragGestureVelocity: CGSize,
-        currentPageSwitchProgress: CGFloat,
-        pageHasBeenSwitched: Bool
-    ) -> Animation {
-        let remainingPageSwitchProgress = pageHasBeenSwitched
-            ? 1.0 - currentPageSwitchProgress
-            : currentPageSwitchProgress
-        let remainingWidth = totalWidth * remainingPageSwitchProgress
-        let horizontalDragGestureVelocity = abs(dragGestureVelocity.width)
-        var animationSpeed = 1.0
-
-        if horizontalDragGestureVelocity > 0.0 {
-            let gestureDrivenAnimationDuration = remainingWidth / horizontalDragGestureVelocity
-            let remainingAnimationDuration = pageSwitchAnimationDuration * remainingPageSwitchProgress
-            if gestureDrivenAnimationDuration < remainingAnimationDuration {
-                // `sqrt(2.0)` constant is used to reduce 'sharpness' of the gesture-driven animation
-                animationSpeed = pageSwitchAnimationDuration / (gestureDrivenAnimationDuration * sqrt(2.0))
-            } else {
-                // Horizontal velocity of the drag gesture is slower than the velocity of the default
-                // animation with remaining duration, therefore animation speed is calculated based
-                // on current page switching progress
-                animationSpeed = pageSwitchProgressDrivenAnimationSpeed(
-                    remainingPageSwitchProgress: remainingPageSwitchProgress
-                )
-            }
-        } else {
-            // Horizontal velocity of the drag gesture is zero, therefore animation speed
-            // is calculated based on current page switching progress
-            animationSpeed = pageSwitchProgressDrivenAnimationSpeed(
-                remainingPageSwitchProgress: remainingPageSwitchProgress
-            )
-        }
-
-        if !hasValidIndexToSelect {
-            // 'sharpness' of the animation is reduced if there is no valid next/previous index
-            // to select, i.e. when we are at the first/last page and we're trying to switch to
-            // either `selectedIndexLowerBound - 1` or `selectedIndexUpperBound + 1` index
-            animationSpeed = clamp(animationSpeed, min: 1.0, max: 3.0)
-        }
-
-        let springAnimationResponse = 0.55
-        let springAnimationDampingFraction = 0.78
-
-        // It's impossible to set the duration of spring animation to a particular value precisely,
-        // so this speed is approximate
-        let approximateDefaultAnimationSpeed = springAnimationResponse / pageSwitchAnimationDuration
-
-        return .spring(response: springAnimationResponse, dampingFraction: springAnimationDampingFraction)
-            .speed(approximateDefaultAnimationSpeed)
-            .speed(animationSpeed)
-    }
-
-    /// Speed up page switching animations based on the already elapsed horizontal distance.
-    ///
-    /// For example, if the user has already scrolled 2/3 of a horizontal distance using the drag gesture,
-    /// the remaining 1/3 of the distance will be animated using 1/3 of the original duration of the animation
-    private func pageSwitchProgressDrivenAnimationSpeed(
-        remainingPageSwitchProgress: CGFloat
-    ) -> CGFloat {
-        guard remainingPageSwitchProgress > 0.0 else { return 1.0 }
-
-        return 1.0 / remainingPageSwitchProgress
-    }
-
     private func valueWithRubberbandingIfNeeded<T>(_ value: T) -> T where T: BinaryFloatingPoint {
         return hasValidIndexToSelect ? value : value.withRubberbanding()
+    }
+
+    private func switchPage(method: PageSwitchMethod, geometryProxy proxy: GeometryProxy) {
+        let totalWidth = proxy.size.width
+        let newSelectedIndex = newSelectedIndex(from: method, totalWidth: totalWidth)
+        let pageHasBeenSwitched = newSelectedIndex != selectedIndex
+        let gestureProperties = gestureProperties(from: method)
+
+        cumulativeHorizontalTranslation += valueWithRubberbandingIfNeeded(gestureProperties.translation.width)
+        cumulativeHorizontalTranslation += additionalHorizontalTranslation(
+            oldSelectedIndex: selectedIndex,
+            newSelectedIndex: newSelectedIndex
+        )
+
+        if pageSwitchThreshold > 0.5, !pageHasBeenSwitched {
+            // Fixes edge cases for page switch thresholds > 0.5 when page switch threshold
+            // hasn't been exceeded: reverse animation should restore `contentSelectedIndex`
+            // back to `selectedIndex` value exactly in the middle of the animation.
+            // In order to achieve that we have to assign `previouslySelectedIndex` to a
+            // different value, or SwiftUI's `onChange(of:perform:)` callback won't be triggered.
+            previouslySelectedIndex = contentSelectedIndex
+        } else {
+            previouslySelectedIndex = selectedIndex
+        }
+
+        selectedIndex = newSelectedIndex
+        initialPageSwitchProgress = pageSwitchProgress
+        finalPageSwitchProgress = pageHasBeenSwitched ? 1.0 : 0.0
+
+        let animation = animationsFactory.makeHorizontalScrollAnimation(
+            totalWidth: totalWidth,
+            dragGestureVelocity: gestureProperties.velocity,
+            pageHasBeenSwitched: pageHasBeenSwitched
+        )
+        withAnimation(animation) {
+            cumulativeHorizontalTranslation = -CGFloat(newSelectedIndex) * totalWidth
+            pageSwitchProgress = finalPageSwitchProgress
+        }
+
+        if pageHasBeenSwitched {
+            notifyAboutSuccessfulPageChange(method: method)
+        }
+    }
+
+    private func newSelectedIndex(from method: PageSwitchMethod, totalWidth: CGFloat) -> Int {
+        switch method {
+        case .byGesture(let gestureValue):
+            return nextIndexToSelectClamped(
+                translation: gestureValue.predictedEndTranslation.width,
+                totalWidth: totalWidth,
+                nextPageThreshold: pageSwitchThreshold
+            )
+        case .programmatically(let selectedIndex):
+            return selectedIndex
+        }
+    }
+
+    private func gestureProperties(from method: PageSwitchMethod) -> (translation: CGSize, velocity: CGSize) {
+        switch method {
+        case .byGesture(let gestureValue):
+            return (gestureValue.translation, gestureValue.velocityCompat)
+        case .programmatically:
+            return (.zero, .zero)
+        }
+    }
+
+    /// Convenience helper which resets view's state before performing page switch programmatically.
+    private func switchPageProgrammatically(to selectedIndex: Int, geometryProxy proxy: GeometryProxy) {
+        resetViewStateBeforeSwitchingPageProgrammatically()
+        switchPage(method: .programmatically(selectedIndex: selectedIndex), geometryProxy: proxy)
+    }
+
+    private func resetViewStateBeforeSwitchingPageProgrammatically() {
+        withTransaction(.withoutAnimations()) {
+            pageSwitchProgress = 0.0
+            hasValidIndexToSelect = true
+        }
+    }
+
+    private func notifyAboutSuccessfulPageChange(method: PageSwitchMethod) {
+        onPageChangeCallbacks.forEach { $0(method.asPageChangeReason) }
     }
 
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
 
     func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
-        let yOffset = verticalContentOffset.y - Constants.headerVerticalPadding
+        let yOffset = scrollState.rawContentOffset.y - Constants.headerVerticalPadding
 
         guard 0.0 <= yOffset, yOffset < headerHeight else { return }
 
         let headerAutoScrollRatio: CGFloat
-        if proposedHeaderState == .collapsed {
+        if scrollState.proposedHeaderState == .collapsed {
             headerAutoScrollRatio = Constants.headerAutoScrollThresholdRatio
         } else {
             headerAutoScrollRatio = 1.0 - Constants.headerAutoScrollThresholdRatio
@@ -523,29 +552,10 @@ struct CardsInfoPagerView<
         DispatchQueue.main.async(execute: scheduledUpdate)
     }
 
-    private func synchronizeContentSelectedIndex() {
-        contentSelectedIndex = selectedIndex
-    }
-}
-
-// MARK: - Convenience extensions
-
-extension CardsInfoPagerView where Data.Element: Identifiable, Data.Element.ID == ID {
-    init(
-        data: Data,
-        selectedIndex: Binding<Int>,
-        @ViewBuilder headerFactory: @escaping HeaderFactory,
-        @ViewBuilder contentFactory: @escaping ContentFactory,
-        onPullToRefresh: OnPullToRefresh? = nil
-    ) {
-        self.init(
-            data: data,
-            id: \.1.id,
-            selectedIndex: selectedIndex,
-            headerFactory: headerFactory,
-            contentFactory: contentFactory,
-            onPullToRefresh: onPullToRefresh
-        )
+    private func synchronizeContentSelectedIndexIfNeeded() {
+        if contentSelectedIndex != selectedIndex {
+            contentSelectedIndex = selectedIndex
+        }
     }
 }
 
@@ -569,6 +579,33 @@ extension CardsInfoPagerView: Setupable {
     func horizontalScrollDisabled(_ disabled: Bool) -> Self {
         map { $0.isHorizontalScrollDisabled = disabled }
     }
+
+    func onPageChange(_ onPageChange: @escaping OnPageChange) -> Self {
+        map { $0.onPageChangeCallbacks.append(onPageChange) }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CardsInfoPagerView {
+    enum ProposedHeaderState {
+        case collapsed
+        case expanded
+    }
+
+    enum PageSwitchMethod {
+        case byGesture(DragGesture.Value)
+        case programmatically(selectedIndex: Int)
+
+        var asPageChangeReason: CardsInfoPageChangeReason {
+            switch self {
+            case .byGesture:
+                return .byGesture
+            case .programmatically:
+                return .programmatically
+            }
+        }
+    }
 }
 
 // MARK: - Constants
@@ -582,7 +619,9 @@ private extension CardsInfoPagerView {
         static var headerAutoScrollThresholdRatio: CGFloat { 0.25 }
         static var contentViewVerticalOffset: CGFloat { 44.0 }
         static var pageSwitchThreshold: CGFloat { 0.5 }
-        static var pageSwitchAnimationDuration: CGFloat { 0.7 }
+        static var pageSwitchAnimationDuration: TimeInterval { 0.7 }
+        static var minRemainingPageSwitchProgress: CGFloat { 1.0 / 3.0 }
+        static var scrollStateBottomContentInsetDiff: CGFloat { 14.0 }
     }
 }
 
