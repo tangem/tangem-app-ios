@@ -9,23 +9,30 @@ import SwiftUI
 
 struct MainButton: View {
     private let title: String
+    private let subtitle: String?
     private let icon: Icon?
     private let style: Style
-    private let isLoading: Bool
+    private let size: Size
     private let isDisabled: Bool
     private let action: () -> Void
 
+    private var isLoading: Bool
+
     init(
         title: String,
+        subtitle: String? = nil,
         icon: Icon? = nil,
         style: Style = .primary,
+        size: Size = .default,
         isLoading: Bool = false,
         isDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
         self.title = title
+        self.subtitle = subtitle
         self.icon = icon
         self.style = style
+        self.size = size
         self.isLoading = isLoading
         self.isDisabled = isDisabled
         self.action = action
@@ -34,8 +41,10 @@ struct MainButton: View {
     init(settings: Settings) {
         self.init(
             title: settings.title,
+            subtitle: settings.subtitle,
             icon: settings.icon,
             style: settings.style,
+            size: settings.size,
             isLoading: settings.isLoading,
             isDisabled: settings.isDisabled,
             action: settings.action
@@ -45,12 +54,17 @@ struct MainButton: View {
     var body: some View {
         Button(action: action) {
             content
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, 14)
+                .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))
-                .cornerRadiusContinuous(14)
+                .cornerRadiusContinuous(Constants.cornerRadius)
+                .overlay(border)
         }
         .buttonStyle(BorderlessButtonStyle())
+        // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
+        .background(
+            Colors.Background.primary
+                .cornerRadiusContinuous(Constants.cornerRadius)
+        )
         .disabled(isDisabled || isLoading)
     }
 
@@ -60,37 +74,48 @@ struct MainButton: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: style.loaderColor()))
         } else {
-            Group {
+            VStack(spacing: 0) {
                 switch icon {
                 case .none:
-                    textView
+                    titleView
 
                 case .leading(let icon):
                     HStack(alignment: .center, spacing: 10) {
                         iconView(icon: icon)
 
-                        textView
+                        titleView
                     }
                 case .trailing(let icon):
                     HStack(alignment: .center, spacing: 10) {
-                        textView
+                        titleView
 
                         iconView(icon: icon)
                     }
                 }
+
+                subtitleView
             }
             .padding(.horizontal, 16)
         }
     }
 
     @ViewBuilder
-    private var textView: some View {
+    private var titleView: some View {
         Text(title)
             .style(
                 Fonts.Bold.callout,
-                color: style.textColor(isDisabled: isDisabled)
+                color: style.titleColor(isDisabled: isDisabled)
             )
             .lineLimit(1)
+    }
+
+    @ViewBuilder
+    private var subtitleView: some View {
+        if let subtitle {
+            Text(subtitle)
+                .style(Fonts.Regular.caption2, color: style.subtitleColor())
+                .lineLimit(1)
+        }
     }
 
     @ViewBuilder
@@ -101,10 +126,18 @@ struct MainButton: View {
             .frame(width: 20, height: 20)
             .foregroundColor(style.iconColor(isDisabled: isDisabled))
     }
+
+    @ViewBuilder
+    private var border: some View {
+        if let borderColor = style.border(isDisabled: isDisabled) {
+            RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+                .stroke(borderColor)
+        }
+    }
 }
 
 extension MainButton {
-    enum Icon {
+    enum Icon: Hashable {
         case leading(_ icon: ImageType)
         case trailing(_ icon: ImageType)
     }
@@ -126,7 +159,7 @@ extension MainButton {
             }
         }
 
-        func textColor(isDisabled: Bool) -> Color {
+        func titleColor(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Text.disabled
             }
@@ -137,6 +170,10 @@ extension MainButton {
             case .secondary:
                 return Colors.Text.primary1
             }
+        }
+
+        func subtitleColor() -> Color {
+            Colors.Text.disabled
         }
 
         func loaderColor() -> Color {
@@ -160,33 +197,93 @@ extension MainButton {
                 return Colors.Button.secondary
             }
         }
+
+        func border(isDisabled: Bool) -> Color? {
+            guard isDisabled else {
+                return nil
+            }
+
+            return Colors.Stroke.primary
+        }
     }
 
-    struct Settings {
+    enum Size: Hashable {
+        /// Height: 46
+        case `default`
+        /// Height: 40
+        case notification
+
+        var height: CGFloat {
+            switch self {
+            case .default: return 46
+            case .notification: return 40
+            }
+        }
+    }
+
+    struct Settings: Identifiable, Hashable {
         let title: String
+        let subtitle: String?
         let icon: Icon?
         let style: Style
+        let size: Size
         let isLoading: Bool
         var isDisabled: Bool
         let action: () -> Void
 
+        var id: Int { hashValue }
+
         init(
             title: String,
+            subtitle: String? = nil,
             icon: Icon? = nil,
             style: Style = .primary,
+            size: Size = .default,
             isLoading: Bool = false,
             isDisabled: Bool = false,
             action: @escaping (() -> Void)
         ) {
             self.title = title
+            self.subtitle = subtitle
             self.icon = icon
             self.style = style
+            self.size = size
             self.isLoading = isLoading
             self.isDisabled = isDisabled
             self.action = action
         }
+
+        static func == (lhs: MainButton.Settings, rhs: MainButton.Settings) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(title)
+            hasher.combine(subtitle)
+            hasher.combine(icon)
+            hasher.combine(style)
+            hasher.combine(size)
+            hasher.combine(isLoading)
+            hasher.combine(isDisabled)
+        }
     }
 }
+
+extension MainButton: Setupable {
+    func setIsLoading(to isLoading: Bool) -> Self {
+        map { $0.isLoading = isLoading }
+    }
+}
+
+// MARK: - Constants
+
+private extension MainButton {
+    enum Constants {
+        static let cornerRadius = 14.0
+    }
+}
+
+// MARK: - Previews
 
 struct MainButton_Previews: PreviewProvider {
     static var previews: some View {
@@ -212,6 +309,7 @@ struct MainButton_Previews: PreviewProvider {
                 title: "Order card",
                 icon: .leading(Assets.tangemIcon),
                 style: style,
+                size: .notification,
                 isDisabled: true
             ) {}
 
@@ -232,6 +330,7 @@ struct MainButton_Previews: PreviewProvider {
                 title: "Order card",
                 icon: .trailing(Assets.tangemIcon),
                 style: style,
+                size: .notification,
                 isLoading: true
             ) {}
 
@@ -241,6 +340,48 @@ struct MainButton_Previews: PreviewProvider {
                 style: style,
                 isLoading: false
             ) {}
+
+            HStack {
+                MainButton(
+                    title: "Order card",
+                    icon: .leading(Assets.tangemIcon),
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    icon: .leading(Assets.tangemIcon),
+                    style: style,
+                    size: .notification
+                ) {}
+            }
+
+            Group {
+                MainButton(
+                    title: "Do something",
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Do something else",
+                    subtitle: "Or don't do it at all",
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    subtitle: "Blahblah",
+                    icon: .leading(Assets.tangemIcon),
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    subtitle: "Blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah",
+                    icon: .trailing(Assets.tangemIcon),
+                    style: style
+                ) {}
+            }
         }
         .padding(.horizontal, 16)
         .background(Colors.Background.secondary)
