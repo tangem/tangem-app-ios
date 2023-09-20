@@ -392,7 +392,7 @@ private extension SwappingViewModel {
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
                 title: Localization.swappingGivePermission,
                 subtitle: Localization.swappingPermissionSubheader(swappingInteractor.getSwappingItems().source.symbol),
-                leftView: .icon(Assets.swappingLock)
+                leftView: .icon(Assets.swapLock)
             )
         } else {
             permissionInfoRowViewModel = nil
@@ -424,14 +424,14 @@ private extension SwappingViewModel {
     }
 
     func updateFeeValue(state: SwappingAvailabilityState) {
-        feeOptionsViewModels.removeAll()
-
         switch state {
         case .idle, .requiredRefresh, .preview:
             swappingFeeRowViewModel?.update(state: .idle)
+            feeOptionsViewModels.removeAll()
         case .loading(let type):
             if type == .full {
                 swappingFeeRowViewModel?.update(state: .loading)
+                feeOptionsViewModels.removeAll()
             }
         case .available(let model):
             updateFeeRowViewModel(transactionData: model.transactionData)
@@ -546,7 +546,7 @@ private extension SwappingViewModel {
         let formattedFee = "\(percentFee.groupedFormatted())%"
         return DefaultWarningRowViewModel(
             subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
-            leftView: .icon(Assets.heartMini)
+            leftView: .icon(Assets.swapHeart)
         )
     }
 
