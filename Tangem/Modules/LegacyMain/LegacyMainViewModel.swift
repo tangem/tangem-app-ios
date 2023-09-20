@@ -6,10 +6,11 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
-import Combine
 import Foundation
 import SwiftUI
+import Combine
+import CombineExt
+import BlockchainSdk
 import TangemSdk
 
 class LegacyMainViewModel: ObservableObject {
@@ -122,9 +123,8 @@ class LegacyMainViewModel: ObservableObject {
 
     var buyCryptoURL: URL? {
         if let wallet {
-            let blockchain = wallet.blockchain
-            if blockchain.isTestnet {
-                return blockchain.testnetFaucetURL
+            if wallet.blockchain.isTestnet {
+                return wallet.getTestnetFaucetURL()
             }
 
             return exchangeService.getBuyUrl(
@@ -213,7 +213,7 @@ class LegacyMainViewModel: ObservableObject {
         cardModel.derivationManager?.hasPendingDerivations
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .weakAssign(to: \.hasPendingDerivations, on: self)
+            .assign(to: \.hasPendingDerivations, on: self, ownership: .weak)
             .store(in: &bag)
 
         AppSettings.shared.$saveUserWallets
@@ -341,7 +341,7 @@ class LegacyMainViewModel: ObservableObject {
 
     func deriveEntriesWithoutDerivation() {
         Analytics.log(.noticeScanYourCardTapped)
-        cardModel.derivationManager?.deriveKeys(cardInteractor: cardModel.cardInteractor, completion: { _ in })
+        cardModel.userTokensManager.deriveIfNeeded(completion: { _ in })
     }
 
     func extractSellCryptoRequest(from response: String) {
@@ -394,7 +394,7 @@ class LegacyMainViewModel: ObservableObject {
 // MARK: - Warnings related
 
 extension LegacyMainViewModel {
-    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
+    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningView.WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
         func registerValidatedSignedHashesCard() {
@@ -481,14 +481,6 @@ private extension LegacyMainViewModel {
                 )
             }
         }
-    }
-
-    private func setError(_ error: AlertBinder?) {
-        if self.error != nil {
-            return
-        }
-
-        self.error = error
     }
 
     private func loadImage() {
@@ -605,17 +597,17 @@ extension LegacyMainViewModel {
 
 extension LegacyMainViewModel {
     func openSettings() {
-        coordinator.openSettings(cardModel: cardModel)
+        coordinator.openSettings(userWalletModel: cardModel)
     }
 
     func openSend(for amountToSend: Amount) {
-        guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
+        guard let blockchainNetwork = cardModel.walletModelsManager.walletModels.first?.blockchainNetwork else { return }
 
         coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardModel)
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
+        guard let blockchainNetwork = cardModel.walletModelsManager.walletModels.first?.blockchainNetwork else { return }
 
         let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
         coordinator.openSendToSell(
@@ -649,7 +641,7 @@ extension LegacyMainViewModel {
             return
         }
 
-        if let walletModel = cardModel.walletModels.first,
+        if let walletModel = cardModel.walletModelsManager.walletModels.first,
            walletModel.wallet.blockchain == .ethereum(testnet: true),
            let token = walletModel.wallet.amounts.keys.compactMap({ $0.token }).first {
             testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletModel: walletModel, signer: cardModel.signer))
@@ -725,15 +717,19 @@ extension LegacyMainViewModel: LegacySingleWalletContentViewModelOutput {
 
 extension LegacyMainViewModel: LegacyMultiWalletContentViewModelOutput {
     func openTokensList() {
-        let settings = ManageTokensSettings(
-            supportedBlockchains: cardModel.supportedBlockchains,
+        var blockchains = cardModel.config.supportedBlockchains
+        blockchains.remove(.ducatus)
+
+        let settings = LegacyManageTokensSettings(
+            supportedBlockchains: blockchains,
             hdWalletsSupported: cardModel.config.hasFeature(.hdWallets),
             longHashesSupported: cardModel.config.hasFeature(.longHashes),
             derivationStyle: cardModel.config.derivationStyle,
-            shouldShowLegacyDerivationAlert: cardModel.shouldShowLegacyDerivationAlert
+            shouldShowLegacyDerivationAlert: cardModel.shouldShowLegacyDerivationAlert,
+            existingCurves: cardModel.card.walletCurves
         )
 
-        coordinator.openTokensList(
+        coordinator.openLegacyTokensList(
             with: settings,
             userTokensManager: cardModel.userTokensManager
         )
