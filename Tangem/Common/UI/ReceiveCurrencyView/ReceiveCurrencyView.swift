@@ -36,11 +36,9 @@ struct ReceiveCurrencyView: View {
 
             Spacer()
 
-            if let balanceString = viewModel.balanceString {
-                Text(balanceString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -106,7 +104,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             fiatAmountState: .loading,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
                     symbol: "MATIC"
                 )
             )
@@ -118,7 +116,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             fiatAmountState: .loading,
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
                     symbol: "MATIC"
                 )
             )
@@ -130,7 +128,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             fiatAmountState: .loaded(1100.46),
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
                     symbol: "MATIC"
                 )
             )
@@ -142,7 +140,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             fiatAmountState: .loaded(1100.46),
             tokenIcon: SwappingTokenIconViewModel(
                 state: .loaded(
-                    imageURL: TokenIconURLBuilderMock().iconURL(id: "polygon", size: .large),
+                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
                     symbol: "MATIC"
                 )
             )

@@ -8,33 +8,63 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
-    var id = UUID()
+    let id: Identifier
 
     var name: String { tokenIcon.name }
+
     var imageURL: URL? { tokenIcon.imageURL }
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
+    var hasMonochromeIcon: Bool { isNetworkUnreachable || !hasDerivation || isTestnet }
 
-    var balance: LoadableTextView.State
+    let balance: LoadableTextView.State
 
-    var isDraggable: Bool
-    var networkUnreachable: Bool
-    var hasPendingTransactions: Bool
+    var errorMessage: String? {
+        if !hasDerivation {
+            return Localization.commonNoAddress
+        }
+
+        if isNetworkUnreachable {
+            return Localization.commonUnreachable
+        }
+
+        return nil
+    }
+
+    let isDraggable: Bool
+
+    private let hasDerivation: Bool
+    private let isTestnet: Bool
+    private let isNetworkUnreachable: Bool
 
     private let tokenIcon: TokenIconInfo
 
     init(
+        id: Identifier,
         tokenIcon: TokenIconInfo,
         balance: LoadableTextView.State,
-        isDraggable: Bool,
-        networkUnreachable: Bool,
-        hasPendingTransactions: Bool
+        hasDerivation: Bool,
+        isTestnet: Bool,
+        isNetworkUnreachable: Bool,
+        isDraggable: Bool
     ) {
+        self.id = id
         self.tokenIcon = tokenIcon
         self.balance = balance
+        self.hasDerivation = hasDerivation
+        self.isTestnet = isTestnet
+        self.isNetworkUnreachable = isNetworkUnreachable
         self.isDraggable = isDraggable
-        self.networkUnreachable = networkUnreachable
-        self.hasPendingTransactions = hasPendingTransactions
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension OrganizeTokensListItemViewModel {
+    struct Identifier: Hashable {
+        var asAnyHashable: AnyHashable { self as AnyHashable }
+
+        let walletModelId: WalletModel.ID
+        let inGroupedSection: Bool
     }
 }
