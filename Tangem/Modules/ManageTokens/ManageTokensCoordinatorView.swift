@@ -25,6 +25,9 @@ struct ManageTokensCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
+            .navigation(item: $coordinator.addCustomTokenViewModel) {
+                LegacyAddCustomTokenView(viewModel: $0)
+            }
             .emptyNavigationLink()
     }
 }
