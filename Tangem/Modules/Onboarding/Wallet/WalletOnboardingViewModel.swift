@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import CombineExt
 import TangemSdk
 import BlockchainSdk
 
@@ -97,29 +98,19 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     // MARK: - Main Button setup
 
     override var mainButtonSettings: MainButton.Settings? {
-        var icon: MainButton.Icon?
-
         switch currentStep {
         case .disclaimer, .seedPhraseIntro:
             return nil
-        case .selectBackupCards:
-            icon = .leading(Assets.plusMini)
-        case .createWalletSelector:
-            icon = .leading(Assets.tangemIcon)
-        case .createWallet:
-            icon = .trailing(Assets.tangemIcon)
         default:
-            break
+            return MainButton.Settings(
+                title: mainButtonTitle,
+                icon: mainButtonIcon,
+                style: mainButtonStyle,
+                isLoading: isMainButtonBusy,
+                isDisabled: !isMainButtonEnabled,
+                action: mainButtonAction
+            )
         }
-
-        return MainButton.Settings(
-            title: mainButtonTitle,
-            icon: icon,
-            style: mainButtonStyle,
-            isLoading: isMainButtonBusy,
-            isDisabled: !isMainButtonEnabled,
-            action: mainButtonAction
-        )
     }
 
     override var mainButtonTitle: String {
@@ -230,7 +221,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
         inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
-            self?.createWallet(using: mnemonic)
+            self?.createWalletOnPrimaryCard(using: mnemonic)
         }
 
     lazy var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel? = {
@@ -253,7 +244,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 }
 
                 self?.walletCreationType = .seedImport
-                self?.createWallet(using: mnemonic)
+                self?.createWalletOnPrimaryCard(using: mnemonic)
             }
         ))
     }()
@@ -373,7 +364,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         CardImageProvider()
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .map { $0.image }
-            .weakAssign(to: \.cardImage, on: self)
+            .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -553,6 +544,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func backButtonAction() {
         switch currentStep {
+        case .seedPhraseIntro:
+            goToStep(.createWalletSelector)
+        case .seedPhraseGeneration, .seedPhraseImport:
+            goToStep(.seedPhraseIntro)
         case .seedPhraseUserValidation:
             goToStep(.seedPhraseGeneration)
         case .backupCards:
@@ -640,7 +635,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
-            .mapVoid()
+            .mapToVoid()
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
@@ -657,12 +652,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             )
     }
 
-    private func createWalletOnPrimaryCard(using seed: Data? = nil) {
+    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil) {
         guard let cardInitializer = input.cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
 
-        cardInitializer.initializeCard(seed: seed) { [weak self] result in
+        cardInitializer.initializeCard(mnemonic: mnemonic) { [weak self] result in
             guard let self else { return }
 
             switch result {
@@ -799,7 +794,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             primaryButton: .destructive(Text(Localization.cardSettingsActionSheetReset), action: { [weak self] in
                 self?.resetCard(with: cardId)
             }),
-            secondaryButton: Alert.Button.cancel {
+            secondaryButton: .default(Text(Localization.commonCancel)) {
                 Analytics.log(.backupResetCardNotification, params: [.option: .cancel])
             }
         )
@@ -836,7 +831,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
 extension WalletOnboardingViewModel {
     func openReadMoreAboutSeedPhraseScreen() {
-        coordinator.openWebView(with: AppConstants.seedPhraseReadMoreURL)
+        let websiteLanguageCode: String
+        switch Locale.current.languageCode {
+        case LanguageCode.ru, LanguageCode.by:
+            websiteLanguageCode = LanguageCode.ru
+        default:
+            websiteLanguageCode = LanguageCode.en
+        }
+        let baseUrl = AppEnvironment.current.tangemComBaseUrl
+        let url = baseUrl.appendingPathComponent("seed-phrase-\(websiteLanguageCode).html")
+        coordinator.openWebView(with: url)
         Analytics.log(.onboardingSeedButtonReadMore)
     }
 
@@ -845,15 +849,6 @@ extension WalletOnboardingViewModel {
             try seedPhraseManager.generateSeedPhrase()
             walletCreationType = .newSeed
             goToNextStep()
-        } catch {
-            alert = error.alertBinder
-        }
-    }
-
-    private func createWallet(using mnemonic: Mnemonic) {
-        do {
-            let seed = try mnemonic.generateSeed()
-            createWalletOnPrimaryCard(using: seed)
         } catch {
             alert = error.alertBinder
         }
