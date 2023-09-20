@@ -14,12 +14,12 @@ struct DemoUtil {
         demoCardIds.contains(cardId)
     }
 
-    func getDemoBlockchains(isTestnet: Bool) -> [Blockchain] {
+    func getDemoBlockchains(isTestnet: Bool) -> [String] {
         [
-            .bitcoin(testnet: isTestnet),
-            .ethereum(testnet: isTestnet),
-            .dogecoin,
-            .solana(testnet: isTestnet),
+            Blockchain.bitcoin(testnet: isTestnet).coinId,
+            Blockchain.ethereum(testnet: isTestnet).coinId,
+            Blockchain.dogecoin.coinId,
+            Blockchain.solana(curve: .ed25519, testnet: isTestnet).coinId,
         ]
     }
 
@@ -409,6 +409,13 @@ extension DemoUtil {
             "AB02000000049533",
             "AB02000000049541",
             "AB02000000049830",
+
+            // Wallet2
+            "AF04000000012006",
+            "AF04000000012014",
+            "AF04000000012022",
+            "AF04000000012030",
+            "FB04000000000152",
         ]
     }
 }
