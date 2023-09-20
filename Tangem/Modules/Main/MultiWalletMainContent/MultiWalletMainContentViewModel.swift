@@ -124,11 +124,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         openOrganizeTokens()
     }
 
-    func contextActions(for tokenItem: TokenItemViewModel) -> [TokenActionType] {
+    func contextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenActionType] {
         guard
-            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItemViewModel.id })
         else {
-            return []
+            return [.hide]
         }
 
         let actionsBuilder = TokenActionListBuilder()
@@ -138,15 +138,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             amountType: walletModel.amountType
         )
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
-        let canHide = userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
 
-        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, exchangeUtility: utility, canHide: canHide)
+        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, exchangeUtility: utility)
     }
 
-    func didTapContextAction(_ action: TokenActionType, for tokenItem: TokenItemViewModel) {
+    func didTapContextAction(_ action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         guard
-            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItemViewModel.id })
         else {
+            if case .hide = action {
+                hideTokenAction(for: tokenItemViewModel)
+            }
             return
         }
 
@@ -163,7 +165,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             UIPasteboard.general.string = walletModel.defaultAddress
             delegate?.displayAddressCopiedToast()
         case .hide:
-            userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+            hideTokenAction(for: tokenItemViewModel)
         case .exchange:
             return
         }
@@ -318,6 +320,46 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let factory = NotificationsFactory()
         missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
+    }
+}
+
+// MARK: Hide token
+
+private extension MultiWalletMainContentViewModel {
+    func hideTokenAction(for tokenItemViewModel: TokenItemViewModel) {
+        let targetId = tokenItemViewModel.id
+        let blockchainNetwork: BlockchainNetwork
+        if let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == targetId }) {
+            blockchainNetwork = walletModel.blockchainNetwork
+        } else if let entry = userWalletModel.userTokenListManager.userTokensList.entries.first(where: { $0.walletModelId == targetId }) {
+            blockchainNetwork = entry.blockchainNetwork
+        } else {
+            return
+        }
+
+        hideToken(tokenItem: tokenItemViewModel.tokenItem, blockchainNetwork: blockchainNetwork)
+    }
+
+    func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
+        let derivation = blockchainNetwork.derivationPath
+        if userWalletModel.userTokensManager.canRemove(tokenItem, derivationPath: derivation) {
+            userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
+        } else {
+            showUnableToHideAlert(currencySymbol: tokenItem.currencySymbol, blockchainName: tokenItem.blockchain.displayName)
+        }
+    }
+
+    func showUnableToHideAlert(currencySymbol: String, blockchainName: String) {
+        let message = Localization.tokenDetailsUnableHideAlertMessage(
+            currencySymbol,
+            blockchainName
+        )
+
+        error = AlertBuilder.makeAlert(
+            title: Localization.tokenDetailsUnableHideAlertTitle(currencySymbol),
+            message: message,
+            primaryButton: .default(Text(Localization.commonOk))
+        )
     }
 }
 
