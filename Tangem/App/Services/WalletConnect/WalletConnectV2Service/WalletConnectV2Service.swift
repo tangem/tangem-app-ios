@@ -82,12 +82,8 @@ final class WalletConnectV2Service {
     func openSession(with uri: WalletConnectV2URI) {
         canEstablishNewSessionSubject.send(false)
         runTask(withTimeout: 20) { [weak self] in
-            do {
-                try await self?.pairClient(with: uri)
-                self?.canEstablishNewSessionSubject.send(true)
-            } catch {
-                self?.displayErrorUI(WalletConnectV2Error.unknown(error.localizedDescription))
-            }
+            await self?.pairClient(with: uri)
+            self?.canEstablishNewSessionSubject.send(true)
         } onTimeout: { [weak self] in
             self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
             self?.canEstablishNewSessionSubject.send(true)
@@ -134,15 +130,28 @@ final class WalletConnectV2Service {
         }
     }
 
-    private func pairClient(with url: WalletConnectURI) async throws {
+    private func pairClient(with url: WalletConnectURI) async {
         log("Trying to pair client: \(url)")
-//        do {
-        try await pairApi.pair(uri: url)
-        try Task.checkCancellation()
-        log("Established pair for \(url)")
-//        } catch {
-//            AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
-//        }
+        do {
+            try await pairApi.pair(uri: url)
+            try Task.checkCancellation()
+            log("Established pair for \(url)")
+        } catch {
+            displayErrorUI(WalletConnectV2Error.pairClientError(error.localizedDescription))
+            AppLog.shared.error("[WC 2.0] Failed to connect to \(url) with error: \(error)")
+
+            // Hack to delete the topic from the user default storage inside the WC 2.0 SDK
+            await disconnect(topic: url.topic)
+        }
+    }
+
+    private func disconnect(topic: String) async {
+        do {
+            try await pairApi.disconnect(topic: topic)
+            log("Success disconnect/delete topic \(topic)")
+        } catch {
+            AppLog.shared.error("[WC 2.0] Failed to disconnect/delete topic \(topic) with error: \(error)")
+        }
     }
 
     // MARK: - Subscriptions
