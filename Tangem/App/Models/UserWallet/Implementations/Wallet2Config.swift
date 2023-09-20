@@ -13,9 +13,11 @@ import BlockchainSdk
 // [REDACTED_TODO_COMMENT]
 struct Wallet2Config {
     let card: CardDTO
+    private let isDemo: Bool
 
-    init(card: CardDTO) {
+    init(card: CardDTO, isDemo: Bool) {
         self.card = card
+        self.isDemo = isDemo
     }
 }
 
@@ -41,21 +43,18 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var mandatoryCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519]
+        [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
     }
 
     var derivationStyle: DerivationStyle? {
-        assert(hasFeature(.hdWallets))
-
-        // Keep in mind, that cards with hasImportedWallets == false must have old derivations
-        if !card.hasImportedWallets {
-            return .v2
-        }
-
         return .v3
     }
 
     var canSkipBackup: Bool {
+        if isDemo {
+            return true
+        }
+
         return false
     }
 
@@ -64,13 +63,15 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = SupportedBlockchains(version: .v2).blockchains()
-        return allBlockchains.filter { card.walletCurves.contains($0.curve) }
+        SupportedBlockchains(version: .v2).blockchains()
     }
 
     var defaultBlockchains: [StorageEntry] {
         let isTestnet = AppEnvironment.current.isTestnet
-        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
+        let blockchains: [Blockchain] = [
+            .bitcoin(testnet: isTestnet),
+            .ethereum(testnet: isTestnet),
+        ]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
@@ -87,7 +88,28 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        guard isDemo else {
+            return nil
+        }
+
+        let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+
+        let entries: [StorageEntry] = blockchainIds.compactMap { coinId in
+            guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
+                return nil
+            }
+
+            if let derivationStyle = derivationStyle {
+                let derivationPath = blockchain.derivationPath(for: derivationStyle)
+                let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+                return .init(blockchainNetwork: network, tokens: [])
+            }
+
+            let network = BlockchainNetwork(blockchain, derivationPath: nil)
+            return .init(blockchainNetwork: network, tokens: [])
+        }
+
+        return entries
     }
 
     var embeddedBlockchain: StorageEntry? {
@@ -95,7 +117,12 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        let warnings = WarningEventsFactory().makeWarningEvents(for: card)
+        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
+
+        if isDemo, !AppEnvironment.current.isTestnet {
+            warnings.append(.demoCard)
+        }
+
         return warnings
     }
 
@@ -140,6 +167,10 @@ extension Wallet2Config: UserWalletConfig {
         case .signedHashesCounter:
             return .hidden
         case .backup:
+            if isDemo {
+                return .demoStub
+            }
+
             if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
                 return .available
             }
@@ -148,12 +179,24 @@ extension Wallet2Config: UserWalletConfig {
         case .twinning:
             return .hidden
         case .exchange:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .walletConnect:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .multiCurrency:
             return .available
         case .resetToFactory:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .receive:
             return .available
@@ -170,8 +213,16 @@ extension Wallet2Config: UserWalletConfig {
         case .tokenSynchronization:
             return .available
         case .referralProgram:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .swapping:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .displayHashesCount:
             return .available
@@ -185,12 +236,16 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     func makeWalletModelsFactory() -> WalletModelsFactory {
+        if isDemo {
+            return DemoWalletModelsFactory(derivationStyle: derivationStyle)
+        }
+
         return CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
-            return HDWalletManagerFactory()
+            return GenericWalletManagerFactory()
         } else {
             return SimpleWalletManagerFactory()
         }

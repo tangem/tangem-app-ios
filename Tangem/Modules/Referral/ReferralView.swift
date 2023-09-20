@@ -27,7 +27,8 @@ struct ReferralView: View {
                             RadialGradient(
                                 colors: [
                                     Colors.Control.unchecked,
-                                    Color.clear,
+                                    // DO NOT replace it with Color.clear. Apparently it is not the same on iOS 15
+                                    Colors.Control.unchecked.opacity(0),
                                 ],
                                 center: .bottom,
                                 startRadius: (colorScheme == .light ? 0.5 : 0.30) * (geometry.size.width - 2 * dudePadding),
@@ -53,7 +54,7 @@ struct ReferralView: View {
             }
             .edgesIgnoringSafeArea(.bottom)
             .toast(isPresenting: $viewModel.showCodeCopiedToast) {
-                AlertToast(type: .complete(Color.tangemGreen), title: Localization.referralPromoCodeCopied)
+                AlertToast(type: .complete(Colors.Icon.accent), title: Localization.referralPromoCodeCopied)
             }
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
@@ -270,21 +271,13 @@ struct ReferralView: View {
         VStack(spacing: 12) {
             tosButton
 
-            TangemButton(
+            MainButton(
                 title: Localization.referralButtonParticipate,
-                image: "tangemIcon",
-                iconPosition: .trailing,
-                iconPadding: 10,
+                icon: .trailing(Assets.tangemIcon),
+                style: .primary,
                 action: {
                     runTask(viewModel.participateInReferralProgram)
                 }
-            )
-            .buttonStyle(
-                TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .flexibleWidth,
-                    isLoading: viewModel.isProcessingRequest
-                )
             )
         }
     }
@@ -296,8 +289,11 @@ struct ReferralView_Previews: PreviewProvider {
         NavigationView {
             ReferralView(
                 viewModel: ReferralViewModel(
-                    userWalletId: Data(),
-                    userTokensManager: UserTokensManagerMock(),
+                    input: .init(
+                        userWalletId: Data(),
+                        supportedBlockchains: SupportedBlockchains.all,
+                        userTokensManager: UserTokensManagerMock()
+                    ),
                     coordinator: ReferralCoordinator()
                 )
             )
@@ -307,8 +303,11 @@ struct ReferralView_Previews: PreviewProvider {
         NavigationView {
             ReferralView(
                 viewModel: ReferralViewModel(
-                    userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
-                    userTokensManager: UserTokensManagerMock(),
+                    input: .init(
+                        userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
+                        supportedBlockchains: SupportedBlockchains.all,
+                        userTokensManager: UserTokensManagerMock()
+                    ),
                     coordinator: ReferralCoordinator()
                 )
             )
