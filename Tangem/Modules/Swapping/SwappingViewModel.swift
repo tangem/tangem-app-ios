@@ -424,14 +424,14 @@ private extension SwappingViewModel {
     }
 
     func updateFeeValue(state: SwappingAvailabilityState) {
-        feeOptionsViewModels.removeAll()
-
         switch state {
         case .idle, .requiredRefresh, .preview:
             swappingFeeRowViewModel?.update(state: .idle)
+            feeOptionsViewModels.removeAll()
         case .loading(let type):
             if type == .full {
                 swappingFeeRowViewModel?.update(state: .loading)
+                feeOptionsViewModels.removeAll()
             }
         case .available(let model):
             updateFeeRowViewModel(transactionData: model.transactionData)
@@ -711,14 +711,14 @@ private extension SwappingViewModel {
 
                 root.swappingInteractor.didSendSwapTransaction(swappingTxData: transactionData)
 
-                await runOnMain {
-                    root.openSuccessView(transactionData: transactionData, transactionID: sendResult.hash)
+                await runOnMain { [weak root] in
+                    root?.openSuccessView(transactionData: transactionData, transactionID: sendResult.hash)
                 }
             } catch TangemSdkError.userCancelled {
                 root.restartTimer()
             } catch {
-                await runOnMain {
-                    root.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                await runOnMain { [weak root] in
+                    root?.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
         }
