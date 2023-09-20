@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 class FakeUserWalletRepository: UserWalletRepository {
+    var hasSavedWallets: Bool { true }
+
     var models: [UserWalletModel] = []
 
     var userWallets: [UserWallet] = []
@@ -31,33 +33,58 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
 
-    init() {
-        models = FakeUserWalletModel.allFakeWalletModels
+    init(models: [UserWalletModel] = FakeUserWalletModel.allFakeWalletModels) {
+        self.models = models
     }
 
-    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
+    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            guard let model = self.models.first else {
+                completion(.error("No models"))
+                return
+            }
 
-    func setSelectedUserWalletId(_ userWalletId: Data?, reason: UserWalletRepositorySelectionChangeReason) {}
+            switch method {
+            case .biometry:
+                completion(.troubleshooting)
+            case .card(let userWallet):
+                if let userWallet, let cardViewModel = CardViewModel(userWallet: userWallet) {
+                    completion(.success(cardViewModel))
+                    return
+                }
+
+                completion(.error("Can't create card view model"))
+            }
+        }
+    }
+
+    func setSelectedUserWalletId(_ userWalletId: Data?, unlockIfNeeded: Bool, reason: UserWalletRepositorySelectionChangeReason) {}
 
     func updateSelection() {}
 
     func logoutIfNeeded() {}
 
+    func add(_ userWalletModel: UserWalletModel) {}
+
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
 
-    func save(_ cardViewModel: CardViewModel) {}
+    func save(_ cardViewModel: UserWalletModel) {}
 
     func contains(_ userWallet: UserWallet) -> Bool {
-        false
+        return false
     }
 
     func save(_ userWallet: UserWallet) {}
 
     func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool) {}
 
-    func clear() {}
+    func clearNonSelectedUserWallets() {}
 
     func initialize() {}
 
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {}
+
+    func initialClean() {}
+
+    func setSaving(_ enabled: Bool) {}
 }

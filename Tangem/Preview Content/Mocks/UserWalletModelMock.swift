@@ -10,10 +10,19 @@ import Combine
 import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
+    let emailData: [EmailCollectedData] = []
+    let backupInput: OnboardingInput? = nil
+    let twinInput: OnboardingInput? = nil
+
+    var cardHeaderImage: ImageType?
+
+    var isUserWalletLocked: Bool { false }
+
     var signer: TangemSigner = .init(with: nil, sdk: .init())
 
     var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
+    var userTokensManager: UserTokensManager { UserTokensManagerMock() }
 
     var isMultiWallet: Bool { false }
 
@@ -21,13 +30,27 @@ class UserWalletModelMock: UserWalletModel {
 
     var cardsCount: Int { 1 }
 
+    var config: UserWalletConfig { UserWalletConfigFactory(userWallet.cardInfo()).makeConfig() }
+
     var userWalletId: UserWalletId { .init(with: Data()) }
 
     var userWallet: UserWallet {
-        UserWallet(userWalletId: Data(), name: "", card: .init(card: .walletWithBackup), associatedCardIds: [], walletData: .none, artwork: nil, isHDWalletAllowed: false)
+        UserWallet(
+            userWalletId: Data(),
+            name: "",
+            card: .init(card: .walletWithBackup),
+            associatedCardIds: [],
+            walletData: .none,
+            artwork: nil,
+            isHDWalletAllowed: false
+        )
     }
 
+    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
+
     var updatePublisher: AnyPublisher<Void, Never> { .just }
+
+    var userWalletNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
 
     func initialUpdate() {}
     func updateWalletName(_ name: String) {}

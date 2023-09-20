@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import BlockchainSdk
 import Combine
+import CombineExt
+import BlockchainSdk
 
 class PushTxViewModel: ObservableObject {
     var destination: String { transaction.destinationAddress }
@@ -32,12 +33,12 @@ class PushTxViewModel: ObservableObject {
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
-        return Localization.commonBalance(value)
+        return value
     }
 
     var walletModel: WalletModel {
         let id = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: amountToSend.type).id
-        return cardViewModel.walletModels.first(where: { $0.id == id })!
+        return cardViewModel.walletModelsManager.walletModels.first(where: { $0.id == id })!
     }
 
     var previousFeeAmount: Amount { transaction.fee.amount }
@@ -183,7 +184,7 @@ class PushTxViewModel: ObservableObject {
                 let fee = fees[feeLevel]
                 return fee
             }
-            .weakAssign(to: \.selectedFee, on: self)
+            .assign(to: \.selectedFee, on: self, ownership: .weak)
             .store(in: &bag)
 
         $fees
@@ -193,7 +194,7 @@ class PushTxViewModel: ObservableObject {
 
                 return values[selectedFeeLevel]
             }
-            .weakAssign(to: \.selectedFee, on: self)
+            .assign(to: \.selectedFee, on: self, ownership: .weak)
             .store(in: &bag)
 
         $isFeeIncluded
@@ -337,7 +338,10 @@ class PushTxViewModel: ObservableObject {
 
     private func getFiat(for amount: Amount?, roundingType: AmountRoundingType) -> Decimal? {
         if let amount = amount {
-            guard let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: amount.currencySymbol) else {
+            guard
+                let currencyId = walletModel.tokenItem.currencyId,
+                let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: amount.currencySymbol)
+            else {
                 return nil
             }
 
