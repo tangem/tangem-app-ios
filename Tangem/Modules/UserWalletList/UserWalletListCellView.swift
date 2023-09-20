@@ -28,7 +28,7 @@ struct UserWalletListCellView: View {
                     }
                     .tint(.red)
 
-                    Button(Localization.userWalletListRename) { [weak viewModel] in
+                    Button(Localization.commonRename) { [weak viewModel] in
                         viewModel?.edit()
                     }
                     .tint(Colors.Icon.informative)
@@ -98,7 +98,7 @@ struct UserWalletListCellView: View {
                 viewModel.edit()
             } label: {
                 HStack {
-                    Text(Localization.userWalletListRename)
+                    Text(Localization.commonRename)
                     Image(systemName: "pencil")
                 }
             }
@@ -153,6 +153,7 @@ struct UserWalletListCellView: View {
     @ViewBuilder
     private var lockIcon: some View {
         Assets.lock.image
+            .foregroundColor(Colors.Icon.primary1)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .background(Colors.Background.secondary)

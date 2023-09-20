@@ -11,7 +11,6 @@ import SwiftUI
 struct NavbarDotsImage: View {
     var body: some View {
         Assets.verticalDots.image
-            .offset(x: 11)
             .foregroundColor(Colors.Icon.primary1)
     }
 }
