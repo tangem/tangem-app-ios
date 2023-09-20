@@ -16,10 +16,6 @@ extension Color {
         return Color("tangem_green")
     }
 
-    @nonobjc static var tangemGreen1: Color {
-        return Color("tangem_green1")
-    }
-
     @nonobjc static var tangemGreen2: Color {
         return Color("tangem_green2")
     }
@@ -32,18 +28,6 @@ extension Color {
 
     @nonobjc static var tangemBlue: Color {
         return Color("tangem_blue")
-    }
-
-    @nonobjc static var tangemBlue1: Color {
-        return Color("tangem_blue1")
-    }
-
-    @nonobjc static var tangemBlue2: Color {
-        return Color("tangem_blue2")
-    }
-
-    @nonobjc static var tangemBlue3: Color {
-        return Color("tangem_blue3")
     }
 
     @nonobjc static var tangemCritical: Color {
@@ -110,6 +94,10 @@ extension Color {
         return Color("tangem_skeleton_gray2")
     }
 
+    @nonobjc static var tangemSkeletonGray3: Color {
+        return Color("tangem_skeleton_gray3")
+    }
+
     @nonobjc static var tangemHoverButton: Color {
         return Color("tangem_btn_hover_bg")
     }
@@ -124,22 +112,8 @@ extension Color {
         return Color(.tangemBgGray2)
     }
 
-    @nonobjc static var tangemBgGray3: Color {
-        return Color(.tangemBgGray3)
-    }
-
     @nonobjc static var tangemBg: Color {
         return Color("tangem_bg")
-    }
-
-    // MARK: Tints
-
-    @nonobjc static var tangemBlueLight: Color {
-        return Color("tangem_blue_light")
-    }
-
-    @nonobjc static var tangemBlueLight2: Color {
-        return Color("tangem_blue_light2")
     }
 
     // MARK: Misc
@@ -154,6 +128,18 @@ extension Color {
 }
 
 extension UIColor {
+    // This is taken from the new palette
+    @nonobjc static var backgroundPrimary: UIColor {
+        return UIColor(named: "BackgroundPrimary")!
+    }
+
+    // DO NOT remove this
+    // This is a UIColor from the new palette, used in UITextField's accessory view
+    // There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
+    @nonobjc static var inputAccessoryViewTintColor: UIColor {
+        return UIColor(named: "ButtonPrimary")!
+    }
+
     // MARK: Background
 
     @nonobjc static var tangemBgGray: UIColor {
@@ -164,8 +150,8 @@ extension UIColor {
         return UIColor(named: "tangem_bg_gray2")!
     }
 
-    @nonobjc static var tangemBgGray3: UIColor {
-        return UIColor(named: "tangem_bg_gray3")!
+    @nonobjc static var tangemBg: UIColor {
+        return UIColor(named: "tangem_bg")!
     }
 
     @nonobjc static var tangemGrayDark4: UIColor {
@@ -186,6 +172,10 @@ extension UIColor {
 
     @nonobjc static var tangemCritical: UIColor {
         UIColor(named: "tangem_critical")!
+    }
+
+    @nonobjc static var iconAccent: UIColor {
+        UIColor(named: "IconAccent")!
     }
 }
 
