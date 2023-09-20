@@ -8,4 +8,9 @@
 
 import Foundation
 
-protocol ManageTokensRoutable: AnyObject {}
+protocol ManageTokensRoutable: AnyObject {
+    func openInfoTokenModule()
+    func openEditTokenModule()
+    func openAddTokenModule()
+    func openAddCustomTokenModule(settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager)
+}
