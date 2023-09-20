@@ -15,6 +15,16 @@ struct MarketPriceView: View {
     let tapAction: (() -> Void)?
 
     var body: some View {
+        if let tapAction {
+            Button(action: tapAction) {
+                marketPriceView
+            }
+        } else {
+            marketPriceView
+        }
+    }
+
+    private var marketPriceView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
                 Text(Localization.walletMarketplaceBlockTitle(currencySymbol))
@@ -48,10 +58,6 @@ struct MarketPriceView: View {
         .padding(14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            tapAction?()
-        }
     }
 }
 
