@@ -9,6 +9,7 @@
 import Foundation
 
 // [REDACTED_TODO_COMMENT]
+@available(*, deprecated, message: "Test only, remove if not needed")
 class ManageTokensSheetViewModel: ObservableObject {
     // MARK: - ViewModel
 
