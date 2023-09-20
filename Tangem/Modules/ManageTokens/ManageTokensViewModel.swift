@@ -11,19 +11,21 @@ import SwiftUI
 import Combine
 
 final class ManageTokensViewModel: ObservableObject {
+    // MARK: - Injected & Published Properties
+
+    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
-
-    @Published var coinViewModels: [LegacyCoinViewModel] = []
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
 
     @Published var isSaving: Bool = false
     @Published var isLoading: Bool = true
     @Published var alert: AlertBinder?
-    @Published var pendingAdd: [TokenItem] = []
-    @Published var pendingRemove: [TokenItem] = []
     @Published var showToast: Bool = false
+
+    // MARK: - Properties
 
     var titleKey: String {
         return Localization.addTokensTitle
@@ -34,7 +36,7 @@ final class ManageTokensViewModel: ObservableObject {
     }
 
     var isSaveDisabled: Bool {
-        pendingAdd.isEmpty && pendingRemove.isEmpty
+        true
     }
 
     var hasNextPage: Bool {
@@ -47,19 +49,17 @@ final class ManageTokensViewModel: ObservableObject {
 
     private let settings: LegacyManageTokensSettings
     private let userTokensManager: UserTokensManager
-    private let tokenQuotesRepository: TokenQuotesRepository
 
     private var percentFormatter = PercentFormatter()
+    private var balanceFormatter = BalanceFormatter()
 
     init(
         settings: LegacyManageTokensSettings,
         userTokensManager: UserTokensManager,
-        tokenQuotesRepository: TokenQuotesRepository,
         coordinator: ManageTokensRoutable
     ) {
         self.settings = settings
         self.userTokensManager = userTokensManager
-        self.tokenQuotesRepository = tokenQuotesRepository
         self.coordinator = coordinator
 
         bind()
@@ -67,27 +67,6 @@ final class ManageTokensViewModel: ObservableObject {
 
     func saveChanges() {
         isSaving = true
-
-        userTokensManager.update(
-            itemsToRemove: pendingRemove,
-            itemsToAdd: pendingAdd,
-            derivationPath: nil
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isSaving = false
-
-                switch result {
-                case .success:
-                    self?.tokenListDidSave()
-                case .failure(let error):
-                    if error.isUserCancelled {
-                        return
-                    }
-
-                    self?.alert = error.alertBinder
-                }
-            }
-        }
     }
 
     func tokenListDidSave() {
@@ -102,8 +81,6 @@ final class ManageTokensViewModel: ObservableObject {
 
     func onDisappear() {
         DispatchQueue.main.async {
-            self.pendingAdd = []
-            self.pendingRemove = []
             self.enteredSearchText.value = ""
         }
     }
@@ -142,6 +119,12 @@ private extension ManageTokensViewModel {
                 self?.loader.fetch(string)
             }
             .store(in: &bag)
+
+        $tokenViewModels
+            .sink { [weak self] items in
+                self?.updateQuote(by: items)
+            }
+            .store(in: &bag)
     }
 
     func showAddButton(_ tokenItem: TokenItem) -> Bool {
@@ -163,29 +146,8 @@ private extension ManageTokensViewModel {
         return loader
     }
 
-    func isAdded(_ tokenItem: TokenItem) -> Bool {
-        return userTokensManager.contains(tokenItem, derivationPath: nil)
-    }
-
-    func canRemove(_ tokenItem: TokenItem) -> Bool {
-        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
-    }
-
-    func isSelected(_ tokenItem: TokenItem) -> Bool {
-        let isWaitingToBeAdded = pendingAdd.contains(tokenItem)
-        let isWaitingToBeRemoved = pendingRemove.contains(tokenItem)
-        let alreadyAdded = isAdded(tokenItem)
-
-        if isWaitingToBeRemoved {
-            return false
-        }
-
-        return isWaitingToBeAdded || alreadyAdded
-    }
-
-    func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
-        if selected,
-           case .token(_, let blockchain) = tokenItem,
+    func onHandleAddTokenAction(_ tokenItem: TokenItem) {
+        if case .token(_, let blockchain) = tokenItem,
            case .solana = blockchain,
            !settings.longHashesSupported {
             displayAlertAndUpdateSelection(
@@ -197,7 +159,7 @@ private extension ManageTokensViewModel {
             return
         }
 
-        if selected, !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+        if !settings.existingCurves.contains(tokenItem.blockchain.curve) {
             displayAlertAndUpdateSelection(
                 for: tokenItem,
                 title: Localization.commonAttention,
@@ -207,146 +169,15 @@ private extension ManageTokensViewModel {
             return
         }
 
-        sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
-
-        let alreadyAdded = isAdded(tokenItem)
-
-        if alreadyAdded {
-            if selected {
-                pendingRemove.remove(tokenItem)
-            } else {
-                pendingRemove.append(tokenItem)
-            }
-        } else {
-            if selected {
-                pendingAdd.append(tokenItem)
-            } else {
-                pendingAdd.remove(tokenItem)
-            }
-        }
-    }
-
-    func updateSelection(_ tokenItem: TokenItem) {
-        for item in coinViewModels {
-            for itemItem in item.items {
-                if itemItem.tokenItem == tokenItem {
-                    itemItem.updateSelection(with: bindSelection(tokenItem))
-                }
-            }
-        }
-    }
-
-    func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
-        let binding = Binding<Bool> { [weak self] in
-            self?.isSelected(tokenItem) ?? false
-        } set: { [weak self] isSelected in
-            self?.showWarningDeleteAlertIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
-        }
-
-        return binding
-    }
-
-    func bindCopy() -> Binding<Bool> {
-        let binding = Binding<Bool> { [weak self] in
-            self?.showToast ?? false
-        } set: { [weak self] isSelected in
-            self?.showToast = isSelected
-        }
-
-        return binding
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    func mapToCoinViewModel(coinModel: CoinModel) -> LegacyCoinViewModel {
-        let currencyItems = coinModel.items.enumerated().map { index, item in
-            LegacyCoinItemViewModel(
-                tokenItem: item,
-                isReadonly: false,
-                isSelected: bindSelection(item),
-                isCopied: bindCopy(),
-                position: .init(with: index, total: coinModel.items.count)
-            )
-        }
-
-        return LegacyCoinViewModel(with: coinModel, items: currencyItems)
-    }
-
-    func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel? {
-        var quote: TokenQuote?
-
-        if let coinModelBlockchain = coinModel.blockchain {
-            quote = tokenQuotesRepository.quote(for: .blockchain(coinModelBlockchain))
-        }
-
-        return ManageTokensItemViewModel(
-            imageURL: TokenIconURLBuilder().iconURL(id: coinModel.id, size: .large),
-            name: coinModel.name,
-            symbol: coinModel.symbol,
-            price: quote?.price.description ?? "",
-            priceChange: getPriceChange(by: quote),
-            priceHistory: nil,
-            action: actionType(for: coinModel),
-            didTapAction: handle(action:)
-        )
+        coordinator.openAddTokenModule(with: tokenItem)
     }
 
     func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
-        guard !isSelected,
-              !pendingAdd.contains(tokenItem),
-              isTokenAvailable(tokenItem) else {
-            onSelect(isSelected, tokenItem)
+        guard isTokenAvailable(tokenItem) else {
             return
         }
 
-        if canRemove(tokenItem) {
-            let title = Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol)
-
-            let cancelAction = { [unowned self] in
-                updateSelection(tokenItem)
-            }
-
-            let hideAction = { [unowned self] in
-                onSelect(isSelected, tokenItem)
-            }
-
-            alert = AlertBinder(alert:
-                Alert(
-                    title: Text(title),
-                    message: Text(Localization.tokenDetailsHideAlertMessage),
-                    primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide), action: hideAction),
-                    secondaryButton: .cancel(cancelAction)
-                )
-            )
-        } else {
-            let title = Localization.tokenDetailsUnableHideAlertTitle(tokenItem.blockchain.currencySymbol)
-
-            let message = Localization.tokenDetailsUnableHideAlertMessage(
-                tokenItem.blockchain.currencySymbol,
-                tokenItem.blockchain.displayName
-            )
-
-            alert = AlertBinder(alert: Alert(
-                title: Text(title),
-                message: Text(message),
-                dismissButton: .default(Text(Localization.commonOk), action: {
-                    self.updateSelection(tokenItem)
-                })
-            ))
-        }
-    }
-
-    func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
-        if case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
-           !settings.longHashesSupported {
-            return false
-        }
-
-        if !settings.existingCurves.contains(tokenItem.blockchain.curve) {
-            return false
-        }
-
-        return true
+        return
     }
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
@@ -359,9 +190,7 @@ private extension ManageTokensViewModel {
     // MARK: - Private Implementation
 
     private func displayAlertAndUpdateSelection(for tokenItem: TokenItem, title: String, message: String) {
-        let okButton = Alert.Button.default(Text(Localization.commonOk)) {
-            self.updateSelection(tokenItem)
-        }
+        let okButton = Alert.Button.default(Text(Localization.commonOk))
 
         alert = AlertBinder(alert: Alert(
             title: Text(title),
@@ -381,25 +210,68 @@ private extension ManageTokensViewModel {
         }
     }
 
-    private func handle(action: ManageTokensItemViewModel.Action) {
-        switch action {
-        case .add:
-            coordinator.openAddTokenModule()
-        case .edit:
-            coordinator.openEditTokenModule()
-        case .info:
-            coordinator.openInfoTokenModule()
-        }
+    private func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel {
+        let cachePriceChangeValue = getCachePriceWithChangeState(by: coinModel.id)
+
+        return ManageTokensItemViewModel(
+            id: coinModel.id,
+            imageURL: TokenIconURLBuilder().iconURL(id: coinModel.id, size: .large),
+            name: coinModel.name,
+            symbol: coinModel.symbol,
+            priceValue: balanceFormatter.formatFiatBalance(cachePriceChangeValue.0),
+            priceChangeState: cachePriceChangeValue.1,
+            action: actionType(for: coinModel),
+            didTapAction: handle(action:with:)
+        )
     }
 
-    private func getPriceChange(by quote: TokenQuote?) -> TokenPriceChangeView.State {
-        guard let quote = quote else {
-            return .noData
+    private func handle(action: ManageTokensItemViewModel.Action, with id: ManageTokensItemViewModel.ID) {}
+
+    private func updateQuote(by items: [ManageTokensItemViewModel]) {
+        tokenQuotesRepository
+            .loadQuotes(coinIds: items.filter { $0.priceChangeState == .loading }.map { $0.id })
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { quotes in
+                print(quotes.count)
+
+                quotes.forEach { [weak self] quote in
+                    guard let self = self, let itemViewModel = items.first(where: { $0.id == quote.currencyId }) else { return }
+                    itemViewModel.priceChangeState = getPriceChangeState(by: quote)
+                    itemViewModel.priceValue = balanceFormatter.formatFiatBalance(quote.price)
+                }
+            })
+            .store(in: &bag)
+    }
+
+    private func getCachePriceWithChangeState(by currencyId: String) -> (Decimal?, TokenPriceChangeView.State) {
+        guard let quote = tokenQuotesRepository.quote(for: currencyId) else {
+            return (nil, .loading)
         }
 
         let signType = ChangeSignType(from: quote.change)
 
         let percent = percentFormatter.percentFormat(value: quote.change)
+        return (nil, .loaded(signType: signType, text: percent))
+    }
+
+    private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
+        let signType = ChangeSignType(from: quote.change)
+
+        let percent = percentFormatter.percentFormat(value: quote.change)
         return .loaded(signType: signType, text: percent)
+    }
+
+    private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+        if case .token(_, let blockchain) = tokenItem,
+           case .solana = blockchain,
+           !settings.longHashesSupported {
+            return false
+        }
+
+        if !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+            return false
+        }
+
+        return true
     }
 }

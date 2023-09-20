@@ -9,6 +9,23 @@
 import Foundation
 
 class ManageTokensItemViewModel: Identifiable, ObservableObject {
+    // MARK: - Published
+
+    @Published var priceValue: String = ""
+    @Published var priceChangeState: TokenPriceChangeView.State = .noData
+    @Published var priceHistory: [Double]? = nil
+
+    // MARK: - Properties
+
+    let id: String
+    let imageURL: URL?
+    let name: String
+    let symbol: String
+    let action: Action
+    let didTapAction: (Action, ID) -> Void
+
+    // MARK: - Helpers
+
     var priceHistoryChangeType: ChangeSignType {
         guard
             let priceHistory,
@@ -21,31 +38,25 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         return ChangeSignType(from: Decimal(lastValue - firstValue))
     }
 
-    let id: UUID = .init()
-    let imageURL: URL?
-    let name: String
-    let symbol: String
-    let price: String
-    let priceChange: TokenPriceChangeView.State
-    let priceHistory: [Double]?
-    let action: Action
-    let didTapAction: (Action) -> Void
+    // MARK: - Init
 
     init(
+        id: String = UUID().uuidString,
         imageURL: URL?,
         name: String,
         symbol: String,
-        price: String,
-        priceChange: TokenPriceChangeView.State,
-        priceHistory: [Double]?,
+        priceValue: String = "",
+        priceChangeState: TokenPriceChangeView.State,
+        priceHistory: [Double]? = nil,
         action: Action,
-        didTapAction: @escaping (Action) -> Void
+        didTapAction: @escaping (Action, ID) -> Void
     ) {
+        self.id = id
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
-        self.price = price
-        self.priceChange = priceChange
+        self.priceValue = priceValue
+        self.priceChangeState = priceChangeState
         self.priceHistory = priceHistory
         self.action = action
         self.didTapAction = didTapAction
