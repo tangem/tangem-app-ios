@@ -22,7 +22,6 @@ struct ManageTokensView: View {
         }
         .scrollDismissesKeyboardCompat(true)
         .navigationBarTitle(Text(Localization.addTokensTitle), displayMode: .automatic)
-        .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.contractAddressCopiedMessage)
@@ -40,16 +39,6 @@ struct ManageTokensView: View {
                     SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
                         .padding(.horizontal, 8)
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                }
-
-                if viewModel.shouldShowAlert {
-                    Text(Localization.alertManageTokensAddressesMessage)
-                        .font(.system(size: 13, weight: .medium, design: .default))
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(Color(hex: "#848488"))
-                        .cornerRadius(10)
-                        .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                        .padding(.horizontal)
                 }
 
                 divider
@@ -78,20 +67,6 @@ struct ManageTokensView: View {
             .padding([.leading])
     }
 
-    @ViewBuilder private var addCustomView: some View {
-        Button(action: viewModel.openAddCustom) {
-            ZStack {
-                Circle().fill(Colors.Button.primary)
-
-                Image(systemName: "plus")
-                    .foregroundColor(Color.tangemBg)
-                    .font(.system(size: 13, weight: .bold, design: .default))
-            }
-            .frame(width: 26, height: 26)
-        }
-        .animation(nil)
-    }
-
     @ViewBuilder private var titleView: some View {
         Text(Localization.addTokensTitle)
             .font(Font.system(size: 30, weight: .bold, design: .default))
@@ -103,6 +78,7 @@ struct ManageTokensView: View {
         VStack {
             Spacer()
 
+            // [REDACTED_TODO_COMMENT]
             GenerateAddressesView(
                 numberOfNetworks: 3,
                 currentWalletNumber: 1,
