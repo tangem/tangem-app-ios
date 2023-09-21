@@ -81,12 +81,6 @@ private extension ManageTokensViewModel {
                 self?.loader.fetch(string)
             }
             .store(in: &bag)
-
-        $tokenViewModels
-            .sink { [weak self] items in
-                self?.updateQuote(by: items)
-            }
-            .store(in: &bag)
     }
 
     func setupListDataLoader() -> ListDataLoader {
@@ -94,11 +88,24 @@ private extension ManageTokensViewModel {
         let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
-            .map { [weak self] items -> [ManageTokensItemViewModel] in
-                items.compactMap { self?.mapToTokenViewModel(coinModel: $0) }
-            }
             .receive(on: DispatchQueue.main)
-            .assign(to: \.tokenViewModels, on: self, ownership: .weak)
+            .sink(receiveValue: { [weak self] items in
+                guard let self = self else {
+                    return
+                }
+
+                let alreadyUpdateQuoteCoinIds = tokenViewModels.filter {
+                    $0.priceChangeState != .loading || $0.priceChangeState != .noData
+                }.map { $0.id }
+
+                print(tokenViewModels.map { $0.priceChangeState })
+
+                print(items.count)
+                print(alreadyUpdateQuoteCoinIds.count)
+
+                tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
+                updateQuote(by: items.filter { !alreadyUpdateQuoteCoinIds.contains($0.id) }.map { $0.id })
+            })
             .store(in: &bag)
 
         return loader
@@ -113,7 +120,7 @@ private extension ManageTokensViewModel {
 
     // MARK: - Private Implementation
 
-    private func displayAlertAndUpdateSelection(title: String, message: String) {
+    private func displayAlert(title: String, message: String) {
         let okButton = Alert.Button.default(Text(Localization.commonOk))
 
         alert = AlertBinder(alert: Alert(
@@ -123,7 +130,6 @@ private extension ManageTokensViewModel {
         ))
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
         let userWalletModels = userWalletRepository.models
 
@@ -145,26 +151,20 @@ private extension ManageTokensViewModel {
         )
     }
 
+    private func updateQuote(by coinIds: [String]) {
+        tokenQuotesRepository
+            .loadQuotes(coinIds: coinIds)
+            .sink()
+            .store(in: &bag)
+    }
+
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
         switch action {
         case .info:
-            coordinator.openInfoTokenModule(with: coinModel)
-        case .add:
-            coordinator.openAddTokenModule(with: coinModel)
-        case .edit:
-            coordinator.openEditTokenModule(with: coinModel)
+            // [REDACTED_TODO_COMMENT]
+            break
+        case .add, .edit:
+            coordinator.openTokenSelectorModule(with: coinModel.items)
         }
-    }
-
-    private func updateQuote(by items: [ManageTokensItemViewModel]) {
-        tokenQuotesRepository
-            .loadQuotes(coinIds: items.filter { $0.priceChangeState == .loading }.map { $0.id })
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { _ in
-                items.forEach {
-                    $0.updateQuote()
-                }
-            }
-            .store(in: &bag)
     }
 }
