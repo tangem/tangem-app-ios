@@ -67,6 +67,7 @@ struct TokenDetailsView: View {
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
