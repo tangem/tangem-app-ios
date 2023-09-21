@@ -19,7 +19,6 @@ protocol SingleTokenRoutable {
     func openSell(for walletModel: WalletModel)
     func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel)
     func openExplorer(at url: URL, for walletModel: WalletModel)
-    func openChooseAddress(from walletModel: WalletModel, callback: @escaping (BlockchainSdk.Address) -> Void)
 }
 
 class SingleTokenRouter: SingleTokenRoutable {
@@ -142,11 +141,6 @@ class SingleTokenRouter: SingleTokenRoutable {
     func openExplorer(at url: URL, for walletModel: WalletModel) {
         sendAnalyticsEvent(.buttonExplore, for: walletModel)
         coordinator.openExplorer(at: url, blockchainDisplayName: walletModel.blockchainNetwork.blockchain.displayName)
-    }
-
-    func openChooseAddress(from walletModel: WalletModel, callback: @escaping (BlockchainSdk.Address) -> Void) {
-        let addresses = walletModel.wallet.addresses
-        coordinator.openChooseAddress(from: addresses, callback: callback)
     }
 
     private func openBuy(for walletModel: WalletModel) {
