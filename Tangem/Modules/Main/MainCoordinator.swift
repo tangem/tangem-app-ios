@@ -298,16 +298,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openChooseAddress(from addresses: [BlockchainSdk.Address], callback: @escaping (BlockchainSdk.Address) -> Void) {
         let addressButtons: [Alert.Button] = addresses.map { address in
             .default(Text(address.localizedName)) {
-//                print("ZZZ", address.localizedName, address.value)
                 callback(address)
             }
         }
 
         let sheet = ActionSheet(
-            title: Text(""),
+            title: Text(Localization.tokenDetailsChooseAddress),
             buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
         )
-
         mainViewModel?.actionSheet = ActionSheetBinder(sheet: sheet)
     }
 }
