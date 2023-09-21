@@ -17,10 +17,9 @@ final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private unowned let coordinator: AddCustomTokenNetworkSelectorRoutable
+    weak var delegate: AddCustomTokenNetworkSelectorDelegate?
 
-    init(selectedBlockchain: Blockchain, blockchains: [Blockchain], coordinator: AddCustomTokenNetworkSelectorRoutable) {
-        self.coordinator = coordinator
+    init(selectedBlockchain: Blockchain, blockchains: [Blockchain]) {
         itemViewModels = blockchains.map { blockchain in
             AddCustomTokenNetworkSelectorItemViewModel(
                 networkId: blockchain.networkId,
@@ -39,6 +38,6 @@ final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
             itemViewModel.isSelected = (blockchain.networkId == itemViewModel.networkId)
         }
 
-        coordinator.didSelectNetwork(blockchain: blockchain)
+        delegate?.didSelectNetwork(blockchain: blockchain)
     }
 }
