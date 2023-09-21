@@ -4246,6 +4246,7 @@
 		DA207C212AB89F89005CC5E3 /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
+				DAF3E6322AB984510050ADBF /* AddCustomTokenNetworkSelector */,
 			);
 			path = AddCustomToken;
 			sourceTree = "<group>";
@@ -4933,7 +4934,6 @@
 				5D384B9224FD51B200C2C92C /* Details */,
 				DAD98A752AB2E3240051CFBE /* ManageTokens */,
 				DA207C212AB89F89005CC5E3 /* AddCustomToken */,
-				DAF3E6322AB984510050ADBF /* AddCustomTokenNetworkSelector */,
 				DA43718D2A7D1937006215CA /* LegacyTokenList */,
 				5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */,
 				B0DD16182A331BF300CB23AA /* TokenDetails */,
