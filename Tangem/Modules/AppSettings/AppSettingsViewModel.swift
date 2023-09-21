@@ -159,7 +159,7 @@ private extension AppSettingsViewModel {
         )
 
         sensitiveTextAvailabilityViewModel = DefaultToggleRowViewModel(
-            title: "Flip-to-Hide Balances",
+            title: Localization.detailsRowTitleFlipToHide,
             isOn: isSensitiveTextAvailability()
         )
     }
