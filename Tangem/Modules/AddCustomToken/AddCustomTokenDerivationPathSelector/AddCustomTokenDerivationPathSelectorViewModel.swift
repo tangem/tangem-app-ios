@@ -23,13 +23,12 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private unowned let coordinator: AddCustomTokenDerivationPathSelectorRoutable
+    weak var delegate: AddCustomTokenDerivationPathSelectorDelegate?
 
     init(
         selectedDerivationOption: AddCustomTokenDerivationOption,
         defaultDerivationPath: DerivationPath,
-        blockchainDerivationOptions: [AddCustomTokenDerivationOption],
-        coordinator: AddCustomTokenDerivationPathSelectorRoutable
+        blockchainDerivationOptions: [AddCustomTokenDerivationOption]
     ) {
         self.selectedDerivationOption = selectedDerivationOption
         customDerivationOption = .custom(derivationPath: nil)
@@ -38,8 +37,6 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         derivationOptions.append(.default(derivationPath: defaultDerivationPath))
         derivationOptions.append(contentsOf: blockchainDerivationOptions.sorted(by: { $0.name < $1.name }))
         self.derivationOptions = derivationOptions
-
-        self.coordinator = coordinator
 
         customDerivationModel = AddCustomTokenDerivationPathSelectorItemViewModel(option: .custom(derivationPath: nil), isSelected: false) {
             [weak self] in
