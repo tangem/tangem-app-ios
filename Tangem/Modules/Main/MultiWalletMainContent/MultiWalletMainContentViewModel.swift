@@ -280,6 +280,61 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 }
 
+// MARK: Hide token
+
+private extension MultiWalletMainContentViewModel {
+    func hideTokenAction(for tokenItemViewModel: TokenItemViewModel) {
+        let targetId = tokenItemViewModel.id
+        let blockchainNetwork: BlockchainNetwork
+        if let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == targetId }) {
+            blockchainNetwork = walletModel.blockchainNetwork
+        } else if let entry = userWalletModel.userTokenListManager.userTokensList.entries.first(where: { $0.walletModelId == targetId }) {
+            blockchainNetwork = entry.blockchainNetwork
+        } else {
+            return
+        }
+
+        let derivation = blockchainNetwork.derivationPath
+        let tokenItem = tokenItemViewModel.tokenItem
+
+        if userWalletModel.userTokensManager.canRemove(tokenItem, derivationPath: derivation) {
+            showHideWarningAlert(tokenItem: tokenItemViewModel.tokenItem, blockchainNetwork: blockchainNetwork)
+        } else {
+            showUnableToHideAlert(currencySymbol: tokenItem.currencySymbol, blockchainName: tokenItem.blockchain.displayName)
+        }
+    }
+
+    func showHideWarningAlert(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
+        error = AlertBuilder.makeAlert(
+            title: Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol),
+            message: Localization.tokenDetailsHideAlertMessage,
+            primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide)) { [weak self] in
+                self?.hideToken(tokenItem: tokenItem, blockchainNetwork: blockchainNetwork)
+            },
+            secondaryButton: .cancel()
+        )
+    }
+
+    func showUnableToHideAlert(currencySymbol: String, blockchainName: String) {
+        let message = Localization.tokenDetailsUnableHideAlertMessage(
+            currencySymbol,
+            blockchainName
+        )
+
+        error = AlertBuilder.makeAlert(
+            title: Localization.tokenDetailsUnableHideAlertTitle(currencySymbol),
+            message: message,
+            primaryButton: .default(Text(Localization.commonOk))
+        )
+    }
+
+    func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
+        // [REDACTED_TODO_COMMENT]
+        let derivation = blockchainNetwork.derivationPath
+        userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
+    }
+}
+
 // MARK: Navigation
 
 extension MultiWalletMainContentViewModel {
@@ -405,7 +460,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         guard
             let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
         else {
-            return []
+            return [.hide]
         }
 
         let actionsBuilder = TokenActionListBuilder()
@@ -415,15 +470,18 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
             amountType: walletModel.amountType
         )
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
-        let canHide = userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         let canSend = userWalletModel.config.hasFeature(.send) && walletModel.canSendTransaction
 
-        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, exchangeUtility: utility, canHide: canHide)
+        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, exchangeUtility: utility)
     }
 }
 
 extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
     func didTapContextAction(_ action: TokenActionType, for tokenItem: TokenItemViewModel) {
+        if case .hide = action {
+            hideTokenAction(for: tokenItem)
+        }
+
         guard
             let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
         else {
@@ -442,9 +500,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .copyAddress:
             UIPasteboard.general.string = walletModel.defaultAddress
             delegate?.displayAddressCopiedToast()
-        case .hide:
-            userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
-        case .exchange:
+        case .hide, .exchange:
             return
         }
     }
