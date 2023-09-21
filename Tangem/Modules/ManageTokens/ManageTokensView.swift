@@ -34,20 +34,15 @@ struct ManageTokensView: View {
 
     private var list: some View {
         ScrollView {
-            LazyVStack {
+            LazyVStack(spacing: 0) {
                 if #available(iOS 15.0, *) {} else {
                     SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
                         .padding(.horizontal, 8)
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
 
-                divider
-
                 ForEach(viewModel.tokenViewModels) {
                     ManageTokensItemView(viewModel: $0)
-                        .padding(.horizontal)
-
-                    divider
                 }
 
                 if viewModel.hasNextPage {

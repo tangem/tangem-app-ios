@@ -12,13 +12,13 @@ class ManageTokensCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
-    // MARK: - Published
+    // MARK: - Root Published
 
     @Published private(set) var manageTokensViewModel: ManageTokensViewModel? = nil
 
     // MARK: - Child ViewModels
 
-    @Published var addCustomTokenViewModel: LegacyAddCustomTokenViewModel? = nil
+    @Published var networkSelectorCoordinator: ManageTokensNetworkSelectorCoordinator? = nil
 
     // MARK: - Init
 
@@ -39,18 +39,10 @@ extension ManageTokensCoordinator {
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
-    func openInfoTokenModule(with coin: CoinModel) {}
-
-    func openEditTokenModule(with coin: CoinModel) {}
-
-    func openAddTokenModule(with coin: CoinModel) {}
-
-    func openAddCustomTokenModule(settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
-        addCustomTokenViewModel = .init(
-            settings: settings,
-            userTokensManager: userTokensManager,
-            coordinator: self
-        )
+    func openTokenSelectorModule(with tokenItems: [TokenItem]) {
+        let coordinator = ManageTokensNetworkSelectorCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(tokenItems: tokenItems))
+        networkSelectorCoordinator = coordinator
     }
 }
 
