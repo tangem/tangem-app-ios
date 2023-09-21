@@ -13,7 +13,7 @@ class SupportedBlockchainsPreferencesViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published var blockchainViewModels: [DefaultToggleRowViewModel] = []
-    @Published private var featureStorage = FeatureStorage()
+    private let featureStorage = FeatureStorage()
 
     init() {
         blockchainViewModels = SupportedBlockchains.testableIDs

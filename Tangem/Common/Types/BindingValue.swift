@@ -85,3 +85,12 @@ extension Binding {
         BindingValue(get: { wrappedValue }, set: { wrappedValue = $0 })
     }
 }
+
+// MARK: - View+
+
+extension View {
+    func connect<V: Equatable>(state: Binding<V>, to binding: BindingValue<V>) -> some View {
+        onChange(of: binding, perform: { state.wrappedValue = $0.value })
+            .onChange(of: state.wrappedValue, perform: { binding.value = $0 })
+    }
+}
