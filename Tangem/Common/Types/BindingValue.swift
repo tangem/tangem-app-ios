@@ -101,7 +101,15 @@ extension Binding {
 
 extension View {
     func connect<V: Equatable>(state: Binding<V>, to binding: BindingValue<V>) -> some View {
-        onChange(of: binding, perform: { state.wrappedValue = $0.value })
-            .onChange(of: state.wrappedValue, perform: { binding.value = $0 })
+        onChange(of: binding.value) { [value = state.wrappedValue] newValue in
+            if value != newValue {
+                state.wrappedValue = newValue
+            }
+        }
+        .onChange(of: state.wrappedValue) { [value = binding.value] newValue in
+            if value != newValue {
+                binding.value = newValue
+            }
+        }
     }
 }
