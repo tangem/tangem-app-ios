@@ -30,20 +30,12 @@ class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Implmentation
 
     func start(with options: ManageTokensCoordinator.Options) {
-        manageTokensViewModel = .init(
-            settings: options.settings,
-            userTokensManager: options.userTokensManager,
-            coordinator: self
-        )
+        manageTokensViewModel = .init(coordinator: self)
     }
 }
 
 extension ManageTokensCoordinator {
-    struct Options {
-        let settings: LegacyManageTokensSettings
-        let userTokensManager: UserTokensManager
-        let tokenQuotesRepository: TokenQuotesRepository
-    }
+    struct Options {}
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
