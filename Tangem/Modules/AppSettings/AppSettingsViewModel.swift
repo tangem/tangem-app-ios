@@ -43,6 +43,12 @@ class AppSettingsViewModel: ObservableObject {
             AppSettings.shared.saveAccessCodes = isSavingAccessCodes
         }
     }
+    
+    @Published private var isHidingSensitiveAvailable: Bool {
+        didSet {
+            AppSettings.shared.isHidingSensitiveAvailable = isHidingSensitiveAvailable
+        }
+    }
 
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
@@ -54,7 +60,8 @@ class AppSettingsViewModel: ObservableObject {
         let isSavingWallet = AppSettings.shared.saveUserWallets
         self.isSavingWallet = isSavingWallet
         isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
-
+        self.isHidingSensitiveAvailable = AppSettings.shared.isHidingSensitiveAvailable
+        
         updateView()
         bind()
     }
@@ -151,10 +158,6 @@ private extension AppSettingsViewModel {
             action: coordinator.openCurrencySelection
         )
 
-        setupSensitiveTextAvailabilityViewModel()
-    }
-
-    func setupSensitiveTextAvailabilityViewModel() {
         sensitiveTextAvailabilityViewModel = DefaultToggleRowViewModel(
             title: "Flip-to-Hide Balances",
             isOn: isSensitiveTextAvailability()
@@ -187,12 +190,10 @@ private extension AppSettingsViewModel {
 
     func isSensitiveTextAvailability() -> BindingValue<Bool> {
         BindingValue<Bool>(
-            get: { AppSettings.shared.isHidingSensitiveAvailable },
-            set: { [weak self] newValue in
-                AppSettings.shared.isHidingSensitiveAvailable = newValue
-                // [REDACTED_TODO_COMMENT]
-//                self?.setupSensitiveTextAvailabilityViewModel()
-            }
+            root: self,
+            default: false,
+            get: { $0.isHidingSensitiveAvailable },
+            set: { $0.isHidingSensitiveAvailable = $1 }
         )
     }
 
