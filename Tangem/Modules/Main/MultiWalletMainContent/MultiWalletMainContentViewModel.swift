@@ -124,52 +124,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         openOrganizeTokens()
     }
 
-    func contextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenActionType] {
-        guard
-            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItemViewModel.id })
-        else {
-            return [.hide]
-        }
-
-        let actionsBuilder = TokenActionListBuilder()
-        let utility = ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
-            address: walletModel.defaultAddress,
-            amountType: walletModel.amountType
-        )
-        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
-
-        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, exchangeUtility: utility)
-    }
-
-    func didTapContextAction(_ action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
-        if case .hide = action {
-            hideTokenAction(for: tokenItemViewModel)
-        }
-
-        guard
-            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItemViewModel.id })
-        else {
-            return
-        }
-
-        switch action {
-        case .buy:
-            openBuy(for: walletModel)
-        case .send:
-            tokenRouter.openSend(walletModel: walletModel)
-        case .receive:
-            tokenRouter.openReceive(walletModel: walletModel)
-        case .sell:
-            openSell(for: walletModel)
-        case .copyAddress:
-            UIPasteboard.general.string = walletModel.defaultAddress
-            delegate?.displayAddressCopiedToast()
-        case .hide, .exchange:
-            return
-        }
-    }
-
     private func setup() {
         updateBackupStatus()
         subscribeToTokenListUpdatesIfNeeded()
@@ -264,7 +218,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         from sectionItem: TokenSectionsAdapter.SectionItem,
         using factory: MultiWalletTokenItemsSectionFactory
     ) -> TokenItemViewModel {
-        return factory.makeSectionItemViewModel(from: sectionItem) { [weak self] walletModelId in
+        return factory.makeSectionItemViewModel(
+            from: sectionItem,
+            contextActionsProvider: self,
+            contextActionsDelegate: self
+        ) { [weak self] walletModelId in
             self?.tokenItemTapped(walletModelId)
         }
     }
@@ -492,5 +450,58 @@ private extension TokenSectionsAdapter.SectionItem {
 private extension TokenSectionsAdapter.Section {
     var walletModels: [WalletModel] {
         return items.compactMap(\.walletModel)
+    }
+}
+
+// MARK: Context actions
+
+extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
+    func buildContextActions(for tokenItem: TokenItemViewModel) -> [TokenActionType] {
+        guard
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+        else {
+            return [.hide]
+        }
+
+        let actionsBuilder = TokenActionListBuilder()
+        let utility = ExchangeCryptoUtility(
+            blockchain: walletModel.blockchainNetwork.blockchain,
+            address: walletModel.defaultAddress,
+            amountType: walletModel.amountType
+        )
+        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
+        let canSend = userWalletModel.config.hasFeature(.send) && walletModel.canSendTransaction
+
+        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, exchangeUtility: utility)
+    }
+}
+
+extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
+    func didTapContextAction(_ action: TokenActionType, for tokenItem: TokenItemViewModel) {
+        if case .hide = action {
+            hideTokenAction(for: tokenItem)
+        }
+
+        guard
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == tokenItem.id })
+        else {
+            return
+        }
+
+        switch action {
+        case .buy:
+            openBuy(for: walletModel)
+        case .send:
+            tokenRouter.openSend(walletModel: walletModel)
+        case .receive:
+            tokenRouter.openReceive(walletModel: walletModel)
+        case .sell:
+            openSell(for: walletModel)
+        case .copyAddress:
+            UIPasteboard.general.string = walletModel.defaultAddress
+            delegate?.displayAddressCopiedToast()
+        case .hide, .exchange:
+            return
+        }
     }
 }
