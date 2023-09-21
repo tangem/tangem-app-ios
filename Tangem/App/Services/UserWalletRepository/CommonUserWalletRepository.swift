@@ -172,6 +172,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
+    func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+        if AppSettings.shared.saveUserWallets {
+            add(completion)
+        } else {
+            discardSensitiveData()
+            resetServices()
+            unlockWithCard(nil, completion: completion)
+        }
+    }
+
     func didScan(card: CardDTO, walletData: DefaultWalletData) {
         let cardId = card.cardId
 
@@ -216,15 +226,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                     let userWallet = cardModel.userWallet
 
                     if !contains(userWallet) {
-                        // It's assumed by new design to replace a current scanned card
-                        if !AppSettings.shared.saveUserWallets {
-                            if let oldUserWalletId = selectedUserWalletId {
-                                discardSensitiveData()
-                                resetServices()
-                                sendEvent(.deleted(userWalletIds: [oldUserWalletId]))
-                            }
-                        }
-
                         save(userWallet)
                         completion(result)
                     } else {
