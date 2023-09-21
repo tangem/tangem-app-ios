@@ -46,6 +46,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
         coordinator: TokenDetailsRoutable,
+//        actionSheetPresenterDelegate: ActionSheetPresenterDelegate,
         tokenRouter: SingleTokenRoutable
     ) {
         self.coordinator = coordinator
@@ -54,9 +55,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
+            actionSheetPresenterDelegate: nil,
             tokenRouter: tokenRouter
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
+        actionSheetPresenterDelegate = self
 
         prepareSelf()
     }
@@ -172,4 +175,10 @@ private extension TokenDetailsViewModel {
 
 extension TokenDetailsViewModel: BalanceProvider {
     var balancePublisher: AnyPublisher<LoadingValue<BalanceInfo>, Never> { $balance.eraseToAnyPublisher() }
+}
+
+extension TokenDetailsViewModel: ActionSheetPresenterDelegate {
+    func present(actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
+    }
 }
