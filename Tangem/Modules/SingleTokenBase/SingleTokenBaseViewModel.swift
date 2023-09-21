@@ -86,7 +86,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         if addresses.count == 1 {
             openAddressExplorer(index: 0)
         } else {
-            openChooseAddress(addresses) { [weak self] index in
+            openAddressSelector(addresses) { [weak self] index in
                 self?.openAddressExplorer(index: index)
             }
         }
@@ -317,7 +317,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
-    func openChooseAddress(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
+    func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
         if addresses.isEmpty {
             return
         }
