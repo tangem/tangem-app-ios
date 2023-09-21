@@ -47,11 +47,11 @@ extension ManageTokensCoordinator {
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
-    func openInfoTokenModule() {}
+    func openInfoTokenModule(with coin: CoinModel) {}
 
-    func openEditTokenModule() {}
+    func openEditTokenModule(with coin: CoinModel) {}
 
-    func openAddTokenModule(with tokenItem: TokenItem) {}
+    func openAddTokenModule(with coin: CoinModel) {}
 
     func openAddCustomTokenModule(settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
         addCustomTokenViewModel = .init(
