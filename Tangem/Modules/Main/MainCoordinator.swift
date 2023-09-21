@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import SwiftUI
 
 class MainCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
