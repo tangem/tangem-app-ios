@@ -27,7 +27,7 @@ struct FeatureStateRowView: View {
                 }
             }
 
-            Picker("", selection: viewModel.state) {
+            Picker("", selection: viewModel.state.asBinding) {
                 ForEach(FeatureState.allCases) {
                     Text($0.name).tag($0)
                 }
@@ -47,7 +47,7 @@ struct FeatureStateRowView_Preview: PreviewProvider {
                 viewModel: FeatureStateRowViewModel(
                     feature: .exchange,
                     enabledByDefault: true,
-                    state: $state
+                    state: $state.asBindingValue
                 )
             )
         }
