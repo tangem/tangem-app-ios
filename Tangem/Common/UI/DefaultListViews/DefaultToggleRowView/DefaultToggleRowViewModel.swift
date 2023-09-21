@@ -8,7 +8,9 @@
 
 import SwiftUI
 
-struct DefaultToggleRowViewModel {
+struct DefaultToggleRowViewModel: Hashable, Identifiable {
+    var id: Int { hashValue }
+
     let title: String
     let isDisabled: Bool
     let isOn: BindingValue<Bool>
@@ -18,20 +20,4 @@ struct DefaultToggleRowViewModel {
         self.isDisabled = isDisabled
         self.isOn = isOn
     }
-}
-
-extension DefaultToggleRowViewModel: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(title)
-        hasher.combine(isDisabled)
-        hasher.combine(isOn)
-    }
-
-    static func == (lhs: DefaultToggleRowViewModel, rhs: DefaultToggleRowViewModel) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
-}
-
-extension DefaultToggleRowViewModel: Identifiable {
-    var id: Int { hashValue }
 }

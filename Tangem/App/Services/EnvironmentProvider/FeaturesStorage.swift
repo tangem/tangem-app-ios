@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: - Provider
 
-struct FeatureStorage {
+class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.testnet)
     var isTestnet: Bool = false
 
