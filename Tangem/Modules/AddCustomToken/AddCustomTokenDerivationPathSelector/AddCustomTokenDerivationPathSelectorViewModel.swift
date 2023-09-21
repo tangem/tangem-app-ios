@@ -45,12 +45,12 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
             [weak self] in
             self?.didTapOption()
         }
-        
+
         let blockchainOptions: [AddCustomTokenDerivationOption] = [.default(derivationPath: defaultDerivationPath)]
-        +
-        blockchainDerivationOptions.sorted(by: \.name)
-        
-        self.blockchainDerivationModels = blockchainOptions.map { option in
+            +
+            blockchainDerivationOptions.sorted(by: \.name)
+
+        blockchainDerivationModels = blockchainOptions.map { option in
             AddCustomTokenDerivationPathSelectorItemViewModel(option: option, isSelected: false) { [weak self] in
                 self?.didTapOption()
             }
