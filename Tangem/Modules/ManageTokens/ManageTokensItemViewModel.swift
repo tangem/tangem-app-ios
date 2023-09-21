@@ -7,8 +7,13 @@
 //
 
 import Foundation
+import Combine
 
 class ManageTokensItemViewModel: Identifiable, ObservableObject {
+    // MARK: - Injected Properties
+
+    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+
     // MARK: - Published
 
     @Published var priceValue: String = ""
@@ -17,12 +22,19 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Properties
 
-    let id: String
-    let imageURL: URL?
-    let name: String
-    let symbol: String
+    var id: String { coin.id }
+    var imageURL: URL? { TokenIconURLBuilder().iconURL(id: coin.id, size: .large) }
+    var name: String { coin.name }
+    var symbol: String { coin.symbol }
+
+    let coin: CoinModel
     let action: Action
-    let didTapAction: (Action, ID) -> Void
+    let didTapAction: (Action, CoinModel) -> Void
+
+    private var bag = Set<AnyCancellable>()
+
+    private var percentFormatter = PercentFormatter()
+    private var balanceFormatter = BalanceFormatter()
 
     // MARK: - Helpers
 
@@ -41,35 +53,41 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     // MARK: - Init
 
     init(
-        id: String = UUID().uuidString,
-        imageURL: URL?,
-        name: String,
-        symbol: String,
+        coinModel: CoinModel,
         priceValue: String = "",
-        priceChangeState: TokenPriceChangeView.State,
+        priceChangeState: TokenPriceChangeView.State = .loading,
         priceHistory: [Double]? = nil,
         action: Action,
-        didTapAction: @escaping (Action, ID) -> Void
+        didTapAction: @escaping (Action, CoinModel) -> Void
     ) {
-        self.id = id
-        self.imageURL = imageURL
-        self.name = name
-        self.symbol = symbol
+        coin = coinModel
         self.priceValue = priceValue
         self.priceChangeState = priceChangeState
-        self.priceHistory = priceHistory
+        self.priceHistory = nil
         self.action = action
         self.didTapAction = didTapAction
     }
-}
 
-extension ManageTokensItemViewModel: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    // MARK: - Public Implementation
+
+    func updateQuote() {
+        guard let quote = tokenQuotesRepository.quote(for: id) else {
+            priceValue = ""
+            priceChangeState = .noData
+            return
+        }
+
+        priceChangeState = getPriceChangeState(by: quote)
+        priceValue = balanceFormatter.formatFiatBalance(quote.price)
     }
 
-    static func == (lhs: ManageTokensItemViewModel, rhs: ManageTokensItemViewModel) -> Bool {
-        lhs.id == rhs.id
+    // MARK: - Private Implementation
+
+    private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
+        let signType = ChangeSignType(from: quote.change)
+
+        let percent = percentFormatter.percentFormat(value: quote.change)
+        return .loaded(signType: signType, text: percent)
     }
 }
 
