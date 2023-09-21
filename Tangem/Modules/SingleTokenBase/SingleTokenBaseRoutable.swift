@@ -20,5 +20,4 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openP2PTutorial()
     func openSwapping(input: CommonSwappingModulesFactory.InputModel)
     func openExplorer(at url: URL, blockchainDisplayName: String)
-    func openChooseAddress(from addresses: [BlockchainSdk.Address], callback: @escaping (BlockchainSdk.Address) -> Void)
 }
