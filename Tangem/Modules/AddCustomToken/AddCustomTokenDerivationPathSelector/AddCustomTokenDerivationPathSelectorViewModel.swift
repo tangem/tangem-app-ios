@@ -15,9 +15,8 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
 
     let selectedDerivationOption: AddCustomTokenDerivationOption
 
-    private(set) var customDerivationModel: AddCustomTokenDerivationPathSelectorItemViewModel!
-    private(set) var blockchainDerivationModels: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
-
+    var customDerivationModel: AddCustomTokenDerivationPathSelectorItemViewModel!
+    var blockchainDerivationModels: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
     let customDerivationOption: AddCustomTokenDerivationOption
     let derivationOptions: [AddCustomTokenDerivationOption]
 
@@ -38,23 +37,26 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         derivationOptions.append(contentsOf: blockchainDerivationOptions.sorted(by: { $0.name < $1.name }))
         self.derivationOptions = derivationOptions
 
-        customDerivationModel = AddCustomTokenDerivationPathSelectorItemViewModel(option: .custom(derivationPath: nil), isSelected: false) {
-            [weak self] in
-            self?.didTapOption()
-        }
+        customDerivationModel = makeModel(option: .custom(derivationPath: nil))
 
         let blockchainOptions: [AddCustomTokenDerivationOption] = [.default(derivationPath: defaultDerivationPath)]
             +
             blockchainDerivationOptions.sorted(by: \.name)
 
         blockchainDerivationModels = blockchainOptions.map { option in
-            AddCustomTokenDerivationPathSelectorItemViewModel(option: option, isSelected: false) { [weak self] in
-                self?.didTapOption()
-            }
+            makeModel(option: option)
         }
     }
 
-    func didTapOption() {
-        print("TAP")
+    func makeModel(option: AddCustomTokenDerivationOption) -> AddCustomTokenDerivationPathSelectorItemViewModel {
+        AddCustomTokenDerivationPathSelectorItemViewModel(option: option, isSelected: false) {
+            [weak self] in
+            self?.didTapOption(option)
+        }
+    }
+
+    func didTapOption(_ derivationOption: AddCustomTokenDerivationOption) {
+        print("TAP", derivationOption)
+        delegate?.didSelectOption(derivationOption)
     }
 }
