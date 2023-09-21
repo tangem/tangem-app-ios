@@ -65,7 +65,7 @@ struct ManageTokensItemView: View {
     private func manageButton(for action: ManageTokensItemViewModel.Action, with id: String) -> some View {
         ZStack {
             Button {
-                viewModel.didTapAction(action, id)
+                viewModel.didTapAction(action, viewModel.coin)
             } label: {
                 switch action {
                 case .add:
@@ -119,9 +119,12 @@ struct CurrencyViewNew_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png")!,
-                name: "Bitcoin",
-                symbol: "BTC",
+                coinModel: CoinModel(
+                    id: "",
+                    name: "Bitcoin",
+                    symbol: "BTC",
+                    items: []
+                ),
                 priceValue: "$23,034.83",
                 priceChangeState: .loaded(signType: .positive, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13],
@@ -130,9 +133,12 @@ struct CurrencyViewNew_Previews: PreviewProvider {
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png")!,
-                name: "Ethereum",
-                symbol: "ETH",
+                coinModel: CoinModel(
+                    id: "",
+                    name: "Ethereum",
+                    symbol: "ETH",
+                    items: []
+                ),
                 priceValue: "$1,340.33",
                 priceChangeState: .loaded(signType: .negative, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13].reversed(),
@@ -141,9 +147,12 @@ struct CurrencyViewNew_Previews: PreviewProvider {
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png")!,
-                name: "Solana",
-                symbol: "SOL",
+                coinModel: CoinModel(
+                    id: "",
+                    name: "Solana",
+                    symbol: "SOL",
+                    items: []
+                ),
                 priceValue: "$33.00",
                 priceChangeState: .loaded(signType: .positive, text: "1.3%"),
                 priceHistory: [1, 7, 3, 5, 13],
@@ -152,9 +161,12 @@ struct CurrencyViewNew_Previews: PreviewProvider {
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png")!,
-                name: "Polygon",
-                symbol: "MATIC",
+                coinModel: CoinModel(
+                    id: "",
+                    name: "Polygon",
+                    symbol: "MATIC",
+                    items: []
+                ),
                 priceValue: "$34.83",
                 priceChangeState: .loaded(signType: .positive, text: "0.0%"),
                 priceHistory: [4, 7, 3, 5, 4],
@@ -163,9 +175,12 @@ struct CurrencyViewNew_Previews: PreviewProvider {
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
-                imageURL: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/acalaevm/info/logo.png")!,
-                name: "Very long token name is very long",
-                symbol: "BUS",
+                coinModel: CoinModel(
+                    id: "",
+                    name: "Very long token name is very long",
+                    symbol: "BUS",
+                    items: []
+                ),
                 priceValue: "$23,341,324,034.83",
                 priceChangeState: .loaded(signType: .positive, text: "1,444,340,340.0%"),
                 priceHistory: [1, 7, 3, 5, 13],
@@ -174,9 +189,12 @@ struct CurrencyViewNew_Previews: PreviewProvider {
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
-                imageURL: nil,
-                name: "Custom Token",
-                symbol: "CT",
+                coinModel: CoinModel(
+                    id: "",
+                    name: "Custom Token",
+                    symbol: "CT",
+                    items: []
+                ),
                 priceValue: "$100.83",
                 priceChangeState: .loaded(signType: .positive, text: "1.0%"),
                 priceHistory: nil,
