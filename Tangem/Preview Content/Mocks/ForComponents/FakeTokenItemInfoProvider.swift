@@ -31,7 +31,9 @@ class FakeTokenItemInfoProvider: ObservableObject {
                 tokenIcon: makeTokenIconInfo(for: walletModel),
                 isTestnetToken: walletModel.blockchainNetwork.blockchain.isTestnet,
                 infoProvider: DefaultTokenItemInfoProvider(walletModel: walletModel),
-                tokenTapped: modelTapped(with:)
+                tokenTapped: modelTapped(with:),
+                contextActionsProvider: self,
+                contextActionsDelegate: self
             )
         }
     }
@@ -53,7 +55,16 @@ class FakeTokenItemInfoProvider: ObservableObject {
         return TokenIconInfoBuilder()
             .build(
                 for: walletModel.tokenItem.amountType,
-                in: walletModel.blockchainNetwork.blockchain
+                in: walletModel.blockchainNetwork.blockchain,
+                isCustom: walletModel.isCustom
             )
     }
+}
+
+extension FakeTokenItemInfoProvider: TokenItemContextActionsProvider, TokenItemContextActionDelegate {
+    func buildContextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenActionType] {
+        [.copyAddress, .hide]
+    }
+
+    func didTapContextAction(_ action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {}
 }
