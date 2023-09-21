@@ -205,18 +205,4 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             withCloseButton: true
         )
     }
-
-    func openChooseAddress(from addresses: [BlockchainSdk.Address], callback: @escaping (BlockchainSdk.Address) -> Void) {
-        let addressButtons: [Alert.Button] = addresses.map { address in
-            .default(Text(address.localizedName)) {
-                callback(address)
-            }
-        }
-
-        let sheet = ActionSheet(
-            title: Text(Localization.tokenDetailsChooseAddress),
-            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
-        )
-        tokenDetailsViewModel?.actionSheet = ActionSheetBinder(sheet: sheet)
-    }
 }
