@@ -14,46 +14,32 @@ final class ManageTokensViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
-
     @Published var isLoading: Bool = true
     @Published var alert: AlertBinder?
     @Published var showToast: Bool = false
 
     // MARK: - Properties
 
-    var shouldShowAlert: Bool {
-        settings.shouldShowLegacyDerivationAlert
-    }
-
     var hasNextPage: Bool {
         loader.canFetchMore
     }
 
     private lazy var loader = setupListDataLoader()
-    private var coinList: [CoinModel] = []
 
     private var bag = Set<AnyCancellable>()
 
     private unowned let coordinator: ManageTokensRoutable
 
-    private let settings: LegacyManageTokensSettings
-    private let userTokensManager: UserTokensManager
-
     private var percentFormatter = PercentFormatter()
     private var balanceFormatter = BalanceFormatter()
 
-    init(
-        settings: LegacyManageTokensSettings,
-        userTokensManager: UserTokensManager,
-        coordinator: ManageTokensRoutable
-    ) {
-        self.settings = settings
-        self.userTokensManager = userTokensManager
+    init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
 
         bind()
@@ -76,15 +62,6 @@ final class ManageTokensViewModel: ObservableObject {
 
     func fetch() {
         loader.fetch(enteredSearchText.value)
-    }
-}
-
-// MARK: - Navigation
-
-extension ManageTokensViewModel {
-    func openAddCustom() {
-        Analytics.log(.buttonCustomToken)
-        coordinator.openAddCustomTokenModule(settings: settings, userTokensManager: userTokensManager)
     }
 }
 
@@ -112,18 +89,13 @@ private extension ManageTokensViewModel {
             .store(in: &bag)
     }
 
-    func showAddButton(_ tokenItem: TokenItem) -> Bool {
-        return true
-    }
-
     func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = settings.supportedBlockchains
+        let supportedBlockchains = Set(userWalletRepository.models.map { $0.config.supportedBlockchains }.joined())
         let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
             .map { [weak self] items -> [ManageTokensItemViewModel] in
-                self?.coinList = items
-                return items.compactMap { self?.mapToTokenViewModel(coinModel: $0) }
+                items.compactMap { self?.mapToTokenViewModel(coinModel: $0) }
             }
             .receive(on: DispatchQueue.main)
             .assign(to: \.tokenViewModels, on: self, ownership: .weak)
@@ -153,42 +125,34 @@ private extension ManageTokensViewModel {
 
     // [REDACTED_TODO_COMMENT]
     private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        if coinModel.items.contains(where: { tokenItem in
-            userTokensManager.contains(tokenItem, derivationPath: nil)
-        }) {
-            return .edit
-        } else {
-            return .add
-        }
+        let userWalletModels = userWalletRepository.models
+
+        let isAlreadyExistToken = userWalletModels.contains(where: { userWalletModel in
+            coinModel.items.contains(where: { tokenItem in
+                userWalletModel.userTokensManager.contains(tokenItem, derivationPath: nil)
+
+            })
+        })
+
+        return isAlreadyExistToken ? .edit : .add
     }
 
     private func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel {
-        let cachePriceChangeValue = getCachePriceWithChangeState(by: coinModel.id)
-
-        return ManageTokensItemViewModel(
-            id: coinModel.id,
-            imageURL: TokenIconURLBuilder().iconURL(id: coinModel.id, size: .large),
-            name: coinModel.name,
-            symbol: coinModel.symbol,
-            priceValue: balanceFormatter.formatFiatBalance(cachePriceChangeValue.0),
-            priceChangeState: cachePriceChangeValue.1,
+        ManageTokensItemViewModel(
+            coinModel: coinModel,
             action: actionType(for: coinModel),
             didTapAction: handle(action:with:)
         )
     }
 
-    private func handle(action: ManageTokensItemViewModel.Action, with id: ManageTokensItemViewModel.ID) {
-        guard let coin = coinList.first(where: { $0.id == id }) else {
-            return
-        }
-
+    private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
         switch action {
         case .info:
-            coordinator.openInfoTokenModule(with: coin)
+            coordinator.openInfoTokenModule(with: coinModel)
         case .add:
-            coordinator.openAddTokenModule(with: coin)
+            coordinator.openAddTokenModule(with: coinModel)
         case .edit:
-            coordinator.openEditTokenModule(with: coin)
+            coordinator.openEditTokenModule(with: coinModel)
         }
     }
 
@@ -196,33 +160,11 @@ private extension ManageTokensViewModel {
         tokenQuotesRepository
             .loadQuotes(coinIds: items.filter { $0.priceChangeState == .loading }.map { $0.id })
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { quotes in
-                print(quotes.count)
-
-                quotes.forEach { [weak self] quote in
-                    guard let self = self, let itemViewModel = items.first(where: { $0.id == quote.currencyId }) else { return }
-                    itemViewModel.priceChangeState = getPriceChangeState(by: quote)
-                    itemViewModel.priceValue = balanceFormatter.formatFiatBalance(quote.price)
+            .receiveCompletion { _ in
+                items.forEach {
+                    $0.updateQuote()
                 }
-            })
+            }
             .store(in: &bag)
-    }
-
-    private func getCachePriceWithChangeState(by currencyId: String) -> (Decimal?, TokenPriceChangeView.State) {
-        guard let quote = tokenQuotesRepository.quote(for: currencyId) else {
-            return (nil, .loading)
-        }
-
-        let signType = ChangeSignType(from: quote.change)
-        let percent = percentFormatter.percentFormat(value: quote.change)
-
-        return (quote.price, .loaded(signType: signType, text: percent))
-    }
-
-    private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
-        let signType = ChangeSignType(from: quote.change)
-
-        let percent = percentFormatter.percentFormat(value: quote.change)
-        return .loaded(signType: signType, text: percent)
     }
 }
