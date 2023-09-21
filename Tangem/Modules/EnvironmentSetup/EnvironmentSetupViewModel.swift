@@ -26,7 +26,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    @Published private var featureStorage = FeatureStorage()
+    private let featureStorage = FeatureStorage()
     private unowned let coordinator: EnvironmentSetupRoutable
     private var bag: Set<AnyCancellable> = []
 
