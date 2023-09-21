@@ -46,7 +46,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
         coordinator: TokenDetailsRoutable,
-//        actionSheetPresenterDelegate: ActionSheetPresenterDelegate,
         tokenRouter: SingleTokenRoutable
     ) {
         self.coordinator = coordinator
