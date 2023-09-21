@@ -12,10 +12,9 @@ import Combine
 class WalletSelectorViewModel: ObservableObject {
     var itemViewModels: [WalletSelectorItemViewModel] = []
 
-    private unowned let coordinator: WalletSelectorRoutable
+    weak var delegate: WalletSelectorDelegate?
 
-    init(userWallets: [UserWallet], currentUserWalletId: Data, coordinator: WalletSelectorRoutable) {
-        self.coordinator = coordinator
+    init(userWallets: [UserWallet], currentUserWalletId: Data) {
         itemViewModels = userWallets.map { userWallet in
             WalletSelectorItemViewModel(
                 userWallet: userWallet,
@@ -32,6 +31,6 @@ class WalletSelectorViewModel: ObservableObject {
             itemViewModel.isSelected = userWallet.userWalletId == itemViewModel.userWallet.userWalletId
         }
 
-        coordinator.didSelectWallet(with: userWallet.userWalletId)
+        delegate?.didSelectWallet(with: userWallet.userWalletId)
     }
 }
