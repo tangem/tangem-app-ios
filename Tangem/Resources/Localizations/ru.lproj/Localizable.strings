@@ -155,11 +155,13 @@
 "details_manage_security_passcode" = "Пароль";
 "details_manage_security_passcode_description" = "Перед выполнением любой команды, влекущей за собой изменение состояния карты, вам необходимо будет ввести пароль.";
 "details_referral_title" = "Реферальная программа";
+"details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ хэшей";
 "details_row_title_cid" = "Номер карты";
 "details_row_title_create_backup" = "Добавить еще карты";
 "details_row_title_create_backup_footer" = "Вы можете объединить до трех карт в одном кошельке. Это можно сделать только один раз.";
 "details_row_title_currency" = "Валюта приложения";
+"details_row_title_flip_to_hide" = "Flip-to-Hide Balances";
 "details_row_title_issuer" = "Эмитент";
 "details_row_title_send_feedback" = "Отправить отзыв";
 "details_row_title_signed_hashes" = "Подписано";
