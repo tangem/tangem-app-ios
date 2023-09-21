@@ -14,6 +14,7 @@ import TangemSwapping
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
+    @Published var actionSheet: ActionSheetBinder?
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
