@@ -20,8 +20,7 @@ struct TokenActionListBuilder {
 
     func buildTokenContextActions(
         canExchange: Bool,
-        exchangeUtility: ExchangeCryptoUtility,
-        canHide: Bool
+        exchangeUtility: ExchangeCryptoUtility
     ) -> [TokenActionType] {
         let canBuy = exchangeUtility.buyAvailable
         let canSell = exchangeUtility.sellAvailable
@@ -37,9 +36,7 @@ struct TokenActionListBuilder {
             }
         }
 
-        if canHide {
-            availableActions.append(.hide)
-        }
+        availableActions.append(.hide)
 
         return availableActions
     }
