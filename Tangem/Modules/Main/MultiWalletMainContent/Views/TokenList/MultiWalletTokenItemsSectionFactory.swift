@@ -23,19 +23,32 @@ struct MultiWalletTokenItemsSectionFactory {
 
     func makeSectionItemViewModel(
         from sectionItem: TokenSectionsAdapter.SectionItem,
+        contextActionsProvider: TokenItemContextActionsProvider,
+        contextActionsDelegate: TokenItemContextActionDelegate,
         tapAction: @escaping (WalletModel.ID) -> Void
     ) -> TokenItemViewModel {
         let infoProvider = makeSectionItemInfoProvider(from: sectionItem)
         let iconInfoBuilder = TokenIconInfoBuilder()
         let tokenItem = infoProvider.tokenItem
-        let tokenIcon = iconInfoBuilder.build(from: tokenItem)
+
+        let isCustom: Bool
+        switch sectionItem {
+        case .default(let walletModel):
+            isCustom = walletModel.isCustom
+        case .withoutDerivation(let userToken):
+            isCustom = userToken.isCustom
+        }
+
+        let tokenIcon = iconInfoBuilder.build(from: tokenItem, isCustom: isCustom)
 
         return TokenItemViewModel(
             id: infoProvider.id,
             tokenIcon: tokenIcon,
             isTestnetToken: tokenItem.blockchain.isTestnet,
             infoProvider: infoProvider,
-            tokenTapped: tapAction
+            tokenTapped: tapAction,
+            contextActionsProvider: contextActionsProvider,
+            contextActionsDelegate: contextActionsDelegate
         )
     }
 
