@@ -13,12 +13,14 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     // MARK: - Injected Properties
 
     @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published
 
     @Published var priceValue: String = ""
     @Published var priceChangeState: TokenPriceChangeView.State = .noData
     @Published var priceHistory: [Double]? = nil
+    @Published var action: Action
 
     // MARK: - Properties
 
@@ -28,7 +30,6 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     var symbol: String { coin.symbol }
 
     let coin: CoinModel
-    let action: Action
     let didTapAction: (Action, CoinModel) -> Void
 
     private var bag = Set<AnyCancellable>()
@@ -66,22 +67,24 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         self.priceHistory = nil
         self.action = action
         self.didTapAction = didTapAction
-    }
 
-    // MARK: - Public Implementation
-
-    func updateQuote() {
-        guard let quote = tokenQuotesRepository.quote(for: id) else {
-            priceValue = ""
-            priceChangeState = .noData
-            return
-        }
-
-        priceChangeState = getPriceChangeState(by: quote)
-        priceValue = balanceFormatter.formatFiatBalance(quote.price)
+        bind()
     }
 
     // MARK: - Private Implementation
+
+    private func bind() {
+        tokenQuotesRepository.pricesPublisher.sink { [weak self] itemQuote in
+            guard let self = self, let quote = itemQuote[coin.id] else { return }
+            update(quote: quote)
+        }
+        .store(in: &bag)
+    }
+
+    private func update(quote: TokenQuote) {
+        priceChangeState = getPriceChangeState(by: quote)
+        priceValue = balanceFormatter.formatFiatBalance(quote.price)
+    }
 
     private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
         let signType = ChangeSignType(from: quote.change)
