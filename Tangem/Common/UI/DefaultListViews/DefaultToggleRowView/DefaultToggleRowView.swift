@@ -25,7 +25,7 @@ struct DefaultToggleRowView: View {
 
             Spacer()
 
-            Toggle("", isOn: viewModel.$isOn)
+            Toggle("", isOn: viewModel.isOn.asBinding)
                 .labelsHidden()
                 .toggleStyleCompat(Colors.Control.checked)
                 .disabled(viewModel.isDisabled)
