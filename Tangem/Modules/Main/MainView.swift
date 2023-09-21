@@ -61,25 +61,16 @@ struct MainView: View {
                 }
             }
         })
-        .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
-//        .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
-//            ActionSheet(
-//                title: Text(Localization.userWalletListDeletePrompt),
-//                buttons: [
-//                    .destructive(Text(Localization.commonDelete), action: viewModel.didConfirmWalletDeletion),
-//                    .cancel(Text(Localization.commonCancel)),
-//                ]
-//            )
-//        }
-//        .bottomSheet(
-//            item: $viewModel.unlockWalletBottomSheetViewModel,
-//            settings: .init(backgroundColor: Colors.Background.primary)
-//        ) { model in
-//            UnlockUserWalletBottomSheetView(viewModel: model)
-//        }
-//        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
-//            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
-//        })
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
+        .bottomSheet(
+            item: $viewModel.unlockWalletBottomSheetViewModel,
+            settings: .init(backgroundColor: Colors.Background.primary)
+        ) { model in
+            UnlockUserWalletBottomSheetView(viewModel: model)
+        }
+        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
+            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
+        })
     }
 
     var detailsNavigationButton: some View {
