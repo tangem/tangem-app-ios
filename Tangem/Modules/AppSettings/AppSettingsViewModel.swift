@@ -31,13 +31,13 @@ class AppSettingsViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var isBiometryAvailable: Bool = true
 
-    @Published private var isSavingWallet: Bool {
+    private var isSavingWallet: Bool {
         didSet {
             AppSettings.shared.saveUserWallets = isSavingWallet
         }
     }
 
-    @Published private var isSavingAccessCodes: Bool {
+    private var isSavingAccessCodes: Bool {
         didSet {
             AppSettings.shared.saveAccessCodes = isSavingAccessCodes
         }
