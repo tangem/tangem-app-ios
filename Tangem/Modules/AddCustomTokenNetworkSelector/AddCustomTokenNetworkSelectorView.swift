@@ -27,7 +27,7 @@ struct AddCustomTokenNetworkSelectorView: View {
             .padding(.horizontal, 16)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
-        .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
+        .navigationBarTitle(Text(Localization.customTokenNetworkSelectorTitle), displayMode: .inline)
     }
 }
 
