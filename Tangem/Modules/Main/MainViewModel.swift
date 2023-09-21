@@ -44,6 +44,7 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
+            actionSheetPresenterDelegate: self,
             multiWalletContentDelegate: self
         )
         bind()
@@ -158,6 +159,7 @@ final class MainViewModel: ObservableObject {
             let newPage = mainUserWalletPageBuilderFactory.createPage(
                 for: userWalletModel,
                 lockedUserWalletDelegate: self,
+                actionSheetPresenterDelegate: self,
                 multiWalletContentDelegate: self
             )
         else {
@@ -179,6 +181,7 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
+            actionSheetPresenterDelegate: self,
             multiWalletContentDelegate: self
         )
     }
@@ -249,7 +252,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
         guard
             let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }),
-            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self, multiWalletContentDelegate: self)
+            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self, actionSheetPresenterDelegate: self, multiWalletContentDelegate: self)
         else {
             return
         }
@@ -269,5 +272,11 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
 extension MainViewModel: MultiWalletContentDelegate {
     func displayAddressCopiedToast() {
         showAddressCopiedToast = true
+    }
+}
+
+extension MainViewModel: ActionSheetPresenterDelegate {
+    func present(actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
