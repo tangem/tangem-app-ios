@@ -19,29 +19,33 @@ struct AddCustomTokenDerivationPathSelectorView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
-                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: viewModel.customDerivationOption, isSelected: true, didTapOption: {}))
-                    .background(Colors.Background.action)
-                    .cornerRadiusContinuous(14)
-                    .padding(.horizontal, 16)
+                section(for: [viewModel.customDerivationModel])
 
-                VStack(spacing: 0) {
-                    ForEach(viewModel.derivationOptions, id: \.id) { derivationOption in
-
-                        AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: derivationOption, isSelected: false, didTapOption: {}))
-
-//                        if viewModel.derivationOptions.last != derivationOption {
-                        Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
-                            .padding(.leading, 16)
-//                        }
-                    }
-                }
-                .background(Colors.Background.action)
-                .cornerRadiusContinuous(14)
-                .padding(.horizontal, 16)
-                // [REDACTED_TODO_COMMENT]
+                section(for: viewModel.blockchainDerivationModels)
             }
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
+        .navigationBarTitle(Text(Localization.customTokenDerivationPath), displayMode: .inline)
+    }
+
+    @ViewBuilder
+    private func section(for derivationOptions: [AddCustomTokenDerivationPathSelectorItemViewModel]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(derivationOptions, id: \.id) { derivationOption in
+//                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: derivationOption, isSelected: false, didTapOption: {
+//                    viewModel.didTapOption(derivationOptions)
+//                }))
+                AddCustomTokenDerivationPathSelectorItemView(viewModel: derivationOption)
+
+                if derivationOptions.last?.id != derivationOption.id {
+                    Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
+                        .padding(.leading, 16)
+                }
+            }
+        }
+        .background(Colors.Background.action)
+        .cornerRadiusContinuous(14)
+        .padding(.horizontal, 16)
     }
 }
 
