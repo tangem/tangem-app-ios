@@ -69,7 +69,7 @@ struct AppSettingsView: View {
         GroupedSection(viewModel.sensitiveTextAvailabilityViewModel) {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
-            DefaultFooterView("Flip your device screen down to quickly hide and show balances")
+            DefaultFooterView(Localization.detailsRowDescriptionFlipToHide)
         }
     }
 }
