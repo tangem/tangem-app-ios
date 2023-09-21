@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 
 class SingleTokenRoutableMock: SingleTokenRoutable {
     var errorAlertPublisher: AnyPublisher<AlertBinder?, Never> { .just(output: nil) }
