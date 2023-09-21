@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 import BlockchainSdk
 
 class TokenDetailsCoordinator: CoordinatorObject {
