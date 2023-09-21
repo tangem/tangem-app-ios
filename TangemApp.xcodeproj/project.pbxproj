@@ -538,14 +538,11 @@
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
 		DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
-		DA1C135D2ABC67A300BC9BC4 /* WalletSelectorCoordinatorOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C13552ABC67A300BC9BC4 /* WalletSelectorCoordinatorOutput.swift */; };
 		DA1C135E2ABC67A300BC9BC4 /* WalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C13562ABC67A300BC9BC4 /* WalletSelectorViewModel.swift */; };
-		DA1C135F2ABC67A300BC9BC4 /* WalletSelectorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C13572ABC67A300BC9BC4 /* WalletSelectorCoordinator.swift */; };
 		DA1C13602ABC67A300BC9BC4 /* WalletSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C13582ABC67A300BC9BC4 /* WalletSelectorItemViewModel.swift */; };
 		DA1C13612ABC67A300BC9BC4 /* WalletSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C13592ABC67A300BC9BC4 /* WalletSelectorItemView.swift */; };
 		DA1C13622ABC67A300BC9BC4 /* WalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C135A2ABC67A300BC9BC4 /* WalletSelectorView.swift */; };
-		DA1C13632ABC67A300BC9BC4 /* WalletSelectorCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C135B2ABC67A300BC9BC4 /* WalletSelectorCoordinatorView.swift */; };
-		DA1C13642ABC67A300BC9BC4 /* WalletSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C135C2ABC67A300BC9BC4 /* WalletSelectorRoutable.swift */; };
+		DA1C13642ABC67A300BC9BC4 /* WalletSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C135C2ABC67A300BC9BC4 /* WalletSelectorDelegate.swift */; };
 		DA23787A27B24222009795A8 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786B27B24221009795A8 /* Address.swift */; };
 		DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786C27B24221009795A8 /* ProductVariant.swift */; };
 		DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786D27B24221009795A8 /* ShopifyService.swift */; };
@@ -1742,14 +1739,11 @@
 		DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellViewModel.swift; sourceTree = "<group>"; };
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
-		DA1C13552ABC67A300BC9BC4 /* WalletSelectorCoordinatorOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorCoordinatorOutput.swift; sourceTree = "<group>"; };
 		DA1C13562ABC67A300BC9BC4 /* WalletSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorViewModel.swift; sourceTree = "<group>"; };
-		DA1C13572ABC67A300BC9BC4 /* WalletSelectorCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorCoordinator.swift; sourceTree = "<group>"; };
 		DA1C13582ABC67A300BC9BC4 /* WalletSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorItemViewModel.swift; sourceTree = "<group>"; };
 		DA1C13592ABC67A300BC9BC4 /* WalletSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorItemView.swift; sourceTree = "<group>"; };
 		DA1C135A2ABC67A300BC9BC4 /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
-		DA1C135B2ABC67A300BC9BC4 /* WalletSelectorCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorCoordinatorView.swift; sourceTree = "<group>"; };
-		DA1C135C2ABC67A300BC9BC4 /* WalletSelectorRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorRoutable.swift; sourceTree = "<group>"; };
+		DA1C135C2ABC67A300BC9BC4 /* WalletSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDelegate.swift; sourceTree = "<group>"; };
 		DA23786B27B24221009795A8 /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		DA23786C27B24221009795A8 /* ProductVariant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductVariant.swift; sourceTree = "<group>"; };
 		DA23786D27B24221009795A8 /* ShopifyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyService.swift; sourceTree = "<group>"; };
@@ -4252,14 +4246,11 @@
 		DA1C13542ABC67A300BC9BC4 /* WalletSelector */ = {
 			isa = PBXGroup;
 			children = (
-				DA1C13552ABC67A300BC9BC4 /* WalletSelectorCoordinatorOutput.swift */,
-				DA1C13562ABC67A300BC9BC4 /* WalletSelectorViewModel.swift */,
-				DA1C13572ABC67A300BC9BC4 /* WalletSelectorCoordinator.swift */,
-				DA1C13582ABC67A300BC9BC4 /* WalletSelectorItemViewModel.swift */,
-				DA1C13592ABC67A300BC9BC4 /* WalletSelectorItemView.swift */,
 				DA1C135A2ABC67A300BC9BC4 /* WalletSelectorView.swift */,
-				DA1C135B2ABC67A300BC9BC4 /* WalletSelectorCoordinatorView.swift */,
-				DA1C135C2ABC67A300BC9BC4 /* WalletSelectorRoutable.swift */,
+				DA1C13562ABC67A300BC9BC4 /* WalletSelectorViewModel.swift */,
+				DA1C13592ABC67A300BC9BC4 /* WalletSelectorItemView.swift */,
+				DA1C13582ABC67A300BC9BC4 /* WalletSelectorItemViewModel.swift */,
+				DA1C135C2ABC67A300BC9BC4 /* WalletSelectorDelegate.swift */,
 			);
 			path = WalletSelector;
 			sourceTree = "<group>";
@@ -6679,7 +6670,6 @@
 				B0C4F78126F0CCF70086D815 /* OnboardingStep.swift in Sources */,
 				B05DD9652A9F12A700B24ED9 /* TokenNotificationEvent.swift in Sources */,
 				DCBC944D2993FE380050BC35 /* Analytics+ParameterKey.swift in Sources */,
-				DA1C135F2ABC67A300BC9BC4 /* WalletSelectorCoordinator.swift in Sources */,
 				DC7254922A050C200003FE1B /* NoteOnboardingStepsBuilder.swift in Sources */,
 				B65D3FCB2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift in Sources */,
 				EFF253B4293DCAAA00AEF302 /* SwappingFeeRowView.swift in Sources */,
@@ -6829,7 +6819,7 @@
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B0C5BF502A31B050005AE2BD /* ActionButtonsProvider.swift in Sources */,
 				B05D063229DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift in Sources */,
-				DA1C13642ABC67A300BC9BC4 /* WalletSelectorRoutable.swift in Sources */,
+				DA1C13642ABC67A300BC9BC4 /* WalletSelectorDelegate.swift in Sources */,
 				DC7127AD2897ECA100F60F71 /* TwinConfig.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
 				EF46624029250F6000346B6C /* ReceiveCurrencyView.swift in Sources */,
@@ -6847,7 +6837,6 @@
 				DCBC94532993FEC80050BC35 /* Analytics+CardScanSource.swift in Sources */,
 				652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */,
 				EFF034B128B6523F00F70FF7 /* CommonWalletModelsManager.swift in Sources */,
-				DA1C13632ABC67A300BC9BC4 /* WalletSelectorCoordinatorView.swift in Sources */,
 				B02B74B429879F2A006473F2 /* WalletConnectV2HandlersService.swift in Sources */,
 				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
@@ -6925,7 +6914,6 @@
 				B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */,
 				B6A373082A45CF2B0076A11C /* UserTokenListUpdateType.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationUtil.swift in Sources */,
-				DA1C135D2ABC67A300BC9BC4 /* WalletSelectorCoordinatorOutput.swift in Sources */,
 				EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */,
 				EF4662222924DEEE00346B6C /* DefaultToggleRowView.swift in Sources */,
 				EF46621B2924DEEE00346B6C /* DefaultHeaderView.swift in Sources */,
