@@ -1,5 +1,5 @@
 //
-//  WalletSelectorRoutable.swift
+//  WalletSelectorDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol WalletSelectorRoutable: AnyObject {
+protocol WalletSelectorDelegate: AnyObject {
     func didSelectWallet(with userWalletId: Data)
 }
