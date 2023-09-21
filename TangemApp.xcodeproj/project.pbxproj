@@ -538,6 +538,7 @@
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
 		DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
+		DA1C13532ABC545700BC9BC4 /* ActionSheetPresenterDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C13522ABC545700BC9BC4 /* ActionSheetPresenterDelegate.swift */; };
 		DA23787A27B24222009795A8 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786B27B24221009795A8 /* Address.swift */; };
 		DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786C27B24221009795A8 /* ProductVariant.swift */; };
 		DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786D27B24221009795A8 /* ShopifyService.swift */; };
@@ -1733,6 +1734,7 @@
 		DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellViewModel.swift; sourceTree = "<group>"; };
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
+		DA1C13522ABC545700BC9BC4 /* ActionSheetPresenterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetPresenterDelegate.swift; sourceTree = "<group>"; };
 		DA23786B27B24221009795A8 /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		DA23786C27B24221009795A8 /* ProductVariant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductVariant.swift; sourceTree = "<group>"; };
 		DA23786D27B24221009795A8 /* ShopifyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyService.swift; sourceTree = "<group>"; };
@@ -3209,6 +3211,7 @@
 			children = (
 				B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */,
 				B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */,
+				DA1C13522ABC545700BC9BC4 /* ActionSheetPresenterDelegate.swift */,
 			);
 			path = SingleTokenBase;
 			sourceTree = "<group>";
@@ -7238,6 +7241,7 @@
 				DC37A07A2A584C1400C2A3F2 /* CardDerivableProvider.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
 				B0F318FB2A739418009F131E /* WalletPublicKeyDerivationStubs.swift in Sources */,
+				DA1C13532ABC545700BC9BC4 /* ActionSheetPresenterDelegate.swift in Sources */,
 				65B4DEE02885334F001524CF /* View+LegacyBottomSheet.swift in Sources */,
 				DC66BBF8285A211F00CDF765 /* LegacyMainRoutable.swift in Sources */,
 				B0B335D229FA89EE00E2082E /* BalanceFormatter.swift in Sources */,
