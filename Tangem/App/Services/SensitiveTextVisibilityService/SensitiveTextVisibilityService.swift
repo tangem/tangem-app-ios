@@ -16,14 +16,24 @@ class SensitiveTextVisibilityService: ObservableObject {
     @Published private(set) var isHidden: Bool
     private var previousDeviceOrientation: UIDeviceOrientation?
     private var orientationDidChangeBag: AnyCancellable?
+    private var serviceAvailableListenerBag: AnyCancellable?
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
         bind()
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     }
 
     deinit {
+        UIDevice.current.endGeneratingDeviceOrientationNotifications()
+    }
+
+    func turnOn() {
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+    }
+
+    func turnOff() {
+        isHidden = false
+        AppSettings.shared.isHidingSensitiveInformation = false
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
     }
 
@@ -42,6 +52,12 @@ private extension SensitiveTextVisibilityService {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.orientationDidChange()
+            }
+
+        serviceAvailableListenerBag = AppSettings.shared.$isHidingSensitiveAvailable
+            .withWeakCaptureOf(self)
+            .sink { obj, isAvailable in
+                isAvailable ? obj.turnOn() : obj.turnOff()
             }
     }
 
