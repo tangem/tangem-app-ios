@@ -636,11 +636,9 @@
 		DAE0F05A2A404CCC006074FF /* AwardToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE0F0592A404CCC006074FF /* AwardToken.swift */; };
 		DAE6F76D2800011400411F45 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6F76C2800011400411F45 /* AppError.swift */; };
 		DAF1EB9B2A9F83EF00467490 /* KingfisherImageProcessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF1EB9A2A9F83EF00467490 /* KingfisherImageProcessors.swift */; };
-		DAF3E6492AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6442AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinator.swift */; };
-		DAF3E64A2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6452AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift */; };
 		DAF3E64B2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6462AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorView.swift */; };
 		DAF3E64C2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6472AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorViewModel.swift */; };
-		DAF3E64D2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6482AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorRoutable.swift */; };
+		DAF3E64D2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6482AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorDelegate.swift */; };
 		DAF3E64F2AB9D83B0050ADBF /* AddCustomTokenDerivationOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E64E2AB9D83B0050ADBF /* AddCustomTokenDerivationOption.swift */; };
 		DAF3E6512AB9DB0F0050ADBF /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6502AB9DB0F0050ADBF /* AddCustomTokenDerivationPathSelectorItemView.swift */; };
 		DAF3E6532AB9DB160050ADBF /* AddCustomTokenDerivationPathSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF3E6522AB9DB160050ADBF /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */; };
@@ -1845,11 +1843,9 @@
 		DAE0F0592A404CCC006074FF /* AwardToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AwardToken.swift; sourceTree = "<group>"; };
 		DAE6F76C2800011400411F45 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		DAF1EB9A2A9F83EF00467490 /* KingfisherImageProcessors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherImageProcessors.swift; sourceTree = "<group>"; };
-		DAF3E6442AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorCoordinator.swift; sourceTree = "<group>"; };
-		DAF3E6452AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorCoordinatorView.swift; sourceTree = "<group>"; };
 		DAF3E6462AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorView.swift; sourceTree = "<group>"; };
 		DAF3E6472AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorViewModel.swift; sourceTree = "<group>"; };
-		DAF3E6482AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorRoutable.swift; sourceTree = "<group>"; };
+		DAF3E6482AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorDelegate.swift; sourceTree = "<group>"; };
 		DAF3E64E2AB9D83B0050ADBF /* AddCustomTokenDerivationOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationOption.swift; sourceTree = "<group>"; };
 		DAF3E6502AB9DB0F0050ADBF /* AddCustomTokenDerivationPathSelectorItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorItemView.swift; sourceTree = "<group>"; };
 		DAF3E6522AB9DB160050ADBF /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorItemViewModel.swift; sourceTree = "<group>"; };
@@ -4471,11 +4467,9 @@
 		DAF3E6432AB9D4D00050ADBF /* AddCustomTokenDerivationPathSelector */ = {
 			isa = PBXGroup;
 			children = (
-				DAF3E6442AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinator.swift */,
-				DAF3E6452AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift */,
 				DAF3E6462AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorView.swift */,
 				DAF3E6472AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorViewModel.swift */,
-				DAF3E6482AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorRoutable.swift */,
+				DAF3E6482AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorDelegate.swift */,
 				DAF3E64E2AB9D83B0050ADBF /* AddCustomTokenDerivationOption.swift */,
 				DAF3E6502AB9DB0F0050ADBF /* AddCustomTokenDerivationPathSelectorItemView.swift */,
 				DAF3E6522AB9DB160050ADBF /* AddCustomTokenDerivationPathSelectorItemViewModel.swift */,
@@ -6906,7 +6900,6 @@
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
 				B018F2FD2591FE8600D8F89A /* AppWarning.swift in Sources */,
 				B04CD33C29122C5C001EA84A /* ReferralView.swift in Sources */,
-				DAF3E6492AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinator.swift in Sources */,
 				B0FB4EF72A8511A40057F4C2 /* UserTokenListStubs.swift in Sources */,
 				B04126ED29CC31C700A8BB43 /* OnboardingSeedPhraseUserValidationView.swift in Sources */,
 				DC0A57F72822BE300031BECC /* CardImageLoaderProtocol.swift in Sources */,
@@ -7124,7 +7117,7 @@
 				EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */,
 				DC295B402861C27D006CB7B6 /* LegacyTokenDetailsCoordinator.swift in Sources */,
 				B004C40E298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift in Sources */,
-				DAF3E64D2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorRoutable.swift in Sources */,
+				DAF3E64D2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorDelegate.swift in Sources */,
 				EF0DC11D2A0CE29E007E3DA7 /* SwappingApproveRoutable.swift in Sources */,
 				B6A8DAA52A4C96C4004CB1E7 /* ObjectDescription.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
@@ -7278,7 +7271,6 @@
 				DC4665A929895BA100EF97A5 /* WalletConnectURLParser.swift in Sources */,
 				DC66BBEF2859B6C700CDF765 /* ShopCoordinatorView.swift in Sources */,
 				B091D7482AA0DBA000ACB6E2 /* AppUtils.swift in Sources */,
-				DAF3E64A2AB9D4EA0050ADBF /* AddCustomTokenDerivationPathSelectorCoordinatorView.swift in Sources */,
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
