@@ -26,7 +26,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let featureStorage = FeatureStorage()
+    @Published private var featureStorage = FeatureStorage()
     private unowned let coordinator: EnvironmentSetupRoutable
     private var bag: Set<AnyCancellable> = []
 
@@ -40,29 +40,29 @@ final class EnvironmentSetupViewModel: ObservableObject {
         appSettingsTogglesViewModels = [
             DefaultToggleRowViewModel(
                 title: "Use testnet",
-                isOn: Binding<Bool>(
-                    root: featureStorage,
+                isOn: BindingValue<Bool>(
+                    root: self,
                     default: false,
-                    get: { $0.isTestnet },
-                    set: { $0.isTestnet = $1 }
+                    get: { $0.featureStorage.isTestnet },
+                    set: { $0.featureStorage.isTestnet = $1 }
                 )
             ),
             DefaultToggleRowViewModel(
                 title: "Use dev API",
-                isOn: Binding<Bool>(
-                    root: featureStorage,
+                isOn: BindingValue<Bool>(
+                    root: self,
                     default: false,
-                    get: { $0.useDevApi },
-                    set: { $0.useDevApi = $1 }
+                    get: { $0.featureStorage.useDevApi },
+                    set: { $0.featureStorage.useDevApi = $1 }
                 )
             ),
             DefaultToggleRowViewModel(
                 title: "Use fake tx history",
-                isOn: Binding<Bool>(
-                    root: featureStorage,
+                isOn: BindingValue<Bool>(
+                    root: self,
                     default: false,
-                    get: { $0.useFakeTxHistory },
-                    set: { $0.useFakeTxHistory = $1 }
+                    get: { $0.featureStorage.useFakeTxHistory },
+                    set: { $0.featureStorage.useFakeTxHistory = $1 }
                 )
             ),
         ]
@@ -71,16 +71,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
             FeatureStateRowViewModel(
                 feature: feature,
                 enabledByDefault: FeatureProvider.isAvailableForReleaseVersion(feature),
-                state: Binding<FeatureState>(
-                    root: featureStorage,
+                state: BindingValue<FeatureState>(
+                    root: self,
                     default: .default,
-                    get: { $0.availableFeatures[feature] ?? .default },
+                    get: { $0.featureStorage.availableFeatures[feature] ?? .default },
                     set: { obj, state in
                         switch state {
                         case .default:
-                            obj.availableFeatures.removeValue(forKey: feature)
+                            obj.featureStorage.availableFeatures.removeValue(forKey: feature)
                         case .on, .off:
-                            obj.availableFeatures[feature] = state
+                            obj.featureStorage.availableFeatures[feature] = state
                         }
                     }
                 )
