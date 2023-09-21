@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import BlockchainSdk
 
 class TokenDetailsCoordinator: CoordinatorObject {
@@ -205,5 +206,17 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openChooseAddress(from addresses: [BlockchainSdk.Address], callback: @escaping (BlockchainSdk.Address) -> Void) {}
+    func openChooseAddress(from addresses: [BlockchainSdk.Address], callback: @escaping (BlockchainSdk.Address) -> Void) {
+        let addressButtons: [Alert.Button] = addresses.map { address in
+            .default(Text(address.localizedName)) {
+                callback(address)
+            }
+        }
+
+        let sheet = ActionSheet(
+            title: Text(Localization.tokenDetailsChooseAddress),
+            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
+        )
+        tokenDetailsViewModel?.actionSheet = ActionSheetBinder(sheet: sheet)
+    }
 }
