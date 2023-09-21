@@ -43,7 +43,7 @@ class AppSettingsViewModel: ObservableObject {
             AppSettings.shared.saveAccessCodes = isSavingAccessCodes
         }
     }
-    
+
     @Published private var isHidingSensitiveAvailable: Bool {
         didSet {
             AppSettings.shared.isHidingSensitiveAvailable = isHidingSensitiveAvailable
@@ -60,8 +60,8 @@ class AppSettingsViewModel: ObservableObject {
         let isSavingWallet = AppSettings.shared.saveUserWallets
         self.isSavingWallet = isSavingWallet
         isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
-        self.isHidingSensitiveAvailable = AppSettings.shared.isHidingSensitiveAvailable
-        
+        isHidingSensitiveAvailable = AppSettings.shared.isHidingSensitiveAvailable
+
         updateView()
         bind()
     }
