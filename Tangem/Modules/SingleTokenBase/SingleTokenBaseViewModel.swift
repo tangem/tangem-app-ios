@@ -94,7 +94,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 //        }
 //
 //        openExplorer(at: url)
-        openChooseWallet()
+        openChooseAddress()
     }
 
     func openTransactionExplorer(transaction hash: String) {
@@ -326,7 +326,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
-    func openChooseWallet() {
+    func openChooseAddress() {
         tokenRouter.openChooseAddress(from: walletModel) { a in
             print("ZZZ", a.localizedName, a.value)
         }
