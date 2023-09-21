@@ -21,7 +21,7 @@ struct ManageTokensView: View {
             overlay
         }
         .scrollDismissesKeyboardCompat(true)
-        .navigationBarTitle(Text(viewModel.titleKey), displayMode: .automatic)
+        .navigationBarTitle(Text(Localization.addTokensTitle), displayMode: .automatic)
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
@@ -93,41 +93,23 @@ struct ManageTokensView: View {
     }
 
     @ViewBuilder private var titleView: some View {
-        Text(viewModel.titleKey)
+        Text(Localization.addTokensTitle)
             .font(Font.system(size: 30, weight: .bold, design: .default))
             .minimumScaleFactor(0.8)
     }
 
     @ViewBuilder private var overlay: some View {
+        // [REDACTED_TODO_COMMENT]
         VStack {
             Spacer()
 
-            MainButton(
-                title: Localization.commonSaveChanges,
-                isLoading: viewModel.isSaving,
-                isDisabled: viewModel.isSaveDisabled,
-                action: viewModel.saveChanges
+            GenerateAddressesView(
+                numberOfNetworks: 3,
+                currentWalletNumber: 1,
+                totalWalletNumber: 2,
+                didTapGenerate: {}
             )
-            .padding(.horizontal, 16)
-            .padding(.bottom, 8)
-            .background(LinearGradient(
-                colors: [Colors.Background.primary, Colors.Background.primary, Colors.Background.primary.opacity(0)],
-                startPoint: .bottom,
-                endPoint: .top
-            )
-            .edgesIgnoringSafeArea(.bottom))
+            .padding(.zero)
         }
     }
 }
-
-// struct ManageTokensView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ManageTokensView(
-//            viewModel: ManageTokensViewModel(
-//                settings: <#LegacyManageTokensSettings#>,
-//                userTokensManager: <#UserTokensManager#>,
-//                coordinator: <#LegacyTokenListRoutable#>
-//            )
-//        )
-//    }
-// }
