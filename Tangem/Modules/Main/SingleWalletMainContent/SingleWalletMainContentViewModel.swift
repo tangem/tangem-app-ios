@@ -28,6 +28,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
+        actionSheetPresenterDelegate: ActionSheetPresenterDelegate?,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
@@ -37,6 +38,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: tokenNotificationManager,
+            actionSheetPresenterDelegate: actionSheetPresenterDelegate,
             tokenRouter: tokenRouter
         )
 
