@@ -12,14 +12,7 @@ struct WalletSelectorView: View {
     @ObservedObject var viewModel: WalletSelectorViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            SheetDragHandler()
-                .padding(.bottom, 15)
-
-            Text(Localization.manageTokensWalletSelectorTitle)
-                .style(Fonts.Bold.headline, color: Colors.Text.primary1)
-                .padding(.bottom, 25)
-
+        VStack {
             VStack {
                 ForEach(viewModel.itemViewModels) { itemViewModel in
                     WalletSelectorItemView(viewModel: itemViewModel)
@@ -32,11 +25,12 @@ struct WalletSelectorView: View {
             Spacer()
         }
         .background(Colors.Background.secondary.ignoresSafeArea())
+        .navigationBarTitle(Text(Localization.manageTokensWalletSelectorTitle), displayMode: .inline)
     }
 }
 
 struct WalletSelectorView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletSelectorView(viewModel: WalletSelectorViewModel(userWallets: FakeUserWalletModel.allFakeWalletModels.map { $0.userWallet }, currentUserWalletId: FakeUserWalletModel.allFakeWalletModels.first?.userWallet.userWalletId ?? Data(), coordinator: WalletSelectorCoordinator()))
+        WalletSelectorView(viewModel: WalletSelectorViewModel(userWallets: FakeUserWalletModel.allFakeWalletModels.map { $0.userWallet }, currentUserWalletId: FakeUserWalletModel.allFakeWalletModels.first?.userWallet.userWalletId ?? Data()))
     }
 }
