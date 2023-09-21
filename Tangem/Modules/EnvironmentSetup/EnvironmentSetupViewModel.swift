@@ -41,28 +41,28 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultToggleRowViewModel(
                 title: "Use testnet",
                 isOn: BindingValue<Bool>(
-                    root: self,
+                    root: featureStorage,
                     default: false,
-                    get: { $0.featureStorage.isTestnet },
-                    set: { $0.featureStorage.isTestnet = $1 }
+                    get: { $0.isTestnet },
+                    set: { $0.isTestnet = $1 }
                 )
             ),
             DefaultToggleRowViewModel(
                 title: "Use dev API",
                 isOn: BindingValue<Bool>(
-                    root: self,
+                    root: featureStorage,
                     default: false,
-                    get: { $0.featureStorage.useDevApi },
-                    set: { $0.featureStorage.useDevApi = $1 }
+                    get: { $0.useDevApi },
+                    set: { $0.useDevApi = $1 }
                 )
             ),
             DefaultToggleRowViewModel(
                 title: "Use fake tx history",
                 isOn: BindingValue<Bool>(
-                    root: self,
+                    root: featureStorage,
                     default: false,
-                    get: { $0.featureStorage.useFakeTxHistory },
-                    set: { $0.featureStorage.useFakeTxHistory = $1 }
+                    get: { $0.useFakeTxHistory },
+                    set: { $0.useFakeTxHistory = $1 }
                 )
             ),
         ]
@@ -72,15 +72,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 feature: feature,
                 enabledByDefault: FeatureProvider.isAvailableForReleaseVersion(feature),
                 state: BindingValue<FeatureState>(
-                    root: self,
+                    root: featureStorage,
                     default: .default,
-                    get: { $0.featureStorage.availableFeatures[feature] ?? .default },
+                    get: { $0.availableFeatures[feature] ?? .default },
                     set: { obj, state in
                         switch state {
                         case .default:
-                            obj.featureStorage.availableFeatures.removeValue(forKey: feature)
+                            obj.availableFeatures.removeValue(forKey: feature)
                         case .on, .off:
-                            obj.featureStorage.availableFeatures[feature] = state
+                            obj.availableFeatures[feature] = state
                         }
                     }
                 )
