@@ -60,41 +60,36 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
 
+    weak var actionSheetPresenterDelegate: ActionSheetPresenterDelegate?
+
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
+        actionSheetPresenterDelegate: ActionSheetPresenterDelegate?,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
         self.exchangeUtility = exchangeUtility
         self.notificationManager = notificationManager
+        self.actionSheetPresenterDelegate = actionSheetPresenterDelegate
         self.tokenRouter = tokenRouter
 
         prepareSelf()
     }
 
     func openExplorer() {
-//        let sheet = ActionSheet(
-//            title: Text(Localization.cardSettingsActionSheetTitle),
-//            buttons: [
-//                .destructive(Text(Localization.cardSettingsActionSheetReset)) { [weak self] in
-        ////                    self?.resetCardToFactory()
-//                },
-//                .cancel(Text(Localization.commonCancel)),
-//            ]
-//        )
+        let addresses = walletModel.wallet.addresses
 
-//        actionSheet = ActionSheetBinder(sheet: sheet)
-
-//        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
-//            return
-//        }
-//
-//        openExplorer(at: url)
-        openChooseAddress()
+        if addresses.count == 1 {
+            openAddressExplorer(index: 0)
+        } else {
+            openChooseAddress(addresses) { [weak self] index in
+                self?.openAddressExplorer(index: index)
+            }
+        }
     }
 
     func openTransactionExplorer(transaction hash: String) {
@@ -322,14 +317,34 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
+    func openChooseAddress(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
+        if addresses.isEmpty {
+            return
+        }
+
+        let addressButtons: [Alert.Button] = addresses.enumerated().map { index, address in
+            .default(Text(address.localizedName)) {
+                callback(index)
+            }
+        }
+
+        let sheet = ActionSheet(
+            title: Text(Localization.tokenDetailsChooseAddress),
+            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
+        )
+        actionSheetPresenterDelegate?.present(actionSheet: ActionSheetBinder(sheet: sheet))
+    }
+
     func openExplorer(at url: URL) {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
-    func openChooseAddress() {
-        tokenRouter.openChooseAddress(from: walletModel) { a in
-            print("ZZZ", a.localizedName, a.value)
+    func openAddressExplorer(index: Int) {
+        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
+            return
         }
+
+        openExplorer(at: url)
     }
 }
 
