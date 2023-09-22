@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 class AddCustomTokenDerivationPathSelectorItemViewModel: ObservableObject {
     var id: String {
@@ -24,11 +25,22 @@ class AddCustomTokenDerivationPathSelectorItemViewModel: ObservableObject {
     @Published var isSelected: Bool
 
     let didTapOption: () -> Void
-    private var option: AddCustomTokenDerivationOption
+    private(set) var option: AddCustomTokenDerivationOption
 
     init(option: AddCustomTokenDerivationOption, isSelected: Bool, didTapOption: @escaping () -> Void) {
         self.isSelected = isSelected
         self.option = option
         self.didTapOption = didTapOption
+    }
+
+    func setCustomDerivationPath(_ enteredText: String) {
+        do {
+            let derivationPath = try DerivationPath(rawPath: enteredText)
+            option = .custom(derivationPath: derivationPath)
+            objectWillChange.send()
+        } catch {
+            AppLog.shared.error(error)
+            assertionFailure("You should validate entered derivation path")
+        }
     }
 }
