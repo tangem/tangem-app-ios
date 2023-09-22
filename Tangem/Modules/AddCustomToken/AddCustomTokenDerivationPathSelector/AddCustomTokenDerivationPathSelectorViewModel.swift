@@ -13,50 +13,53 @@ import TangemSdk
 final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
     // MARK: - ViewState
 
-    let selectedDerivationOption: AddCustomTokenDerivationOption
-
-    var customDerivationModel: AddCustomTokenDerivationPathSelectorItemViewModel!
-    var blockchainDerivationModels: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
-    let customDerivationOption: AddCustomTokenDerivationOption
-    let derivationOptions: [AddCustomTokenDerivationOption]
+    @Published var customDerivationModel: AddCustomTokenDerivationPathSelectorItemViewModel!
+    @Published var blockchainDerivationModels: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
 
     // MARK: - Dependencies
 
     weak var delegate: AddCustomTokenDerivationPathSelectorDelegate?
+
+    private var allItemViewModels: [AddCustomTokenDerivationPathSelectorItemViewModel] {
+        var result: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
+        if let customDerivationModel {
+            result.append(customDerivationModel)
+        }
+        result.append(contentsOf: blockchainDerivationModels)
+        return result
+    }
 
     init(
         selectedDerivationOption: AddCustomTokenDerivationOption,
         defaultDerivationPath: DerivationPath,
         blockchainDerivationOptions: [AddCustomTokenDerivationOption]
     ) {
-        self.selectedDerivationOption = selectedDerivationOption
-        customDerivationOption = .custom(derivationPath: nil)
+        customDerivationModel = makeModel(option: .custom(derivationPath: nil), selectedDerivationOption: selectedDerivationOption)
 
-        var derivationOptions: [AddCustomTokenDerivationOption] = []
-        derivationOptions.append(.default(derivationPath: defaultDerivationPath))
-        derivationOptions.append(contentsOf: blockchainDerivationOptions.sorted(by: { $0.name < $1.name }))
-        self.derivationOptions = derivationOptions
-
-        customDerivationModel = makeModel(option: .custom(derivationPath: nil))
-
-        let blockchainOptions: [AddCustomTokenDerivationOption] = [.default(derivationPath: defaultDerivationPath)]
-            +
-            blockchainDerivationOptions.sorted(by: \.name)
-
+        let blockchainOptions = [.default(derivationPath: defaultDerivationPath)] + blockchainDerivationOptions.sorted(by: \.name)
         blockchainDerivationModels = blockchainOptions.map { option in
-            makeModel(option: option)
+            makeModel(option: option, selectedDerivationOption: selectedDerivationOption)
         }
     }
 
-    func makeModel(option: AddCustomTokenDerivationOption) -> AddCustomTokenDerivationPathSelectorItemViewModel {
-        AddCustomTokenDerivationPathSelectorItemViewModel(option: option, isSelected: false) {
-            [weak self] in
+    func makeModel(option: AddCustomTokenDerivationOption, selectedDerivationOption: AddCustomTokenDerivationOption) -> AddCustomTokenDerivationPathSelectorItemViewModel {
+        AddCustomTokenDerivationPathSelectorItemViewModel(
+            option: option,
+            isSelected: option.id == selectedDerivationOption.id
+        ) { [weak self] in
             self?.didTapOption(option)
         }
     }
 
     func didTapOption(_ derivationOption: AddCustomTokenDerivationOption) {
-        print("TAP", derivationOption)
+        selectOption(derivationOption)
+    }
+
+    private func selectOption(_ derivationOption: AddCustomTokenDerivationOption) {
+        for model in allItemViewModels {
+            model.isSelected = (model.id == derivationOption.id)
+        }
+
         delegate?.didSelectOption(derivationOption)
     }
 }
