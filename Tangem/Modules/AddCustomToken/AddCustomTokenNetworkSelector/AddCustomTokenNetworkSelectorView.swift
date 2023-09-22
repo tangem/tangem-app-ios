@@ -32,7 +32,12 @@ struct AddCustomTokenNetworkSelectorView: View {
 }
 
 struct AddCustomTokenNetworkSelectorView_Preview: PreviewProvider {
-    static let viewModel = AddCustomTokenNetworkSelectorViewModel(selectedBlockchain: .ethereum(testnet: true), blockchains: SupportedBlockchains.all.filter(\.isTestnet))
+    static let blockchains: Array = SupportedBlockchains.all.filter(\.isTestnet)
+
+    static let viewModel = AddCustomTokenNetworkSelectorViewModel(
+        selectedBlockchainNetworkId: blockchains.first!.networkId,
+        blockchains: blockchains
+    )
 
     static var previews: some View {
         AddCustomTokenNetworkSelectorView(viewModel: viewModel)
