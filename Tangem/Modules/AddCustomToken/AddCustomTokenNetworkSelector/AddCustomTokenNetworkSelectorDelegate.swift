@@ -6,8 +6,8 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
+import Foundation
 
 protocol AddCustomTokenNetworkSelectorDelegate: AnyObject {
-    func didSelectNetwork(blockchain: Blockchain)
+    func didSelectNetwork(networkId: String)
 }
