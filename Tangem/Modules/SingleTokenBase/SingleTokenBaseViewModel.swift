@@ -70,7 +70,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
 
-    var isKnownToken: Bool {
+    var isMarketPriceAvailable: Bool {
         if case .token(let token) = amountType {
             return token.id != nil
         } else {
