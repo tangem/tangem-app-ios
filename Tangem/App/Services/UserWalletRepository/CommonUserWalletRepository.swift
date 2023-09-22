@@ -172,6 +172,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
+    func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+        if AppSettings.shared.saveUserWallets {
+            add(completion)
+        } else {
+            discardSensitiveData()
+            resetServices()
+            unlockWithCard(nil, completion: completion)
+        }
+    }
+
     func didScan(card: CardDTO, walletData: DefaultWalletData) {
         let cardId = card.cardId
 
