@@ -71,8 +71,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     var isKnownToken: Bool {
-        if case .token(let value) = amountType {
-            return value.id != nil
+        if case .token(let token) = amountType {
+            return token.id != nil
         } else {
             return true
         }
