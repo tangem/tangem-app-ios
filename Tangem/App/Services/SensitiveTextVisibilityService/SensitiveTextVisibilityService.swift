@@ -15,8 +15,7 @@ class SensitiveTextVisibilityService: ObservableObject {
 
     @Published private(set) var isHidden: Bool
     private var previousDeviceOrientation: UIDeviceOrientation?
-    private var orientationDidChangeBag: AnyCancellable?
-    private var serviceAvailableListenerBag: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
@@ -46,19 +45,20 @@ class SensitiveTextVisibilityService: ObservableObject {
 
 private extension SensitiveTextVisibilityService {
     func bind() {
-        orientationDidChangeBag = NotificationCenter
+        NotificationCenter
             .default
             .publisher(for: UIDevice.orientationDidChangeNotification)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.orientationDidChange()
             }
+            .store(in: &bag)
 
-        serviceAvailableListenerBag = AppSettings.shared.$isHidingSensitiveAvailable
-            .withWeakCaptureOf(self)
-            .sink { obj, isAvailable in
-                isAvailable ? obj.turnOn() : obj.turnOff()
+        AppSettings.shared.$isHidingSensitiveAvailable
+            .sink { [weak self] isAvailable in
+                isAvailable ? self?.turnOn() : self?.turnOff()
             }
+            .store(in: &bag)
     }
 
     func orientationDidChange() {
