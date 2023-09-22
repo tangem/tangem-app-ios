@@ -97,10 +97,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         let addresses = walletModel.wallet.addresses
 
         if addresses.count == 1 {
-            openAddressExplorer(index: 0)
+            openAddressExplorer(at: 0)
         } else {
             openAddressSelector(addresses) { [weak self] index in
-                self?.openAddressExplorer(index: index)
+                self?.openAddressExplorer(at: index)
             }
         }
     }
@@ -159,6 +159,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         default:
             break
         }
+    }
+
+    private func openAddressExplorer(at index: Int) {
+        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
+            return
+        }
+
+        openExplorer(at: url)
     }
 }
 
@@ -350,14 +358,6 @@ extension SingleTokenBaseViewModel {
 
     func openExplorer(at url: URL) {
         tokenRouter.openExplorer(at: url, for: walletModel)
-    }
-
-    func openAddressExplorer(index: Int) {
-        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
-            return
-        }
-
-        openExplorer(at: url)
     }
 }
 
