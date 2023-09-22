@@ -34,7 +34,13 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         defaultDerivationPath: DerivationPath,
         blockchainDerivationOptions: [AddCustomTokenDerivationOption]
     ) {
-        customDerivationModel = makeModel(option: .custom(derivationPath: nil), selectedDerivationOption: selectedDerivationOption)
+        let customDerivationOption: AddCustomTokenDerivationOption
+        if case .custom = selectedDerivationOption {
+            customDerivationOption = selectedDerivationOption
+        } else {
+            customDerivationOption = .custom(derivationPath: nil)
+        }
+        customDerivationModel = makeModel(option: customDerivationOption, selectedDerivationOption: selectedDerivationOption)
 
         let blockchainOptions = [.default(derivationPath: defaultDerivationPath)] + blockchainDerivationOptions.sorted(by: \.name)
         blockchainDerivationModels = blockchainOptions.map { option in
@@ -47,12 +53,32 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
             option: option,
             isSelected: option.id == selectedDerivationOption.id
         ) { [weak self] in
-            self?.didTapOption(option)
+            self?.didTapOption(with: option.id)
         }
     }
 
-    func didTapOption(_ derivationOption: AddCustomTokenDerivationOption) {
-        selectOption(derivationOption)
+    private func didTapOption(with id: String) {
+        guard let derivationOption = allItemViewModels.first(where: { $0.id == id })?.option else { return }
+
+        guard case .custom(let derivationPath) = derivationOption else {
+            selectOption(derivationOption)
+            return
+        }
+
+        let currentCustomDerivationPath = derivationPath?.rawPath ?? ""
+
+        let alert = AlertBuilder.makeAlertControllerWithTextField(
+            title: Localization.customTokenCustomDerivationTitle,
+            fieldPlaceholder: Localization.customTokenCustomDerivationPlaceholder,
+            fieldText: currentCustomDerivationPath
+        ) { [weak self] enteredDerivationPath in
+            guard let self else { return }
+
+            customDerivationModel.setCustomDerivationPath(enteredDerivationPath)
+            selectOption(customDerivationModel.option)
+        }
+
+        AppPresenter.shared.show(alert)
     }
 
     private func selectOption(_ derivationOption: AddCustomTokenDerivationOption) {
