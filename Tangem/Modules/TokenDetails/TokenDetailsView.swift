@@ -43,7 +43,7 @@ struct TokenDetailsView: View {
                         .transition(.scaleOpacity)
                 }
 
-                if viewModel.isKnownToken {
+                if viewModel.isMarketPriceAvailable {
                     MarketPriceView(
                         currencySymbol: viewModel.currencySymbol,
                         price: viewModel.rateFormatted,
