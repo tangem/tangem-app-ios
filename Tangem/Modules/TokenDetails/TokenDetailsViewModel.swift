@@ -146,12 +146,12 @@ private extension TokenDetailsViewModel {
         switch walletModelState {
         case .created, .loading:
             balance = .loading
-        case .idle:
+        case .idle, .noAccount:
             balance = .loaded(.init(
                 balance: walletModel.balance,
                 fiatBalance: walletModel.fiatBalance
             ))
-        case .noAccount(let message), .failed(let message):
+        case .failed(let message):
             balance = .failedToLoad(error: message)
         case .noDerivation:
             // User can't reach this screen without derived keys
