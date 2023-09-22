@@ -124,7 +124,7 @@ enum AlertBuilder {
         }
     }
 
-    static func makeAlertControllerWithTextField(title: String, fieldPlaceholder: String, fieldText: String, action: @escaping (String) -> Void) -> UIAlertController {
+    static func makeAlertControllerWithTextField(title: String, fieldPlaceholder: String, fieldText: String, validator: TextDelegate? = nil, action: @escaping (String) -> Void) -> UIAlertController {
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
         alert.addAction(cancelAction)
@@ -136,6 +136,7 @@ enum AlertBuilder {
             nameTextField?.text = fieldText
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
+            nameTextField?.delegate = validator
         }
 
         let acceptButton = UIAlertAction(title: Localization.commonOk, style: .default) { [nameTextField] _ in
@@ -143,7 +144,37 @@ enum AlertBuilder {
         }
         alert.addAction(acceptButton)
 
+        validator?.setAcceptButton(acceptButton)
+
         return alert
+    }
+
+    class TextDelegate: NSObject, UITextFieldDelegate {
+        let validation: (String) -> Bool
+        init(validation: @escaping (String) -> Bool) {
+            self.validation = validation
+        }
+        var acceptButton: UIAlertAction?
+        func setAcceptButton(_ acceptButton: UIAlertAction) {
+            self.acceptButton = acceptButton
+        }
+
+        func textFieldDidChangeSelection(_ textField: UITextField) {
+            let text = textField.text ?? ""
+
+            let isValid = validation(text)
+
+            print(textField.textColor)
+            let textColor: UIColor?
+            if isValid {
+                textColor = nil
+            } else {
+                textColor = UIColor(named: "TextWarning")
+            }
+            textField.textColor = textColor
+
+            acceptButton?.isEnabled = isValid
+        }
     }
 
     static func makeAlert(title: String, message: String, with buttons: Buttons) -> AlertBinder {
