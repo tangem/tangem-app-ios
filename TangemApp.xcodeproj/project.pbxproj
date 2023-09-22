@@ -560,6 +560,7 @@
 		DA23789227B250F6009795A8 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23789127B250F6009795A8 /* ShopView.swift */; };
 		DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA28D57C290AAE2000F0C335 /* ScrollView+.swift */; };
 		DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */; };
+		DA40551E2ABDAD3000353F8A /* ActionSheetPresenterDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA40551D2ABDAD3000353F8A /* ActionSheetPresenterDelegate.swift */; };
 		DA43719D2A7D1937006215CA /* LegacyCoinItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */; };
 		DA43719E2A7D1937006215CA /* LegacyCoinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718F2A7D1937006215CA /* LegacyCoinView.swift */; };
 		DA43719F2A7D1937006215CA /* LegacyTokenListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */; };
@@ -1761,6 +1762,7 @@
 		DA23789127B250F6009795A8 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		DA28D57C290AAE2000F0C335 /* ScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+.swift"; sourceTree = "<group>"; };
 		DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderProgressView.swift; sourceTree = "<group>"; };
+		DA40551D2ABDAD3000353F8A /* ActionSheetPresenterDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionSheetPresenterDelegate.swift; sourceTree = "<group>"; };
 		DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinItemViewModel.swift; sourceTree = "<group>"; };
 		DA43718F2A7D1937006215CA /* LegacyCoinView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinView.swift; sourceTree = "<group>"; };
 		DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyTokenListCoordinator.swift; sourceTree = "<group>"; };
@@ -3221,6 +3223,7 @@
 			children = (
 				B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */,
 				B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */,
+				DA40551D2ABDAD3000353F8A /* ActionSheetPresenterDelegate.swift */,
 			);
 			path = SingleTokenBase;
 			sourceTree = "<group>";
@@ -6738,6 +6741,7 @@
 				B68907852A32482F00A0D246 /* ForEach+.swift in Sources */,
 				B6ED082C2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift in Sources */,
 				EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */,
+				DA40551E2ABDAD3000353F8A /* ActionSheetPresenterDelegate.swift in Sources */,
 				B0B09BCF295B54FB001D6BA4 /* WalletConnectSessionsStorage.swift in Sources */,
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
 				DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */,
