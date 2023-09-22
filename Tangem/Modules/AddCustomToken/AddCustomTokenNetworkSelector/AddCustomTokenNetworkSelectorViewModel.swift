@@ -19,14 +19,14 @@ final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
 
     weak var delegate: AddCustomTokenNetworkSelectorDelegate?
 
-    init(selectedBlockchain: Blockchain, blockchains: [Blockchain]) {
+    init(selectedBlockchainNetworkId: String, blockchains: [Blockchain]) {
         itemViewModels = blockchains.map { blockchain in
             AddCustomTokenNetworkSelectorItemViewModel(
                 networkId: blockchain.networkId,
                 iconName: blockchain.iconNameFilled,
                 networkName: blockchain.displayName,
                 currencySymbol: blockchain.currencySymbol,
-                isSelected: blockchain == selectedBlockchain
+                isSelected: blockchain.networkId == selectedBlockchainNetworkId
             ) { [weak self] in
                 self?.didTapNetwork(blockchain)
             }
@@ -38,6 +38,6 @@ final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
             itemViewModel.isSelected = (blockchain.networkId == itemViewModel.networkId)
         }
 
-        delegate?.didSelectNetwork(blockchain: blockchain)
+        delegate?.didSelectNetwork(networkId: blockchain.networkId)
     }
 }
