@@ -29,15 +29,12 @@ struct AddCustomTokenDerivationPathSelectorView: View {
     }
 
     @ViewBuilder
-    private func section(for derivationOptions: [AddCustomTokenDerivationPathSelectorItemViewModel]) -> some View {
+    private func section(for viewModels: [AddCustomTokenDerivationPathSelectorItemViewModel]) -> some View {
         VStack(spacing: 0) {
-            ForEach(derivationOptions, id: \.id) { derivationOption in
-//                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: derivationOption, isSelected: false, didTapOption: {
-//                    viewModel.didTapOption(derivationOptions)
-//                }))
-                AddCustomTokenDerivationPathSelectorItemView(viewModel: derivationOption)
+            ForEach(viewModels, id: \.id) { viewModel in
+                AddCustomTokenDerivationPathSelectorItemView(viewModel: viewModel)
 
-                if derivationOptions.last?.id != derivationOption.id {
+                if viewModels.last?.id != viewModel.id {
                     Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
                         .padding(.leading, 16)
                 }
