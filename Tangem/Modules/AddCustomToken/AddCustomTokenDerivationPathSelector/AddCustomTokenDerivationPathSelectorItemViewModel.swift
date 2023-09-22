@@ -9,6 +9,10 @@
 import Foundation
 
 class AddCustomTokenDerivationPathSelectorItemViewModel: ObservableObject {
+    var id: String {
+        option.id
+    }
+
     var name: String {
         option.name
     }
