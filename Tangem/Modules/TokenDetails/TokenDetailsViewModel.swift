@@ -148,9 +148,8 @@ private extension TokenDetailsViewModel {
             balance = .loading
         case .idle:
             balance = .loaded(.init(
-                balance: walletModel.getDecimalBalance(for: amountType) ?? 0,
-                currencyId: walletModel.tokenItem.currencyId,
-                currencyCode: currencySymbol
+                balance: walletModel.balance,
+                fiatBalance: walletModel.fiatBalance
             ))
         case .noAccount(let message), .failed(let message):
             balance = .failedToLoad(error: message)
