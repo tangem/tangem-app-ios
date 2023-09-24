@@ -2372,6 +2372,7 @@
 		2D2D631B2ABC9A4B008C5399 /* ManageTokensNetworkSelector */ = {
 			isa = PBXGroup;
 			children = (
+				DA1C13542ABC67A300BC9BC4 /* WalletSelector */,
 				DAD98A762AB2E3240051CFBE /* ManageTokensNetworkSelectorItemViewModel.swift */,
 				DAD98A772AB2E3240051CFBE /* ManageTokensNetworkSelectorItemView.swift */,
 				2D2D631C2ABCB337008C5399 /* ManageTokensNetworkSelectorCoordinator.swift */,
@@ -4955,7 +4956,6 @@
 				5D384B9224FD51B200C2C92C /* Details */,
 				2D2D631B2ABC9A4B008C5399 /* ManageTokensNetworkSelector */,
 				DAD98A752AB2E3240051CFBE /* ManageTokens */,
-				DA1C13542ABC67A300BC9BC4 /* WalletSelector */,
 				DA207C212AB89F89005CC5E3 /* AddCustomToken */,
 				DA43718D2A7D1937006215CA /* LegacyTokenList */,
 				5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */,
