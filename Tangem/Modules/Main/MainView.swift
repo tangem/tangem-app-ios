@@ -19,12 +19,14 @@ struct MainView: View {
             headerFactory: { info in
                 info.header
                     .contextMenu {
-                        Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
+                        if !info.isLockedWallet {
+                            Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
 
-                        if #available(iOS 15, *) {
-                            Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
-                        } else {
-                            Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            if #available(iOS 15, *) {
+                                Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            } else {
+                                Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            }
                         }
                     }
             },
@@ -52,9 +54,13 @@ struct MainView: View {
 
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 0) {
+                    if #unavailable(iOS 15) {
+                        // Offset didn't work for iOS 14 if there are no other view in toolbar
+                        Spacer()
+                            .frame(width: 10)
+                    }
                     detailsNavigationButton
                 }
-                .offset(x: 10)
             }
         })
         .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
@@ -80,6 +86,7 @@ struct MainView: View {
     var detailsNavigationButton: some View {
         Button(action: viewModel.openDetails) {
             NavbarDotsImage()
+                .offset(x: 10)
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
