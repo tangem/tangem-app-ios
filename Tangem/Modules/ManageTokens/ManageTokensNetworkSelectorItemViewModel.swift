@@ -11,10 +11,8 @@ import SwiftUI
 import Combine
 
 final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableObject {
-    var iconName: String {
-        selectedPublisher ? _iconNameSelected : _iconName
-    }
-
+    var id: Int
+    var iconName: String { selectedPublisher ? _iconNameSelected : _iconName }
     var isSelected: Binding<Bool>
 
     let networkName: String
@@ -27,7 +25,16 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
     private let _iconNameSelected: String
     private var bag = Set<AnyCancellable>()
 
-    init(isMain: Bool, iconName: String, iconNameSelected: String, networkName: String, tokenTypeName: String?, isSelected: Binding<Bool>) {
+    init(
+        id: Int,
+        isMain: Bool,
+        iconName: String,
+        iconNameSelected: String,
+        networkName: String,
+        tokenTypeName: String?,
+        isSelected: Binding<Bool>
+    ) {
+        self.id = id
         self.isMain = isMain
         _iconName = iconName
         _iconNameSelected = iconNameSelected
@@ -44,6 +51,8 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
             }
             .store(in: &bag)
     }
+
+    // MARK: - Implementation
 
     func updateSelection(with isSelected: Binding<Bool>) {
         self.isSelected = isSelected
