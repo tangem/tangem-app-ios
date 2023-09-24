@@ -11,15 +11,14 @@ import SwiftUI
 struct TokenItemView: View {
     @ObservedObject var viewModel: TokenItemViewModel
 
-    @State private var totalWidth: CGFloat = .zero
-
     var body: some View {
         HStack(alignment: .center, spacing: 0.0) {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
                 blockchainIconName: viewModel.blockchainIconName,
-                hasMonochromeIcon: viewModel.hasMonochromeIcon
+                hasMonochromeIcon: viewModel.hasMonochromeIcon,
+                isCustom: viewModel.isCustom
             )
 
             // Fixed size spacer
@@ -43,16 +42,46 @@ struct TokenItemView: View {
                     balanceFiat: viewModel.balanceFiat,
                     priceChangeState: viewModel.priceChangeState
                 )
-                .frame(maxWidth: totalWidth * 0.3, alignment: .trailing)
                 .fixedSize(horizontal: true, vertical: false)
             }
         }
         .padding(14.0)
-        .readGeometry(\.size.width, bindTo: $totalWidth)
-        // We need this background for correctly handling tap gesture
-        // and because long tap gesture not correctly drawing cell
-        .background(Colors.Background.primary.cornerRadiusContinuous(13))
+        .background(Colors.Background.primary)
         .onTapGesture(perform: viewModel.tapAction)
+        .highlightable(color: Colors.Button.primary.opacity(0.03))
+        // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
+        .previewContentShape(cornerRadius: Constants.cornerRadius)
+        .contextMenu {
+            ForEach(viewModel.contextActions, id: \.self) { menuAction in
+                contextMenuButton(for: menuAction)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func contextMenuButton(for actionType: TokenActionType) -> some View {
+        let action = { viewModel.didTapContextAction(actionType) }
+        if #available(iOS 15, *), actionType.isDestructive {
+            Button(
+                role: .destructive,
+                action: action,
+                label: {
+                    labelForContextButton(with: actionType)
+                }
+            )
+        } else {
+            Button(action: action, label: {
+                labelForContextButton(with: actionType)
+            })
+        }
+    }
+
+    private func labelForContextButton(with action: TokenActionType) -> some View {
+        HStack {
+            Text(action.title)
+            action.icon.image
+                .renderingMode(.template)
+        }
     }
 }
 
@@ -61,6 +90,7 @@ struct TokenItemView: View {
 private extension TokenItemView {
     enum Constants {
         static let spacerLength = 12.0
+        static let cornerRadius = 14.0
     }
 }
 
