@@ -43,6 +43,13 @@ struct TokenDetailsView: View {
                         .transition(.scaleOpacity)
                 }
 
+                MarketPriceView(
+                    currencySymbol: viewModel.currencySymbol,
+                    price: viewModel.rateFormatted,
+                    priceChangeState: viewModel.priceChangeState,
+                    tapAction: nil
+                )
+
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
@@ -89,7 +96,7 @@ struct TokenDetailsView: View {
             }
         } label: {
             NavbarDotsImage()
-                .offset(x: 11)
+                .offset(x: 10)
         }
     }
 }
