@@ -43,5 +43,7 @@ extension ManageTokensNetworkSelectorCoordinator {
 extension ManageTokensNetworkSelectorCoordinator: ManageTokensNetworkSelectorRoutable {
     func openAddCustomTokenModule() {}
 
-    func closeModule() {}
+    func closeModule() {
+        dismiss()
+    }
 }
