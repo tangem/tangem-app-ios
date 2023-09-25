@@ -19,6 +19,7 @@ class ManageTokensNetworkSelectorCoordinator: CoordinatorObject {
     // MARK: - Child ViewModels
 
     @Published var addCustomTokenViewModel: LegacyAddCustomTokenViewModel? = nil
+    @Published var walletSelectorViewModel: WalletSelectorViewModel? = nil
 
     // MARK: - Init
 
@@ -42,6 +43,15 @@ extension ManageTokensNetworkSelectorCoordinator {
 
 extension ManageTokensNetworkSelectorCoordinator: ManageTokensNetworkSelectorRoutable {
     func openAddCustomTokenModule() {}
+
+    func openWalletSelectorModule(
+        userWallets: [UserWallet],
+        currentUserWalletId: Data?,
+        delegate: WalletSelectorDelegate?
+    ) {
+        walletSelectorViewModel = .init(userWallets: userWallets, currentUserWalletId: currentUserWalletId)
+        walletSelectorViewModel?.delegate = delegate
+    }
 
     func closeModule() {
         dismiss()
