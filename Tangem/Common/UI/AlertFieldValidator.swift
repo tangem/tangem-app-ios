@@ -35,4 +35,8 @@ extension AlertFieldValidator: UITextFieldDelegate {
 
         acceptButton?.isEnabled = isValid
     }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        return isValid(textField.text ?? "")
+    }
 }
