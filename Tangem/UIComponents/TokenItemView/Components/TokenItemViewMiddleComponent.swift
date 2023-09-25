@@ -15,15 +15,14 @@ struct TokenItemViewMiddleComponent: View {
     let hasError: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 8) {
                 Text(name)
                     .style(
                         Fonts.Bold.subheadline,
                         color: hasError ? Colors.Text.tertiary : Colors.Text.primary1
                     )
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(1)
 
                 if hasPendingTransactions {
                     Assets.pendingTxIndicator.image
