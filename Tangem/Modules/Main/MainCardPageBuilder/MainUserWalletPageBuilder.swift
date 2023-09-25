@@ -61,18 +61,7 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     func makeBottomOverlay(didScrollToBottom: Bool) -> some View {
-        switch self {
-        case .singleWallet:
-            EmptyView()
-        case .multiWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.manageTokensViewModel {
-                ManageTokensBottomOverlayView(viewModel: viewModel)
-            }
-        case .lockedWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.footerViewModel {
-                MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
-                // [REDACTED_TODO_COMMENT]
-            }
-        }
+        // [REDACTED_TODO_COMMENT]
+        EmptyView()
     }
 }
