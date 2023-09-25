@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Combine
 
 struct TokenItemView: View {
     @ObservedObject var viewModel: TokenItemViewModel
