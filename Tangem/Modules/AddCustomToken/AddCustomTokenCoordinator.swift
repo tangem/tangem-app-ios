@@ -10,8 +10,8 @@ import Foundation
 import Combine
 
 class AddCustomTokenCoordinator: CoordinatorObject {
-    let dismissAction: Action
-    let popToRootAction: ParamsAction<PopToRootOptions>
+    let dismissAction: Action<Void>
+    let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
@@ -22,24 +22,20 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     required init(
-        dismissAction: @escaping Action,
-        popToRootAction: @escaping ParamsAction<PopToRootOptions>
+        dismissAction: @escaping Action<Void>,
+        popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: Options) {
-
-    }
+    func start(with options: Options) {}
 }
 
 // MARK: - Options
 
 extension AddCustomTokenCoordinator {
-    enum Options {
-
-    }
+    enum Options {}
 }
 
 // MARK: - AddCustomTokenRoutable
