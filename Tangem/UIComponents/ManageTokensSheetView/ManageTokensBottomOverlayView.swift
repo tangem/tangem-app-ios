@@ -16,7 +16,8 @@ struct ManageTokensBottomOverlayView: View {
     var body: some View {
         let bottomContainer = Color.blue.frame(height: 100.0 - 34.0) // [REDACTED_TODO_COMMENT]
 
-        if #available(iOS 15.0, *) {
+        // Native sheets prevent other sheets from being presented, this approach isn't feasible at all
+        if #available(iOS 9999.0, *) {
             bottomContainer
                 .sheet(isPresented: $shouldShowSheet) {
                     VStack(spacing: 0.0) {
@@ -59,7 +60,6 @@ struct ManageTokensBottomOverlayView: View {
         } else {
             bottomContainer
                 .bottomScrollableSheet(
-                    managesSourceViewAppearance: false,
                     header: {
                         _ManageTokensHeaderView(viewModel: viewModel)
                     },
