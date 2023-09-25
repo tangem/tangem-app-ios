@@ -29,13 +29,17 @@ class AddCustomTokenCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: Options) {}
+    func start(with options: Options) {
+        rootViewModel = AddCustomTokenViewModel(coordinator: self)
+    }
 }
 
 // MARK: - Options
 
 extension AddCustomTokenCoordinator {
-    enum Options {}
+    enum Options {
+        case `default`
+    }
 }
 
 // MARK: - AddCustomTokenRoutable
