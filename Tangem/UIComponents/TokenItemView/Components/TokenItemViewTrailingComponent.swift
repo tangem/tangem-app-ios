@@ -27,7 +27,6 @@ struct TokenItemViewTrailingComponent: View {
                     font: Fonts.Regular.subheadline,
                     textColor: Colors.Text.primary1,
                     loaderSize: .init(width: 40, height: 12),
-                    loaderTopPadding: 4,
                     isSensitiveText: true
                 )
 
