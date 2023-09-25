@@ -22,6 +22,7 @@ final class MainViewModel: ObservableObject {
     @Published var showAddressCopiedToast = false
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
+    @Published var manageTokensSheetViewModel: ManageTokensSheetViewModel?
 
     // MARK: - Dependencies
 
@@ -183,6 +184,13 @@ final class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        $selectedCardIndex
+            .withWeakCaptureOf(self)
+            .sink { viewModel, newIndex in
+                viewModel.updateManageTokensSheetViewModel(forPageAtIndex: newIndex)
+            }
+            .store(in: &bag)
+
         userWalletRepository.eventProvider
             .sink { [weak self] event in
                 switch event {
@@ -212,6 +220,19 @@ final class MainViewModel: ObservableObject {
 
     private func log(_ message: String) {
         AppLog.shared.debug("[Main V2] \(message)")
+    }
+
+    private func updateManageTokensSheetViewModel(forPageAtIndex newIndex: Int) {
+        let selectedPage = pages[newIndex]
+        switch selectedPage {
+        case .singleWallet:
+            manageTokensSheetViewModel = nil
+        case .multiWallet(_, _, let bodyModel):
+            manageTokensSheetViewModel = bodyModel.manageTokensViewModel
+        case .lockedWallet:
+            // [REDACTED_TODO_COMMENT]
+            manageTokensSheetViewModel = nil
+        }
     }
 }
 
