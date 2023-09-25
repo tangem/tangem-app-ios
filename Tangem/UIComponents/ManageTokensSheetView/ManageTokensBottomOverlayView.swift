@@ -59,7 +59,7 @@ struct ManageTokensBottomOverlayView: View {
         } else {
             bottomContainer
                 .bottomScrollableSheet(
-                    managesSourceViewAppearance: true,
+                    managesSourceViewAppearance: false,
                     header: {
                         _ManageTokensHeaderView(viewModel: viewModel)
                     },
