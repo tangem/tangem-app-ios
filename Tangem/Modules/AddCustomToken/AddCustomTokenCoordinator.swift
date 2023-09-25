@@ -30,15 +30,16 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = AddCustomTokenViewModel(coordinator: self)
+        rootViewModel = AddCustomTokenViewModel(settings: options.settings, userTokensManager: options.userTokensManager, coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension AddCustomTokenCoordinator {
-    enum Options {
-        case `default`
+    struct Options {
+        let settings: LegacyManageTokensSettings
+        let userTokensManager: UserTokensManager
     }
 }
 
