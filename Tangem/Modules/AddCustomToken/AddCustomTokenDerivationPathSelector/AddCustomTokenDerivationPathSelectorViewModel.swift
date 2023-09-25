@@ -29,6 +29,11 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         return result
     }
 
+    private let customDerivationPathValidator = AlertFieldValidator { input in
+        let derivationPath = try? DerivationPath(rawPath: input)
+        return derivationPath != nil
+    }
+
     init(
         selectedDerivationOption: AddCustomTokenDerivationOption,
         defaultDerivationPath: DerivationPath,
@@ -70,7 +75,10 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
         let alert = AlertBuilder.makeAlertControllerWithTextField(
             title: Localization.customTokenCustomDerivationTitle,
             fieldPlaceholder: Localization.customTokenCustomDerivationPlaceholder,
-            fieldText: currentCustomDerivationPath
+            fieldText: currentCustomDerivationPath,
+            autoCapitalize: false,
+            useSpellCheck: false,
+            fieldValidator: customDerivationPathValidator
         ) { [weak self] enteredDerivationPath in
             guard let self else { return }
 
