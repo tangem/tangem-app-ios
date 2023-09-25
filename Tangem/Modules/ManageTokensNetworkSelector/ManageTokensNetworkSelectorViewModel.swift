@@ -35,6 +35,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Implementation
 
+    private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private var tokenItems: [TokenItem]
 
     private var userTokensManager: UserTokensManager? {
@@ -64,6 +65,30 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coordinator = coordinator
         self.tokenItems = tokenItems
 
+        fillSelectorItemsFromTokenItems()
+    }
+
+    // MARK: - Implementation
+
+    func onAppear() {
+        currentWalletName = userWalletRepository.selectedModel?.name ?? ""
+    }
+
+    func onDisappear() {
+        saveChanges()
+    }
+
+    func selectWalletActionDidTap() {
+        coordinator.openWalletSelectorModule(
+            userWallets: userWalletRepository.userWallets,
+            currentUserWalletId: userWalletRepository.selectedUserWalletId,
+            delegate: self
+        )
+    }
+
+    // MARK: - Private Implementation
+
+    private func fillSelectorItemsFromTokenItems() {
         nativeSelectorItems = tokenItems
             .filter {
                 $0.isBlockchain
@@ -97,26 +122,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             }
     }
 
-    // MARK: - Implementation
-
-    func onAppear() {
-        currentWalletName = userWalletRepository.selectedModel?.name ?? ""
-    }
-
-    func onDisappear() {
-        saveChanges()
-    }
-
-    func selectWalletActionDidTap() {
-        coordinator.openWalletSelectorModule(
-            userWallets: userWalletRepository.userWallets,
-            currentUserWalletId: userWalletRepository.selectedUserWalletId,
-            delegate: self
-        )
-    }
-
-    // MARK: - Private Implementation
-
     private func saveChanges() {
         guard let userTokensManager = userTokensManager else {
             return
@@ -127,72 +132,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             itemsToAdd: pendingAdd,
             derivationPath: nil
         )
-    }
-
-    private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(event: .tokenSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
-            .token: tokenItem.currencySymbol,
-        ])
-    }
-
-    private func displayAlertAndUpdateSelection(for tokenItem: TokenItem, title: String, message: String) {
-        let okButton = Alert.Button.default(Text(Localization.commonOk)) {
-            self.updateSelection(tokenItem)
-        }
-
-        alert = AlertBinder(alert: Alert(
-            title: Text(title),
-            message: Text(message),
-            dismissButton: okButton
-        ))
-    }
-
-    private func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
-        guard
-            !isSelected,
-            !pendingAdd.contains(tokenItem),
-            isTokenAvailable(tokenItem)
-        else {
-            onSelect(isSelected, tokenItem)
-            return
-        }
-
-        if canRemove(tokenItem) {
-            let title = Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol)
-
-            let cancelAction = { [unowned self] in
-                updateSelection(tokenItem)
-            }
-
-            let hideAction = { [unowned self] in
-                onSelect(isSelected, tokenItem)
-            }
-
-            alert = AlertBinder(alert:
-                Alert(
-                    title: Text(title),
-                    message: Text(Localization.tokenDetailsHideAlertMessage),
-                    primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide), action: hideAction),
-                    secondaryButton: .cancel(cancelAction)
-                )
-            )
-        } else {
-            let title = Localization.tokenDetailsUnableHideAlertTitle(tokenItem.blockchain.currencySymbol)
-
-            let message = Localization.tokenDetailsUnableHideAlertMessage(
-                tokenItem.blockchain.currencySymbol,
-                tokenItem.blockchain.displayName
-            )
-
-            alert = AlertBinder(alert: Alert(
-                title: Text(title),
-                message: Text(message),
-                dismissButton: .default(Text(Localization.commonOk), action: {
-                    self.updateSelection(tokenItem)
-                })
-            ))
-        }
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
@@ -238,23 +177,11 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         }
     }
 
-    private func isSelected(_ tokenItem: TokenItem) -> Bool {
-        let isWaitingToBeAdded = pendingAdd.contains(tokenItem)
-        let isWaitingToBeRemoved = pendingRemove.contains(tokenItem)
-        let alreadyAdded = isAdded(tokenItem)
-
-        if isWaitingToBeRemoved {
-            return false
-        }
-
-        return isWaitingToBeAdded || alreadyAdded
-    }
-
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
         let binding = Binding<Bool> { [weak self] in
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
-            self?.showWarningDeleteAlertIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
+            self?.displayAlertWarningDeleteIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
         }
 
         return binding
@@ -272,15 +199,28 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         }
     }
 
-    private func isAdded(_ tokenItem: TokenItem) -> Bool {
-        userTokensManager?.contains(tokenItem, derivationPath: nil) ?? false
+    private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
+        Analytics.log(event: .tokenSwitcherChanged, params: [
+            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
+            .token: tokenItem.currencySymbol,
+        ])
     }
 
-    private func canRemove(_ tokenItem: TokenItem) -> Bool {
-        userTokensManager?.canRemove(tokenItem, derivationPath: nil) ?? false
-    }
+    // MARK: - ManageTokensNetworkSelectorViewModel
 
-    private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+    func didSelectWallet(with userWalletId: Data) {
+        pendingAdd = []
+        pendingRemove = []
+
+        userWalletRepository.setSelectedUserWalletId(userWalletId, reason: .userSelected)
+        fillSelectorItemsFromTokenItems()
+    }
+}
+
+// MARK: - Helpers
+
+private extension ManageTokensNetworkSelectorViewModel {
+    func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
         if case .token(_, let blockchain) = tokenItem,
            case .solana = blockchain,
            !settings.longHashesSupported {
@@ -294,14 +234,76 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         return true
     }
 
-    // MARK: - ManageTokensNetworkSelectorViewModel
+    private func isAdded(_ tokenItem: TokenItem) -> Bool {
+        userTokensManager?.contains(tokenItem, derivationPath: nil) ?? false
+    }
 
-    func didSelectWallet(with userWalletId: Data) {
-        userWalletRepository.setSelectedUserWalletId(userWalletId, reason: .userSelected)
+    private func canRemove(_ tokenItem: TokenItem) -> Bool {
+        userTokensManager?.canRemove(tokenItem, derivationPath: nil) ?? false
+    }
+
+    private func isSelected(_ tokenItem: TokenItem) -> Bool {
+        let isWaitingToBeAdded = pendingAdd.contains(tokenItem)
+        let isWaitingToBeRemoved = pendingRemove.contains(tokenItem)
+        let alreadyAdded = isAdded(tokenItem)
+
+        if isWaitingToBeRemoved {
+            return false
+        }
+
+        return isWaitingToBeAdded || alreadyAdded
     }
 }
 
-extension ManageTokensNetworkSelectorViewModel {
+// MARK: - Alerts
+
+private extension ManageTokensNetworkSelectorViewModel {
+    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, title: String, message: String) {
+        let okButton = Alert.Button.default(Text(Localization.commonOk)) {
+            self.updateSelection(tokenItem)
+        }
+
+        alert = AlertBinder(alert: Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: okButton
+        ))
+    }
+
+    func displayAlertWarningDeleteIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
+        guard
+            !isSelected,
+            !pendingAdd.contains(tokenItem),
+            isTokenAvailable(tokenItem)
+        else {
+            onSelect(isSelected, tokenItem)
+            return
+        }
+
+        if canRemove(tokenItem) {
+            alert = alertBuilder.successCanRemoveAlertDeleteTokenIfNeeded(
+                tokenItem: tokenItem,
+                cancelAction: { [unowned self] in
+                    updateSelection(tokenItem)
+                },
+                hideAction: { [unowned self] in
+                    onSelect(isSelected, tokenItem)
+                }
+            )
+        } else {
+            alert = alertBuilder.errorCanRemoveAlertDeleteTokenIfNeeded(
+                tokenItem: tokenItem,
+                dissmisAction: { [unowned self] item in
+                    updateSelection(item)
+                }
+            )
+        }
+    }
+}
+
+// MARK: - Settings
+
+private extension ManageTokensNetworkSelectorViewModel {
     struct Settings {
         let supportedBlockchains: Set<Blockchain>
         let hdWalletsSupported: Bool
