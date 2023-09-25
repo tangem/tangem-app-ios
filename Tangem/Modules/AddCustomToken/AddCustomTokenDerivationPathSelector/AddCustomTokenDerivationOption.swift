@@ -38,7 +38,7 @@ extension AddCustomTokenDerivationOption {
         }
     }
 
-    var derivation: String? {
+    var derivationDath: String? {
         switch self {
         case .custom(let derivationPath):
             return derivationPath?.rawPath
