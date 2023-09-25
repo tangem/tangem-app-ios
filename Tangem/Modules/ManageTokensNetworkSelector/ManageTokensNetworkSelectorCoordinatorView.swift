@@ -14,11 +14,23 @@ struct ManageTokensNetworkSelectorCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ManageTokensNetworkSelectorCoordinator
 
     var body: some View {
-        NavigationView {
-            if let model = coordinator.manageTokensNetworkSelectorViewModel {
-                ManageTokensNetworkSelectorView(viewModel: model)
+        ZStack {
+            NavigationView {
+                if let model = coordinator.manageTokensNetworkSelectorViewModel {
+                    ManageTokensNetworkSelectorView(viewModel: model)
+                        .navigationLinks(links)
+                }
             }
+            .navigationViewStyle(.stack)
         }
-        .navigationViewStyle(.stack)
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.walletSelectorViewModel) {
+                WalletSelectorView(viewModel: $0)
+            }
+            .emptyNavigationLink()
     }
 }
