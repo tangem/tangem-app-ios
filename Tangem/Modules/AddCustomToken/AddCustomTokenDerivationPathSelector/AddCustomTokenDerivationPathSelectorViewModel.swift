@@ -11,12 +11,8 @@ import SwiftUI
 import TangemSdk
 
 final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
-    // MARK: - ViewState
-
     @Published var customDerivationModel: AddCustomTokenDerivationPathSelectorItemViewModel!
     @Published var blockchainDerivationModels: [AddCustomTokenDerivationPathSelectorItemViewModel] = []
-
-    // MARK: - Dependencies
 
     weak var delegate: AddCustomTokenDerivationPathSelectorDelegate?
 
