@@ -20,27 +20,17 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Published Properties
 
-    @Published var selectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
+    @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
+    @Published var nonNativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
+
+    @Published var currentWalletName: String = ""
+
     @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
 
     var isSaveDisabled: Bool {
         pendingAdd.isEmpty && pendingRemove.isEmpty
-    }
-
-    var walletSelectorViewModel: WalletSelectorViewModel? {
-        guard let selectedModel = userWalletRepository.selectedModel else {
-            return nil
-        }
-
-        let viewModel = WalletSelectorViewModel(
-            userWallets: userWalletRepository.userWallets,
-            currentUserWalletId: selectedModel.userWallet.userWalletId
-        )
-
-        viewModel.delegate = self
-        return viewModel
     }
 
     // MARK: - Private Implementation
@@ -74,22 +64,60 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coordinator = coordinator
         self.tokenItems = tokenItems
 
-        selectorItems = tokenItems.map {
-            .init(
-                id: $0.hashValue,
-                isMain: $0.isBlockchain,
-                iconName: $0.blockchain.iconName,
-                iconNameSelected: $0.blockchain.iconNameFilled,
-                networkName: $0.networkName,
-                tokenTypeName: $0.name,
-                isSelected: bindSelection($0)
-            )
-        }
+        nativeSelectorItems = tokenItems
+            .filter {
+                $0.isBlockchain
+            }
+            .map {
+                .init(
+                    id: $0.hashValue,
+                    isMain: $0.isBlockchain,
+                    iconName: $0.blockchain.iconName,
+                    iconNameSelected: $0.blockchain.iconNameFilled,
+                    networkName: $0.networkName,
+                    tokenTypeName: nil,
+                    isSelected: bindSelection($0)
+                )
+            }
+
+        nonNativeSelectorItems = tokenItems
+            .filter {
+                $0.isToken
+            }
+            .map {
+                .init(
+                    id: $0.hashValue,
+                    isMain: $0.isBlockchain,
+                    iconName: $0.blockchain.iconName,
+                    iconNameSelected: $0.blockchain.iconNameFilled,
+                    networkName: $0.networkName,
+                    tokenTypeName: $0.blockchain.tokenTypeName,
+                    isSelected: bindSelection($0)
+                )
+            }
     }
 
     // MARK: - Implementation
 
-    func saveChanges() {
+    func onAppear() {
+        currentWalletName = userWalletRepository.selectedModel?.name ?? ""
+    }
+
+    func onDisappear() {
+        saveChanges()
+    }
+
+    func selectWalletActionDidTap() {
+        coordinator.openWalletSelectorModule(
+            userWallets: userWalletRepository.userWallets,
+            currentUserWalletId: userWalletRepository.selectedUserWalletId,
+            delegate: self
+        )
+    }
+
+    // MARK: - Private Implementation
+
+    private func saveChanges() {
         guard let userTokensManager = userTokensManager else {
             return
         }
@@ -99,15 +127,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             itemsToAdd: pendingAdd,
             derivationPath: nil
         )
-
-        tokenListDidSave()
-    }
-
-    // MARK: - Private Implementation
-
-    private func tokenListDidSave() {
-        Analytics.log(.buttonSaveChanges)
-        coordinator.closeModule()
     }
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
@@ -242,17 +261,23 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func updateSelection(_ tokenItem: TokenItem) {
-        selectorItems.first(where: { $0.id == tokenItem.hashValue })?.updateSelection(with: bindSelection(tokenItem))
+        if tokenItem.isBlockchain {
+            nativeSelectorItems
+                .first(where: { $0.id == tokenItem.hashValue })?
+                .updateSelection(with: bindSelection(tokenItem))
+        } else {
+            nonNativeSelectorItems
+                .first(where: { $0.id == tokenItem.hashValue })?
+                .updateSelection(with: bindSelection(tokenItem))
+        }
     }
 
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
-        guard let userTokensManager = userTokensManager else { return false }
-        return userTokensManager.contains(tokenItem, derivationPath: nil)
+        userTokensManager?.contains(tokenItem, derivationPath: nil) ?? false
     }
 
     private func canRemove(_ tokenItem: TokenItem) -> Bool {
-        guard let userTokensManager = userTokensManager else { return false }
-        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
+        userTokensManager?.canRemove(tokenItem, derivationPath: nil) ?? false
     }
 
     private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
