@@ -70,6 +70,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
 
+    var isMarketPriceAvailable: Bool {
+        if case .token(let token) = amountType {
+            return token.id != nil
+        } else {
+            return true
+        }
+    }
+
     lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
 
     init(
