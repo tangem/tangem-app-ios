@@ -9,9 +9,7 @@
 import SwiftUI
 
 struct GenerateAddressesView: View {
-    let numberOfNetworks: Int
-    let currentWalletNumber: Int
-    let totalWalletNumber: Int
+    let options: Options
     let didTapGenerate: () -> Void
 
     var body: some View {
@@ -27,14 +25,14 @@ struct GenerateAddressesView: View {
                     Text(Localization.mainWarningMissingDerivationTitle)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                    Text(Localization.mainWarningMissingDerivationDescription(numberOfNetworks))
+                    Text(Localization.mainWarningMissingDerivationDescription(options.numberOfNetworks))
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
             }
 
             MainButton(
                 title: Localization.commonGenerateAddresses,
-                subtitle: Localization.manageTokensNumberOfWallets(currentWalletNumber, totalWalletNumber),
+                subtitle: Localization.manageTokensNumberOfWallets(options.currentWalletNumber, options.totalWalletNumber),
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 action: didTapGenerate
@@ -50,9 +48,23 @@ struct GenerateAddressesView: View {
     }
 }
 
+extension GenerateAddressesView {
+    struct Options {
+        let numberOfNetworks: Int
+        let currentWalletNumber: Int
+        let totalWalletNumber: Int
+    }
+}
+
 struct GenerateAddressesView_Previews: PreviewProvider {
     static var previews: some View {
-        Colors.Background.primary.ignoresSafeArea()
-            .overlay(GenerateAddressesView(numberOfNetworks: 3, currentWalletNumber: 1, totalWalletNumber: 2, didTapGenerate: {}), alignment: .bottom)
+        let options = GenerateAddressesView.Options(
+            numberOfNetworks: 3,
+            currentWalletNumber: 1,
+            totalWalletNumber: 2
+        )
+
+        return Colors.Background.primary.ignoresSafeArea()
+            .overlay(GenerateAddressesView(options: options, didTapGenerate: {}), alignment: .bottom)
     }
 }
