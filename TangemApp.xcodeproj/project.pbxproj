@@ -459,6 +459,7 @@
 		B63B63BA2A44012D00A7CECF /* OrganizeTokensListHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */; };
 		B63B63BD2A44013E00A7CECF /* OrganizeTokensListFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63BC2A44013E00A7CECF /* OrganizeTokensListFooter.swift */; };
 		B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63FDB172A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift */; };
+		B640324E2AC1642100EB0097 /* ManageTokensBottomOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B640324D2AC1642100EB0097 /* ManageTokensBottomOverlayView.swift */; };
 		B654B6422A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B654B6412A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift */; };
 		B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */; };
 		B65CB3FC2A98A29500C31199 /* UserTokensReordering.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65CB3FB2A98A29500C31199 /* UserTokensReordering.swift */; };
@@ -474,6 +475,7 @@
 		B674D6DF2A9762D400172491 /* UserTokenListConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */; };
 		B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */; };
 		B675A1EA2A1E068D00F624B6 /* Clamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E92A1E068D00F624B6 /* Clamp.swift */; };
+		B67686DB2AC157140021FB59 /* SheetPresentationControllerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67686DA2AC157140021FB59 /* SheetPresentationControllerConfiguration.swift */; };
 		B67D90DD2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */; };
 		B67D90DF2ABAC8CC006B2C00 /* _ManageTokensHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90DE2ABAC8CC006B2C00 /* _ManageTokensHeaderView.swift */; };
 		B67D90E12ABAC952006B2C00 /* _ManageTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90E02ABAC952006B2C00 /* _ManageTokensView.swift */; };
@@ -1651,6 +1653,7 @@
 		B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListHeader.swift; sourceTree = "<group>"; };
 		B63B63BC2A44013E00A7CECF /* OrganizeTokensListFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFooter.swift; sourceTree = "<group>"; };
 		B63FDB172A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerFlexibleFooterView.swift; sourceTree = "<group>"; };
+		B640324D2AC1642100EB0097 /* ManageTokensBottomOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensBottomOverlayView.swift; sourceTree = "<group>"; };
 		B654B6412A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerAnimationFactory.swift; sourceTree = "<group>"; };
 		B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensHeaderView.swift; sourceTree = "<group>"; };
 		B65CB3FB2A98A29500C31199 /* UserTokensReordering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensReordering.swift; sourceTree = "<group>"; };
@@ -1666,6 +1669,7 @@
 		B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListConverter.swift; sourceTree = "<group>"; };
 		B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerView.swift; sourceTree = "<group>"; };
 		B675A1E92A1E068D00F624B6 /* Clamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamp.swift; sourceTree = "<group>"; };
+		B67686DA2AC157140021FB59 /* SheetPresentationControllerConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetPresentationControllerConfiguration.swift; sourceTree = "<group>"; };
 		B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetModifier.swift; sourceTree = "<group>"; };
 		B67D90DE2ABAC8CC006B2C00 /* _ManageTokensHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _ManageTokensHeaderView.swift; sourceTree = "<group>"; };
 		B67D90E02ABAC952006B2C00 /* _ManageTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _ManageTokensView.swift; sourceTree = "<group>"; };
@@ -5490,6 +5494,7 @@
 				EF193C002A78EB960048C0C3 /* ManageTokensSheetViewModel.swift */,
 				B67D90DE2ABAC8CC006B2C00 /* _ManageTokensHeaderView.swift */,
 				B67D90E02ABAC952006B2C00 /* _ManageTokensView.swift */,
+				B640324D2AC1642100EB0097 /* ManageTokensBottomOverlayView.swift */,
 			);
 			path = ManageTokensSheetView;
 			sourceTree = "<group>";
@@ -5563,6 +5568,7 @@
 		EF81B2A82A6686D2006CD57B /* BottomScrollableSheet */ = {
 			isa = PBXGroup;
 			children = (
+				B67686DA2AC157140021FB59 /* SheetPresentationControllerConfiguration.swift */,
 				EFE503582A727A100086A1B1 /* BottomScrollableSheet.swift */,
 				EF193C022A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift */,
 				B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */,
@@ -6496,6 +6502,7 @@
 				5DA5067D27A2FF57000A8901 /* URL+.swift in Sources */,
 				EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */,
 				DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */,
+				B640324E2AC1642100EB0097 /* ManageTokensBottomOverlayView.swift in Sources */,
 				EF7000812A94BE7300C56E8A /* CardanoWalletManagerFactory.swift in Sources */,
 				EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */,
 				DC7D39F929E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift in Sources */,
@@ -7283,6 +7290,7 @@
 				EFC684722A0FAB1300660690 /* SelectableSwappingFeeRowViewModel.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				EFEBCE2B29265CF300B0C886 /* TokenIconInfo.swift in Sources */,
+				B67686DB2AC157140021FB59 /* SheetPresentationControllerConfiguration.swift in Sources */,
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
 				EFA6B04729533C860090A92F /* ResetToFactoryViewRoutable.swift in Sources */,
 				B0F319002A739477009F131E /* FakeWalletManager.swift in Sources */,
