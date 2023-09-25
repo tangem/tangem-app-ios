@@ -22,12 +22,20 @@ final class ManageTokensViewModel: ObservableObject {
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
     @Published var alert: AlertBinder?
-    @Published var showToast: Bool = false
+    @Published var hasPendingDerivations: Bool = false
 
     // MARK: - Properties
 
     var hasNextPage: Bool {
         loader.canFetchMore
+    }
+
+    var pendingDerivationOptions: GenerateAddressesView.Options {
+        .init(
+            numberOfNetworks: derivationManagers.map { $0.value }.reduce(0, +),
+            currentWalletNumber: (userWalletRepository.selectedIndexUserWalletModel ?? 0) + 1,
+            totalWalletNumber: userWalletRepository.userWallets.count
+        )
     }
 
     private lazy var loader = setupListDataLoader()
@@ -38,6 +46,14 @@ final class ManageTokensViewModel: ObservableObject {
 
     private var percentFormatter = PercentFormatter()
     private var balanceFormatter = BalanceFormatter()
+
+    private var derivationManagers: [UserWalletId: Int] = [:] {
+        didSet {
+            hasPendingDerivations = !derivationManagers.filter { $0.value > 0 }.isEmpty
+        }
+    }
+
+    // MARK: - Init
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
@@ -81,6 +97,21 @@ private extension ManageTokensViewModel {
                 self?.loader.fetch(string)
             }
             .store(in: &bag)
+
+        derivationManagers = [:]
+        userWalletRepository.models.forEach { derivationManagers[$0.userWalletId] = 0 }
+
+        userWalletRepository.models.forEach { model in
+            model.userTokensManager
+                .derivationManager?
+                .pendingDerivationsCount
+                .sink(
+                    receiveValue: { [weak self] countDerivation in
+                        self?.derivationManagers[model.userWalletId] = countDerivation
+                    }
+                )
+                .store(in: &bag)
+        }
     }
 
     func setupListDataLoader() -> ListDataLoader {
