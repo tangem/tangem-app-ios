@@ -25,10 +25,11 @@ struct _ManageTokensView: View {
                 Button(action: viewModel.toggleItem) {
                     Text(index)
                         .font(.title3)
-                        .foregroundColor(Color.black.opacity(0.8))
+                        .foregroundColor(Colors.Text.primary1.opacity(0.8))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.all)
                 }
+                .background(Colors.Background.primary)
 
                 Divider()
             }
