@@ -21,6 +21,8 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     var selectedUserWalletId: Data?
 
+    var selectedIndexUserWalletModel: Int?
+
     var isEmpty: Bool { models.isEmpty }
 
     var count: Int { models.count }
