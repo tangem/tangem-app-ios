@@ -23,6 +23,7 @@ struct AddCustomTokenDerivationPathSelectorView: View {
 
                 section(for: viewModel.blockchainDerivationModels)
             }
+            .padding(.horizontal, 16)
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationBarTitle(Text(Localization.customTokenDerivationPath), displayMode: .inline)
@@ -42,7 +43,6 @@ struct AddCustomTokenDerivationPathSelectorView: View {
         }
         .background(Colors.Background.action)
         .cornerRadiusContinuous(14)
-        .padding(.horizontal, 16)
     }
 }
 
