@@ -4312,10 +4312,10 @@
 		DA4055352ABDDB5500353F8A /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
+				DA4055392ABDDB5500353F8A /* AddCustomTokenCoordinatorView.swift */,
 				DA4055362ABDDB5500353F8A /* AddCustomTokenCoordinator.swift */,
 				DA4055372ABDDB5500353F8A /* AddCustomTokenRoutable.swift */,
 				DA4055382ABDDB5500353F8A /* AddCustomTokenView.swift */,
-				DA4055392ABDDB5500353F8A /* AddCustomTokenCoordinatorView.swift */,
 				DA40553A2ABDDB5500353F8A /* AddCustomTokenViewModel.swift */,
 			);
 			path = AddCustomToken;
