@@ -10,7 +10,7 @@ import Foundation
 
 // [REDACTED_TODO_COMMENT]
 @available(*, deprecated, message: "Test only, remove if not needed")
-class ManageTokensSheetViewModel: ObservableObject {
+final class ManageTokensSheetViewModel: ObservableObject {
     // MARK: - ViewModel
 
     @Published var searchText: String = ""
