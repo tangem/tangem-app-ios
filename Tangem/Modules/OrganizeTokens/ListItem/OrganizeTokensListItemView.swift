@@ -25,12 +25,12 @@ struct OrganizeTokensListItemView: View {
             FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
                 .layoutPriority(1000.0)
 
-            // According to the mockups, error state on the Organize Tokens
-            // screen looks different than on the main screen
-            if let errorMessage = viewModel.errorMessage {
-                makeMiddleComponent(withErrorMessage: errorMessage)
-            } else {
-                defaultMiddleComponent
+            VStack(alignment: .leading, spacing: 4) {
+                if let errorMessage = viewModel.errorMessage {
+                    makeMiddleComponent(withErrorMessage: errorMessage)
+                } else {
+                    defaultMiddleComponent
+                }
             }
 
             // Flexible size spacer
@@ -43,28 +43,33 @@ struct OrganizeTokensListItemView: View {
             }
         }
         .padding(14.0)
+        .frame(minHeight: 68)
     }
 
+    @ViewBuilder
     private var defaultMiddleComponent: some View {
-        TokenItemViewMiddleComponent(
-            name: viewModel.name,
-            balance: viewModel.balance,
-            hasPendingTransactions: false, // Pending transactions aren't shown on the Organize Tokens screen
-            hasError: false // Errors are handled by the dedicated component made in `makeMiddleComponent(withErrorMessage:)`
+        Text(viewModel.name)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            .lineLimit(1)
+
+        LoadableTextView(
+            state: viewModel.balance,
+            font: Fonts.Regular.footnote,
+            textColor: Colors.Text.tertiary,
+            loaderSize: .init(width: 52, height: 12),
+            isSensitiveText: true
         )
     }
 
+    @ViewBuilder
     private func makeMiddleComponent(withErrorMessage errorMessage: String) -> some View {
-        VStack(alignment: .leading, spacing: 2.0) {
-            Text(viewModel.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                .lineLimit(2)
+        Text(viewModel.name)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            .lineLimit(1)
 
-            Text(errorMessage)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 2.0)
+        Text(errorMessage)
+            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .lineLimit(1)
     }
 }
 
