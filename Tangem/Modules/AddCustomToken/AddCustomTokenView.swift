@@ -36,7 +36,7 @@ struct AddCustomTokenView: View {
 
                     if viewModel.canEnterTokenDetails {
                         VStack(spacing: 0) {
-                            TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: false)
+                            TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: false, error: viewModel.contractAddressError)
 
                             separator
 
@@ -136,11 +136,17 @@ private struct TextInputWithTitle: View {
     var height: CGFloat = 60
     let isEnabled: Bool
     let isLoading: Bool
+    var error: Error?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+            if let error {
+                Text(error.localizedDescription)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+            } else {
+                Text(title)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+            }
 
             HStack(spacing: 0) {
                 CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
