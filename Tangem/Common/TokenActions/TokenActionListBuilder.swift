@@ -20,27 +20,38 @@ struct TokenActionListBuilder {
 
     func buildTokenContextActions(
         canExchange: Bool,
-        exchangeUtility: ExchangeCryptoUtility,
-        canHide: Bool
+        canSend: Bool,
+        exchangeUtility: ExchangeCryptoUtility
     ) -> [TokenActionType] {
         let canBuy = exchangeUtility.buyAvailable
         let canSell = exchangeUtility.sellAvailable
 
-        var availableActions: [TokenActionType] = [.copyAddress, .send, .receive]
-
-        if canExchange {
-            if canBuy {
-                availableActions.insert(.buy, at: 0)
-            }
-            if canSell {
-                availableActions.append(.sell)
-            }
+        var availableActions: [TokenActionType] = [.copyAddress]
+        if canExchange, canBuy {
+            availableActions.append(.buy)
         }
 
-        if canHide {
-            availableActions.append(.hide)
+        if canSend {
+            availableActions.append(.send)
         }
+
+        availableActions.append(.receive)
+
+        if canExchange, canSell {
+            availableActions.append(.sell)
+        }
+
+        availableActions.append(.hide)
 
         return availableActions
+    }
+
+    func buildActionsForLockedSingleWallet() -> [TokenActionType] {
+        [
+            .buy,
+            .send,
+            .receive,
+            .sell,
+        ]
     }
 }
