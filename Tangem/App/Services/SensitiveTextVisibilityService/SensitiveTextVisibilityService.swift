@@ -28,11 +28,20 @@ class SensitiveTextVisibilityService: ObservableObject {
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
         bind()
-        updateAvailability(true)
     }
 
     deinit {
         endUpdates()
+    }
+    
+    func updateAvailability(_ isAvailable: Bool) {
+        if isAvailable {
+            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        } else {
+            isHidden = false
+            AppSettings.shared.isHidingSensitiveInformation = false
+            UIDevice.current.endGeneratingDeviceOrientationNotifications()
+        }
     }
 
     func toggleVisibility() {
