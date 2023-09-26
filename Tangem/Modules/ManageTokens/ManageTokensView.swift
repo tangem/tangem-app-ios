@@ -49,7 +49,7 @@ struct ManageTokensView: View {
                     }
                 }
 
-                Color.clear.frame(width: 10, height: 58, alignment: .center)
+                Color.clear.frame(height: 58)
             }
         }
     }
@@ -61,8 +61,7 @@ struct ManageTokensView: View {
 
     @ViewBuilder private var titleView: some View {
         Text(Localization.addTokensTitle)
-            .font(Font.system(size: 30, weight: .bold, design: .default))
-            .minimumScaleFactor(0.8)
+            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
     @ViewBuilder private var overlay: some View {
