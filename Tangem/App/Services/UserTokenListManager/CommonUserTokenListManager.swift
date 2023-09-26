@@ -127,8 +127,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
     }
 
     func upload() {
-        guard hasTokenSynchronization else { return }
-
         updateTokensOnServer()
     }
 }
@@ -205,6 +203,11 @@ private extension CommonUserTokenListManager {
     }
 
     func updateTokensOnServer(list: UserTokenList? = nil, completions: [Completion] = []) {
+        guard hasTokenSynchronization else {
+            completions.forEach { $0(.success(())) }
+            return
+        }
+
         let listToUpdate = list ?? getUserTokenList()
 
         saveTokensCancellable = tangemApiService
