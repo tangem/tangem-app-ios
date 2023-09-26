@@ -25,7 +25,7 @@ class SensitiveTextVisibilityService: ObservableObject {
     deinit {
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
     }
-    
+
     func updateAvailability(_ isAvailable: Bool) {
         if isAvailable {
             UIDevice.current.beginGeneratingDeviceOrientationNotifications()
