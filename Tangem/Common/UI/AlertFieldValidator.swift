@@ -19,14 +19,22 @@ class AlertFieldValidator: NSObject {
     func setAcceptButton(_ acceptButton: UIAlertAction) {
         self.acceptButton = acceptButton
     }
-}
 
-extension AlertFieldValidator: UITextFieldDelegate {
-    func textFieldDidChangeSelection(_ textField: UITextField) {
+    private func validateTextField(_ textField: UITextField) {
         let isValid = isValid(textField.text ?? "")
 
         textField.textColor = isValid ? nil : UIColor.textWarningColor
         acceptButton?.isEnabled = isValid
+    }
+}
+
+extension AlertFieldValidator: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        validateTextField(textField)
+    }
+
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        validateTextField(textField)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
