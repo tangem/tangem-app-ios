@@ -22,13 +22,13 @@ class SensitiveTextVisibilityService: ObservableObject {
     }()
 
     private let operationQueue = OperationQueue()
-    private var perviousIsFaceDown = false
+    private var previousIsFaceDown = false
     private var bag: Set<AnyCancellable> = []
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
         bind()
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        updateAvailability(true)
     }
 
     deinit {
@@ -37,20 +37,36 @@ class SensitiveTextVisibilityService: ObservableObject {
 
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
-        isHidden = AppSettings.shared.isHidingSensitiveInformation
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+        DispatchQueue.main.async {
+            self.isHidden = AppSettings.shared.isHidingSensitiveInformation
+        }
     }
 }
 
 private extension SensitiveTextVisibilityService {
     func bind() {
+        NotificationCenter.default
+            .publisher(for: UIApplication.didEnterBackgroundNotification)
+            .sink(receiveValue: { [weak self] _ in
+                self?.endUpdates()
+            })
+            .store(in: &bag)
+
+        NotificationCenter.default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .sink(receiveValue: { [weak self] _ in
+                self?.startUpdates()
+            })
+            .store(in: &bag)
+
         AppSettings.shared.$isHidingSensitiveAvailable
             .sink { [weak self] isAvailable in
                 self?.updateAvailability(isAvailable)
             }
             .store(in: &bag)
     }
-    
+
     func updateAvailability(_ isAvailable: Bool) {
         if isAvailable {
             startUpdates()
@@ -60,7 +76,7 @@ private extension SensitiveTextVisibilityService {
             endUpdates()
         }
     }
-    
+
     func startUpdates() {
         manager.startDeviceMotionUpdates(to: operationQueue) { [weak self] motion, error in
             if error != nil {
@@ -95,10 +111,10 @@ private extension SensitiveTextVisibilityService {
         let isPortrait = pitch > .pi / 4
         let isFaceDown = !faceUpRange.contains(roll) && !isPortrait
 
-        if perviousIsFaceDown, !isFaceDown {
+        if previousIsFaceDown, !isFaceDown {
             toggleVisibility()
         }
 
-        perviousIsFaceDown = isFaceDown
+        previousIsFaceDown = isFaceDown
     }
 }
