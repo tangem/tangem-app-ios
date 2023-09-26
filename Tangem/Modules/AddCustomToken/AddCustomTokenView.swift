@@ -17,47 +17,58 @@ struct AddCustomTokenView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 10) {
-                VStack(spacing: 1) {
+            VStack(spacing: 0) {
+                Text(Localization.customTokenSubtitle)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 22)
+
+                VStack(spacing: 14) {
                     PickerInputWithTitle(title: Localization.customTokenNetworkInputTitle, model: $viewModel.blockchainsPicker)
-                        .cornerRadius(10, corners: [.topLeft, .topRight])
+                        .background(Colors.Background.action)
+                        .cornerRadiusContinuous(12)
 
                     if viewModel.canEnterTokenDetails {
-                        TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
+                        VStack(spacing: 0) {
+                            TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
 
-                        TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                            TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
 
-                        TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitleOld, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                            TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitleOld, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
 
-                        TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
-                            .cornerRadius(viewModel.showDerivationPaths ? 0 : 10, corners: [.bottomLeft, .bottomRight])
+                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                        }
+                        .background(Colors.Background.action)
+                        .cornerRadiusContinuous(12)
                     }
 
                     if viewModel.showDerivationPaths {
-                        PickerInputWithTitle(title: Localization.customTokenDerivationPathInputTitle, model: $viewModel.derivationsPicker)
-                            .cornerRadius(viewModel.showCustomDerivationPath ? 0 : 10, corners: [.bottomLeft, .bottomRight])
+                        VStack(spacing: 0) {
+                            PickerInputWithTitle(title: Localization.customTokenDerivationPathInputTitle, model: $viewModel.derivationsPicker)
 
-                        if viewModel.showCustomDerivationPath {
-                            TextInputWithTitle(title: Localization.customTokenCustomDerivation, placeholder: "m/44'/0'/0'/0/0", text: $viewModel.customDerivationPath, keyboardType: .default, isEnabled: true, isLoading: false)
-                                .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                            if viewModel.showCustomDerivationPath {
+                                TextInputWithTitle(title: Localization.customTokenCustomDerivation, placeholder: "m/44'/0'/0'/0/0", text: $viewModel.customDerivationPath, keyboardType: .default, isEnabled: true, isLoading: false)
+                            }
                         }
+                        .background(Colors.Background.action)
+                        .cornerRadiusContinuous(12)
                     }
+
+                    WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
+
+                    MainButton(
+                        title: Localization.customTokenAddToken,
+                        icon: .leading(Assets.plusMini),
+                        isLoading: viewModel.isLoading,
+                        isDisabled: viewModel.addButtonDisabled,
+                        action: viewModel.createToken
+                    )
                 }
-
-                WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
-
-                MainButton(
-                    title: Localization.customTokenAddToken,
-                    icon: .leading(Assets.plusMini),
-                    isLoading: viewModel.isLoading,
-                    isDisabled: viewModel.addButtonDisabled,
-                    action: viewModel.createToken
-                )
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
@@ -72,7 +83,6 @@ private struct TextInputWithTitle: View {
     var text: Binding<String>
     var keyboardType: UIKeyboardType
     var height: CGFloat = 60
-    var backgroundColor: Color = Colors.Background.primary
     let isEnabled: Bool
     let isLoading: Bool
 
@@ -92,14 +102,12 @@ private struct TextInputWithTitle: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(backgroundColor)
     }
 }
 
 private struct PickerInputWithTitle: View {
     var title: String
     var height: CGFloat = 60
-    var backgroundColor: Color = Colors.Background.primary
     @Binding var model: LegacyPickerModel
 
     var body: some View {
@@ -127,7 +135,6 @@ private struct PickerInputWithTitle: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(backgroundColor)
     }
 }
 
