@@ -166,6 +166,10 @@ final class AddCustomTokenViewModel: ObservableObject {
         decimals = ""
     }
 
+    func openNetworkSelector() {
+        coordinator.openNetworkSelector()
+    }
+
     private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
         let defaultItem = (Localization.customTokenNetworkInputNotSelected, "")
 
