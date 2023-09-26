@@ -54,13 +54,11 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
             option: option,
             isSelected: option.id == selectedDerivationOption.id
         ) { [weak self] in
-            self?.didTapOption(with: option.id)
+            self?.didTapOption($0)
         }
     }
 
-    private func didTapOption(with id: String) {
-        guard let derivationOption = allItemViewModels.first(where: { $0.id == id })?.option else { return }
-
+    private func didTapOption(_ derivationOption: AddCustomTokenDerivationOption) {
         guard case .custom(let derivationPath) = derivationOption else {
             selectOption(derivationOption)
             return
