@@ -33,16 +33,6 @@ class SensitiveTextVisibilityService: ObservableObject {
     deinit {
         endUpdates()
     }
-    
-    func updateAvailability(_ isAvailable: Bool) {
-        if isAvailable {
-            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        } else {
-            isHidden = false
-            AppSettings.shared.isHidingSensitiveInformation = false
-            UIDevice.current.endGeneratingDeviceOrientationNotifications()
-        }
-    }
 
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
@@ -87,6 +77,10 @@ private extension SensitiveTextVisibilityService {
     }
 
     func startUpdates() {
+        guard AppSettings.shared.isHidingSensitiveAvailable else {
+            return
+        }
+
         manager.startDeviceMotionUpdates(to: operationQueue) { [weak self] motion, error in
             if error != nil {
                 self?.endUpdates()
