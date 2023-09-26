@@ -21,6 +21,8 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+//    [REDACTED_USERNAME] private(set) var networkSelectorModel: networsele
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -45,4 +47,6 @@ extension AddCustomTokenCoordinator {
 
 // MARK: - AddCustomTokenRoutable
 
-extension AddCustomTokenCoordinator: AddCustomTokenRoutable {}
+extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
+    func openNetworkSelector() {}
+}
