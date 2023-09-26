@@ -22,7 +22,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    private weak var actionSheetPresenterDelegate: ActionSheetPresenterDelegate?
+    private weak var mainViewDelegate: MainViewDelegate?
 
     init(
         userWalletModel: UserWalletModel,
@@ -30,11 +30,11 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
-        actionSheetPresenterDelegate: ActionSheetPresenterDelegate?,
+        mainViewDelegate: MainViewDelegate?,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
-        self.actionSheetPresenterDelegate = actionSheetPresenterDelegate
+        self.mainViewDelegate = mainViewDelegate
 
         super.init(
             userWalletModel: userWalletModel,
@@ -63,7 +63,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     override func showActionSheet(_ actionSheet: ActionSheetBinder) {
-        actionSheetPresenterDelegate?.present(actionSheet: actionSheet)
+        mainViewDelegate?.present(actionSheet: actionSheet)
     }
 
     private func bind() {
