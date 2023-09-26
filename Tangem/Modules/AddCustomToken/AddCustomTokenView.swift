@@ -36,19 +36,19 @@ struct AddCustomTokenView: View {
 
                     if viewModel.canEnterTokenDetails {
                         VStack(spacing: 0) {
-                            TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
+                            TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: false)
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                            TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: viewModel.isLoading)
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitleOld, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                            TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitleOld, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: viewModel.isLoading)
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: viewModel.isLoading)
                         }
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(12)
@@ -142,16 +142,25 @@ private struct TextInputWithTitle: View {
             Text(title)
                 .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
-            HStack {
+            HStack(spacing: 0) {
                 CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
+                    .opacity(isLoading ? 0 : 1)
+                    .overlay(skeleton, alignment: .leading)
 
-                if isLoading {
-                    ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
-                }
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    @ViewBuilder
+    private var skeleton: some View {
+        if isLoading {
+            SkeletonView()
+                .frame(size: CGSize(width: 90, height: 12))
+                .cornerRadiusContinuous(3)
+        }
     }
 }
 
