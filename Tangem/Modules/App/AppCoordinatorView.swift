@@ -12,8 +12,6 @@ import SwiftUI
 struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
 
-    @StateObject private var sheetViewModelHolder = ManageTokensSheetViewModelHolder()
-
     var body: some View {
         NavigationView {
             if let welcomeCoordinator = coordinator.welcomeCoordinator {
@@ -26,35 +24,23 @@ struct AppCoordinatorView: CoordinatorView {
         }
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
-        .onPreferenceChange(ManageTokensSheetViewModelPreferenceKey.self) { newValue in
-            // `DispatchQueue.main.async` used here to allow publishing changes during view update
-            DispatchQueue.main.async {
-                sheetViewModelHolder.viewModel = newValue?.value
-            }
-        }
         .bottomScrollableSheet(
+            prefersGrabberVisible: coordinator.manageTokensSheetViewModel != nil,
             header: {
-                // [REDACTED_TODO_COMMENT]
-                if let viewModel = sheetViewModelHolder.viewModel {
+                if let viewModel = coordinator.manageTokensSheetViewModel {
                     _ManageTokensHeaderView(viewModel: viewModel)
                 } else {
-                    EmptyView()
+                    // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only
+                    // when needed because this will break the root view's structural identity and therefore all its state.
+                    // So dummy views are used as `header`/`content` views
+                    Color.clear.frame(height: 100.0)
                 }
+
             },
             content: {
                 // [REDACTED_TODO_COMMENT]
-                if let viewModel = sheetViewModelHolder.viewModel {
-                    _ManageTokensView(viewModel: viewModel)
-                } else {
-                    EmptyView()
-                }
+                EmptyView()
             }
         )
     }
-}
-
-// MARK: - Auxiliary types
-
-private final class ManageTokensSheetViewModelHolder: ObservableObject {
-    @Published var viewModel: ManageTokensSheetViewModel?
 }

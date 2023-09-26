@@ -75,10 +75,6 @@ struct MainView: View {
         .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
         })
-        .preference(
-            key: ManageTokensSheetViewModelPreferenceKey.self,
-            value: viewModel.manageTokensSheetViewModel.map(ManageTokensSheetViewModelPreferenceKey.Box.init(value:))
-        )
     }
 
     var detailsNavigationButton: some View {
