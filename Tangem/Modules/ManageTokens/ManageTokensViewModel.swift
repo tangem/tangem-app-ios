@@ -41,6 +41,7 @@ final class ManageTokensViewModel: ObservableObject {
     private lazy var loader = setupListDataLoader()
 
     private var bag = Set<AnyCancellable>()
+    private var loadQuotesSubscribtion: AnyCancellable?
 
     private unowned let coordinator: ManageTokensRoutable
 
@@ -129,13 +130,12 @@ private extension ManageTokensViewModel {
                     $0.priceChangeState != .loading || $0.priceChangeState != .noData
                 }.map { $0.id }
 
-                print(tokenViewModels.map { $0.priceChangeState })
-
-                print(items.count)
-                print(alreadyUpdateQuoteCoinIds.count)
+                let itemsShouldLoadQuote = items.filter {
+                    !alreadyUpdateQuoteCoinIds.contains($0.id)
+                }.map { $0.id }
 
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
-                updateQuote(by: items.filter { !alreadyUpdateQuoteCoinIds.contains($0.id) }.map { $0.id })
+                updateQuote(by: itemsShouldLoadQuote)
             })
             .store(in: &bag)
 
@@ -183,10 +183,9 @@ private extension ManageTokensViewModel {
     }
 
     private func updateQuote(by coinIds: [String]) {
-        tokenQuotesRepository
+        loadQuotesSubscribtion = tokenQuotesRepository
             .loadQuotes(coinIds: coinIds)
             .sink()
-            .store(in: &bag)
     }
 
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
