@@ -62,7 +62,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             })
     }
 
-    override func showActionSheet(_ actionSheet: ActionSheetBinder) {
+    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         mainViewDelegate?.present(actionSheet: actionSheet)
     }
 
