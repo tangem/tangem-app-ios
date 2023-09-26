@@ -30,6 +30,10 @@ struct AddCustomTokenCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var links: some View {
+//        NavHolder()
+//            .navigation(item: $coordinator.) {
+//                LegacyMainCoordinatorView(coordinator: $0)
+//            }
         EmptyView()
     }
 
