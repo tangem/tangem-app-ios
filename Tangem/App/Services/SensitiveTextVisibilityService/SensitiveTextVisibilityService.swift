@@ -15,16 +15,25 @@ class SensitiveTextVisibilityService: ObservableObject {
 
     @Published private(set) var isHidden: Bool
     private var previousDeviceOrientation: UIDeviceOrientation?
-    private var orientationDidChangeBag: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
         bind()
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     }
 
     deinit {
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
+    }
+    
+    func updateAvailability(_ isAvailable: Bool) {
+        if isAvailable {
+            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        } else {
+            isHidden = false
+            AppSettings.shared.isHidingSensitiveInformation = false
+            UIDevice.current.endGeneratingDeviceOrientationNotifications()
+        }
     }
 
     func toggleVisibility() {
@@ -36,13 +45,20 @@ class SensitiveTextVisibilityService: ObservableObject {
 
 private extension SensitiveTextVisibilityService {
     func bind() {
-        orientationDidChangeBag = NotificationCenter
+        NotificationCenter
             .default
             .publisher(for: UIDevice.orientationDidChangeNotification)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.orientationDidChange()
             }
+            .store(in: &bag)
+
+        AppSettings.shared.$isHidingSensitiveAvailable
+            .sink { [weak self] isAvailable in
+                self?.updateAvailability(isAvailable)
+            }
+            .store(in: &bag)
     }
 
     func orientationDidChange() {
