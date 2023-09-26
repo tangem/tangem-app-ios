@@ -60,6 +60,7 @@ struct ManageTokensBottomOverlayView: View {
         } else {
             bottomContainer
                 .bottomScrollableSheet(
+                    prefersGrabberVisible: true,
                     header: {
                         _ManageTokensHeaderView(viewModel: viewModel)
                     },
