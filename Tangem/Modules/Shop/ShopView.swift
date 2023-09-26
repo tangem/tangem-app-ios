@@ -114,7 +114,7 @@ struct ShopView: View {
             .padding(.horizontal)
             .padding(.vertical, sectionRowVerticalPadding)
 
-            Separator(height: 0.5, padding: 0)
+            Separator(height: .minimal, padding: 0)
 
             HStack {
                 Text(Localization.shopTotal)
