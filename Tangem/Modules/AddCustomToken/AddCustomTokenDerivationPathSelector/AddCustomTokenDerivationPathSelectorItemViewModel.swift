@@ -24,10 +24,10 @@ class AddCustomTokenDerivationPathSelectorItemViewModel: ObservableObject {
 
     @Published var isSelected: Bool
 
-    let didTapOption: () -> Void
+    private let didTapOption: (AddCustomTokenDerivationOption) -> Void
     private(set) var option: AddCustomTokenDerivationOption
 
-    init(option: AddCustomTokenDerivationOption, isSelected: Bool, didTapOption: @escaping () -> Void) {
+    init(option: AddCustomTokenDerivationOption, isSelected: Bool, didTapOption: @escaping (AddCustomTokenDerivationOption) -> Void) {
         self.isSelected = isSelected
         self.option = option
         self.didTapOption = didTapOption
@@ -42,5 +42,9 @@ class AddCustomTokenDerivationPathSelectorItemViewModel: ObservableObject {
             AppLog.shared.error(error)
             assertionFailure("You should validate entered derivation path")
         }
+    }
+
+    func didTap() {
+        didTapOption(option)
     }
 }
