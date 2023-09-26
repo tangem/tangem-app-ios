@@ -176,9 +176,3 @@ private extension TokenDetailsViewModel {
 extension TokenDetailsViewModel: BalanceProvider {
     var balancePublisher: AnyPublisher<LoadingValue<BalanceInfo>, Never> { $balance.eraseToAnyPublisher() }
 }
-
-extension TokenDetailsViewModel: ActionSheetPresenterDelegate {
-    func present(actionSheet: ActionSheetBinder) {
-        self.actionSheet = actionSheet
-    }
-}
