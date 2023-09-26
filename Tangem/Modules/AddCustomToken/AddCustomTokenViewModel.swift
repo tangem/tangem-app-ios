@@ -36,6 +36,8 @@ final class AddCustomTokenViewModel: ObservableObject {
     @Published var addButtonDisabled = false
     @Published var isLoading = false
 
+    @Published var contractAddressError: Error?
+
     var canEnterTokenDetails: Bool {
         selectedBlockchainSupportsTokens
     }
@@ -86,13 +88,28 @@ final class AddCustomTokenViewModel: ObservableObject {
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .flatMap { [unowned self] contractAddress -> AnyPublisher<[CoinModel], Never> in
-                self.isLoading = true
+                let result: AnyPublisher<[CoinModel], Never>
+                let contractAddressError: Error?
 
-                guard !contractAddress.isEmpty else {
-                    return .just(output: [])
+                do {
+                    if contractAddress.isEmpty {
+                        result = .just(output: [])
+                        contractAddressError = nil
+                    } else {
+                        let enteredContractAddress = try self.enteredContractAddress(in: self.enteredBlockchain())
+
+                        result = self.findToken(contractAddress: contractAddress)
+                        contractAddressError = nil
+
+                        self.isLoading = true
+                    }
+                } catch {
+                    result = .just(output: [])
+                    contractAddressError = error
                 }
 
-                return self.findToken(contractAddress: contractAddress)
+                self.contractAddressError = contractAddressError
+                return result
             }
             .receive(on: RunLoop.main)
             .sink { [unowned self] currencyModels in
