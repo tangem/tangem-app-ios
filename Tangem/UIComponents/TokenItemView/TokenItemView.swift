@@ -11,8 +11,10 @@ import SwiftUI
 struct TokenItemView: View {
     @ObservedObject var viewModel: TokenItemViewModel
 
+    @State private var viewSize: CGSize = .zero
+
     var body: some View {
-        HStack(alignment: .center, spacing: 0.0) {
+        HStack(alignment: .center, spacing: Constants.spacerLength) {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
@@ -21,30 +23,56 @@ struct TokenItemView: View {
                 isCustom: viewModel.isCustom
             )
 
-            // Fixed size spacer
-            FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
-                .layoutPriority(1000.0)
+            VStack(spacing: 4) {
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text(viewModel.name)
+                        .style(
+                            Fonts.Bold.subheadline,
+                            color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
+                        )
+                        .frame(minWidth: 0.20 * viewSize.width, alignment: .leading)
+                        .lineLimit(1)
 
-            HStack(alignment: viewModel.hasError ? .center : .top, spacing: 0.0) {
-                TokenItemViewMiddleComponent(
-                    name: viewModel.name,
-                    balance: viewModel.balanceCrypto,
-                    hasPendingTransactions: viewModel.hasPendingTransactions,
-                    hasError: viewModel.hasError
-                )
+                    if viewModel.hasPendingTransactions {
+                        Assets.pendingTxIndicator.image
+                    }
 
-                // Flexible size spacer
-                Spacer(minLength: Constants.spacerLength)
+                    Spacer(minLength: 8)
 
-                TokenItemViewTrailingComponent(
-                    hasError: viewModel.hasError,
-                    errorMessage: viewModel.errorMessage,
-                    balanceFiat: viewModel.balanceFiat,
-                    priceChangeState: viewModel.priceChangeState
-                )
-                .fixedSize(horizontal: true, vertical: false)
+                    if viewModel.hasError, let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    } else {
+                        LoadableTextView(
+                            state: viewModel.balanceFiat,
+                            font: Fonts.Regular.subheadline,
+                            textColor: Colors.Text.primary1,
+                            loaderSize: .init(width: 40, height: 12),
+                            isSensitiveText: true
+                        )
+                        .layoutPriority(1)
+                    }
+                }
+
+                HStack(alignment: .center, spacing: 0) {
+                    if !viewModel.hasError {
+                        LoadableTextView(
+                            state: viewModel.balanceCrypto,
+                            font: Fonts.Regular.footnote,
+                            textColor: Colors.Text.tertiary,
+                            loaderSize: .init(width: 52, height: 12),
+                            isSensitiveText: true
+                        )
+
+                        Spacer(minLength: Constants.spacerLength)
+
+                        TokenPriceChangeView(state: viewModel.priceChangeState)
+                            .layoutPriority(1)
+                    }
+                }
             }
         }
+        .readGeometry(\.size, bindTo: $viewSize)
         .padding(14.0)
         .background(Colors.Background.primary)
         .onTapGesture(perform: viewModel.tapAction)
@@ -56,6 +84,7 @@ struct TokenItemView: View {
                 contextMenuButton(for: menuAction)
             }
         }
+        .frame(minHeight: 68)
     }
 
     @ViewBuilder
@@ -97,13 +126,24 @@ private extension TokenItemView {
 // MARK: - Previews
 
 struct TokenItemView_Previews: PreviewProvider {
-    static let infoProvider = FakeTokenItemInfoProvider(walletManagers: [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager])
+    static var infoProvider: FakeTokenItemInfoProvider = {
+        let walletManagers: [FakeWalletManager] = [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager]
+        InjectedValues[\.ratesRepository] = FakeRatesRepository(walletManagers: walletManagers)
+        InjectedValues[\.tokenQuotesRepository] = FakeTokenQuotesRepository()
+        return FakeTokenItemInfoProvider(walletManagers: walletManagers)
+    }()
 
     static var previews: some View {
-        VStack(spacing: 0) {
-            ForEach(infoProvider.viewModels, id: \.id) { model in
-                TokenItemView(viewModel: model)
+        VStack {
+            VStack(spacing: 0) {
+                ForEach(infoProvider.viewModels, id: \.id) { model in
+                    TokenItemView(viewModel: model)
+                }
             }
+            .background(Colors.Background.primary)
+            .cornerRadiusContinuous(14)
+            .padding(16)
         }
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 }
