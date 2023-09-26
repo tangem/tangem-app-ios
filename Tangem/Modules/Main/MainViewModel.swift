@@ -22,7 +22,6 @@ final class MainViewModel: ObservableObject {
     @Published var showAddressCopiedToast = false
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
-    @Published var manageTokensSheetViewModel: ManageTokensSheetViewModel?
 
     // MARK: - Dependencies
 
@@ -226,12 +225,11 @@ final class MainViewModel: ObservableObject {
         let selectedPage = pages[newIndex]
         switch selectedPage {
         case .singleWallet:
-            manageTokensSheetViewModel = nil
+            AppCoordinator.instance.setManageTokensSheetViewModel(nil)
         case .multiWallet(_, _, let bodyModel):
-            manageTokensSheetViewModel = bodyModel.manageTokensViewModel
+            AppCoordinator.instance.setManageTokensSheetViewModel(bodyModel.manageTokensViewModel)
         case .lockedWallet:
-            // [REDACTED_TODO_COMMENT]
-            manageTokensSheetViewModel = nil
+            AppCoordinator.instance.setManageTokensSheetViewModel(nil) // [REDACTED_TODO_COMMENT]
         }
     }
 }
