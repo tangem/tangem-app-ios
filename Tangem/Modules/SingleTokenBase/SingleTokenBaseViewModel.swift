@@ -97,7 +97,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         prepareSelf()
     }
 
-    func showActionSheet(_ actionSheet: ActionSheetBinder) {
+    func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         assertionFailure("Must be reimplemented")
     }
 
@@ -361,7 +361,7 @@ extension SingleTokenBaseViewModel {
             title: Text(Localization.tokenDetailsChooseAddress),
             buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
         )
-        showActionSheet(ActionSheetBinder(sheet: sheet))
+        presentActionSheet(ActionSheetBinder(sheet: sheet))
     }
 
     func openExplorer(at url: URL) {
