@@ -1,5 +1,5 @@
 //
-//  ActionSheetPresenterDelegate.swift
+//  MainViewDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol ActionSheetPresenterDelegate: AnyObject {
+protocol MainViewDelegate: AnyObject {
     func present(actionSheet: ActionSheetBinder)
 }
