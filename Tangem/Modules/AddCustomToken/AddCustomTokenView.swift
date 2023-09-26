@@ -24,6 +24,14 @@ struct AddCustomTokenView: View {
                     .padding(.bottom, 22)
 
                 VStack(spacing: 14) {
+                    Button {
+                        viewModel.openNetworkSelector()
+                    } label: {
+                        ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: "Bitcoin")
+                    }
+                    .background(Colors.Background.action)
+                    .cornerRadiusContinuous(12)
+
                     PickerInputWithTitle(title: Localization.customTokenNetworkInputTitle, model: $viewModel.blockchainsPicker)
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(12)
@@ -76,6 +84,30 @@ struct AddCustomTokenView: View {
     }
 }
 
+private struct ItemSelectorRow: View {
+    let title: String
+    let selectedItem: String?
+
+    var body: some View {
+        HStack(spacing: 17) {
+            Text(title)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            if let selectedItem {
+                Text(selectedItem)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+            }
+
+            Assets.chevron.image
+                .renderingMode(.template)
+                .foregroundColor(Colors.Icon.informative)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+}
+
 // [REDACTED_TODO_COMMENT]
 private struct TextInputWithTitle: View {
     var title: String
@@ -89,8 +121,7 @@ private struct TextInputWithTitle: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.system(size: 13, weight: .regular))
-                .foregroundColor(Color.tangemGrayDark6)
+                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
             HStack {
                 CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
@@ -113,8 +144,7 @@ private struct PickerInputWithTitle: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.system(size: 13, weight: .regular))
-                .foregroundColor(Color.tangemGrayDark6)
+                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
             HStack {
                 Picker("", selection: $model.selection) {
@@ -187,7 +217,21 @@ struct AddCustomTokenView_Preview: PreviewProvider {
         coordinator: AddCustomTokenCoordinator()
     )
 
+    static let viewModel2 = {
+        let model = AddCustomTokenViewModel(
+            settings: settings,
+            userTokensManager: use,
+            coordinator: AddCustomTokenCoordinator()
+        )
+        if let id = model.blockchainsPicker.items.first?.1 {
+            model.blockchainsPicker.selection = id
+        }
+        return model
+    }()
+
     static var previews: some View {
-        AddCustomTokenView(viewModel: viewModel)
+        NavigationView {
+            AddCustomTokenView(viewModel: viewModel2)
+        }
     }
 }
