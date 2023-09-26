@@ -103,11 +103,10 @@ private extension SensitiveTextVisibilityService {
 
         // Full the face down orientation it's a Double.pi or almost 180° or -180° in degrees value
         // We're decide that -150° ... 150° range it isn't face down
-        let faceUpRange = deviation - .pi ... .pi - deviation
+        let faceUpRange = (-.pi + deviation) ... (.pi - deviation)
 
         // We need to check that the iPhone isn't portrait
         // Otherwise, we may get false positives
-        // In the portrait roll can be
         let isPortrait = pitch > .pi / 4
         let isFaceDown = !faceUpRange.contains(roll) && !isPortrait
 
