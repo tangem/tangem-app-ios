@@ -8,4 +8,6 @@
 
 import Foundation
 
-protocol AddCustomTokenRoutable: AnyObject {}
+protocol AddCustomTokenRoutable: AnyObject {
+    func openNetworkSelector()
+}
