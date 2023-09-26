@@ -9,6 +9,8 @@
 import SwiftUI
 
 private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewModifier where SheetHeader: View, SheetContent: View {
+    let prefersGrabberVisible: Bool
+
     @ViewBuilder let sheetHeader: () -> SheetHeader
     @ViewBuilder let sheetContent: () -> SheetContent
 
@@ -21,8 +23,8 @@ private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewMod
 
     func body(content: Content) -> some View {
         ZStack(alignment: .bottom) {
+            // [REDACTED_TODO_COMMENT]
             content
-                .debugBorder(color: .red, width: 5.0)
                 .cornerRadius(14.0)
                 .scaleEffect(scale)
                 .edgesIgnoringSafeArea(.all)
@@ -32,6 +34,7 @@ private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewMod
                 header: sheetHeader,
                 content: sheetContent
             )
+            .prefersGrabberVisible(prefersGrabberVisible)
         }
         .background(Color.black.edgesIgnoringSafeArea(.all))
     }
@@ -41,11 +44,13 @@ private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewMod
 
 extension View {
     func bottomScrollableSheet<Header, Content>(
+        prefersGrabberVisible: Bool,
         @ViewBuilder header: @escaping () -> Header,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View where Header: View, Content: View {
         modifier(
             BottomScrollableSheetModifier(
+                prefersGrabberVisible: prefersGrabberVisible,
                 sheetHeader: header,
                 sheetContent: content
             )
