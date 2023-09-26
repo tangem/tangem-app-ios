@@ -54,11 +54,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
-            actionSheetPresenterDelegate: nil,
             tokenRouter: tokenRouter
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
-        actionSheetPresenterDelegate = self
 
         prepareSelf()
     }
@@ -82,6 +80,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             } receiveValue: { _ in }
 
         reloadHistory()
+    }
+
+    override func showActionSheet(_ actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
 
