@@ -76,7 +76,7 @@ struct MultiWalletMainContentView: View {
                 }
             }
         }
-        .cornerRadiusContinuous(14)
+        .cornerRadiusContinuous(Constants.cornerRadius)
     }
 
     private var emptyList: some View {
@@ -99,44 +99,14 @@ struct MultiWalletMainContentView: View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.sections) { section in
                 TokenSectionView(title: section.model.title)
+                    .background(Colors.Background.primary)
 
                 ForEach(section.items) { item in
                     TokenItemView(viewModel: item)
-                        .contextMenu {
-                            ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
-                                contextMenuButton(for: menuAction, tokenItem: item)
-                            }
-                        }
                 }
             }
         }
         .background(Colors.Background.primary)
-    }
-
-    @ViewBuilder
-    private func contextMenuButton(for actionType: TokenActionType, tokenItem: TokenItemViewModel) -> some View {
-        let action = { viewModel.didTapContextAction(actionType, for: tokenItem) }
-        if #available(iOS 15, *), actionType.isDestructive {
-            Button(
-                role: .destructive,
-                action: action,
-                label: {
-                    labelForContextButton(with: actionType)
-                }
-            )
-        } else {
-            Button(action: action, label: {
-                labelForContextButton(with: actionType)
-            })
-        }
-    }
-
-    private func labelForContextButton(with action: TokenActionType) -> some View {
-        HStack {
-            Text(action.title)
-            action.icon.image
-                .renderingMode(.template)
-        }
     }
 }
 
@@ -171,5 +141,13 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             MultiWalletMainContentView(viewModel: viewModel)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    }
+}
+
+// MARK: - Constants
+
+private extension MultiWalletMainContentView {
+    enum Constants {
+        static let cornerRadius = 14.0
     }
 }
