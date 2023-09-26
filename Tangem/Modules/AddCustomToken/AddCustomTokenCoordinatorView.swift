@@ -16,13 +16,15 @@ struct AddCustomTokenCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        ZStack {
-            if let rootViewModel = coordinator.rootViewModel {
-                AddCustomTokenView(viewModel: rootViewModel)
-                    .navigationLinks(links)
-            }
+        NavigationView {
+            ZStack {
+                if let rootViewModel = coordinator.rootViewModel {
+                    AddCustomTokenView(viewModel: rootViewModel)
+                        .navigationLinks(links)
+                }
 
-            sheets
+                sheets
+            }
         }
     }
 
