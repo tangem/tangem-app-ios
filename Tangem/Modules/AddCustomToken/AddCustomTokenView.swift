@@ -32,23 +32,37 @@ struct AddCustomTokenView: View {
                     .background(Colors.Background.action)
                     .cornerRadiusContinuous(12)
 
-                    PickerInputWithTitle(title: Localization.customTokenNetworkInputTitle, model: $viewModel.blockchainsPicker)
-                        .background(Colors.Background.action)
-                        .cornerRadiusContinuous(12)
-
                     if viewModel.canEnterTokenDetails {
                         VStack(spacing: 0) {
                             TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
 
+                            separator
+
                             TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
 
+                            separator
+
                             TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitleOld, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
+
+                            separator
 
                             TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
                         }
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(12)
                     }
+
+                    if viewModel.showDerivationPaths {
+                        Button {
+                            viewModel.openNetworkSelector()
+                        } label: {
+                            ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: "Default")
+                        }
+                        .background(Colors.Background.action)
+                        .cornerRadiusContinuous(12)
+                    }
+
+                    PickerInputWithTitle(title: Localization.customTokenNetworkInputTitle, model: $viewModel.blockchainsPicker)
 
                     if viewModel.showDerivationPaths {
                         VStack(spacing: 0) {
@@ -58,8 +72,6 @@ struct AddCustomTokenView: View {
                                 TextInputWithTitle(title: Localization.customTokenCustomDerivation, placeholder: "m/44'/0'/0'/0/0", text: $viewModel.customDerivationPath, keyboardType: .default, isEnabled: true, isLoading: false)
                             }
                         }
-                        .background(Colors.Background.action)
-                        .cornerRadiusContinuous(12)
                     }
 
                     WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
@@ -81,6 +93,11 @@ struct AddCustomTokenView: View {
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
         .navigationBarTitle(Text(Localization.addCustomTokenTitle), displayMode: .inline)
+    }
+
+    private var separator: some View {
+        Separator(height: 1 / displayScale, padding: 0, color: Colors.Stroke.primary)
+            .padding(.leading, 16)
     }
 }
 
@@ -131,8 +148,8 @@ private struct TextInputWithTitle: View {
                 }
             }
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 
