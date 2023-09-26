@@ -16,7 +16,9 @@ public class BottomScrollableSheetStateObject: ObservableObject {
     @Published var scrollViewIsDragging: Bool = false
     @Published var headerSize: CGFloat = 0
 
-    var geometryInfo: GeometryInfo = .init()
+    var geometryInfoSubject: some Subject<GeometryInfo, Never> { _geometryInfoSubject }
+    private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
+    private var geometryInfo: GeometryInfo { _geometryInfoSubject.value }
 
     // [REDACTED_TODO_COMMENT]
     var percent: CGFloat {
@@ -56,7 +58,7 @@ public class BottomScrollableSheetStateObject: ObservableObject {
     func height(for state: BottomScrollableSheetStateObject.SheetState) -> CGFloat {
         switch state {
         case .bottom:
-            return headerSize // + geometryInfo.safeAreaInsets.bottom
+            return headerSize
         case .top:
             return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom
         }
@@ -179,26 +181,5 @@ extension BottomScrollableSheetStateObject {
     enum SheetState: String, Hashable {
         case top
         case bottom
-    }
-}
-
-// MARK: - GeometryReaderPreferenceKey
-
-extension BottomScrollableSheetStateObject {
-    struct GeometryReaderPreferenceKey: PreferenceKey {
-        typealias Value = GeometryInfo
-        static var defaultValue: Value { .init() }
-
-        static func reduce(value: inout Value, nextValue: () -> Value) {}
-    }
-
-    struct GeometryInfo: Equatable {
-        let size: CGSize
-        let safeAreaInsets: EdgeInsets
-
-        init(size: CGSize = .zero, safeAreaInsets: EdgeInsets = .init()) {
-            self.size = size
-            self.safeAreaInsets = safeAreaInsets
-        }
     }
 }
