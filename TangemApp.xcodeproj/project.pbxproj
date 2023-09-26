@@ -560,6 +560,11 @@
 		DA23789227B250F6009795A8 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23789127B250F6009795A8 /* ShopView.swift */; };
 		DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA28D57C290AAE2000F0C335 /* ScrollView+.swift */; };
 		DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */; };
+		DA4055252ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */; };
+		DA4055262ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */; };
+		DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */; };
+		DA4055282ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055232ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift */; };
+		DA4055292ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055242ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift */; };
 		DA43719D2A7D1937006215CA /* LegacyCoinItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */; };
 		DA43719E2A7D1937006215CA /* LegacyCoinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718F2A7D1937006215CA /* LegacyCoinView.swift */; };
 		DA43719F2A7D1937006215CA /* LegacyTokenListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */; };
@@ -1762,6 +1767,11 @@
 		DA23789127B250F6009795A8 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		DA28D57C290AAE2000F0C335 /* ScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+.swift"; sourceTree = "<group>"; };
 		DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderProgressView.swift; sourceTree = "<group>"; };
+		DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
+		DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemView.swift; sourceTree = "<group>"; };
+		DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorDelegate.swift; sourceTree = "<group>"; };
+		DA4055232ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorViewModel.swift; sourceTree = "<group>"; };
+		DA4055242ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorView.swift; sourceTree = "<group>"; };
 		DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinItemViewModel.swift; sourceTree = "<group>"; };
 		DA43718F2A7D1937006215CA /* LegacyCoinView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinView.swift; sourceTree = "<group>"; };
 		DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyTokenListCoordinator.swift; sourceTree = "<group>"; };
@@ -4263,6 +4273,7 @@
 		DA207C212AB89F89005CC5E3 /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
+				DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */,
 			);
 			path = AddCustomToken;
 			sourceTree = "<group>";
@@ -4309,6 +4320,18 @@
 				DAA8F8892888397700F14B9A /* ShopWebHelper.swift */,
 			);
 			path = Shop;
+			sourceTree = "<group>";
+		};
+		DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */ = {
+			isa = PBXGroup;
+			children = (
+				DA4055242ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift */,
+				DA4055232ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift */,
+				DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */,
+				DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */,
+				DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */,
+			);
+			path = AddCustomTokenNetworkSelector;
 			sourceTree = "<group>";
 		};
 		DA43718D2A7D1937006215CA /* LegacyTokenList */ = {
@@ -6614,6 +6637,7 @@
 				EFAD02402A7D17BB00E9B959 /* CommonTransactionHistoryService.swift in Sources */,
 				B68B356B2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift in Sources */,
 				2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */,
+				DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				B605224B2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift in Sources */,
 				EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */,
@@ -7039,6 +7063,7 @@
 				DC0A582E282BCBEB0031BECC /* ShopifyProtocol.swift in Sources */,
 				DAA5E30D28D2137C003C0E80 /* UserWalletListRoutable.swift in Sources */,
 				B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */,
+				DA4055252ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
 				B05919042A0BCD1100EB8005 /* MainHeaderViewModel.swift in Sources */,
 				B0406BB62A402462006452C2 /* PagerWithDots.swift in Sources */,
@@ -7101,6 +7126,7 @@
 				DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */,
 				DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */,
 				DA4371A52A7D1937006215CA /* LegacyAddCustomTokenRoutable.swift in Sources */,
+				DA4055292ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift in Sources */,
 				EFD1645B2949F11C000E56C7 /* CurrencyAmount.swift in Sources */,
 				DC72548E2A02BB810003FE1B /* CardInteractorMocks.swift in Sources */,
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
@@ -7166,6 +7192,7 @@
 				B0FC72EB29B7991A001930D4 /* OnboardingSeedPhraseIntroView.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
 				EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */,
+				DA4055262ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift in Sources */,
 				DA4371A72A7D1937006215CA /* LegacyCoinItemView.swift in Sources */,
 				2D0E4F532A8D114E00001D8E /* GenericWalletManagerFactory.swift in Sources */,
 				2D727E9C2AB8280D00CD121A /* ManageTokensCoordinatorView.swift in Sources */,
@@ -7188,6 +7215,7 @@
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EF92E2BA29963E7400DD9B06 /* SwapReferrerAccount.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletModelsManager.swift in Sources */,
+				DA4055282ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift in Sources */,
 				B0CFD6CB2A027E2E009DF4D5 /* TokenQuotesRepository.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
 				DA7859E12AB0451F004FAE04 /* GenerateAddressesView.swift in Sources */,
