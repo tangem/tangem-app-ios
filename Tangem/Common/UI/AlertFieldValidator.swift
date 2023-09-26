@@ -25,14 +25,7 @@ extension AlertFieldValidator: UITextFieldDelegate {
     func textFieldDidChangeSelection(_ textField: UITextField) {
         let isValid = isValid(textField.text ?? "")
 
-        let textColor: UIColor?
-        if isValid {
-            textColor = nil
-        } else {
-            textColor = UIColor.textWarningColor
-        }
-        textField.textColor = textColor
-
+        textField.textColor = isValid ? nil : UIColor.textWarningColor
         acceptButton?.isEnabled = isValid
     }
 
