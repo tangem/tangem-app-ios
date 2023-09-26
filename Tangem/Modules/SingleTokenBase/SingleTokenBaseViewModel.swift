@@ -81,24 +81,24 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
 
-    weak var actionSheetPresenterDelegate: ActionSheetPresenterDelegate?
-
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
-        actionSheetPresenterDelegate: ActionSheetPresenterDelegate?,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
         self.exchangeUtility = exchangeUtility
         self.notificationManager = notificationManager
-        self.actionSheetPresenterDelegate = actionSheetPresenterDelegate
         self.tokenRouter = tokenRouter
 
         prepareSelf()
+    }
+
+    func showActionSheet(_ actionSheet: ActionSheetBinder) {
+        assertionFailure("Must be reimplemented")
     }
 
     func openExplorer() {
@@ -361,7 +361,7 @@ extension SingleTokenBaseViewModel {
             title: Text(Localization.tokenDetailsChooseAddress),
             buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
         )
-        actionSheetPresenterDelegate?.present(actionSheet: ActionSheetBinder(sheet: sheet))
+        showActionSheet(ActionSheetBinder(sheet: sheet))
     }
 
     func openExplorer(at url: URL) {
