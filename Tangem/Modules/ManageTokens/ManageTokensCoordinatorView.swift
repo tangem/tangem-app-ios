@@ -29,9 +29,7 @@ struct ManageTokensCoordinatorView: CoordinatorView {
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.networkSelectorCoordinator) {
-                if let viewModel = $0.manageTokensNetworkSelectorViewModel {
-                    ManageTokensNetworkSelectorView(viewModel: viewModel)
-                }
+                ManageTokensNetworkSelectorCoordinatorView(coordinator: $0)
             }
     }
 }
