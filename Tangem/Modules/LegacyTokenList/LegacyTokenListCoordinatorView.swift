@@ -14,9 +14,13 @@ struct LegacyTokenListCoordinatorView: CoordinatorView {
 
     var body: some View {
         NavigationView {
-            if let model = coordinator.tokenListViewModel {
-                LegacyTokenListView(viewModel: model)
-                    .navigationLinks(links)
+            ZStack {
+                if let model = coordinator.tokenListViewModel {
+                    LegacyTokenListView(viewModel: model)
+                        .navigationLinks(links)
+                    #warning("[REDACTED_TODO_COMMENT]")
+                    sheets
+                }
             }
         }
         .navigationViewStyle(.stack)
@@ -29,5 +33,14 @@ struct LegacyTokenListCoordinatorView: CoordinatorView {
                 LegacyAddCustomTokenView(viewModel: $0)
             }
             .emptyNavigationLink()
+    }
+
+    #warning("[REDACTED_TODO_COMMENT]")
+    @ViewBuilder
+    private var sheets: some View {
+        NavHolder()
+            .sheet(item: $coordinator.addCustomTokenCoordinator) {
+                AddCustomTokenCoordinatorView(coordinator: $0)
+            }
     }
 }
