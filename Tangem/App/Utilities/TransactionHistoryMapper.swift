@@ -121,7 +121,12 @@ private extension TransactionHistoryMapper {
         case .single(let source):
             return .user(source.address)
         case .multiple(let sources):
-            return .multiple(sources.map { $0.address })
+            let addresses = sources.map { $0.address }.unique()
+            if addresses.count == 1, let address = addresses.first {
+                return .user(address)
+            }
+
+            return .multiple(addresses)
         }
     }
 
@@ -135,7 +140,15 @@ private extension TransactionHistoryMapper {
                 return .contract(address)
             }
         case .multiple(let destinations):
-            return .multiple(destinations.map { $0.address.string })
+            var addresses = destinations.map { $0.address.string }.unique()
+            // Remove a change output
+            addresses.removeAll(where: { $0 == walletAddress })
+
+            if addresses.count == 1, let address = addresses.first {
+                return .user(address)
+            }
+
+            return .multiple(addresses)
         }
     }
 
