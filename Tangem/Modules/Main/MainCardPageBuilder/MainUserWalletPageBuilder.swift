@@ -61,10 +61,17 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     func makeBottomOverlay(didScrollToBottom: Bool) -> some View {
-        // [REDACTED_TODO_COMMENT]
-        Color.green
-            .opacity(0.05)
-            .frame(height: 100.0 - 34.0)
-            .infinityFrame(axis: .horizontal)
+        switch self {
+        case .singleWallet:
+            EmptyView()
+        case .multiWallet(_, _, let bodyModel):
+            if let viewModel = bodyModel.footerViewModel {
+                MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
+            }
+        case .lockedWallet(_, _, let bodyModel):
+            if let viewModel = bodyModel.footerViewModel {
+                MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
+            }
+        }
     }
 }

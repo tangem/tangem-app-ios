@@ -10,10 +10,10 @@ import Foundation
 import SwiftUI
 
 struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
-    private weak var delegate: ScrollViewRepresentableDelegate?
     private let content: () -> Content
-
     private var isScrollDisabled: Bool = false
+
+    private weak var delegate: ScrollViewRepresentableDelegate?
 
     init(
         delegate: ScrollViewRepresentableDelegate,
@@ -27,9 +27,8 @@ struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
         let scrollView = UIScrollView()
         scrollView.delegate = context.coordinator
         scrollView.isScrollEnabled = !isScrollDisabled
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.showsVerticalScrollIndicator = true
         scrollView.contentInsetAdjustmentBehavior = .never
+        scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceVertical = true
 
         guard let contentView = context.coordinator.hostingController.view else {
@@ -74,17 +73,7 @@ struct ScrollViewRepresentable<Content: View>: UIViewRepresentable {
     }
 }
 
-// MARK: - ScrollViewRepresentableDelegate
-
-protocol ScrollViewRepresentableDelegate: AnyObject {
-    func getSafeAreaInsets() -> UIEdgeInsets
-
-    func contentOffsetDidChanged(contentOffset: CGPoint)
-    func gesture(onChanged value: UIPanGestureRecognizer.Value)
-    func gesture(onEnded value: UIPanGestureRecognizer.Value)
-}
-
-// MARK: - Setupable
+// MARK: - Setupable protocol conformance
 
 extension ScrollViewRepresentable: Setupable {
     func isScrollDisabled(_ disabled: Bool) -> Self {
@@ -96,10 +85,11 @@ extension ScrollViewRepresentable: Setupable {
 
 extension ScrollViewRepresentable {
     class Coordinator: NSObject, UIScrollViewDelegate, UIGestureRecognizerDelegate {
-        var hostingController: UIHostingController<Content>
-        weak var delegate: ScrollViewRepresentableDelegate?
+        let hostingController: UIHostingController<Content>
 
-        private var startLocation = CGPoint.zero
+        private var startLocation: CGPoint = .zero
+
+        private weak var delegate: ScrollViewRepresentableDelegate?
 
         init(
             hostingController: UIHostingController<Content>,
@@ -111,7 +101,7 @@ extension ScrollViewRepresentable {
 
         func contentSize() -> CGSize {
             guard let contentView = hostingController.view else {
-                assertionFailure("HostingController haven't rootView")
+                assertionFailure("HostingController doesn't have a rootView")
                 return .zero
             }
 
@@ -132,14 +122,17 @@ extension ScrollViewRepresentable {
 
         // MARK: - UIGestureRecognizerDelegate
 
-        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+        ) -> Bool {
             return true
         }
 
         @objc
         func gestureRecognizerPanned(_ gesture: UIPanGestureRecognizer) {
             guard let view = getGlobalView() else {
-                assertionFailure("Missing view on gesture")
+                assertionFailure("Can't get a global view")
                 return
             }
 
@@ -170,7 +163,7 @@ extension ScrollViewRepresentable {
             }
         }
 
-        func getGlobalView() -> UIView? {
+        private func getGlobalView() -> UIView? {
             // getting the all scenes
             let scenes = UIApplication.shared.connectedScenes
             // getting windowScene from scenes
@@ -187,43 +180,46 @@ extension ScrollViewRepresentable {
 
 // MARK: - UIPanGestureRecognizer.Value
 
-public extension UIPanGestureRecognizer {
+extension UIPanGestureRecognizer {
     /// This API is meant to mirror DragGesture,.Value as that has no accessible initializers
     struct Value {
         /// The time associated with the current event.
-        public let time: Date
+        let time: Date
 
         /// The location of the current event.
-        public let location: CGPoint
+        let location: CGPoint
 
         /// The location of the first event.
-        public let startLocation: CGPoint
+        let startLocation: CGPoint
 
-        public let velocity: CGPoint
+        let velocity: CGPoint
 
         /// The total translation from the first event to the current
         /// event. Equivalent to `location.{x,y} -
         /// startLocation.{x,y}`.
-        public var translation: CGSize {
+        var translation: CGSize {
             return CGSize(width: location.x - startLocation.x, height: location.y - startLocation.y)
         }
 
         /// A prediction of where the final location would be if
         /// dragging stopped now, based on the current drag velocity.
-        public var predictedEndLocation: CGPoint {
+        var predictedEndLocation: CGPoint {
             let endTranslation = predictedEndTranslation
             return CGPoint(x: location.x + endTranslation.width, y: location.y + endTranslation.height)
         }
 
-        public var predictedEndTranslation: CGSize {
-            return CGSize(width: estimatedTranslation(fromVelocity: velocity.x), height: estimatedTranslation(fromVelocity: velocity.y))
+        var predictedEndTranslation: CGSize {
+            return CGSize(
+                width: estimatedTranslation(fromVelocity: velocity.x),
+                height: estimatedTranslation(fromVelocity: velocity.y)
+            )
         }
 
         private func estimatedTranslation(fromVelocity velocity: CGFloat) -> CGFloat {
             // This is a guess. I couldn't find any documentation anywhere on what this should be
-            let acceleration: CGFloat = 500
+            let acceleration: CGFloat = 500.0
             let timeToStop = velocity / acceleration
-            return velocity * timeToStop / 2
+            return velocity * timeToStop / 2.0
         }
     }
 }
