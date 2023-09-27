@@ -26,9 +26,9 @@ struct CommonWalletModelsFactory {
         return derivationPath == defaultDerivation
     }
 
-    private func makeTransactionHistoryService(tokenItem: TokenItem, address: String) -> TransactionHistoryService? {
+    private func makeTransactionHistoryService(tokenItem: TokenItem, wallet: Wallet) -> TransactionHistoryService? {
         if FeatureStorage().useFakeTxHistory {
-            return FakeTransactionHistoryService(blockchain: tokenItem.blockchain, address: address)
+            return FakeTransactionHistoryService(blockchain: tokenItem.blockchain, address: wallet.address)
         }
 
         let factory = TransactionHistoryFactoryProvider().factory
@@ -36,9 +36,13 @@ struct CommonWalletModelsFactory {
             return nil
         }
 
+        if wallet.addresses.count > 1 {
+            return MutipleAddressTransactionHistoryService(tokenItem: tokenItem, addresses: wallet.addresses.map { $0.value }, transactionHistoryProvider: provider)
+        }
+
         return CommonTransactionHistoryService(
             tokenItem: tokenItem,
-            address: address,
+            address: wallet.address,
             transactionHistoryProvider: provider
         )
     }
@@ -59,7 +63,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
         let transactionHistoryService = makeTransactionHistoryService(
             tokenItem: .blockchain(currentBlockchain),
-            address: walletManager.wallet.address
+            wallet: walletManager.wallet
         )
 
         if types.contains(.coin) {
@@ -78,7 +82,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 let isTokenCustom = isMainCoinCustom || token.id == nil
                 let transactionHistoryService = makeTransactionHistoryService(
                     tokenItem: .token(token, currentBlockchain),
-                    address: walletManager.wallet.address
+                    wallet: walletManager.wallet
                 )
                 let tokenModel = WalletModel(
                     walletManager: walletManager,
