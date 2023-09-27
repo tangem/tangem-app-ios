@@ -1,5 +1,5 @@
 //
-//  ManageTokensSheetViewModel.swift
+//  ManageTokensBottomSheetViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,9 +8,9 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
+#if ALPHA_OR_BETA
 @available(*, deprecated, message: "Test only, remove if not needed")
-final class ManageTokensSheetViewModel: ObservableObject {
+final class ManageTokensBottomSheetViewModel: ObservableObject {
     // MARK: - ViewModel
 
     @Published var searchText: String = ""
@@ -53,3 +53,4 @@ final class ManageTokensSheetViewModel: ObservableObject {
         }
     }
 }
+#endif // ALPHA_OR_BETA
