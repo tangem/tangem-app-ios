@@ -10,5 +10,6 @@ import Foundation
 import BlockchainSdk
 
 protocol AddCustomTokenRoutable: AnyObject {
+    func dismiss()
     func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain])
 }
