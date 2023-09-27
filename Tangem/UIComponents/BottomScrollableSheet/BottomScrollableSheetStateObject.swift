@@ -10,28 +10,27 @@ import Foundation
 import SwiftUI
 import Combine
 
-// [REDACTED_TODO_COMMENT]
-public class BottomScrollableSheetStateObject: ObservableObject {
-    @Published var visibleHeight: CGFloat = 0
+final class BottomScrollableSheetStateObject: ObservableObject {
+    @Published var visibleHeight: CGFloat = .zero
+    @Published var headerHeight: CGFloat = .zero
     @Published var scrollViewIsDragging: Bool = false
-    @Published var headerSize: CGFloat = 0
 
     var geometryInfoSubject: some Subject<GeometryInfo, Never> { _geometryInfoSubject }
     private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
     private var geometryInfo: GeometryInfo { _geometryInfoSubject.value }
 
-    // [REDACTED_TODO_COMMENT]
-    var percent: CGFloat {
+    var progress: CGFloat {
         let maxHeight = height(for: .top)
         let minHeight = height(for: .bottom)
-        return clamp((visibleHeight - minHeight) / maxHeight, min: 0.0, max: 1.0)
+        let progress = (visibleHeight - minHeight) / maxHeight
+        return clamp(progress, min: 0.0, max: 1.0)
     }
 
     private var state: SheetState = .bottom
     private var contentOffset: CGPoint = .zero
     private var keyboardCancellable: AnyCancellable?
 
-    public init() {
+    init() {
         bindKeyboard()
     }
 
@@ -58,7 +57,7 @@ public class BottomScrollableSheetStateObject: ObservableObject {
     func height(for state: BottomScrollableSheetStateObject.SheetState) -> CGFloat {
         switch state {
         case .bottom:
-            return headerSize
+            return headerHeight
         case .top:
             return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom
         }
@@ -87,7 +86,7 @@ public class BottomScrollableSheetStateObject: ObservableObject {
 
         let translationChange = value.translation.height
         let isFromTop = contentOffset.y <= .zero
-        let isBottomDirection = translationChange > 0
+        let isBottomDirection = translationChange > .zero
         if isFromTop, isBottomDirection, !scrollViewIsDragging {
             scrollViewIsDragging = true
         }
@@ -134,12 +133,12 @@ public class BottomScrollableSheetStateObject: ObservableObject {
         switch state {
         case .top:
             // For the top state reduce the direction to bottom
-            if translationChange < 0 {
+            if translationChange < .zero {
                 translationChange /= Constants.reduceSwipeMultiplicator
             }
         case .bottom:
             // For the bottom state reduce the direction to top
-            if translationChange > 0 {
+            if translationChange > .zero {
                 translationChange /= Constants.reduceSwipeMultiplicator
             }
         }
@@ -149,13 +148,17 @@ public class BottomScrollableSheetStateObject: ObservableObject {
     }
 }
 
+// MARK: - ScrollViewRepresentableDelegate protocol conformance
+
 extension BottomScrollableSheetStateObject: ScrollViewRepresentableDelegate {
     func getSafeAreaInsets() -> UIEdgeInsets {
-        UIEdgeInsets(
-            top: .zero,
-            left: .zero,
-            bottom: geometryInfo.safeAreaInsets.bottom,
-            right: .zero
+        let safeAreaInsets = geometryInfo.safeAreaInsets
+
+        return UIEdgeInsets(
+            top: safeAreaInsets.top,
+            left: safeAreaInsets.leading,
+            bottom: safeAreaInsets.bottom,
+            right: safeAreaInsets.trailing
         )
     }
 
@@ -172,14 +175,20 @@ extension BottomScrollableSheetStateObject: ScrollViewRepresentableDelegate {
     }
 }
 
-extension BottomScrollableSheetStateObject {
-    enum Constants {
-        static let hidingLineMultiplicator: CGFloat = 0.5
-        static let reduceSwipeMultiplicator: CGFloat = 10
-    }
+// MARK: - Auxiliary types
 
+extension BottomScrollableSheetStateObject {
     enum SheetState: String, Hashable {
         case top
         case bottom
+    }
+}
+
+// MARK: - Constants
+
+private extension BottomScrollableSheetStateObject {
+    enum Constants {
+        static let hidingLineMultiplicator: CGFloat = 0.5
+        static let reduceSwipeMultiplicator: CGFloat = 10.0
     }
 }
