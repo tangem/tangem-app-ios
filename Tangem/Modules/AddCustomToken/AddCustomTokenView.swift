@@ -74,8 +74,6 @@ struct AddCustomTokenView: View {
                         }
                     }
 
-                    WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
-
                     MainButton(
                         title: Localization.customTokenAddToken,
                         icon: .leading(Assets.plusMini),
@@ -235,7 +233,7 @@ struct AddCustomTokenView_Preview: PreviewProvider {
         existingCurves: [.ed25519, .secp256k1]
     )
 
-    static let use: UserTokensManager = {
+    static let userTokensManager: UserTokensManager = {
         let fakeUserTokenListManager = FakeUserTokenListManager()
         return FakeUserTokensManager(
             derivationManager: FakeDerivationManager(pendingDerivationsCount: 5),
@@ -245,25 +243,13 @@ struct AddCustomTokenView_Preview: PreviewProvider {
 
     static let viewModel = AddCustomTokenViewModel(
         settings: settings,
-        userTokensManager: use,
+        userTokensManager: userTokensManager,
         coordinator: AddCustomTokenCoordinator()
     )
 
-    static let viewModel2 = {
-        let model = AddCustomTokenViewModel(
-            settings: settings,
-            userTokensManager: use,
-            coordinator: AddCustomTokenCoordinator()
-        )
-        if let id = model.blockchainsPicker.items.first?.1 {
-            model.blockchainsPicker.selection = id
-        }
-        return model
-    }()
-
     static var previews: some View {
         NavigationView {
-            AddCustomTokenView(viewModel: viewModel2)
+            AddCustomTokenView(viewModel: viewModel)
         }
     }
 }
