@@ -31,7 +31,7 @@ struct Separator: View {
 
     var body: some View {
         color
-            .frame(width: nil, height: heightValue, alignment: .center)
+            .frame(height: heightValue)
             .padding(.vertical, padding)
     }
 
