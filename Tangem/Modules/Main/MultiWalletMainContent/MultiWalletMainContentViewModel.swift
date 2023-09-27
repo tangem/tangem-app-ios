@@ -37,6 +37,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     var isOrganizeTokensVisible: Bool {
+        guard canManageTokens else { return false }
+
         if sections.isEmpty {
             return false
         }
