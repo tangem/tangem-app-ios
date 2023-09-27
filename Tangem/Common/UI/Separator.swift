@@ -11,11 +11,6 @@ import SwiftUI
 struct Separator: View {
     @Environment(\.displayScale) private var displayScale
 
-    enum Height {
-        case exact(Double)
-        case minimal
-    }
-
     private let height: Height
     private let padding: Double
     private let color: Color
@@ -39,5 +34,12 @@ struct Separator: View {
         self.height = height
         self.padding = padding
         self.color = color
+    }
+}
+
+extension Separator {
+    enum Height {
+        case exact(Double)
+        case minimal
     }
 }
