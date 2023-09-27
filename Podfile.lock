@@ -149,7 +149,7 @@ PODS:
   - HDWalletKit (0.3.6):
     - CryptoSwift
     - secp256k1.swift
-  - Kingfisher (6.3.1)
+  - Kingfisher (7.9.1)
   - Mobile-Buy-SDK (7.1.0)
   - Moya (15.0.0):
     - Moya/Core (= 15.0.0)
@@ -193,43 +193,43 @@ PODS:
   - TangemWalletCore (3.2.4-tangem1):
     - SwiftProtobuf
   - TweetNacl (1.0.2)
-  - WalletConnectSwiftV2 (1.6.17):
-    - WalletConnectSwiftV2/WalletConnect (= 1.6.17)
-  - WalletConnectSwiftV2/Commons (1.6.17)
-  - WalletConnectSwiftV2/HTTPClient (1.6.17)
-  - WalletConnectSwiftV2/JSONRPC (1.6.17):
+  - WalletConnectSwiftV2 (1.8.4):
+    - WalletConnectSwiftV2/WalletConnect (= 1.8.4)
+  - WalletConnectSwiftV2/Commons (1.8.4)
+  - WalletConnectSwiftV2/HTTPClient (1.8.4)
+  - WalletConnectSwiftV2/JSONRPC (1.8.4):
     - WalletConnectSwiftV2/Commons
-  - WalletConnectSwiftV2/WalletConnect (1.6.17):
+  - WalletConnectSwiftV2/WalletConnect (1.8.4):
     - WalletConnectSwiftV2/WalletConnectAuth
-    - WalletConnectSwiftV2/WalletConnectEcho
+    - WalletConnectSwiftV2/WalletConnectPush
     - WalletConnectSwiftV2/WalletConnectSign
     - WalletConnectSwiftV2/WalletConnectVerify
-  - WalletConnectSwiftV2/WalletConnectAuth (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectAuth (1.8.4):
     - WalletConnectSwiftV2/WalletConnectPairing
     - WalletConnectSwiftV2/WalletConnectSigner
     - WalletConnectSwiftV2/WalletConnectVerify
-  - WalletConnectSwiftV2/WalletConnectEcho (1.6.17):
-    - WalletConnectSwiftV2/WalletConnectJWT
-    - WalletConnectSwiftV2/WalletConnectNetworking
-  - WalletConnectSwiftV2/WalletConnectJWT (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectJWT (1.8.4):
     - WalletConnectSwiftV2/WalletConnectKMS
-  - WalletConnectSwiftV2/WalletConnectKMS (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectKMS (1.8.4):
     - WalletConnectSwiftV2/WalletConnectUtils
-  - WalletConnectSwiftV2/WalletConnectNetworking (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectNetworking (1.8.4):
     - WalletConnectSwiftV2/HTTPClient
     - WalletConnectSwiftV2/WalletConnectRelay
-  - WalletConnectSwiftV2/WalletConnectPairing (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectPairing (1.8.4):
     - WalletConnectSwiftV2/WalletConnectNetworking
-  - WalletConnectSwiftV2/WalletConnectRelay (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectPush (1.8.4):
     - WalletConnectSwiftV2/WalletConnectJWT
-  - WalletConnectSwiftV2/WalletConnectSign (1.6.17):
+    - WalletConnectSwiftV2/WalletConnectNetworking
+  - WalletConnectSwiftV2/WalletConnectRelay (1.8.4):
+    - WalletConnectSwiftV2/WalletConnectJWT
+  - WalletConnectSwiftV2/WalletConnectSign (1.8.4):
     - WalletConnectSwiftV2/WalletConnectPairing
     - WalletConnectSwiftV2/WalletConnectVerify
-  - WalletConnectSwiftV2/WalletConnectSigner (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectSigner (1.8.4):
     - WalletConnectSwiftV2/WalletConnectNetworking
-  - WalletConnectSwiftV2/WalletConnectUtils (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectUtils (1.8.4):
     - WalletConnectSwiftV2/JSONRPC
-  - WalletConnectSwiftV2/WalletConnectVerify (1.6.17):
+  - WalletConnectSwiftV2/WalletConnectVerify (1.8.4):
     - WalletConnectSwiftV2/WalletConnectNetworking
     - WalletConnectSwiftV2/WalletConnectUtils
   - web3swift (2.2.1):
@@ -271,13 +271,13 @@ DEPENDENCIES:
   - Firebase/Analytics
   - Firebase/Crashlytics
   - HDWalletKit (from `https://github.com/tangem/hdwallet.git`, tag `0.3.12`)
-  - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
+  - Kingfisher (~> 7.9.0)
   - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-266`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.2.4-tangem1`)
-  - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.6.17`)
+  - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
   - ZendeskChatSDK (~> 2.12.0)
   - ZendeskSupportSDK (~> 5.5.0)
@@ -303,6 +303,7 @@ SPEC REPOS:
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
+    - Kingfisher
     - Mobile-Buy-SDK
     - Moya
     - nanopb
@@ -347,9 +348,6 @@ EXTERNAL SOURCES:
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
-  Kingfisher:
-    :branch: version6-xcode13
-    :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
@@ -361,7 +359,7 @@ EXTERNAL SOURCES:
     :tag: 3.2.4-tangem1
   WalletConnectSwiftV2:
     :git: https://github.com/WalletConnect/WalletConnectSwiftV2
-    :tag: 1.6.17
+    :tag: 1.8.4
   web3swift:
     :git: https://github.com/tangem/web3swift.git
     :tag: 2.2.12
@@ -382,9 +380,6 @@ CHECKOUT OPTIONS:
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
-  Kingfisher:
-    :commit: 2742b4de5036f9352d94c891495a3af3b9bdb67c
-    :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-7
@@ -396,7 +391,7 @@ CHECKOUT OPTIONS:
     :tag: 3.2.4-tangem1
   WalletConnectSwiftV2:
     :git: https://github.com/WalletConnect/WalletConnectSwiftV2
-    :tag: 1.6.17
+    :tag: 1.8.4
   web3swift:
     :git: https://github.com/tangem/web3swift.git
     :tag: 2.2.12
@@ -426,7 +421,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   HDWalletKit: 602ec664633cc6bae1c697e4e17af42efb69bfad
-  Kingfisher: 8b783c3d7be73a99b2172a743a5bc0a4dd331d79
+  Kingfisher: 1d14e9f59cbe19389f591c929000332bf70efd32
   Mobile-Buy-SDK: 29812838f06cbf78fd80728d9f84e9eaf49c7843
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
@@ -447,7 +442,7 @@ SPEC CHECKSUMS:
   TangemSdk: f3adf8d0c18bf7a76406462fa31c0efa9f2efa93
   TangemWalletCore: 8495b203106e8246aaa2a51ff99dd19f29209942
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
-  WalletConnectSwiftV2: 2c17cf630d579267330d1174b3d6fc4cc2aa30fc
+  WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
   ZendeskChatProvidersSDK: b3f5a914ed9d518770c994f0f04683952087b00a
@@ -460,6 +455,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: fcfa1f631cd3ef866e2d1baa8699fd28b157e738
+PODFILE CHECKSUM: c580a44021c3710c74da5ba71305609b2ccccde5
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0
