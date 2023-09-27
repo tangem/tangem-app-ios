@@ -46,7 +46,7 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
 
-    func updateUserTokens() {}
+    func updateUserTokens(_ completion: @escaping () -> Void) {}
 }
 
 // MARK: - UserTokensReordering protocol conformance
