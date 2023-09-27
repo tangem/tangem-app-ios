@@ -39,6 +39,9 @@ extension LegacyTokenListCoordinator: LegacyAddCustomTokenRoutable {
     }
 }
 
+import BlockchainSdk
+import TangemSdk
+
 extension LegacyTokenListCoordinator: LegacyTokenListRoutable {
     func openAddCustom(settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
         #warning("[REDACTED_TODO_COMMENT]")
@@ -46,8 +49,33 @@ extension LegacyTokenListCoordinator: LegacyTokenListRoutable {
             self?.addCustomTokenCoordinator = nil
         }
 
+        let u = userTokensManager as! CommonUserTokensManager
+
+        let blockchain: Blockchain = .ethereum(testnet: false)
+        let derivationPath: DerivationPath = blockchain.derivationPath(for: .v1)!
+        let all = userTokensManager.getAllTokens(
+            for: .init(
+                blockchain,
+                derivationPath: derivationPath
+            )
+        )
+//        let existingTokenItem: TokenItem?
+//            = all
+//            .first(where: { $0.isCustom })
+//            .map { TokenItem.token($0, blockchain) }
+        let a = u.findCustom()
+        let existingTokenItem: TokenItem?
+        let derivationPath: DerivationPath?
+        if let a {
+            existingTokenItem = a.0
+            derivationPath = a.1
+        } else {
+            existingTokenItem = nil
+            derivationPath = nil
+        }
+
         let coordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         addCustomTokenCoordinator = coordinator
-        coordinator.start(with: AddCustomTokenCoordinator.Options(settings: settings, userTokensManager: userTokensManager))
+        coordinator.start(with: AddCustomTokenCoordinator.Options(existingTokenItem: existingTokenItem, existingTokenDerivationPath: derivationPath, settings: settings, userTokensManager: userTokensManager))
     }
 }
