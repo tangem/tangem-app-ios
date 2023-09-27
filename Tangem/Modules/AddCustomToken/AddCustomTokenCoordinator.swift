@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemSdk
 
 class AddCustomTokenCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -33,7 +34,13 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = AddCustomTokenViewModel(settings: options.settings, userTokensManager: options.userTokensManager, coordinator: self)
+        rootViewModel = AddCustomTokenViewModel(
+            existingTokenItem: options.existingTokenItem,
+            existingTokenDerivationPath: options.existingTokenDerivationPath,
+            settings: options.settings,
+            userTokensManager: options.userTokensManager,
+            coordinator: self
+        )
     }
 }
 
@@ -41,6 +48,8 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
 extension AddCustomTokenCoordinator {
     struct Options {
+        let existingTokenItem: TokenItem?
+        let existingTokenDerivationPath: DerivationPath
         let settings: LegacyManageTokensSettings
         let userTokensManager: UserTokensManager
     }
