@@ -11,10 +11,6 @@ import UIKit
 import Combine
 
 class AppCoordinator: CoordinatorObject {
-    // [REDACTED_TODO_COMMENT]
-    @available(*, deprecated, message: "Test only, remove when not needed")
-    private(set) static var instance: AppCoordinator!
-
     let dismissAction: Action<Void> = { _ in }
     let popToRootAction: Action<PopToRootOptions> = { _ in }
 
@@ -29,17 +25,11 @@ class AppCoordinator: CoordinatorObject {
     @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
     @Published var authCoordinator: AuthCoordinator?
 
-    // MARK: - Child view models
-
-    @available(*, deprecated, message: "Test only, remove when not needed")
-    @Published private(set) var manageTokensSheetViewModel: ManageTokensSheetViewModel? // [REDACTED_TODO_COMMENT]
-
     // MARK: - Private
 
     private var bag: Set<AnyCancellable> = []
 
     init() {
-        Self.instance = self
         // We can't move it into ServicesManager because of locked keychain during preheating
         userWalletRepository.initialize()
         walletConnectSessionStorageInitializer.initialize()
@@ -58,11 +48,6 @@ class AppCoordinator: CoordinatorObject {
         case .uncompletedBackup:
             setupUncompletedBackup()
         }
-    }
-
-    @available(*, deprecated, message: "Test only, remove when not needed")
-    func setManageTokensSheetViewModel(_ viewModel: ManageTokensSheetViewModel?) {
-        manageTokensSheetViewModel = viewModel
     }
 
     private func restart(with options: AppCoordinator.Options = .default) {
