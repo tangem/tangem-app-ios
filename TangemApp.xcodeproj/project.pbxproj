@@ -543,6 +543,11 @@
 		DA1C13612ABC67A300BC9BC4 /* WalletSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C13592ABC67A300BC9BC4 /* WalletSelectorItemView.swift */; };
 		DA1C13622ABC67A300BC9BC4 /* WalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C135A2ABC67A300BC9BC4 /* WalletSelectorView.swift */; };
 		DA1C13642ABC67A300BC9BC4 /* WalletSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1C135C2ABC67A300BC9BC4 /* WalletSelectorDelegate.swift */; };
+		DA1D9C142AC44F2800772087 /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D9C0F2AC44F2800772087 /* AddCustomTokenNetworkSelectorItemViewModel.swift */; };
+		DA1D9C152AC44F2800772087 /* AddCustomTokenNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D9C102AC44F2800772087 /* AddCustomTokenNetworkSelectorItemView.swift */; };
+		DA1D9C162AC44F2800772087 /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D9C112AC44F2800772087 /* AddCustomTokenNetworkSelectorDelegate.swift */; };
+		DA1D9C172AC44F2800772087 /* AddCustomTokenNetworkSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D9C122AC44F2800772087 /* AddCustomTokenNetworkSelectorViewModel.swift */; };
+		DA1D9C182AC44F2800772087 /* AddCustomTokenNetworkSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D9C132AC44F2800772087 /* AddCustomTokenNetworkSelectorView.swift */; };
 		DA23787A27B24222009795A8 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786B27B24221009795A8 /* Address.swift */; };
 		DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786C27B24221009795A8 /* ProductVariant.swift */; };
 		DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786D27B24221009795A8 /* ShopifyService.swift */; };
@@ -1750,6 +1755,11 @@
 		DA1C13592ABC67A300BC9BC4 /* WalletSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorItemView.swift; sourceTree = "<group>"; };
 		DA1C135A2ABC67A300BC9BC4 /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
 		DA1C135C2ABC67A300BC9BC4 /* WalletSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDelegate.swift; sourceTree = "<group>"; };
+		DA1D9C0F2AC44F2800772087 /* AddCustomTokenNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
+		DA1D9C102AC44F2800772087 /* AddCustomTokenNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemView.swift; sourceTree = "<group>"; };
+		DA1D9C112AC44F2800772087 /* AddCustomTokenNetworkSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorDelegate.swift; sourceTree = "<group>"; };
+		DA1D9C122AC44F2800772087 /* AddCustomTokenNetworkSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorViewModel.swift; sourceTree = "<group>"; };
+		DA1D9C132AC44F2800772087 /* AddCustomTokenNetworkSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorView.swift; sourceTree = "<group>"; };
 		DA23786B27B24221009795A8 /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		DA23786C27B24221009795A8 /* ProductVariant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductVariant.swift; sourceTree = "<group>"; };
 		DA23786D27B24221009795A8 /* ShopifyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyService.swift; sourceTree = "<group>"; };
@@ -4270,6 +4280,18 @@
 			path = WalletSelector;
 			sourceTree = "<group>";
 		};
+		DA1D9C0E2AC44F2800772087 /* AddCustomTokenNetworkSelector */ = {
+			isa = PBXGroup;
+			children = (
+				DA1D9C0F2AC44F2800772087 /* AddCustomTokenNetworkSelectorItemViewModel.swift */,
+				DA1D9C102AC44F2800772087 /* AddCustomTokenNetworkSelectorItemView.swift */,
+				DA1D9C112AC44F2800772087 /* AddCustomTokenNetworkSelectorDelegate.swift */,
+				DA1D9C122AC44F2800772087 /* AddCustomTokenNetworkSelectorViewModel.swift */,
+				DA1D9C132AC44F2800772087 /* AddCustomTokenNetworkSelectorView.swift */,
+			);
+			path = AddCustomTokenNetworkSelector;
+			sourceTree = "<group>";
+		};
 		DA23786A27B241C2009795A8 /* ShopifyService */ = {
 			isa = PBXGroup;
 			children = (
@@ -4317,6 +4339,7 @@
 		DA4055352ABDDB5500353F8A /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
+				DA1D9C0E2AC44F2800772087 /* AddCustomTokenNetworkSelector */,
 				DA4055392ABDDB5500353F8A /* AddCustomTokenCoordinatorView.swift */,
 				DA4055362ABDDB5500353F8A /* AddCustomTokenCoordinator.swift */,
 				DA4055372ABDDB5500353F8A /* AddCustomTokenRoutable.swift */,
@@ -6608,6 +6631,7 @@
 				EF8D781129818E6100B67418 /* UserWalletModelMock.swift in Sources */,
 				EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
+				DA1D9C142AC44F2800772087 /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */,
@@ -6958,6 +6982,7 @@
 				B01299452AA8560E00E7BA43 /* MultiWalletNotificationManager.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
 				B03ACAC92567CFFF00F5D269 /* LegacyCardView.swift in Sources */,
+				DA1D9C162AC44F2800772087 /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */,
 				EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */,
 				B6DF7E792AA95DBB007C92BD /* ListFooterOverlayShadowView.swift in Sources */,
 				B05A13A329FB975400FB511A /* LoadableTextView.swift in Sources */,
@@ -7091,6 +7116,7 @@
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */,
 				B06A828029C81E3A00B6160E /* SeedPhraseTextView.swift in Sources */,
+				DA1D9C182AC44F2800772087 /* AddCustomTokenNetworkSelectorView.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				B60275292A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift in Sources */,
@@ -7130,6 +7156,7 @@
 				B602752B2A7A651000865EA7 /* ShadowAnimatableModifier.swift in Sources */,
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
 				B6E9A8C52A997B09005CF137 /* MainFooterView.swift in Sources */,
+				DA1D9C152AC44F2800772087 /* AddCustomTokenNetworkSelectorItemView.swift in Sources */,
 				EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */,
 				EF8D7814298281F700B67418 /* SwappingModulesFactory.swift in Sources */,
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
@@ -7307,6 +7334,7 @@
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
 				B6E9A8C72A9A35B5005CF137 /* MainFooterViewModel.swift in Sources */,
+				DA1D9C172AC44F2800772087 /* AddCustomTokenNetworkSelectorViewModel.swift in Sources */,
 				EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */,
 				B064284629BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift in Sources */,
 				DC37A07A2A584C1400C2A3F2 /* CardDerivableProvider.swift in Sources */,
