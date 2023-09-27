@@ -59,6 +59,8 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
+
+    func updateUserTokens(_ completion: @escaping () -> Void) {}
 }
 
 // MARK: - UserTokensReordering protocol conformance
