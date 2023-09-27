@@ -457,8 +457,7 @@ final class AddCustomTokenViewModel: ObservableObject {
 
 extension AddCustomTokenViewModel {
     func closeModule() {
-//        coordinator.closeModule()
-        fatalError()
+        coordinator.dismiss()
     }
 }
 
