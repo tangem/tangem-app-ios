@@ -136,6 +136,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         .sink { [weak self] _ in
             self?.validate()
         }
+        .store(in: &bag)
     }
 
     func createToken() {
@@ -397,8 +398,9 @@ final class AddCustomTokenViewModel: ObservableObject {
             partialResult.union(currencyModel.items.map { $0.blockchain })
         }
 
-        let blockchains = supportedBlockchains
-        updateBlockchains(blockchains, newSelectedBlockchain: currencyModelBlockchains.first)
+        if let newBlockchain = currencyModelBlockchains.first {
+            setSelectedNetwork(networkId: newBlockchain.networkId)
+        }
 
         self.foundStandardToken = currencyModels.first
 
