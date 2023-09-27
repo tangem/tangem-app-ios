@@ -37,6 +37,8 @@ protocol UserTokensManager: UserTokensSyncService, UserTokensReordering {
 
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?)
+
+    func updateUserTokens(_ completion: @escaping () -> Void)
 }
 
 extension UserTokensManager {
