@@ -27,7 +27,9 @@ final class AddCustomTokenViewModel: ObservableObject {
     @Published var decimals = ""
     @Published var customDerivationPath = ""
 
-    @Published var blockchainsPicker: LegacyPickerModel = .empty
+    @Published var selectedBlockchainNetworkId: String?
+    @Published var selectedBlockchainName: String = ""
+
     @Published var derivationsPicker: LegacyPickerModel = .empty
 
     @Published var error: AlertBinder?
@@ -58,10 +60,8 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     private var bag: Set<AnyCancellable> = []
-    private var blockchainByName: [String: Blockchain] = [:]
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var foundStandardToken: CoinModel?
-//    private unowned let coordinator: LegacyAddCustomTokenRoutable
     private let userTokensManager: UserTokensManager
 
     private let defaultDerivationItemID = "default-derivation"
@@ -98,7 +98,7 @@ final class AddCustomTokenViewModel: ObservableObject {
                     } else {
                         let enteredContractAddress = try self.enteredContractAddress(in: self.enteredBlockchain())
 
-                        result = self.findToken(contractAddress: contractAddress)
+                        result = self.findToken(contractAddress: enteredContractAddress)
                         contractAddressError = nil
 
                         self.isLoading = true
@@ -118,7 +118,7 @@ final class AddCustomTokenViewModel: ObservableObject {
             .store(in: &bag)
 
         Publishers.CombineLatest3(
-            $blockchainsPicker.map { $0.selection }.removeDuplicates(),
+            $selectedBlockchainNetworkId.removeAllDuplicates(),
             $derivationsPicker.map { $0.selection }.removeDuplicates(),
             $customDerivationPath.removeDuplicates()
         )
@@ -175,7 +175,6 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func onDisappear() {
-        blockchainsPicker = .empty
         derivationsPicker = .empty
         name = ""
         symbol = ""
@@ -184,36 +183,29 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func openNetworkSelector() {
-        coordinator.openNetworkSelector()
+        let blockchains = Array(settings.supportedBlockchains).sorted(by: \.displayName)
+        coordinator.openNetworkSelector(
+            selectedBlockchainNetworkId: self.selectedBlockchainNetworkId,
+            blockchains: blockchains
+        )
+    }
+
+    func setSelectedNetwork(networkId: String) {
+        guard let blockchain = settings.supportedBlockchains.first(where: { $0.networkId == networkId }) else {
+            return
+        }
+
+        selectedBlockchainNetworkId = blockchain.networkId
+        selectedBlockchainName = blockchain.displayName
     }
 
     private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
-        let defaultItem = (Localization.customTokenNetworkInputNotSelected, "")
-
-        let newBlockchains = [defaultItem] + blockchains.sorted {
-            $0.displayName < $1.displayName
-        }.map {
-            ($0.displayName, $0.codingKey)
-        }
-        self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
-            ($0.codingKey, $0)
-        })
+        #warning("[REDACTED_TODO_COMMENT]")
         self.derivationPathByBlockchainName = Dictionary(uniqueKeysWithValues: blockchains.compactMap {
             guard let derivationStyle = settings.derivationStyle,
                   let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
             return ($0.codingKey, derivationPath)
         })
-
-        var newBlockchainName = self.blockchainsPicker.selection
-        if let newSelectedBlockchain = newSelectedBlockchain {
-            newBlockchainName = newSelectedBlockchain.codingKey
-        } else if blockchains.count == 1, let firstBlockchain = blockchains.first {
-            newBlockchainName = firstBlockchain.codingKey
-        } else if blockchainByName[blockchainsPicker.selection] == nil {
-            newBlockchainName = ""
-        }
-
-        self.blockchainsPicker = .init(items: newBlockchains, selection: newBlockchainName, isEnabled: blockchains.count > 1)
     }
 
     private func updateDerivationPaths() {
@@ -318,7 +310,10 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func enteredBlockchain() throws -> Blockchain {
-        guard let blockchain = blockchainByName[blockchainsPicker.selection] else {
+        guard
+            let selectedBlockchainNetworkId,
+            let blockchain = settings.supportedBlockchains.first(where: { $0.networkId == selectedBlockchainNetworkId })
+        else {
             throw TokenCreationErrors.blockchainNotSelected
         }
 
