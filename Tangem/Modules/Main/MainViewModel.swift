@@ -203,13 +203,6 @@ final class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        $selectedCardIndex
-            .withWeakCaptureOf(self)
-            .sink { viewModel, newIndex in
-                viewModel.updateManageTokensSheetViewModel(forPageAtIndex: newIndex)
-            }
-            .store(in: &bag)
-
         userWalletRepository.eventProvider
             .sink { [weak self] event in
                 switch event {
@@ -239,18 +232,6 @@ final class MainViewModel: ObservableObject {
 
     private func log(_ message: String) {
         AppLog.shared.debug("[Main V2] \(message)")
-    }
-
-    private func updateManageTokensSheetViewModel(forPageAtIndex newIndex: Int) {
-        let selectedPage = pages[newIndex]
-        switch selectedPage {
-        case .singleWallet:
-            AppCoordinator.instance.setManageTokensSheetViewModel(nil)
-        case .multiWallet(_, _, let bodyModel):
-            AppCoordinator.instance.setManageTokensSheetViewModel(bodyModel.manageTokensViewModel)
-        case .lockedWallet:
-            AppCoordinator.instance.setManageTokensSheetViewModel(nil) // [REDACTED_TODO_COMMENT]
-        }
     }
 }
 
