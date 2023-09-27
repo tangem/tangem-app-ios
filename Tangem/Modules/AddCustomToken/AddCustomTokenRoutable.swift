@@ -7,7 +7,8 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 protocol AddCustomTokenRoutable: AnyObject {
-    func openNetworkSelector()
+    func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain])
 }
