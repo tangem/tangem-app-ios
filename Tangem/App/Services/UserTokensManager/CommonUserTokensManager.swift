@@ -111,6 +111,26 @@ extension CommonUserTokensManager: UserTokensManager {
         return []
     }
 
+    func findCustom() -> (TokenItem, DerivationPath)? {
+        let items = userTokenListManager.userTokens
+
+        let z = items.compactMap { item -> (TokenItem, DerivationPath)? in
+            let tokenItem: TokenItem
+            if let customToken = item.tokens.first(where: { $0.isCustom }) {
+                tokenItem = .token(customToken, item.blockchainNetwork.blockchain)
+            } else if item.blockchainNetwork.derivationPath != item.blockchainNetwork.blockchain.derivationPath(for: .v1)! {
+                tokenItem = .blockchain(item.blockchainNetwork.blockchain)
+            } else {
+                return nil
+            }
+
+            return (tokenItem, item.blockchainNetwork.derivationPath!)
+        }
+        .first
+
+        return z
+    }
+
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
             add(tokenItem, derivationPath: derivationPath) { result in
