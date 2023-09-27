@@ -24,6 +24,10 @@ class FakeTokenQuotesRepository: TokenQuotesRepository {
         return currentPrices.value[id]
     }
 
+    func quote(for coinId: String) -> TokenQuote? {
+        return currentPrices.value[coinId]
+    }
+
     func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never> {
         let filter = Set(coinIds)
         return currentPrices
