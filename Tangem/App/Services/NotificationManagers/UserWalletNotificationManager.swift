@@ -48,8 +48,10 @@ final class UserWalletNotificationManager {
             self?.dismissNotification(with: id)
         }
 
+        // We need to remove legacyDerivation WarningEvent, because it must be shown in Manage tokens only
+        let eventsWithoutDerivationWarning = userWalletModel.config.warningEvents.filter { $0 != .legacyDerivation }
         let notificationInputsFromConfig = factory.buildNotificationInputs(
-            for: userWalletModel.config.warningEvents,
+            for: eventsWithoutDerivationWarning,
             action: action,
             dismissAction: dismissAction
         )
