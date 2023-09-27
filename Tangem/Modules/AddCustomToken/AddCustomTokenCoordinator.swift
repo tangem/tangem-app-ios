@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 class AddCustomTokenCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -21,7 +22,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-//    [REDACTED_USERNAME] private(set) var networkSelectorModel: networsele
+    @Published var networkSelectorModel: AddCustomTokenNetworkSelectorViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -48,5 +49,20 @@ extension AddCustomTokenCoordinator {
 // MARK: - AddCustomTokenRoutable
 
 extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
-    func openNetworkSelector() {}
+    func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain]) {
+        let networkSelectorModel = AddCustomTokenNetworkSelectorViewModel(
+            selectedBlockchainNetworkId: selectedBlockchainNetworkId,
+            blockchains: blockchains
+        )
+        networkSelectorModel.delegate = self
+        self.networkSelectorModel = networkSelectorModel
+    }
+}
+
+extension AddCustomTokenCoordinator: AddCustomTokenNetworkSelectorDelegate {
+    func didSelectNetwork(networkId: String) {
+        networkSelectorModel = nil
+
+        rootViewModel?.setSelectedNetwork(networkId: networkId)
+    }
 }
