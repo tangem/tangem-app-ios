@@ -51,15 +51,13 @@ struct ManageTokensView: View {
                             .onAppear(perform: viewModel.fetch)
                     }
                 }
-
-                Color.clear.frame(height: 58)
             }
         }
     }
 
     private var divider: some View {
         Divider()
-            .padding([.leading])
+            .padding(.leading)
     }
 
     @ViewBuilder private var titleView: some View {
