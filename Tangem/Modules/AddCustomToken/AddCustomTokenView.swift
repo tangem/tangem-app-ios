@@ -29,7 +29,7 @@ struct AddCustomTokenView: View {
                     Button {
                         viewModel.openNetworkSelector()
                     } label: {
-                        ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: "Bitcoin")
+                        ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
                     }
                     .background(Colors.Background.action)
                     .cornerRadiusContinuous(12)
@@ -63,8 +63,6 @@ struct AddCustomTokenView: View {
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(12)
                     }
-
-                    PickerInputWithTitle(title: Localization.customTokenNetworkInputTitle, model: $viewModel.blockchainsPicker)
 
                     if viewModel.showDerivationPaths {
                         VStack(spacing: 0) {
