@@ -34,7 +34,6 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     @Published var error: AlertBinder?
 
-    @Published var warningContainer = WarningsContainer()
     @Published var addButtonDisabled = false
     @Published var isLoading = false
 
@@ -112,8 +111,8 @@ final class AddCustomTokenViewModel: ObservableObject {
                 return result
             }
             .receive(on: RunLoop.main)
-            .sink { [unowned self] currencyModels in
-                self.didFinishTokenSearch(currencyModels)
+            .sink { [weak self] currencyModels in
+                self?.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
 
@@ -123,10 +122,20 @@ final class AddCustomTokenViewModel: ObservableObject {
             $customDerivationPath.removeDuplicates()
         )
         .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [unowned self] _ in
-            self.didChangeBlockchain()
+        .sink { [weak self] _ in
+            self?.validate()
         }
         .store(in: &bag)
+
+        Publishers.CombineLatest3(
+            $name.removeDuplicates(),
+            $symbol.removeDuplicates(),
+            $decimals.removeDuplicates()
+        )
+        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .sink { [weak self] _ in
+            self?.validate()
+        }
     }
 
     func createToken() {
@@ -138,6 +147,7 @@ final class AddCustomTokenViewModel: ObservableObject {
             tokenItem = try enteredTokenItem()
             derivationPath = enteredDerivationPath()
 
+            try checkLocalStorage()
             try validateExistingCurves(for: tokenItem)
 
             if case .token(_, let blockchain) = tokenItem,
@@ -409,26 +419,17 @@ final class AddCustomTokenViewModel: ObservableObject {
         validate()
     }
 
-    private func didChangeBlockchain() {
-        validate()
-    }
-
     private func validate() {
         addButtonDisabled = false
-        warningContainer.removeAll()
 
         do {
+            let _ = try enteredTokenItem()
             try validateDerivationPath()
             try checkLocalStorage()
             try validateEnteredContractAddress()
         } catch {
             let dynamicValidationError = error as? DynamicValidationError
             addButtonDisabled = dynamicValidationError?.preventsFromAdding ?? false
-
-            if let localizedError = error as? LocalizedError {
-                let warning = AppWarning(title: Localization.commonWarning, message: localizedError.localizedDescription, priority: .warning)
-                warningContainer.add(warning)
-            }
         }
     }
 
@@ -466,7 +467,7 @@ private protocol DynamicValidationError {
 }
 
 private extension AddCustomTokenViewModel {
-    enum TokenCreationErrors: LocalizedError {
+    enum TokenCreationErrors: DynamicValidationError, LocalizedError {
         case blockchainNotSelected
         case unsupportedCurve(Blockchain)
         case emptyFields
@@ -493,6 +494,10 @@ private extension AddCustomTokenViewModel {
                 return Localization.customTokenCreationErrorInvalidDerivationPath
             }
         }
+
+        var preventsFromAdding: Bool {
+            true
+        }
     }
 
     enum TokenSearchError: DynamicValidationError, LocalizedError {
@@ -500,12 +505,7 @@ private extension AddCustomTokenViewModel {
         case failedToFindToken
 
         var preventsFromAdding: Bool {
-            switch self {
-            case .alreadyAdded:
-                return true
-            case .failedToFindToken:
-                return false
-            }
+            false
         }
 
         var errorDescription: String? {
