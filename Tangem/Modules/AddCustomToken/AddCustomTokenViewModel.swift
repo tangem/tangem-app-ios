@@ -83,60 +83,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         self.userTokensManager = userTokensManager
         self.coordinator = coordinator
 
-        $contractAddress.removeDuplicates()
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: RunLoop.main)
-            .flatMap { [unowned self] contractAddress -> AnyPublisher<[CoinModel], Never> in
-                let result: AnyPublisher<[CoinModel], Never>
-                let contractAddressError: Error?
-
-                do {
-                    if contractAddress.isEmpty {
-                        result = .just(output: [])
-                        contractAddressError = nil
-                    } else {
-                        let enteredContractAddress = try self.enteredContractAddress(in: self.enteredBlockchain())
-
-                        result = self.findToken(contractAddress: enteredContractAddress)
-                        contractAddressError = nil
-
-                        self.isLoading = true
-                    }
-                } catch {
-                    result = .just(output: [])
-                    contractAddressError = error
-                }
-
-                self.contractAddressError = contractAddressError
-                return result
-            }
-            .receive(on: RunLoop.main)
-            .sink { [weak self] currencyModels in
-                self?.didFinishTokenSearch(currencyModels)
-            }
-            .store(in: &bag)
-
-        Publishers.CombineLatest3(
-            $selectedBlockchainNetworkId.removeAllDuplicates(),
-            $derivationsPicker.map { $0.selection }.removeDuplicates(),
-            $customDerivationPath.removeDuplicates()
-        )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [weak self] _ in
-            self?.validate()
-        }
-        .store(in: &bag)
-
-        Publishers.CombineLatest3(
-            $name.removeDuplicates(),
-            $symbol.removeDuplicates(),
-            $decimals.removeDuplicates()
-        )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [weak self] _ in
-            self?.validate()
-        }
-        .store(in: &bag)
+        bind()
     }
 
     func createToken() {
@@ -208,6 +155,63 @@ final class AddCustomTokenViewModel: ObservableObject {
 
         selectedBlockchainNetworkId = blockchain.networkId
         selectedBlockchainName = blockchain.displayName
+    }
+
+    private func bind() {
+        $contractAddress.removeDuplicates()
+            .dropFirst()
+            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .flatMap { [unowned self] contractAddress -> AnyPublisher<[CoinModel], Never> in
+                let result: AnyPublisher<[CoinModel], Never>
+                let contractAddressError: Error?
+
+                do {
+                    if contractAddress.isEmpty {
+                        result = .just(output: [])
+                        contractAddressError = nil
+                    } else {
+                        let enteredContractAddress = try self.enteredContractAddress(in: self.enteredBlockchain())
+
+                        result = self.findToken(contractAddress: enteredContractAddress)
+                        contractAddressError = nil
+
+                        self.isLoading = true
+                    }
+                } catch {
+                    result = .just(output: [])
+                    contractAddressError = error
+                }
+
+                self.contractAddressError = contractAddressError
+                return result
+            }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] currencyModels in
+                self?.didFinishTokenSearch(currencyModels)
+            }
+            .store(in: &bag)
+
+        Publishers.CombineLatest3(
+            $selectedBlockchainNetworkId.removeAllDuplicates(),
+            $derivationsPicker.map { $0.selection }.removeDuplicates(),
+            $customDerivationPath.removeDuplicates()
+        )
+        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .sink { [weak self] _ in
+            self?.validate()
+        }
+        .store(in: &bag)
+
+        Publishers.CombineLatest3(
+            $name.removeDuplicates(),
+            $symbol.removeDuplicates(),
+            $decimals.removeDuplicates()
+        )
+        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .sink { [weak self] _ in
+            self?.validate()
+        }
+        .store(in: &bag)
     }
 
     private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
