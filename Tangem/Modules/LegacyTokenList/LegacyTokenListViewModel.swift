@@ -14,6 +14,7 @@ import BlockchainSdk
 import TangemSdk
 
 class LegacyTokenListViewModel: ObservableObject {
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityController: SwapAvailabilityController
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
@@ -75,6 +76,8 @@ class LegacyTokenListViewModel: ObservableObject {
         }
 
         isSaving = true
+
+        swapAvailabilityController.addTokensIfCanBeSwapped(pendingAdd)
 
         userTokensManager.update(
             itemsToRemove: pendingRemove,
