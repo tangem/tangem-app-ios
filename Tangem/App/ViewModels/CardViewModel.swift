@@ -551,7 +551,7 @@ extension CardViewModel: UserWalletModel {
 
         didPerformInitialUpdate = true
 
-        _userTokensManager.updateUserTokens()
+        _userTokensManager.updateUserTokens {}
     }
 
     func updateWalletName(_ name: String) {
