@@ -1,5 +1,5 @@
 //
-//  _ManageTokensView.swift
+//  ManageTokensBottomSheetContentView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,12 +8,13 @@
 
 import SwiftUI
 
-// [REDACTED_TODO_COMMENT]
-struct _ManageTokensView: View {
-    @ObservedObject private var viewModel: ManageTokensSheetViewModel // [REDACTED_TODO_COMMENT]
+#if ALPHA_OR_BETA
+@available(*, deprecated, message: "Test only, remove if not needed")
+struct ManageTokensBottomSheetContentView: View {
+    @ObservedObject private var viewModel: ManageTokensBottomSheetViewModel
 
     init(
-        viewModel: ManageTokensSheetViewModel
+        viewModel: ManageTokensBottomSheetViewModel
     ) {
         self.viewModel = viewModel
     }
@@ -36,3 +37,4 @@ struct _ManageTokensView: View {
         }
     }
 }
+#endif // ALPHA_OR_BETA
