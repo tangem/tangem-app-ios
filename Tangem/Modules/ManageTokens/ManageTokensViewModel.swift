@@ -30,15 +30,13 @@ final class ManageTokensViewModel: ObservableObject {
         loader.canFetchMore
     }
 
-    private lazy var loader = setupListDataLoader()
-
-    private var bag = Set<AnyCancellable>()
-    private var loadQuotesSubscribtion: AnyCancellable?
-
     private unowned let coordinator: ManageTokensRoutable
 
-    private var percentFormatter = PercentFormatter()
-    private var balanceFormatter = BalanceFormatter()
+    private lazy var loader = setupListDataLoader()
+    private let percentFormatter = PercentFormatter()
+    private let balanceFormatter = BalanceFormatter()
+    private var bag = Set<AnyCancellable>()
+    private var loadQuotesSubscribtion: AnyCancellable?
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
