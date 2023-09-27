@@ -12,6 +12,8 @@ import TangemSdk
 import BlockchainSdk
 
 struct CommonUserTokensManager {
+    @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
+
     let derivationManager: DerivationManager?
 
     private let userTokenListManager: UserTokenListManager
@@ -182,10 +184,21 @@ extension CommonUserTokensManager: UserTokensSyncService {
             .eraseToAnyPublisher()
     }
 
-    func updateUserTokens() {
+    func updateUserTokens(_ completion: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self.walletModelsManager.updateAll(silent: false, completion: {})
+            self.updateTokenSwapState(completion)
         }
+    }
+
+    private func updateTokenSwapState(_ completion: @escaping () -> Void) {
+        let converter = StorageEntryConverter()
+        let tokenItemsList = converter.convertToTokenItem(userTokenListManager.userTokensList.entries)
+        var subscription: AnyCancellable?
+        subscription = swapAvailabilityController.loadSwapAvailability(for: tokenItemsList)
+            .sink { _ in
+                self.walletModelsManager.updateAll(silent: false, completion: completion)
+                withExtendedLifetime(subscription) {}
+            } receiveValue: { _ in }
     }
 }
 
