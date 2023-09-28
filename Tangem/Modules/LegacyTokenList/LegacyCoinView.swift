@@ -30,7 +30,7 @@ struct LegacyCoinView: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
-                IconView(url: model.imageURL, size: CGSize(width: iconWidth, height: iconWidth), forceKingfisher: true)
+                IconView(url: model.imageURL, solidColor: nil, size: CGSize(width: iconWidth, height: iconWidth), forceKingfisher: true)
                     .padding(.trailing, 14)
 
                 VStack(alignment: .leading, spacing: 6) {
