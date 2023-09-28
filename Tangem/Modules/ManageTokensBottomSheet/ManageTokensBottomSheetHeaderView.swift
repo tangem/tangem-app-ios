@@ -11,22 +11,35 @@ import SwiftUI
 #if ALPHA_OR_BETA
 @available(*, deprecated, message: "Test only, remove if not needed")
 struct ManageTokensBottomSheetHeaderView: View {
-    @ObservedObject private var viewModel: ManageTokensBottomSheetViewModel
+    @Binding private var searchText: String
+    @State private var safeAreaBottomInset: CGFloat = 34.0  // [REDACTED_TODO_COMMENT]
 
     init(
-        viewModel: ManageTokensBottomSheetViewModel
+        searchText: Binding<String>
     ) {
-        self.viewModel = viewModel
+        _searchText = searchText
     }
 
     var body: some View {
-        TextField("Placeholder", text: $viewModel.searchText)
+        let additionalBottomInset = max(0.0, safeAreaBottomInset - Constants.verticalInset)
+
+        TextField(Localization.commonSearch, text: $searchText)
             .frame(height: 46.0)
             .padding(.horizontal, 12.0)
             .background(Colors.Field.primary)
             .cornerRadius(14.0)
-            .padding(.init(top: 20.0, leading: 16.0, bottom: 34.0, trailing: 16.0)) // [REDACTED_TODO_COMMENT]
+            .padding(.horizontal, 16.0)
+            .padding(.vertical, Constants.verticalInset)
+            .padding(.bottom, additionalBottomInset)
             .background(Colors.Background.primary)
+    }
+}
+
+// MARK: - Constants
+
+private extension ManageTokensBottomSheetHeaderView {
+    enum Constants {
+        static let verticalInset = 20.0
     }
 }
 #endif // ALPHA_OR_BETA
