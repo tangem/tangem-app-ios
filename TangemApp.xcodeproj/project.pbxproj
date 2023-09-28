@@ -445,6 +445,7 @@
 		B60275292A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60275282A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift */; };
 		B602752B2A7A651000865EA7 /* ShadowAnimatableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602752A2A7A651000865EA7 /* ShadowAnimatableModifier.swift */; };
 		B605224B2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B605224A2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift */; };
+		B60B203C2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60B203B2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift */; };
 		B60B9FDB2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60B9FDA2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift */; };
 		B60C13B32A530C500003F68F /* ScrollDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60C13B22A530C500003F68F /* ScrollDetector.swift */; };
 		B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6176A792A5B743A0062C399 /* CGRect+.swift */; };
@@ -1652,6 +1653,7 @@
 		B60275282A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerRadiusAnimatableModifier.swift; sourceTree = "<group>"; };
 		B602752A2A7A651000865EA7 /* ShadowAnimatableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowAnimatableModifier.swift; sourceTree = "<group>"; };
 		B605224A2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OrganizeTokensDragAndDropController+AuxiliaryTypes.swift"; sourceTree = "<group>"; };
+		B60B203B2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetShadowView.swift; sourceTree = "<group>"; };
 		B60B9FDA2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSectionViewModel.swift; sourceTree = "<group>"; };
 		B60C13B22A530C500003F68F /* ScrollDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDetector.swift; sourceTree = "<group>"; };
 		B6176A792A5B743A0062C399 /* CGRect+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+.swift"; sourceTree = "<group>"; };
@@ -5637,6 +5639,7 @@
 				EFE503582A727A100086A1B1 /* BottomScrollableSheet.swift */,
 				EF193C022A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift */,
 				B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */,
+				B60B203B2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift */,
 			);
 			path = BottomScrollableSheet;
 			sourceTree = "<group>";
@@ -7091,6 +7094,7 @@
 				DAA5E30328D21369003C0E80 /* BiometryLogoImage.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
+				B60B203C2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift in Sources */,
 				B0A596562992A5B700C7C512 /* ButtonWithIconInfo.swift in Sources */,
 				EF45E045293F74EB00C7090F /* UserCurrenciesProviderMock.swift in Sources */,
 				DC0A582E282BCBEB0031BECC /* ShopifyProtocol.swift in Sources */,
