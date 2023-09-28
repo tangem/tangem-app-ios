@@ -144,6 +144,17 @@ struct NotificationView_Previews: PreviewProvider {
                 })
             ),
             .init(
+                style: .withButtons(
+                    [
+                        NotificationView.NotificationButton(action: { _, _ in }, actionType: .buyCrypto(currencySymbol: "ETH")),
+                    ]
+                ),
+                settings: NotificationView.Settings(
+                    event: WarningEvent.devCard,
+                    dismissAction: nil
+                )
+            ),
+            .init(
                 style: .plain,
                 settings: NotificationView.Settings(
                     event: WarningEvent.devCard,
