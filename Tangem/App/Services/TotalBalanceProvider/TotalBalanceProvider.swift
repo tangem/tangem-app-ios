@@ -82,7 +82,7 @@ private extension TotalBalanceProvider {
     }
 
     func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
-        guard !hasEntriesWithoutDerivation else {
+        if hasEntriesWithoutDerivation {
             totalBalanceSubject.send(.loaded(.init(balance: nil, currencyCode: currencyCode, hasError: false)))
             return
         }
