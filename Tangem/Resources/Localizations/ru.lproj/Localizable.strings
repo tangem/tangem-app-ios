@@ -303,10 +303,10 @@
 "onboarding_wallet_info_title_fourth" = "Восстановление кода доступа";
 "onboarding_wallet_info_title_second" = "Идентичные карты";
 "onboarding_wallet_info_title_third" = "Код доступа";
-"organize_tokens_group" = "Группировка";
+"organize_tokens_group" = "Группы";
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Сортировка токенов";
-"organize_tokens_ungroup" = "Разгруппировать";
+"organize_tokens_ungroup" = "Список";
 "push_additional_fee" = "Дополнительная комиссия";
 "push_previous_fee" = "Предыдущая комиссия";
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
@@ -423,6 +423,7 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
+"token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
 "token_details_hide_alert_title" = "Скрыть %@";
