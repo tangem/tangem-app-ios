@@ -25,7 +25,7 @@ struct IconView: View {
         UIColor.backgroundPrimary.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
     }
 
-    init(url: URL?, solidColor: Color? = nil, size: CGSize, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
+    init(url: URL?, solidColor: Color?, size: CGSize, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
         self.url = url
         self.solidColor = solidColor
         self.size = size
@@ -33,7 +33,7 @@ struct IconView: View {
         self.forceKingfisher = forceKingfisher
     }
 
-    init(url: URL?, solidColor: Color? = nil, sizeSettings: IconViewSizeSettings, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
+    init(url: URL?, solidColor: Color?, sizeSettings: IconViewSizeSettings, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
         self.init(url: url, solidColor: solidColor, size: sizeSettings.iconSize, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher)
     }
 
@@ -117,6 +117,7 @@ struct IconView_Preview: PreviewProvider {
     static var previews: some View {
         IconView(
             url: TokenIconURLBuilder().iconURL(id: "arbitrum-one", size: .small),
+            solidColor: nil,
             size: CGSize(width: 40, height: 40)
         )
     }
