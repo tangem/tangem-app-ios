@@ -31,13 +31,20 @@ class ManageTokensNetworkSelectorCoordinator: CoordinatorObject {
     // MARK: - Implmentation
 
     func start(with options: Options) {
-        manageTokensNetworkSelectorViewModel = .init(tokenItems: options.tokenItems, coordinator: self)
+        manageTokensNetworkSelectorViewModel = .init(
+            coinId: options.coinId,
+            tokenItems: options.tokenItems,
+            delegate: options.delegate,
+            coordinator: self
+        )
     }
 }
 
 extension ManageTokensNetworkSelectorCoordinator {
     struct Options {
+        let coinId: CoinModel.ID
         let tokenItems: [TokenItem]
+        var delegate: ManageTokensNetworkSelectorViewModelDelegate?
     }
 }
 
