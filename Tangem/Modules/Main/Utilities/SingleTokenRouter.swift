@@ -14,6 +14,7 @@ import TangemSwapping
 protocol SingleTokenRoutable {
     func openReceive(walletModel: WalletModel)
     func openBuyCryptoIfPossible(walletModel: WalletModel)
+    func openNetworkCurrency()
     func openSend(walletModel: WalletModel)
     func openExchange(walletModel: WalletModel)
     func openSell(for walletModel: WalletModel)
@@ -57,6 +58,10 @@ class SingleTokenRouter: SingleTokenRoutable {
         } else {
             openBuy(for: walletModel)
         }
+    }
+
+    func openNetworkCurrency() {
+        coordinator.openNetworkCurrency()
     }
 
     func openSend(walletModel: WalletModel) {
