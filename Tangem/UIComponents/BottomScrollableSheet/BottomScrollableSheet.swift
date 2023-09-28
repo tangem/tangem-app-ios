@@ -58,16 +58,6 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             .ignoresSafeArea()
     }
 
-    @ViewBuilder private var grabber: some View {
-        if prefersGrabberVisible {
-            Capsule(style: .continuous)
-                .fill(Colors.Icon.inactive)
-                .frame(size: Constants.grabberSize)
-                .padding(.vertical, 8.0)
-                .infinityFrame(axis: .horizontal)
-        }
-    }
-
     @ViewBuilder private var scrollView: some View {
         ScrollViewRepresentable(delegate: stateObject, content: content)
             .isScrollDisabled(stateObject.scrollViewIsDragging)
@@ -110,7 +100,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     @ViewBuilder
     private func headerView(proxy: GeometryProxy) -> some View {
         header()
-            .overlay(grabber, alignment: .top)
+            .if(prefersGrabberVisible) { $0.bottomScrollableSheetGrabber() }
             .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
     }
 }
@@ -128,7 +118,6 @@ extension BottomScrollableSheet: Setupable {
 private extension BottomScrollableSheet {
     enum Constants {
         static var backgroundViewOpacity: CGFloat { 0.5 }
-        static var grabberSize: CGSize { CGSize(width: 32.0, height: 4.0) }
     }
 }
 
