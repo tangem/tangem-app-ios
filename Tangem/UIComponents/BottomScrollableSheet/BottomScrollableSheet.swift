@@ -16,6 +16,8 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
 
     private var prefersGrabberVisible = true
 
+    @State private var isHidden = true
+
     init(
         stateObject: BottomScrollableSheetStateObject,
         @ViewBuilder header: @escaping () -> Header,
@@ -81,6 +83,18 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
         .frame(height: stateObject.visibleHeight, alignment: .bottom)
         .cornerRadius(24.0, corners: [.topLeft, .topRight])
         .bottomScrollableSheetShadow()
+        .hidden(isHidden)
+        .overlay(gestureOverlayView(proxy: proxy), alignment: .top)
+        .onAnimationStarted(for: stateObject.progress) {
+            if isHidden {
+                isHidden = false
+            }
+        }
+        .onAnimationCompleted(for: stateObject.progress) {
+            if !isHidden, stateObject.progress < .ulpOfOne {
+                isHidden = true
+            }
+        }
     }
 
     /// Overlay view with reduced hittest area is used here to prevent simultaneous recognition of the drag gesture with the system edge drop gesture.
@@ -98,7 +112,6 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
         header()
             .overlay(grabber, alignment: .top)
             .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
-            .overlay(gestureOverlayView(proxy: proxy), alignment: .top)
     }
 }
 
@@ -116,5 +129,23 @@ private extension BottomScrollableSheet {
     enum Constants {
         static var backgroundViewOpacity: CGFloat { 0.5 }
         static var grabberSize: CGSize { CGSize(width: 32.0, height: 4.0) }
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension View {
+    func onAnimationStarted<Value>(
+        for value: Value,
+        completion: @escaping () -> Void
+    ) -> some View where Value: VectorArithmetic, Value: Comparable, Value: ExpressibleByFloatLiteral {
+        modifier(
+            AnimationProgressObserverModifier(
+                observedValue: value,
+                targetValue: 0.0,
+                valueComparator: >,
+                action: completion
+            )
+        )
     }
 }
