@@ -258,7 +258,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+        // derivation
+        let blo = walletModel.blockchainNetwork.blockchain
+
+        let mainCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first {
+            $0.tokenItem == .blockchain(blo) && $0.blockchainNetwork == walletModel.blockchainNetwork
+        }
+
+        coordinator.openTokenDetails(for: walletModel, mainCurrencyWalletModel: mainCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 
     private func updateMissingDerivationNotification(for pendingDerivationsCount: Int) {

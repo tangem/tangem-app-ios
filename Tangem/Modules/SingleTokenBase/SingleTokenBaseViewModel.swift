@@ -156,6 +156,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCryptoIfPossible()
+        case .openNetworkCurrency:
+            openNetworkCurrency()
         default:
             break
         }
@@ -302,6 +304,10 @@ extension SingleTokenBaseViewModel {
         }
 
         tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
+    }
+
+    func openNetworkCurrency() {
+        tokenRouter.openNetworkCurrency()
     }
 
     func openSend() {
