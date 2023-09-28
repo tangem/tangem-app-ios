@@ -71,6 +71,12 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         bind()
     }
 
+    // MARK: - Public Implementation
+
+    func setNeedUpdateAction() {
+        action = actionType(for: coin)
+    }
+
     // MARK: - Private Implementation
 
     private func bind() {
@@ -80,6 +86,19 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
             update(quote: quote)
         }
         .store(in: &bag)
+    }
+
+    private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
+        let userWalletModels = userWalletRepository.models
+
+        let isAlreadyExistToken = userWalletModels.contains(where: { userWalletModel in
+            coinModel.items.contains(where: { tokenItem in
+                return userWalletModel.userTokensManager.contains(tokenItem, derivationPath: nil)
+
+            })
+        })
+
+        return isAlreadyExistToken ? .edit : .add
     }
 
     private func update(quote: TokenQuote?) {
