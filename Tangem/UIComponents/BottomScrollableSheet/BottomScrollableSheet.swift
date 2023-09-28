@@ -80,6 +80,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
         }
         .frame(height: stateObject.visibleHeight, alignment: .bottom)
         .cornerRadius(24.0, corners: [.topLeft, .topRight])
+        .bottomScrollableSheetShadow()
     }
 
     /// Overlay view with reduced hittest area is used here to prevent simultaneous recognition of the drag gesture with the system edge drop gesture.
