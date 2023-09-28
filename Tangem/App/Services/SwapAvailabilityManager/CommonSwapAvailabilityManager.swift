@@ -85,8 +85,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                 let onlyAvailableToSwapItems = loadedTokenItems.filter {
                     switch $0 {
                     case .token(let token, _):
-                        // If exchangeable == nil then swap is available for old users
-                        return token.exchangeable ?? true
+                        return token.exchangeable ?? false
                     case .blockchain(let blockchain):
                         return self.supportedBlockchains.contains(blockchain)
                     }
@@ -109,7 +108,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                 return false
             }
 
-            return token.exchangeable ?? true
+            return token.exchangeable ?? false
         }
 
         loadedSwapableTokenItems.formUnion(filteredItems)
