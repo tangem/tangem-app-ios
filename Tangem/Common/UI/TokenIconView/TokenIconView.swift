@@ -63,7 +63,7 @@ struct TokenIconView: View {
 
 struct TokenIconView_Preview: PreviewProvider {
     static let viewModel = TokenIconViewModel(tokenItem: .blockchain(.gnosis))
-    static let tokenViewModel = TokenIconViewModel(id: "stellar", name: "Stellar", style: .token(Tokens.ethereumFill.name))
+    static let tokenViewModel = TokenIconViewModel(id: "stellar", name: "Stellar", style: .token(Tokens.ethereumFill.name, customTokenColor: nil))
     static var previews: some View {
         VStack(spacing: 16) {
             TokenIconView(viewModel: viewModel)
