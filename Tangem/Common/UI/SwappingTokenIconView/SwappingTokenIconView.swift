@@ -72,10 +72,10 @@ struct SwappingTokenIconView: View {
 
     private func image(imageURL: URL, networkURL: URL?) -> some View {
         ZStack(alignment: .topTrailing) {
-            IconView(url: imageURL, solidColor: nil, size: imageSize)
+            IconView(url: imageURL, customTokenColor: nil, size: imageSize)
 
             if let networkIcon = networkURL {
-                IconView(url: networkIcon, solidColor: nil, size: networkIconSize)
+                IconView(url: networkIcon, customTokenColor: nil, size: networkIconSize)
                     .frame(size: networkIconSize)
                     .padding(.all, 1)
                     .background(Colors.Background.primary)
