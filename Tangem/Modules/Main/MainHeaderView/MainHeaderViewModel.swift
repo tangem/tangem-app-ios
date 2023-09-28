@@ -78,7 +78,7 @@ final class MainHeaderViewModel: ObservableObject {
 
                     let balanceFormatter = BalanceFormatter()
                     var balanceToFormat = balance.balance
-                    if balanceToFormat == nil, infoProvider.isWalletModelListEmpty {
+                    if balanceToFormat == nil, infoProvider.isTokensListEmpty {
                         balanceToFormat = 0
                     }
                     let fiatBalanceFormatted = balanceFormatter.formatFiatBalance(balanceToFormat, formattingOptions: .defaultFiatFormattingOptions)
