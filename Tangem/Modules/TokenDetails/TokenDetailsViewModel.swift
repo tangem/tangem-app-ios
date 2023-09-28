@@ -39,9 +39,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         return TokenIconURLBuilder().iconURL(id: id)
     }
 
+    var mainCurrencyWalletModel: WalletModel?
+
     init(
         cardModel: CardViewModel,
         walletModel: WalletModel,
+        mainCurrencyWalletModel: WalletModel?,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
         coordinator: TokenDetailsRoutable,
@@ -56,6 +59,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             tokenRouter: tokenRouter
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
+
+        self.mainCurrencyWalletModel = mainCurrencyWalletModel
 
         prepareSelf()
     }
