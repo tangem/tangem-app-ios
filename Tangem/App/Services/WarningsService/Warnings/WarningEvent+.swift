@@ -47,7 +47,7 @@ extension WarningEvent {
 
     private var priority: WarningPriority {
         switch self {
-        case .numberOfSignedHashesIncorrect, .multiWalletSignedHashes, .rateApp, .oldDeviceOldCard, .oldCard:
+        case .numberOfSignedHashesIncorrect, .multiWalletSignedHashes, .rateApp, .oldDeviceOldCard, .oldCard, .unableToCoverFee:
             return .info
         case .failedToValidateCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .critical
@@ -62,7 +62,7 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect, .multiWalletSignedHashes, .rateApp, .systemDeprecationTemporary:
             return .temporary
-        case .failedToValidateCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .failedToValidateCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .unableToCoverFee:
             return .permanent
         case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
             return .temporary
@@ -84,7 +84,7 @@ extension WarningEvent {
             return Localization.warningSystemDeprecationTitle
         case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect, .legacyDerivation:
             return defaultTitle
-        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
+        case .missingDerivation, .walletLocked, .missingBackup, .unableToCoverFee: // New cases won't be displayed in new design
             return defaultTitle
         }
     }
