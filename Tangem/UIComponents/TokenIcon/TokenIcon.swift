@@ -27,7 +27,7 @@ struct TokenIcon: View {
     }
 
     var body: some View {
-        IconView(url: imageURL, solidColor: customTokenColor, size: size, forceKingfisher: true)
+        IconView(url: imageURL, customTokenColor: customTokenColor, size: size, forceKingfisher: true)
             .overlay(
                 networkIcon.offset(x: 4, y: -4),
                 alignment: .topTrailing
