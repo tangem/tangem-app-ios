@@ -12,6 +12,7 @@ import Kingfisher
 struct TokenIcon: View {
     let name: String
     let imageURL: URL?
+    let customTokenColor: Color?
     let blockchainIconName: String?
     let isCustom: Bool
 
@@ -26,7 +27,7 @@ struct TokenIcon: View {
     }
 
     var body: some View {
-        IconView(url: imageURL, size: size, forceKingfisher: true)
+        IconView(url: imageURL, customTokenColor: customTokenColor, size: size, forceKingfisher: true)
             .overlay(
                 networkIcon.offset(x: 4, y: -4),
                 alignment: .topTrailing
@@ -92,6 +93,7 @@ struct TokenIcon_Preview: PreviewProvider {
                 ForEach(coins, id: \.id) { coin in
                     TokenIcon(
                         name: coin.id, imageURL: TokenIconURLBuilder().iconURL(id: coin.id, size: .large),
+                        customTokenColor: nil,
                         blockchainIconName: coin.iconName,
                         isCustom: true
                     )
