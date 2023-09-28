@@ -66,6 +66,10 @@ class SingleTokenNotificationManager {
             events.append(.event(for: sendBlockedReason))
         }
 
+        if case .token(let token, let blockchain) = walletModel.tokenItem {
+            events.append(.unableToCoverFee(token: token, blockchain: blockchain))
+        }
+
         let inputs = events.map {
             factory.buildNotificationInput(
                 for: $0,
