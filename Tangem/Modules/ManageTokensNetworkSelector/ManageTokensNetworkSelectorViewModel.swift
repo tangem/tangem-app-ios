@@ -36,7 +36,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
-    private var tokenItems: [TokenItem]
 
     private var userTokensManager: UserTokensManager? {
         userWalletRepository.selectedModel?.userTokensManager
@@ -57,13 +56,23 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Properties
 
+    private let coinId: CoinModel.ID
+    private let tokenItems: [TokenItem]
+    private weak var delegate: ManageTokensNetworkSelectorViewModelDelegate?
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
     // MARK: - Init
 
-    init(tokenItems: [TokenItem], coordinator: ManageTokensNetworkSelectorCoordinator) {
-        self.coordinator = coordinator
+    init(
+        coinId: CoinModel.ID,
+        tokenItems: [TokenItem],
+        delegate: ManageTokensNetworkSelectorViewModelDelegate?,
+        coordinator: ManageTokensNetworkSelectorCoordinator
+    ) {
+        self.coinId = coinId
         self.tokenItems = tokenItems
+        self.delegate = delegate
+        self.coordinator = coordinator
 
         fillSelectorItemsFromTokenItems()
     }
@@ -132,6 +141,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             itemsToAdd: pendingAdd,
             derivationPath: nil
         )
+
+        delegate?.tokenItemsDidUpdate(by: coinId)
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
@@ -175,6 +186,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                 pendingAdd.remove(tokenItem)
             }
         }
+
+        saveChanges()
     }
 
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
@@ -299,6 +312,12 @@ private extension ManageTokensNetworkSelectorViewModel {
             )
         }
     }
+}
+
+// MARK: - ManageTokensNetworkSelectorViewModelDelegate
+
+protocol ManageTokensNetworkSelectorViewModelDelegate: AnyObject {
+    func tokenItemsDidUpdate(by coinId: CoinModel.ID)
 }
 
 // MARK: - Settings
