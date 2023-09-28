@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemSdk
 import BlockchainSdk
 import TangemSwapping
@@ -96,13 +97,20 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         prepareSelf()
     }
 
-    func openExplorer() {
-        #warning("This will be changed after, for now there is no solution for tx history with multiple addresses")
-        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
-            return
-        }
+    func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        assertionFailure("Must be reimplemented")
+    }
 
-        openExplorer(at: url)
+    func openExplorer() {
+        let addresses = walletModel.wallet.addresses
+
+        if addresses.count == 1 {
+            openAddressExplorer(at: 0)
+        } else {
+            openAddressSelector(addresses) { [weak self] index in
+                self?.openAddressExplorer(at: index)
+            }
+        }
     }
 
     func openTransactionExplorer(transaction hash: String) {
@@ -159,6 +167,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         default:
             break
         }
+    }
+
+    private func openAddressExplorer(at index: Int) {
+        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
+            return
+        }
+
+        openExplorer(at: url)
     }
 }
 
@@ -328,6 +344,24 @@ extension SingleTokenBaseViewModel {
 
     func openSendToSell(with request: SellCryptoRequest) {
         tokenRouter.openSendToSell(with: request, for: walletModel)
+    }
+
+    func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
+        if addresses.isEmpty {
+            return
+        }
+
+        let addressButtons: [Alert.Button] = addresses.enumerated().map { index, address in
+            .default(Text(address.localizedName)) {
+                callback(index)
+            }
+        }
+
+        let sheet = ActionSheet(
+            title: Text(Localization.tokenDetailsChooseAddress),
+            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
+        )
+        presentActionSheet(ActionSheetBinder(sheet: sheet))
     }
 
     func openExplorer(at url: URL) {

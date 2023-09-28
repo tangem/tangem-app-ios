@@ -630,6 +630,7 @@
 		DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */; };
 		DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435527BFC41700718AC6 /* StoriesBottomButtons.swift */; };
 		DAC37FBA2A2DFB730068F3ED /* PromotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC37FB92A2DFB730068F3ED /* PromotionView.swift */; };
+		DAC4F9F02AC314E100BEBCF8 /* MainViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC4F9EF2AC314E100BEBCF8 /* MainViewDelegate.swift */; };
 		DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CEB27BE63830027147D /* StoriesProgressView.swift */; };
 		DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CEC27BE63830027147D /* StoriesTangemLogo.swift */; };
 		DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CED27BE63830027147D /* StoriesViewModel.swift */; };
@@ -1842,6 +1843,7 @@
 		DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStoryPage.swift; sourceTree = "<group>"; };
 		DABA435527BFC41700718AC6 /* StoriesBottomButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesBottomButtons.swift; sourceTree = "<group>"; };
 		DAC37FB92A2DFB730068F3ED /* PromotionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionView.swift; sourceTree = "<group>"; };
+		DAC4F9EF2AC314E100BEBCF8 /* MainViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewDelegate.swift; sourceTree = "<group>"; };
 		DAC53CEB27BE63830027147D /* StoriesProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesProgressView.swift; sourceTree = "<group>"; };
 		DAC53CEC27BE63830027147D /* StoriesTangemLogo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesTangemLogo.swift; sourceTree = "<group>"; };
 		DAC53CED27BE63830027147D /* StoriesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesViewModel.swift; sourceTree = "<group>"; };
@@ -3351,6 +3353,7 @@
 				B06C08482A73FB4D00D982BC /* MainCoordinatorView.swift */,
 				B06C08492A73FB4D00D982BC /* MainView.swift */,
 				B06C084A2A73FB4D00D982BC /* MainViewModel.swift */,
+				DAC4F9EF2AC314E100BEBCF8 /* MainViewDelegate.swift */,
 				B06C084B2A73FB4D00D982BC /* MainRoutable.swift */,
 			);
 			path = Main;
@@ -6714,6 +6717,7 @@
 				B65D3FCB2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift in Sources */,
 				EFF253B4293DCAAA00AEF302 /* SwappingFeeRowView.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
+				DAC4F9F02AC314E100BEBCF8 /* MainViewDelegate.swift in Sources */,
 				5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* TokenQuoteFormatter.swift in Sources */,
