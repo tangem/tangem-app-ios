@@ -16,6 +16,7 @@ struct _MainFooterView: View {
 
             ManageTokensBottomSheetHeaderView(searchText: .constant(""))
                 .cornerRadius(24.0, corners: [.topLeft, .topRight]) // Replicates corner radius in `BottomScrollableSheet`
+                .bottomScrollableSheetGrabber()
                 .bottomScrollableSheetShadow()
         }
     }
