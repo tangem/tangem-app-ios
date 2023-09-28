@@ -84,7 +84,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     func onDisappear() {
-        saveChanges()
+        delegate?.tokenItemsDidUpdate(by: coinId)
     }
 
     func selectWalletActionDidTap() {
@@ -141,8 +141,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             itemsToAdd: pendingAdd,
             derivationPath: nil
         )
-
-        delegate?.tokenItemsDidUpdate(by: coinId)
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
