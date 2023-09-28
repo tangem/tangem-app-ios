@@ -105,7 +105,7 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
-    func openTokenDetails(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openTokenDetails(for model: WalletModel, mainCurrencyWalletModel: WalletModel?, userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
         guard let cardViewModel = userWalletModel as? CardViewModel else {
             return
@@ -120,6 +120,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             with: .init(
                 cardModel: cardViewModel,
                 walletModel: model,
+                mainCurrencyWalletModel: mainCurrencyWalletModel,
                 userTokensManager: userWalletModel.userTokensManager
             )
         )
@@ -194,6 +195,10 @@ extension MainCoordinator: SingleTokenBaseRoutable {
                 },
             ]
         )
+    }
+
+    func openNetworkCurrency() {
+        print("?")
     }
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
