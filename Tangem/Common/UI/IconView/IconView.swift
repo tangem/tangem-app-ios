@@ -11,7 +11,7 @@ import Kingfisher
 
 struct IconView: View {
     private let url: URL?
-    private let customTokenColor: Color?
+    private let solidColor: Color?
     private let size: CGSize
     private let lowContrastBackgroundColor: UIColor
 
@@ -19,34 +19,34 @@ struct IconView: View {
     // [REDACTED_TODO_COMMENT]
     private let forceKingfisher: Bool
 
-    private let customTokenIconSizeRatio = 0.54
+    private let solidColorIconSizeRatio = 0.54
 
     private static var defaultLowContrastBackgroundColor: UIColor {
         UIColor.backgroundPrimary.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
     }
 
-    init(url: URL?, customTokenColor: Color? = nil, size: CGSize, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
+    init(url: URL?, solidColor: Color? = nil, size: CGSize, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
         self.url = url
-        self.customTokenColor = customTokenColor
+        self.solidColor = solidColor
         self.size = size
         self.lowContrastBackgroundColor = lowContrastBackgroundColor
         self.forceKingfisher = forceKingfisher
     }
 
-    init(url: URL?, customTokenColor: Color? = nil, sizeSettings: IconViewSizeSettings, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
-        self.init(url: url, customTokenColor: customTokenColor, size: sizeSettings.iconSize, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher)
+    init(url: URL?, solidColor: Color? = nil, sizeSettings: IconViewSizeSettings, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
+        self.init(url: url, solidColor: solidColor, size: sizeSettings.iconSize, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher)
     }
 
     var body: some View {
-        if let customTokenColor {
-            customTokenColor
+        if let solidColor {
+            solidColor
                 .clipShape(Circle())
                 .overlay(
-                    Assets.customTokenStar.image
+                    Assets.star.image
                         .resizable()
                         .frame(
-                            width: size.width * customTokenIconSizeRatio,
-                            height: size.height * customTokenIconSizeRatio
+                            width: size.width * solidColorIconSizeRatio,
+                            height: size.height * solidColorIconSizeRatio
                         )
                 )
                 .frame(size: size)
