@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
+import BlockchainSdk
 
 enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
@@ -25,6 +27,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
+    case unableToCoverFee(token: Token, blockchain: Blockchain)
 }
 
 // For Notifications
@@ -55,6 +58,9 @@ extension WarningEvent: NotificationEvent {
             return Localization.commonUnlockNeeded
         case .missingBackup:
             return Localization.mainNoBackupWarningTitle
+        case .unableToCoverFee(_, let blockchain):
+            #warning("L10n")
+            return "Unable to cover \(blockchain.displayName) fee"
         }
     }
 
@@ -93,12 +99,14 @@ extension WarningEvent: NotificationEvent {
             return Localization.unlockWalletDescriptionShort(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.mainNoBackupWarningSubtitle
+        case .unableToCoverFee(let token, let blockchain):
+            return "To make a \(token.name) transaction you need to deposit some \(blockchain.displayName) (\(blockchain.currencySymbol) to cover the network fee"
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .rateApp, .missingDerivation, .missingBackup:
+        case .rateApp, .missingDerivation, .missingBackup, .unableToCoverFee:
             return .white
         default:
             return .gray
@@ -117,12 +125,14 @@ extension WarningEvent: NotificationEvent {
             return .init(image: Assets.lock.image, color: Colors.Icon.primary1)
         case .missingBackup:
             return .init(image: Assets.attention.image)
+        case .unableToCoverFee(_, let blockchain):
+            return .init(image: Image(blockchain.iconNameFilled))
         }
     }
 
     var isDismissable: Bool {
         switch self {
-        case .multiWalletSignedHashes, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
+        case .multiWalletSignedHashes, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .unableToCoverFee:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
