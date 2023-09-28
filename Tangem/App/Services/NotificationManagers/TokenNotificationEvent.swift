@@ -75,8 +75,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.walletBalanceTxInProgress
         case .notEnoughtFeeForTokenTx:
             return defaultTitle
-        case .unableToCoverFee:
-            return "Unable to cover Ethereum fee"
+        case .unableToCoverFee(_, let blockchain):
+            return "Unable to cover \(blockchain.displayName) fee"
         }
     }
 
@@ -100,8 +100,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .notEnoughtFeeForTokenTx(let message):
             return message
-        case .unableToCoverFee:
-            return "To make a USD Coin transaction you need to deposit some Ethereum (ETH) to cover the network fee"
+        case .unableToCoverFee(let token, let blockchain):
+            return "To make a \(token.name) transaction you need to deposit some \(blockchain.displayName) (\(blockchain.currencySymbol)) to cover the network fee"
         }
     }
 
