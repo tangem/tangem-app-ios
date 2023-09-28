@@ -13,11 +13,14 @@ import BlockchainSdk
 extension Token {
     var isCustom: Bool { id == nil }
 
-    var color: Color {
+    var customTokenColor: Color? {
+        guard isCustom else { return nil }
+
         let defaultValue = Color.tangemGrayLight4
         let hexPart = contractAddress.drop0xPrefix
-        if hexPart.hexToInteger != nil {
-            let hex = String(hexPart.prefix(6)) + "FF"
+        let colorPrefix = String(hexPart.prefix(6))
+        if colorPrefix.hexToInteger != nil {
+            let hex = String(colorPrefix.prefix(6)) + "FF"
             return Color(hex: hex) ?? defaultValue
 
             // I've used this code insted of ready TangemSdk hexString property because of two identical Token types in TangemSdk and BlockchainSdk.
