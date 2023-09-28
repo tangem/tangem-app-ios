@@ -32,7 +32,7 @@ struct ReceiveBottomSheetView: View {
         VStack(spacing: 56) {
             IconView(
                 url: viewModel.iconURL,
-                customTokenColor: viewModel.customTokenColor,
+                solidColor: viewModel.customTokenColor,
                 sizeSettings: .receive
             )
             .padding(.top, 56)
