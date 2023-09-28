@@ -192,7 +192,17 @@ private extension ManageTokensViewModel {
             // [REDACTED_TODO_COMMENT]
             break
         case .add, .edit:
-            coordinator.openTokenSelectorModule(with: coinModel.items)
+            coordinator.openTokenSelectorModule(coinId: coinModel.id, with: coinModel.items)
+        }
+    }
+}
+
+// MARK: - ManageTokensNetworkSelectorViewModelDelegate
+
+extension ManageTokensViewModel: ManageTokensNetworkSelectorViewModelDelegate {
+    func tokenItemsDidUpdate(by coinId: CoinModel.ID) {
+        tokenViewModels.filter { $0.id == coinId }.forEach {
+            $0.setNeedUpdateAction()
         }
     }
 }
