@@ -423,6 +423,7 @@
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
 "swapping_token_not_available" = "not available";
+"token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
 "token_details_hide_alert_title" = "Hide %@";
