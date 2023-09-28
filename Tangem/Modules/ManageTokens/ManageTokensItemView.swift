@@ -17,7 +17,7 @@ struct ManageTokensItemView: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
-                IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
+                IconView(url: viewModel.imageURL, solidColor: nil, size: iconSize, forceKingfisher: true)
                     .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
