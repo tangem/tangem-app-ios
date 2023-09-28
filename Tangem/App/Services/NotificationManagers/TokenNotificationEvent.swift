@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import BlockchainSdk
 
 enum TokenNotificationEvent: Hashable {
     case networkUnreachable
@@ -18,6 +19,7 @@ enum TokenNotificationEvent: Hashable {
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
     case notEnoughtFeeForTokenTx(message: String)
+    case unableToCoverFee(token: Token, blockchain: Blockchain)
 
     static func event(for reason: WalletModel.SendBlockedReason) -> TokenNotificationEvent {
         let message = reason.description
@@ -36,6 +38,8 @@ enum TokenNotificationEvent: Hashable {
         // One notification with button action will be added later
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return nil
+        case .unableToCoverFee(_, let blockchain):
+            return .openNetworkCurrency(currencySymbol: blockchain.currencySymbol)
         }
     }
 }
@@ -71,6 +75,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.walletBalanceTxInProgress
         case .notEnoughtFeeForTokenTx:
             return defaultTitle
+        case .unableToCoverFee:
+            return "Unable to cover Ethereum fee"
         }
     }
 
@@ -94,6 +100,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .notEnoughtFeeForTokenTx(let message):
             return message
+        case .unableToCoverFee:
+            return "To make a USD Coin transaction you need to deposit some Ethereum (ETH) to cover the network fee"
         }
     }
 
@@ -101,7 +109,9 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return .gray
-            // One white notification will be added later
+        // One white notification will be added later
+        case .unableToCoverFee:
+            return .white
         }
     }
 
@@ -111,6 +121,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(image: Assets.attention.image)
         case .existentialDepositWarning:
             return .init(image: Assets.attentionRedFill.image)
+        case .unableToCoverFee:
+            return .init(image: Assets.attentionRedFill.image)
         }
     }
 
@@ -118,7 +130,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .rentFee:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount, .unableToCoverFee:
             return false
         }
     }

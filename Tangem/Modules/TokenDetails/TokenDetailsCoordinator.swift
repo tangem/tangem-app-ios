@@ -22,6 +22,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator? = nil
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -57,6 +58,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
             walletModel: options.walletModel,
+            mainCurrencyWalletModel: options.mainCurrencyWalletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
             coordinator: self,
@@ -72,6 +74,7 @@ extension TokenDetailsCoordinator {
     struct Options {
         let cardModel: CardViewModel
         let walletModel: WalletModel
+        let mainCurrencyWalletModel: WalletModel?
         let userTokensManager: UserTokensManager
     }
 }
@@ -105,6 +108,34 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
                 },
             ]
         )
+    }
+
+    func openNetworkCurrency() {
+        print("A")
+
+        let userWalletModel = tokenDetailsViewModel!.userWalletModel
+        let model = tokenDetailsViewModel!.mainCurrencyWalletModel!
+
+        // [REDACTED_TODO_COMMENT]
+        guard let cardViewModel = userWalletModel as? CardViewModel else {
+            return
+        }
+
+        Analytics.log(.tokenIsTapped)
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.tokenDetailsCoordinator = nil
+        }
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
+        coordinator.start(
+            with: .init(
+                cardModel: cardViewModel,
+                walletModel: model,
+                mainCurrencyWalletModel: nil,
+                userTokensManager: userWalletModel.userTokensManager
+            )
+        )
+
+        tokenDetailsCoordinator = coordinator
     }
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {

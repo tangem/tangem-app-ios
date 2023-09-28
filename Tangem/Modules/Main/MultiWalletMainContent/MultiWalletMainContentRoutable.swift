@@ -9,7 +9,7 @@
 import Foundation
 
 protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
-    func openTokenDetails(for model: WalletModel, userWalletModel: UserWalletModel)
+    func openTokenDetails(for model: WalletModel, mainCurrencyWalletModel: WalletModel?, userWalletModel: UserWalletModel)
     func openOrganizeTokens(for userWalletModel: UserWalletModel)
     func openOnboardingModal(with input: OnboardingInput)
     func openManageTokens(with settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager)
