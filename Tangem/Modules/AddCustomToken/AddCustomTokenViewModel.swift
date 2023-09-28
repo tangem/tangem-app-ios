@@ -92,6 +92,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         }
 
         if let existingTokenDerivationPath {
+            // TODO
         }
 
         bind()
