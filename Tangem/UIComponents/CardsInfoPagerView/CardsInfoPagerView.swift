@@ -169,6 +169,7 @@ struct CardsInfoPagerView<
 
                 makeBottomOverlay()
             }
+            .ignoresSafeArea(edges: .bottom) // Experimental, check for any bugs/glitches on notch/notchless devices!
         }
         .modifier(
             CardsInfoPagerContentSwitchingModifier(
