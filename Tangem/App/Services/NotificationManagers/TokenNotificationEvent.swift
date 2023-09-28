@@ -110,7 +110,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .noAccount, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
             return .init(image: Assets.attention.image)
         case .existentialDepositWarning:
-            return .init(image: Assets.attentionRedFill.image)
+            return .init(image: Assets.redCircleWarning.image)
         }
     }
 
