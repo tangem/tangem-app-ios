@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 import BlockchainSdk
 
 struct TokenIconViewModel: Hashable, Identifiable {
@@ -22,8 +23,16 @@ struct TokenIconViewModel: Hashable, Identifiable {
     }
 
     var blockchainIconName: String? {
-        if case .token(let iconName) = style {
+        if case .token(let iconName, _) = style {
             return iconName
+        }
+
+        return nil
+    }
+
+    var customTokenColor: Color? {
+        if case .token(_, let customTokenColor) = style {
+            return customTokenColor
         }
 
         return nil
@@ -44,7 +53,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
         case .blockchain(let blockchain):
             self.init(id: blockchain.coinId, name: blockchain.displayName, style: .blockchain)
         case .token(let token, let blockchain):
-            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled))
+            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled, customTokenColor: token.customTokenColor))
         }
     }
 
@@ -53,7 +62,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
         case .coin, .reserve:
             self.init(id: blockchain.coinId, name: blockchain.displayName, style: .blockchain)
         case .token(let token):
-            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled))
+            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled, customTokenColor: token.customTokenColor))
         }
     }
 }
@@ -61,6 +70,6 @@ struct TokenIconViewModel: Hashable, Identifiable {
 extension TokenIconViewModel {
     enum Style: Hashable {
         case blockchain
-        case token(_ blockchainIconName: String)
+        case token(_ blockchainIconName: String, customTokenColor: Color?)
     }
 }
