@@ -29,10 +29,6 @@ protocol CardResettable: AnyObject {
 
 extension CardInteractor: CardResettable {
     func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        if tangemSdk.config.accessCodeRequestPolicy == .alwaysWithBiometrics {
-            tangemSdk.config.accessCodeRequestPolicy = .always
-        }
-
         let initialMessage = Message(header: nil, body: Localization.initialMessagePurgeWalletBody)
         let task = ResetToFactorySettingsTask()
 
