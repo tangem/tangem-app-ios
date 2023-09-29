@@ -30,9 +30,9 @@ final class ManageTokensViewModel: ObservableObject {
         loader.canFetchMore
     }
 
-    var pendingDerivationOptions: GenerateAddressesView.Options {
+    var generateAddressViewOptions: GenerateAddressesView.Options {
         .init(
-            numberOfNetworks: derivationManagers.map { $0.value }.reduce(0, +),
+            numberOfNetworks: countPendingDerivations.map { $0.value }.reduce(0, +),
             currentWalletNumber: (userWalletRepository.selectedIndexUserWalletModel ?? 0) + 1,
             totalWalletNumber: userWalletRepository.userWallets.count
         )
@@ -41,14 +41,17 @@ final class ManageTokensViewModel: ObservableObject {
     private unowned let coordinator: ManageTokensRoutable
 
     private lazy var loader = setupListDataLoader()
+
     private let percentFormatter = PercentFormatter()
     private let balanceFormatter = BalanceFormatter()
+    private let generateAddressProvider = ManageTokensGenerateAddressProvider()
+
     private var bag = Set<AnyCancellable>()
     private var loadQuotesSubscribtion: AnyCancellable?
 
-    private var derivationManagers: [UserWalletId: Int] = [:] {
+    private var countPendingDerivations: [UserWalletId: Int] = [:] {
         didSet {
-            hasPendingDerivations = !derivationManagers.filter { $0.value > 0 }.isEmpty
+            hasPendingDerivations = !countPendingDerivations.filter { $0.value > 0 }.isEmpty
         }
     }
 
@@ -78,6 +81,14 @@ final class ManageTokensViewModel: ObservableObject {
     func fetch() {
         loader.fetch(enteredSearchText.value)
     }
+
+    func generateAddressButtonDidTap() {
+        guard let userWalletId = countPendingDerivations.first(where: { $0.value > 0 })?.key else {
+            return
+        }
+
+        generateAddressProvider.performDeriveIfNeeded(with: userWalletId)
+    }
 }
 
 // MARK: - Private
@@ -97,16 +108,16 @@ private extension ManageTokensViewModel {
             }
             .store(in: &bag)
 
-        derivationManagers = [:]
-        userWalletRepository.models.forEach { derivationManagers[$0.userWalletId] = 0 }
+        countPendingDerivations = [:]
+        userWalletRepository.models.forEach { countPendingDerivations[$0.userWalletId] = 0 }
 
         userWalletRepository.models.forEach { model in
             model.userTokensManager
                 .derivationManager?
                 .pendingDerivationsCount
                 .sink(
-                    receiveValue: { [weak self] countDerivation in
-                        self?.derivationManagers[model.userWalletId] = countDerivation
+                    receiveValue: { [weak self] countPendingDerivation in
+                        self?.countPendingDerivations[model.userWalletId] = countPendingDerivation
                     }
                 )
                 .store(in: &bag)
