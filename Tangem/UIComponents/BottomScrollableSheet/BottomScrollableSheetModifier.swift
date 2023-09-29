@@ -10,6 +10,7 @@ import SwiftUI
 
 private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewModifier where SheetHeader: View, SheetContent: View {
     let prefersGrabberVisible: Bool
+    let allowsHitTesting: Bool
 
     @ViewBuilder let sheetHeader: () -> SheetHeader
     @ViewBuilder let sheetContent: () -> SheetContent
@@ -34,6 +35,7 @@ private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewMod
                 content: sheetContent
             )
             .prefersGrabberVisible(prefersGrabberVisible)
+            .allowsHitTesting(allowsHitTesting)
         }
         .background(Color.black.edgesIgnoringSafeArea(.all))
     }
@@ -43,13 +45,15 @@ private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewMod
 
 extension View {
     func bottomScrollableSheet<Header, Content>(
-        prefersGrabberVisible: Bool,
+        prefersGrabberVisible: Bool = true,
+        allowsHitTesting: Bool = true,
         @ViewBuilder header: @escaping () -> Header,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View where Header: View, Content: View {
         modifier(
             BottomScrollableSheetModifier(
                 prefersGrabberVisible: prefersGrabberVisible,
+                allowsHitTesting: allowsHitTesting,
                 sheetHeader: header,
                 sheetContent: content
             )
