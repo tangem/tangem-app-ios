@@ -26,15 +26,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     weak var delegate: MultiWalletContentDelegate?
 
-    var footerViewModel: MainFooterViewModel? {
+    private(set) lazy var manageTokensViewModel: ManageTokensBottomSheetViewModel? = {
+        // [REDACTED_TODO_COMMENT]
         guard canManageTokens else { return nil }
 
-        return MainFooterViewModel(
-            isButtonDisabled: false,
-            buttonTitle: Localization.mainManageTokens,
-            buttonAction: openManageTokens
-        )
-    }
+        return ManageTokensBottomSheetViewModel()
+    }()
 
     var isOrganizeTokensVisible: Bool {
         if sections.isEmpty {
