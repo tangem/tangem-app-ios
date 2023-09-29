@@ -12,7 +12,7 @@ import SwiftUI
 @available(*, deprecated, message: "Test only, remove if not needed")
 struct ManageTokensBottomSheetHeaderView: View {
     @Binding private var searchText: String
-    @State private var safeAreaBottomInset: CGFloat = 34.0  // [REDACTED_TODO_COMMENT]
+    @State private var safeAreaBottomInset: CGFloat = 34.0 // [REDACTED_TODO_COMMENT]
 
     init(
         searchText: Binding<String>
