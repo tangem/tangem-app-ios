@@ -12,9 +12,9 @@ import TangemSdk
 import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
-    var isInitialSyncPerformed: Bool { true }
+    var initialized: Bool { true }
 
-    var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     var derivationManager: DerivationManager? { nil }
 
@@ -46,7 +46,7 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
 
-    func updateUserTokens() {}
+    func initialize() {}
 }
 
 // MARK: - UserTokensReordering protocol conformance
