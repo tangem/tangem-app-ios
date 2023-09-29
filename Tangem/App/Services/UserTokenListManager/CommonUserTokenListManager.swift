@@ -24,7 +24,6 @@ class CommonUserTokenListManager {
     private let hdWalletsSupported: Bool // hotfix migration
 
     private let tokenItemsRepository: TokenItemsRepository
-    private let initialTokenSyncSubject: CurrentValueSubject<Bool, Never>
     private let userTokensListSubject: CurrentValueSubject<StoredUserTokenList, Never>
 
     private var pendingTokensToUpdate: UserTokenList?
@@ -47,27 +46,19 @@ class CommonUserTokenListManager {
         self.hasTokenSynchronization = hasTokenSynchronization
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
-        initialTokenSyncSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
         userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
 
         removeInvalidTokens()
-        performInitialSync()
-    }
-
-    private func performInitialSync() {
-        if isInitialSyncPerformed {
-            return
-        }
-
-        updateLocalRepositoryFromServer { [weak self] _ in
-            self?.initialTokenSyncSubject.send(true)
-        }
     }
 }
 
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
+    var initialized: Bool {
+        tokenItemsRepository.containsFile
+    }
+
     var userTokens: [StorageEntry] {
         let converter = StorageEntryConverter()
         return converter.convertToStorageEntries(userTokensListSubject.value.entries)
@@ -131,16 +122,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
     }
 }
 
-extension CommonUserTokenListManager: UserTokensSyncService {
-    var isInitialSyncPerformed: Bool {
-        tokenItemsRepository.containsFile
-    }
-
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        initialTokenSyncSubject.eraseToAnyPublisher()
-    }
-}
-
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
@@ -187,8 +168,6 @@ private extension CommonUserTokenListManager {
                 switch subscriberCompletion {
                 case .finished:
                     completions.forEach { $0(.success(())) }
-                case .failure(let error) where error.code == .notFound:
-                    self?.updateTokensOnServer(completions: completions)
                 case .failure(let error):
                     completions.forEach { $0(.failure(error)) }
                 }
