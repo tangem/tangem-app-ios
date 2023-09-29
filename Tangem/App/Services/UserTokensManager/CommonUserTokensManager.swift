@@ -18,10 +18,13 @@ struct CommonUserTokensManager {
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
     private weak var cardDerivableProvider: CardDerivableProvider?
+    private var _initialized: CurrentValueSubject<Bool, Never>
+    private let defaultBlockchains: [StorageEntry]
 
     init(
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
+        defaultBlockchains: [StorageEntry],
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
         cardDerivableProvider: CardDerivableProvider
@@ -29,8 +32,10 @@ struct CommonUserTokensManager {
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
+        self.defaultBlockchains = defaultBlockchains
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
+        _initialized = .init(userTokenListManager.initialized)
     }
 
     private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
@@ -66,6 +71,30 @@ struct CommonUserTokensManager {
             userTokenListManager.update(.removeToken(token, in: blockchainNetwork), shouldUpload: shouldUpload)
         } else {
             userTokenListManager.update(.removeBlockchain(blockchainNetwork), shouldUpload: shouldUpload)
+        }
+    }
+
+    private func appendDefaultBlockchainsIfNeeded() {
+        guard !defaultBlockchains.isEmpty,
+              userTokenListManager.userTokens.isEmpty else {
+            return
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        userTokenListManager.update(.append(defaultBlockchains), shouldUpload: true)
+    }
+
+    func sync() {
+        userTokenListManager.updateLocalRepositoryFromServer { _ in
+            // Delay to update userTokens
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if !_initialized.value {
+                    appendDefaultBlockchainsIfNeeded()
+                    _initialized.send(userTokenListManager.initialized)
+                }
+
+                walletModelsManager.updateAll(silent: false, completion: {})
+            }
         }
     }
 }
@@ -173,19 +202,12 @@ extension CommonUserTokensManager: UserTokensManager {
 // MARK: - UserTokensSyncService protocol conformance
 
 extension CommonUserTokensManager: UserTokensSyncService {
-    var isInitialSyncPerformed: Bool {
-        userTokenListManager.isInitialSyncPerformed
+    var initialized: Bool {
+        _initialized.value
     }
 
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        userTokenListManager.initialSyncPublisher
-            .eraseToAnyPublisher()
-    }
-
-    func updateUserTokens() {
-        userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self.walletModelsManager.updateAll(silent: false, completion: {})
-        }
+    var initializedPublisher: AnyPublisher<Bool, Never> {
+        _initialized.eraseToAnyPublisher()
     }
 }
 
