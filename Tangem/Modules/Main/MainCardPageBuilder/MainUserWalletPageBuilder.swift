@@ -66,7 +66,7 @@ enum MainUserWalletPageBuilder: Identifiable {
         case .singleWallet:
             EmptyView()
         case .multiWallet(_, _, let bodyModel):
-            if bodyModel.footerViewModel != nil {
+            if bodyModel.manageTokensViewModel != nil {
                 _MainFooterView()
             }
         case .lockedWallet(_, _, let bodyModel):
