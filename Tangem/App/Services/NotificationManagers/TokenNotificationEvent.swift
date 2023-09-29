@@ -76,7 +76,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .notEnoughtFeeForTokenTx:
             return defaultTitle
         case .unableToCoverFee(_, let blockchain):
-            return "Unable to cover \(blockchain.displayName) fee"
+            return Localization.notificationTitleNotEnoughFunds(blockchain.displayName)
         }
     }
 
@@ -101,7 +101,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .notEnoughtFeeForTokenTx(let message):
             return message
         case .unableToCoverFee(let token, let blockchain):
-            return "To make a \(token.name) transaction you need to deposit some \(blockchain.displayName) (\(blockchain.currencySymbol)) to cover the network fee"
+            return Localization.notificationSubtitleNotEnoughFunds(token.name, blockchain.displayName, blockchain.currencySymbol)
         }
     }
 
