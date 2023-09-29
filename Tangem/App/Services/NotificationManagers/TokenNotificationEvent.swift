@@ -121,8 +121,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(image: Assets.attention.image)
         case .existentialDepositWarning:
             return .init(image: Assets.redCircleWarning.image)
-        case .unableToCoverFee:
-            return .init(image: Assets.attentionRedFill.image)
+        case .unableToCoverFee(_, let blockchain):
+            return .init(image: Image(blockchain.iconNameFilled))
         }
     }
 
