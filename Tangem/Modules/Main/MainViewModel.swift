@@ -26,11 +26,22 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private var mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+    private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     private weak var coordinator: MainRoutable?
 
-    private var bag = Set<AnyCancellable>()
+    // MARK: - Internal state
+
     private var isLoggingOut = false
+
+    private var isViewVisible = false {
+        didSet {
+            if oldValue != isViewVisible {
+                // [REDACTED_TODO_COMMENT]
+            }
+        }
+    }
+
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Initializers
 
@@ -73,6 +84,14 @@ final class MainViewModel: ObservableObject {
         }
 
         coordinator?.openDetails(for: userWalletModel)
+    }
+
+    func onViewAppear() {
+        isViewVisible = true
+    }
+
+    func onViewDisappear() {
+        isViewVisible = false
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
