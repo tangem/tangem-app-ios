@@ -20,6 +20,7 @@ struct AppCoordinatorView: CoordinatorView {
                 UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
             } else if let authCoordinator = coordinator.authCoordinator {
                 AuthCoordinatorView(coordinator: authCoordinator)
+                    .animation(nil) // Fixes weird animations on appear
             }
         }
         .navigationViewStyle(.stack)
