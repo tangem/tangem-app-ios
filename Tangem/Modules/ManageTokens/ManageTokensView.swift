@@ -67,9 +67,11 @@ struct ManageTokensView: View {
             VStack {
                 Spacer()
 
-                // [REDACTED_TODO_COMMENT]
-                GenerateAddressesView(options: viewModel.pendingDerivationOptions, didTapGenerate: {})
-                    .padding(.zero)
+                GenerateAddressesView(
+                    options: viewModel.generateAddressViewOptions,
+                    didTapGenerate: viewModel.generateAddressButtonDidTap
+                )
+                .padding(.zero)
             }
         }
     }
