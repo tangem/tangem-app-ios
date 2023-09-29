@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import SwiftUI
-import BlockchainSdk
 
 enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
