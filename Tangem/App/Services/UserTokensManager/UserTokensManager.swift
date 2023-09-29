@@ -12,8 +12,8 @@ import TangemSdk
 import BlockchainSdk
 
 protocol UserTokensSyncService {
-    var isInitialSyncPerformed: Bool { get }
-    var initialSyncPublisher: AnyPublisher<Bool, Never> { get }
+    var initialized: Bool { get }
+    var initializedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 protocol UserTokensManager: UserTokensSyncService, UserTokensReordering {
