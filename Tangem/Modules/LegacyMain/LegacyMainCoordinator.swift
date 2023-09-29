@@ -219,7 +219,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             coordinator.start(with: .init(
                 cardModel: cardModel,
                 walletModel: walletModel,
-                mainCurrencyWalletModel: nil,
+                networkCurrencyWalletModel: nil,
                 userTokensManager: cardModel.userTokensManager
             ))
             tokenDetailsCoordinator = coordinator
