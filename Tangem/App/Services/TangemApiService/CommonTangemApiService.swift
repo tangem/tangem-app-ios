@@ -56,6 +56,16 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusCodes()
             .map(UserTokenList.self)
             .mapTangemAPIError()
+            .catch { error in
+                if error.code == .notFound {
+                    return Just(UserTokenList(tokens: [], group: .none, sort: .manual))
+                        .setFailureType(to: TangemAPIError.self)
+                        .eraseToAnyPublisher()
+                }
+
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
             .retry(3)
             .eraseToAnyPublisher()
     }
