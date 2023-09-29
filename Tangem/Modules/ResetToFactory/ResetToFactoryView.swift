@@ -102,19 +102,23 @@ struct ResetToFactoryView: View {
         )
         .padding(.horizontal, 16)
     }
+}
 
-    private struct SelectableIcon: View {
+private extension ResetToFactoryView {
+    struct SelectableIcon: View {
         @Binding var isSelected: Bool
 
         var body: some View {
             ZStack(alignment: .center) {
-                Circle()
-                    .modifier(if: isSelected) {
-                        $0.fill(Colors.Icon.primary1)
-                    } else: {
-                        $0.strokeBorder(Colors.Icon.inactive, lineWidth: 2)
-                    }
-                    .frame(width: 22, height: 22)
+                if isSelected {
+                    Circle()
+                        .fill(Colors.Icon.primary1)
+                        .frame(width: 22, height: 22)
+                } else {
+                    Circle()
+                        .strokeBorder(Colors.Icon.inactive, lineWidth: 2)
+                        .frame(width: 22, height: 22)
+                }
 
                 if isSelected {
                     Assets.check.image
@@ -124,6 +128,7 @@ struct ResetToFactoryView: View {
                         .foregroundColor(Colors.Icon.primary2)
                 }
             }
+            .animation(.none, value: isSelected)
         }
     }
 }
