@@ -16,7 +16,7 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
 
     func openBuyCryptoIfPossible(walletModel: WalletModel) {}
 
-    func openNetworkCurrency() {}
+    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {}
 
     func openSend(walletModel: WalletModel) {}
 
