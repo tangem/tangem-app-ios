@@ -39,6 +39,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         super.init(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
+            networkCurrencyWalletModel: nil,
             exchangeUtility: exchangeUtility,
             notificationManager: tokenNotificationManager,
             tokenRouter: tokenRouter
