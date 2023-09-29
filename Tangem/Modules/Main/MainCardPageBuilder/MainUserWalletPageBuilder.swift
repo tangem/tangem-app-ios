@@ -64,7 +64,7 @@ enum MainUserWalletPageBuilder: Identifiable {
         // [REDACTED_TODO_COMMENT]
         switch self {
         case .singleWallet:
-            EmptyView()
+            Color.clear.frame(height: 0.0)
         case .multiWallet(_, _, let bodyModel):
             if bodyModel.manageTokensViewModel != nil {
                 _MainFooterView()
