@@ -25,7 +25,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
@@ -94,13 +93,13 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topupScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonBuy,
             addLoadingIndicator: true,
             urlActions: [
                 closeUrl: { [weak self] response in
-                    self?.pushedWebViewModel = nil
+                    self?.modalWebViewModel = nil
                     action(response)
                 },
             ]
@@ -109,7 +108,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonSell,
             addLoadingIndicator: true,
