@@ -9,8 +9,15 @@
 import SwiftUI
 
 class ResetToFactoryViewModel: ObservableObject {
+    @Published var accessToCardWarningSelected: Bool = false
+    @Published var accessCodeRecoveryWarningSelected: Bool = false
+
     @Published var actionSheet: ActionSheetBinder?
     @Published var alert: AlertBinder?
+
+    var actionButtonIsEnabled: Bool {
+        accessToCardWarningSelected && accessCodeRecoveryWarningSelected
+    }
 
     let message: String
 
