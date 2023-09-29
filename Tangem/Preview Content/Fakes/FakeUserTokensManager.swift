@@ -15,13 +15,23 @@ class FakeUserTokensManager: UserTokensManager {
     var derivationManager: DerivationManager?
     var userTokenListManager: UserTokenListManager
 
-    var isInitialSyncPerformed: Bool { userTokenListManager.isInitialSyncPerformed }
+    var initialized: Bool {
+        _initialized.value
+    }
 
-    var initialSyncPublisher: AnyPublisher<Bool, Never> { userTokenListManager.initialSyncPublisher }
+    var initializedPublisher: AnyPublisher<Bool, Never> {
+        _initialized.eraseToAnyPublisher()
+    }
+
+    private let _initialized = CurrentValueSubject<Bool, Never>(false)
 
     init(derivationManager: FakeDerivationManager?, userTokenListManager: FakeUserTokenListManager) {
         self.derivationManager = derivationManager
         self.userTokenListManager = userTokenListManager
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+            self._initialized.send(true)
+        }
     }
 
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
@@ -51,8 +61,6 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
-
-    func updateUserTokens() {}
 
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         false
