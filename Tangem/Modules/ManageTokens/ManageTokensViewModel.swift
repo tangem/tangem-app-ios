@@ -32,8 +32,8 @@ final class ManageTokensViewModel: ObservableObject {
 
     var generateAddressViewOptions: GenerateAddressesView.Options {
         .init(
-            numberOfNetworks: countPendingDerivations.map { $0.value }.reduce(0, +),
-            currentWalletNumber: (userWalletRepository.selectedIndexUserWalletModel ?? 0) + 1,
+            numberOfNetworks: countPendingDerivationByWallet.map { $0.value }.reduce(0, +),
+            currentWalletNumber: countPendingDerivationByWallet.filter { $0.value > 0 }.count,
             totalWalletNumber: userWalletRepository.userWallets.count
         )
     }
@@ -49,9 +49,9 @@ final class ManageTokensViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var loadQuotesSubscribtion: AnyCancellable?
 
-    private var countPendingDerivations: [UserWalletId: Int] = [:] {
+    private var countPendingDerivationByWallet: [UserWalletId: Int] = [:] {
         didSet {
-            hasPendingDerivations = !countPendingDerivations.filter { $0.value > 0 }.isEmpty
+            hasPendingDerivations = !countPendingDerivationByWallet.filter { $0.value > 0 }.isEmpty
         }
     }
 
@@ -83,7 +83,7 @@ final class ManageTokensViewModel: ObservableObject {
     }
 
     func generateAddressButtonDidTap() {
-        guard let userWalletId = countPendingDerivations.first(where: { $0.value > 0 })?.key else {
+        guard let userWalletId = countPendingDerivationByWallet.first(where: { $0.value > 0 })?.key else {
             return
         }
 
@@ -108,8 +108,8 @@ private extension ManageTokensViewModel {
             }
             .store(in: &bag)
 
-        countPendingDerivations = [:]
-        userWalletRepository.models.forEach { countPendingDerivations[$0.userWalletId] = 0 }
+        countPendingDerivationByWallet = [:]
+        userWalletRepository.models.forEach { countPendingDerivationByWallet[$0.userWalletId] = 0 }
 
         userWalletRepository.models.forEach { model in
             model.userTokensManager
@@ -117,7 +117,7 @@ private extension ManageTokensViewModel {
                 .pendingDerivationsCount
                 .sink(
                     receiveValue: { [weak self] countPendingDerivation in
-                        self?.countPendingDerivations[model.userWalletId] = countPendingDerivation
+                        self?.countPendingDerivationByWallet[model.userWalletId] = countPendingDerivation
                     }
                 )
                 .store(in: &bag)
