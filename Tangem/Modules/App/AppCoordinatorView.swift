@@ -13,6 +13,8 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
 
     var body: some View {
+        let hasManageTokensSheetViewModel = coordinator.manageTokensSheetViewModel != nil
+
         NavigationView {
             if let welcomeCoordinator = coordinator.welcomeCoordinator {
                 WelcomeCoordinatorView(coordinator: welcomeCoordinator)
@@ -26,9 +28,10 @@ struct AppCoordinatorView: CoordinatorView {
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
         .bottomScrollableSheet(
-            prefersGrabberVisible: coordinator.manageTokensSheetViewModel != nil,
+            prefersGrabberVisible: hasManageTokensSheetViewModel,
+            allowsHitTesting: hasManageTokensSheetViewModel,
             header: {
-                if coordinator.manageTokensSheetViewModel != nil {
+                if hasManageTokensSheetViewModel {
                     ManageTokensBottomSheetHeaderView(searchText: .constant(""))
                 } else {
                     // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only
