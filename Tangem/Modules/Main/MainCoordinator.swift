@@ -186,6 +186,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             url: url,
             title: Localization.commonBuy,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [
                 closeUrl: { [weak self] response in
                     self?.modalWebViewModel = nil
@@ -201,6 +202,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             url: url,
             title: Localization.commonSell,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [sellRequestUrl: action]
         )
     }
