@@ -230,7 +230,11 @@ final class MainViewModel: ObservableObject {
                     return
                 }
 
-                self?.userWalletRepository.setSelectedUserWalletId(userWalletId.value, unlockIfNeeded: false, reason: .userSelected)
+                self?.userWalletRepository.setSelectedUserWalletId(
+                    userWalletId.value,
+                    unlockIfNeeded: false,
+                    reason: .userSelected
+                )
             }
             .store(in: &bag)
 
@@ -315,7 +319,12 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
         guard
             let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }),
-            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self, mainViewDelegate: self, multiWalletContentDelegate: self)
+            let page = mainUserWalletPageBuilderFactory.createPage(
+                for: userWalletModel,
+                lockedUserWalletDelegate: self,
+                mainViewDelegate: self,
+                multiWalletContentDelegate: self
+            )
         else {
             return
         }
