@@ -63,6 +63,9 @@ class AppSettings {
     @AppStorageCompat(StorageType.hideSensitiveInformation)
     var isHidingSensitiveInformation: Bool = false
 
+    @AppStorageCompat(StorageType.hideSensitiveAvailable)
+    var isHidingSensitiveAvailable: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

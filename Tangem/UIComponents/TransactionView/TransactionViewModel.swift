@@ -74,7 +74,15 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .contract(let address):
             return Localization.transactionHistoryContractAddress(address)
         case .multiple:
-            return Localization.transactionHistoryMultipleAddresses
+            if isOutgoing {
+                return Localization.transactionHistoryTransactionToAddress(
+                    Localization.transactionHistoryMultipleAddresses
+                )
+            } else {
+                return Localization.transactionHistoryTransactionFromAddress(
+                    Localization.transactionHistoryMultipleAddresses
+                )
+            }
         }
     }
 
