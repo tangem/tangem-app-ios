@@ -48,17 +48,17 @@ extension CommonTangemApiService: TangemApiService {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
         let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
 
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(UserTokenList.self)
+            .map(UserTokenList?.self)
             .mapTangemAPIError()
-            .catch { error in
+            .catch { error -> AnyPublisher<UserTokenList?, TangemAPIError> in
                 if error.code == .notFound {
-                    return Just(UserTokenList(tokens: [], group: .none, sort: .manual))
+                    return Just(nil)
                         .setFailureType(to: TangemAPIError.self)
                         .eraseToAnyPublisher()
                 }
