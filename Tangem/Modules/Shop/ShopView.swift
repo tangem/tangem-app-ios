@@ -65,7 +65,7 @@ struct ShopView: View {
         let secondCardOffset = 12.0
         let thirdCardOffset = 22.0
 
-        Assets.Onboarding.walletCard.image
+        Assets.Shop.card.image
             .resizable()
             .aspectRatio(contentMode: .fit)
             .background(
