@@ -14,9 +14,13 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
 
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
-    private var prefersGrabberVisible = true
 
     @State private var isHidden = true
+
+    private var prefersGrabberVisible = true
+
+    /// The tap gesture is completely disabled when the sheet is expanded.
+    private var headerTapGestureMask: GestureMask { stateObject.state.isBottom ? .all : .none }
 
     init(
         stateObject: BottomScrollableSheetStateObject,
@@ -42,14 +46,15 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
         .ignoresSafeArea(.keyboard)
     }
 
-    private var dragGesture: some Gesture {
+    private var headerDragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
-            .onChanged { value in
-                stateObject.headerDragGesture(onChanged: value)
-            }
-            .onEnded { value in
-                stateObject.headerDragGesture(onEnded: value)
-            }
+            .onChanged(stateObject.headerDragGesture(onChanged:))
+            .onEnded(stateObject.headerDragGesture(onEnded:))
+    }
+
+    private var headerTapGesture: some Gesture {
+        TapGesture()
+            .onEnded { stateObject.onHeaderTap() }
     }
 
     @ViewBuilder private var backgroundView: some View {
@@ -74,7 +79,6 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
         .cornerRadius(24.0, corners: [.topLeft, .topRight])
         .bottomScrollableSheetShadow()
         .hidden(isHidden)
-        .overlay(gestureOverlayView(proxy: proxy), alignment: .top)
         .onAnimationStarted(for: stateObject.progress) {
             if isHidden {
                 isHidden = false
@@ -85,16 +89,20 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
                 isHidden = true
             }
         }
+        .overlay(headerGestureOverlayView(proxy: proxy), alignment: .top) // Mustn't be hidden (by the 'isHidden' flag)
     }
 
-    /// Overlay view with reduced hittest area is used here to prevent simultaneous recognition of the drag gesture with the system edge drop gesture.
     @ViewBuilder
-    private func gestureOverlayView(proxy: GeometryProxy) -> some View {
-        let overlayHeight = max(0.0, stateObject.headerHeight - proxy.safeAreaInsets.bottom)
+    private func headerGestureOverlayView(proxy: GeometryProxy) -> some View {
+        // The reduced hittest area is used here to prevent simultaneous recognition of the `headerDragGesture`
+        // or `headerTapGesture` gestures and the system `app switcher` screen edge drag gesture.
+        let overlayViewBottomInset = stateObject.state.isBottom ? proxy.safeAreaInsets.bottom : 0.0
+        let overlayViewHeight = max(0.0, stateObject.headerHeight - overlayViewBottomInset)
         Color.clear
-            .frame(height: overlayHeight, alignment: .top)
+            .frame(height: overlayViewHeight, alignment: .top)
             .contentShape(Rectangle())
-            .gesture(dragGesture)
+            .gesture(headerTapGesture, including: headerTapGestureMask)
+            .simultaneousGesture(headerDragGesture)
     }
 
     @ViewBuilder
