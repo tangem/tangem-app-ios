@@ -37,11 +37,11 @@ class MainCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDis
     @Published var warningBankCardViewModel: WarningBankCardViewModel?
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
     // MARK: - Delegates
 
