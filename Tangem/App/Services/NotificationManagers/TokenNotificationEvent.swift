@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import BlockchainSdk
 
 enum TokenNotificationEvent: Hashable {
     case networkUnreachable
@@ -18,6 +17,7 @@ enum TokenNotificationEvent: Hashable {
     case existentialDepositWarning(message: String)
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
+    #warning("[REDACTED_TODO_COMMENT]")
     case notEnoughtFeeForTokenTx(message: String)
     case unableToCoverFee(tokenName: String, blockchainCurrencySymbol: String, blockchainName: String, blockchainIconName: String)
 
