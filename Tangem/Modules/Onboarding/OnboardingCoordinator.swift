@@ -8,7 +8,7 @@
 
 import Foundation
 
-class OnboardingCoordinator: CoordinatorObject {
+class OnboardingCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -34,6 +34,10 @@ class OnboardingCoordinator: CoordinatorObject {
 
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
+
+    // MARK: - Delegates
+
+    weak var nextManageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
 
     private var options: OnboardingCoordinator.Options!
 
@@ -172,6 +176,7 @@ extension OnboardingCoordinator: OnboardingRoutable {
     private func openMain(with cardModel: CardViewModel) {
         if FeatureProvider.isAvailable(.mainV2) {
             let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+            coordinator.nextManageTokensBottomSheetDisplayable = self
             let options = MainCoordinator.Options(userWalletModel: cardModel)
             coordinator.start(with: options)
             mainCoordinator = coordinator
