@@ -18,12 +18,7 @@ struct BalanceWithButtonsView: View {
                 Text(Localization.onboardingBalanceTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-                SensitiveText(viewModel.fiatBalance)
-                    .multilineTextAlignment(.leading)
-                    .scaledToFit()
-                    .minimumScaleFactor(0.5)
-                    .skeletonable(isShown: viewModel.isLoadingFiatBalance, size: .init(width: 102, height: 24), radius: 6)
-                    .frame(height: 34)
+                BalanceTitleView(balance: viewModel.fiatBalance, isLoading: viewModel.isLoadingFiatBalance)
 
                 SensitiveText(viewModel.cryptoBalance)
                     .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 70, height: 12))
