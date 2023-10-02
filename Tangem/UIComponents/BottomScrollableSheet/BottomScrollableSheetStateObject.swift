@@ -39,7 +39,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     /// Use for set and update sheet to the state
-    func updateToState(_ state: SheetState) {
+    private func updateToState(_ state: SheetState) {
         self.state = state
 
         withAnimation(.easeOut) {
@@ -48,13 +48,13 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     /// Use for change height when user is dragging
-    func updateVisibleHeight(_ height: CGFloat) {
+    private func updateVisibleHeight(_ height: CGFloat) {
         withAnimation(.interactiveSpring()) {
             self.visibleHeight = height
         }
     }
 
-    func height(for state: BottomScrollableSheetStateObject.SheetState) -> CGFloat {
+    private func height(for state: BottomScrollableSheetStateObject.SheetState) -> CGFloat {
         switch state {
         case .bottom:
             return headerHeight
@@ -81,7 +81,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         }
     }
 
-    func scrollViewContentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
+    private func scrollViewContentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
         UIApplication.shared.endEditing()
 
         let translationChange = value.translation.height
@@ -96,7 +96,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         }
     }
 
-    func scrollViewContentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
+    private func scrollViewContentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
         // If the dragging was started from the top of the ScrollView
         if contentOffset.y <= .zero {
             // The user made a quick enough swipe to hide sheet
