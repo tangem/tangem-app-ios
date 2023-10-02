@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import SwiftUI
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -18,8 +19,8 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var showingDeleteConfirmation = false
     @Published var showAddressCopiedToast = false
+    @Published var actionSheet: ActionSheetBinder?
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
 
@@ -43,6 +44,7 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
+            mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
         bind()
@@ -127,7 +129,14 @@ final class MainViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
 //        Analytics.log(.buttonDeleteWalletTapped)
 
-        showingDeleteConfirmation = true
+        let sheet = ActionSheet(
+            title: Text(Localization.userWalletListDeletePrompt),
+            buttons: [
+                .destructive(Text(Localization.commonDelete), action: didConfirmWalletDeletion),
+                .cancel(Text(Localization.commonCancel)),
+            ]
+        )
+        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func didConfirmWalletDeletion() {
@@ -155,6 +164,7 @@ final class MainViewModel: ObservableObject {
             let newPage = mainUserWalletPageBuilderFactory.createPage(
                 for: userWalletModel,
                 lockedUserWalletDelegate: self,
+                mainViewDelegate: self,
                 multiWalletContentDelegate: self
             )
         else {
@@ -185,6 +195,7 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
+            mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
     }
@@ -255,7 +266,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
         guard
             let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }),
-            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self, multiWalletContentDelegate: self)
+            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self, mainViewDelegate: self, multiWalletContentDelegate: self)
         else {
             return
         }
@@ -275,5 +286,11 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
 extension MainViewModel: MultiWalletContentDelegate {
     func displayAddressCopiedToast() {
         showAddressCopiedToast = true
+    }
+}
+
+extension MainViewModel: MainViewDelegate {
+    func present(actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
