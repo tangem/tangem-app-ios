@@ -10,6 +10,8 @@ import Foundation
 import TangemSdk
 
 class ResetToFactorySettingsTask: CardSessionRunnable {
+    var shouldAskForAccessCode: Bool { false }
+
     func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         deteleWallets(in: session, completion: completion)
     }
