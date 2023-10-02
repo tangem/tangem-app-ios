@@ -155,11 +155,13 @@
 "details_manage_security_passcode" = "Passcode";
 "details_manage_security_passcode_description" = "Bevor Sie einen Befehl ausführen, der eine Änderung des Kartenstatus zur Folge hat, müssen Sie den Passcode eingeben.";
 "details_referral_title" = "Referral program";
+"details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ Hasch";
 "details_row_title_cid" = "KartenID";
 "details_row_title_create_backup" = "Link More Cards";
 "details_row_title_create_backup_footer" = "You can synchronize up to three cards into one wallet. It can only be done once.";
 "details_row_title_currency" = "App Währung";
+"details_row_title_flip_to_hide" = "Flip-to-Hide Balances";
 "details_row_title_issuer" = "Emittent";
 "details_row_title_send_feedback" = "Send Feedback";
 "details_row_title_signed_hashes" = "Signiert";
@@ -335,6 +337,8 @@
 "referral_tos_suffix" = "of the referral program";
 "registration_task_alert_message" = "Please hold the card until the operation complete";
 "reset_card_to_factory_button_title" = "Reset the Card";
+"reset_card_to_factory_condition_1" = "I understand that after performing this action, I will no longer have access to the current wallet";
+"reset_card_to_factory_condition_2" = "I realize that I can't use this card to recover my access code on the other cards.";
 "reset_card_with_backup_to_factory_message" = "Factory Reset will completely delete the wallet from the selected card. You will not be able to restore the current wallet or use the card to recover the access code.";
 "reset_card_without_backup_to_factory_message" = "Factory Reset will completely delete the wallet from the selected card and remove it from the app. You will not be able to restore the current wallet.";
 "russian_bank_card_warning_subtitle" = "Do you have a bank card from another country and a residence permit or registration outside the Russian Federation?";
@@ -421,6 +425,7 @@
 "swapping_token_list_title" = "Choose token";
 "swapping_token_list_your_tokens" = "Your tokens";
 "swapping_token_not_available" = "not available";
+"token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
 "token_details_hide_alert_title" = "Hide %@";
