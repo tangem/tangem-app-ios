@@ -58,7 +58,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
             walletModel: options.walletModel,
-            networkCurrencyWalletModel: options.networkCurrencyWalletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
             coordinator: self,
@@ -74,7 +73,6 @@ extension TokenDetailsCoordinator {
     struct Options {
         let cardModel: CardViewModel
         let walletModel: WalletModel
-        let networkCurrencyWalletModel: WalletModel?
         let userTokensManager: UserTokensManager
     }
 }
@@ -125,7 +123,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             with: .init(
                 cardModel: cardViewModel,
                 walletModel: model,
-                networkCurrencyWalletModel: nil,
                 userTokensManager: userWalletModel.userTokensManager
             )
         )
