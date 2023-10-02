@@ -27,8 +27,7 @@ class AppCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @available(*, deprecated, message: "Test only, remove when not needed")
-    @Published private(set) var manageTokensSheetViewModel: ManageTokensBottomSheetViewModel? // [REDACTED_TODO_COMMENT]
+    @Published private(set) var manageTokensSheetViewModel: ManageTokensBottomSheetViewModel?
 
     // MARK: - Private
 
@@ -77,6 +76,7 @@ class AppCoordinator: CoordinatorObject {
         let shouldScan = options.newScan ?? false
 
         let coordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.nextManageTokensBottomSheetDisplayable = self
         coordinator.start(with: .init(shouldScan: shouldScan))
         welcomeCoordinator = coordinator
     }
@@ -97,6 +97,7 @@ class AppCoordinator: CoordinatorObject {
         let unlockOnStart = options.newScan ?? true
 
         let coordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.nextManageTokensBottomSheetDisplayable = self
         coordinator.start(with: .init(unlockOnStart: unlockOnStart))
         authCoordinator = coordinator
     }
@@ -108,6 +109,7 @@ class AppCoordinator: CoordinatorObject {
         }
 
         let coordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
+        coordinator.nextManageTokensBottomSheetDisplayable = self
         coordinator.start()
         uncompletedBackupCoordinator = coordinator
     }
@@ -169,5 +171,22 @@ extension AppCoordinator {
         let newScan: Bool?
 
         static let `default`: Options = .init(newScan: false)
+    }
+}
+
+// MARK: - ManageTokensBottomSheetDisplayable protocol conformance
+
+extension AppCoordinator: ManageTokensBottomSheetDisplayable {
+    func coordinator(
+        _ coordinator: any CoordinatorObject,
+        wantsToShowManageTokensBottomSheetWithViewModel viewModel: ManageTokensBottomSheetViewModel
+    ) {
+        manageTokensSheetViewModel = viewModel
+    }
+
+    func coordinatorWantsToHideManageTokensBottomSheet(
+        _ coordinator: any CoordinatorObject
+    ) {
+        manageTokensSheetViewModel = nil
     }
 }
