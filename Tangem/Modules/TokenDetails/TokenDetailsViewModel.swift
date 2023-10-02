@@ -43,7 +43,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     init(
         cardModel: CardViewModel,
         walletModel: WalletModel,
-        networkCurrencyWalletModel: WalletModel?,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
         coordinator: TokenDetailsRoutable,
@@ -53,7 +52,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         super.init(
             userWalletModel: cardModel,
             walletModel: walletModel,
-            networkCurrencyWalletModel: networkCurrencyWalletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
             tokenRouter: tokenRouter

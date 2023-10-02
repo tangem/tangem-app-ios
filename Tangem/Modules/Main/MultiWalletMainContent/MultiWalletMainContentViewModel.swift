@@ -258,17 +258,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let networkCurrencyWalletModel: WalletModel?
-        if case .token(_, let blockchain) = walletModel.tokenItem {
-            networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first {
-                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
-            }
-            assert(networkCurrencyWalletModel != nil, "Network currency WalletModel not found")
-        } else {
-            networkCurrencyWalletModel = nil
-        }
-
-        coordinator.openTokenDetails(for: walletModel, networkCurrencyWalletModel: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
     private func updateMissingDerivationNotification(for pendingDerivationsCount: Int) {
