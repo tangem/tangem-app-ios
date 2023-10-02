@@ -22,6 +22,7 @@ class CommonUserTokenListManager {
     private let supportedBlockchains: Set<Blockchain>
     private let hasTokenSynchronization: Bool
     private let hdWalletsSupported: Bool // hotfix migration
+    private let defaultBlockchains: [StorageEntry]
 
     private let tokenItemsRepository: TokenItemsRepository
     private let userTokensListSubject: CurrentValueSubject<StoredUserTokenList, Never>
@@ -30,6 +31,7 @@ class CommonUserTokenListManager {
     private var pendingUpdateLocalRepositoryFromServerCompletions: [Completion] = []
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
+    private var initializedSubject: CurrentValueSubject<Bool, Never>
 
     /// Bool flag for migration custom token to token form our API
     private var migrated = false
@@ -38,14 +40,16 @@ class CommonUserTokenListManager {
         userWalletId: Data,
         supportedBlockchains: Set<Blockchain>,
         hdWalletsSupported: Bool,
-        hasTokenSynchronization: Bool
+        hasTokenSynchronization: Bool,
+        defaultBlockchains: [StorageEntry]
     ) {
         self.userWalletId = userWalletId
         self.supportedBlockchains = supportedBlockchains
         self.hdWalletsSupported = hdWalletsSupported
         self.hasTokenSynchronization = hasTokenSynchronization
-
+        self.defaultBlockchains = defaultBlockchains
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
+        initializedSubject = .init(tokenItemsRepository.containsFile)
         userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
 
         removeInvalidTokens()
@@ -56,7 +60,11 @@ class CommonUserTokenListManager {
 
 extension CommonUserTokenListManager: UserTokenListManager {
     var initialized: Bool {
-        tokenItemsRepository.containsFile
+        initializedSubject.value
+    }
+
+    var initializedPublisher: AnyPublisher<Bool, Never> {
+        initializedSubject.eraseToAnyPublisher()
     }
 
     var userTokens: [StorageEntry] {
@@ -128,6 +136,12 @@ private extension CommonUserTokenListManager {
     func notifyAboutTokenListUpdates(with userTokenList: StoredUserTokenList? = nil) {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
         DispatchQueue.main.async {
+            if !self.initialized {
+                if self.tokenItemsRepository.containsFile {
+                    self.initializedSubject.send(true)
+                }
+            }
+
             self.userTokensListSubject.send(updatedUserTokenList)
         }
     }
@@ -173,11 +187,19 @@ private extension CommonUserTokenListManager {
                 }
             } receiveValue: { [weak self] list, _ in
                 guard let self else { return }
-                let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
-                let updatedUserTokenList = converter.convertRemoteToStored(list)
 
-                self.tokenItemsRepository.update(updatedUserTokenList)
-                self.notifyAboutTokenListUpdates(with: updatedUserTokenList)
+                if let list {
+                    let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+                    let updatedUserTokenList = converter.convertRemoteToStored(list)
+                    tokenItemsRepository.update(updatedUserTokenList)
+                    notifyAboutTokenListUpdates(with: updatedUserTokenList)
+                } else {
+                    let converter = StorageEntryConverter()
+                    let entries = converter.convertToStoredUserTokens(defaultBlockchains)
+                    let newList = StoredUserTokenList(entries: entries, grouping: .none, sorting: .manual)
+                    tokenItemsRepository.update(newList)
+                    notifyAboutTokenListUpdates(with: newList)
+                }
             }
     }
 
