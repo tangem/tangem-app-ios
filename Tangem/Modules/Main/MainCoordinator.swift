@@ -196,8 +196,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {}
-
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
         modalWebViewModel = WebViewContainerViewModel(
