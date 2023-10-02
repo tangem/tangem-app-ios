@@ -13,6 +13,7 @@ extension WalletModel {
     enum SendBlockedReason {
         case cantSignLongTransactions
         case hasPendingCoinTx(symbol: String)
+        #warning("[REDACTED_TODO_COMMENT]")
         case notEnoughtFeeForTokenTx(tokenName: String, networkName: String, coinSymbol: String)
 
         var description: String {
