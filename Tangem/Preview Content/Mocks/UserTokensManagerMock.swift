@@ -12,10 +12,6 @@ import TangemSdk
 import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
-    var initialized: Bool { true }
-
-    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-
     var derivationManager: DerivationManager? { nil }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
@@ -46,7 +42,7 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
 
-    func initialize() {}
+    func sync(completion: @escaping () -> Void) {}
 }
 
 // MARK: - UserTokensReordering protocol conformance

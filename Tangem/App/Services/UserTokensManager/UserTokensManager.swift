@@ -16,7 +16,7 @@ protocol UserTokensSyncService {
     var initializedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
-protocol UserTokensManager: UserTokensSyncService, UserTokensReordering {
+protocol UserTokensManager: UserTokensReordering {
     var derivationManager: DerivationManager? { get }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
@@ -37,6 +37,8 @@ protocol UserTokensManager: UserTokensSyncService, UserTokensReordering {
 
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?)
+
+    func sync(completion: @escaping () -> Void)
 }
 
 extension UserTokensManager {
