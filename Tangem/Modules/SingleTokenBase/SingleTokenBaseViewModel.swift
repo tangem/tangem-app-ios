@@ -39,8 +39,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
-    var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
-
     var canSend: Bool {
         guard userWalletModel.config.hasFeature(.send) else {
             return false
