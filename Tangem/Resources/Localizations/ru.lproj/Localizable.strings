@@ -155,11 +155,13 @@
 "details_manage_security_passcode" = "Пароль";
 "details_manage_security_passcode_description" = "Перед выполнением любой команды, влекущей за собой изменение состояния карты, вам необходимо будет ввести пароль.";
 "details_referral_title" = "Реферальная программа";
+"details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ хэшей";
 "details_row_title_cid" = "Номер карты";
 "details_row_title_create_backup" = "Добавить еще карты";
 "details_row_title_create_backup_footer" = "Вы можете объединить до трех карт в одном кошельке. Это можно сделать только один раз.";
 "details_row_title_currency" = "Валюта приложения";
+"details_row_title_flip_to_hide" = "Flip-to-Hide Balances";
 "details_row_title_issuer" = "Эмитент";
 "details_row_title_send_feedback" = "Отправить отзыв";
 "details_row_title_signed_hashes" = "Подписано";
@@ -301,10 +303,10 @@
 "onboarding_wallet_info_title_fourth" = "Восстановление кода доступа";
 "onboarding_wallet_info_title_second" = "Идентичные карты";
 "onboarding_wallet_info_title_third" = "Код доступа";
-"organize_tokens_group" = "Группировка";
+"organize_tokens_group" = "Группы";
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Сортировка токенов";
-"organize_tokens_ungroup" = "Разгруппировать";
+"organize_tokens_ungroup" = "Список";
 "push_additional_fee" = "Дополнительная комиссия";
 "push_previous_fee" = "Предыдущая комиссия";
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
@@ -335,6 +337,8 @@
 "referral_tos_suffix" = "в реферальной программе";
 "registration_task_alert_message" = "Пожалуйста, удерживайте карту до завершения операции";
 "reset_card_to_factory_button_title" = "Сбросить карту";
+"reset_card_to_factory_condition_1" = "Я понимаю, что после выполнения этого действия у меня больше не будет доступа к текущему кошельку";
+"reset_card_to_factory_condition_2" = "Я понимаю, что не смогу этой картой восстановить пароль на остальных картах, если я его забуду";
 "reset_card_with_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты. Вы не сможете восстановить текущий кошелек или использовать данную карту для восстановления кода доступа.";
 "reset_card_without_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты. Вы не сможете восстановить текущий кошелек.";
 "russian_bank_card_warning_subtitle" = "У вас есть карта банка другой страны, а также вид на жительство или регистрация вне РФ?";
@@ -421,6 +425,7 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
+"token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
 "token_details_hide_alert_title" = "Скрыть %@";
