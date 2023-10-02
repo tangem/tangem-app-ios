@@ -116,6 +116,7 @@ struct LegacySendView: View {
                         }
                         .padding(.top, 25.0)
                         Separator(color: Color.tangemGrayLight5)
+                            .padding(.vertical, 4)
                         HStack {
                             Text(viewModel.amountHint?.message ?? " ")
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
