@@ -26,7 +26,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private lazy var _userTokensManager = CommonUserTokensManager(
         userTokenListManager: userTokenListManager,
         walletModelsManager: walletModelsManager,
-        defaultBlockchains: config.defaultBlockchains,
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
         cardDerivableProvider: self
@@ -268,7 +267,8 @@ class CardViewModel: Identifiable, ObservableObject {
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: config.hasFeature(.hdWallets),
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization)
+            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
+            defaultBlockchains: config.defaultBlockchains
         )
 
         walletManagersRepository = CommonWalletManagersRepository(
@@ -289,7 +289,7 @@ class CardViewModel: Identifiable, ObservableObject {
         appendPersistentBlockchains()
         bind()
 
-        _userTokensManager.sync()
+        userTokensManager.sync {}
     }
 
     func setupWarnings() {
