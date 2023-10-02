@@ -11,6 +11,8 @@ import UIKit
 import Combine
 
 class AppCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     let dismissAction: Action<Void> = { _ in }
     let popToRootAction: Action<PopToRootOptions> = { _ in }
 
@@ -165,6 +167,8 @@ class AppCoordinator: CoordinatorObject {
         }
     }
 }
+
+// MARK: - Options
 
 extension AppCoordinator {
     struct Options {
