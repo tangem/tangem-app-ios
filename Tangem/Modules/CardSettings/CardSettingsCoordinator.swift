@@ -9,6 +9,8 @@
 import Foundation
 
 class CardSettingsCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+    // MARK: - Dependencies
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -46,6 +48,8 @@ class CardSettingsCoordinator: CoordinatorObject, ManageTokensBottomSheetInterme
         )
     }
 }
+
+// MARK: - Options
 
 extension CardSettingsCoordinator {
     struct Options {
