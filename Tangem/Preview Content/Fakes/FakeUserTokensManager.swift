@@ -15,23 +15,9 @@ class FakeUserTokensManager: UserTokensManager {
     var derivationManager: DerivationManager?
     var userTokenListManager: UserTokenListManager
 
-    var initialized: Bool {
-        _initialized.value
-    }
-
-    var initializedPublisher: AnyPublisher<Bool, Never> {
-        _initialized.eraseToAnyPublisher()
-    }
-
-    private let _initialized = CurrentValueSubject<Bool, Never>(false)
-
     init(derivationManager: FakeDerivationManager?, userTokenListManager: FakeUserTokenListManager) {
         self.derivationManager = derivationManager
         self.userTokenListManager = userTokenListManager
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-            self._initialized.send(true)
-        }
     }
 
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
@@ -67,6 +53,8 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
+
+    func sync(completion: @escaping () -> Void) {}
 }
 
 // MARK: - UserTokensReordering protocol conformance
