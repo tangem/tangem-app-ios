@@ -27,18 +27,7 @@ struct MainHeaderView: View {
                             .cornerRadiusContinuous(6)
                             .padding(.vertical, 5)
                     } else {
-                        SensitiveText(viewModel.balance)
-                            .multilineTextAlignment(.leading)
-                            .truncationMode(.middle)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
-                            .skeletonable(
-                                isShown: viewModel.isLoadingFiatBalance,
-                                size: .init(width: 102, height: 24),
-                                radius: 6
-                            )
-                            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                            .frame(minHeight: 34)
+                        BalanceTitleView(balance: viewModel.balance, isLoading: viewModel.isLoadingFiatBalance)
                     }
 
                     subtitleText
