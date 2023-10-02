@@ -58,7 +58,6 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
                     fetchMore: viewModel.fetchMoreHistory()
                 )
                 .padding(.bottom, 40)
@@ -76,6 +75,7 @@ struct TokenDetailsView: View {
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
