@@ -162,8 +162,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCryptoIfPossible()
-        case .openNetworkCurrency:
-            openNetworkCurrency()
         default:
             break
         }
@@ -318,20 +316,6 @@ extension SingleTokenBaseViewModel {
         }
 
         tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
-    }
-
-    func openNetworkCurrency() {
-        guard
-            case .token(_, let blockchain) = walletModel.tokenItem,
-            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
-            })
-        else {
-            assertionFailure("Network currency WalletModel not found")
-            return
-        }
-
-        tokenRouter.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 
     func openSend() {
