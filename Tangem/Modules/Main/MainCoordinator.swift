@@ -41,6 +41,10 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
+    // MARK: - Delegates
+
+    weak var manageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -99,6 +103,14 @@ extension MainCoordinator: MainRoutable {
 
     func close(newScan: Bool) {
         popToRoot(with: .init(newScan: newScan))
+    }
+
+    func showManageTokensBottomSheet(with viewModel: ManageTokensBottomSheetViewModel) {
+        manageTokensBottomSheetDisplayable?.coordinator(self, wantsToShowManageTokensBottomSheetWithViewModel: viewModel)
+    }
+
+    func hideManageTokensBottomSheet() {
+        manageTokensBottomSheetDisplayable?.coordinatorWantsToHideManageTokensBottomSheet(self)
     }
 }
 
