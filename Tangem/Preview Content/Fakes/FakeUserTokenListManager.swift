@@ -11,7 +11,15 @@ import Combine
 import struct BlockchainSdk.Token
 
 class FakeUserTokenListManager: UserTokenListManager {
-    var initialized: Bool { false }
+    var initialized: Bool {
+        _initialized.value
+    }
+
+    var initializedPublisher: AnyPublisher<Bool, Never> {
+        _initialized.eraseToAnyPublisher()
+    }
+
+    private let _initialized = CurrentValueSubject<Bool, Never>(false)
 
     var userTokens: [StorageEntry] {
         let converter = StorageEntryConverter()
@@ -33,7 +41,11 @@ class FakeUserTokenListManager: UserTokenListManager {
 
     private let userTokensListSubject = CurrentValueSubject<StoredUserTokenList, Never>(.empty)
 
-    init() {}
+    init() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+            self._initialized.send(true)
+        }
+    }
 
     func update(with userTokenList: StoredUserTokenList) {}
 
