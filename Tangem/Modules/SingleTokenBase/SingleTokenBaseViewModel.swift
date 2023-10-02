@@ -81,19 +81,15 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
 
-    private let networkCurrencyWalletModel: WalletModel?
-
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
-        networkCurrencyWalletModel: WalletModel?,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
-        self.networkCurrencyWalletModel = networkCurrencyWalletModel
         self.exchangeUtility = exchangeUtility
         self.notificationManager = notificationManager
         self.tokenRouter = tokenRouter
@@ -327,8 +323,13 @@ extension SingleTokenBaseViewModel {
     }
 
     func openNetworkCurrency() {
-        guard let networkCurrencyWalletModel else {
-            assertionFailure("Does not compute")
+        guard
+            case .token(_, let blockchain) = walletModel.tokenItem,
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
             return
         }
 
