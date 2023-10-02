@@ -11,6 +11,8 @@ import UIKit
 import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+    // MARK: - Dependencies
+
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -51,6 +53,8 @@ class DetailsCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediate
         detailsViewModel = DetailsViewModel(userWalletModel: options.userWalletModel, coordinator: self)
     }
 }
+
+// MARK: - Options
 
 extension DetailsCoordinator {
     struct Options {
