@@ -30,7 +30,7 @@ struct Separator: View {
             .padding(.vertical, padding)
     }
 
-    init(height: Height = .exact(1), padding: Double = 4, color: Color = Color.tangemGrayLight5) {
+    init(height: Height = .exact(1), padding: Double = 4, color: Color) {
         self.height = height
         self.padding = padding
         self.color = color
