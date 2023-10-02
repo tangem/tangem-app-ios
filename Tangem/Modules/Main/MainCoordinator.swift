@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 class MainCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+    // MARK: - Dependencies
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -36,7 +38,7 @@ class MainCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDis
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
 
-    // MARK: - Other state
+    // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
