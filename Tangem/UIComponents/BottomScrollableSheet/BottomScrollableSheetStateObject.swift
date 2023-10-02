@@ -26,16 +26,16 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         return clamp(progress, min: 0.0, max: 1.0)
     }
 
-    private var state: SheetState = .bottom
+    private(set) var state: SheetState = .bottom
     private var contentOffset: CGPoint = .zero
     private var keyboardCancellable: AnyCancellable?
 
-    init() {
-        bindKeyboard()
-    }
-
     func onAppear() {
         updateToState(state)
+    }
+
+    func onHeaderTap() {
+        updateToState(.top)
     }
 
     /// Use for set and update sheet to the state
@@ -118,15 +118,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         }
     }
 
-    private func bindKeyboard() {
-        keyboardCancellable = NotificationCenter
-            .default
-            .publisher(for: UIResponder.keyboardWillShowNotification)
-            .sink { [weak self] _ in
-                self?.updateToState(.top)
-            }
-    }
-
     private func dragView(translation: CGFloat) {
         var translationChange = translation
 
@@ -181,6 +172,13 @@ extension BottomScrollableSheetStateObject {
     enum SheetState: String, Hashable {
         case top
         case bottom
+
+        var isBottom: Bool {
+            if case .bottom = self {
+                return true
+            }
+            return false
+        }
     }
 }
 
