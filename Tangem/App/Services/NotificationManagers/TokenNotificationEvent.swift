@@ -19,7 +19,7 @@ enum TokenNotificationEvent: Hashable {
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
     case notEnoughtFeeForTokenTx(message: String)
-    case unableToCoverFee(token: Token, blockchain: Blockchain)
+    case unableToCoverFee(tokenName: String, blockchainCurrencySymbol: String, blockchainName: String, blockchainIconName: String)
 
     static func event(for reason: WalletModel.SendBlockedReason) -> TokenNotificationEvent {
         let message = reason.description
@@ -38,8 +38,8 @@ enum TokenNotificationEvent: Hashable {
         // One notification with button action will be added later
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return nil
-        case .unableToCoverFee(_, let blockchain):
-            return .openNetworkCurrency(currencySymbol: blockchain.currencySymbol)
+        case .unableToCoverFee(_, let blockchainCurrencySymbol, _, _):
+            return .openNetworkCurrency(currencySymbol: blockchainCurrencySymbol)
         }
     }
 }
@@ -75,8 +75,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.walletBalanceTxInProgress
         case .notEnoughtFeeForTokenTx:
             return defaultTitle
-        case .unableToCoverFee(_, let blockchain):
-            return Localization.notificationTitleNotEnoughFunds(blockchain.displayName)
+        case .unableToCoverFee(_, _, let blockchainName, _):
+            return Localization.notificationTitleNotEnoughFunds(blockchainName)
         }
     }
 
@@ -100,8 +100,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .notEnoughtFeeForTokenTx(let message):
             return message
-        case .unableToCoverFee(let token, let blockchain):
-            return Localization.notificationSubtitleNotEnoughFunds(token.name, blockchain.displayName, blockchain.currencySymbol)
+        case .unableToCoverFee(let tokenName, let blockchainCurrencySymbol, let blockchainName, _):
+            return Localization.notificationSubtitleNotEnoughFunds(tokenName, blockchainName, blockchainCurrencySymbol)
         }
     }
 
@@ -121,8 +121,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(image: Assets.attention.image)
         case .existentialDepositWarning:
             return .init(image: Assets.redCircleWarning.image)
-        case .unableToCoverFee(_, let blockchain):
-            return .init(image: Image(blockchain.iconNameFilled))
+        case .unableToCoverFee(_, _, _, let blockchainIconName):
+            return .init(image: Image(blockchainIconName))
         }
     }
 
