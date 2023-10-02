@@ -70,7 +70,10 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             self?.dismiss()
         }
 
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: hasOtherCards ? popToMainAction : popToRootAction)
+        let coordinator = OnboardingCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: hasOtherCards ? popToMainAction : popToRootAction
+        )
         coordinator.nextManageTokensBottomSheetDisplayable = self
         let options = OnboardingCoordinator.Options(input: input, destination: .root)
         coordinator.start(with: options)
