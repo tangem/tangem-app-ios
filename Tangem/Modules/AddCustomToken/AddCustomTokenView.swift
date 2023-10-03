@@ -94,7 +94,7 @@ struct AddCustomTokenView: View {
     }
 
     private var separator: some View {
-        Separator(height: 1 / displayScale, padding: 0, color: Colors.Stroke.primary)
+        Separator(height: .minimal, color: Colors.Stroke.primary)
             .padding(.leading, 16)
     }
 }
