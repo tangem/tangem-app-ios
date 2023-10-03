@@ -14,6 +14,7 @@ import TangemSwapping
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
+    @Published var actionSheet: ActionSheetBinder?
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
@@ -79,6 +80,19 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             } receiveValue: { _ in }
 
         reloadHistory()
+    }
+
+    override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .openNetworkCurrency:
+            openNetworkCurrency()
+        default:
+            super.didTapNotificationButton(with: id, action: action)
+        }
+    }
+
+    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
 
@@ -165,6 +179,20 @@ private extension TokenDetailsViewModel {
 private extension TokenDetailsViewModel {
     func dismiss() {
         coordinator.dismiss()
+    }
+
+    func openNetworkCurrency() {
+        guard
+            case .token(_, let blockchain) = walletModel.tokenItem,
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
+            return
+        }
+
+        coordinator.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
