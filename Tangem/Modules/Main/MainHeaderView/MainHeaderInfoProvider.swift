@@ -11,6 +11,6 @@ import Combine
 protocol MainHeaderInfoProvider: AnyObject {
     var cardHeaderImage: ImageType? { get }
     var isUserWalletLocked: Bool { get }
-    var isWalletModelListEmpty: Bool { get }
+    var isTokensListEmpty: Bool { get }
     var userWalletNamePublisher: AnyPublisher<String, Never> { get }
 }
