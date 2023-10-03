@@ -39,8 +39,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
-    var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
-
     var canSend: Bool {
         guard userWalletModel.config.hasFeature(.send) else {
             return false
@@ -191,9 +189,8 @@ extension SingleTokenBaseViewModel {
 
     private func setupActionButtons() {
         let listBuilder = TokenActionListBuilder()
-        let isSwapFeatureAvailable = FeatureProvider.isAvailable(.exchange)
         let canShowSwap = userWalletModel.config.hasFeature(.swapping)
-        availableActions = listBuilder.buildActionsForButtonsList(canShowSwap: canShowSwap && isSwapFeatureAvailable)
+        availableActions = listBuilder.buildActionsForButtonsList(canShowSwap: canShowSwap)
     }
 
     private func bind() {
