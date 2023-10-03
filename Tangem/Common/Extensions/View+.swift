@@ -78,7 +78,7 @@ extension View {
         return self
     }
 
-    /// Two separate methods exist for iOS <16.0 and >=16.0 because they must be applied at the different levels 
+    /// Two separate methods exist for iOS <16.0 and >=16.0 because they must be applied at the different levels
     /// of the view hierarchy in order to work.
     ///
     /// This method must be used on the content view INSIDE `ScrollView`, otherwise it won't work.
@@ -87,7 +87,7 @@ extension View {
     /// struct SomeView: View {
     ///     [REDACTED_USERNAME] private var isScrollDisabled = false
     ///
-    ///     func body(content: Content) -> some View {
+    ///     var body: some View {
     ///         ScrollView {
     ///             LazyVStack() {
     ///                 // Some scrollable content
@@ -116,7 +116,7 @@ extension View {
     /// struct SomeView: View {
     ///     [REDACTED_USERNAME] private var isScrollDisabled = false
     ///
-    ///     func body(content: Content) -> some View {
+    ///     var body: some View {
     ///         ScrollView {
     ///             LazyVStack() {
     ///                 // Some scrollable content
