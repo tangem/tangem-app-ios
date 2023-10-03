@@ -16,31 +16,40 @@ struct TokenPriceChangeView: View {
     var body: some View {
         switch state {
         case .initialized:
-            Text(" ")
-                .frame(size: loaderSize)
+            styledDashText
+                .opacity(0.01)
         case .noData:
-            Text("–")
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .frame(minHeight: loaderSize.height)
+            styledDashText
         case .loading:
-            SkeletonView()
-                .frame(size: loaderSize)
-                .cornerRadiusContinuous(3)
-                .padding(.top, 6)
+            ZStack {
+                styledDashText
+                    .opacity(0.01)
+                SkeletonView()
+                    .frame(size: loaderSize)
+                    .cornerRadiusContinuous(3)
+            }
         case .loaded(let signType, let text):
             HStack(spacing: 4) {
                 if let icon = signType.imageType?.image {
                     icon
                         .renderingMode(.template)
+                        .foregroundColor(signType.textColor)
                 }
 
-                Text(text)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
+                styledText(text, textColor: signType.textColor)
             }
-            .style(Fonts.Regular.footnote, color: signType.textColor)
-            .frame(minHeight: loaderSize.height)
         }
+    }
+
+    private var styledDashText: some View {
+        styledText("–")
+    }
+
+    @ViewBuilder
+    private func styledText(_ text: String, textColor: Color = Colors.Text.tertiary) -> some View {
+        Text(text)
+            .style(Fonts.Regular.footnote, color: textColor)
+            .lineLimit(1)
     }
 }
 
