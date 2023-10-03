@@ -201,6 +201,7 @@ class WebSocket {
     private func handleEvent(_ event: WebSocketEvent) {
         switch event {
         case .connected:
+            log("Receive connected event")
             state = .connected
             setupPingTimer()
             onConnect?()
