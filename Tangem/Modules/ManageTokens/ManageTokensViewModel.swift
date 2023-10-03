@@ -153,7 +153,6 @@ private extension ManageTokensViewModel {
     }
 
     private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        let userWalletModels = userWalletRepository.models
         let isAlreadyExistToken = coinModel.items.contains(where: { tokenItem in
             cacheExistTokenUserList.contains(tokenItem)
         })
