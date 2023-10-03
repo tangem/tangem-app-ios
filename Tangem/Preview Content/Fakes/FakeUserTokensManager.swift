@@ -15,10 +15,6 @@ class FakeUserTokensManager: UserTokensManager {
     var derivationManager: DerivationManager?
     var userTokenListManager: UserTokenListManager
 
-    var isInitialSyncPerformed: Bool { userTokenListManager.isInitialSyncPerformed }
-
-    var initialSyncPublisher: AnyPublisher<Bool, Never> { userTokenListManager.initialSyncPublisher }
-
     init(derivationManager: FakeDerivationManager?, userTokenListManager: FakeUserTokenListManager) {
         self.derivationManager = derivationManager
         self.userTokenListManager = userTokenListManager
@@ -52,15 +48,13 @@ class FakeUserTokensManager: UserTokensManager {
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
 
-    func updateUserTokens() {}
-
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         false
     }
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
 
-    func updateUserTokens(_ completion: @escaping () -> Void) {}
+    func sync(completion: @escaping () -> Void) {}
 }
 
 // MARK: - UserTokensReordering protocol conformance
