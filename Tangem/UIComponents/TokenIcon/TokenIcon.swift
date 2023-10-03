@@ -15,8 +15,8 @@ struct TokenIcon: View {
     let customTokenColor: Color?
     let blockchainIconName: String?
     let isCustom: Bool
-
     let size: CGSize
+
     private let networkIconSize = CGSize(width: 14, height: 14)
     private let networkIconBorderWidth: Double = 2
     private let customTokenIndicatorSize = CGSize(width: 8, height: 8)
