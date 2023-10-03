@@ -25,17 +25,19 @@ struct TokenItemView: View {
 
             VStack(spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    Text(viewModel.name)
-                        .style(
-                            Fonts.Bold.subheadline,
-                            color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
-                        )
-                        .frame(minWidth: 0.20 * viewSize.width, alignment: .leading)
-                        .lineLimit(1)
+                    HStack(spacing: 6) {
+                        Text(viewModel.name)
+                            .style(
+                                Fonts.Bold.subheadline,
+                                color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
+                            )
+                            .lineLimit(1)
 
-                    if viewModel.hasPendingTransactions {
-                        Assets.pendingTxIndicator.image
+                        if viewModel.hasPendingTransactions {
+                            Assets.pendingTxIndicator.image
+                        }
                     }
+                    .frame(minWidth: 0.20 * viewSize.width, alignment: .leading)
 
                     Spacer(minLength: 8)
 
@@ -67,6 +69,7 @@ struct TokenItemView: View {
                         Spacer(minLength: Constants.spacerLength)
 
                         TokenPriceChangeView(state: viewModel.priceChangeState)
+                            .frame(minWidth: 0.16 * viewSize.width, alignment: .trailing)
                             .layoutPriority(1)
                     }
                 }
