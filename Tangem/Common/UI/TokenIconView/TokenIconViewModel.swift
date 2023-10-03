@@ -23,7 +23,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
     }
 
     var blockchainIconName: String? {
-        if case .token(let iconName, _) = style {
+        if case .token(let iconName) = style {
             return iconName
         }
 
@@ -31,8 +31,8 @@ struct TokenIconViewModel: Hashable, Identifiable {
     }
 
     var customTokenColor: Color? {
-        if case .token(_, let customTokenColor) = style {
-            return customTokenColor
+        if case .customToken(let color) = style {
+            return color
         }
 
         return nil
@@ -53,7 +53,11 @@ struct TokenIconViewModel: Hashable, Identifiable {
         case .blockchain(let blockchain):
             self.init(id: blockchain.coinId, name: blockchain.displayName, style: .blockchain)
         case .token(let token, let blockchain):
-            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled, customTokenColor: token.customTokenColor))
+            if let customTokenColor = token.customTokenColor {
+                self.init(id: token.id, name: token.name, style: .customToken(color: customTokenColor))
+            } else {
+                self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled))
+            }
         }
     }
 
@@ -62,7 +66,11 @@ struct TokenIconViewModel: Hashable, Identifiable {
         case .coin, .reserve:
             self.init(id: blockchain.coinId, name: blockchain.displayName, style: .blockchain)
         case .token(let token):
-            self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled, customTokenColor: token.customTokenColor))
+            if let customTokenColor = token.customTokenColor {
+                self.init(id: token.id, name: token.name, style: .customToken(color: customTokenColor))
+            } else {
+                self.init(id: token.id, name: token.name, style: .token(blockchain.iconNameFilled))
+            }
         }
     }
 }
@@ -70,6 +78,7 @@ struct TokenIconViewModel: Hashable, Identifiable {
 extension TokenIconViewModel {
     enum Style: Hashable {
         case blockchain
-        case token(_ blockchainIconName: String, customTokenColor: Color?)
+        case token(_ blockchainIconName: String)
+        case customToken(color: Color)
     }
 }
