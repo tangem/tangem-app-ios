@@ -23,7 +23,6 @@ struct BlockchainNetworkNavigationTitleView: View {
             HStack(spacing: 4) {
                 IconView(
                     url: viewModel.iconURL,
-                    customTokenColor: nil,
                     size: CGSize(width: 14, height: 14)
                 )
 
