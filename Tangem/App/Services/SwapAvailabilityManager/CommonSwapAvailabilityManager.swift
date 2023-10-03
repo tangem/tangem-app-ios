@@ -36,7 +36,6 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
     }()
 
     private var loadedSwapableTokenItems: CurrentValueSubject<[TokenItem: Bool], Never> = .init([:])
-    private var bag: Set<AnyCancellable> = []
 
     init() {
         loadedSwapableTokenItems = .init(supportedBlockchains.reduce(into: [TokenItem: Bool]()) { $0[.blockchain($1)] = true })
