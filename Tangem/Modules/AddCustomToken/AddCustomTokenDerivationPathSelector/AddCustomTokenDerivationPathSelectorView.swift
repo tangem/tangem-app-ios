@@ -36,7 +36,7 @@ struct AddCustomTokenDerivationPathSelectorView: View {
                 AddCustomTokenDerivationPathSelectorItemView(viewModel: viewModel)
 
                 if viewModels.last?.id != viewModel.id {
-                    Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
+                    Separator(height: .minimal, color: Colors.Stroke.primary)
                         .padding(.leading, 16)
                 }
             }
