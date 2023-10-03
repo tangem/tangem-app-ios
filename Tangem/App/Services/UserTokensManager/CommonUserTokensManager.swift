@@ -78,6 +78,8 @@ struct CommonUserTokensManager {
     private mutating func bind() {
         userTokenListManager
             .userTokensListPublisher
+            // We can skip first element, because swap state will be loaded during `sync`
+            // for all token list after loading actual info from backend
             .dropFirst()
             .removeDuplicates()
             .sink { [swapAvailabilityController] tokenList in
