@@ -30,7 +30,6 @@ struct ManageTokensBottomSheetContentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.all)
                 }
-                .background(Colors.Background.primary)
 
                 Divider()
             }
