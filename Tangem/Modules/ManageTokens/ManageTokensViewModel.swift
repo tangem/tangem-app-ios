@@ -133,13 +133,6 @@ private extension ManageTokensViewModel {
         return loader
     }
 
-    func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(event: .tokenSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
-            .token: tokenItem.currencySymbol,
-        ])
-    }
-
     // MARK: - Private Implementation
 
     private func displayAlert(title: String, message: String) {
