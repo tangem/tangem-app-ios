@@ -38,7 +38,6 @@ struct SingleWalletMainContentView: View {
                 exploreTransactionAction: viewModel.openTransactionExplorer,
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
                 fetchMore: viewModel.fetchMoreHistory()
             )
             .padding(.bottom, 40)
@@ -66,6 +65,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             exchangeUtility: cryptoUtility,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
+            mainViewDelegate: nil,
             tokenRouter: SingleTokenRoutableMock()
         )
     }()
