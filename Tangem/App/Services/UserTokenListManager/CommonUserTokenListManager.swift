@@ -195,8 +195,7 @@ private extension CommonUserTokenListManager {
                     let converter = StorageEntryConverter()
                     let entries = converter.convertToStoredUserTokens(defaultBlockchains)
                     let newList = StoredUserTokenList(entries: entries, grouping: .none, sorting: .manual)
-                    tokenItemsRepository.update(newList)
-                    notifyAboutTokenListUpdates(with: newList)
+                    update(newList)
                 }
             }
     }
