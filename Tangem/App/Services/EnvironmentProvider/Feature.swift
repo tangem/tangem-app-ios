@@ -9,9 +9,6 @@
 import Foundation
 
 enum Feature: String, Hashable, CaseIterable {
-    case exchange
-    case importSeedPhrase
-    case accessCodeRecoverySettings
     case disableFirmwareVersionLimit
     case learnToEarn
     case tokenDetailsV2
@@ -22,9 +19,6 @@ enum Feature: String, Hashable, CaseIterable {
 
     var name: String {
         switch self {
-        case .exchange: return "Exchange"
-        case .importSeedPhrase: return "Import seed phrase (Firmware 6.11 and above)"
-        case .accessCodeRecoverySettings: return "Access Code Recovery Settings"
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
         case .tokenDetailsV2: return "Token details 2.0"
@@ -37,14 +31,11 @@ enum Feature: String, Hashable, CaseIterable {
 
     var releaseVersion: ReleaseVersion {
         switch self {
-        case .exchange: return .version("4.2")
-        case .importSeedPhrase: return .version("4.10")
-        case .accessCodeRecoverySettings: return .version("4.10")
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
-        case .tokenDetailsV2: return .unspecified
+        case .tokenDetailsV2: return .version("5.0")
         case .enableBlockchainSdkEvents: return .unspecified
-        case .mainV2: return .unspecified
+        case .mainV2: return .version("5.0")
         case .sendV2: return .unspecified
         case .manageTokens: return .unspecified
         }
