@@ -13,7 +13,9 @@ import TangemSwapping
 class CommonSwapAvailabilityManager: SwapAvailabilityManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var isSwapFeatureAvailable: Bool { FeatureProvider.isAvailable(.exchange) }
+    var tokenItemsAvailableToSwapPublisher: AnyPublisher<[TokenItem: Bool], Never> {
+        loadedSwapableTokenItems.eraseToAnyPublisher()
+    }
 
     private let supportedBlockchains: Set<Blockchain> = {
         let supported: Set<SwappingBlockchain> = [
@@ -33,19 +35,16 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         }.toSet()
     }()
 
-    private var loadedSwapableTokenItems: Set<TokenItem> = []
+    private var loadedSwapableTokenItems: CurrentValueSubject<[TokenItem: Bool], Never> = .init([:])
+    private var bag: Set<AnyCancellable> = []
 
     init() {
-        loadedSwapableTokenItems = supportedBlockchains.map { .blockchain($0) }.toSet()
+        loadedSwapableTokenItems = .init(supportedBlockchains.reduce(into: [TokenItem: Bool]()) { $0[.blockchain($1)] = true })
     }
 
-    func loadSwapAvailability(for items: [TokenItem]) -> AnyPublisher<Void, Error> {
-        guard isSwapFeatureAvailable else {
-            return .justWithError(output: ())
-        }
-
+    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool) {
         if items.isEmpty {
-            return .justWithError(output: ())
+            return
         }
 
         let filteredItemsToRequest = items.filter {
@@ -55,63 +54,44 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                 return false
             }
 
-            switch $0 {
-            case .blockchain:
-                // Blockchains will be already added to loaded swappable token list on initialization of the Checker
-                return false
-            case .token:
-                // We need to load exchangeable state for tokens
-                return true
-            }
+            // If `forceReload` flag is true we need to force reload state for all items
+            return loadedSwapableTokenItems.value[$0] == nil || forceReload
         }
 
-        // This mean that all requesting items is blockchains or currently they blockchains not available for swap
+        // This mean that all requesting items in blockchains that currently not available for swap
         // We can exit without request
         if filteredItemsToRequest.isEmpty {
-            return .justWithError(output: ())
+            return
         }
 
         let requestItem = convertToRequestItem(filteredItemsToRequest)
-        return tangemApiService
+        var loadSubscription: AnyCancellable?
+        loadSubscription = tangemApiService
             .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.currencyIds))
-            .map { [weak self] models in
+            .sink(receiveCompletion: { _ in
+                withExtendedLifetime(loadSubscription) {}
+            }, receiveValue: { [weak self] models in
                 guard let self else {
                     return
                 }
 
                 let loadedTokenItems = models.flatMap { $0.items }
 
-                // Filter only available to swap items
-                let onlyAvailableToSwapItems = loadedTokenItems.filter {
+                let preparedSwapStates = Dictionary(uniqueKeysWithValues: loadedTokenItems.map {
                     switch $0 {
                     case .token(let token, _):
-                        return token.exchangeable ?? false
+                        return ($0, token.exchangeable ?? false)
                     case .blockchain(let blockchain):
-                        return self.supportedBlockchains.contains(blockchain)
+                        return ($0, self.supportedBlockchains.contains(blockchain))
                     }
-                }
+                })
 
-                loadedSwapableTokenItems.formUnion(onlyAvailableToSwapItems)
-            }
-            .eraseError()
+                loadedSwapableTokenItems.value.merge(preparedSwapStates, uniquingKeysWith: { $1 })
+            })
     }
 
     func canSwap(tokenItem: TokenItem) -> Bool {
-        guard isSwapFeatureAvailable else { return false }
-
-        return loadedSwapableTokenItems.contains(tokenItem)
-    }
-
-    func addTokensIfCanBeSwapped(_ items: [TokenItem]) {
-        let filteredItems = items.filter { item in
-            guard let token = item.token else {
-                return false
-            }
-
-            return token.exchangeable ?? false
-        }
-
-        loadedSwapableTokenItems.formUnion(filteredItems)
+        loadedSwapableTokenItems.value[tokenItem] ?? false
     }
 
     private func convertToRequestItem(_ items: [TokenItem]) -> RequestItem {

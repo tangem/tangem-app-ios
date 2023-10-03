@@ -21,6 +21,8 @@ struct CommonUserTokensManager {
     private let derivationStyle: DerivationStyle?
     private weak var cardDerivableProvider: CardDerivableProvider?
 
+    private var bag: Set<AnyCancellable> = []
+
     init(
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
@@ -33,6 +35,8 @@ struct CommonUserTokensManager {
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
+
+        bind()
     }
 
     private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
@@ -69,6 +73,20 @@ struct CommonUserTokensManager {
         } else {
             userTokenListManager.update(.removeBlockchain(blockchainNetwork), shouldUpload: shouldUpload)
         }
+    }
+
+    private mutating func bind() {
+        userTokenListManager
+            .userTokensListPublisher
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [swapAvailabilityController] tokenList in
+                let converter = StorageEntryConverter()
+                let nonCustomTokens = tokenList.entries.filter { !$0.isCustom }
+                let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+                swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: false)
+            }
+            .store(in: &bag)
     }
 }
 
@@ -173,19 +191,12 @@ extension CommonUserTokensManager: UserTokensManager {
 
     func sync(completion: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { _ in
-            walletModelsManager.updateAll(silent: false, completion: completion)
+            let converter = StorageEntryConverter()
+            let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
+            let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+            self.swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: true)
+            self.walletModelsManager.updateAll(silent: false, completion: completion)
         }
-    }
-
-    private func updateTokenSwapState(_ completion: @escaping () -> Void) {
-        let converter = StorageEntryConverter()
-        let tokenItemsList = converter.convertToTokenItem(userTokenListManager.userTokensList.entries)
-        var subscription: AnyCancellable?
-        subscription = swapAvailabilityController.loadSwapAvailability(for: tokenItemsList)
-            .sink { _ in
-                self.walletModelsManager.updateAll(silent: false, completion: completion)
-                withExtendedLifetime(subscription) {}
-            } receiveValue: { _ in }
     }
 }
 

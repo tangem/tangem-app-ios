@@ -11,11 +11,11 @@ import Combine
 typealias SwapAvailabilityManager = SwapAvailabilityProvider & SwapAvailabilityController
 
 protocol SwapAvailabilityController {
-    func loadSwapAvailability(for items: [TokenItem]) -> AnyPublisher<Void, Error>
-    func addTokensIfCanBeSwapped(_ items: [TokenItem])
+    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool)
 }
 
 protocol SwapAvailabilityProvider {
+    var tokenItemsAvailableToSwapPublisher: AnyPublisher<[TokenItem: Bool], Never> { get }
     func canSwap(tokenItem: TokenItem) -> Bool
 }
 
