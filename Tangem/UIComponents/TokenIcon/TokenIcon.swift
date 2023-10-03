@@ -29,29 +29,23 @@ struct TokenIcon: View {
 
     var body: some View {
         if let customTokenColor {
-            customTokenColor
-                .clipShape(Circle())
-                .overlay(
-                    Assets.customTokenStar.image
-                        .resizable()
-                        .frame(
-                            width: size.width * customTokenIconSizeRatio,
-                            height: size.height * customTokenIconSizeRatio
-                        )
-                )
-                .frame(size: size)
+            customTokenIcon(background: customTokenColor)
         } else {
-            IconView(url: imageURL, size: size, forceKingfisher: true)
-                .overlay(
-                    networkIcon.offset(x: 4, y: -4),
-                    alignment: .topTrailing
-                )
-                .overlay(
-                    customTokenIndicator
-                        .frame(size: size, alignment: .bottomTrailing)
-                        .offset(x: 1, y: 1)
-                )
+            tokenIcon
         }
+    }
+
+    private var tokenIcon: some View {
+        IconView(url: imageURL, size: size, forceKingfisher: true)
+            .overlay(
+                networkIcon.offset(x: 4, y: -4),
+                alignment: .topTrailing
+            )
+            .overlay(
+                customTokenIndicator
+                    .frame(size: size, alignment: .bottomTrailing)
+                    .offset(x: 1, y: 1)
+            )
     }
 
     @ViewBuilder
@@ -83,6 +77,20 @@ struct TokenIcon: View {
                         .frame(size: customTokenIndicatorBorderSize)
                 )
         }
+    }
+
+    private func customTokenIcon(background: Color) -> some View {
+        customTokenColor
+            .clipShape(Circle())
+            .overlay(
+                Assets.customTokenStar.image
+                    .resizable()
+                    .frame(
+                        width: size.width * customTokenIconSizeRatio,
+                        height: size.height * customTokenIconSizeRatio
+                    )
+            )
+            .frame(size: size)
     }
 }
 
