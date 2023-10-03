@@ -24,8 +24,8 @@ struct TokenDetailsHeaderView: View {
 
                 TokenIcon(
                     name: "",
-                    imageURL: viewModel.tokenIconModel.imageURL,
-                    customTokenColor: viewModel.tokenIconModel.customTokenColor,
+                    imageURL: viewModel.imageURL,
+                    customTokenColor: viewModel.customTokenColor,
                     blockchainIconName: nil,
                     isCustom: false,
                     size: IconViewSizeSettings.tokenDetails.iconSize
