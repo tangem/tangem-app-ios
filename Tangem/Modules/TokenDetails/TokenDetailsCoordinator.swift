@@ -114,7 +114,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        Analytics.log(.tokenIsTapped)
+        #warning("[REDACTED_TODO_COMMENT]")
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
