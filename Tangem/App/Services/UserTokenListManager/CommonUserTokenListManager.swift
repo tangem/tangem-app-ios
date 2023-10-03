@@ -136,10 +136,8 @@ private extension CommonUserTokenListManager {
     func notifyAboutTokenListUpdates(with userTokenList: StoredUserTokenList? = nil) {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
         DispatchQueue.main.async {
-            if !self.initialized {
-                if self.tokenItemsRepository.containsFile {
-                    self.initializedSubject.send(true)
-                }
+            if !self.initialized, self.tokenItemsRepository.containsFile {
+                self.initializedSubject.send(true)
             }
 
             self.userTokensListSubject.send(updatedUserTokenList)
