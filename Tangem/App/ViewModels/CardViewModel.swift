@@ -165,7 +165,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private(set) var cardInfo: CardInfo
     private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
-    private var didPerformInitialUpdate = false
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -268,7 +267,8 @@ class CardViewModel: Identifiable, ObservableObject {
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: config.hasFeature(.hdWallets),
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization)
+            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
+            defaultBlockchains: config.defaultBlockchains
         )
 
         walletManagersRepository = CommonWalletManagersRepository(
@@ -288,6 +288,8 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
+
+        userTokensManager.sync {}
     }
 
     func setupWarnings() {
@@ -541,17 +543,6 @@ extension CardViewModel: UserWalletModel {
 
     var tokensCount: Int? {
         walletModelsManager.walletModels.count
-    }
-
-    func initialUpdate() {
-        guard !didPerformInitialUpdate else {
-            AppLog.shared.debug("Initial update has been performed")
-            return
-        }
-
-        didPerformInitialUpdate = true
-
-        _userTokensManager.updateUserTokens {}
     }
 
     func updateWalletName(_ name: String) {
