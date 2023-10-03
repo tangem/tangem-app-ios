@@ -96,7 +96,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         isUpdating = true
-        userWalletModel.userTokensManager.updateUserTokens { [weak self] in
+        userWalletModel.userTokensManager.sync { [weak self] in
             self?.isUpdating = false
             completionHandler()
         }
@@ -239,13 +239,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func subscribeToTokenListUpdatesIfNeeded() {
-        if userWalletModel.userTokensManager.isInitialSyncPerformed {
+        if userWalletModel.userTokenListManager.initialized {
             isLoadingTokenList = false
             return
         }
 
         var tokenSyncSubscription: AnyCancellable?
-        tokenSyncSubscription = userWalletModel.userTokensManager.initialSyncPublisher
+        tokenSyncSubscription = userWalletModel.userTokenListManager.initializedPublisher
             .filter { $0 }
             .sink(receiveValue: { [weak self] _ in
                 self?.isLoadingTokenList = false
