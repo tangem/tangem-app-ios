@@ -20,6 +20,14 @@ class FileLogger: TangemSdkLogger {
         return formatter
     }()
 
+    init() {
+        let fileManager = FileManager.default
+
+        if !fileManager.fileExists(atPath: logFileURL.relativePath) {
+            fileManager.createFile(atPath: logFileURL.relativePath, contents: nil)
+        }
+    }
+
     public func log(_ message: String, level: Log.Level) {
         guard Log.filter(level) else { return }
 
@@ -27,12 +35,20 @@ class FileLogger: TangemSdkLogger {
             let formattedMessage = "\n\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)"
             let messageData = formattedMessage.data(using: .utf8)!
 
-            if let handler = try? FileHandle(forWritingTo: self.logFileURL) {
-                handler.seekToEndOfFile()
-                handler.write(messageData)
-                handler.closeFile()
-            } else {
-                try? messageData.write(to: self.logFileURL)
+            do {
+                let handler = try FileHandle(forWritingTo: self.logFileURL)
+                let nsException = nsTryCatch {
+                    handler.seekToEndOfFile()
+                    handler.write(messageData)
+                    handler.closeFile()
+                }
+
+                if let nsException {
+                    print(nsException)
+                }
+
+            } catch {
+                print(error)
             }
         }
     }

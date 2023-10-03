@@ -19,6 +19,7 @@ class AppSettingsViewModel: ObservableObject {
     @Published var savingWalletViewModel: DefaultToggleRowViewModel?
     @Published var savingAccessCodesViewModel: DefaultToggleRowViewModel?
     @Published var currencySelectionViewModel: DefaultRowViewModel?
+    @Published var sensitiveTextAvailabilityViewModel: DefaultToggleRowViewModel?
 
     @Published var alert: AlertBinder?
 
@@ -149,6 +150,11 @@ private extension AppSettingsViewModel {
             detailsType: .text(selectedCurrencyCode),
             action: coordinator.openCurrencySelection
         )
+
+        sensitiveTextAvailabilityViewModel = DefaultToggleRowViewModel(
+            title: Localization.detailsRowTitleFlipToHide,
+            isOn: isSensitiveTextAvailability()
+        )
     }
 
     func isSavingWalletBinding() -> BindingValue<Bool> {
@@ -172,6 +178,13 @@ private extension AppSettingsViewModel {
                 root.isSavingAccessCodes = newValue
                 root.isSavingAccessCodesRequestChange(saveAccessCodes: newValue)
             }
+        )
+    }
+
+    func isSensitiveTextAvailability() -> BindingValue<Bool> {
+        BindingValue<Bool>(
+            get: { AppSettings.shared.isHidingSensitiveAvailable },
+            set: { AppSettings.shared.isHidingSensitiveAvailable = $0 }
         )
     }
 
