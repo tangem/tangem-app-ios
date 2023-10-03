@@ -32,7 +32,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     private(set) var state: SheetState = .bottom
-    private var keyboardCancellable: AnyCancellable?
 
     func onAppear() {
         updateToState(state)
