@@ -94,11 +94,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         isUpdating = true
-        userWalletModel.userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            self?.userWalletModel.walletModelsManager.updateAll(silent: true, completion: {
-                self?.isUpdating = false
-                completionHandler()
-            })
+
+        userWalletModel.userTokensManager.sync { [weak self] in
+            self?.isUpdating = false
+            completionHandler()
         }
     }
 
@@ -239,13 +238,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func subscribeToTokenListUpdatesIfNeeded() {
-        if userWalletModel.userTokensManager.isInitialSyncPerformed {
+        if userWalletModel.userTokenListManager.initialized {
             isLoadingTokenList = false
             return
         }
 
         var tokenSyncSubscription: AnyCancellable?
-        tokenSyncSubscription = userWalletModel.userTokensManager.initialSyncPublisher
+        tokenSyncSubscription = userWalletModel.userTokenListManager.initializedPublisher
             .filter { $0 }
             .sink(receiveValue: { [weak self] _ in
                 self?.isLoadingTokenList = false
@@ -342,9 +341,11 @@ private extension MultiWalletMainContentViewModel {
 extension MultiWalletMainContentViewModel {
     func openManageTokens() {
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+        var supportedBlockchains = userWalletModel.config.supportedBlockchains
+        supportedBlockchains.remove(.ducatus)
 
         let settings = LegacyManageTokensSettings(
-            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            supportedBlockchains: supportedBlockchains,
             hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
             derivationStyle: userWalletModel.config.derivationStyle,
