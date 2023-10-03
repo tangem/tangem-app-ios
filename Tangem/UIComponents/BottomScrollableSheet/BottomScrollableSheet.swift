@@ -22,6 +22,8 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     /// The tap gesture is completely disabled when the sheet is expanded.
     private var headerTapGestureMask: GestureMask { stateObject.state.isBottom ? .all : .none }
 
+    private let coordinateSpaceName = UUID()
+
     init(
         stateObject: BottomScrollableSheetStateObject,
         @ViewBuilder header: @escaping () -> Header,
@@ -64,16 +66,37 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     }
 
     @ViewBuilder private var scrollView: some View {
-        ScrollViewRepresentable(delegate: stateObject, content: content)
-            .isScrollDisabled(stateObject.scrollViewIsDragging)
+        ScrollView(.vertical) {
+            ZStack {
+                DragGesturePassthroughView(
+                    onChanged: stateObject.scrollViewContentDragGesture(onChanged:),
+                    onEnded: stateObject.scrollViewContentDragGesture(onEnded:)
+                )
+
+                content()
+                    .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
+                    .readContentOffset(
+                        inCoordinateSpace: .named(coordinateSpaceName),
+                        bindTo: stateObject.contentOffsetSubject.asWriteOnlyBinding(.zero)
+                    )
+            }
+            .ios15AndBelowScrollDisabledCompat(stateObject.scrollViewIsDragging)
+        }
+        .ios16AndAboveScrollDisabledCompat(stateObject.scrollViewIsDragging)
+        .coordinateSpace(name: coordinateSpaceName)
     }
 
     @ViewBuilder
     private func sheet(proxy: GeometryProxy) -> some View {
-        VStack(spacing: 0.0) {
-            headerView(proxy: proxy)
+        ZStack(alignment: .bottom) {
+            Colors.Background.primary
 
-            scrollView
+            VStack(spacing: 0.0) {
+                headerView(proxy: proxy)
+
+                scrollView
+            }
+            .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
         }
         .frame(height: stateObject.visibleHeight, alignment: .bottom)
         .cornerRadius(24.0, corners: [.topLeft, .topRight])
