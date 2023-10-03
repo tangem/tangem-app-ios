@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import UIKit
 import Combine
 
 final class BottomScrollableSheetStateObject: ObservableObject {
@@ -19,6 +20,10 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
     private var geometryInfo: GeometryInfo { _geometryInfoSubject.value }
 
+    var contentOffsetSubject: some Subject<CGPoint, Never> { _contentOffsetSubject }
+    private let _contentOffsetSubject = CurrentValueSubject<CGPoint, Never>(.zero)
+    private var contentOffset: CGPoint { _contentOffsetSubject.value }
+
     var progress: CGFloat {
         let maxHeight = height(for: .top)
         let minHeight = height(for: .bottom)
@@ -27,7 +32,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     private(set) var state: SheetState = .bottom
-    private var contentOffset: CGPoint = .zero
     private var keyboardCancellable: AnyCancellable?
 
     func onAppear() {
@@ -81,7 +85,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         }
     }
 
-    private func scrollViewContentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
+    func scrollViewContentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
         UIApplication.shared.endEditing()
 
         let translationChange = value.translation.height
@@ -96,7 +100,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         }
     }
 
-    private func scrollViewContentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
+    func scrollViewContentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
         // If the dragging was started from the top of the ScrollView
         if contentOffset.y <= .zero {
             // The user made a quick enough swipe to hide sheet
@@ -136,33 +140,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
         let newHeight = height(for: state) - translationChange
         updateVisibleHeight(newHeight)
-    }
-}
-
-// MARK: - ScrollViewRepresentableDelegate protocol conformance
-
-extension BottomScrollableSheetStateObject: ScrollViewRepresentableDelegate {
-    func getSafeAreaInsets() -> UIEdgeInsets {
-        let safeAreaInsets = geometryInfo.safeAreaInsets
-
-        return UIEdgeInsets(
-            top: safeAreaInsets.top,
-            left: safeAreaInsets.leading,
-            bottom: safeAreaInsets.bottom,
-            right: safeAreaInsets.trailing
-        )
-    }
-
-    func contentOffsetDidChanged(contentOffset: CGPoint) {
-        self.contentOffset = contentOffset
-    }
-
-    func gesture(onChanged value: UIPanGestureRecognizer.Value) {
-        scrollViewContentDragGesture(onChanged: value)
-    }
-
-    func gesture(onEnded value: UIPanGestureRecognizer.Value) {
-        scrollViewContentDragGesture(onEnded: value)
     }
 }
 
