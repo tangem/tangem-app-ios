@@ -26,7 +26,8 @@ struct AddCustomTokenDerivationPathSelectorView: View {
             .padding(.horizontal, 16)
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
-        .navigationBarTitle(Text(Localization.customTokenDerivationPath), displayMode: .inline)
+        .navigationTitle(Text(Localization.customTokenDerivationPath))
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
