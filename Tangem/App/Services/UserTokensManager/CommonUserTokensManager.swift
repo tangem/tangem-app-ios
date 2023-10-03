@@ -170,23 +170,10 @@ extension CommonUserTokensManager: UserTokensManager {
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
         userTokenListManager.upload()
     }
-}
 
-// MARK: - UserTokensSyncService protocol conformance
-
-extension CommonUserTokensManager: UserTokensSyncService {
-    var isInitialSyncPerformed: Bool {
-        userTokenListManager.isInitialSyncPerformed
-    }
-
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        userTokenListManager.initialSyncPublisher
-            .eraseToAnyPublisher()
-    }
-
-    func updateUserTokens(_ completion: @escaping () -> Void) {
+    func sync(completion: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self.updateTokenSwapState(completion)
+            walletModelsManager.updateAll(silent: false, completion: completion)
         }
     }
 
