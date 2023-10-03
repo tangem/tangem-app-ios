@@ -41,7 +41,9 @@ struct AppCoordinatorView: CoordinatorView {
                 }
             },
             content: {
-                EmptyView() // [REDACTED_TODO_COMMENT]
+                if let viewModel = coordinator.manageTokensSheetViewModel {
+                    ManageTokensBottomSheetContentView(viewModel: viewModel)
+                }
             }
         )
     }
