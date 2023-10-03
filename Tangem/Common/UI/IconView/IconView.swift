@@ -11,7 +11,6 @@ import Kingfisher
 
 struct IconView: View {
     private let url: URL?
-    private let customTokenColor: Color?
     private let size: CGSize
     private let lowContrastBackgroundColor: UIColor
 
@@ -19,44 +18,22 @@ struct IconView: View {
     // [REDACTED_TODO_COMMENT]
     private let forceKingfisher: Bool
 
-    private let customTokenIconSizeRatio = 0.54
-
     private static var defaultLowContrastBackgroundColor: UIColor {
         UIColor.backgroundPrimary.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
     }
 
-    init(url: URL?, customTokenColor: Color?, size: CGSize, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
+    init(url: URL?, size: CGSize, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
         self.url = url
-        self.customTokenColor = customTokenColor
         self.size = size
         self.lowContrastBackgroundColor = lowContrastBackgroundColor
         self.forceKingfisher = forceKingfisher
     }
 
-    init(url: URL?, customTokenColor: Color?, sizeSettings: IconViewSizeSettings, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
-        self.init(url: url, customTokenColor: customTokenColor, size: sizeSettings.iconSize, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher)
+    init(url: URL?, sizeSettings: IconViewSizeSettings, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
+        self.init(url: url, size: sizeSettings.iconSize, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher)
     }
 
     var body: some View {
-        if let customTokenColor {
-            customTokenColor
-                .clipShape(Circle())
-                .overlay(
-                    Assets.customTokenStar.image
-                        .resizable()
-                        .frame(
-                            width: size.width * customTokenIconSizeRatio,
-                            height: size.height * customTokenIconSizeRatio
-                        )
-                )
-                .frame(size: size)
-        } else {
-            networkImage
-        }
-    }
-
-    @ViewBuilder
-    var networkImage: some View {
         if forceKingfisher {
             kfImage
         } else if #available(iOS 15.0, *) {
@@ -117,7 +94,6 @@ struct IconView_Preview: PreviewProvider {
     static var previews: some View {
         IconView(
             url: TokenIconURLBuilder().iconURL(id: "arbitrum-one", size: .small),
-            customTokenColor: nil,
             size: CGSize(width: 40, height: 40)
         )
     }
