@@ -222,6 +222,7 @@
 "manage_tokens_unavailable_description" = "The selected token is currently unavailable for actions within the crypto wallet. But worry not, you can express your interest by upvoting it.";
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
+"notification_subtitle_not_enough_funds" = "To make a %1$@ transaction you need to deposit some %2$@ (%3$@) to cover the network fee";
 "notification_title_not_enough_funds" = "Unable to cover %1$@ fee";
 "onboarding_access_code_feature_1_description" = "您必須設置一個單一的訪問代碼來保護您的所有錢包";
 "onboarding_access_code_feature_1_title" = "保護";
@@ -337,6 +338,8 @@
 "referral_tos_suffix" = "在推薦計劃";
 "registration_task_alert_message" = "請持有卡片直至操作完成";
 "reset_card_to_factory_button_title" = "重置卡片";
+"reset_card_to_factory_condition_1" = "我了解執行此操作後，我將無法再訪問當前錢包";
+"reset_card_to_factory_condition_2" = "I realize that I can't use this card to recover my access code on the other cards.";
 "reset_card_with_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包。您將無法恢復當前錢包或使用卡恢復訪問密碼";
 "reset_card_without_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包並將其從應用程序中刪除。您將無法恢復當前錢包";
 "russian_bank_card_warning_subtitle" = "Do you have a bank card from another country and a residence permit or registration outside the Russian Federation?";
@@ -423,6 +426,7 @@
 "swapping_token_list_title" = "選擇代幣";
 "swapping_token_list_your_tokens" = "您的代幣";
 "swapping_token_not_available" = "無法使用";
+"token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "隱藏";
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
 "token_details_hide_alert_title" = "隱藏 %@";
