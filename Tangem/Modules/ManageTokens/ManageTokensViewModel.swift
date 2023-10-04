@@ -21,8 +21,6 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var alert: AlertBinder?
-    @Published var showToast: Bool = false
 
     // MARK: - Properties
 
@@ -43,7 +41,7 @@ final class ManageTokensViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
-        fetchAlreadyExistTokenUserList()
+        updateAlreadyExistTokenUserList()
     }
 
     func tokenListDidSave() {
@@ -65,7 +63,9 @@ final class ManageTokensViewModel: ObservableObject {
         loader.fetch(enteredSearchText.value)
     }
 
-    func fetchAlreadyExistTokenUserList() {
+    /// Obtain supported token list from UserWalletModels to determine the cell action typeю
+    /// Should be reset after updating the list of tokens
+    func updateAlreadyExistTokenUserList() {
         let storageConverter = StorageEntryConverter()
 
         let customEntriesList = userWalletRepository.models
@@ -74,15 +74,19 @@ final class ManageTokensViewModel: ObservableObject {
                 userTokenListManager.userTokensList.entries
             }
 
-        let tokenItemList = customEntriesList.map {
-            let blockchain = $0.blockchainNetwork.blockchain
-
-            guard let token = storageConverter.convertToToken($0) else {
-                return TokenItem.blockchain(blockchain)
+        let tokenItemList = customEntriesList
+            .filter {
+                !$0.isCustom
             }
+            .map {
+                let blockchain = $0.blockchainNetwork.blockchain
 
-            return TokenItem.token(token, blockchain)
-        }
+                guard let token = storageConverter.convertToToken($0) else {
+                    return TokenItem.blockchain(blockchain)
+                }
+
+                return TokenItem.token(token, blockchain)
+            }
 
         cacheExistTokenUserList = tokenItemList
     }
@@ -107,7 +111,7 @@ private extension ManageTokensViewModel {
     }
 
     func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = Set(userWalletRepository.models.map { $0.config.supportedBlockchains }.joined())
+        let supportedBlockchains = SupportedBlockchains.all
         let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
@@ -117,16 +121,8 @@ private extension ManageTokensViewModel {
                     return
                 }
 
-                let alreadyUpdateQuoteCoinIds = tokenViewModels.filter {
-                    $0.priceChangeState != .loading || $0.priceChangeState != .noData
-                }.map { $0.id }
-
-                let itemsShouldLoadQuote = items.filter {
-                    !alreadyUpdateQuoteCoinIds.contains($0.id)
-                }.map { $0.id }
-
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
-                updateQuote(by: itemsShouldLoadQuote)
+                updateQuote(by: items.map { $0.id })
             })
             .store(in: &bag)
 
@@ -134,16 +130,6 @@ private extension ManageTokensViewModel {
     }
 
     // MARK: - Private Implementation
-
-    private func displayAlert(title: String, message: String) {
-        let okButton = Alert.Button.default(Text(Localization.commonOk))
-
-        alert = AlertBinder(alert: Alert(
-            title: Text(title),
-            message: Text(message),
-            dismissButton: okButton
-        ))
-    }
 
     private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
         let isAlreadyExistToken = coinModel.items.contains(where: { tokenItem in
@@ -162,9 +148,7 @@ private extension ManageTokensViewModel {
     }
 
     private func updateQuote(by coinIds: [String]) {
-        loadQuotesSubscribtion = tokenQuotesRepository
-            .loadQuotes(coinIds: coinIds)
-            .sink()
+        tokenQuotesRepository.updateQuotes(coinIds: coinIds)
     }
 
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
