@@ -21,8 +21,6 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var alert: AlertBinder?
-    @Published var showToast: Bool = false
 
     // MARK: - Properties
 
@@ -65,6 +63,8 @@ final class ManageTokensViewModel: ObservableObject {
         loader.fetch(enteredSearchText.value)
     }
 
+    /// Obtain supported token list from UserWalletModels to determine the cell action typeю
+    /// Should be reset after updating the list of tokens
     func updateAlreadyExistTokenUserList() {
         let storageConverter = StorageEntryConverter()
 
@@ -121,14 +121,6 @@ private extension ManageTokensViewModel {
                     return
                 }
 
-//                let alreadyUpdateQuoteCoinIds = tokenViewModels.filter {
-//                    $0.priceChangeState != .loading || $0.priceChangeState != .noData
-//                }.map { $0.id }
-//
-//                let itemsShouldLoadQuote = items.filter {
-//                    !alreadyUpdateQuoteCoinIds.contains($0.id)
-//                }.map { $0.id }
-
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
             })
@@ -139,18 +131,7 @@ private extension ManageTokensViewModel {
 
     // MARK: - Private Implementation
 
-    private func displayAlert(title: String, message: String) {
-        let okButton = Alert.Button.default(Text(Localization.commonOk))
-
-        alert = AlertBinder(alert: Alert(
-            title: Text(title),
-            message: Text(message),
-            dismissButton: okButton
-        ))
-    }
-
     private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        // [REDACTED_TODO_COMMENT]
         let isAlreadyExistToken = coinModel.items.contains(where: { tokenItem in
             cacheExistTokenUserList.contains(tokenItem)
         })
@@ -167,7 +148,7 @@ private extension ManageTokensViewModel {
     }
 
     private func updateQuote(by coinIds: [String]) {
-        tokenQuotesRepository.loadQuotes(coinIds: coinIds)
+        tokenQuotesRepository.updateQuotes(coinIds: coinIds)
     }
 
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
