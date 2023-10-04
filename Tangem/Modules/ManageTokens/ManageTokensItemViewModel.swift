@@ -75,6 +75,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
 
     private func bind() {
         tokenQuotesRepository.pricesPublisher.sink { [weak self] itemQuote in
+            // Фильтр
             guard let self = self else { return }
             let quote = itemQuote[coin.id]
             update(quote: quote)
