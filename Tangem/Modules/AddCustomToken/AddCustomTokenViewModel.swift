@@ -92,7 +92,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         }
 
         if let existingTokenDerivationPath {
-            // TODO
+            // [REDACTED_TODO_COMMENT]
         }
 
         bind()
