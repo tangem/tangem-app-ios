@@ -80,32 +80,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
     }
 
     func updateQuotes(coinIds: [String]) {
-        let request = QuotesDTO.Request(coinIds: coinIds, currencyId: currencyCode)
-        return tangemApiService
-            .loadQuotes(requestModel: request)
-            .replaceError(with: [])
-            .map { quotes -> [TokenQuote] in
-                quotes.map { quote in
-                    TokenQuote(
-                        currencyId: quote.id,
-                        // We round price change for the user friendly size
-                        change: quote.priceChange.rounded(scale: 2),
-                        price: quote.price,
-                        currencyCode: request.currencyId
-                    )
-                }
-            }
-            .map { [weak self] quotes in
-                guard let self else { return }
-
-                var current = _quotes.value
-
-                quotes.forEach { quote in
-                    current[quote.currencyId] = quote
-                }
-
-                _quotes.send(current)
-            }
+        loadQuotes(coinIds: coinIds)
             .sink()
             .store(in: &bag)
     }
