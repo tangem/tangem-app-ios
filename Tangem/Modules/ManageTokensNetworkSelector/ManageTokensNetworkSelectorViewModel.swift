@@ -51,7 +51,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             longHashesSupported: selectedModel?.longHashesSupported ?? false,
             derivationStyle: nil,
             shouldShowLegacyDerivationAlert: selectedModel?.shouldShowLegacyDerivationAlert ?? false,
-            existingCurves: selectedModel?.card.walletCurves ?? []
+            existingCurves: selectedModel?.card.walletCurves ?? [],
+            tokenSupportedBlockchains: SupportedBlockchains.listTokenSupportedBlockchain
         )
     }
 
@@ -206,7 +207,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
 private extension ManageTokensNetworkSelectorViewModel {
     func tryTokenAvailable(_ tokenItem: TokenItem) throws {
-        if case .token(_, let blockchain) = tokenItem, case .solana = blockchain {
+        if case .token(_, let blockchain) = tokenItem, !settings.tokenSupportedBlockchains.contains(blockchain) {
             throw AvailableTokenError.failedSupportedTokens(tokenItem)
         }
 
@@ -223,6 +224,10 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         return
+    }
+
+    func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+        return (try? tryTokenAvailable(tokenItem)) != nil
     }
 
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
@@ -278,7 +283,11 @@ private extension ManageTokensNetworkSelectorViewModel {
     }
 
     func displayAlertWarningDeleteIfNeeded(isSelected: Bool, tokenItem: TokenItem) throws {
-        guard !isSelected, !pendingAdd.contains(tokenItem) else {
+        guard
+            !isSelected,
+            !pendingAdd.contains(tokenItem),
+            isTokenAvailable(tokenItem)
+        else {
             try onSelect(isSelected, tokenItem)
             return
         }
@@ -318,6 +327,7 @@ private extension ManageTokensNetworkSelectorViewModel {
         let derivationStyle: DerivationStyle?
         let shouldShowLegacyDerivationAlert: Bool
         let existingCurves: [EllipticCurve]
+        let tokenSupportedBlockchains: [Blockchain]
     }
 }
 
