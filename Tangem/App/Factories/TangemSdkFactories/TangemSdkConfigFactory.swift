@@ -28,6 +28,7 @@ struct TangemSdkConfigFactory {
         config.allowUntrustedCards = true
         config.biometricsLocalizedReason = Localization.biometryTouchIdReason
         config.style.colors.tint = Colors.Text.accent
+        config.style.colors.tintUIColor = UIColor.textAccent
         config.style.colors.buttonColors.backgroundColor = Colors.Button.positive
 
         return config
