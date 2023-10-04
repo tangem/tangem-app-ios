@@ -78,4 +78,10 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
             })
             .eraseToAnyPublisher()
     }
+
+    func updateQuotes(coinIds: [String]) {
+        loadQuotes(coinIds: coinIds)
+            .sink()
+            .store(in: &bag)
+    }
 }
