@@ -15,6 +15,8 @@ import TangemSwapping
 import CombineExt
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
@@ -23,7 +25,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
-    let swappingUtils = SwappingAvailableUtils()
     let exchangeUtility: ExchangeCryptoUtility
     let notificationManager: NotificationManager
 
@@ -34,7 +35,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private let tokenRouter: SingleTokenRoutable
 
-    private var isSwapAvailable = false
+    private var isSwapAvailable: Bool {
+        swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+    }
+
     private var percentFormatter = PercentFormatter()
     private var transactionHistoryBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
@@ -182,7 +186,6 @@ extension SingleTokenBaseViewModel {
     private func prepareSelf() {
         bind()
         setupActionButtons()
-        loadSwappingState()
         updateActionButtons()
         loadHistory()
     }
@@ -251,24 +254,6 @@ extension SingleTokenBaseViewModel {
             let listItems = transactionHistoryMapper.mapTransactionListItem(from: records)
             transactionHistoryState = .loaded(listItems)
         }
-    }
-
-    private func loadSwappingState() {
-        guard userWalletModel.config.isFeatureVisible(.swapping) else {
-            return
-        }
-
-        var swappingSubscription: AnyCancellable?
-        swappingSubscription = swappingUtils
-            .canSwapPublisher(amountType: amountType, blockchain: blockchain)
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                AppLog.shared.debug("Load swapping availability state completion: \(completion)")
-                withExtendedLifetime(swappingSubscription) {}
-            } receiveValue: { [weak self] isSwapAvailable in
-                self?.isSwapAvailable = isSwapAvailable
-                self?.updateActionButtons()
-            }
     }
 
     private func isButtonDisabled(with type: TokenActionType) -> Bool {
