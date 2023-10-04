@@ -76,20 +76,34 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     private func bind() {
         tokenQuotesRepository.pricesPublisher.sink { [weak self] itemQuote in
             guard let self = self else { return }
-            let quote = itemQuote[coin.id]
-            update(quote: quote)
+
+            let findQuote = itemQuote[coin.id]
+
+            if let quote = isNeedUpdateQuote(item: findQuote) {
+                update(quote: quote)
+            }
+
+            return
         }
         .store(in: &bag)
     }
 
-    private func update(quote: TokenQuote?) {
-        if let quote = quote {
-            priceChangeState = getPriceChangeState(by: quote)
-            priceValue = balanceFormatter.formatFiatBalance(quote.price)
-        } else {
-            priceChangeState = .noData
-            priceValue = ""
+    /// A filter that checks an already created value, so as not to pull the view every time
+    private func isNeedUpdateQuote(item: TokenQuote?) -> TokenQuote? {
+        guard let itemQuote = item else {
+            return nil
         }
+
+        if priceValue.isEmpty || priceChangeState == .loading || priceChangeState == .noData {
+            return itemQuote
+        }
+
+        return nil
+    }
+
+    private func update(quote: TokenQuote) {
+        priceChangeState = getPriceChangeState(by: quote)
+        priceValue = balanceFormatter.formatFiatBalance(quote.price)
     }
 
     private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
