@@ -140,6 +140,10 @@ extension UIColor {
         return UIColor(named: "ButtonPrimary")!
     }
 
+    @nonobjc static var textAccent: UIColor {
+        return UIColor(named: "TextAccent")!
+    }
+
     // MARK: Background
 
     @nonobjc static var tangemBgGray: UIColor {
