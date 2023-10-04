@@ -144,6 +144,10 @@ extension UIColor {
         return UIColor(named: "TextWarning")!
     }
 
+    @nonobjc static var textAccent: UIColor {
+        return UIColor(named: "TextAccent")!
+    }
+
     // ☝️☝️☝️ End of UIColors from the new palette ☝️☝️☝️
 
     // MARK: Background
