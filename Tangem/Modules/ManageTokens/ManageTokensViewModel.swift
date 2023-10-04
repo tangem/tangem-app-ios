@@ -43,7 +43,7 @@ final class ManageTokensViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
-        fetchAlreadyExistTokenUserList()
+        updateAlreadyExistTokenUserList()
     }
 
     func tokenListDidSave() {
@@ -65,7 +65,7 @@ final class ManageTokensViewModel: ObservableObject {
         loader.fetch(enteredSearchText.value)
     }
 
-    func fetchAlreadyExistTokenUserList() {
+    func updateAlreadyExistTokenUserList() {
         let storageConverter = StorageEntryConverter()
 
         let customEntriesList = userWalletRepository.models
@@ -74,15 +74,19 @@ final class ManageTokensViewModel: ObservableObject {
                 userTokenListManager.userTokensList.entries
             }
 
-        let tokenItemList = customEntriesList.map {
-            let blockchain = $0.blockchainNetwork.blockchain
-
-            guard let token = storageConverter.convertToToken($0) else {
-                return TokenItem.blockchain(blockchain)
+        let tokenItemList = customEntriesList
+            .filter {
+                !$0.isCustom
             }
+            .map {
+                let blockchain = $0.blockchainNetwork.blockchain
 
-            return TokenItem.token(token, blockchain)
-        }
+                guard let token = storageConverter.convertToToken($0) else {
+                    return TokenItem.blockchain(blockchain)
+                }
+
+                return TokenItem.token(token, blockchain)
+            }
 
         cacheExistTokenUserList = tokenItemList
     }
@@ -107,7 +111,7 @@ private extension ManageTokensViewModel {
     }
 
     func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = Set(userWalletRepository.models.map { $0.config.supportedBlockchains }.joined())
+        let supportedBlockchains = SupportedBlockchains.all
         let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
@@ -117,16 +121,16 @@ private extension ManageTokensViewModel {
                     return
                 }
 
-                let alreadyUpdateQuoteCoinIds = tokenViewModels.filter {
-                    $0.priceChangeState != .loading || $0.priceChangeState != .noData
-                }.map { $0.id }
-
-                let itemsShouldLoadQuote = items.filter {
-                    !alreadyUpdateQuoteCoinIds.contains($0.id)
-                }.map { $0.id }
+//                let alreadyUpdateQuoteCoinIds = tokenViewModels.filter {
+//                    $0.priceChangeState != .loading || $0.priceChangeState != .noData
+//                }.map { $0.id }
+//
+//                let itemsShouldLoadQuote = items.filter {
+//                    !alreadyUpdateQuoteCoinIds.contains($0.id)
+//                }.map { $0.id }
 
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
-                updateQuote(by: itemsShouldLoadQuote)
+                updateQuote(by: items.map { $0.id })
             })
             .store(in: &bag)
 
@@ -146,6 +150,7 @@ private extension ManageTokensViewModel {
     }
 
     private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
+        // [REDACTED_TODO_COMMENT]
         let isAlreadyExistToken = coinModel.items.contains(where: { tokenItem in
             cacheExistTokenUserList.contains(tokenItem)
         })
@@ -162,9 +167,7 @@ private extension ManageTokensViewModel {
     }
 
     private func updateQuote(by coinIds: [String]) {
-        loadQuotesSubscribtion = tokenQuotesRepository
-            .loadQuotes(coinIds: coinIds)
-            .sink()
+        tokenQuotesRepository.loadQuotes(coinIds: coinIds)
     }
 
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
