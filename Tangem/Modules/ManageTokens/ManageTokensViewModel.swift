@@ -21,7 +21,6 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var alert: AlertBinder?
     @Published var hasPendingDerivations: Bool = false
 
     // MARK: - Properties
