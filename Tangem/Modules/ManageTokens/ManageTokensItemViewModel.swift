@@ -87,14 +87,18 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         }
         .store(in: &bag)
     }
-    
+
     /// A filter that checks an already created value, so as not to pull the view every time
     private func isNeedUpdateQuote(item: TokenQuote?) -> TokenQuote? {
-        guard let itemQuote = item, priceValue.isEmpty || priceChangeState == .loading || priceChangeState == .noData else {
+        guard let itemQuote = item else {
             return nil
         }
 
-        return itemQuote
+        if priceValue.isEmpty || priceChangeState == .loading || priceChangeState == .noData {
+            return itemQuote
+        }
+
+        return nil
     }
 
     private func update(quote: TokenQuote) {
