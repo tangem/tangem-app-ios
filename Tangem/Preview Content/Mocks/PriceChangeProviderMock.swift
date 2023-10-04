@@ -17,4 +17,5 @@ class TokenQuotesRepositoryMock: TokenQuotesRepository {
     func quote(for coinId: String) -> TokenQuote? { nil }
 
     func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never> { .just(output: []) }
+    func updateQuotes(coinIds: [String]) {}
 }
