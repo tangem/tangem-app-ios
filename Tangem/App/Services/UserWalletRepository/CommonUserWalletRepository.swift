@@ -102,11 +102,9 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 cardInfo.name = config.cardName
 
-                // [REDACTED_TODO_COMMENT]
                 let cardModel = CardViewModel(cardInfo: cardInfo)
                 if let cardModel {
                     initializeServices(for: cardModel, cardInfo: cardInfo)
-                    cardModel.initialUpdate()
                 }
 
                 let factory = OnboardingInputFactory(
@@ -226,7 +224,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     let userWallet = cardModel.userWallet
 
                     if !contains(userWallet) {
-                        save(userWallet)
+                        save(cardModel)
                         completion(result)
                     } else {
                         completion(.error(UserWalletRepositoryError.duplicateWalletAdded))
@@ -251,6 +249,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             models[index] = cardViewModel
         } else {
             models.append(cardViewModel)
+            sendEvent(.inserted(userWallet: cardViewModel.userWallet))
         }
 
         save(cardViewModel.userWallet)
@@ -285,11 +284,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         if let index = models.firstIndex(where: { $0.userWalletId.value == userWallet.userWalletId }) {
             userWalletModel = models[index]
             userWalletModel?.updateWalletName(userWallet.name)
-        } else if let newModel = CardViewModel(userWallet: userWallet) {
-            newModel.initialUpdate()
-            models.append(newModel)
-            userWalletModel = newModel
-            sendEvent(.inserted(userWallet: userWallet))
         } else {
             userWalletModel = nil
         }
@@ -571,7 +565,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     loadModel(for: userWallet)
                     savedUserWallet = userWallet
                 } else {
-                    save(scannedUserWallet)
+                    save(cardModel)
                     savedUserWallet = scannedUserWallet
                 }
 
@@ -608,10 +602,6 @@ class CommonUserWalletRepository: UserWalletRepository {
             }
         }
 
-        models.forEach {
-            $0.initialUpdate()
-        }
-
         self.models = models
     }
 
@@ -625,7 +615,6 @@ class CommonUserWalletRepository: UserWalletRepository {
             return
         }
 
-        cardModel.initialUpdate()
         models[index] = cardModel
     }
 
