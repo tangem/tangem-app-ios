@@ -36,8 +36,8 @@ struct AppCoordinatorView: CoordinatorView {
                 } else {
                     // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only
                     // when needed because this will break the root view's structural identity and therefore all its state.
-                    // So dummy views (`Color.clear`) are used as `header`/`content` views
-                    Color.clear.frame(height: 100.0)
+                    // So dummy views (`Color.clear`) are used as `header`/`content` views placeholders
+                    Color.clear.frame(height: ManageTokensBottomSheetHeaderView.Constants.headerHeight)
                 }
             },
             content: {
