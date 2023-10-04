@@ -50,32 +50,20 @@ extension LegacyTokenListCoordinator: LegacyTokenListRoutable {
         }
 
         let u = userTokensManager as! CommonUserTokensManager
-
         let blockchain: Blockchain = .ethereum(testnet: false)
-        let derivationPath: DerivationPath = blockchain.derivationPath(for: .v1)!
-        let all = userTokensManager.getAllTokens(
-            for: .init(
-                blockchain,
-                derivationPath: derivationPath
-            )
-        )
-//        let existingTokenItem: TokenItem?
-//            = all
-//            .first(where: { $0.isCustom })
-//            .map { TokenItem.token($0, blockchain) }
-        let a = u.findCustom()
-        let existingTokenItem: TokenItem?
-        let derivationPath: DerivationPath?
-        if let a {
-            existingTokenItem = a.0
-            derivationPath = a.1
+        let existingToken: AddCustomTokenCoordinator.Options.ExistingToken?
+        if let a = u.findCustom() {
+            existingToken = .init(tokenItem: a.0, derivationPath: a.1)
         } else {
-            existingTokenItem = nil
-            derivationPath = nil
+            existingToken = nil
         }
 
         let coordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         addCustomTokenCoordinator = coordinator
-        coordinator.start(with: AddCustomTokenCoordinator.Options(existingTokenItem: existingTokenItem, existingTokenDerivationPath: derivationPath, settings: settings, userTokensManager: userTokensManager))
+        coordinator.start(with: AddCustomTokenCoordinator.Options(
+            existingToken: existingToken,
+            settings: settings,
+            userTokensManager: userTokensManager
+        ))
     }
 }
