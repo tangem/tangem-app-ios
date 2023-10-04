@@ -124,7 +124,7 @@ enum AlertBuilder {
         }
     }
 
-    static func makeAlertControllerWithTextField(title: String, fieldPlaceholder: String, fieldText: String, action: @escaping (String) -> Void) -> UIAlertController {
+    static func makeAlertControllerWithTextField(title: String, fieldPlaceholder: String, fieldText: String, autoCapitalize: Bool = true, useSpellCheck: Bool = true, fieldValidator: AlertFieldValidator? = nil, action: @escaping (String) -> Void) -> UIAlertController {
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
         alert.addAction(cancelAction)
@@ -135,13 +135,17 @@ enum AlertBuilder {
             nameTextField?.placeholder = fieldPlaceholder
             nameTextField?.text = fieldText
             nameTextField?.clearButtonMode = .whileEditing
-            nameTextField?.autocapitalizationType = .sentences
+            nameTextField?.autocapitalizationType = autoCapitalize ? .sentences : .none
+            nameTextField?.spellCheckingType = useSpellCheck ? .default : .no
+            nameTextField?.delegate = fieldValidator
         }
 
         let acceptButton = UIAlertAction(title: Localization.commonOk, style: .default) { [nameTextField] _ in
             action(nameTextField?.text ?? "")
         }
         alert.addAction(acceptButton)
+
+        fieldValidator?.setAcceptButton(acceptButton)
 
         return alert
     }
