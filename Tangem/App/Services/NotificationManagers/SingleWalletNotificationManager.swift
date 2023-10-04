@@ -62,6 +62,17 @@ class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
+        if case .token(let token, let blockchain) = walletModel.tokenItem,
+           let networkCurrencyAmount = walletModel.wallet.amounts[.coin],
+           networkCurrencyAmount.isZero {
+            events.append(.unableToCoverFee(
+                tokenName: token.name,
+                blockchainCurrencySymbol: blockchain.currencySymbol,
+                blockchainName: blockchain.displayName,
+                blockchainIconName: blockchain.iconNameFilled
+            ))
+        }
+
         if let sendBlockedReason = walletModel.sendBlockedReason {
             events.append(.event(for: sendBlockedReason))
         }
