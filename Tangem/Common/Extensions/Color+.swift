@@ -128,21 +128,27 @@ extension Color {
 }
 
 extension UIColor {
-    // This is taken from the new palette
+    // DO NOT remove this
+    // This is a UIColor from the new palette, used in UITextField's accessory view
+    // There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
+    // 👇👇👇 ------------------------------------ 👇👇👇
     @nonobjc static var backgroundPrimary: UIColor {
         return UIColor(named: "BackgroundPrimary")!
     }
 
-    // DO NOT remove this
-    // This is a UIColor from the new palette, used in UITextField's accessory view
-    // There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
     @nonobjc static var inputAccessoryViewTintColor: UIColor {
         return UIColor(named: "ButtonPrimary")!
+    }
+
+    @nonobjc static var textWarningColor: UIColor {
+        return UIColor(named: "TextWarning")!
     }
 
     @nonobjc static var textAccent: UIColor {
         return UIColor(named: "TextAccent")!
     }
+
+    // ☝️☝️☝️ End of UIColors from the new palette ☝️☝️☝️
 
     // MARK: Background
 
