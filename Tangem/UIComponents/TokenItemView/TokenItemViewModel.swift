@@ -121,6 +121,13 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
                 buildContextActions()
             }
             .store(in: &bag)
+
+        infoProvider.actionsUpdatePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.buildContextActions()
+            }
+            .store(in: &bag)
     }
 
     private func updatePendingTransactionsStateIfNeeded() {
