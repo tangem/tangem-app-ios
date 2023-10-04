@@ -720,6 +720,8 @@ extension LegacyMainViewModel: LegacyMultiWalletContentViewModelOutput {
         var blockchains = cardModel.config.supportedBlockchains
         blockchains.remove(.ducatus)
 
+        // [REDACTED_TODO_COMMENT]
+
         let settings = LegacyManageTokensSettings(
             supportedBlockchains: blockchains,
             hdWalletsSupported: cardModel.config.hasFeature(.hdWallets),
