@@ -12,7 +12,6 @@ import SwiftUI
 @available(*, deprecated, message: "Test only, remove if not needed")
 struct ManageTokensBottomSheetHeaderView: View {
     @Binding private var searchText: String
-    @State private var safeAreaBottomInset: CGFloat = .zero
 
     init(
         searchText: Binding<String>
@@ -21,31 +20,23 @@ struct ManageTokensBottomSheetHeaderView: View {
     }
 
     var body: some View {
-        let additionalBottomInset = max(0.0, safeAreaBottomInset - Constants.verticalInset)
-
         TextField(Localization.commonSearch, text: $searchText)
-            .readGeometry(\.safeAreaInsets.bottom) { [oldValue = safeAreaBottomInset] bottomInset in
-                if oldValue != bottomInset {
-                    // `DispatchQueue.main.async` used here to allow publishing changes during view update
-                    DispatchQueue.main.async { safeAreaBottomInset = bottomInset }
-                }
-            }
             .frame(height: 46.0)
             .padding(.horizontal, 12.0)
             .background(Colors.Field.primary)
             .cornerRadius(14.0)
             .padding(.horizontal, 16.0)
-            .padding(.vertical, Constants.verticalInset)
-            .padding(.bottom, additionalBottomInset)
+            .padding(.top, 20.0)
+            .frame(height: Constants.headerHeight, alignment: .top)
             .background(Colors.Background.primary)
     }
 }
 
 // MARK: - Constants
 
-private extension ManageTokensBottomSheetHeaderView {
+extension ManageTokensBottomSheetHeaderView {
     enum Constants {
-        static let verticalInset = 20.0
+        static let headerHeight = 100.0
     }
 }
 #endif // ALPHA_OR_BETA
