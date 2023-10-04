@@ -18,6 +18,7 @@ protocol TokenQuotesRepository: AnyObject {
     func quote(for coinId: String) -> TokenQuote?
     func quote(for item: TokenItem) -> TokenQuote?
     func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never>
+    func loadQuotes(coinIds: [String])
 }
 
 private struct TokenQuotesRepositoryKey: InjectionKey {
