@@ -15,6 +15,7 @@ class FakeTokenQuotesRepository: TokenQuotesRepository {
     }
 
     private let currentPrices = CurrentValueSubject<Quotes, Never>([:])
+    private var bag: [AnyCancellable] = []
 
     func quote(for item: TokenItem) -> TokenQuote? {
         guard let id = item.currencyId else {
@@ -38,5 +39,18 @@ class FakeTokenQuotesRepository: TokenQuotesRepository {
                 .map { $0.value }
             }
             .eraseToAnyPublisher()
+    }
+
+    func updateQuotes(coinIds: [String]) {
+        let filter = Set(coinIds)
+        return currentPrices
+            .map { newQuotes in
+                newQuotes.filter {
+                    filter.contains($0.key)
+                }
+                .map { $0.value }
+            }
+            .sink()
+            .store(in: &bag)
     }
 }
