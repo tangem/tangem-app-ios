@@ -207,12 +207,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
 private extension ManageTokensNetworkSelectorViewModel {
     func tryTokenAvailable(_ tokenItem: TokenItem) throws {
-        if case .token(_, let blockchain) = tokenItem, !settings.tokenSupportedBlockchains.contains(blockchain) {
+        if case .token(_, let blockchain) = tokenItem,
+           !settings.tokenSupportedBlockchains.contains(blockchain),
+           !settings.longHashesSupported {
             throw AvailableTokenError.failedSupportedTokens(tokenItem)
-        }
-
-        if !settings.longHashesSupported {
-            throw AvailableTokenError.failedLongHashesByCard(tokenItem)
         }
 
         if !settings.supportedBlockchains.contains(tokenItem.blockchain) {
@@ -338,11 +336,10 @@ private extension ManageTokensNetworkSelectorViewModel {
         case failedSupportedTokens(TokenItem)
         case failedSupportedCurve(TokenItem)
         case failedSupportedBlockchainByCard(TokenItem)
-        case failedLongHashesByCard(TokenItem)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedTokens, .failedLongHashesByCard:
+            case .failedSupportedTokens:
                 return Localization.alertManageTokensUnsupportedMessage
             case .failedSupportedCurve(let tokenItem):
                 return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
