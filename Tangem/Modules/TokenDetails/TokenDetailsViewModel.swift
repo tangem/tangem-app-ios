@@ -65,6 +65,15 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         // [REDACTED_TODO_COMMENT]
     }
 
+    override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .openNetworkCurrency:
+            openNetworkCurrency()
+        default:
+            super.didTapNotificationButton(with: id, action: action)
+        }
+    }
+
     override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
     }
@@ -153,6 +162,20 @@ private extension TokenDetailsViewModel {
 private extension TokenDetailsViewModel {
     func dismiss() {
         coordinator.dismiss()
+    }
+
+    func openNetworkCurrency() {
+        guard
+            case .token(_, let blockchain) = walletModel.tokenItem,
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
+            return
+        }
+
+        coordinator.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
