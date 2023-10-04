@@ -37,6 +37,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private var isSwapAvailable = false
     private var percentFormatter = PercentFormatter()
     private var transactionHistoryBag: AnyCancellable?
+    private var updateSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
     var canSend: Bool {
@@ -128,6 +129,30 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         return FetchMore { [weak self] in
             self?.loadHistory()
         }
+    }
+
+    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        guard updateSubscription == nil else {
+            return
+        }
+
+        Analytics.log(.refreshed)
+
+        isReloadingTransactionHistory = true
+        updateSubscription = walletModel.generalUpdate(silent: false)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                AppLog.shared.debug("♻️ \(self) loading state changed")
+                isReloadingTransactionHistory = false
+                updateSubscription = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    completionHandler()
+                }
+            })
     }
 
     func reloadHistory() {
@@ -369,4 +394,17 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel: ActionButtonsProvider {
     var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension SingleTokenBaseViewModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "WalletModel": walletModel.description,
+            ]
+        )
+    }
 }
