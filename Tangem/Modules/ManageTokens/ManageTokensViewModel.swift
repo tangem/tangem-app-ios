@@ -34,7 +34,6 @@ final class ManageTokensViewModel: ObservableObject {
     private let percentFormatter = PercentFormatter()
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
-    private var loadQuotesSubscribtion: AnyCancellable?
     private var cacheExistTokenUserList: [TokenItem] = []
 
     init(coordinator: ManageTokensRoutable) {
@@ -42,10 +41,6 @@ final class ManageTokensViewModel: ObservableObject {
 
         bind()
         updateAlreadyExistTokenUserList()
-    }
-
-    func tokenListDidSave() {
-        Analytics.log(.buttonSaveChanges)
     }
 
     func onAppear() {
