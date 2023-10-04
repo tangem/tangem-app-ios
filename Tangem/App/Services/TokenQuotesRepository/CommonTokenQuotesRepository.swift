@@ -79,7 +79,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
             .eraseToAnyPublisher()
     }
 
-    func loadQuotes(coinIds: [String]) {
+    func updateQuotes(coinIds: [String]) {
         let request = QuotesDTO.Request(coinIds: coinIds, currencyId: currencyCode)
         return tangemApiService
             .loadQuotes(requestModel: request)
