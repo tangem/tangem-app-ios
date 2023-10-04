@@ -15,7 +15,7 @@ class FakeTokenQuotesRepository: TokenQuotesRepository {
     }
 
     private let currentPrices = CurrentValueSubject<Quotes, Never>([:])
-    private var bag: [AnyCancellable] = []
+    private var bag = Set<AnyCancellable>()
 
     func quote(for item: TokenItem) -> TokenQuote? {
         guard let id = item.currencyId else {
