@@ -35,8 +35,8 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = AddCustomTokenViewModel(
-            existingTokenItem: options.existingTokenItem,
-            existingTokenDerivationPath: options.existingTokenDerivationPath,
+            existingTokenItem: options.existingToken?.tokenItem,
+            existingTokenDerivationPath: options.existingToken?.derivationPath,
             settings: options.settings,
             userTokensManager: options.userTokensManager,
             coordinator: self
@@ -48,10 +48,16 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
 extension AddCustomTokenCoordinator {
     struct Options {
-        let existingTokenItem: TokenItem?
-        let existingTokenDerivationPath: DerivationPath
+        let existingToken: ExistingToken?
         let settings: LegacyManageTokensSettings
         let userTokensManager: UserTokensManager
+    }
+}
+
+extension AddCustomTokenCoordinator.Options {
+    struct ExistingToken {
+        let tokenItem: TokenItem
+        let derivationPath: DerivationPath
     }
 }
 
