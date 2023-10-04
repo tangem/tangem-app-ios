@@ -28,7 +28,10 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var links: some View {
-        EmptyView()
+        NavHolder()
+            .navigation(item: $coordinator.tokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
