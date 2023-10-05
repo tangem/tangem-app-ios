@@ -12,9 +12,17 @@ import UIKit
 import Combine
 
 final class BottomScrollableSheetStateObject: ObservableObject {
-    @Published var visibleHeight: CGFloat = .zero
-    @Published var headerHeight: CGFloat = .zero
     @Published var scrollViewIsDragging: Bool = false
+
+    @Published var visibleHeight: CGFloat = .zero
+
+    var headerHeight: CGFloat = .zero {
+        didSet {
+            if oldValue != headerHeight {
+                updateToState(state)
+            }
+        }
+    }
 
     var geometryInfoSubject: some Subject<GeometryInfo, Never> { _geometryInfoSubject }
     private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
