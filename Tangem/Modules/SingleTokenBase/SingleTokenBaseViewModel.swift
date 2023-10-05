@@ -22,6 +22,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var isReloadingTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
     @Published private(set) var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var pendingTransactionViews: [TransactionView] = []
 
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
@@ -83,6 +84,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
+    lazy var pendingTransactionRecordMapper: PendingTransactionRecordMapper = .init(formatter: BalanceFormatter())
 
     init(
         userWalletModel: UserWalletModel,
@@ -243,6 +245,12 @@ extension SingleTokenBaseViewModel {
             .removeDuplicates()
             .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func updatePendingTransactionView() {
+        pendingTransactionViews = walletModel.pendingTransactions.map { transaction in
+            pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
+        }
     }
 
     private func updateActionButtons() {
