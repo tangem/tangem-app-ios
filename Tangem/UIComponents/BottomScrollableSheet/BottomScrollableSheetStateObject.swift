@@ -27,11 +27,20 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     var progress: CGFloat {
         let maxHeight = height(for: .top)
         let minHeight = height(for: .bottom)
-        let progress = (visibleHeight - minHeight) / maxHeight
+        let progress = (visibleHeight - minHeight) / (maxHeight - minHeight)
         return clamp(progress, min: 0.0, max: 1.0)
     }
 
+    var scale: CGFloat {
+        let minScale = 1.0
+        let maxScale = sourceViewMinHeight / sourceViewMaxHeight
+        return minScale - (minScale - maxScale) * progress
+    }
+
     private(set) var state: SheetState = .bottom
+
+    private var sourceViewMaxHeight: CGFloat { UIScreen.main.bounds.height }
+    private var sourceViewMinHeight: CGFloat { height(for: .top) + Constants.sheetTopInset }
 
     func onAppear() {
         updateToState(state)
@@ -62,7 +71,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         case .bottom:
             return headerHeight
         case .top:
-            return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom
+            return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom - Constants.sheetTopInset
         }
     }
 
@@ -164,5 +173,6 @@ private extension BottomScrollableSheetStateObject {
     enum Constants {
         static let hidingLineMultiplicator: CGFloat = 0.5
         static let reduceSwipeMultiplicator: CGFloat = 10.0
+        static let sheetTopInset: CGFloat = 16.0
     }
 }
