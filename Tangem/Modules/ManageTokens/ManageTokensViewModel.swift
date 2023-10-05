@@ -34,7 +34,7 @@ final class ManageTokensViewModel: ObservableObject {
     private let percentFormatter = PercentFormatter()
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
-    private var cacheExistListCoinId: [CoinModel.ID] = []
+    private var cacheExistListCoinId: [String] = []
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
