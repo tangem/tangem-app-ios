@@ -691,7 +691,7 @@ extension LegacyMainViewModel {
 
 extension LegacyMainViewModel: LegacySingleWalletContentViewModelOutput {
     func openPushTx(for index: Int, walletModel: WalletModel) {
-        let tx = walletModel.wallet.pendingOutgoingTransactions[index]
+        let tx = walletModel.outgoingPendingTransactions[index]
         coordinator.openPushTx(for: tx, blockchainNetwork: walletModel.blockchainNetwork, card: cardModel)
     }
 
