@@ -12,6 +12,8 @@ import CombineExt
 import SwiftUI
 
 final class MultiWalletMainContentViewModel: ObservableObject {
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+
     // MARK: - ViewState
 
     @Published var isLoadingTokenList: Bool = true
@@ -94,7 +96,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         isUpdating = true
-
         userWalletModel.userTokensManager.sync { [weak self] in
             self?.isUpdating = false
             completionHandler()
@@ -473,8 +474,9 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         )
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
         let canSend = userWalletModel.config.hasFeature(.send) && walletModel.canSendTransaction
+        let canSwap = swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem)
 
-        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, exchangeUtility: utility)
+        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, canSwap: canSwap, exchangeUtility: utility)
     }
 }
 
@@ -502,7 +504,14 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .copyAddress:
             UIPasteboard.general.string = walletModel.defaultAddress
             delegate?.displayAddressCopiedToast()
-        case .hide, .exchange:
+        case .exchange:
+            if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
+                error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+                return
+            }
+
+            tokenRouter.openExchange(walletModel: walletModel)
+        case .hide:
             return
         }
     }
