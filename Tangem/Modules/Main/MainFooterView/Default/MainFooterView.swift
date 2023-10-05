@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(*, deprecated, message: "Not used anymore, remove or rename to 'Legacy*'")
 struct MainFooterView: View {
     let viewModel: MainFooterViewModel
 
