@@ -313,7 +313,9 @@ class WalletModel {
     // MARK: - Update wallet model
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        Publishers
+        transactionHistoryService?.reset()
+
+        return Publishers
             .CombineLatest(update(silent: silent), updateTransactionsHistory())
             .mapToVoid()
             .eraseToAnyPublisher()
