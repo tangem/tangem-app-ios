@@ -1,5 +1,5 @@
 //
-//  _MainFooterView.swift
+//  ManageTokensBottomSheetMainFooterView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,7 @@
 
 import SwiftUI
 
-// [REDACTED_TODO_COMMENT]
-struct _MainFooterView: View {
+struct ManageTokensBottomSheetMainFooterView: View {
     var body: some View {
         VStack(spacing: 0.0) {
             FixedSpacer(height: Constants.spacerLength, length: Constants.spacerLength)
@@ -24,7 +23,7 @@ struct _MainFooterView: View {
 
 // MARK: - Constants
 
-private extension _MainFooterView {
+private extension ManageTokensBottomSheetMainFooterView {
     enum Constants {
         static let spacerLength = 14.0
     }
