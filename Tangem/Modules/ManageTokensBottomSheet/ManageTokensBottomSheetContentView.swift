@@ -8,19 +8,11 @@
 
 import SwiftUI
 
-#if ALPHA_OR_BETA
-@available(*, deprecated, message: "Test only, remove if not needed")
+/// A temporary entity for integration and testing, subject to change.
 struct ManageTokensBottomSheetContentView: View {
-    @ObservedObject private var viewModel: ManageTokensBottomSheetViewModel
-
-    init(
-        viewModel: ManageTokensBottomSheetViewModel
-    ) {
-        self.viewModel = viewModel
-    }
+    @ObservedObject var viewModel: ManageTokensBottomSheetViewModel
 
     var body: some View {
-        // [REDACTED_TODO_COMMENT]
         LazyVStack(spacing: .zero) {
             ForEach(viewModel.dataSource(), id: \.self) { index in
                 Button(action: viewModel.toggleItem) {
@@ -36,4 +28,3 @@ struct ManageTokensBottomSheetContentView: View {
         }
     }
 }
-#endif // ALPHA_OR_BETA
