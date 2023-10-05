@@ -107,9 +107,7 @@ class SingleTokenNotificationManager {
             .send([
                 factory.buildNotificationInput(
                     for: .networkUnreachable,
-                    dismissAction: { [weak self] id in
-                        self?.dismissNotification(with: id)
-                    }
+                    dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
                 ),
             ])
     }
@@ -146,9 +144,7 @@ class SingleTokenNotificationManager {
         let factory = NotificationsFactory()
         let input = factory.buildNotificationInput(
             for: .rentFee(rentMessage: rentMessage),
-            dismissAction: { [weak self] id in
-                self?.dismissNotification(with: id)
-            }
+            dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
         )
         return input
     }
