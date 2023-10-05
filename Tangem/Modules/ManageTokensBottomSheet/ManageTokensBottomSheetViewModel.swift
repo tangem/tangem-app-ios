@@ -8,8 +8,7 @@
 
 import Foundation
 
-#if ALPHA_OR_BETA
-@available(*, deprecated, message: "Test only, remove if not needed")
+/// A temporary entity for integration and testing, subject to change.
 final class ManageTokensBottomSheetViewModel: ObservableObject {
     // MARK: - ViewModel
 
@@ -53,4 +52,3 @@ final class ManageTokensBottomSheetViewModel: ObservableObject {
         }
     }
 }
-#endif // ALPHA_OR_BETA
