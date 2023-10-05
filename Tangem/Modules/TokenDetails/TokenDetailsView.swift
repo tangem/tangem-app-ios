@@ -79,8 +79,15 @@ struct TokenDetailsView: View {
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
-                IconView(url: viewModel.iconUrl, sizeSettings: .tokenDetailsToolbar, forceKingfisher: true)
-                    .opacity(toolbarIconOpacity)
+                TokenIcon(
+                    name: "",
+                    imageURL: viewModel.iconUrl,
+                    customTokenColor: viewModel.customTokenColor,
+                    blockchainIconName: nil,
+                    isCustom: false,
+                    size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
+                )
+                .opacity(toolbarIconOpacity)
             }
 
             ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
