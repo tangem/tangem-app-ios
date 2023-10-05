@@ -181,7 +181,7 @@ struct NotificationView_Previews: PreviewProvider {
                 VStack(spacing: 14) {
                     ForEach(viewModel.notifications) { input in
                         NotificationView(input: input)
-                            .transition(AnyTransition.scale.combined(with: .opacity))
+                            .transition(.notificationTransition)
                     }
 
                     Button(action: viewModel.addNotification) {
