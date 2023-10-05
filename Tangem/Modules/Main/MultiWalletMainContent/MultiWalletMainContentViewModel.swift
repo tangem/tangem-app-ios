@@ -34,7 +34,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         return MainFooterViewModel(
             isButtonDisabled: false,
             buttonTitle: Localization.mainManageTokens,
-            buttonAction: openManageTokens
+            buttonAction: weakify(self, forFunction: MultiWalletMainContentViewModel.openManageTokens)
         )
     }
 
@@ -223,10 +223,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         return factory.makeSectionItemViewModel(
             from: sectionItem,
             contextActionsProvider: self,
-            contextActionsDelegate: self
-        ) { [weak self] walletModelId in
-            self?.tokenItemTapped(walletModelId)
-        }
+            contextActionsDelegate: self,
+            tapAction: weakify(self, forFunction: MultiWalletMainContentViewModel.tokenItemTapped(_:))
+        )
     }
 
     private func removeOldCachedTokenViewModels(_ sections: [TokenSectionsAdapter.Section]) {
