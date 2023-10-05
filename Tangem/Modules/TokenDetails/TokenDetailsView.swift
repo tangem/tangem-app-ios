@@ -40,7 +40,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.scaleOpacity)
+                        .transition(.notificationTransition)
                 }
 
                 if viewModel.isMarketPriceAvailable {
