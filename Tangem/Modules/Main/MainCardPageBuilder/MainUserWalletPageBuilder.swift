@@ -67,12 +67,12 @@ enum MainUserWalletPageBuilder: Identifiable {
             Color.clear.frame(height: 0.0)
         case .multiWallet(_, _, let bodyModel):
             if bodyModel.manageTokensViewModel != nil {
-                _MainFooterView()
+                ManageTokensBottomSheetMainFooterView()
             }
         case .lockedWallet(_, _, let bodyModel):
             // [REDACTED_TODO_COMMENT]
             if bodyModel.footerViewModel != nil {
-                _MainFooterView()
+                ManageTokensBottomSheetMainFooterView()
             }
         }
     }
