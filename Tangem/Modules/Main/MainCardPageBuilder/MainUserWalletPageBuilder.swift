@@ -61,31 +61,42 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     func makeBottomOverlay(didScrollToBottom: Bool) -> some View {
-        let isMainScreenBottomSheetEnabled = FeatureProvider.isAvailable(.mainScreenBottomSheet)
-
         switch self {
         case .singleWallet:
             Color.clear.frame(height: 0.0)
         case .multiWallet(_, _, let bodyModel):
-            if isMainScreenBottomSheetEnabled {
-                if bodyModel.manageTokensViewModel != nil {
-                    ManageTokensBottomSheetMainFooterView()
-                }
-            } else {
-                if let viewModel = bodyModel.footerViewModel {
-                    MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
-                }
-            }
+            makeBottomOverlay(
+                manageTokensViewModel: bodyModel.manageTokensViewModel,
+                footerViewModel: bodyModel.footerViewModel,
+                didScrollToBottom: didScrollToBottom
+            )
         case .lockedWallet(_, _, let bodyModel):
-            if isMainScreenBottomSheetEnabled {
-                if bodyModel.manageTokensViewModel != nil {
-                    ManageTokensBottomSheetMainFooterView()
-                }
+            makeBottomOverlay(
+                manageTokensViewModel: bodyModel.manageTokensViewModel,
+                footerViewModel: bodyModel.footerViewModel,
+                didScrollToBottom: didScrollToBottom
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func makeBottomOverlay(
+        manageTokensViewModel: ManageTokensBottomSheetViewModel?,
+        footerViewModel: MainFooterViewModel?,
+        didScrollToBottom: Bool
+    ) -> some View {
+        let isMainScreenBottomSheetEnabled = FeatureProvider.isAvailable(.mainScreenBottomSheet)
+
+        if isMainScreenBottomSheetEnabled {
+            if manageTokensViewModel != nil {
+                ManageTokensBottomSheetMainFooterView()
             } else {
-                if let viewModel = bodyModel.footerViewModel {
-                    MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
-                }
+                EmptyMainFooterView()
             }
+        } else if let viewModel = footerViewModel {
+            MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
+        } else {
+            EmptyMainFooterView()
         }
     }
 }
