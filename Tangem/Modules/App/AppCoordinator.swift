@@ -29,7 +29,7 @@ class AppCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published private(set) var manageTokensSheetViewModel: ManageTokensBottomSheetViewModel?
+    @Published private(set) var manageTokensViewModel: ManageTokensBottomSheetViewModel?
 
     // MARK: - Private
 
@@ -185,12 +185,12 @@ extension AppCoordinator: ManageTokensBottomSheetDisplayable {
         _ coordinator: any CoordinatorObject,
         wantsToShowManageTokensBottomSheetWithViewModel viewModel: ManageTokensBottomSheetViewModel
     ) {
-        manageTokensSheetViewModel = viewModel
+        manageTokensViewModel = viewModel
     }
 
     func coordinatorWantsToHideManageTokensBottomSheet(
         _ coordinator: any CoordinatorObject
     ) {
-        manageTokensSheetViewModel = nil
+        manageTokensViewModel = nil
     }
 }
