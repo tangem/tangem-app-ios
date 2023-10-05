@@ -21,7 +21,7 @@ private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewMod
         ZStack(alignment: .bottom) {
             content
                 .cornerRadius(14.0)
-                .scaleEffect(scale)
+                .scaleEffect(stateObject.scale, anchor: .bottom)
                 .edgesIgnoringSafeArea(.all)
 
             BottomScrollableSheet(
