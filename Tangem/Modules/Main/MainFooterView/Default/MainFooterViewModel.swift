@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(*, deprecated, message: "Not used anymore, remove or rename to 'Legacy*'")
 struct MainFooterViewModel {
     let isButtonDisabled: Bool
     let buttonTitle: String
