@@ -32,7 +32,7 @@ struct TokenDetailsView: View {
     }
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.onRefresh) {
+        RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
