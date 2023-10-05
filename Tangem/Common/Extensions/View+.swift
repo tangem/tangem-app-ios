@@ -103,7 +103,7 @@ extension View {
         if #available(iOS 16.0, *) {
             self
         } else {
-            modifier(IOS15AndBelowScrollDisabledCompatModifier(isDisabled: disabled))
+            modifier(IOS15AndBelowScrollDisabledModifier(isDisabled: disabled))
         }
     }
 
