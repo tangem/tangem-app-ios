@@ -8,21 +8,23 @@
 
 import SwiftUI
 
-struct HeightScaleModifier: ViewModifier {
+struct NotificationTransitionModifier: ViewModifier {
     let height: CGFloat
+
+    private let verticalMovementOffset: CGFloat = 75
 
     func body(content: Content) -> some View {
         content.scaleEffect(y: height, anchor: .top)
-        // Adding up movement to slightly hide vertical scaling effect and make it little bit more natural
-            .offset(y: -75 + 75 * height)
+            // Adding up movement to slightly hide vertical scaling effect and make it little bit more natural
+            .offset(y: -verticalMovementOffset + verticalMovementOffset * height)
     }
 }
 
 extension AnyTransition {
     static var notificationTransition: AnyTransition {
         AnyTransition.modifier(
-            active: HeightScaleModifier(height: 0.6),
-            identity: HeightScaleModifier(height: 1)
+            active: NotificationTransitionModifier(height: 0.6),
+            identity: NotificationTransitionModifier(height: 1)
         )
         .animation(.easeInOut(duration: 0.3))
         .combined(with: .asymmetric(
