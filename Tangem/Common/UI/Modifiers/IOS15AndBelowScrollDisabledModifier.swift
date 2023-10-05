@@ -1,5 +1,5 @@
 //
-//  IOS15AndBelowScrollDisabledCompatModifier.swift
+//  IOS15AndBelowScrollDisabledModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import SwiftUI
 import UIKit
 
 @available(iOS, obsoleted: 16.0, message: "Delete when the minimum deployment target reaches 16.0")
-struct IOS15AndBelowScrollDisabledCompatModifier: ViewModifier {
+struct IOS15AndBelowScrollDisabledModifier: ViewModifier {
     let isDisabled: Bool
 
     func body(content: Content) -> some View {
