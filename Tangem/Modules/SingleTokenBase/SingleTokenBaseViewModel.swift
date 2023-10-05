@@ -22,7 +22,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var isReloadingTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
     @Published private(set) var tokenNotificationInputs: [NotificationViewInput] = []
-    @Published private(set) var pendingTransactionViews: [TransactionView] = []
+    @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
 
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
@@ -229,6 +229,7 @@ extension SingleTokenBaseViewModel {
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
+                self?.updatePendingTransactionView()
             }
             .store(in: &bag)
 
@@ -248,6 +249,11 @@ extension SingleTokenBaseViewModel {
     }
 
     private func updatePendingTransactionView() {
+        guard transactionHistoryState == .notSupported else {
+            pendingTransactionViews = []
+            return
+        }
+
         pendingTransactionViews = walletModel.pendingTransactions.map { transaction in
             pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
         }
