@@ -64,6 +64,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
         withAnimation(.easeOut) {
             visibleHeight = height(for: state)
+            // [REDACTED_TODO_COMMENT]
         }
     }
 
