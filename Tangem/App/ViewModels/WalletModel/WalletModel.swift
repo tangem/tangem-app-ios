@@ -124,12 +124,16 @@ class WalletModel {
         wallet.blockchain.isTestnet
     }
 
+    var pendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { !$0.isDummy }
+    }
+
     var incomingPendingTransactions: [LegacyTransactionRecord] {
-        legacyTransactionMapper.mapToIncomingRecords(wallet.pendingIncomingTransactions)
+        legacyTransactionMapper.mapToIncomingRecords(wallet.pendingTransactions.filter { $0.isIncoming })
     }
 
     var outgoingPendingTransactions: [LegacyTransactionRecord] {
-        legacyTransactionMapper.mapToOutgoingRecords(wallet.pendingOutgoingTransactions)
+        legacyTransactionMapper.mapToOutgoingRecords(wallet.pendingTransactions.filter { !$0.isIncoming })
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {
