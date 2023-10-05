@@ -12,7 +12,7 @@ import CombineExt
 import BlockchainSdk
 
 class PushTxViewModel: ObservableObject {
-    var destination: String { transaction.destinationAddress }
+    var destination: String { transaction.destination }
 
     var previousTotal: String {
         isFiatCalculation ?
@@ -74,7 +74,7 @@ class PushTxViewModel: ObservableObject {
 
     let cardViewModel: CardViewModel
     let blockchainNetwork: BlockchainNetwork
-    var transaction: BlockchainSdk.Transaction
+    var transaction: PendingTransactionRecord
 
     lazy var amountDecimal: String = "\(getFiat(for: amountToSend, roundingType: .defaultFiat(roundingMode: .down)) ?? 0)"
     lazy var amount: String = transaction.amount.description
@@ -90,7 +90,7 @@ class PushTxViewModel: ObservableObject {
     private unowned let coordinator: PushTxRoutable
 
     init(
-        transaction: BlockchainSdk.Transaction,
+        transaction: PendingTransactionRecord,
         blockchainNetwork: BlockchainNetwork,
         cardViewModel: CardViewModel,
         coordinator: PushTxRoutable
@@ -124,7 +124,6 @@ class PushTxViewModel: ObservableObject {
     func send(_ callback: @escaping () -> Void) {
         guard
             let tx = newTransaction,
-            let previousTxHash = transaction.hash,
             let pusher = walletModel.transactionPusher
         else {
             return
@@ -132,7 +131,7 @@ class PushTxViewModel: ObservableObject {
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        pusher.pushTransaction(with: previousTxHash, newTransaction: tx, signer: cardViewModel.signer)
+        pusher.pushTransaction(with: transaction.hash, newTransaction: tx, signer: cardViewModel.signer)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
@@ -255,15 +254,12 @@ class PushTxViewModel: ObservableObject {
     }
 
     private func loadNewFees() {
-        guard
-            let pusher = walletModel.transactionPusher,
-            let txHash = transaction.hash
-        else {
+        guard let pusher = walletModel.transactionPusher else {
             return
         }
 
         isFeeLoading = true
-        pusher.getPushFee(for: txHash)
+        pusher.getPushFee(for: transaction.hash)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isFeeLoading = false
@@ -377,10 +373,10 @@ extension PushTxViewModel {
             walletModel: walletModel,
             fee: newTransaction?.fee.amount,
             pushingFee: selectedFee?.amount,
-            destination: transaction.destinationAddress,
-            source: transaction.sourceAddress,
+            destination: transaction.destination,
+            source: transaction.source,
             amount: transaction.amount,
-            pushingTxHash: transaction.hash ?? .unknown,
+            pushingTxHash: transaction.hash,
             lastError: error
         )
 
