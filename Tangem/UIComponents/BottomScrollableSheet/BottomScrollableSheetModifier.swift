@@ -17,11 +17,6 @@ private struct BottomScrollableSheetModifier<SheetHeader, SheetContent>: ViewMod
 
     @StateObject private var stateObject = BottomScrollableSheetStateObject()
 
-    private var scale: CGFloat {
-        let scale = abs(1.0 - stateObject.progress / 10.0)
-        return scale.isFinite ? scale : 1.0
-    }
-
     func body(content: Content) -> some View {
         ZStack(alignment: .bottom) {
             content
