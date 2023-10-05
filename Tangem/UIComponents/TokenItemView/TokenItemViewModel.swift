@@ -7,6 +7,7 @@
 //
 
 import Combine
+import SwiftUI
 import BlockchainSdk
 
 typealias WalletModelId = Int
@@ -36,6 +37,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || isTestnetToken }
     var isCustom: Bool { tokenIcon.isCustom }
+    var customTokenColor: Color? { tokenIcon.customTokenColor }
     var tokenItem: TokenItem { infoProvider.tokenItem }
 
     var hasError: Bool { missingDerivation || networkUnreachable }
