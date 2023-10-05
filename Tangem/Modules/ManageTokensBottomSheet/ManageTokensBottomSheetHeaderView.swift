@@ -26,17 +26,17 @@ struct ManageTokensBottomSheetHeaderView: View {
             .background(Colors.Field.primary)
             .cornerRadius(14.0)
             .padding(.horizontal, 16.0)
-            .padding(.top, 20.0)
-            .frame(height: Constants.headerHeight, alignment: .top)
+            .padding(.top, Constants.verticalInset)
+            .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
             .background(Colors.Background.primary)
     }
 }
 
 // MARK: - Constants
 
-extension ManageTokensBottomSheetHeaderView {
+private extension ManageTokensBottomSheetHeaderView {
     enum Constants {
-        static let headerHeight = 100.0
+        static let verticalInset = 20.0
     }
 }
 #endif // ALPHA_OR_BETA
