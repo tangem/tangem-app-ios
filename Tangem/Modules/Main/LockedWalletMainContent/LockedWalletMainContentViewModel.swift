@@ -44,6 +44,12 @@ class LockedWalletMainContentViewModel: ObservableObject {
         )
     }
 
+    private(set) lazy var manageTokensViewModel: ManageTokensBottomSheetViewModel? = {
+        guard canManageTokens else { return nil }
+
+        return ManageTokensBottomSheetViewModel()
+    }()
+
     let isMultiWallet: Bool
 
     private let userWalletModel: UserWalletModel
