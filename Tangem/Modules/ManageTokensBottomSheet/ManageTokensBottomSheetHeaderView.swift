@@ -8,19 +8,22 @@
 
 import SwiftUI
 
-#if ALPHA_OR_BETA
-@available(*, deprecated, message: "Test only, remove if not needed")
+/// A temporary entity for integration and testing, subject to change.
 struct ManageTokensBottomSheetHeaderView: View {
     @Binding private var searchText: String
+    private let textFieldAllowsHitTesting: Bool
 
     init(
-        searchText: Binding<String>
+        searchText: Binding<String>,
+        textFieldAllowsHitTesting: Bool
     ) {
         _searchText = searchText
+        self.textFieldAllowsHitTesting = textFieldAllowsHitTesting
     }
 
     var body: some View {
         TextField(Localization.commonSearch, text: $searchText)
+            .allowsHitTesting(textFieldAllowsHitTesting)
             .frame(height: 46.0)
             .padding(.horizontal, 12.0)
             .background(Colors.Field.primary)
@@ -39,4 +42,3 @@ private extension ManageTokensBottomSheetHeaderView {
         static let verticalInset = 20.0
     }
 }
-#endif // ALPHA_OR_BETA

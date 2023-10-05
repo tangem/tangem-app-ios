@@ -13,7 +13,8 @@ struct ManageTokensBottomSheetMainFooterView: View {
         VStack(spacing: 0.0) {
             FixedSpacer(height: Constants.spacerLength, length: Constants.spacerLength)
 
-            ManageTokensBottomSheetHeaderView(searchText: .constant(""))
+            // `ManageTokensBottomSheetHeaderView` is used here as a dummy noninteractive placeholder
+            ManageTokensBottomSheetHeaderView(searchText: .constant(""), textFieldAllowsHitTesting: false)
                 .cornerRadius(24.0, corners: [.topLeft, .topRight]) // Replicates corner radius in `BottomScrollableSheet`
                 .bottomScrollableSheetGrabber()
                 .bottomScrollableSheetShadow()
