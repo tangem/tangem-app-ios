@@ -70,15 +70,6 @@ extension LegacyTransactionRecord {
         case inProgress
         case confirmed
 
-        init(_ blockchainSdkStatus: TransactionStatus) {
-            switch blockchainSdkStatus {
-            case .confirmed:
-                self = .confirmed
-            case .unconfirmed:
-                self = .inProgress
-            }
-        }
-
         var iconColor: Color {
             switch self {
             case .inProgress:
