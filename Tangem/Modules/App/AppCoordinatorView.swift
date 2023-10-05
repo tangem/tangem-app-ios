@@ -31,6 +31,9 @@ struct AppCoordinatorView: CoordinatorView {
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
         .if(isMainScreenBottomSheetEnabled) { view in
+            // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only when
+            // `coordinator.manageTokensViewModel != nil` because this will break the root view's structural identity and
+            // therefore all its state. So dummy views (`Color.clear`) are used as `header`/`content` views placeholders.
             view.bottomScrollableSheet(
                 prefersGrabberVisible: hasManageTokensViewModel,
                 allowsHitTesting: hasManageTokensViewModel,
@@ -38,16 +41,14 @@ struct AppCoordinatorView: CoordinatorView {
                     if let viewModel = coordinator.manageTokensViewModel {
                         ManageTokensBottomSheetHeaderContainerView(viewModel: viewModel)
                     } else {
-                        // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only
-                        // when `coordinator.manageTokensViewModel != nil` because this will break the root view's structural
-                        // identity and therefore all its state.
-                        // So dummy views (`Color.clear`) are used as `header`/`content` views placeholders
                         Color.clear.frame(size: .zero)
                     }
                 },
                 content: {
                     if let viewModel = coordinator.manageTokensViewModel {
                         ManageTokensBottomSheetContentView(viewModel: viewModel)
+                    } else {
+                        Color.clear.frame(size: .zero)
                     }
                 }
             )
