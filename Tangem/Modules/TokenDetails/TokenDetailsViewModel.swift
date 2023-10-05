@@ -39,6 +39,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         return TokenIconURLBuilder().iconURL(id: id)
     }
 
+    var customTokenColor: Color? {
+        tokenItem.token?.customTokenColor
+    }
+
     init(
         cardModel: CardViewModel,
         walletModel: WalletModel,
