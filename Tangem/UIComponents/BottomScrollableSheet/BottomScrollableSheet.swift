@@ -14,7 +14,6 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
 
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
-
     @State private var isHidden = true
 
     private var prefersGrabberVisible = true
@@ -36,10 +35,11 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ZStack(alignment: .bottom) {
+            ZStack {
                 backgroundView
 
                 sheet(proxy: proxy)
+                    .infinityFrame(axis: .vertical, alignment: .bottom)
             }
             .ignoresSafeArea(edges: .bottom)
             .onAppear(perform: stateObject.onAppear)
@@ -88,7 +88,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
 
     @ViewBuilder
     private func sheet(proxy: GeometryProxy) -> some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             Colors.Background.primary
 
             VStack(spacing: 0.0) {
@@ -98,7 +98,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             }
             .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
         }
-        .frame(height: stateObject.visibleHeight, alignment: .bottom)
+        .frame(height: stateObject.visibleHeight)
         .cornerRadius(24.0, corners: [.topLeft, .topRight])
         .bottomScrollableSheetShadow()
         .hidden(isHidden)
