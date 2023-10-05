@@ -464,6 +464,7 @@
 		B63140F32A808B45009CAB12 /* OrganizeTokensRoutableStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */; };
 		B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */; };
 		B635EE452A607422008B5F87 /* ThreadSafeContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B635EE442A607422008B5F87 /* ThreadSafeContainerTests.swift */; };
+		B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */; };
 		B63A313F2ACB3100003455E8 /* ManageTokensBottomSheetIntermediateDisplayable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63A313E2ACB3100003455E8 /* ManageTokensBottomSheetIntermediateDisplayable.swift */; };
 		B63A31432ACB3E21003455E8 /* ManageTokensBottomSheetIntermediateDisplayable+CoordinatorObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63A31422ACB3E21003455E8 /* ManageTokensBottomSheetIntermediateDisplayable+CoordinatorObject.swift */; };
 		B63B63BA2A44012D00A7CECF /* OrganizeTokensListHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */; };
@@ -1681,6 +1682,7 @@
 		B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensRoutableStub.swift; sourceTree = "<group>"; };
 		B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadGeometry.swift"; sourceTree = "<group>"; };
 		B635EE442A607422008B5F87 /* ThreadSafeContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainerTests.swift; sourceTree = "<group>"; };
+		B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyMainFooterView.swift; sourceTree = "<group>"; };
 		B63A313E2ACB3100003455E8 /* ManageTokensBottomSheetIntermediateDisplayable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensBottomSheetIntermediateDisplayable.swift; sourceTree = "<group>"; };
 		B63A31422ACB3E21003455E8 /* ManageTokensBottomSheetIntermediateDisplayable+CoordinatorObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManageTokensBottomSheetIntermediateDisplayable+CoordinatorObject.swift"; sourceTree = "<group>"; };
 		B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListHeader.swift; sourceTree = "<group>"; };
@@ -4063,6 +4065,14 @@
 			path = ListItem;
 			sourceTree = "<group>";
 		};
+		B6364F862ACEE99F00D615B5 /* Empty */ = {
+			isa = PBXGroup;
+			children = (
+				B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */,
+			);
+			path = Empty;
+			sourceTree = "<group>";
+		};
 		B63B63BB2A44013100A7CECF /* ListFooter */ = {
 			isa = PBXGroup;
 			children = (
@@ -4254,6 +4264,7 @@
 		B6E9A8C32A997AE5005CF137 /* MainFooterView */ = {
 			isa = PBXGroup;
 			children = (
+				B6364F862ACEE99F00D615B5 /* Empty */,
 				B6C428522ACE973900605E71 /* Default */,
 				B6C428532ACE973C00605E71 /* ManageTokensBottomSheet */,
 			);
@@ -7327,6 +7338,7 @@
 				65D87499287DA0F6009D0448 /* BottomSheetSettings.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
+				B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
 				B6EAA5F72A399853003909F0 /* View+onTouchesBegan.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityModeView.swift in Sources */,
