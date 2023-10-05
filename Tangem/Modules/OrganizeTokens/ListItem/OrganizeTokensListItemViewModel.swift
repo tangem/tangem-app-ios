@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     let id: Identifier
@@ -14,6 +15,7 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     var name: String { tokenIcon.name }
 
     var imageURL: URL? { tokenIcon.imageURL }
+    var customTokenColor: Color? { tokenIcon.customTokenColor }
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
     var hasMonochromeIcon: Bool { isNetworkUnreachable || !hasDerivation || isTestnet }
     var isCustom: Bool { tokenIcon.isCustom }
