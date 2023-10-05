@@ -36,7 +36,7 @@ struct AppCoordinatorView: CoordinatorView {
                 allowsHitTesting: hasManageTokensViewModel,
                 header: {
                     if let viewModel = coordinator.manageTokensViewModel {
-                        ManageTokensBottomSheetHeaderView(searchText: .constant(""))
+                        ManageTokensBottomSheetHeaderContainerView(viewModel: viewModel)
                     } else {
                         // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only
                         // when `coordinator.manageTokensViewModel != nil` because this will break the root view's structural
