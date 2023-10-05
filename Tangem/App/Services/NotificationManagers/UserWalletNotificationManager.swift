@@ -109,7 +109,7 @@ final class UserWalletNotificationManager {
             let notification = factory.buildNotificationInput(
                 for: .multiWalletSignedHashes,
                 action: delegate?.didTapNotification(with:) ?? { _ in },
-                dismissAction: dismissNotification(with:)
+                dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
             )
             notificationInputsSubject.value.append(notification)
             return
@@ -120,7 +120,7 @@ final class UserWalletNotificationManager {
             let notification = factory.buildNotificationInput(
                 for: .numberOfSignedHashesIncorrect,
                 action: delegate?.didTapNotification(with:) ?? { _ in },
-                dismissAction: dismissNotification(with:)
+                dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
             )
             notificationInputsSubject.value.append(notification)
             return
