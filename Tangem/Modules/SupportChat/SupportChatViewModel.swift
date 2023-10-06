@@ -12,6 +12,7 @@ import SwiftUI
 
 class SupportChatViewModel: ObservableObject, Identifiable {
     @Published var showSupportActionSheet: ActionSheetBinder?
+    @Published var sprinklrViewModel: SprinklrSupportChatViewModel?
     @Published var zendeskViewModel: ZendeskSupportChatViewModel?
     @Injected(\.keysManager) private var keysManager: KeysManager
 
@@ -19,14 +20,19 @@ class SupportChatViewModel: ObservableObject, Identifiable {
 
     init(input: SupportChatInputModel) {
         self.input = input
-        zendeskViewModel = .init(
-            logsComposer: input.logsComposer,
-            showSupportChatSheet: { [weak self] sheet in
-                DispatchQueue.main.async {
-                    self?.showSupportActionSheet = ActionSheetBinder(sheet: sheet)
+
+        if FeatureProvider.isAvailable(.sprinklr) {
+            sprinklrViewModel = SprinklrSupportChatViewModel()
+        } else {
+            zendeskViewModel = .init(
+                logsComposer: input.logsComposer,
+                showSupportChatSheet: { [weak self] sheet in
+                    DispatchQueue.main.async {
+                        self?.showSupportActionSheet = ActionSheetBinder(sheet: sheet)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
