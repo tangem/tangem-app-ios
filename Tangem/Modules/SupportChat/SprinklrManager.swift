@@ -12,11 +12,16 @@ import SPRMessengerClient
 final class SprinklrManager {
     @Injected(\.keysManager) private static var keysManager: KeysManager
 
+    private static var deviceID: String {
+        let id = UIDevice.current.identifierForVendor ?? UUID()
+        return id.uuidString
+    }
+
     static func showSupportScreen() {
         let config = SPRMessengerConfig()
         config.appId = keysManager.sprinklr.appID
         config.appKey = "com.sprinklr.messenger.release"
-        config.deviceId = "UNIQUE_DEVICE_ID_3" // ??
+        config.deviceId = deviceID
         config.environment = keysManager.sprinklr.environment
         config.skin = "MODERN"
         SPRMessenger.takeOff(config)
@@ -25,7 +30,7 @@ final class SprinklrManager {
             AppLog.shared.debug("Failed to show Sprinklr screen")
             return
         }
-        viewController.modalPresentationStyle = .fullScreen
+        viewController.modalPresentationStyle = .fullScreen // Sprinklr doesn't work as a sheet as of Oct 2023
         UIApplication.topViewController!.present(viewController, animated: true, completion: nil)
     }
 }
