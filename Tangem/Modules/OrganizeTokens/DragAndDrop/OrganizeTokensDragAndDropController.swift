@@ -126,13 +126,6 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         indexPath.flatMap { itemsFrames[$0] }
     }
 
-    /// - Warning: O(N) time complexity.
-    func indexPath(for location: CGPoint) -> IndexPath? {
-        return itemsFrames
-            .first { isIndexPathValid($0.key) && $0.value.contains(location) }
-            .map(\.key)
-    }
-
     func updatedDestinationIndexPath(
         source sourceIndexPath: IndexPath,
         currentDestination currentDestinationIndexPath: IndexPath,
