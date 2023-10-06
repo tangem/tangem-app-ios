@@ -187,7 +187,8 @@ class WalletModel {
             return .notEnoughtFeeForTokenTx(
                 tokenName: token.name,
                 networkName: blockchainNetwork.blockchain.displayName,
-                coinSymbol: blockchainNetwork.blockchain.currencySymbol
+                coinSymbol: blockchainNetwork.blockchain.currencySymbol,
+                networkIconName: blockchainNetwork.blockchain.iconNameFilled
             )
         }
 
