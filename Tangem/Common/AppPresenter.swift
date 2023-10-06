@@ -16,11 +16,15 @@ class AppPresenter {
     private init() {}
 
     func showSupportChat(input: SupportChatInputModel) {
-        let viewModel = SupportChatViewModel(input: input)
-        let view = SupportChatView(viewModel: viewModel)
-        let controller = UIHostingController(rootView: view)
         Analytics.log(.chatScreenOpened)
-        show(controller)
+        if FeatureProvider.isAvailable(.sprinklr) {
+            let viewModel = SupportChatViewModel(input: input)
+            let view = SupportChatView(viewModel: viewModel)
+            let controller = UIHostingController(rootView: view)
+            show(controller)
+        } else {
+            SprinklrManager.showSupportScreen()
+        }
     }
 
     func showError(_ error: Error) {
