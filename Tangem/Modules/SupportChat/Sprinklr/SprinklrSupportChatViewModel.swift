@@ -24,6 +24,9 @@ final class SprinklrSupportChatViewModel {
         config.deviceId = deviceID
         config.environment = keysManager.sprinklr.environment
         config.skin = "MODERN"
+        if let languageCode = Locale.current.languageCode {
+            config.locale = languageCode
+        }
         SPRMessenger.takeOff(config)
     }
 }
