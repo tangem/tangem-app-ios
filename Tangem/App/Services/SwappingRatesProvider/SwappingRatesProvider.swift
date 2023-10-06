@@ -10,11 +10,11 @@ import Foundation
 import TangemSwapping
 
 class SwappingRatesProvider {
-    @Injected(\.ratesRepository) private var ratesRepository: RatesRepository
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
-    /// Collect rates for calculate fiat balance
-    private var rates: [String: Decimal] {
-        return ratesRepository.rates
+    /// Collect quotes for calculate fiat balance
+    private var quotes: Quotes {
+        return quotesRepository.quotes
     }
 }
 
@@ -23,16 +23,16 @@ class SwappingRatesProvider {
 extension SwappingRatesProvider: FiatRatesProviding {
     func hasRates(for currency: Currency) -> Bool {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
-        return rates[id] != nil
+        return quotes[id] != nil
     }
 
     func hasRates(for blockchain: TangemSwapping.SwappingBlockchain) -> Bool {
-        return rates[blockchain.currencyID] != nil
+        return quotes[blockchain.currencyID] != nil
     }
 
     func getFiat(for currency: Currency, amount: Decimal) -> Decimal? {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
-        if let rate = rates[id] {
+        if let rate = quotes[id]?.price {
             return mapToFiat(amount: amount, rate: rate)
         }
 
@@ -40,7 +40,7 @@ extension SwappingRatesProvider: FiatRatesProviding {
     }
 
     func getFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) -> Decimal? {
-        if let rate = rates[blockchain.currencyID] {
+        if let rate = quotes[blockchain.currencyID]?.price {
             return mapToFiat(amount: amount, rate: rate)
         }
 
@@ -49,18 +49,18 @@ extension SwappingRatesProvider: FiatRatesProviding {
 
     func getFiat(for currency: Currency, amount: Decimal) async throws -> Decimal {
         let id = currency.isToken ? currency.id : currency.blockchain.currencyID
-        let rate = try await ratesRepository.rate(for: id)
+        let rate = try await quotesRepository.quote(for: id).price
         return mapToFiat(amount: amount, rate: rate)
     }
 
     func getFiat(for blockchain: SwappingBlockchain, amount: Decimal) async throws -> Decimal {
-        let rate = try await ratesRepository.rate(for: blockchain.currencyID)
+        let rate = try await quotesRepository.quote(for: blockchain.currencyID).price
         return mapToFiat(amount: amount, rate: rate)
     }
 
     func getFiat(for currencies: [Currency: Decimal]) async throws -> [Currency: Decimal] {
         let ids = currencies.keys.map { $0.isToken ? $0.id : $0.blockchain.currencyID }
-        _ = await ratesRepository.loadRates(coinIds: ids)
+        _ = await quotesRepository.loadQuotes(currencyIds: ids)
 
         return currencies.reduce(into: [:]) { result, args in
             let (currency, amount) = args
