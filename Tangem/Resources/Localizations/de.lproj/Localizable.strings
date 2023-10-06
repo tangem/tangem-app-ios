@@ -547,11 +547,14 @@
 "warning_rate_app_message" = "How do you like Tangem?";
 "warning_rate_app_title" = "One question";
 "warning_signed_tx_previously" = "This card has signed transactions in the past";
+"warning_subtitle_network_unreachable" = "Network currently is unreachable. Please try again later.";
+"warning_subtitle_some_networks_unreachable" = "Some networks currently are unreachable. Please try again later.";
 "warning_system_deprecation_title" = "System update required";
 "warning_system_deprecation_with_date_message" = "Support for your version of the operating system will end on %@. To receive future app updates you must update it to the latest version.";
 "warning_system_update_message" = "Tangem recommends installing the latest iOS update for stable and safe operation";
 "warning_system_update_title" = "System update available";
 "warning_testnet_card_message" = "This is a Testnet card. Don't accept it as a payment. This card must only be used for testing and development purposes.";
+"warning_title_some_networks_unreachable" = "Some networks are unreachable";
 "welcome_interrupted_backup_alert_discard" = "Discard";
 "welcome_interrupted_backup_alert_message" = "You have an interrupted backup. Do you want to resume?";
 "welcome_interrupted_backup_alert_resume" = "Yes, resume";
