@@ -13,6 +13,7 @@ import BlockchainSdk
 
 class WalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
 
     var walletModelId: WalletModel.Id {
         .init(blockchainNetwork: blockchainNetwork, amountType: amountType)
@@ -192,6 +193,21 @@ class WalletModel {
         return nil
     }
 
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> {
+        swapAvailabilityProvider
+            .tokenItemsAvailableToSwapPublisher
+            .contains { [weak self] itemsAvailableToSwap in
+                guard let self else {
+                    return false
+                }
+
+                return itemsAvailableToSwap[tokenItem] ?? false
+            }
+            .removeDuplicates()
+            .mapToVoid()
+            .eraseToAnyPublisher()
+    }
+
     var isDemo: Bool { demoBalance != nil }
     var demoBalance: Decimal?
 
@@ -293,7 +309,9 @@ class WalletModel {
     // MARK: - Update wallet model
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        Publishers
+        transactionHistoryService?.reset()
+
+        return Publishers
             .CombineLatest(update(silent: silent), updateTransactionsHistory())
             .mapToVoid()
             .eraseToAnyPublisher()
