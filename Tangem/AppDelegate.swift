@@ -13,7 +13,7 @@ import AppsFlyerLib
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView?
 
-    var window: UIWindow? // ⚠️ Do not remove, this is needed by Sprinklr ⚠️
+    var window: UIWindow? // Do not remove, this is needed by Sprinklr
 
     private lazy var servicesManager = ServicesManager()
 
