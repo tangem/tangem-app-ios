@@ -75,4 +75,25 @@ struct StorageEntryConverter {
             contractAddress: token.contractAddress
         )
     }
+
+    // MARK: - StorageEntry to TokenItem
+
+    func convertToTokenItem(_ entries: [StoredUserTokenList.Entry]) -> [TokenItem] {
+        entries.map {
+            let blockchain = $0.blockchainNetwork.blockchain
+
+            guard let contractAddress = $0.contractAddress else {
+                return .blockchain(blockchain)
+            }
+
+            let token = Token(
+                name: $0.name,
+                symbol: $0.symbol,
+                contractAddress: contractAddress,
+                decimalCount: $0.decimalCount,
+                id: $0.id
+            )
+            return .token(token, blockchain)
+        }
+    }
 }
