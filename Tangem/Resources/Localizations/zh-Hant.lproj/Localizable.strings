@@ -547,11 +547,14 @@
 "warning_rate_app_message" = "你喜歡 Tangem 嗎？";
 "warning_rate_app_title" = "一個問題";
 "warning_signed_tx_previously" = "此卡過去曾簽署過交易";
+"warning_subtitle_network_unreachable" = "Network currently is unreachable. Please try again later.";
+"warning_subtitle_some_networks_unreachable" = "Some networks currently are unreachable. Please try again later.";
 "warning_system_deprecation_title" = "需要系統更新";
 "warning_system_deprecation_with_date_message" = "對您的操作系統版本的支持將於 %@ 結束。要接收未來的應用程式更新，您必須將其更新到最新版本";
 "warning_system_update_message" = "Tangem 建議安裝最新的 iOS 更新以穩定和安全地運行";
 "warning_system_update_title" = "系統更新可用";
 "warning_testnet_card_message" = "這是一張測試網卡。不要接受它作為付款。 此卡只能用於測試和開發目的";
+"warning_title_some_networks_unreachable" = "Some networks are unreachable";
 "welcome_interrupted_backup_alert_discard" = "捨棄";
 "welcome_interrupted_backup_alert_message" = "您有一個備份中斷了，您想繼續嗎？";
 "welcome_interrupted_backup_alert_resume" = "是的，恢復";
