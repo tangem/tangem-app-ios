@@ -58,8 +58,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         self.optionsEditing = optionsEditing
     }
 
-    func onViewAppear() {
+    func onViewWillAppear() {
         bind()
+    }
+
+    func onViewAppear() {
         reportScreenOpened()
     }
 
