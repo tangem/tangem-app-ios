@@ -139,7 +139,7 @@ struct NotificationView_Previews: PreviewProvider {
                 style: .tappable(action: { [weak self] id in
                     self?.notificationTapped(with: id)
                 }),
-                settings: NotificationView.Settings(event: WarningEvent.multiWalletSignedHashes, dismissAction: { [weak self] id in
+                settings: NotificationView.Settings(event: WarningEvent.missingBackup, dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
                 })
             ),
