@@ -1,5 +1,5 @@
 //
-//  HeightScaleModifier.swift
+//  NotificationTransitionModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,22 +9,22 @@
 import SwiftUI
 
 struct NotificationTransitionModifier: ViewModifier {
-    let height: CGFloat
+    let verticalScale: CGFloat
 
     private let verticalMovementOffset: CGFloat = 75
 
     func body(content: Content) -> some View {
-        content.scaleEffect(y: height, anchor: .top)
+        content.scaleEffect(y: verticalScale, anchor: .top)
             // Adding up movement to slightly hide vertical scaling effect and make it little bit more natural
-            .offset(y: -verticalMovementOffset + verticalMovementOffset * height)
+            .offset(y: -verticalMovementOffset + verticalMovementOffset * verticalScale)
     }
 }
 
 extension AnyTransition {
     static var notificationTransition: AnyTransition {
         AnyTransition.modifier(
-            active: NotificationTransitionModifier(height: 0.6),
-            identity: NotificationTransitionModifier(height: 1)
+            active: NotificationTransitionModifier(verticalScale: 0.6),
+            identity: NotificationTransitionModifier(verticalScale: 1)
         )
         .animation(.easeInOut(duration: 0.3))
         .combined(with: .asymmetric(
