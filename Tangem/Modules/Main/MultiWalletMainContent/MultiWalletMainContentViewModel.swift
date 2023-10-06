@@ -409,17 +409,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
 
     private func handleUserWalletNotificationTap(event: WarningEvent, id: NotificationViewId) {
         switch event {
-        case .multiWalletSignedHashes:
-            error = AlertBuilder.makeAlert(
-                title: event.title,
-                message: Localization.alertSignedHashesMessage,
-                with: .withPrimaryCancelButton(
-                    secondaryTitle: Localization.commonUnderstand,
-                    secondaryAction: { [weak self] in
-                        self?.userWalletNotificationManager.dismissNotification(with: id)
-                    }
-                )
-            )
         default:
             assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
         }
