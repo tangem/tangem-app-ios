@@ -132,7 +132,7 @@ final class MainViewModel: ObservableObject {
         let sheet = ActionSheet(
             title: Text(Localization.userWalletListDeletePrompt),
             buttons: [
-                .destructive(Text(Localization.commonDelete), action: didConfirmWalletDeletion),
+                .destructive(Text(Localization.commonDelete), action: weakify(self, forFunction: MainViewModel.didConfirmWalletDeletion)),
                 .cancel(Text(Localization.commonCancel)),
             ]
         )
