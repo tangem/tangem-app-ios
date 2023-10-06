@@ -135,11 +135,7 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 
     func openSupportChat(input: SupportChatInputModel) {
         Analytics.log(.chatScreenOpened)
-        if FeatureProvider.isAvailable(.sprinklr) {
-            SprinklrManager.showSupportScreen()
-        } else {
-            supportChatViewModel = SupportChatViewModel(input: input)
-        }
+        supportChatViewModel = SupportChatViewModel(input: input)
     }
 
     func openWebView(with url: URL) {
