@@ -547,11 +547,14 @@
 "warning_rate_app_message" = "Как вам Tangem?";
 "warning_rate_app_title" = "Один вопрос";
 "warning_signed_tx_previously" = "Эта карта подписывала транзакции в прошлом";
+"warning_subtitle_network_unreachable" = "В настоящее время сеть недоступна. Пожалуйста, повторите попытку позже.";
+"warning_subtitle_some_networks_unreachable" = "Некоторые сети в настоящее время недоступны. Пожалуйста, повторите попытку позже.";
 "warning_system_deprecation_title" = "Требуется обновление системы";
 "warning_system_deprecation_with_date_message" = "Поддержка вашей версии операционной системы завершится %@. Для получения последующих обновлений приложения, необходимо обновить ее до последней версии.";
 "warning_system_update_message" = "Tangem рекомендует установить последнее обновление iOS для стабильной и безопасной работы";
 "warning_system_update_title" = "Доступно обновление системы";
 "warning_testnet_card_message" = "Это тестовая карта. Не принимайте её в качестве оплаты. Эта карта должна использоваться только в целях тестирования и разработки.";
+"warning_title_some_networks_unreachable" = "Некоторые сети недоступны";
 "welcome_interrupted_backup_alert_discard" = "Отказаться";
 "welcome_interrupted_backup_alert_message" = "Вы не закончили резервное копирование. Хотите продолжить?";
 "welcome_interrupted_backup_alert_resume" = "Да, возобновить";
