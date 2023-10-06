@@ -287,9 +287,17 @@ extension OrganizeTokensViewModel {
                 return
             }
 
-            sections.swapAt(sourceIndexPath.section, destinationIndexPath.section)
+            let diff = sourceIndexPath.section > destinationIndexPath.section ? 0 : 1
+            sections.move(
+                fromOffsets: IndexSet(integer: sourceIndexPath.section),
+                toOffset: destinationIndexPath.section + diff
+            )
+
             dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                sectionsToMutate.swapAt(sourceIndexPath.section, destinationIndexPath.section)
+                sectionsToMutate.move(
+                    fromOffsets: IndexSet(integer: sourceIndexPath.section),
+                    toOffset: destinationIndexPath.section + diff
+                )
             }
         } else {
             guard sourceIndexPath.section == destinationIndexPath.section else {
@@ -297,9 +305,17 @@ extension OrganizeTokensViewModel {
                 return
             }
 
-            sections[sourceIndexPath.section].items.swapAt(sourceIndexPath.item, destinationIndexPath.item)
+            let diff = sourceIndexPath.item > destinationIndexPath.item ? 0 : 1
+            sections[sourceIndexPath.section].items.move(
+                fromOffsets: IndexSet(integer: sourceIndexPath.item),
+                toOffset: destinationIndexPath.item + diff
+            )
+
             dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                sectionsToMutate[sourceIndexPath.section].items.swapAt(sourceIndexPath.item, destinationIndexPath.item)
+                sectionsToMutate[sourceIndexPath.section].items.move(
+                    fromOffsets: IndexSet(integer: sourceIndexPath.item),
+                    toOffset: destinationIndexPath.item + diff
+                )
             }
         }
     }
