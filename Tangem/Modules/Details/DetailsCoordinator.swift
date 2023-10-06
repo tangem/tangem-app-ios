@@ -103,7 +103,11 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openSupportChat(input: SupportChatInputModel) {
         Analytics.log(.chatScreenOpened)
-        supportChatViewModel = SupportChatViewModel(input: input)
+        if FeatureProvider.isAvailable(.sprinklr) {
+            SprinklrManager.showSupportScreen()
+        } else {
+            supportChatViewModel = SupportChatViewModel(input: input)
+        }
     }
 
     func openInSafari(url: URL) {
