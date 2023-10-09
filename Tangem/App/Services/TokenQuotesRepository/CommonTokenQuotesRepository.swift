@@ -33,20 +33,33 @@ class CommonTokenQuotesRepository {
 // MARK: - TokenQuotesRepository
 
 extension CommonTokenQuotesRepository: TokenQuotesRepository {
-    var pricesPublisher: AnyPublisher<Quotes, Never> {
+    var quotes: Quotes {
+        return _quotes.value
+    }
+
+    var quotesPublisher: AnyPublisher<Quotes, Never> {
         _quotes.eraseToAnyPublisher()
     }
 
-    func quote(for item: TokenItem) -> TokenQuote? {
-        guard let id = item.currencyId else {
-            return nil
+    func quote(for currencyId: String) async throws -> TokenQuote {
+        var quote = quotes[currencyId]
+
+        if quote == nil {
+            await loadQuotes(currencyIds: [currencyId])
+            quote = quotes[currencyId]
         }
 
-        return _quotes.value[id]
+        guard let quote else {
+            throw CommonError.noData
+        }
+
+        return quote
     }
 
-    func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never> {
-        let request = QuotesDTO.Request(coinIds: coinIds, currencyId: currencyCode)
+    func loadQuotes(currencyIds: [String]) -> AnyPublisher<Void, Never> {
+        // We get here currencyIds. But on in the API model we named it like coinIds
+        let request = QuotesDTO.Request(coinIds: currencyIds, currencyId: currencyCode)
+
         return tangemApiService
             .loadQuotes(requestModel: request)
             .replaceError(with: [])
@@ -72,6 +85,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
 
                 _quotes.send(current)
             })
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 }
