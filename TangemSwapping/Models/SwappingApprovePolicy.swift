@@ -11,4 +11,13 @@ import Foundation
 public enum SwappingApprovePolicy: Hashable {
     case amount(Decimal)
     case unlimited
+
+    public var value: Decimal {
+        switch self {
+        case .amount(let decimal):
+            return decimal
+        case .unlimited:
+            return .greatestFiniteMagnitude
+        }
+    }
 }
