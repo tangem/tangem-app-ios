@@ -82,7 +82,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
-    lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(
+        currencySymbol: currencySymbol,
+        addresses: walletModel.wallet.addresses.map { $0.value }
+    )
 
     init(
         userWalletModel: UserWalletModel,
