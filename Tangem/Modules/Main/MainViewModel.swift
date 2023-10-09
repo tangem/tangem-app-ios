@@ -64,6 +64,10 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
+    func onAppear() {
+        Analytics.log(.mainScreenOpened)
+    }
+
     func openDetails() {
         let userWalletModel = userWalletRepository.models[selectedCardIndex]
 
