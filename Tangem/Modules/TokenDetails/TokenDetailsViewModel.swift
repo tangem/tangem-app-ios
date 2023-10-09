@@ -14,13 +14,13 @@ import TangemSwapping
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
+    @Published var actionSheet: ActionSheetBinder?
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
     private unowned let coordinator: TokenDetailsRoutable
     private var bag = Set<AnyCancellable>()
-    private var refreshCancellable: AnyCancellable?
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -37,6 +37,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
 
         return TokenIconURLBuilder().iconURL(id: id)
+    }
+
+    var customTokenColor: Color? {
+        tokenItem.token?.customTokenColor
     }
 
     init(
@@ -65,20 +69,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func onRefresh(_ done: @escaping () -> Void) {
-        Analytics.log(.refreshed)
+    override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .openNetworkCurrency:
+            openNetworkCurrency()
+        default:
+            super.didTapNotificationButton(with: id, action: action)
+        }
+    }
 
-        refreshCancellable = walletModel
-            .update(silent: false)
-            .receive(on: DispatchQueue.main)
-            .sink { _ in
-                AppLog.shared.debug("♻️ Token wallet model loading state changed")
-                withAnimation(.default.delay(0.2)) {
-                    done()
-                }
-            } receiveValue: { _ in }
-
-        reloadHistory()
+    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
 
@@ -165,6 +166,20 @@ private extension TokenDetailsViewModel {
 private extension TokenDetailsViewModel {
     func dismiss() {
         coordinator.dismiss()
+    }
+
+    func openNetworkCurrency() {
+        guard
+            case .token(_, let blockchain) = walletModel.tokenItem,
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
+            return
+        }
+
+        coordinator.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
