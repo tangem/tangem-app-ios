@@ -10,7 +10,6 @@ import Foundation
 
 enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
-    case multiWalletSignedHashes
     case rateApp
     case failedToValidateCard
     case testnetCard
@@ -36,9 +35,6 @@ extension WarningEvent: NotificationEvent {
     // [REDACTED_TODO_COMMENT]
     var title: String {
         switch self {
-        case .multiWalletSignedHashes:
-            // We don't need any special symbol in Notifications
-            return Localization.warningImportantSecurityInfo("")
         case .rateApp:
             return Localization.warningRateAppTitle
         case .failedToValidateCard:
@@ -62,8 +58,6 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .numberOfSignedHashesIncorrect:
             return Localization.alertCardSignedTransactions
-        case .multiWalletSignedHashes:
-            return Localization.warningSignedTxPreviously
         case .rateApp:
             return Localization.warningRateAppMessage
         case .failedToValidateCard:
@@ -107,8 +101,8 @@ extension WarningEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect, .failedToValidateCard, .testnetCard, .devCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
-            return .init(image: Assets.attentionRedFill.image)
+        case .numberOfSignedHashesIncorrect, .failedToValidateCard, .testnetCard, .devCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+            return .init(image: Assets.redCircleWarning.image)
         case .rateApp, .oldDeviceOldCard, .oldCard, .systemDeprecationTemporary:
             return .init(image: Assets.attention.image)
         case .missingDerivation:
@@ -122,7 +116,7 @@ extension WarningEvent: NotificationEvent {
 
     var isDismissable: Bool {
         switch self {
-        case .multiWalletSignedHashes, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
+        case .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
@@ -131,7 +125,7 @@ extension WarningEvent: NotificationEvent {
 
     var hasAction: Bool {
         switch self {
-        case .multiWalletSignedHashes, .walletLocked:
+        case .walletLocked:
             return true
         default:
             return false
