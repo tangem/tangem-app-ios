@@ -52,10 +52,11 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let builderFactory = CommonMainUserWalletPageBuilderFactory(coordinator: self)
         mainViewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
-            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
+            mainUserWalletPageBuilderFactory: builderFactory,
             didAddNewCardPublisher: detailsCoordinatorDidAddNewCardSubject
         )
     }
