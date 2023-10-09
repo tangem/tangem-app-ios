@@ -123,9 +123,8 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         return allowance
     }
 
-    func getApproveData(for currency: Currency, from spender: String, policy: SwappingApprovePolicy) throws -> Data {
-        let data = try ethereumTransactionProcessor.buildForApprove(spender: spender, amount: policy.value)
-        return data
+    func getApproveData(for currency: Currency, from spender: String, policy: SwappingApprovePolicy) -> Data {
+        ethereumTransactionProcessor.buildForApprove(spender: spender, amount: policy.value)
     }
 }
 
