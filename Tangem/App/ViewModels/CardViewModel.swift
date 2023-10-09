@@ -58,7 +58,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { _signer }
 
     var cardInteractor: CardInteractor {
-        .init(tangemSdk: config.makeTangemSdk(), cardId: cardId)
+        .init(cardInfo: cardInfo)
     }
 
     var cardId: String { cardInfo.card.cardId }
@@ -577,10 +577,7 @@ extension CardViewModel: DerivationManagerDelegate {
 
 extension CardViewModel: CardDerivableProvider {
     var cardDerivableInteractor: CardDerivable {
-        // [REDACTED_TODO_COMMENT]
-        let shouldSkipCardId = cardInfo.card.backupStatus?.isActive ?? false
-        let cardId = shouldSkipCardId ? nil : cardInfo.card.cardId
-        return CardInteractor(tangemSdk: config.makeTangemSdk(), cardId: cardId)
+        return cardInteractor
     }
 }
 
