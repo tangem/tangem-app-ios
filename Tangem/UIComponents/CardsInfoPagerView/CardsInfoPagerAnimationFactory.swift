@@ -26,14 +26,18 @@ struct CardsInfoPagerAnimationFactory {
         self.pageSwitchAnimationDuration = pageSwitchAnimationDuration
     }
 
-    func makeHorizontalScrollAnimation(with animationParameters: AnimationParameters) -> Animation {
-        let remainingPageSwitchProgress = animationParameters.pageHasBeenSwitched
+    func makeHorizontalScrollAnimation(
+        totalWidth: CGFloat,
+        dragGestureVelocity: CGSize,
+        pageHasBeenSwitched: Bool
+    ) -> Animation {
+        let remainingPageSwitchProgress = pageHasBeenSwitched
             ? 1.0 - currentPageSwitchProgress
             : currentPageSwitchProgress
         let minRemainingPageSwitchProgress = minRemainingPageSwitchProgress
         var remainingPageSwitchProgressIsTooSmall = false
-        let remainingWidth = animationParameters.totalWidth * remainingPageSwitchProgress
-        let horizontalDragGestureVelocity = abs(animationParameters.dragGestureVelocity.width)
+        let remainingWidth = totalWidth * remainingPageSwitchProgress
+        let horizontalDragGestureVelocity = abs(dragGestureVelocity.width)
         var animationSpeed = 1.0
 
         if horizontalDragGestureVelocity > 0.0 {
@@ -93,15 +97,5 @@ struct CardsInfoPagerAnimationFactory {
         guard remainingPageSwitchProgress > 0.0 else { return 1.0 }
 
         return 1.0 / remainingPageSwitchProgress
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension CardsInfoPagerAnimationFactory {
-    struct AnimationParameters {
-        let totalWidth: CGFloat
-        let dragGestureVelocity: CGSize
-        let pageHasBeenSwitched: Bool
     }
 }
