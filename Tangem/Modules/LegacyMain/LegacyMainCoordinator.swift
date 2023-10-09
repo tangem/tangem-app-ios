@@ -192,7 +192,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
     }
 
     func openSettings(userWalletModel: UserWalletModel) {
-        let dismissAction: Action<DetailsCoordinator.DismissOptions> = { [weak self] _ in
+        let dismissAction: Action<DetailsCoordinator.OutputOptions> = { [weak self] _ in
             self?.detailsCoordinator = nil
         }
 
