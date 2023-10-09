@@ -206,7 +206,7 @@ struct CardsInfoPagerView<
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder contentFactory: @escaping ContentFactory,
         @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory,
-        onPullToRefresh: OnPullToRefresh? = nil
+        onPullToRefresh: OnPullToRefresh?
     ) {
         self.data = data
         self.idProvider = idProvider
