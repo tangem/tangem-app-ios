@@ -37,10 +37,6 @@ struct TransactionView: View {
                     }
                 }
 
-                Text(viewModel.hash)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-
                 HStack(spacing: 6) {
                     Text(viewModel.localizeDestination)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
