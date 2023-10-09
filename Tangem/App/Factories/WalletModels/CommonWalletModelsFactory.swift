@@ -37,7 +37,11 @@ struct CommonWalletModelsFactory {
         }
 
         if wallet.addresses.count > 1 {
-            return MutipleAddressTransactionHistoryService(tokenItem: tokenItem, addresses: wallet.addresses.map { $0.value }, transactionHistoryProvider: provider)
+            return MutipleAddressTransactionHistoryService(
+                tokenItem: tokenItem,
+                addresses: wallet.addresses.map { $0.value },
+                transactionHistoryProvider: provider
+            )
         }
 
         return CommonTransactionHistoryService(
