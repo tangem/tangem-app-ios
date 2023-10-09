@@ -41,6 +41,8 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
+    private let detailsCoordinatorDidAddNewCardSubject = PassthroughSubject<Void, Never>()
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -54,6 +56,7 @@ class MainCoordinator: CoordinatorObject {
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
+            didAddNewCardPublisher: detailsCoordinatorDidAddNewCardSubject
         )
     }
 }
@@ -72,6 +75,10 @@ extension MainCoordinator: MainRoutable {
     func openDetails(for userWalletModel: UserWalletModel) {
         let dismissAction: Action<DetailsCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
+
+            if options.isNewCardAdded {
+                detailsCoordinatorDidAddNewCardSubject.send()
+            }
 
             detailsCoordinator = nil
         }
