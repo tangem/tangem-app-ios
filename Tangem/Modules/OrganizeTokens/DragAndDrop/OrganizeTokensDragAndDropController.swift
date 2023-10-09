@@ -181,7 +181,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         var hasReachedTop = false
         var hasReachedBottom = false
 
-        for offset in 1 ..< Int.max {
+        for offset in 1 ..< numberOfRowsInSection {
             // Going in the upward direction from the current destination index path until OOB
             if !hasReachedTop, indexPath.item - offset >= 0 {
                 let destinationIndexPathCandidate = IndexPath(item: indexPath.item - offset, section: indexPath.section)
@@ -220,7 +220,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         var hasReachedTop = false
         var hasReachedBottom = false
 
-        for offset in 1 ..< Int.max {
+        for offset in 1 ..< numberOfSections {
             // Going in the upward direction from the current destination index path until OOB
             if !hasReachedTop, indexPath.section - offset >= 0 {
                 let destinationIndexPathCandidate = IndexPath(item: indexPath.item, section: indexPath.section - offset)
