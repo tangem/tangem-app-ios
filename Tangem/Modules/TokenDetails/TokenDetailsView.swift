@@ -32,7 +32,7 @@ struct TokenDetailsView: View {
     }
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.onRefresh) {
+        RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
@@ -40,7 +40,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.scaleOpacity)
+                        .transition(.notificationTransition)
                 }
 
                 if viewModel.isMarketPriceAvailable {
@@ -58,7 +58,6 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
                     fetchMore: viewModel.fetchMoreHistory()
                 )
                 .padding(.bottom, 40)
@@ -76,11 +75,19 @@ struct TokenDetailsView: View {
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
-                IconView(url: viewModel.iconUrl, sizeSettings: .tokenDetailsToolbar, forceKingfisher: true)
-                    .opacity(toolbarIconOpacity)
+                TokenIcon(
+                    name: "",
+                    imageURL: viewModel.iconUrl,
+                    customTokenColor: viewModel.customTokenColor,
+                    blockchainIconName: nil,
+                    isCustom: false,
+                    size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
+                )
+                .opacity(toolbarIconOpacity)
             }
 
             ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
