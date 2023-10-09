@@ -359,6 +359,8 @@ private extension MultiWalletMainContentViewModel {
 
 extension MultiWalletMainContentViewModel {
     func openManageTokens() {
+        Analytics.log(.buttonManageTokens)
+
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
         supportedBlockchains.remove(.ducatus)
