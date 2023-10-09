@@ -53,6 +53,7 @@ struct MainView: View {
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
+        .onAppear(perform: viewModel.onAppear)
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarLeading) {
                 Assets.newTangemLogo.image
@@ -70,15 +71,7 @@ struct MainView: View {
                 }
             }
         })
-        .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
-            ActionSheet(
-                title: Text(Localization.userWalletListDeletePrompt),
-                buttons: [
-                    .destructive(Text(Localization.commonDelete), action: viewModel.didConfirmWalletDeletion),
-                    .cancel(Text(Localization.commonCancel)),
-                ]
-            )
-        }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .bottomSheet(
             item: $viewModel.unlockWalletBottomSheetViewModel,
             settings: .init(backgroundColor: Colors.Background.primary)

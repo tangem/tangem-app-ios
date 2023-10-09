@@ -84,7 +84,7 @@ extension FakeUserWalletModel: MainHeaderInfoProvider {
         UserWalletConfigFactory(userWallet.cardInfo()).makeConfig().cardHeaderImage
     }
 
-    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
+    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 }
 
 extension FakeUserWalletModel {

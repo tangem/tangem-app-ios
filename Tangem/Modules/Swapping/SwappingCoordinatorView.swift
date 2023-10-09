@@ -16,12 +16,13 @@ struct SwappingCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        ZStack {
-            if let rootViewModel = coordinator.rootViewModel {
-                SwappingView(viewModel: rootViewModel)
+        NavigationView {
+            ZStack {
+                if let rootViewModel = coordinator.rootViewModel {
+                    SwappingView(viewModel: rootViewModel)
+                }
+                sheets
             }
-
-            sheets
         }
     }
 
