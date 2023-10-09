@@ -108,6 +108,8 @@ private extension MutipleAddressTransactionHistoryService {
         cancellable = Publishers
             .MergeMany(publishers)
             .collect()
+            .receive(on: DispatchQueue.global())
+            .withWeakCaptureOf(self)
             .sink { [weak self] completion in
                 switch completion {
                 case .failure(let error):
@@ -117,11 +119,11 @@ private extension MutipleAddressTransactionHistoryService {
                 case .finished:
                     self?._state.send(.loaded)
                 }
-            } receiveValue: { [weak self] responses in
+            } receiveValue: { service, responses in
                 for response in responses {
-                    self?.totalPages[response.address, default: 0] = response.response.totalPages
-                    self?.currentPage[response.address, default: 0] = response.response.page.number
-                    self?.addToStorage(records: response.response.records)
+                    service.totalPages[response.address, default: 0] = response.response.totalPages
+                    service.currentPage[response.address, default: 0] = response.response.page.number
+                    service.addToStorage(records: response.response.records)
 
                     AppLog.shared.debug("Address \(response.address) in \(String(describing: self)) loaded")
                 }
@@ -139,6 +141,30 @@ private extension MutipleAddressTransactionHistoryService {
             .eraseToAnyPublisher()
     }
 
+    func append(newRecords: [TransactionRecord], in records: inout [TransactionRecord]) {
+        // We should concat sources and destinations in the one record
+        for record in newRecords {
+            if let index = records.firstIndex(where: { $0.hash == record.hash }) {
+                let oldRecord = records[index]
+                records[index] = TransactionRecord(
+                    hash: record.hash,
+                    source: oldRecord.source + record.source,
+                    destination: oldRecord.destination + record.destination,
+                    fee: oldRecord.fee,
+                    status: oldRecord.status,
+                    isOutgoing: oldRecord.isOutgoing,
+                    type: oldRecord.type,
+                    date: oldRecord.date,
+                    tokenTransfers: oldRecord.tokenTransfers
+                )
+
+                AppLog.shared.debug("TransactionRecord with hash: \(record.hash) in \(String(describing: self)) was zipped")
+            } else {
+                records.append(record)
+            }
+        }
+    }
+
     func cleanStorage() {
         storage.mutate { value in
             value.removeAll()
@@ -146,8 +172,8 @@ private extension MutipleAddressTransactionHistoryService {
     }
 
     func addToStorage(records: [TransactionRecord]) {
-        storage.mutate { value in
-            value += records
+        storage.mutate { [weak self] value in
+            self?.append(newRecords: records, in: &value)
         }
     }
 }
@@ -161,10 +187,69 @@ extension MutipleAddressTransactionHistoryService: CustomStringConvertible {
             userInfo: [
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
-//                "addresses": addresses,
                 "totalPages": totalPages,
                 "currentPage": currentPage,
             ]
         )
+    }
+}
+
+private extension TransactionRecord.SourceType {
+    static func + (lhs: Self, rhs: Self) -> Self {
+        let lhsList: [TransactionRecord.Source] = {
+            switch lhs {
+            case .single(let source):
+                return [source]
+            case .multiple(let sources):
+                return sources
+            }
+        }()
+
+        let rhsList: [TransactionRecord.Source] = {
+            switch rhs {
+            case .single(let source):
+                return [source]
+            case .multiple(let sources):
+                return sources
+            }
+        }()
+
+        // We add the "unique" here because the input may exist twice
+        let list = (lhsList + rhsList).unique()
+        if list.count == 1, let first = list.first {
+            return .single(first)
+        }
+
+        return .multiple(list)
+    }
+}
+
+private extension TransactionRecord.DestinationType {
+    static func + (lhs: Self, rhs: Self) -> Self {
+        let lhsList: [TransactionRecord.Destination] = {
+            switch lhs {
+            case .single(let source):
+                return [source]
+            case .multiple(let sources):
+                return sources
+            }
+        }()
+
+        let rhsList: [TransactionRecord.Destination] = {
+            switch rhs {
+            case .single(let source):
+                return [source]
+            case .multiple(let sources):
+                return sources
+            }
+        }()
+
+        // We add the "unique" here because the change may exist twice
+        let list = (lhsList + rhsList).unique()
+        if list.count == 1, let first = list.first {
+            return .single(first)
+        }
+
+        return .multiple(list)
     }
 }
