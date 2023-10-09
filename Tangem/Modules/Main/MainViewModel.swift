@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import UIKit
 
 final class MainViewModel: ObservableObject {
@@ -18,6 +19,7 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
+    @Published var isPageSwitchAnimationDisabled = false
     @Published var showingDeleteConfirmation = false
     @Published var showAddressCopiedToast = false
 
@@ -35,7 +37,8 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
+        didAddNewCardPublisher: some Publisher<Void, Never>
     ) {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
@@ -45,15 +48,20 @@ final class MainViewModel: ObservableObject {
             lockedUserWalletDelegate: self,
             multiWalletContentDelegate: self
         )
-        bind()
+        bind(didAddNewCardPublisher: didAddNewCardPublisher)
     }
 
     convenience init(
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
+        didAddNewCardPublisher: some Publisher<Void, Never>
     ) {
-        self.init(coordinator: coordinator, mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory)
+        self.init(
+            coordinator: coordinator,
+            mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory,
+            didAddNewCardPublisher: didAddNewCardPublisher
+        )
 
         if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
             selectedCardIndex = selectedIndex
@@ -95,6 +103,15 @@ final class MainViewModel: ObservableObject {
         guard reason == .byGesture else { return }
 
         Analytics.log(.mainScreenWalletChangedBySwipe)
+    }
+
+    func onViewAppear() {
+        if isPageSwitchAnimationDisabled {
+            // A small delay to turn on animations back after closing the Details screen
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isPageSwitchAnimationDisabled = false
+            }
+        }
     }
 
     func updateIsBackupAllowed() {
@@ -191,7 +208,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Private functions
 
-    private func bind() {
+    private func bind(didAddNewCardPublisher: some Publisher<Void, Never>) {
         $selectedCardIndex
             .dropFirst()
             .sink { [weak self] newIndex in
@@ -227,6 +244,11 @@ final class MainViewModel: ObservableObject {
                     break
                 }
             }
+            .store(in: &bag)
+
+        didAddNewCardPublisher
+            .mapToValue(true)
+            .assign(to: \.isPageSwitchAnimationDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
