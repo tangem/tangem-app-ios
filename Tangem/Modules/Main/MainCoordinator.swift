@@ -70,8 +70,10 @@ extension MainCoordinator {
 
 extension MainCoordinator: MainRoutable {
     func openDetails(for userWalletModel: UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.detailsCoordinator = nil
+        let dismissAction: Action<DetailsCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+
+            detailsCoordinator = nil
         }
 
         let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
