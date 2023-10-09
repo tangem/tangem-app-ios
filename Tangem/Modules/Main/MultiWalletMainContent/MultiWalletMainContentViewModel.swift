@@ -142,12 +142,31 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             })
             .store(in: &bag)
 
+        // The contents of the coins and tokens collection for the user wallet
         let walletModelsPublisher = userWalletModel
             .walletModelsManager
             .walletModelsPublisher
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+
+        // Fiat/balance changes for the coins and tokens for the user wallet
+        let walletModelsDidChangePublisher = walletModelsPublisher
+            .flatMap { walletModels in
+                return walletModels
+                    .map(\.walletDidChangePublisher)
+                    .merge()
+            }
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .withLatestFrom(walletModelsPublisher)
+            .eraseToAnyPublisher()
+
+        let aggregatedWalletModelsPublisher = [
+            walletModelsPublisher,
+            walletModelsDidChangePublisher,
+        ].merge()
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
-            .organizedSections(from: walletModelsPublisher, on: mappingQueue)
+            .organizedSections(from: aggregatedWalletModelsPublisher, on: mappingQueue)
             .share(replay: 1)
 
         organizedTokensSectionsPublisher
@@ -340,6 +359,8 @@ private extension MultiWalletMainContentViewModel {
 
 extension MultiWalletMainContentViewModel {
     func openManageTokens() {
+        Analytics.log(.buttonManageTokens)
+
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
         supportedBlockchains.remove(.ducatus)
@@ -409,17 +430,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
 
     private func handleUserWalletNotificationTap(event: WarningEvent, id: NotificationViewId) {
         switch event {
-        case .multiWalletSignedHashes:
-            error = AlertBuilder.makeAlert(
-                title: event.title,
-                message: Localization.alertSignedHashesMessage,
-                with: .withPrimaryCancelButton(
-                    secondaryTitle: Localization.commonUnderstand,
-                    secondaryAction: { [weak self] in
-                        self?.userWalletNotificationManager.dismissNotification(with: id)
-                    }
-                )
-            )
         default:
             assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
         }
