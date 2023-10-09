@@ -635,6 +635,7 @@ private extension CardsInfoPagerView {
 /// DO NOT replace this global storage with `let`/`var`/`@State`/`@StateObject` placed in the `CardsInfoPagerView` itself!
 /// There is something seriously broken in SwiftUI's view state management - all approaches above will result in
 /// old/stale values for the duration of the page switching animation in `switchPage(method:geometryProxy:)` method.
+///
 /// I have absolutely no clue why this is the case, but it is.
 private var pageSwitchAnimationDurationConfigStorage: [AnyHashable: TimeInterval] = [:]
 
