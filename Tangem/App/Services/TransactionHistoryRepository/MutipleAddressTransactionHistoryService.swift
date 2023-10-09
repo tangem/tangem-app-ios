@@ -142,8 +142,9 @@ private extension MutipleAddressTransactionHistoryService {
     }
 
     func append(newRecords: [TransactionRecord], in records: inout [TransactionRecord]) {
-        // We should concat sources and destinations in the one record
         for record in newRecords {
+            // If we already have the transaction record
+            // Just append new sources and new destinations in the record
             if let index = records.firstIndex(where: { $0.hash == record.hash }) {
                 let oldRecord = records[index]
                 records[index] = TransactionRecord(
