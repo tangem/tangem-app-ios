@@ -107,6 +107,26 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         }
         return balance
     }
+
+    func getAllowance(for currency: Currency, from spender: String) async throws -> Decimal {
+        guard let contractAddress = currency.contractAddress else {
+            throw SwappingManagerError.contractAddressNotFound
+        }
+
+        var allowance = try await ethereumNetworkProvider.getAllowance(
+            owner: walletAddress,
+            spender: spender,
+            contractAddress: contractAddress
+        ).async()
+
+        allowance = currency.convertFromWEI(value: allowance)
+        return allowance
+    }
+
+    func getApproveData(for currency: Currency, from spender: String, policy: SwappingApprovePolicy) throws -> Data {
+        let data = try ethereumTransactionProcessor.buildForApprove(spender: spender, amount: policy.value)
+        return data
+    }
 }
 
 // MARK: - Private
@@ -173,7 +193,7 @@ private extension CommonSwappingWalletDataProvider {
     ) async throws -> [EthereumGasDataModel] {
         let amount = createAmount(from: blockchain, amount: value)
 
-        let fees = try await ethereumTransactionProcessor.getFee(
+        let fees = try await ethereumNetworkProvider.getFee(
             destination: destination,
             value: amount.encodedForSend,
             data: data
