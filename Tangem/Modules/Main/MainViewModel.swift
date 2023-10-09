@@ -80,6 +80,8 @@ final class MainViewModel: ObservableObject {
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        Analytics.log(.mainRefreshed)
+
         isHorizontalScrollDisabled = true
         let completion = { [weak self] in
             self?.isHorizontalScrollDisabled = false
