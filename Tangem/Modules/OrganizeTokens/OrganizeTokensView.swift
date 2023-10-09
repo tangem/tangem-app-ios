@@ -102,6 +102,9 @@ struct OrganizeTokensView: View {
         )
         .onWillAppear {
             dragAndDropController.dataSource = viewModel
+            viewModel.onViewWillAppear()
+        }
+        .onAppear {
             viewModel.onViewAppear()
         }
     }
