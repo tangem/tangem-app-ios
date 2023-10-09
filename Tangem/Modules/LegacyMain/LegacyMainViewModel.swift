@@ -424,20 +424,7 @@ extension LegacyMainViewModel {
             rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
         case .learnMore:
-            if case .multiWalletSignedHashes = warning.event {
-                error = AlertBinder(alert: Alert(
-                    title: Text(warning.title),
-                    message: Text(Localization.alertSignedHashesMessage),
-                    primaryButton: .cancel(),
-                    secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
-                        withAnimation {
-                            registerValidatedSignedHashesCard()
-                            self?.cardModel.warningsService.hideWarning(warning)
-                        }
-                    }
-                ))
-                return
-            }
+            break
         }
 
         cardModel.warningsService.hideWarning(warning)
