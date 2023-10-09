@@ -46,7 +46,7 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
-    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
+    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
 

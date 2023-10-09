@@ -12,12 +12,16 @@ import TangemSdk
 import BlockchainSdk
 
 struct CommonUserTokensManager {
+    @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
+
     let derivationManager: DerivationManager?
 
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
     private weak var cardDerivableProvider: CardDerivableProvider?
+
+    private var bag: Set<AnyCancellable> = []
 
     init(
         userTokenListManager: UserTokenListManager,
@@ -31,6 +35,8 @@ struct CommonUserTokensManager {
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
+
+        bind()
     }
 
     private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
@@ -67,6 +73,22 @@ struct CommonUserTokensManager {
         } else {
             userTokenListManager.update(.removeBlockchain(blockchainNetwork), shouldUpload: shouldUpload)
         }
+    }
+
+    private mutating func bind() {
+        userTokenListManager
+            .userTokensListPublisher
+            // We can skip first element, because swap state will be loaded during `sync`
+            // for all token list after loading actual info from backend
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [swapAvailabilityController] tokenList in
+                let converter = StorageEntryConverter()
+                let nonCustomTokens = tokenList.entries.filter { !$0.isCustom }
+                let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+                swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: false)
+            }
+            .store(in: &bag)
     }
 }
 
@@ -168,23 +190,14 @@ extension CommonUserTokensManager: UserTokensManager {
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
         userTokenListManager.upload()
     }
-}
 
-// MARK: - UserTokensSyncService protocol conformance
-
-extension CommonUserTokensManager: UserTokensSyncService {
-    var isInitialSyncPerformed: Bool {
-        userTokenListManager.isInitialSyncPerformed
-    }
-
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        userTokenListManager.initialSyncPublisher
-            .eraseToAnyPublisher()
-    }
-
-    func updateUserTokens() {
+    func sync(completion: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self.walletModelsManager.updateAll(silent: false, completion: {})
+            let converter = StorageEntryConverter()
+            let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
+            let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+            self.swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: true)
+            self.walletModelsManager.updateAll(silent: false, completion: completion)
         }
     }
 }
