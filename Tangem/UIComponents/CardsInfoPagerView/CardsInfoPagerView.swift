@@ -90,10 +90,6 @@ struct CardsInfoPagerView<
         return offset
     }
 
-    // MARK: - Animations
-
-    @State private var isPageSwitchAnimationEnabled = true
-
     private var animationsFactory: CardsInfoPagerAnimationFactory {
         return CardsInfoPagerAnimationFactory(
             hasValidIndexToSelect: hasValidIndexToSelect,
@@ -144,18 +140,11 @@ struct CardsInfoPagerView<
                         DispatchQueue.main.async {
                             // Applying initial view's state based on the initial value of `selectedIndex`
                             cumulativeHorizontalTranslation = -CGFloat(selectedIndex) * proxy.size.width
-                            isPageSwitchAnimationEnabled = true
                         }
                         scrollDetector.startDetectingScroll()
                         scrollState.onViewAppear()
                     }
-                    .onDisappear {
-                        // `DispatchQueue.main.async` used here to allow publishing changes during view updates
-                        DispatchQueue.main.async {
-                            isPageSwitchAnimationEnabled = false
-                        }
-                        scrollDetector.stopDetectingScroll()
-                    }
+                    .onDisappear(perform: scrollDetector.stopDetectingScroll)
                     .onChange(of: scrollState.contentOffset) { _ in
                         // Vertical scrolling may delay or even cancel horizontal scroll animations,
                         // which in turn may lead to desynchronization between `selectedIndex` and
@@ -429,11 +418,12 @@ struct CardsInfoPagerView<
         initialPageSwitchProgress = pageSwitchProgress
         finalPageSwitchProgress = pageHasBeenSwitched ? 1.0 : 0.0
 
-        animatePageSwitch(with: .init(
+        let animation = animationsFactory.makeHorizontalScrollAnimation(
             totalWidth: totalWidth,
             dragGestureVelocity: gestureProperties.velocity,
             pageHasBeenSwitched: pageHasBeenSwitched
-        )) {
+        )
+        withAnimation(animation) {
             cumulativeHorizontalTranslation = -CGFloat(newSelectedIndex) * totalWidth
             pageSwitchProgress = finalPageSwitchProgress
         }
@@ -462,18 +452,6 @@ struct CardsInfoPagerView<
             return (gestureValue.translation, gestureValue.velocityCompat)
         case .programmatically:
             return (.zero, .zero)
-        }
-    }
-
-    private func animatePageSwitch(
-        with animationParameters: @autoclosure () -> CardsInfoPagerAnimationFactory.AnimationParameters,
-        animations: () -> Void
-    ) {
-        if isPageSwitchAnimationEnabled, pageSwitchAnimationDuration > 0.0 {
-            let animation = animationsFactory.makeHorizontalScrollAnimation(with: animationParameters())
-            withAnimation(animation, animations)
-        } else {
-            animations()
         }
     }
 
