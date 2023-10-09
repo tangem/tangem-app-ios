@@ -110,7 +110,8 @@ struct MainView: View {
     }
 }
 
-// SwiftUI previews
+// MARK: - Previews
+
 #if targetEnvironment(simulator)
 struct MainView_Preview: PreviewProvider {
     static let viewModel: MainViewModel = {
