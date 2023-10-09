@@ -294,7 +294,7 @@ struct CardsInfoPagerView<
                     .fixedSize()
                     .id(collapsedHeaderScrollTargetIdentifier)
 
-                if !data.isEmpty {
+                if let element = data[safe: clampedContentSelectedIndex] {
                     contentFactory(data[clampedContentSelectedIndex])
                         .modifier(contentAnimationModifier)
                 }
@@ -318,13 +318,15 @@ struct CardsInfoPagerView<
 
     @ViewBuilder
     private func makeBottomOverlay() -> some View {
-        bottomOverlayFactory(data[clampedContentSelectedIndex], scrollState.didScrollToBottom)
-            .animation(.linear(duration: 0.1), value: scrollState.didScrollToBottom)
-            .modifier(contentAnimationModifier)
-            .readGeometry(\.size.height) { newValue in
-                scrollViewBottomContentInset = newValue
-                scrollState.bottomContentInsetSubject.send(newValue - Constants.scrollStateBottomContentInsetDiff)
-            }
+        if let element = data[safe: clampedContentSelectedIndex] {
+            bottomOverlayFactory(element, scrollState.didScrollToBottom)
+                .animation(.linear(duration: 0.1), value: scrollState.didScrollToBottom)
+                .modifier(contentAnimationModifier)
+                .readGeometry(\.size.height) { newValue in
+                    scrollViewBottomContentInset = newValue
+                    scrollState.bottomContentInsetSubject.send(newValue - Constants.scrollStateBottomContentInsetDiff)
+                }
+        }
     }
 
     // MARK: - Gestures
