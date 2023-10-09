@@ -9,6 +9,11 @@
 import SwiftUI
 import AlertToast
 
+// Imports for SwiftUI previews
+#if targetEnvironment(simulator)
+import Combine
+#endif // targetEnvironment(simulator)
+
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
 
@@ -112,11 +117,19 @@ struct MainView: View {
     }
 }
 
+// SwiftUI previews
+#if targetEnvironment(simulator)
 struct MainView_Preview: PreviewProvider {
     static let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
-        return .init(coordinator: coordinator, mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator))
+        let builderFactory = CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
+
+        return .init(
+            coordinator: coordinator,
+            mainUserWalletPageBuilderFactory: builderFactory,
+            didAddNewCardPublisher: Empty(completeImmediately: true)
+        )
     }()
 
     static var previews: some View {
@@ -125,3 +138,4 @@ struct MainView_Preview: PreviewProvider {
         }
     }
 }
+#endif // targetEnvironment(simulator)
