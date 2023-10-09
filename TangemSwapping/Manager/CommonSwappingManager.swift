@@ -263,7 +263,7 @@ private extension CommonSwappingManager {
         )
     }
 
-    /// Get the sender's address. The router that will provide the exchange
+    /// Get the spender's address. The router that will provide the exchange
     func getSpenderAddress() async throws -> String {
         let blockchain = swappingItems.source.blockchain
 
@@ -284,7 +284,7 @@ private extension CommonSwappingManager {
             throw SwappingManagerError.contractAddressNotFound
         }
 
-        let data = try walletDataProvider.getApproveData(for: swappingItems.source, from: spender, policy: approvePolicy)
+        let data = walletDataProvider.getApproveData(for: swappingItems.source, from: spender, policy: approvePolicy)
         return SwappingApprovedDataModel(data: data, tokenAddress: contractAddress, value: 0)
     }
 
