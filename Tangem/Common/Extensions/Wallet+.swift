@@ -38,10 +38,10 @@ public extension Wallet {
     }
 
     private var hasPendingTransactions: Bool {
-        // For bitcoin we check only Outgoing transaction
-        // because we will not use unconfirmed utx
+        // For bitcoin we check only outgoing transaction
+        // because we will not use unconfirmed utxo
         if case .bitcoin = blockchain {
-            return !pendingTransactions.filter { $0.isIncoming }.isEmpty
+            return pendingTransactions.contains { !$0.isIncoming }
         }
 
         return hasPendingTx
