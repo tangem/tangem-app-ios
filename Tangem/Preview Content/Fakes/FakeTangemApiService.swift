@@ -32,7 +32,7 @@ class FakeTangemApiService: TangemApiService {
         .anyFail(error: "Not implemented")
     }
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
     }
 
