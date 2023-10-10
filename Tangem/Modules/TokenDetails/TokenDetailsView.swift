@@ -40,7 +40,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.scaleOpacity)
+                        .transition(.notificationTransition)
                 }
 
                 if viewModel.isMarketPriceAvailable {
@@ -51,6 +51,11 @@ struct TokenDetailsView: View {
                         tapAction: nil
                     )
                 }
+
+                PendingTransactionsListView(
+                    items: viewModel.pendingTransactionViews,
+                    exploreTransactionAction: viewModel.openTransactionExplorer
+                )
 
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
