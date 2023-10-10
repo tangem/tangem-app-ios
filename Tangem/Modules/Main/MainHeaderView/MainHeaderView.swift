@@ -60,9 +60,17 @@ struct MainHeaderView: View {
     @ViewBuilder private var subtitleText: some View {
         Group {
             if viewModel.subtitleContainsSensitiveInfo {
-                SensitiveText(viewModel.subtitleInfo.message)
+                SensitiveText(viewModel.subtitleInfo.messages.first ?? "")
             } else {
-                Text(viewModel.subtitleInfo.message)
+                HStack(spacing: 6) {
+                    ForEach(viewModel.subtitleInfo.messages, id: \.self) { message in
+                        Text(message)
+
+                        if message != viewModel.subtitleInfo.messages.last {
+                            SubtitleSeparator()
+                        }
+                    }
+                }
             }
         }
         .style(
@@ -95,6 +103,16 @@ struct MainHeaderView: View {
         }
 
         return (max(widthForBalanceWithImage, 0), true)
+    }
+}
+
+private extension MainHeaderView {
+    struct SubtitleSeparator: View {
+        var body: some View {
+            Colors.Icon.informative
+                .clipShape(Circle())
+                .frame(size: .init(bothDimensions: 2.5))
+        }
     }
 }
 
