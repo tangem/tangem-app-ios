@@ -77,6 +77,7 @@ extension MutipleAddressTransactionHistoryService: TransactionHistoryService {
 // MARK: - Private
 
 private extension MutipleAddressTransactionHistoryService {
+    /// `Publisher` with the tuple value that contains the address and the history response by the one page
     typealias LoadingPublisher = AnyPublisher<(address: String, response: TransactionHistory.Response), Error>
 
     func fetch(result: @escaping (Result<Void, Never>) -> Void) {
@@ -87,6 +88,7 @@ private extension MutipleAddressTransactionHistoryService {
 
         cancellable = nil
 
+        // Collect publishers for the next page if the page is exist
         let publishers: [LoadingPublisher] = addresses.compactMap { address in
             guard currentPage[address, default: 0] == 0 || canFetchMore else {
                 AppLog.shared.debug("Address \(address) in \(self) reached the end of list")
