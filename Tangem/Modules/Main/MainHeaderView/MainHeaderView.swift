@@ -39,7 +39,6 @@ struct MainHeaderView: View {
 
                 if let cardImage = viewModel.cardImage, contentSettings.shouldShowTrailingContent {
                     Spacer(minLength: horizontalSpacing)
-                        .background(Color.yellow)
 
                     cardImage.image
                         .frame(size: imageSize)
