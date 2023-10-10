@@ -26,9 +26,9 @@ struct CommonWalletModelsFactory {
         return derivationPath == defaultDerivation
     }
 
-    private func makeTransactionHistoryService(tokenItem: TokenItem, wallet: Wallet) -> TransactionHistoryService? {
-        if FeatureStorage().useFakeTxHistory {
-            return FakeTransactionHistoryService(blockchain: tokenItem.blockchain, address: wallet.address)
+    private func makeTransactionHistoryService(tokenItem: TokenItem, addresses: [String]) -> TransactionHistoryService? {
+        if FeatureStorage().useFakeTxHistory, let address = addresses.first {
+            return FakeTransactionHistoryService(blockchain: tokenItem.blockchain, address: address)
         }
 
         let factory = TransactionHistoryFactoryProvider().factory
@@ -36,17 +36,17 @@ struct CommonWalletModelsFactory {
             return nil
         }
 
-        if wallet.addresses.count > 1 {
-            return MutipleAddressTransactionHistoryService(
+        if addresses.count == 1, let address = addresses.first {
+            return CommonTransactionHistoryService(
                 tokenItem: tokenItem,
-                addresses: wallet.addresses.map { $0.value },
+                address: address,
                 transactionHistoryProvider: provider
             )
         }
 
-        return CommonTransactionHistoryService(
+        return MutipleAddressTransactionHistoryService(
             tokenItem: tokenItem,
-            address: wallet.address,
+            addresses: addresses,
             transactionHistoryProvider: provider
         )
     }
@@ -67,7 +67,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
         let transactionHistoryService = makeTransactionHistoryService(
             tokenItem: .blockchain(currentBlockchain),
-            wallet: walletManager.wallet
+            addresses: walletManager.wallet.addresses.map { $0.value }
         )
 
         if types.contains(.coin) {
@@ -86,7 +86,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 let isTokenCustom = isMainCoinCustom || token.id == nil
                 let transactionHistoryService = makeTransactionHistoryService(
                     tokenItem: .token(token, currentBlockchain),
-                    wallet: walletManager.wallet
+                    addresses: walletManager.wallet.addresses.map { $0.value }
                 )
                 let tokenModel = WalletModel(
                     walletManager: walletManager,
