@@ -60,12 +60,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     var rateFormatted: String { walletModel.rateFormatted }
 
     var priceChangeState: TokenPriceChangeView.State {
-        guard let quote = walletModel.quote else {
+        guard let change = walletModel.quote?.change else {
             return .noData
         }
 
-        let signType = ChangeSignType(from: quote.change)
-        let percent = percentFormatter.percentFormat(value: quote.change)
+        let signType = ChangeSignType(from: change)
+        let percent = percentFormatter.percentFormat(value: change)
         return .loaded(signType: signType, text: percent)
     }
 
