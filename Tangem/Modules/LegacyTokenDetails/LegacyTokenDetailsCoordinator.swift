@@ -114,7 +114,7 @@ extension LegacyTokenDetailsCoordinator: LegacyTokenDetailsRoutable {
         legacySendCoordinator = coordinator
     }
 
-    func openPushTx(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
+    func openPushTx(for tx: PendingTransactionRecord, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.pushTxCoordinator = nil
         }
