@@ -26,7 +26,7 @@ struct MarketPriceView: View {
 
     private var marketPriceView: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(Localization.walletMarketplaceBlockTitle(currencySymbol))
                     .lineLimit(1)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
@@ -53,9 +53,12 @@ struct MarketPriceView: View {
                 Assets.chevron.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
+                    .padding(.trailing, 2)
             }
         }
-        .padding(14)
+        .padding(.horizontal, 15)
+        .padding(.top, 16)
+        .padding(.bottom, 15)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
     }
@@ -64,11 +67,13 @@ struct MarketPriceView: View {
 struct MarketPriceView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            MarketPriceView(currencySymbol: "XRP", price: "1,33 $", priceChangeState: .loaded(signType: .positive, text: "0,3%"), tapAction: {})
+            MarketPriceView(currencySymbol: "BTC", price: "5,43 $", priceChangeState: .loaded(signType: .positive, text: "0,08 %"), tapAction: {})
 
             MarketPriceView(currencySymbol: "ETH", price: "1 500,33 $", priceChangeState: .loaded(signType: .negative, text: "10,3%"), tapAction: nil)
 
             MarketPriceView(currencySymbol: "XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP", price: "1 000 000 000 000 000 000 000 000 000 000 000,33 $", priceChangeState: .loaded(signType: .positive, text: "100000000000,33%"), tapAction: {})
+            
+            Spacer()
         }
         .frame(maxHeight: .infinity)
         .padding()
