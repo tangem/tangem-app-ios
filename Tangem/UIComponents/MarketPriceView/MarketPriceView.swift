@@ -31,14 +31,18 @@ struct MarketPriceView: View {
                     .lineLimit(1)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-                HStack(spacing: 6) {
+                HStack(spacing: 0) {
                     Text(price)
                         .lineLimit(1)
                         .layoutPriority(1)
                         .truncationMode(.middle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    
+                    FixedSpacer(width: 7)
 
                     TokenPriceChangeView(state: priceChangeState)
+
+                    FixedSpacer(width: 6)
 
                     Text(Localization.walletMarketpriceBlockUpdateTime)
                         .lineLimit(1)
@@ -56,7 +60,7 @@ struct MarketPriceView: View {
                     .padding(.trailing, 2)
             }
         }
-        .padding(.horizontal, 15)
+        .padding(.horizontal, 14)
         .padding(.top, 16)
         .padding(.bottom, 15)
         .background(Colors.Background.primary)
@@ -72,7 +76,7 @@ struct MarketPriceView_Previews: PreviewProvider {
             MarketPriceView(currencySymbol: "ETH", price: "1 500,33 $", priceChangeState: .loaded(signType: .negative, text: "10,3%"), tapAction: nil)
 
             MarketPriceView(currencySymbol: "XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP", price: "1 000 000 000 000 000 000 000 000 000 000 000,33 $", priceChangeState: .loaded(signType: .positive, text: "100000000000,33%"), tapAction: {})
-            
+
             Spacer()
         }
         .frame(maxHeight: .infinity)
