@@ -110,7 +110,6 @@ struct TokenDetailsView: View {
             }
         } label: {
             NavbarDotsImage()
-                .offset(x: 10)
         }
     }
 }
