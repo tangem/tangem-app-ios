@@ -138,6 +138,7 @@ struct CardHeaderView_Previews: PreviewProvider {
                         }
                     )
                 }
+                .padding()
             }
         }
     }
