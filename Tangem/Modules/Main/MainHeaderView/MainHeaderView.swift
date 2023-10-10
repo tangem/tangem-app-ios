@@ -20,8 +20,10 @@ struct MainHeaderView: View {
             HStack(spacing: 0) {
                 let contentSettings = contentSettings(containerWidth: proxy.size.width)
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 0) {
                     titleView
+
+                    Spacer(minLength: 0)
 
                     if viewModel.isUserWalletLocked {
                         Colors.Field.primary
@@ -32,10 +34,14 @@ struct MainHeaderView: View {
                         BalanceTitleView(balance: viewModel.balance, isLoading: viewModel.isLoadingFiatBalance)
                     }
 
+                    Spacer(minLength: 10)
+
                     subtitleText
                 }
                 .lineLimit(1)
                 .frame(width: contentSettings.leadingContentWidth, height: imageSize.height, alignment: .leading)
+                .padding(.top, 14)
+                .padding(.bottom, 12)
 
                 if let cardImage = viewModel.cardImage, contentSettings.shouldShowTrailingContent {
                     Spacer(minLength: horizontalSpacing)
