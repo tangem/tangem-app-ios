@@ -175,7 +175,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             return
         }
 
-        userWalletRepository.delete(viewModel.userWallet, logoutIfNeeded: true)
+        userWalletRepository.delete(viewModel.userWalletModel.userWalletId, logoutIfNeeded: true)
     }
 
     func onAppear() {
