@@ -80,7 +80,7 @@ private extension MutipleAddressTransactionHistoryService {
     typealias LoadingPublisher = AnyPublisher<(address: String, response: TransactionHistory.Response), Error>
 
     func fetch(result: @escaping (Result<Void, Never>) -> Void) {
-        guard !_state.value.isLoading else {
+        if _state.value.isLoading {
             AppLog.shared.debug("\(self) already is loading")
             return
         }
@@ -96,7 +96,7 @@ private extension MutipleAddressTransactionHistoryService {
             return loadTransactionHistory(address: address)
         }
 
-        guard !publishers.isEmpty else {
+        if publishers.isEmpty {
             AppLog.shared.debug("\(self) all addresses reached the end of list")
             result(.success(()))
             return
@@ -121,8 +121,8 @@ private extension MutipleAddressTransactionHistoryService {
                 }
             } receiveValue: { service, responses in
                 for response in responses {
-                    service.totalPages[response.address, default: 0] = response.response.totalPages
-                    service.currentPage[response.address, default: 0] = response.response.page.number
+                    service.totalPages[response.address] = response.response.totalPages
+                    service.currentPage[response.address] = response.response.page.number
                     service.addToStorage(records: response.response.records)
 
                     AppLog.shared.debug("Address \(response.address) in \(String(describing: self)) loaded")
