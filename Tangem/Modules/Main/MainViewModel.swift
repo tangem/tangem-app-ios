@@ -64,6 +64,10 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
+    func onAppear() {
+        Analytics.log(.mainScreenOpened)
+    }
+
     func openDetails() {
         let userWalletModel = userWalletRepository.models[selectedCardIndex]
 
@@ -76,6 +80,8 @@ final class MainViewModel: ObservableObject {
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        Analytics.log(.mainRefreshed)
+
         isHorizontalScrollDisabled = true
         let completion = { [weak self] in
             self?.isHorizontalScrollDisabled = false

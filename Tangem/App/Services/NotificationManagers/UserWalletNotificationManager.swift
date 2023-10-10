@@ -106,12 +106,6 @@ final class UserWalletNotificationManager {
         let factory = NotificationsFactory()
         guard !isMultiWallet else {
             didFinishCountingHashes()
-            let notification = factory.buildNotificationInput(
-                for: .multiWalletSignedHashes,
-                action: delegate?.didTapNotification(with:) ?? { _ in },
-                dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
-            )
-            notificationInputsSubject.value.append(notification)
             return
         }
 
@@ -178,7 +172,7 @@ extension UserWalletNotificationManager: NotificationManager {
         switch event {
         case .systemDeprecationTemporary, .systemDeprecationPermanent:
             recordDeprecationNotificationDismissal()
-        case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect:
+        case .numberOfSignedHashesIncorrect:
             recordUserWalletHashesCountValidation()
         default:
             break
