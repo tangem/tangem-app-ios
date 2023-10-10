@@ -16,13 +16,13 @@ struct LegacyTransactionMapper {
         self.formatter = formatter
     }
 
-    func mapToIncomingRecords(_ transactions: [Transaction]) -> [LegacyTransactionRecord] {
+    func mapToIncomingRecords(_ transactions: [PendingTransactionRecord]) -> [LegacyTransactionRecord] {
         transactions.map {
             mapToPendingLegacyTransactionRecord($0, type: .receive)
         }
     }
 
-    func mapToOutgoingRecords(_ transactions: [Transaction]) -> [LegacyTransactionRecord] {
+    func mapToOutgoingRecords(_ transactions: [PendingTransactionRecord]) -> [LegacyTransactionRecord] {
         transactions.map {
             mapToPendingLegacyTransactionRecord($0, type: .send)
         }
@@ -31,12 +31,12 @@ struct LegacyTransactionMapper {
 
 private extension LegacyTransactionMapper {
     func mapToPendingLegacyTransactionRecord(
-        _ transaction: Transaction,
+        _ transaction: PendingTransactionRecord,
         type: LegacyTransactionRecord.TransactionType
     ) -> LegacyTransactionRecord {
         LegacyTransactionRecord(
             amountType: transaction.amount.type,
-            destination: transaction.destinationAddress,
+            destination: transaction.destination,
             timeFormatted: "",
             transferAmount: transferAmount(for: transaction),
             transactionType: type,
@@ -44,7 +44,7 @@ private extension LegacyTransactionMapper {
         )
     }
 
-    func transferAmount(for transaction: Transaction) -> String {
+    func transferAmount(for transaction: PendingTransactionRecord) -> String {
         guard transaction.amount.value > 0 else {
             return transaction.amount.currencySymbol
         }
