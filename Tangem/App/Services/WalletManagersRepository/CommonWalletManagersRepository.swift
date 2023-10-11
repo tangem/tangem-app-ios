@@ -95,10 +95,6 @@ class CommonWalletManagersRepository {
 }
 
 extension CommonWalletManagersRepository: WalletManagersRepository {
-    var signatureCountValidator: SignatureCountValidator? {
-        walletManagers.value.values.first as? SignatureCountValidator
-    }
-
     var walletManagersPublisher: AnyPublisher<[BlockchainNetwork: any WalletManager], Never> {
         walletManagers.eraseToAnyPublisher()
     }
