@@ -91,11 +91,14 @@ struct CardsInfoPagerView<
     }
 
     private var animationsFactory: CardsInfoPagerAnimationFactory {
+        let pageSwitchAnimationDuration = pageSwitchAnimationDurationConfigStorage[configStorageKey]
+            ?? Constants.pageSwitchAnimationDuration
+
         return CardsInfoPagerAnimationFactory(
             hasValidIndexToSelect: hasValidIndexToSelect,
             currentPageSwitchProgress: pageSwitchProgress,
             minRemainingPageSwitchProgress: Constants.minRemainingPageSwitchProgress,
-            pageSwitchAnimationDuration: pageSwitchAnimationDurationConfigStorage[configStorageKey, default: .zero]
+            pageSwitchAnimationDuration: pageSwitchAnimationDuration
         )
     }
 
