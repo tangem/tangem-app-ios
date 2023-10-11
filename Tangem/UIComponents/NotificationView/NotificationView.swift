@@ -12,6 +12,8 @@ struct NotificationView: View {
     let settings: Settings
     let style: Style
 
+    private var isLoading: Bool = false
+
     init(input: NotificationViewInput) {
         settings = input.settings
         style = input.style
@@ -19,7 +21,7 @@ struct NotificationView: View {
 
     /// Use this initializer when you need to refresh `MainButton`, e.g. when button can display spinned
     /// or `MainButton` can toggle enable state during notification lifetime
-    init(settings: Settings, buttons: [MainButton.Settings]) {
+    init(settings: Settings, buttons: [NotificationButton]) {
         self.settings = settings
         style = .withButtons(buttons)
     }
@@ -32,13 +34,13 @@ struct NotificationView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .background(settings.colorScheme.color)
+        .background(settings.event.colorScheme.color)
         .cornerRadiusContinuous(14)
     }
 
     @ViewBuilder
     private var dismissOverlay: some View {
-        if settings.isDismissable {
+        if settings.event.isDismissable {
             HStack {
                 Spacer()
 
@@ -77,8 +79,17 @@ struct NotificationView: View {
                 messageIconContent
 
                 HStack(spacing: 8) {
-                    ForEach(buttonSettings) { settings in
-                        MainButton(settings: settings)
+                    ForEach(buttonSettings, id: \.id) { buttonInfo in
+                        MainButton(
+                            title: buttonInfo.actionType.title,
+                            icon: buttonInfo.actionType.icon,
+                            style: buttonInfo.actionType.style,
+                            size: .notification,
+                            action: {
+                                buttonInfo.action(settings.id, buttonInfo.actionType)
+                            }
+                        )
+                        .setIsLoading(to: isLoading)
                     }
                 }
             }
@@ -87,16 +98,16 @@ struct NotificationView: View {
 
     private var messageIconContent: some View {
         HStack(spacing: 12) {
-            settings.icon.image
+            settings.event.icon.image
                 .resizable()
-                .foregroundColor(settings.icon.color)
+                .foregroundColor(settings.event.icon.color)
                 .frame(size: .init(bothDimensions: 20))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(settings.title)
+                Text(settings.event.title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                if let description = settings.description {
+                if let description = settings.event.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
                         .lineSpacing(3)
@@ -111,6 +122,14 @@ struct NotificationView: View {
     }
 }
 
+extension NotificationView: Setupable {
+    /// Toggles `MainButton` to new state.
+    /// - Note: This will only work for notifications with `.withButtons` style. Also note that all buttons simultaneously will change `isLoading` state
+    func setButtonsLoadingState(to isLoading: Bool) -> Self {
+        map { $0.isLoading = isLoading }
+    }
+}
+
 // MARK: - Previews
 
 struct NotificationView_Previews: PreviewProvider {
@@ -120,97 +139,14 @@ struct NotificationView_Previews: PreviewProvider {
                 style: .tappable(action: { [weak self] id in
                     self?.notificationTapped(with: id)
                 }),
-                settings: .init(
-                    colorScheme: .gray,
-                    icon: .init(image: Assets.attentionRed.image),
-                    title: "Used card",
-                    description: "The card signed transactions in the past",
-                    isDismissable: false,
-                    dismissAction: nil
-                )
-            ),
-            .init(
-                style: .withButtons([
-                    .init(
-                        title: "Generate addresses",
-                        icon: .trailing(Assets.tangemIcon),
-                        style: .primary,
-                        size: .notification,
-                        isLoading: false,
-                        isDisabled: false,
-                        action: {
-                            print("Generate addresses tapped")
-                        }
-                    ),
-                ]),
-                settings: .init(
-                    colorScheme: .white,
-                    icon: .init(image: Assets.warningIcon.image),
-                    title: "Some addresses are missing",
-                    description: "Generate addresses for 2 new networks using your card.",
-                    isDismissable: false,
-                    dismissAction: nil
-                )
-            ),
-            .init(
-                style: .withButtons([
-                    .init(
-                        title: "Buy ETH",
-                        icon: nil,
-                        style: .secondary,
-                        size: .notification,
-                        isLoading: false,
-                        isDisabled: false,
-                        action: {
-                            print("Buy ETH button tapped on notification")
-                        }
-                    ),
-                ]),
-                settings: .init(
-                    colorScheme: .white,
-                    icon: .init(image: Image("ethereum.fill")),
-                    title: "Unable to cover Ethereum fee",
-                    description: "To make a USD Coin transaction you need to depo sit some Ethereum (ETH) to cover the network fee.",
-                    isDismissable: true,
-                    dismissAction: { [weak self] id in
-                        self?.removeNotification(with: id)
-                    }
-                )
+                settings: NotificationView.Settings(event: WarningEvent.missingBackup, dismissAction: { [weak self] id in
+                    self?.removeNotification(with: id)
+                })
             ),
             .init(
                 style: .plain,
-                settings: .init(
-                    colorScheme: .gray,
-                    icon: .init(image: Assets.warningIcon.image),
-                    title: "Network rent fee",
-                    description: "The Solana network charges a fee of 0.0000056 every two days. Accounts without money will be removed from the network. Refill your account with 0.000465 to avoid paying the rent.",
-                    isDismissable: true,
-                    dismissAction: { [weak self] id in
-                        self?.removeNotification(with: id)
-                    }
-                )
-            ),
-            .init(
-                style: .plain,
-                settings: .init(
-                    colorScheme: .gray,
-                    icon: .init(image: Assets.attentionRed.image),
-                    title: "Development card",
-                    description: "The card you scanned is a development card. Don't accept it as a payment",
-                    isDismissable: false,
-                    dismissAction: nil
-                )
-            ),
-            .init(
-                style: .tappable(action: { [weak self] id in
-                    self?.notificationTapped(with: id)
-                }),
-                settings: .init(
-                    colorScheme: .gray,
-                    icon: .init(image: Assets.lock.image, color: Colors.Icon.primary1),
-                    title: "Unlock needed",
-                    description: "You need to unlock this wallet before you can use it",
-                    isDismissable: false,
+                settings: NotificationView.Settings(
+                    event: WarningEvent.devCard,
                     dismissAction: nil
                 )
             ),
@@ -219,11 +155,7 @@ struct NotificationView_Previews: PreviewProvider {
         @Published var notifications: [NotificationViewInput] = []
 
         init() {
-            notifications = [
-                notificationInputs[notificationInputs.count - 2],
-                notificationInputs[3],
-                notificationInputs[2],
-            ]
+            notifications = notificationInputs
         }
 
         func addNotification() {
@@ -249,7 +181,7 @@ struct NotificationView_Previews: PreviewProvider {
                 VStack(spacing: 14) {
                     ForEach(viewModel.notifications) { input in
                         NotificationView(input: input)
-                            .transition(AnyTransition.scale.combined(with: .opacity))
+                            .transition(.notificationTransition)
                     }
 
                     Button(action: viewModel.addNotification) {
