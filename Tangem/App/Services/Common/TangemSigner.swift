@@ -52,6 +52,8 @@ struct TangemSigner: TransactionSigner {
                 case .failure(let error):
                     promise(.failure(error))
                 }
+
+                withExtendedLifetime(signCommand) {}
             }
         }
         .eraseToAnyPublisher()

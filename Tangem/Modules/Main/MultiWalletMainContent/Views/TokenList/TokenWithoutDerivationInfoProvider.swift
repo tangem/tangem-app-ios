@@ -11,14 +11,16 @@ import Combine
 import BlockchainSdk
 
 class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
-    var id: Int
-    var tokenItem: TokenItem
+    let id: Int
+    let tokenItem: TokenItem
 
-    var hasPendingTransactions: Bool = false
-    var balance: String = Localization.walletBalanceMissingDerivation
-    var fiatBalance: String = BalanceFormatter.defaultEmptyBalanceString
+    let hasPendingTransactions: Bool = false
+    let balance: String = Localization.walletBalanceMissingDerivation
+    let fiatBalance: String = BalanceFormatter.defaultEmptyBalanceString
+    var quote: TokenQuote? { nil }
 
     var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { .just(output: .noDerivation) }
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> { .just(output: ()) }
 
     init(id: Int, tokenItem: TokenItem) {
         self.id = id
