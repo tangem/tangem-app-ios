@@ -80,8 +80,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 extension FakeUserWalletModel: MainHeaderInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
-    var cardHeaderImage: ImageType? {
-        UserWalletConfigFactory(userWallet.cardInfo()).makeConfig().cardHeaderImage
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: config.cardHeaderImage)
     }
 
     var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
