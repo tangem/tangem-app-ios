@@ -64,7 +64,7 @@ extension LockedUserWallet: MainHeaderInfoProvider {
         .just(output: userWallet.name)
     }
 
-    var cardHeaderImage: AnyPublisher<ImageType?, Never> {
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
 
