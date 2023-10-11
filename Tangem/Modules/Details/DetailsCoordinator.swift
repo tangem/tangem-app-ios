@@ -48,8 +48,6 @@ class DetailsCoordinator: CoordinatorObject {
     }
 }
 
-// MARK: - Options
-
 extension DetailsCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
