@@ -303,7 +303,7 @@ struct OrganizeTokensView: View {
 
     // MARK: - Drag and drop support
 
-    func newDragAndDropSessionPrecondition() {
+    private func newDragAndDropSessionPrecondition() {
         // The following assertions verify that the drag-and-drop related @State variables
         // have been properly reset at the end of the previous drag-and-drop session
         assert(dragAndDropDestinationIndexPath == nil)
