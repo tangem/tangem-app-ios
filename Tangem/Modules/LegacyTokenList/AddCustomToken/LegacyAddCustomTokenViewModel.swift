@@ -83,8 +83,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
                 self.isLoading = true
 
                 guard !contractAddress.isEmpty else {
-                    return Just([])
-                        .eraseToAnyPublisher()
+                    return .just(output: [])
                 }
 
                 return self.findToken(contractAddress: contractAddress)
@@ -115,6 +114,8 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         do {
             tokenItem = try enteredTokenItem()
             derivationPath = enteredDerivationPath()
+
+            try validateExistingCurves(for: tokenItem)
 
             if case .token(_, let blockchain) = tokenItem,
                case .solana = blockchain,
@@ -281,6 +282,14 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         }
     }
 
+    private func validateExistingCurves(for tokenItem: TokenItem) throws {
+        guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
+            throw TokenCreationErrors.unsupportedCurve(tokenItem.blockchain)
+        }
+
+        return
+    }
+
     private func enteredBlockchain() throws -> Blockchain {
         guard let blockchain = blockchainByName[blockchainsPicker.selection] else {
             throw TokenCreationErrors.blockchainNotSelected
@@ -333,8 +342,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         if let currentCurrencyModel = foundStandardToken,
            let token = currentCurrencyModel.items.first?.token,
            token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame {
-            return Just([currentCurrencyModel])
-                .eraseToAnyPublisher()
+            return .just(output: [currentCurrencyModel])
         }
 
         let requestModel = CoinsList.Request(
@@ -437,6 +445,7 @@ private protocol DynamicValidationError {
 private extension LegacyAddCustomTokenViewModel {
     enum TokenCreationErrors: LocalizedError {
         case blockchainNotSelected
+        case unsupportedCurve(Blockchain)
         case emptyFields
         case tokensNotSupported
         case invalidDecimals(precision: Int)
@@ -447,6 +456,8 @@ private extension LegacyAddCustomTokenViewModel {
             switch self {
             case .blockchainNotSelected:
                 return Localization.customTokenCreationErrorNetworkNotSelected
+            case .unsupportedCurve(let blockchain):
+                return Localization.alertManageTokensUnsupportedCurveMessage(blockchain.displayName)
             case .emptyFields:
                 return Localization.customTokenCreationErrorEmptyFields
             case .tokensNotSupported:
