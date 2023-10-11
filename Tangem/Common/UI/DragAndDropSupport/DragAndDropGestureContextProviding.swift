@@ -12,7 +12,5 @@ import UIKit
 protocol DragAndDropGestureContextProviding {
     associatedtype Context
 
-    func makeContext(
-        from gestureRecognizer: UIGestureRecognizer
-    ) -> Context
+    func makeContext(from gestureRecognizer: UIGestureRecognizer) -> Context
 }
