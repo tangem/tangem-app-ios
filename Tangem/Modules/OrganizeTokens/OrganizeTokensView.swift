@@ -409,7 +409,7 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func makeDragAndDropGestureOverlayView() -> some View {
-        OrganizeTokensDragAndDropGestureView(
+        DragAndDropGestureView(
             minimumPressDuration: Constants.dragAndDropGestureDuration,
             allowableMovement: Constants.dragAndDropGestureAllowableMovement,
             gesturePredicate: OrganizeTokensDragAndDropGesturePredicate(),
