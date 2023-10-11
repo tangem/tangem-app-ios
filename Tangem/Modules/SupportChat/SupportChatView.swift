@@ -13,7 +13,7 @@ struct SupportChatView: View {
     @ObservedObject var viewModel: SupportChatViewModel
 
     static var useFullScreen: Bool {
-        FeatureProvider.isAvailable(.sprinklr)
+        SupportChatViewModel.useFullScreen
     }
 
     var body: some View {
