@@ -48,7 +48,7 @@ final class MainHeaderViewModel: ObservableObject {
             .assign(to: \.userWalletName, on: self, ownership: .weak)
             .store(in: &bag)
 
-        infoProvider.cardHeaderImage
+        infoProvider.cardHeaderImagePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
