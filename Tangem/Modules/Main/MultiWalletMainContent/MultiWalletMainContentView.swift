@@ -11,32 +11,36 @@ import SwiftUI
 struct MultiWalletMainContentView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
-    private let notificationTransition: AnyTransition = .scale.combined(with: .opacity)
-
     var body: some View {
         VStack(spacing: 14) {
             if let settings = viewModel.missingDerivationNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.commonGenerateAddresses,
-                        icon: .trailing(Assets.tangemIcon),
-                        size: .notification,
-                        isLoading: viewModel.isScannerBusy,
-                        action: viewModel.deriveEntriesWithoutDerivation
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .generateAddresses
                     ),
                 ])
-                .transition(notificationTransition)
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
+                .transition(.notificationTransition)
             }
 
             if let settings = viewModel.missingBackupNotificationSettings {
                 NotificationView(settings: settings, buttons: [
                     .init(
-                        title: Localization.buttonStartBackupProcess,
-                        style: .secondary,
-                        size: .notification,
-                        action: viewModel.startBackupProcess
+                        action: viewModel.didTapNotificationButton(with:action:),
+                        actionType: .backupCard
                     ),
                 ])
+            }
+
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
+
+            ForEach(viewModel.tokensNotificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
             }
 
             tokensContent
@@ -45,13 +49,19 @@ struct MultiWalletMainContentView: View {
                 FixedSizeButtonWithLeadingIcon(
                     title: Localization.organizeTokensTitle,
                     icon: Assets.OrganizeTokens.filterIcon.image,
-                    action: viewModel.openOrganizeTokens
+                    action: viewModel.onOpenOrganizeTokensButtonTap
                 )
                 .infinityFrame(axis: .horizontal)
             }
         }
         .animation(.default, value: viewModel.missingDerivationNotificationSettings)
+        .animation(.default, value: viewModel.notificationInputs)
+        .animation(.default, value: viewModel.tokensNotificationInputs)
         .padding(.horizontal, 16)
+        .background(
+            Color.clear
+                .alert(item: $viewModel.error, content: { $0.alert })
+        )
     }
 
     private var tokensContent: some View {
@@ -66,38 +76,33 @@ struct MultiWalletMainContentView: View {
                 }
             }
         }
-        .cornerRadiusContinuous(14)
+        .cornerRadiusContinuous(Constants.cornerRadius)
     }
 
     private var emptyList: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("To begin tracking your crypto assets and transactions, add tokens.")
-            .multilineTextAlignment(.center)
-            .style(
-                Fonts.Regular.caption1,
-                color: Colors.Text.tertiary
-            )
-            .padding(.top, 150)
-            .padding(.horizontal, 48)
+        VStack(spacing: 16) {
+            Assets.emptyTokenList.image
+                .foregroundColor(Colors.Icon.inactive)
+
+            Text(Localization.mainEmptyTokensListMessage)
+                .multilineTextAlignment(.center)
+                .style(
+                    Fonts.Regular.caption1,
+                    color: Colors.Text.tertiary
+                )
+        }
+        .padding(.top, 96)
+        .padding(.horizontal, 48)
     }
 
     private var tokensList: some View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.sections) { section in
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    if let title = section.title {
-                        Text(title)
-                            .style(
-                                Fonts.Bold.footnote,
-                                color: Colors.Text.tertiary
-                            )
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 14)
-                    }
+                TokenSectionView(title: section.model.title)
+                    .background(Colors.Background.primary)
 
-                    ForEach(section.tokenItemModels) { item in
-                        TokenItemView(viewModel: item)
-                    }
+                ForEach(section.items) { item in
+                    TokenItemView(viewModel: item)
                 }
             }
         }
@@ -106,22 +111,28 @@ struct MultiWalletMainContentView: View {
 }
 
 struct MultiWalletContentView_Preview: PreviewProvider {
-    static var sectionProvider: TokenListInfoProvider = EmptyTokenListInfoProvider()
     static let viewModel: MultiWalletMainContentViewModel = {
         let repo = FakeUserWalletRepository()
         let mainCoordinator = MainCoordinator()
         let userWalletModel = repo.models.first!
+
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
-        sectionProvider = GroupedTokenListInfoProvider(
+
+        let optionsManager = OrganizeTokensOptionsManagerStub()
+        let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
-            walletModelsManager: userWalletModel.walletModelsManager
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
+
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
+            userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            tokensNotificationManager: FakeUserWalletNotificationManager(),
             coordinator: mainCoordinator,
-            sectionsProvider: sectionProvider,
-            canManageTokens: userWalletModel.isMultiWallet
+            tokenSectionsAdapter: tokenSectionsAdapter,
+            tokenRouter: SingleTokenRoutableMock()
         )
     }()
 
@@ -130,5 +141,13 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             MultiWalletMainContentView(viewModel: viewModel)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    }
+}
+
+// MARK: - Constants
+
+private extension MultiWalletMainContentView {
+    enum Constants {
+        static let cornerRadius = 14.0
     }
 }
