@@ -14,7 +14,9 @@ class UserWalletModelMock: UserWalletModel {
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
-    var cardHeaderImage: ImageType?
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: config.cardHeaderImage)
+    }
 
     var isUserWalletLocked: Bool { false }
 
