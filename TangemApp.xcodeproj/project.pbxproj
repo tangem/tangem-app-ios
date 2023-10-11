@@ -1573,6 +1573,7 @@
 		B0BDFD212A8BAB3600479F53 /* UnlockUserWalletBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockUserWalletBottomSheetView.swift; sourceTree = "<group>"; };
 		B0BE30642A7BA74000B3AD13 /* MultiWalletTokenItemsSectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletTokenItemsSectionFactory.swift; sourceTree = "<group>"; };
 		B0BE7D942AC2EB580012D9EE /* SwapAvailabilityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapAvailabilityManager.swift; sourceTree = "<group>"; };
+		B0BEBED82AD3DF2900FD722C /* xlmBird.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = xlmBird.json; sourceTree = "<group>"; };
 		B0BF631A2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceFormattingOptions.swift; sourceTree = "<group>"; };
 		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
 		B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetBuyCryptoService.swift; sourceTree = "<group>"; };
@@ -3837,6 +3838,7 @@
 				B0F319062A73951E009F131E /* walletV2.json */,
 				B0F319072A73954E009F131E /* twinCard.json */,
 				B0F319052A7394E2009F131E /* xrpNote.json */,
+				B0BEBED82AD3DF2900FD722C /* xlmBird.json */,
 				B0DC10D32927564000BBE854 /* PreviewCards.swift */,
 			);
 			path = Cards;
