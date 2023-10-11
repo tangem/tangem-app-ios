@@ -20,12 +20,12 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var sendCoordinator: SendCoordinator? = nil
+    @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator? = nil
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     // MARK: - Child view models
 
-    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
@@ -44,14 +44,25 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
+        let notificationManager = SingleTokenNotificationManager(
+            walletModel: options.walletModel,
+            isNoteWallet: false
+        )
+
+        let tokenRouter = SingleTokenRouter(
+            userWalletModel: options.cardModel,
+            coordinator: self
+        )
 
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
-            userTokensManager: options.userTokensManager,
             walletModel: options.walletModel,
             exchangeUtility: exchangeUtility,
-            coordinator: self
+            notificationManager: notificationManager,
+            coordinator: self,
+            tokenRouter: tokenRouter
         )
+        notificationManager.setupManager(with: tokenDetailsViewModel)
     }
 }
 
@@ -67,7 +78,9 @@ extension TokenDetailsCoordinator {
 
 // MARK: - TokenDetailsRoutable
 
-extension TokenDetailsCoordinator: TokenDetailsRoutable {
+extension TokenDetailsCoordinator: TokenDetailsRoutable {}
+
+extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
         let tokenItem: TokenItem
         switch amountType {
@@ -81,55 +94,89 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topupScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonBuy,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [
                 closeUrl: { [weak self] response in
-                    self?.pushedWebViewModel = nil
+                    self?.modalWebViewModel = nil
                     action(response)
                 },
             ]
         )
     }
 
+    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+        // [REDACTED_TODO_COMMENT]
+        guard let cardViewModel = userWalletModel as? CardViewModel else {
+            return
+        }
+
+        #warning("[REDACTED_TODO_COMMENT]")
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.tokenDetailsCoordinator = nil
+        }
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
+        coordinator.start(
+            with: .init(
+                cardModel: cardViewModel,
+                walletModel: model,
+                userTokensManager: userWalletModel.userTokensManager
+            )
+        )
+
+        tokenDetailsCoordinator = coordinator
+    }
+
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonSell,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [sellRequestUrl: action]
         )
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = SendCoordinator { [weak self] in
-            self?.sendCoordinator = nil
+        guard FeatureProvider.isAvailable(.sendV2) else {
+            let coordinator = LegacySendCoordinator { [weak self] in
+                self?.legacySendCoordinator = nil
+            }
+            let options = LegacySendCoordinator.Options(
+                amountToSend: amountToSend,
+                destination: nil,
+                blockchainNetwork: blockchainNetwork,
+                cardViewModel: cardViewModel
+            )
+            coordinator.start(with: options)
+            legacySendCoordinator = coordinator
+            return
         }
-        let options = SendCoordinator.Options(
-            amountToSend: amountToSend,
-            destination: nil,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
-        coordinator.start(with: options)
-        sendCoordinator = coordinator
+
+        assertionFailure("[REDACTED_TODO_COMMENT]")
     }
 
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = SendCoordinator { [weak self] in
-            self?.sendCoordinator = nil
+        guard FeatureProvider.isAvailable(.sendV2) else {
+            let coordinator = LegacySendCoordinator { [weak self] in
+                self?.legacySendCoordinator = nil
+            }
+            let options = LegacySendCoordinator.Options(
+                amountToSend: amountToSend,
+                destination: destination,
+                blockchainNetwork: blockchainNetwork,
+                cardViewModel: cardViewModel
+            )
+            coordinator.start(with: options)
+            legacySendCoordinator = coordinator
+            return
         }
-        let options = SendCoordinator.Options(
-            amountToSend: amountToSend,
-            destination: destination,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
-        coordinator.start(with: options)
-        sendCoordinator = coordinator
+
+        assertionFailure("[REDACTED_TODO_COMMENT]")
     }
 
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {

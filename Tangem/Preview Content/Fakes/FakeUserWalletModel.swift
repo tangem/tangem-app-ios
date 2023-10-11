@@ -11,6 +11,9 @@ import Combine
 import BlockchainSdk
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
+    let emailData: [EmailCollectedData] = []
+    let backupInput: OnboardingInput? = nil
+    let twinInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
     let userTokensManager: UserTokensManager
@@ -77,9 +80,11 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 extension FakeUserWalletModel: MainHeaderInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
-    var cardHeaderImage: ImageType? {
-        UserWalletConfigFactory(userWallet.cardInfo()).makeConfig().cardHeaderImage
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: config.cardHeaderImage)
     }
+
+    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 }
 
 extension FakeUserWalletModel {
@@ -117,5 +122,15 @@ extension FakeUserWalletModel {
         userWalletId: .init(with: Data.randomData(count: 32)),
         walletManagers: [.xrpManager],
         userWallet: UserWalletStubs.xrpNoteStub
+    )
+
+    static let xlmBird = FakeUserWalletModel(
+        userWalletName: "XLM Bird",
+        isMultiWallet: false,
+        isUserWalletLocked: false,
+        cardsCount: 1,
+        userWalletId: .init(with: Data.randomData(count: 32)),
+        walletManagers: [.xlmManager],
+        userWallet: UserWalletStubs.xlmBirdStub
     )
 }
