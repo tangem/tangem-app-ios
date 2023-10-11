@@ -193,7 +193,7 @@ struct ReferralView: View {
                 }
                 .padding(14)
 
-                if viewModel.hasPurchases {
+                if viewModel.isExpectingAwards {
                     Separator(height: 0.5, color: Colors.Stroke.primary)
 
                     expectedAwards
