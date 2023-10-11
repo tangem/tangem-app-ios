@@ -20,6 +20,7 @@ private enum QueryKey: String {
     case lang
     case fix_currency
     case return_url
+    case theme
 }
 
 private struct MercuryoCurrencyResponse: Decodable {
@@ -48,10 +49,16 @@ class MercuryoService {
         keysManager.mercuryoSecret
     }
 
+    private var useDarkTheme: Bool {
+        UITraitCollection.isDarkMode
+    }
+
     private var availableCryptoCurrencyCodes: [String] = []
     private var networkCodeByCurrencyCode: [String: String] = [:]
 
     private var bag: Set<AnyCancellable> = []
+
+    private let darkThemeName = "1inch"
 
     deinit {
         AppLog.shared.debug("MercuryoService deinit")
@@ -111,6 +118,10 @@ extension MercuryoService: ExchangeService {
 
         if let languageCode = Locale.current.languageCode {
             queryItems.append(.init(key: .lang, value: languageCode))
+        }
+
+        if useDarkTheme {
+            queryItems.append(.init(key: .theme, value: darkThemeName))
         }
 
         urlComponents.percentEncodedQueryItems = queryItems
