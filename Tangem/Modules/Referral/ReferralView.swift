@@ -54,7 +54,7 @@ struct ReferralView: View {
             }
             .edgesIgnoringSafeArea(.bottom)
             .toast(isPresenting: $viewModel.showCodeCopiedToast) {
-                AlertToast(type: .complete(Color.tangemGreen), title: Localization.referralPromoCodeCopied)
+                AlertToast(type: .complete(Colors.Icon.accent), title: Localization.referralPromoCodeCopied)
             }
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
@@ -194,7 +194,8 @@ struct ReferralView: View {
                 .padding(14)
 
                 if viewModel.hasPurchases {
-                    Separator(height: 0.5, color: Colors.Stroke.primary)
+                    Separator(height: .minimal, color: Colors.Stroke.primary)
+                        .padding(.vertical, 4)
 
                     expectedAwards
                 }
@@ -271,21 +272,13 @@ struct ReferralView: View {
         VStack(spacing: 12) {
             tosButton
 
-            TangemButton(
+            MainButton(
                 title: Localization.referralButtonParticipate,
-                image: "tangemIcon",
-                iconPosition: .trailing,
-                iconPadding: 10,
+                icon: .trailing(Assets.tangemIcon),
+                style: .primary,
                 action: {
                     runTask(viewModel.participateInReferralProgram)
                 }
-            )
-            .buttonStyle(
-                TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .flexibleWidth,
-                    isLoading: viewModel.isProcessingRequest
-                )
             )
         }
     }
