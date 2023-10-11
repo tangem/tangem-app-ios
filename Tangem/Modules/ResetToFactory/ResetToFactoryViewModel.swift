@@ -9,6 +9,8 @@
 import SwiftUI
 
 class ResetToFactoryViewModel: ObservableObject {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     @Published var accessToCardWarningSelected: Bool = false
     @Published var accessCodeRecoveryWarningSelected: Bool = false
 
@@ -22,12 +24,13 @@ class ResetToFactoryViewModel: ObservableObject {
     let message: String
 
     private let cardInteractor: CardResettable
+    private let userWalletId: UserWalletId
     private unowned let coordinator: ResetToFactoryViewRoutable
 
     init(input: ResetToFactoryViewModel.Input, coordinator: ResetToFactoryViewRoutable) {
         cardInteractor = input.cardInteractor
         self.coordinator = coordinator
-
+        userWalletId = input.userWalletId
         message = input.hasBackupCards ? Localization.resetCardWithBackupToFactoryMessage
             : Localization.resetCardWithoutBackupToFactoryMessage
     }
@@ -54,14 +57,17 @@ private extension ResetToFactoryViewModel {
 
     func resetCardToFactory() {
         cardInteractor.resetCard { [weak self] result in
+            guard let self else { return }
+
             switch result {
             case .success:
                 Analytics.log(.factoryResetFinished)
-                self?.coordinator.didResetCard()
+                userWalletRepository.delete(userWalletId, logoutIfNeeded: false)
+                coordinator.dismiss()
             case .failure(let error):
                 if !error.isUserCancelled {
                     AppLog.shared.error(error, params: [.action: .purgeWallet])
-                    self?.alert = error.alertBinder
+                    alert = error.alertBinder
                 }
             }
         }
