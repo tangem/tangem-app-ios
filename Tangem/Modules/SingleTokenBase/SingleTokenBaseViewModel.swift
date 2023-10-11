@@ -8,60 +8,66 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemSdk
 import BlockchainSdk
 import TangemSwapping
+import CombineExt
 
-class SingleTokenBaseViewModel {
-    @Injected(\.keysManager) var keysManager: KeysManager
-    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+class SingleTokenBaseViewModel: NotificationTapDelegate {
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
 
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
-
-    private unowned let coordinator: SingleTokenBaseRoutable
-
-    let swappingUtils = SwappingAvailableUtils()
-    let exchangeUtility: ExchangeCryptoUtility
-
-    let userWalletModel: UserWalletModel
-    let walletModel: WalletModel
-    let userTokensManager: UserTokensManager
+    @Published private(set) var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
 
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
-    var availableActions: [TokenActionType] = []
-    private var transactionHistoryBag: AnyCancellable?
-    private var bag = Set<AnyCancellable>()
+    let exchangeUtility: ExchangeCryptoUtility
+    let notificationManager: NotificationManager
 
-    var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
+    let userWalletModel: UserWalletModel
+    let walletModel: WalletModel
+
+    var availableActions: [TokenActionType] = []
+
+    private let tokenRouter: SingleTokenRoutable
+
+    private var isSwapAvailable: Bool {
+        swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+    }
+
+    private var percentFormatter = PercentFormatter()
+    private var transactionHistoryBag: AnyCancellable?
+    private var updateSubscription: AnyCancellable?
+    private var bag = Set<AnyCancellable>()
 
     var canSend: Bool {
         guard userWalletModel.config.hasFeature(.send) else {
             return false
         }
 
-        guard canSignLongTransactions else {
-            return false
-        }
-
-        return walletModel.wallet.canSend(amountType: amountType)
-    }
-
-    var canSignLongTransactions: Bool {
-        if NFCUtils.isPoorNfcQualityDevice,
-           blockchain.hasLongTransactions {
-            return false
-        } else {
-            return true
-        }
+        return walletModel.canSendTransaction
     }
 
     var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
 
     var amountType: Amount.AmountType { walletModel.amountType }
+
+    var rateFormatted: String { walletModel.rateFormatted }
+
+    var priceChangeState: TokenPriceChangeView.State {
+        guard let change = walletModel.quote?.change else {
+            return .noData
+        }
+
+        let signType = ChangeSignType(from: change)
+        let percent = percentFormatter.percentFormat(value: change)
+        return .loaded(signType: signType, text: percent)
+    }
 
     var blockchain: Blockchain { blockchainNetwork.blockchain }
 
@@ -69,27 +75,51 @@ class SingleTokenBaseViewModel {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
 
-    lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
+    var isMarketPriceAvailable: Bool {
+        if case .token(let token) = amountType {
+            return token.id != nil
+        } else {
+            return true
+        }
+    }
+
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, addresses: walletModel.wallet.addresses.map { $0.value })
+    lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
 
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
-        userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
-        coordinator: SingleTokenBaseRoutable
+        notificationManager: NotificationManager,
+        tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
-        self.userTokensManager = userTokensManager
         self.exchangeUtility = exchangeUtility
-        self.coordinator = coordinator
+        self.notificationManager = notificationManager
+        self.tokenRouter = tokenRouter
 
         prepareSelf()
     }
 
+    func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        assertionFailure("Must be reimplemented")
+    }
+
     func openExplorer() {
-        #warning("This will be changed after, for now there is no solution for tx history with multiple addresses")
-        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
+        let addresses = walletModel.wallet.addresses
+
+        if addresses.count == 1 {
+            openAddressExplorer(at: 0)
+        } else {
+            openAddressSelector(addresses) { [weak self] index in
+                self?.openAddressExplorer(at: index)
+            }
+        }
+    }
+
+    func openTransactionExplorer(transaction hash: String) {
+        guard let url = walletModel.exploreTransactionURL(for: hash) else {
             return
         }
 
@@ -105,6 +135,30 @@ class SingleTokenBaseViewModel {
         return FetchMore { [weak self] in
             self?.loadHistory()
         }
+    }
+
+    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        guard updateSubscription == nil else {
+            return
+        }
+
+        Analytics.log(.refreshed)
+
+        isReloadingTransactionHistory = true
+        updateSubscription = walletModel.generalUpdate(silent: false)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                AppLog.shared.debug("♻️ \(self) loading state changed")
+                isReloadingTransactionHistory = false
+                updateSubscription = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    completionHandler()
+                }
+            })
     }
 
     func reloadHistory() {
@@ -129,31 +183,27 @@ class SingleTokenBaseViewModel {
             }
     }
 
-    private func openBuy() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+    // We need to keep this not in extension because we may want to override this logic and
+    // implementation from extensions can't be overriden
+    func didTapNotification(with id: NotificationViewId) {}
+
+    // We need to keep this not in extension because we may want to override this logic and
+    // implementation from extensions can't be overriden
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .buyCrypto:
+            openBuyCryptoIfPossible()
+        default:
+            break
+        }
+    }
+
+    private func openAddressExplorer(at index: Int) {
+        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
             return
         }
 
-        if let token = amountType.token, blockchain == .ethereum(testnet: true) {
-            testnetBuyCryptoService.buyCrypto(.erc20Token(
-                token,
-                walletModel: walletModel,
-                signer: userWalletModel.signer
-            ))
-            return
-        }
-
-        guard let url = exchangeUtility.buyURL else { return }
-
-        coordinator.openBuyCrypto(at: url, closeUrl: exchangeUtility.buyCryptoCloseURL) { [weak self] _ in
-            guard let self else { return }
-            Analytics.log(event: .tokenBought, params: [.token: currencySymbol])
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.walletModel.update(silent: true)
-            }
-        }
+        openExplorer(at: url)
     }
 }
 
@@ -163,15 +213,14 @@ extension SingleTokenBaseViewModel {
     private func prepareSelf() {
         bind()
         setupActionButtons()
-        loadSwappingState()
         updateActionButtons()
         loadHistory()
     }
 
     private func setupActionButtons() {
         let listBuilder = TokenActionListBuilder()
-        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
-        availableActions = listBuilder.buildActions(canExchange: canExchange, exchangeUtility: exchangeUtility)
+        let canShowSwap = userWalletModel.config.hasFeature(.swapping)
+        availableActions = listBuilder.buildActionsForButtonsList(canShowSwap: canShowSwap)
     }
 
     private func bind() {
@@ -180,6 +229,7 @@ extension SingleTokenBaseViewModel {
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
+                self?.updatePendingTransactionView()
             }
             .store(in: &bag)
 
@@ -190,6 +240,23 @@ extension SingleTokenBaseViewModel {
                 self?.updateHistoryState(to: newState)
             }
             .store(in: &bag)
+
+        notificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func updatePendingTransactionView() {
+        guard transactionHistoryState == .notSupported else {
+            pendingTransactionViews = []
+            return
+        }
+
+        pendingTransactionViews = walletModel.pendingTransactions.map { transaction in
+            pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
+        }
     }
 
     private func updateActionButtons() {
@@ -201,7 +268,13 @@ extension SingleTokenBaseViewModel {
             }, disabled: isDisabled)
         }
 
-        actionButtons = buttons
+        actionButtons = buttons.sorted(by: { lhs, rhs in
+            if !lhs.disabled, !rhs.disabled {
+                return false
+            }
+
+            return !lhs.disabled
+        })
     }
 
     private func updateHistoryState(to newState: WalletModel.TransactionHistoryState) {
@@ -222,37 +295,22 @@ extension SingleTokenBaseViewModel {
         }
     }
 
-    private func loadSwappingState() {
-        guard userWalletModel.config.isFeatureVisible(.swapping) else {
-            return
-        }
-
-        var swappingSubscription: AnyCancellable?
-        swappingSubscription = swappingUtils
-            .canSwapPublisher(amountType: amountType, blockchain: blockchain)
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                swappingSubscription = nil
-                AppLog.shared.debug("Load swapping availability state completion: \(completion)")
-            } receiveValue: { [weak self] isSwapAvailable in
-                guard isSwapAvailable else { return }
-
-                if let receiveIndex = self?.availableActions.firstIndex(of: .receive) {
-                    self?.availableActions.insert(.exchange, at: receiveIndex + 1)
-                } else {
-                    self?.availableActions.append(.exchange)
-                }
-
-                self?.updateActionButtons()
-            }
-    }
-
     private func isButtonDisabled(with type: TokenActionType) -> Bool {
-        guard case .send = type else {
+        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
+        switch type {
+        case .buy:
+            return !(canExchange && exchangeUtility.buyAvailable)
+        case .send:
+            return !canSend
+        case .receive:
             return false
+        case .exchange:
+            return !isSwapAvailable
+        case .sell:
+            return !(canExchange && exchangeUtility.sellAvailable)
+        case .copyAddress, .hide:
+            return true
         }
-
-        return !canSend
     }
 
     private func action(for buttonType: TokenActionType) -> (() -> Void)? {
@@ -262,6 +320,7 @@ extension SingleTokenBaseViewModel {
         case .receive: return openReceive
         case .exchange: return openExchange
         case .sell: return openSell
+        case .copyAddress, .hide: return nil
         }
     }
 }
@@ -270,120 +329,80 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     func openReceive() {
-        Analytics.log(event: .buttonReceive, params: [.token: currencySymbol])
-
-        let infos = walletModel.wallet.addresses.map { address in
-            ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
-        }
-        coordinator.openReceiveScreen(amountType: amountType, blockchain: blockchain, addressInfos: infos)
+        tokenRouter.openReceive(walletModel: walletModel)
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(event: .buttonBuy, params: [.token: currencySymbol])
-        if tangemApiService.geoIpRegionCode == LanguageCode.ru {
-            coordinator.openBankWarning { [weak self] in
-                self?.openBuy()
-            } declineCallback: { [weak self] in
-                self?.coordinator.openP2PTutorial()
-            }
-        } else {
-            openBuy()
-        }
-    }
-
-    func openSend() {
-        guard
-            let amountToSend = walletModel.wallet.amounts[amountType],
-            // [REDACTED_TODO_COMMENT]
-            let cardViewModel = userWalletModel as? CardViewModel
-        else { return }
-
-        Analytics.log(event: .buttonSend, params: [.token: currencySymbol])
-        coordinator.openSend(
-            amountToSend: amountToSend,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
-    }
-
-    func openExchange() {
-        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
-
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
-        guard
-            let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: amountType, in: blockchain),
-            let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
-            let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
-        else { return }
-
-        var referrer: SwappingReferrerAccount?
-
-        if let account = keysManager.swapReferrerAccount {
-            referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
-        }
-
-        let input = CommonSwappingModulesFactory.InputModel(
-            userTokensManager: userTokensManager,
-            wallet: walletModel.wallet,
-            blockchainNetwork: walletModel.blockchainNetwork,
-            sender: walletModel.transactionSender,
-            signer: userWalletModel.signer,
-            transactionCreator: walletModel.transactionCreator,
-            ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionProcessor: ethereumTransactionProcessor,
-            logger: AppLog.shared,
-            referrer: referrer,
-            source: sourceCurrency,
-            walletModelTokens: userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
-        )
-
-        coordinator.openSwapping(input: input)
-    }
-
-    func openSell() {
-        Analytics.log(event: .buttonSell, params: [.token: currencySymbol])
-
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        guard let url = exchangeUtility.sellURL else {
+        tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
+    }
+
+    func openSend() {
+        tokenRouter.openSend(walletModel: walletModel)
+    }
+
+    func openExchange() {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        coordinator.openSellCrypto(at: url, sellRequestUrl: exchangeUtility.sellCryptoCloseURL) { [weak self] response in
-            if let request = self?.exchangeUtility.extractSellCryptoRequest(from: response) {
-                self?.openSendToSell(with: request)
-            }
+        tokenRouter.openExchange(walletModel: walletModel)
+    }
+
+    func openSell() {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
         }
+
+        tokenRouter.openSell(for: walletModel)
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        // [REDACTED_TODO_COMMENT]
-        guard let cardViewModel = userWalletModel as? CardViewModel else {
+        tokenRouter.openSendToSell(with: request, for: walletModel)
+    }
+
+    func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
+        if addresses.isEmpty {
             return
         }
 
-        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
-        coordinator.openSendToSell(
-            amountToSend: amount,
-            destination: request.targetAddress,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
+        let addressButtons: [Alert.Button] = addresses.enumerated().map { index, address in
+            .default(Text(address.localizedName)) {
+                callback(index)
+            }
+        }
+
+        let sheet = ActionSheet(
+            title: Text(Localization.tokenDetailsChooseAddress),
+            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
         )
+        presentActionSheet(ActionSheetBinder(sheet: sheet))
     }
 
     func openExplorer(at url: URL) {
-        Analytics.log(event: .buttonExplore, params: [.token: currencySymbol])
-        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
+        tokenRouter.openExplorer(at: url, for: walletModel)
     }
 }
 
 extension SingleTokenBaseViewModel: ActionButtonsProvider {
     var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension SingleTokenBaseViewModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "WalletModel": walletModel.description,
+            ]
+        )
+    }
 }
