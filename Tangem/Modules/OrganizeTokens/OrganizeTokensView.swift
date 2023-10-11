@@ -613,9 +613,9 @@ private extension OrganizeTokensView {
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
         static let contentVerticalInset = 14.0
         static let contentHorizontalInset = 16.0
-        static let dragLiftAnimationDuration = 0.25
         static let dragAndDropGestureDuration = 0.15
         static let dragAndDropGestureAllowableMovement = 5.0
+        static let dragLiftAnimationDuration = 0.2
         static let dropAnimationProgressThresholdForViewRemoval = 0.1
         static let dragAndDropDestinationItemSelectionThresholdRatio = 0.5
         static let draggableViewScale = 1.035
