@@ -163,7 +163,7 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        userWalletRepository.delete(userWalletModel.userWallet, logoutIfNeeded: true)
+        userWalletRepository.delete(userWalletModel.userWalletId, logoutIfNeeded: true)
     }
 
     private func addNewPage(for userWalletModel: UserWalletModel) {
