@@ -80,7 +80,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 extension FakeUserWalletModel: MainHeaderInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
-    var cardHeaderImage: AnyPublisher<ImageType?, Never> {
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
 
