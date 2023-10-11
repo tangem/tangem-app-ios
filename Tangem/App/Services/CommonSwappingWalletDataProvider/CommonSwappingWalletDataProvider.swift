@@ -16,7 +16,7 @@ class CommonSwappingWalletDataProvider {
     private let ethereumTransactionProcessor: EthereumTransactionProcessor
     private let currencyMapper: CurrencyMapping
 
-    private var balances: [Amount.AmountType: Decimal] = [:]
+    private let balances: ThreadSafeContainer<[Amount.AmountType: Decimal]>
     private var walletAddress: String { wallet.address }
 
     init(
@@ -30,9 +30,11 @@ class CommonSwappingWalletDataProvider {
         self.ethereumTransactionProcessor = ethereumTransactionProcessor
         self.currencyMapper = currencyMapper
 
-        balances = wallet.amounts.reduce(into: [:]) {
+        let balances = wallet.amounts.reduce(into: [:]) {
             $0[$1.key] = $1.value.value.rounded(scale: $1.value.decimals, roundingMode: .down)
         }
+
+        self.balances = ThreadSafeContainer<[Amount.AmountType: Decimal]>(balances)
     }
 }
 
@@ -82,7 +84,9 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         var balance = try await getBalanceFromNetwork(amountType: amountType)
         balance.round(scale: currency.decimalCount, roundingMode: .down)
 
-        balances[amountType] = balance
+        balances.mutate { value in
+            value[amountType] = balance
+        }
 
         return balance
     }
@@ -98,7 +102,9 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
         }
 
         let balance = try await getBalanceFromNetwork(amountType: .coin)
-        balances[.coin] = balance
+        balances.mutate { value in
+            value[.coin] = balance
+        }
         return balance
     }
 }
@@ -132,7 +138,9 @@ private extension CommonSwappingWalletDataProvider {
         switch amountType {
         case .coin:
             let balance = try await ethereumNetworkProvider.getBalance(walletAddress).async()
-            balances[amountType] = balance
+            balances.mutate { value in
+                value[amountType] = balance
+            }
             return balance
 
         case .token(let token):
@@ -141,7 +149,9 @@ private extension CommonSwappingWalletDataProvider {
             ).async()
 
             if let balance = loadedBalances[token] {
-                balances[amountType] = balance
+                balances.mutate { value in
+                    value[amountType] = balance
+                }
                 return balance
             }
 
