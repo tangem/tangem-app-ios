@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import CombineExt
 import UIKit
 import SwiftUI
 
@@ -38,8 +37,7 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
-        didAddNewCardPublisher: some Publisher<Void, Never>
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
@@ -50,20 +48,15 @@ final class MainViewModel: ObservableObject {
             mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
-        bind(didAddNewCardPublisher: didAddNewCardPublisher)
+        bind()
     }
 
     convenience init(
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
-        didAddNewCardPublisher: some Publisher<Void, Never>
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
-        self.init(
-            coordinator: coordinator,
-            mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory,
-            didAddNewCardPublisher: didAddNewCardPublisher
-        )
+        self.init(coordinator: coordinator, mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory)
 
         if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
             selectedCardIndex = selectedIndex
@@ -111,15 +104,6 @@ final class MainViewModel: ObservableObject {
         guard reason == .byGesture else { return }
 
         Analytics.log(.mainScreenWalletChangedBySwipe)
-    }
-
-    func onViewAppear() {
-        if isPageSwitchAnimationDisabled {
-            // A small delay to turn on animations back after closing the Details screen
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.isPageSwitchAnimationDisabled = false
-            }
-        }
     }
 
     func updateIsBackupAllowed() {
@@ -225,7 +209,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Private functions
 
-    private func bind(didAddNewCardPublisher: some Publisher<Void, Never>) {
+    private func bind() {
         $selectedCardIndex
             .dropFirst()
             .sink { [weak self] newIndex in
@@ -261,11 +245,6 @@ final class MainViewModel: ObservableObject {
                     break
                 }
             }
-            .store(in: &bag)
-
-        didAddNewCardPublisher
-            .mapToValue(true)
-            .assign(to: \.isPageSwitchAnimationDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
