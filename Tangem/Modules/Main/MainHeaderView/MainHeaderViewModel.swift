@@ -15,7 +15,7 @@ final class MainHeaderViewModel: ObservableObject {
 
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
-    @Published private(set) var balance: NSAttributedString = .init(string: "")
+    @Published private(set) var balance: NSAttributedString = .init(string: BalanceFormatter.defaultEmptyBalanceString)
     @Published var isLoadingFiatBalance: Bool = true
     @Published var isLoadingSubtitle: Bool = true
 
