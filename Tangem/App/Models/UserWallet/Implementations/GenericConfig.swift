@@ -123,9 +123,9 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var cardHeaderImage: ImageType? {
-        switch card.batchId.lowercased() {
+        switch card.batchId {
         // Shiba cards
-        case "af02", "af03":
+        case "AF02", "AF03":
             // There can't be more than 3 cards in single UserWallet
             switch cardsCount {
             case 2: return Assets.Cards.shibaDouble
