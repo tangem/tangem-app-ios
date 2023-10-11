@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensDragAndDropGestureView.swift
+//  DragAndDropGestureView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import SwiftUI
 
-struct OrganizeTokensDragAndDropGestureView<
+struct DragAndDropGestureView<
     T, U
 >: UIViewRepresentable where T: DragAndDropGesturePredicate, U: DragAndDropGestureContextProviding {
     typealias OnLongPressChanged = (_ isRecognized: Bool, _ context: U.Context) -> Void
@@ -76,7 +76,7 @@ struct OrganizeTokensDragAndDropGestureView<
 
 // MARK: - Coordinator
 
-extension OrganizeTokensDragAndDropGestureView {
+extension DragAndDropGestureView {
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         fileprivate var gesturePredicate: T
         fileprivate var contextProvider: U
