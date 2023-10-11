@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import TangemSdk
 import Combine
+import CombineExt
+import TangemSdk
 
 protocol CardInitializable {
     func initializeCard(mnemonic: Mnemonic?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void)
@@ -35,7 +36,7 @@ extension CardInitializer: CardInitializable {
 
         let didBecomeActivePublisher = NotificationCenter.didBecomeActivePublisher
             .mapError { $0.toTangemSdkError() }
-            .mapVoid()
+            .mapToVoid()
             .first()
 
         cancellable = tangemSdk.startSessionPublisher(

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import CombineExt
 import TangemSdk
 import BlockchainSdk
 
@@ -363,7 +364,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         CardImageProvider()
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .map { $0.image }
-            .weakAssign(to: \.cardImage, on: self)
+            .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -634,7 +635,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
-            .mapVoid()
+            .mapToVoid()
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
@@ -803,12 +804,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        var interactor: CardResettable? = CardInteractor(
-            tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
-            cardId: cardId
-        )
-
-        interactor?.resetCard { [weak self] result in
+        let interactor = CardInteractor(cardId: cardId)
+        interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
                 if error.isUserCancelled {
@@ -821,7 +818,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
 
             self?.isMainButtonBusy = false
-            interactor = nil // for retaining
+            withExtendedLifetime(interactor) {}
         }
     }
 }
@@ -837,8 +834,8 @@ extension WalletOnboardingViewModel {
         default:
             websiteLanguageCode = LanguageCode.en
         }
-
-        let url = URL(string: "https://tangem.com/\(websiteLanguageCode)/blog/post/seed-phrase-a-risky-solution/")!
+        let baseUrl = AppEnvironment.current.tangemComBaseUrl
+        let url = baseUrl.appendingPathComponent("seed-phrase-\(websiteLanguageCode).html")
         coordinator.openWebView(with: url)
         Analytics.log(.onboardingSeedButtonReadMore)
     }

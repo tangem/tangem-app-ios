@@ -9,19 +9,19 @@
 import Foundation
 import Combine
 import UIKit
+import SwiftUI
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedCardScanTracker
 
     // MARK: - ViewState
 
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var errorAlert: AlertBinder?
-    @Published var showTroubleshootingView: Bool = false
-    @Published var showingDeleteConfirmation = false
+    @Published var isPageSwitchAnimationDisabled = false
+    @Published var showAddressCopiedToast = false
+    @Published var actionSheet: ActionSheetBinder?
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
 
@@ -42,7 +42,12 @@ final class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
-        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models, lockedUserWalletDelegate: self)
+        pages = mainUserWalletPageBuilderFactory.createPages(
+            from: userWalletRepository.models,
+            lockedUserWalletDelegate: self,
+            mainViewDelegate: self,
+            multiWalletContentDelegate: self
+        )
         bind()
     }
 
@@ -60,26 +65,24 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
-    func scanCardAction() {
-        Analytics.beginLoggingCardScan(source: .main)
-        if AppSettings.shared.saveUserWallets {
-            scanCard()
-        } else {
-            coordinator?.close(newScan: true)
-        }
+    func onAppear() {
+        Analytics.log(.mainScreenOpened)
     }
 
     func openDetails() {
-        // [REDACTED_TODO_COMMENT]
-        guard let cardViewModel = userWalletRepository.models[selectedCardIndex] as? CardViewModel else {
-            log("Failed to cast user wallet model to CardViewModel")
+        let userWalletModel = userWalletRepository.models[selectedCardIndex]
+
+        if userWalletModel.isUserWalletLocked {
+            openUnlockUserWalletBottomSheet(for: userWalletModel)
             return
         }
 
-        coordinator?.openDetails(for: cardViewModel)
+        coordinator?.openDetails(for: userWalletModel)
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        Analytics.log(.mainRefreshed)
+
         isHorizontalScrollDisabled = true
         let completion = { [weak self] in
             self?.isHorizontalScrollDisabled = false
@@ -94,6 +97,21 @@ final class MainViewModel: ObservableObject {
             viewModel.onPullToRefresh(completionHandler: completion)
         case .lockedWallet:
             completion()
+        }
+    }
+
+    func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
+        guard reason == .byGesture else { return }
+
+        Analytics.log(.mainScreenWalletChangedBySwipe)
+    }
+
+    func onViewAppear() {
+        if isPageSwitchAnimationDisabled {
+            // A small delay to turn on animations back after closing the Details screen
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isPageSwitchAnimationDisabled = false
+            }
         }
     }
 
@@ -127,39 +145,25 @@ final class MainViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
 //        Analytics.log(.buttonDeleteWalletTapped)
 
-        showingDeleteConfirmation = true
+        let sheet = ActionSheet(
+            title: Text(Localization.userWalletListDeletePrompt),
+            buttons: [
+                .destructive(Text(Localization.commonDelete), action: weakify(self, forFunction: MainViewModel.didConfirmWalletDeletion)),
+                .cancel(Text(Localization.commonCancel)),
+            ]
+        )
+        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func didConfirmWalletDeletion() {
-        guard let userWalletModel = userWalletRepository.selectedModel else { return }
-
-        userWalletRepository.delete(userWalletModel.userWallet, logoutIfNeeded: true)
-    }
-
-    // MARK: - Scan card
-
-    private func scanCard() {
-        userWalletRepository.add { [weak self] result in
-            guard let self, let result else {
-                return
-            }
-
-            switch result {
-            case .troubleshooting:
-                showTroubleshooting()
-            case .onboarding(let input):
-                openOnboarding(with: input)
-            case .error(let error):
-                if let userWalletRepositoryError = error as? UserWalletRepositoryError {
-                    errorAlert = userWalletRepositoryError.alertBinder
-                } else {
-                    errorAlert = error.alertBinder
-                }
-            case .success(_), .partial:
-                // Will be handled through `updated` user wallet repo event
-                break
-            }
+        guard
+            let userWalletId = userWalletRepository.selectedUserWalletId,
+            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
+        else {
+            return
         }
+
+        userWalletRepository.delete(userWalletModel.userWalletId, logoutIfNeeded: true)
     }
 
     private func addNewPage(for userWalletModel: UserWalletModel) {
@@ -172,7 +176,14 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        guard let newPage = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self) else {
+        guard
+            let newPage = mainUserWalletPageBuilderFactory.createPage(
+                for: userWalletModel,
+                lockedUserWalletDelegate: self,
+                mainViewDelegate: self,
+                multiWalletContentDelegate: self
+            )
+        else {
             return
         }
 
@@ -185,10 +196,24 @@ final class MainViewModel: ObservableObject {
         pages.removeAll { page in
             userWalletIds.contains(page.id.value)
         }
+
+        guard
+            let newSelectedId = userWalletRepository.selectedUserWalletId,
+            let index = pages.firstIndex(where: { $0.id.value == newSelectedId })
+        else {
+            return
+        }
+
+        selectedCardIndex = index
     }
 
     private func recreatePages() {
-        pages = mainUserWalletPageBuilderFactory.createPages(from: userWalletRepository.models, lockedUserWalletDelegate: self)
+        pages = mainUserWalletPageBuilderFactory.createPages(
+            from: userWalletRepository.models,
+            lockedUserWalletDelegate: self,
+            mainViewDelegate: self,
+            multiWalletContentDelegate: self
+        )
     }
 
     // MARK: - Private functions
@@ -207,24 +232,25 @@ final class MainViewModel: ObservableObject {
 
         userWalletRepository.eventProvider
             .sink { [weak self] event in
+                guard let self else { return }
+
                 switch event {
                 case .locked:
-                    self?.isLoggingOut = true
+                    isLoggingOut = true
                 case .scan:
                     // [REDACTED_TODO_COMMENT]
                     break
                 case .inserted:
-                    // Useless event...
-                    break
+                    isPageSwitchAnimationDisabled = true
                 case .updated(let userWalletModel):
-                    self?.addNewPage(for: userWalletModel)
+                    addNewPage(for: userWalletModel)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
-                    if self?.isLoggingOut == true {
+                    if isLoggingOut == true {
                         return
                     }
-                    self?.removePages(with: userWalletIds)
+                    removePages(with: userWalletIds)
                 case .selected:
                     break
                 }
@@ -238,19 +264,6 @@ final class MainViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
-
-extension MainViewModel {
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator?.openOnboardingModal(with: input)
-    }
-
-    func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
-        failedCardScanTracker.resetCounter()
-
-        coordinator?.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
-    }
-}
 
 extension MainViewModel: MainLockedUserWalletDelegate {
     func openUnlockUserWalletBottomSheet(for userWalletModel: UserWalletModel) {
@@ -270,7 +283,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
         guard
             let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }),
-            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self)
+            let page = mainUserWalletPageBuilderFactory.createPage(for: userWalletModel, lockedUserWalletDelegate: self, mainViewDelegate: self, multiWalletContentDelegate: self)
         else {
             return
         }
@@ -279,10 +292,22 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
         unlockWalletBottomSheetViewModel = nil
     }
 
-    func showTroubleshooting() {
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         unlockWalletBottomSheetViewModel = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.showTroubleshootingView = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
         }
+    }
+}
+
+extension MainViewModel: MultiWalletContentDelegate {
+    func displayAddressCopiedToast() {
+        showAddressCopiedToast = true
+    }
+}
+
+extension MainViewModel: MainViewDelegate {
+    func present(actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
