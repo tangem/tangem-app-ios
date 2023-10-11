@@ -9,6 +9,10 @@
 import Foundation
 
 class CardSettingsCoordinator: CoordinatorObject {
+    // MARK: - Injected
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -52,7 +56,7 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openOnboarding(with input: OnboardingInput, hasOtherCards: Bool) {
+    func openOnboarding(with input: OnboardingInput) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
         }
@@ -62,6 +66,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             self?.dismiss()
         }
 
+        let hasOtherCards = AppSettings.shared.saveUserWallets && userWalletRepository.models.count > 1
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: hasOtherCards ? popToMainAction : popToRootAction)
         let options = OnboardingCoordinator.Options(input: input, destination: .root)
         coordinator.start(with: options)
@@ -91,7 +96,11 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
 // MARK: - ResetToFactoryViewRoutable
 
 extension CardSettingsCoordinator: ResetToFactoryViewRoutable {
-    func didResetCard() {
-        cardSettingsViewModel?.didResetCard()
+    func dismiss() {
+        if userWalletRepository.selectedModel == nil {
+            popToRoot()
+        } else {
+            dismiss()
+        }
     }
 }
