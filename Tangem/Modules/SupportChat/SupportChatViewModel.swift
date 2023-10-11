@@ -28,6 +28,19 @@ class SupportChatViewModel: ObservableObject, Identifiable {
         if FeatureProvider.isAvailable(.sprinklr) {
             sprinklrViewModel = SprinklrSupportChatViewModel()
         } else {
+            /*
+             🚨🚨🚨
+
+             Are you removing Zendesk? READ BELOW:
+
+             🦄🦄🦄
+
+             Zendesk and Sprinklr are displayed as a sheet and full screen cover respectively
+             Make sure to remove all the hacks related to this discrepancy.
+             Also make sure to clean up the code in AppPresenter.showSupportChat
+
+             ⚠️⚠️⚠️
+             */
             zendeskViewModel = .init(
                 logsComposer: input.logsComposer,
                 showSupportChatSheet: { [weak self] sheet in
