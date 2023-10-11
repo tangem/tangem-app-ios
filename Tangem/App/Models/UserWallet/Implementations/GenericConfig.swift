@@ -123,7 +123,23 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var cardHeaderImage: ImageType? {
-        Assets.Cards.wallet
+        switch card.batchId.lowercased() {
+        // Shiba cards
+        case "af02", "af03":
+            // There can't be more than 3 cards in single UserWallet
+            switch cardsCount {
+            case 2: return Assets.Cards.shibaDouble
+            case 3: return Assets.Cards.shibaTriple
+            default: return Assets.Cards.shibaSingle
+            }
+        default:
+            // There can't be more than 3 cards in single UserWallet
+            switch cardsCount {
+            case 2: return Assets.Cards.walletDouble
+            case 3: return Assets.Cards.walletTriple
+            default: return Assets.Cards.walletSingle
+            }
+        }
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
