@@ -514,6 +514,7 @@
 		B6ACD00A2AD698B4005A6CA3 /* DragAndDropGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ACD0092AD698B4005A6CA3 /* DragAndDropGestureView.swift */; };
 		B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ACD00B2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift */; };
 		B6ACD00E2AD698F6005A6CA3 /* DragAndDropGestureContextProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ACD00D2AD698F6005A6CA3 /* DragAndDropGestureContextProviding.swift */; };
+		B6ACD0102AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ACD00F2AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift */; };
 		B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */; };
 		B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */; };
 		B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */; };
@@ -1736,6 +1737,7 @@
 		B6ACD0092AD698B4005A6CA3 /* DragAndDropGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragAndDropGestureView.swift; sourceTree = "<group>"; };
 		B6ACD00B2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragAndDropGesturePredicate.swift; sourceTree = "<group>"; };
 		B6ACD00D2AD698F6005A6CA3 /* DragAndDropGestureContextProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragAndDropGestureContextProviding.swift; sourceTree = "<group>"; };
+		B6ACD00F2AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropMarkView.swift; sourceTree = "<group>"; };
 		B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemViewLeadingComponent.swift; sourceTree = "<group>"; };
 		B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionsAdapter.swift; sourceTree = "<group>"; };
 		B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainer.swift; sourceTree = "<group>"; };
@@ -4022,6 +4024,7 @@
 				B6EAA5F82A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift */,
 				B605224A2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift */,
 				B65E1F082A94CFB000A58DDE /* OrganizeTokensDragAndDropActionsCache.swift */,
+				B6ACD00F2AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift */,
 			);
 			path = DragAndDrop;
 			sourceTree = "<group>";
@@ -6717,6 +6720,7 @@
 				B0CE1E492A309F9E00D297F8 /* FakeCryptoBalanceProvider.swift in Sources */,
 				EF9241322934C25400C28551 /* CommonSwappingModulesFactory.swift in Sources */,
 				B05209C3261F2B4E000DD204 /* WalletConnectUIBuilder.swift in Sources */,
+				B6ACD0102AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift in Sources */,
 				EF914D522A612E49001F00B2 /* Wallet2Config.swift in Sources */,
 				B00FC6A92949A6460007ACCA /* CardImageResult.swift in Sources */,
 				EFD32AE729ED93F20026353E /* FeatureStateRowView.swift in Sources */,
