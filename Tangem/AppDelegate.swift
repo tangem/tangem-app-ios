@@ -43,6 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().titleTextAttributes = [
             .foregroundColor: UIColor(Colors.Text.primary1),
         ]
+        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
 
         servicesManager.initialize()
         return true
