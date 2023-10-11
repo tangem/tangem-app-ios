@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 class DefaultTokenItemInfoProvider {
-    private unowned let walletModel: WalletModel
+    private let walletModel: WalletModel
 
     init(walletModel: WalletModel) {
         self.walletModel = walletModel
@@ -33,4 +33,8 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var balance: String { walletModel.balance }
 
     var fiatBalance: String { walletModel.fiatBalance }
+
+    var quote: TokenQuote? { walletModel.quote }
+
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> { walletModel.actionsUpdatePublisher }
 }
