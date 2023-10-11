@@ -107,7 +107,10 @@ struct MainView_Preview: PreviewProvider {
     static let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
-        return .init(coordinator: coordinator, mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator))
+        return .init(
+            coordinator: coordinator,
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
+        )
     }()
 
     static var previews: some View {
