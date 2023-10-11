@@ -16,6 +16,10 @@ class SupportChatViewModel: ObservableObject, Identifiable {
     @Published var zendeskViewModel: ZendeskSupportChatViewModel?
     @Injected(\.keysManager) private var keysManager: KeysManager
 
+    static var useFullScreen: Bool {
+        FeatureProvider.isAvailable(.sprinklr)
+    }
+
     private let input: SupportChatInputModel
 
     init(input: SupportChatInputModel) {
