@@ -123,4 +123,14 @@ extension FakeUserWalletModel {
         walletManagers: [.xrpManager],
         userWallet: UserWalletStubs.xrpNoteStub
     )
+
+    static let xlmBird = FakeUserWalletModel(
+        userWalletName: "XLM Bird",
+        isMultiWallet: false,
+        isUserWalletLocked: false,
+        cardsCount: 1,
+        userWalletId: .init(with: Data.randomData(count: 32)),
+        walletManagers: [.xlmManager],
+        userWallet: UserWalletStubs.xlmBirdStub
+    )
 }
