@@ -59,7 +59,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var canImportKeys: Bool {
-        card.settings.isKeysImportAllowed && FeatureProvider.isAvailable(.importSeedPhrase)
+        card.settings.isKeysImportAllowed
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -68,7 +68,10 @@ extension Wallet2Config: UserWalletConfig {
 
     var defaultBlockchains: [StorageEntry] {
         let isTestnet = AppEnvironment.current.isTestnet
-        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
+        let blockchains: [Blockchain] = [
+            .bitcoin(testnet: isTestnet),
+            .ethereum(testnet: isTestnet),
+        ]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
@@ -240,7 +243,7 @@ extension Wallet2Config: UserWalletConfig {
         return CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
             return GenericWalletManagerFactory()
         } else {
