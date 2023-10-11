@@ -20,5 +20,5 @@ protocol DetailsRoutable: AnyObject {
     func openInSafari(url: URL)
     func openEnvironmentSetup()
     func openReferral(input: ReferralInputModel)
-    func finishScan(isNewCardAdded: Bool)
+    func dismiss()
 }
