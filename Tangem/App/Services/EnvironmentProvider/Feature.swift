@@ -43,7 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tokenDetailsV2: return .unspecified
         case .enableBlockchainSdkEvents: return .unspecified
         case .mainV2: return .version("5.0")
-        case .sprinklr: return .unspecified
+        case .sprinklr: return .version("4.11.3")
         }
     }
 }
