@@ -8,46 +8,54 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, ObservableObject {
     // MARK: - ViewState
 
+    @Published var notificationInputs: [NotificationViewInput] = []
+
     // MARK: - Dependencies
 
-    private unowned let singleWalletCoordinator: SingleWalletMainContentRoutable
+    private let userWalletNotificationManager: NotificationManager
 
     private var updateSubscription: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
+
+    private weak var mainViewDelegate: MainViewDelegate?
 
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
-        userTokensManager: UserTokensManager,
         exchangeUtility: ExchangeCryptoUtility,
-        coordinator: SingleWalletMainContentRoutable
+        userWalletNotificationManager: NotificationManager,
+        tokenNotificationManager: NotificationManager,
+        mainViewDelegate: MainViewDelegate?,
+        tokenRouter: SingleTokenRoutable
     ) {
-        singleWalletCoordinator = coordinator
+        self.userWalletNotificationManager = userWalletNotificationManager
+        self.mainViewDelegate = mainViewDelegate
 
         super.init(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            userTokensManager: userTokensManager,
             exchangeUtility: exchangeUtility,
-            coordinator: coordinator
+            notificationManager: tokenNotificationManager,
+            tokenRouter: tokenRouter
         )
+
+        bind()
     }
 
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
-        guard updateSubscription == nil else {
-            return
-        }
+    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        mainViewDelegate?.present(actionSheet: actionSheet)
+    }
 
-        isReloadingTransactionHistory = true
-        updateSubscription = walletModel.generalUpdate(silent: false)
+    private func bind() {
+        userWalletNotificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                self?.isReloadingTransactionHistory = false
-                completionHandler()
-                self?.updateSubscription = nil
-            })
+            .removeDuplicates()
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
