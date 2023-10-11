@@ -555,7 +555,7 @@ extension CardViewModel: UserWalletModel {
 }
 
 extension CardViewModel: MainHeaderInfoProvider {
-    var cardHeaderImage: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
