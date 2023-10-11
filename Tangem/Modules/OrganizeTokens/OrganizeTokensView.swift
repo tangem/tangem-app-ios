@@ -13,6 +13,8 @@ struct OrganizeTokensView: View {
 
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
     // MARK: - Coordinate spaces
 
     // Semantically, this is the same as `UIScrollView.frameLayoutGuide` from UIKit
@@ -43,12 +45,7 @@ struct OrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
-    // Index path for a view that received a new touch.
-    // `Initial` here means 'at the beginning of the drag and drop gesture'.
-    //
-    // Contains meaningful value only until the long press gesture successfully ends,
-    // mustn't be used after that (use `dragAndDropSourceIndexPath` property instead)
-    @State private var dragAndDropInitialIndexPath: IndexPath?
+    @StateObject private var initialViewModelIdentifierStorage = InitialViewModelIdentifierStorage()
 
     @GestureState private var dragAndDropSourceIndexPath: IndexPath?
 
@@ -86,24 +83,28 @@ struct OrganizeTokensView: View {
         )
     }
 
+    // [REDACTED_TODO_COMMENT]
+    private var throttleInterval: GeometryInfo.ThrottleInterval { hasActiveDrag ? .zero : .aggressive }
+
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            Group {
-                tokenList
+            tokenList
 
-                tokenListHeader
+            tokenListHeader
 
-                tokenListFooter
-            }
+            tokenListFooter
         }
         .background(
             Colors.Background.secondary
                 .ignoresSafeArea(edges: .vertical)
         )
-        .onFirstAppear {
+        .onWillAppear {
             dragAndDropController.dataSource = viewModel
+            viewModel.onViewWillAppear()
+        }
+        .onAppear {
             viewModel.onViewAppear()
         }
     }
@@ -127,15 +128,15 @@ struct OrganizeTokensView: View {
                         .animation(.spring(), value: viewModel.sections)
                         .padding(.horizontal, Constants.contentHorizontalInset)
                         .coordinateSpace(name: scrollViewContentCoordinateSpaceName)
-                        .onTouchesBegan(onTouchesBegan(atLocation:))
                         .readGeometry(
                             \.frame.maxY,
-                            throttleInterval: GeometryInfo.ThrottleInterval.aggressive,
+                            inCoordinateSpace: .global,
+                            throttleInterval: throttleInterval,
                             bindTo: $tokenListContentFrameMaxY
                         )
                         .readContentOffset(
                             inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                            throttleInterval: GeometryInfo.ThrottleInterval.aggressive,
+                            throttleInterval: throttleInterval,
                             bindTo: $scrollViewContentOffset
                         )
 
@@ -144,7 +145,7 @@ struct OrganizeTokensView: View {
                             .id(scrollViewBottomContentInsetSpacerIdentifier)
                     }
                 }
-                .readGeometry(\.frame) { newValue in
+                .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
                     dragAndDropController.viewportSizeSubject.send(newValue.size)
                     visibleViewportFrame = newValue
                         .divided(atDistance: scrollViewTopContentInset, from: .minYEdge)
@@ -208,34 +209,39 @@ struct OrganizeTokensView: View {
                 content: {
                     ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
                         let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
+                        let identifier = itemViewModel.id
 
                         makeCell(
                             viewModel: itemViewModel,
                             indexPath: indexPath,
                             parametersProvider: parametersProvider
                         )
-                        .hidden(itemViewModel.id == dragAndDropSourceViewModelIdentifier)
-                        .id(itemViewModel.id)
+                        .hidden(identifier.asAnyHashable == dragAndDropSourceViewModelIdentifier)
                         .readGeometry(
                             \.frame,
                             inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                         ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                        .onTouchesBegan { _ in onTouchesBegan(for: identifier, isDraggable: itemViewModel.isDraggable) }
+                        .id(identifier)
                     }
                 },
                 header: {
                     let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
+                    let identifier = sectionViewModel.id
 
                     makeSection(
-                        viewModel: sectionViewModel,
-                        sectionIndex: sectionIndex,
+                        from: sectionViewModel,
+                        atIndex: sectionIndex,
                         parametersProvider: parametersProvider
                     )
-                    .hidden(sectionViewModel.id == dragAndDropSourceViewModelIdentifier)
-                    .id(sectionViewModel.id)
+                    .hidden(identifier == dragAndDropSourceViewModelIdentifier)
                     .readGeometry(
                         \.frame,
                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
                     ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                    .onTouchesBegan { _ in onTouchesBegan(for: identifier, isDraggable: sectionViewModel.isDraggable) }
+                    .id(identifier)
+                    .padding(.top, sectionIndex == 0 ? 0.0 : Constants.headerBottomInset)
                 }
             )
         }
@@ -265,12 +271,17 @@ struct OrganizeTokensView: View {
             viewModel: viewModel,
             isTokenListFooterGradientHidden: isTokenListFooterGradientHidden,
             cornerRadius: Constants.contentCornerRadius,
-            horizontalInset: Constants.contentHorizontalInset
+            contentInsets: EdgeInsets(
+                top: Constants.contentVerticalInset,
+                leading: Constants.contentHorizontalInset,
+                bottom: 0.0,
+                trailing: Constants.contentHorizontalInset
+            )
         )
         .animation(.linear(duration: 0.1), value: isTokenListFooterGradientHidden)
-        .readGeometry { geometryInfo in
-            $tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY
-            $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height + Constants.contentVerticalInset
+        .readGeometry(inCoordinateSpace: .global) { geometryInfo in
+            $tokenListFooterFrameMinY.wrappedValue = geometryInfo.frame.minY + Constants.contentVerticalInset
+            $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
         }
         .infinityFrame(alignment: .bottom)
     }
@@ -331,7 +342,7 @@ struct OrganizeTokensView: View {
                     state = dragGestureValue.translation
                 }
             }
-            .updating($dragAndDropSourceIndexPath) { [initialIndexPath = dragAndDropInitialIndexPath] value, state, _ in
+            .updating($dragAndDropSourceIndexPath) { value, state, _ in
                 switch value {
                 case .first(let isLongPressGestureBegins):
                     // Long press gesture began (equivalent of `UIGestureRecognizer.State.began`)
@@ -341,10 +352,15 @@ struct OrganizeTokensView: View {
                 case .second(let isLongPressGestureEnded, let dragGestureValue):
                     // Long press gesture successfully ended (equivalent of `UIGestureRecognizer.State.ended`),
                     // drag gesture began, but hasn't been dragged yet (equivalent of `UIGestureRecognizer.State.began`)
+
+                    // Effectively consumes value in `initialViewModelIdentifierStorage`, so it can't be used anymore
+                    defer { initialViewModelIdentifierStorage.value = nil }
+
                     guard
                         isLongPressGestureEnded,
                         dragGestureValue == nil,
-                        let sourceIndexPath = initialIndexPath
+                        let sourceViewModelIdentifier = initialViewModelIdentifierStorage.value,
+                        let sourceIndexPath = viewModel.indexPath(for: sourceViewModelIdentifier)
                     else {
                         return
                     }
@@ -354,12 +370,10 @@ struct OrganizeTokensView: View {
 
                     // `DispatchQueue.main.async` used here to allow publishing changes during view update
                     DispatchQueue.main.async {
-                        // Effectively consumes `dragAndDropInitialIndexPath`, so it can't be used anymore
-                        dragAndDropInitialIndexPath = nil
                         // Set initial state for `dragAndDropDestinationIndexPath` after successfully ended long press gesture
                         dragAndDropDestinationIndexPath = sourceIndexPath
                         dragAndDropSourceItemFrame = dragAndDropController.frame(forItemAt: sourceIndexPath)
-                        dragAndDropSourceViewModelIdentifier = viewModel.viewModelIdentifier(at: sourceIndexPath)
+                        dragAndDropSourceViewModelIdentifier = sourceViewModelIdentifier
 
                         dragAndDropController.onDragStart()
                         viewModel.onDragStart(at: sourceIndexPath)
@@ -368,15 +382,9 @@ struct OrganizeTokensView: View {
             }
     }
 
-    private func onTouchesBegan(atLocation location: CGPoint) {
+    private func onTouchesBegan(for identifier: AnyHashable, isDraggable: Bool) {
         newDragAndDropSessionPrecondition()
-
-        if let initialIndexPath = dragAndDropController.indexPath(for: location),
-           viewModel.canStartDragAndDropSession(at: initialIndexPath) {
-            dragAndDropInitialIndexPath = initialIndexPath
-        } else {
-            dragAndDropInitialIndexPath = nil
-        }
+        initialViewModelIdentifierStorage.value = isDraggable ? identifier : nil
     }
 
     // MARK: - Drag and drop support
@@ -458,12 +466,12 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func makeSection(
-        viewModel: OrganizeTokensListSectionViewModel,
-        sectionIndex: Int,
+        from section: OrganizeTokensListSection,
+        atIndex sectionIndex: Int,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
-            switch viewModel.style {
+            switch section.model.style {
             case .invisible:
                 EmptyView()
             case .fixed(let title):
@@ -490,24 +498,18 @@ struct OrganizeTokensView: View {
                 cornerRadius: Constants.draggableViewCornerRadius
             )
 
-            if let sectionViewModel = viewModel.sectionViewModel(for: dragAndDropSourceViewModelIdentifier) {
-                makeDraggableView(
-                    width: width,
-                    indexPath: dragAndDropDestinationIndexPath,
-                    itemFrame: dragAndDropSourceItemFrame
-                ) {
+            makeDraggableView(
+                width: width,
+                indexPath: dragAndDropDestinationIndexPath,
+                itemFrame: dragAndDropSourceItemFrame
+            ) {
+                if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
                     makeSection(
-                        viewModel: sectionViewModel,
-                        sectionIndex: dragAndDropSourceIndexPath.section,
+                        from: section,
+                        atIndex: dragAndDropSourceIndexPath.section,
                         parametersProvider: parametersProvider
                     )
-                }
-            } else if let itemViewModel = viewModel.itemViewModel(for: dragAndDropSourceViewModelIdentifier) {
-                makeDraggableView(
-                    width: width,
-                    indexPath: dragAndDropDestinationIndexPath,
-                    itemFrame: dragAndDropSourceItemFrame
-                ) {
+                } else if let itemViewModel = viewModel.itemViewModel(for: dragAndDropSourceViewModelIdentifier) {
                     makeCell(
                         viewModel: itemViewModel,
                         indexPath: dragAndDropSourceIndexPath,
@@ -538,7 +540,7 @@ struct OrganizeTokensView: View {
 
         content()
             .frame(width: width)
-            .readGeometry(\.frame, bindTo: $draggedItemFrame)
+            .readGeometry(\.frame, inCoordinateSpace: .global, bindTo: $draggedItemFrame)
             .scaleEffect(Constants.draggableViewScale)
             .offset(y: totalOffsetTransitionValue)
             .transition(
@@ -556,7 +558,7 @@ struct OrganizeTokensView: View {
                             removalOffset: totalOffsetTransitionValue + additionalOffsetRemovalTransitionValue
                         )
                     )
-                    .combined(with: .shadow)
+                    .combined(with: .shadow(colorScheme: colorScheme))
                     .combined(with: .onViewRemoval { dragAndDropSourceViewModelIdentifier = nil })
             )
             .onDisappear {
@@ -573,10 +575,24 @@ struct OrganizeTokensView: View {
 // MARK: - Convenience extensions
 
 private extension AnyTransition {
-    static var shadow: AnyTransition {
-        let color = Color.black.opacity(0.08)
-        let radius = 14.0
-        let offset = CGPoint(x: 0.0, y: 8.0)
+    static func shadow(colorScheme: ColorScheme) -> AnyTransition {
+        let color: Color
+        let radius: CGFloat
+        let offset: CGPoint
+
+        switch colorScheme {
+        case .dark:
+            color = Color.black.opacity(0.26)
+            radius = 20.0
+            offset = CGPoint(x: 0.0, y: 2.0)
+        case .light:
+            fallthrough
+        @unknown default:
+            color = Color.black.opacity(0.08)
+            radius = 14.0
+            offset = CGPoint(x: 0.0, y: 8.0)
+        }
+
         return .modifier(
             active: ShadowAnimatableModifier(progress: 0.0, color: color, radius: radius, offset: offset),
             identity: ShadowAnimatableModifier(progress: 1.0, color: color, radius: radius, offset: offset)
@@ -631,14 +647,26 @@ private extension OrganizeTokensView {
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
         static let contentVerticalInset = 14.0
         static let contentHorizontalInset = 16.0
-        static let dragLiftLongPressGestureDuration = 0.5
-        static let dragLiftAnimationDuration = 0.35
-        static let dropAnimationProgressThresholdForViewRemoval = 0.05
+        static let dragLiftLongPressGestureDuration = 0.1
+        static let dragLiftAnimationDuration = 0.25
+        static let dropAnimationProgressThresholdForViewRemoval = 0.1
         static let dragAndDropDestinationItemSelectionThresholdRatio = 0.5
         static let draggableViewScale = 1.035
         static let draggableViewCornerRadius = 7.0
         static let autoScrollFrequency = 0.2
         static let autoScrollTriggerHeightDiff = 10.0
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension OrganizeTokensView {
+    /// A separate dummy storage, used instead of a plain `@State` var because `@State` vars
+    /// sometimes have old values at the time when the long-press gesture is finally recognized.
+    ///
+    /// `Initial` here means 'at the beginning of the drag and drop gesture'.
+    final class InitialViewModelIdentifierStorage: ObservableObject {
+        var value: AnyHashable?
     }
 }
 
