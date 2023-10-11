@@ -11,7 +11,7 @@ import UIKit
 import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject {
-    var dismissAction: Action<DismissOptions>
+    var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Main view model
@@ -38,10 +38,7 @@ class DetailsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
-    required init(
-        dismissAction: @escaping Action<DismissOptions>,
-        popToRootAction: @escaping Action<PopToRootOptions>
-    ) {
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -57,10 +54,6 @@ extension DetailsCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
     }
-
-    struct DismissOptions {
-        let isNewCardAdded: Bool
-    }
 }
 
 // MARK: - DetailsRoutable
@@ -70,7 +63,7 @@ extension DetailsCoordinator: DetailsRoutable {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
             self?.modalOnboardingCoordinator = nil
             if result.isSuccessful {
-                self?.dismiss(with: .init(isNewCardAdded: false))
+                self?.dismiss()
             }
         }
 
@@ -132,10 +125,6 @@ extension DetailsCoordinator: DetailsRoutable {
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
     }
-
-    func finishScan(isNewCardAdded: Bool) {
-        dismiss(with: .init(isNewCardAdded: isNewCardAdded))
-    }
 }
 
 // MARK: - ScanCardSettingsRoutable
@@ -143,10 +132,6 @@ extension DetailsCoordinator: DetailsRoutable {
 extension DetailsCoordinator: ScanCardSettingsRoutable {
     func openCardSettings(cardModel: CardViewModel) {
         scanCardSettingsViewModel = nil
-
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.dismissAction(.init(isNewCardAdded: false))
-        }
 
         let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .init(cardModel: cardModel))
