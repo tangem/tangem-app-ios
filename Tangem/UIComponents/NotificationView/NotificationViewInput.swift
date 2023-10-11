@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias NotificationViewId = String
+typealias NotificationViewId = Int
 
 struct NotificationViewInput: Identifiable, Equatable {
     let style: NotificationView.Style
@@ -17,6 +17,6 @@ struct NotificationViewInput: Identifiable, Equatable {
     var id: NotificationViewId { settings.id }
 
     static func == (lhs: NotificationViewInput, rhs: NotificationViewInput) -> Bool {
-        lhs.settings == rhs.settings
+        lhs.settings.id == rhs.settings.id
     }
 }
