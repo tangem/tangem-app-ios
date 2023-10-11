@@ -511,11 +511,8 @@ extension LegacyTokenDetailsViewModel {
 
         let input = CommonSwappingModulesFactory.InputModel(
             userTokensManager: card.userTokensManager,
-            wallet: walletModel.wallet,
-            blockchainNetwork: walletModel.blockchainNetwork,
-            sender: walletModel.transactionSender,
+            walletModel: walletModel,
             signer: card.signer,
-            transactionCreator: walletModel.transactionCreator,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
