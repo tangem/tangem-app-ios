@@ -106,6 +106,15 @@ final class MainViewModel: ObservableObject {
         Analytics.log(.mainScreenWalletChangedBySwipe)
     }
 
+    func onViewAppear() {
+        if isPageSwitchAnimationDisabled {
+            // A small delay to turn on animations back after closing the Details screen
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isPageSwitchAnimationDisabled = false
+            }
+        }
+    }
+
     func updateIsBackupAllowed() {
         // [REDACTED_TODO_COMMENT]
     }
@@ -223,24 +232,25 @@ final class MainViewModel: ObservableObject {
 
         userWalletRepository.eventProvider
             .sink { [weak self] event in
+                guard let self else { return }
+
                 switch event {
                 case .locked:
-                    self?.isLoggingOut = true
+                    isLoggingOut = true
                 case .scan:
                     // [REDACTED_TODO_COMMENT]
                     break
                 case .inserted:
-                    // Useless event...
-                    break
+                    isPageSwitchAnimationDisabled = true
                 case .updated(let userWalletModel):
-                    self?.addNewPage(for: userWalletModel)
+                    addNewPage(for: userWalletModel)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
-                    if self?.isLoggingOut == true {
+                    if isLoggingOut == true {
                         return
                     }
-                    self?.removePages(with: userWalletIds)
+                    removePages(with: userWalletIds)
                 case .selected:
                     break
                 }
