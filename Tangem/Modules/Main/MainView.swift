@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -18,30 +19,36 @@ struct MainView: View {
             headerFactory: { info in
                 info.header
                     .contextMenu {
-                        Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
+                        if !info.isLockedWallet {
+                            Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
 
-                        if #available(iOS 15, *) {
-                            Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
-                        } else {
-                            Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            if #available(iOS 15, *) {
+                                Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            } else {
+                                Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            }
                         }
                     }
             },
             contentFactory: { info in
                 info.body
             },
-            bottomOverlayFactory: { info in
-                info.bottomOverlay
+            bottomOverlayFactory: { info, didScrollToBottom in
+                info.makeBottomOverlay(didScrollToBottom: didScrollToBottom)
             },
             onPullToRefresh: viewModel.onPullToRefresh(completionHandler:)
         )
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .pageSwitchAnimationDuration(viewModel.isPageSwitchAnimationDisabled ? .zero : nil)
+        .onPageChange(viewModel.onPageChange(dueTo:))
+        .onAppear(perform: viewModel.onViewAppear)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
+        .onAppear(perform: viewModel.onAppear)
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarLeading) {
                 Assets.newTangemLogo.image
@@ -50,51 +57,31 @@ struct MainView: View {
 
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 0) {
-                    scanCardButton
-
+                    if #unavailable(iOS 15) {
+                        // Offset didn't work for iOS 14 if there are no other view in toolbar
+                        Spacer()
+                            .frame(width: 10)
+                    }
                     detailsNavigationButton
                 }
-                .offset(x: 10)
             }
         })
-        .alert(item: $viewModel.errorAlert) { $0.alert }
-        .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
-            ActionSheet(
-                title: Text(Localization.userWalletListDeletePrompt),
-                buttons: [
-                    .destructive(Text(Localization.commonDelete), action: viewModel.didConfirmWalletDeletion),
-                    .cancel(Text(Localization.commonCancel)),
-                ]
-            )
-        }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .bottomSheet(
             item: $viewModel.unlockWalletBottomSheetViewModel,
             settings: .init(backgroundColor: Colors.Background.primary)
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
-        .background(
-            ScanTroubleshootingView(
-                isPresented: $viewModel.showTroubleshootingView,
-                tryAgainAction: viewModel.scanCardAction,
-                requestSupportAction: viewModel.requestSupport
-            )
-        )
-    }
-
-    var scanCardButton: some View {
-        Button(action: viewModel.scanCardAction) {
-            Assets.scanWithPhone.image
-                .foregroundColor(Colors.Icon.primary1)
-                .frame(width: 44, height: 44)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .animation(nil)
+        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
+            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
+        })
     }
 
     var detailsNavigationButton: some View {
         Button(action: viewModel.openDetails) {
             NavbarDotsImage()
+                .offset(x: 10)
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
@@ -104,7 +91,7 @@ struct MainView: View {
     @ViewBuilder
     private func editButtonLabel() -> some View {
         HStack {
-            Text(Localization.userWalletListRename)
+            Text(Localization.commonRename)
             Image(systemName: "pencil")
         }
     }
@@ -122,7 +109,10 @@ struct MainView_Preview: PreviewProvider {
     static let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
-        return .init(coordinator: coordinator, mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator))
+        return .init(
+            coordinator: coordinator,
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
+        )
     }()
 
     static var previews: some View {

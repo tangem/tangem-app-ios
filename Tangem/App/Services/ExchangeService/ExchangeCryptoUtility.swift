@@ -26,7 +26,8 @@ struct ExchangeCryptoUtility {
 
     var buyURL: URL? {
         if blockchain.isTestnet {
-            return blockchain.testnetFaucetURL
+            let provider = ExternalLinkProviderFactory().makeProvider(for: blockchain)
+            return provider.testnetFaucetURL
         }
 
         switch amountType {
