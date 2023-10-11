@@ -16,8 +16,8 @@ extension QuotesDTO {
         let quotes: [String: Fields]
 
         struct Fields: Decodable {
-            let price: String?
-            let priceChange24h: String?
+            let price: Decimal?
+            let priceChange24h: Decimal?
         }
     }
 }
