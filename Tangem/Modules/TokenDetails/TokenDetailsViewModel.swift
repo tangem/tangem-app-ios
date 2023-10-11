@@ -14,13 +14,13 @@ import TangemSwapping
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
+    @Published var actionSheet: ActionSheetBinder?
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
-    private unowned let tokenDetailsCoordinator: TokenDetailsRoutable
+    private unowned let coordinator: TokenDetailsRoutable
     private var bag = Set<AnyCancellable>()
-    private var refreshCancellable: AnyCancellable?
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -39,20 +39,25 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         return TokenIconURLBuilder().iconURL(id: id)
     }
 
+    var customTokenColor: Color? {
+        tokenItem.token?.customTokenColor
+    }
+
     init(
         cardModel: CardViewModel,
-        userTokensManager: UserTokensManager,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
-        coordinator: TokenDetailsRoutable
+        notificationManager: NotificationManager,
+        coordinator: TokenDetailsRoutable,
+        tokenRouter: SingleTokenRoutable
     ) {
-        tokenDetailsCoordinator = coordinator
+        self.coordinator = coordinator
         super.init(
             userWalletModel: cardModel,
             walletModel: walletModel,
-            userTokensManager: userTokensManager,
             exchangeUtility: exchangeUtility,
-            coordinator: coordinator
+            notificationManager: notificationManager,
+            tokenRouter: tokenRouter
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
 
@@ -64,20 +69,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func onRefresh(_ done: @escaping () -> Void) {
-        Analytics.log(.refreshed)
+    override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .openNetworkCurrency:
+            openNetworkCurrency()
+        default:
+            super.didTapNotificationButton(with: id, action: action)
+        }
+    }
 
-        refreshCancellable = walletModel
-            .update(silent: false)
-            .receive(on: DispatchQueue.main)
-            .sink { _ in
-                AppLog.shared.debug("♻️ Token wallet model loading state changed")
-                withAnimation(.default.delay(0.2)) {
-                    done()
-                }
-            } receiveValue: { _ in }
-
-        reloadHistory()
+    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
 
@@ -85,7 +87,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
+        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -119,7 +121,7 @@ extension TokenDetailsViewModel {
     private func hideToken() {
         Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
 
-        userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         dismiss()
     }
 }
@@ -145,13 +147,12 @@ private extension TokenDetailsViewModel {
         switch walletModelState {
         case .created, .loading:
             balance = .loading
-        case .idle:
+        case .idle, .noAccount:
             balance = .loaded(.init(
-                balance: walletModel.getDecimalBalance(for: amountType) ?? 0,
-                currencyId: walletModel.tokenItem.currencyId,
-                currencyCode: currencySymbol
+                balance: walletModel.balance,
+                fiatBalance: walletModel.fiatBalance
             ))
-        case .noAccount(let message), .failed(let message):
+        case .failed(let message):
             balance = .failedToLoad(error: message)
         case .noDerivation:
             // User can't reach this screen without derived keys
@@ -164,7 +165,21 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     func dismiss() {
-        tokenDetailsCoordinator.dismiss()
+        coordinator.dismiss()
+    }
+
+    func openNetworkCurrency() {
+        guard
+            case .token(_, let blockchain) = walletModel.tokenItem,
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
+            return
+        }
+
+        coordinator.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 

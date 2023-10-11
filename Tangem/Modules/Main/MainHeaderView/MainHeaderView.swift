@@ -18,9 +18,10 @@ struct MainHeaderView: View {
     var body: some View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
+                let contentSettings = contentSettings(containerWidth: proxy.size.width)
+
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(viewModel.userWalletName)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    titleView
 
                     if viewModel.isUserWalletLocked {
                         Colors.Field.primary
@@ -28,36 +29,16 @@ struct MainHeaderView: View {
                             .cornerRadiusContinuous(6)
                             .padding(.vertical, 5)
                     } else {
-                        Text(viewModel.balance)
-                            .multilineTextAlignment(.leading)
-                            .truncationMode(.middle)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
-                            .showSensitiveInformation(viewModel.showSensitiveInformation)
-                            .skeletonable(
-                                isShown: viewModel.isLoadingFiatBalance,
-                                size: .init(width: 102, height: 24),
-                                radius: 6
-                            )
-                            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                            .frame(minHeight: 34)
+                        BalanceTitleView(balance: viewModel.balance, isLoading: viewModel.isLoadingFiatBalance)
                     }
 
-                    if viewModel.isUserWalletLocked {
-                        subtitleText
-                    } else {
-                        subtitleText
-                            .showSensitiveInformation(viewModel.showSensitiveSubtitleInformation)
-                            .skeletonable(isShown: viewModel.isLoadingSubtitle, size: .init(width: 52, height: 12), radius: 3)
-                    }
+                    subtitleText
                 }
                 .lineLimit(1)
-                .frame(width: leadingContentWidth(containerWidth: proxy.size.width), alignment: .leading)
-                .padding(.vertical, 12)
+                .frame(width: contentSettings.leadingContentWidth, height: imageSize.height, alignment: .leading)
 
-                if let cardImage = viewModel.cardImage {
-                    Spacer()
-                        .frame(minWidth: horizontalSpacing)
+                if let cardImage = viewModel.cardImage, contentSettings.shouldShowTrailingContent {
+                    Spacer(minLength: horizontalSpacing)
 
                     cardImage.image
                         .frame(size: imageSize)
@@ -71,35 +52,49 @@ struct MainHeaderView: View {
         .previewContentShape(cornerRadius: cornerRadius)
     }
 
-    private var subtitleText: some View {
-        Text(viewModel.subtitleInfo.message)
-            .style(
-                viewModel.subtitleInfo.formattingOption.font,
-                color: viewModel.subtitleInfo.formattingOption.textColor
-            )
-            .truncationMode(.middle)
+    @ViewBuilder private var titleView: some View {
+        Text(viewModel.userWalletName)
+            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
-    private func leadingContentWidth(containerWidth: CGFloat) -> CGFloat {
-        var trailingOffset: CGFloat = 0
-
-        if viewModel.cardImage != nil {
-            trailingOffset = imageSize.width + horizontalSpacing
+    @ViewBuilder private var subtitleText: some View {
+        Group {
+            if viewModel.subtitleContainsSensitiveInfo {
+                SensitiveText(viewModel.subtitleInfo.message)
+            } else {
+                Text(viewModel.subtitleInfo.message)
+            }
         }
-
-        return max(containerWidth - trailingOffset, 0.0)
+        .style(
+            viewModel.subtitleInfo.formattingOption.font,
+            color: viewModel.subtitleInfo.formattingOption.textColor
+        )
+        .truncationMode(.middle)
+        .modifier(if: !viewModel.isUserWalletLocked) {
+            $0.skeletonable(isShown: viewModel.isLoadingSubtitle, size: .init(width: 52, height: 12), radius: 3)
+        }
     }
-}
 
-private extension View {
-    @ViewBuilder
-    func previewContentShape(cornerRadius: Double) -> some View {
-        if #available(iOS 15.0, *) {
-            self
-                .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        } else {
-            self
+    private func calculateTextWidth(_ text: NSAttributedString) -> CGFloat {
+        return text.string
+            .size(withAttributes: text.attributes(at: 0, effectiveRange: nil))
+            .width
+    }
+
+    private func widthForBalanceWithImage(containerWidth: CGFloat) -> CGFloat {
+        let imageWidth = viewModel.cardImage != nil ? imageSize.width : 0
+        return containerWidth - imageWidth - horizontalSpacing
+    }
+
+    private func contentSettings(containerWidth: CGFloat) -> (leadingContentWidth: CGFloat, shouldShowTrailingContent: Bool) {
+        let balanceWidth = calculateTextWidth(viewModel.balance)
+
+        let widthForBalanceWithImage = widthForBalanceWithImage(containerWidth: containerWidth)
+        if balanceWidth > widthForBalanceWithImage {
+            return (containerWidth, false)
         }
+
+        return (max(widthForBalanceWithImage, 0), true)
     }
 }
 

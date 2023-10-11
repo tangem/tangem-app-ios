@@ -10,7 +10,13 @@ import Combine
 import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
-    var cardHeaderImage: ImageType?
+    let emailData: [EmailCollectedData] = []
+    let backupInput: OnboardingInput? = nil
+    let twinInput: OnboardingInput? = nil
+
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: config.cardHeaderImage)
+    }
 
     var isUserWalletLocked: Bool { false }
 
@@ -31,8 +37,18 @@ class UserWalletModelMock: UserWalletModel {
     var userWalletId: UserWalletId { .init(with: Data()) }
 
     var userWallet: UserWallet {
-        UserWallet(userWalletId: Data(), name: "", card: .init(card: .walletWithBackup), associatedCardIds: [], walletData: .none, artwork: nil, isHDWalletAllowed: false)
+        UserWallet(
+            userWalletId: Data(),
+            name: "",
+            card: .init(card: .walletWithBackup),
+            associatedCardIds: [],
+            walletData: .none,
+            artwork: nil,
+            isHDWalletAllowed: false
+        )
     }
+
+    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
 
