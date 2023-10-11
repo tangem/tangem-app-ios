@@ -12,12 +12,16 @@ import TangemSdk
 import BlockchainSdk
 
 struct CommonUserTokensManager {
+    @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
+
     let derivationManager: DerivationManager?
 
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
     private weak var cardDerivableProvider: CardDerivableProvider?
+
+    private var bag: Set<AnyCancellable> = []
 
     init(
         userTokenListManager: UserTokenListManager,
@@ -31,6 +35,8 @@ struct CommonUserTokensManager {
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
+
+        bind()
     }
 
     private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
@@ -68,7 +74,25 @@ struct CommonUserTokensManager {
             userTokenListManager.update(.removeBlockchain(blockchainNetwork), shouldUpload: shouldUpload)
         }
     }
+
+    private mutating func bind() {
+        userTokenListManager
+            .userTokensListPublisher
+            // We can skip first element, because swap state will be loaded during `sync`
+            // for all token list after loading actual info from backend
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [swapAvailabilityController] tokenList in
+                let converter = StorageEntryConverter()
+                let nonCustomTokens = tokenList.entries.filter { !$0.isCustom }
+                let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+                swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: false)
+            }
+            .store(in: &bag)
+    }
 }
+
+// MARK: - UserTokensManager protocol conformance
 
 extension CommonUserTokensManager: UserTokensManager {
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
@@ -78,7 +102,10 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
+        // Delay to update derivations in derivationManager
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
+        }
     }
 
     func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
@@ -163,22 +190,89 @@ extension CommonUserTokensManager: UserTokensManager {
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
         userTokenListManager.upload()
     }
+
+    func sync(completion: @escaping () -> Void) {
+        userTokenListManager.updateLocalRepositoryFromServer { _ in
+            let converter = StorageEntryConverter()
+            let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
+            let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+            self.swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: true)
+            self.walletModelsManager.updateAll(silent: false, completion: completion)
+        }
+    }
 }
 
-extension CommonUserTokensManager: UserTokensSyncService {
-    var isInitialSyncPerformed: Bool {
-        userTokenListManager.isInitialSyncPerformed
-    }
+// MARK: - UserTokensReordering protocol conformance
 
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        userTokenListManager.initialSyncPublisher
+extension CommonUserTokensManager: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> {
+        return userTokenListManager
+            .userTokensListPublisher
+            .map { $0.entries.map(\.walletModelId) }
             .eraseToAnyPublisher()
     }
 
-    func updateUserTokens() {
-        userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self.walletModelsManager.updateAll(silent: false, completion: {})
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+        let converter = UserTokensReorderingOptionsConverter()
+        return userTokenListManager
+            .userTokensListPublisher
+            .map { converter.convert($0.grouping) }
+            .eraseToAnyPublisher()
+    }
+
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+        let converter = UserTokensReorderingOptionsConverter()
+        return userTokenListManager
+            .userTokensListPublisher
+            .map { converter.convert($0.sorting) }
+            .eraseToAnyPublisher()
+    }
+
+    func reorder(
+        _ reorderingActions: [UserTokensReorderingAction]
+    ) -> AnyPublisher<Void, Never> {
+        return Deferred { [userTokenListManager = self.userTokenListManager] in
+            Future<Void, Never> { promise in
+                if reorderingActions.isEmpty {
+                    promise(.success(()))
+                    return
+                }
+
+                let converter = UserTokensReorderingOptionsConverter()
+                let existingList = userTokenListManager.userTokensList
+                var entries = existingList.entries
+                var grouping = existingList.grouping
+                var sorting = existingList.sorting
+
+                for action in reorderingActions {
+                    switch action {
+                    case .setGroupingOption(let option):
+                        grouping = converter.convert(option)
+                    case .setSortingOption(let option):
+                        sorting = converter.convert(option)
+                    case .reorder(let reorderedWalletModelIds):
+                        let userTokensKeyedByIds = entries.keyedFirst(by: \.walletModelId)
+                        let reorderedEntries = reorderedWalletModelIds.compactMap { userTokensKeyedByIds[$0] }
+
+                        assert(reorderedEntries.count == entries.count, "Model inconsistency detected")
+                        entries = reorderedEntries
+                    }
+                }
+
+                let editedList = StoredUserTokenList(
+                    entries: entries,
+                    grouping: grouping,
+                    sorting: sorting
+                )
+
+                if editedList != existingList {
+                    userTokenListManager.update(with: editedList)
+                }
+
+                promise(.success(()))
+            }
         }
+        .eraseToAnyPublisher()
     }
 }
 
