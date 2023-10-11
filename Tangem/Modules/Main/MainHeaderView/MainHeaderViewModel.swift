@@ -10,9 +10,9 @@ import Foundation
 import Combine
 
 final class MainHeaderViewModel: ObservableObject {
-    let cardImage: ImageType?
     let isUserWalletLocked: Bool
 
+    @Published private(set) var cardImage: ImageType?
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
     @Published private(set) var balance: NSAttributedString = .init(string: "")
@@ -39,7 +39,6 @@ final class MainHeaderViewModel: ObservableObject {
         self.balanceProvider = balanceProvider
 
         isUserWalletLocked = infoProvider.isUserWalletLocked
-        cardImage = infoProvider.cardHeaderImage
         bind()
     }
 
@@ -47,6 +46,11 @@ final class MainHeaderViewModel: ObservableObject {
         infoProvider.userWalletNamePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.userWalletName, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        infoProvider.cardHeaderImage
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
 
         subtitleProvider.isLoadingPublisher
