@@ -75,14 +75,11 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
             event: .success,
             message: Localization.sendTransactionSuccess,
             approveAction: { [weak self] in
-                guard
-                    let lastTx = self?.walletModel.wallet.transactions.last,
-                    let txHash = lastTx.hash
-                else {
+                guard let lastTx = self?.walletModel.wallet.pendingTransactions.last else {
                     throw WalletConnectV2Error.transactionSentButNotFoundInManager
                 }
 
-                return RPCResult.response(AnyCodable(txHash))
+                return RPCResult.response(AnyCodable(lastTx.hash))
             },
             rejectAction: { throw WalletConnectV2Error.unknown("Impossible case") }
         ))
