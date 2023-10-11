@@ -62,7 +62,10 @@ extension GenericConfig: UserWalletConfig {
 
     var defaultBlockchains: [StorageEntry] {
         let isTestnet = AppEnvironment.current.isTestnet
-        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
+        let blockchains: [Blockchain] = [
+            .bitcoin(testnet: isTestnet),
+            .ethereum(testnet: isTestnet),
+        ]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = derivationStyle {
@@ -120,7 +123,23 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var cardHeaderImage: ImageType? {
-        Assets.Cards.wallet
+        switch card.batchId {
+        // Shiba cards
+        case "AF02", "AF03":
+            // There can't be more than 3 cards in single UserWallet
+            switch cardsCount {
+            case 2: return Assets.Cards.shibaDouble
+            case 3: return Assets.Cards.shibaTriple
+            default: return Assets.Cards.shibaSingle
+            }
+        default:
+            // There can't be more than 3 cards in single UserWallet
+            switch cardsCount {
+            case 2: return Assets.Cards.walletDouble
+            case 3: return Assets.Cards.walletTriple
+            default: return Assets.Cards.walletSingle
+            }
+        }
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -194,7 +213,7 @@ extension GenericConfig: UserWalletConfig {
         return CommonWalletModelsFactory(derivationStyle: derivationStyle)
     }
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
             return GenericWalletManagerFactory()
         } else {

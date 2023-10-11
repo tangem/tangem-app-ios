@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-protocol TokenDetailsRoutable: SingleTokenBaseRoutable {
+protocol TokenDetailsRoutable: AnyObject {
     func dismiss()
+    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel)
 }
