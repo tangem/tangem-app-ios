@@ -1,0 +1,27 @@
+{
+    "transfer":[
+       "0xa9059cbb"
+    ],
+    "submit":[
+       "0xa1903eab"
+    ],
+    "approve":[
+       "0x095ea7b3"
+    ],
+    "supply":[
+       "0x617ba037"
+    ],
+    "withdraw":[
+       "0x69328dec"
+    ],
+    "deposit":[
+       "0xe8eda9df"
+    ],
+    "swap":[
+       "0x12aa3caf"
+    ],
+    "unoswap":[
+       "0x0502b1c5",
+       "0x2e95b6c8"
+    ]
+ }
