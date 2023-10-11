@@ -236,6 +236,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
+    private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -285,6 +286,7 @@ class CardViewModel: Identifiable, ObservableObject {
         _signer = config.tangemSigner
         accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
         _userWalletNamePublisher = .init(cardInfo.name)
+        _cardHeaderImagePublisher = .init(config.cardHeaderImage)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
@@ -417,6 +419,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func onUpdate() {
         AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
+        _cardHeaderImagePublisher.send(config.cardHeaderImage)
         _signer = config.tangemSigner
         updateModel()
         // prevent save until onboarding completed
@@ -552,7 +555,7 @@ extension CardViewModel: UserWalletModel {
 }
 
 extension CardViewModel: MainHeaderInfoProvider {
-    var cardHeaderImage: ImageType? { config.cardHeaderImage }
+    var cardHeaderImage: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
