@@ -68,6 +68,8 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
 
+    func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
+
     func save(_ cardViewModel: UserWalletModel) {}
 
     func contains(_ userWallet: UserWallet) -> Bool {
@@ -76,7 +78,7 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func save(_ userWallet: UserWallet) {}
 
-    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool) {}
+    func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool) {}
 
     func clearNonSelectedUserWallets() {}
 
