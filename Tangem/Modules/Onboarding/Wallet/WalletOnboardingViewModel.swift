@@ -804,12 +804,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        var interactor: CardResettable? = CardInteractor(
-            tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
-            cardId: cardId
-        )
-
-        interactor?.resetCard { [weak self] result in
+        let interactor = CardInteractor(cardId: cardId)
+        interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
                 if error.isUserCancelled {
@@ -822,7 +818,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
 
             self?.isMainButtonBusy = false
-            interactor = nil // for retaining
+            withExtendedLifetime(interactor) {}
         }
     }
 }
