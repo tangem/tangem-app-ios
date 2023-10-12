@@ -41,6 +41,10 @@ struct OrganizeTokensListItemView: View {
                 Assets.OrganizeTokens.itemDragAndDropIcon
                     .image
                     .foregroundColor(Colors.Icon.informative)
+                    .overlay(
+                        OrganizeTokensDragAndDropGestureMarkView(context: .init(identifier: viewModel.id))
+                            .frame(size: Constants.dragAndDropTapZoneSize)
+                    )
             }
         }
         .padding(14.0)
@@ -79,6 +83,7 @@ struct OrganizeTokensListItemView: View {
 private extension OrganizeTokensListItemView {
     enum Constants {
         static let spacerLength = 12.0
+        static let dragAndDropTapZoneSize = CGSize(bothDimensions: 64.0)
     }
 }
 
