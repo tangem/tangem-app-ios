@@ -59,9 +59,7 @@ private extension CommonSwappingTransactionSender {
             sourceAddress: data.sourceAddress,
             destinationAddress: data.destinationAddress,
             changeAddress: data.sourceAddress,
-            contractAddress: data.destinationAddress,
-            date: Date(),
-            status: .unconfirmed
+            contractAddress: data.destinationAddress
         )
 
         transaction.params = EthereumTransactionParams(
