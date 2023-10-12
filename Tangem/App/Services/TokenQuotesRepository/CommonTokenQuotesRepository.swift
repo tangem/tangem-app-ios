@@ -68,7 +68,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
                     TokenQuote(
                         currencyId: quote.id,
                         // We round price change for the user friendly size
-                        change: quote.priceChange.rounded(scale: 2),
+                        change: quote.priceChange?.rounded(scale: 2),
                         price: quote.price,
                         currencyCode: request.currencyId
                     )
