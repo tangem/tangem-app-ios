@@ -19,7 +19,6 @@
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_old_card" = "I fondi delle carte Tangem emesse prima di settembre 2019 non possono essere recuperati utilizzando un iPhone a causa delle restrizioni di iOS. È necessario utilizzare un telefono Android per recuperare i fondi. Le carte rilasciate dopo settembre 2019 funzionano correttamente con entrambe le piattaforme.";
 "alert_old_device_this_card" = "Potresti riscontrare problemi con l'NFC su alcuni iPhone 7/7 + durante la rimozione";
-"alert_signed_hashes_message" = "This card is not a bearer note. We can't currently match the signature count on the card with the information on the blockchain. This is normal but in rare cases can mean a previous holder is holding back an offline signature, which is a security concern.\nDo not accept this card as physical payment from someone you don't trust.\nIt's perfectly safe in all other respects.\nTangem is the only hardware wallet to offer signature count protection.";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
@@ -542,7 +541,6 @@
 "warning_existential_deposit_message" = "%1$@ network has a concept of Existential Deposit. If your account drops below %2$@ it will be deactivated and any remaining funds will be destroyed.";
 "warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 "warning_failed_to_verify_card_title" = "Authenticity check failed";
-"warning_important_security_info" = "Important security information %@";
 "warning_low_signatures_format" = "There are only %@ signatures available on this card. You must withdraw all of your funds.";
 "warning_rate_app_message" = "How do you like Tangem?";
 "warning_rate_app_title" = "One question";
