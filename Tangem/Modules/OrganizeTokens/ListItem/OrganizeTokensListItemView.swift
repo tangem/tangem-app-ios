@@ -16,6 +16,7 @@ struct OrganizeTokensListItemView: View {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
+                customTokenColor: viewModel.customTokenColor,
                 blockchainIconName: viewModel.blockchainIconName,
                 hasMonochromeIcon: viewModel.hasMonochromeIcon,
                 isCustom: viewModel.isCustom
