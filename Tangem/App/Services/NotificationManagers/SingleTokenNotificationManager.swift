@@ -62,17 +62,6 @@ class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
-        if case .token(let token, let blockchain) = walletModel.tokenItem,
-           let networkCurrencyAmount = walletModel.wallet.amounts[.coin],
-           networkCurrencyAmount.isZero {
-            events.append(.unableToCoverFee(
-                tokenName: token.name,
-                blockchainCurrencySymbol: blockchain.currencySymbol,
-                blockchainName: blockchain.displayName,
-                blockchainIconName: blockchain.iconNameFilled
-            ))
-        }
-
         if let sendBlockedReason = walletModel.sendBlockedReason {
             events.append(.event(for: sendBlockedReason))
         }
@@ -107,9 +96,7 @@ class SingleTokenNotificationManager {
             .send([
                 factory.buildNotificationInput(
                     for: .networkUnreachable,
-                    dismissAction: { [weak self] id in
-                        self?.dismissNotification(with: id)
-                    }
+                    dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
                 ),
             ])
     }
@@ -146,9 +133,7 @@ class SingleTokenNotificationManager {
         let factory = NotificationsFactory()
         let input = factory.buildNotificationInput(
             for: .rentFee(rentMessage: rentMessage),
-            dismissAction: { [weak self] id in
-                self?.dismissNotification(with: id)
-            }
+            dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
         )
         return input
     }
