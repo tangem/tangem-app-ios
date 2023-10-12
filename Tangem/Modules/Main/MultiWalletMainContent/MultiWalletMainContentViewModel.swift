@@ -142,12 +142,31 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             })
             .store(in: &bag)
 
+        // The contents of the coins and tokens collection for the user wallet
         let walletModelsPublisher = userWalletModel
             .walletModelsManager
             .walletModelsPublisher
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+
+        // Fiat/balance changes for the coins and tokens for the user wallet
+        let walletModelsDidChangePublisher = walletModelsPublisher
+            .flatMap { walletModels in
+                return walletModels
+                    .map(\.walletDidChangePublisher)
+                    .merge()
+            }
+            .debounce(for: Constants.tokensDeliveryDelay, scheduler: DispatchQueue.main)
+            .withLatestFrom(walletModelsPublisher)
+            .eraseToAnyPublisher()
+
+        let aggregatedWalletModelsPublisher = [
+            walletModelsPublisher,
+            walletModelsDidChangePublisher,
+        ].merge()
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
-            .organizedSections(from: walletModelsPublisher, on: mappingQueue)
+            .organizedSections(from: aggregatedWalletModelsPublisher, on: mappingQueue)
             .share(replay: 1)
 
         organizedTokensSectionsPublisher
@@ -246,6 +265,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         var tokenSyncSubscription: AnyCancellable?
         tokenSyncSubscription = userWalletModel.userTokenListManager.initializedPublisher
             .filter { $0 }
+        // We need this delay, because subscription to list items has debounce.
+        // If we didn't add this delay loader view will disappear immedeatly after loading list from backend,
+        // display empty list and after debounce interval display loaded list of items.
+            .delay(for: Constants.tokensDeliveryDelay, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.isLoadingTokenList = false
                 withExtendedLifetime(tokenSyncSubscription) {}
@@ -340,6 +363,8 @@ private extension MultiWalletMainContentViewModel {
 
 extension MultiWalletMainContentViewModel {
     func openManageTokens() {
+        Analytics.log(.buttonManageTokens)
+
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
         supportedBlockchains.remove(.ducatus)
@@ -409,17 +434,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
 
     private func handleUserWalletNotificationTap(event: WarningEvent, id: NotificationViewId) {
         switch event {
-        case .multiWalletSignedHashes:
-            error = AlertBuilder.makeAlert(
-                title: event.title,
-                message: Localization.alertSignedHashesMessage,
-                with: .withPrimaryCancelButton(
-                    secondaryTitle: Localization.commonUnderstand,
-                    secondaryAction: { [weak self] in
-                        self?.userWalletNotificationManager.dismissNotification(with: id)
-                    }
-                )
-            )
         default:
             assertionFailure("This event shouldn't have tap action on main screen. Event: \(event)")
         }
@@ -514,5 +528,11 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .hide:
             return
         }
+    }
+}
+
+private extension MultiWalletMainContentViewModel {
+    enum Constants {
+        static let tokensDeliveryDelay: DispatchQueue.SchedulerTimeType.Stride = 0.3
     }
 }
