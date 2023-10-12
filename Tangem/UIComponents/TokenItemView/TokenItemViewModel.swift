@@ -7,6 +7,7 @@
 //
 
 import Combine
+import SwiftUI
 import BlockchainSdk
 
 typealias WalletModelId = Int
@@ -36,6 +37,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || isTestnetToken }
     var isCustom: Bool { tokenIcon.isCustom }
+    var customTokenColor: Color? { tokenIcon.customTokenColor }
     var tokenItem: TokenItem { infoProvider.tokenItem }
 
     var hasError: Bool { missingDerivation || networkUnreachable }
@@ -140,14 +142,13 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func updatePriceChange() {
-        guard let quote = infoProvider.quote else {
+        guard let change = infoProvider.quote?.change else {
             priceChangeState = .noData
             return
         }
 
-        let signType = ChangeSignType(from: quote.change)
-
-        let percent = percentFormatter.percentFormat(value: quote.change)
+        let signType = ChangeSignType(from: change)
+        let percent = percentFormatter.percentFormat(value: change)
         priceChangeState = .loaded(signType: signType, text: percent)
     }
 
