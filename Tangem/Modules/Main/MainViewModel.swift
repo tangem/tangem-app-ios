@@ -77,9 +77,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
-    func onAppear() {
-        Analytics.log(.mainScreenOpened)
-    }
+    func onAppear() {}
 
     func openDetails() {
         let userWalletModel = userWalletRepository.models[selectedCardIndex]
@@ -93,7 +91,16 @@ final class MainViewModel: ObservableObject {
     }
 
     func onViewAppear() {
+        Analytics.log(.mainScreenOpened)
+
         isViewVisible = true
+
+        if isPageSwitchAnimationDisabled {
+            // A small delay to turn on animations back after closing the Details screen
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isPageSwitchAnimationDisabled = false
+            }
+        }
     }
 
     func onViewDisappear() {
@@ -124,15 +131,6 @@ final class MainViewModel: ObservableObject {
         guard reason == .byGesture else { return }
 
         Analytics.log(.mainScreenWalletChangedBySwipe)
-    }
-
-    func onViewAppear() {
-        if isPageSwitchAnimationDisabled {
-            // A small delay to turn on animations back after closing the Details screen
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.isPageSwitchAnimationDisabled = false
-            }
-        }
     }
 
     func updateIsBackupAllowed() {
