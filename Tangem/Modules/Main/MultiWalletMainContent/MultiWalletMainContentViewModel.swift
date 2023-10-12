@@ -265,9 +265,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         var tokenSyncSubscription: AnyCancellable?
         tokenSyncSubscription = userWalletModel.userTokenListManager.initializedPublisher
             .filter { $0 }
-        // We need this delay, because subscription to list items has debounce.
-        // If we didn't add this delay loader view will disappear immedeatly after loading list from backend,
-        // display empty list and after debounce interval display loaded list of items.
+            // We need this delay, because subscription to list items has debounce.
+            // If we didn't add this delay loader view will disappear immedeatly after loading list from backend,
+            // display empty list and after debounce interval display loaded list of items.
             .delay(for: Constants.tokensDeliveryDelay, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.isLoadingTokenList = false
