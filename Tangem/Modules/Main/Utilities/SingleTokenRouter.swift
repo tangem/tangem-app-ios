@@ -26,7 +26,7 @@ class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     private let userWalletModel: UserWalletModel
-    private let coordinator: SingleTokenBaseRoutable
+    private unowned let coordinator: SingleTokenBaseRoutable
 
     init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable) {
         self.userWalletModel = userWalletModel
