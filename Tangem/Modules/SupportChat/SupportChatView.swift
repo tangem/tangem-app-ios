@@ -12,10 +12,6 @@ import SwiftUI
 struct SupportChatView: View {
     @ObservedObject var viewModel: SupportChatViewModel
 
-    static var useFullScreen: Bool {
-        SupportChatViewModel.useFullScreen
-    }
-
     var body: some View {
         if let sprinklrViewModel = viewModel.sprinklrViewModel {
             SprinklrSupportChatView(viewModel: sprinklrViewModel)
