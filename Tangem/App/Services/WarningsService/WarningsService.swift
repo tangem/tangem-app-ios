@@ -152,7 +152,6 @@ private extension WarningsService {
         }
 
         guard !isMultiWallet else {
-            showWarningWithAnimation(.multiWalletSignedHashes)
             didFinishCountingHashes()
             return
         }
