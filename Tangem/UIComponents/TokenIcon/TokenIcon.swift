@@ -37,10 +37,7 @@ struct TokenIcon: View {
 
     private var tokenIcon: some View {
         IconView(url: imageURL, size: size, forceKingfisher: true)
-            .overlay(
-                networkIcon.offset(x: 4, y: -4),
-                alignment: .topTrailing
-            )
+            .overlay(networkIcon, alignment: .topTrailing)
             .overlay(
                 customTokenIndicator
                     .frame(size: size, alignment: .bottomTrailing)
@@ -62,6 +59,7 @@ struct TokenIcon: View {
                     .clipShape(Circle())
                     .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
             )
+            .offset(x: 4, y: -4)
         }
     }
 
@@ -91,6 +89,7 @@ struct TokenIcon: View {
                     )
             )
             .frame(size: size)
+            .overlay(networkIcon, alignment: .topTrailing)
     }
 }
 
