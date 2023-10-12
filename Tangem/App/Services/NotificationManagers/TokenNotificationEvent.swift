@@ -17,9 +17,7 @@ enum TokenNotificationEvent: Hashable {
     case existentialDepositWarning(message: String)
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
-    #warning("[REDACTED_TODO_COMMENT]")
-    case notEnoughtFeeForTokenTx(message: String)
-    case unableToCoverFee(tokenName: String, blockchainCurrencySymbol: String, blockchainName: String, blockchainIconName: String)
+    case notEnoughtFeeForTokenTx(tokenName: String, blockchainCurrencySymbol: String, blockchainName: String, blockchainIconName: String)
 
     static func event(for reason: WalletModel.SendBlockedReason) -> TokenNotificationEvent {
         let message = reason.description
@@ -28,17 +26,17 @@ enum TokenNotificationEvent: Hashable {
             return .longTransaction(message: message)
         case .hasPendingCoinTx:
             return .hasPendingTransactions(message: message)
-        case .notEnoughtFeeForTokenTx:
-            return .notEnoughtFeeForTokenTx(message: message)
+        case .notEnoughtFeeForTokenTx(let tokenName, let networkName, let coinSymbol, let chainIconName):
+            return .notEnoughtFeeForTokenTx(tokenName: tokenName, blockchainCurrencySymbol: coinSymbol, blockchainName: networkName, blockchainIconName: chainIconName)
         }
     }
 
     var buttonAction: NotificationButtonActionType? {
         switch self {
         // One notification with button action will be added later
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .noAccount:
             return nil
-        case .unableToCoverFee(_, let blockchainCurrencySymbol, _, _):
+        case .notEnoughtFeeForTokenTx(_, let blockchainCurrencySymbol, _, _):
             return .openNetworkCurrency(currencySymbol: blockchainCurrencySymbol)
         }
     }
@@ -73,9 +71,7 @@ extension TokenNotificationEvent: NotificationEvent {
             return defaultTitle
         case .hasPendingTransactions:
             return Localization.walletBalanceTxInProgress
-        case .notEnoughtFeeForTokenTx:
-            return defaultTitle
-        case .unableToCoverFee(_, _, let blockchainName, _):
+        case .notEnoughtFeeForTokenTx(_, _, let blockchainName, _):
             return Localization.notificationTitleNotEnoughFunds(blockchainName)
         }
     }
@@ -98,30 +94,28 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .hasPendingTransactions(let message):
             return message
-        case .notEnoughtFeeForTokenTx(let message):
-            return message
-        case .unableToCoverFee(let tokenName, let blockchainCurrencySymbol, let blockchainName, _):
+        case .notEnoughtFeeForTokenTx(let tokenName, let blockchainCurrencySymbol, let blockchainName, _):
             return Localization.notificationSubtitleNotEnoughFunds(tokenName, blockchainName, blockchainCurrencySymbol)
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .noAccount:
             return .gray
         // One white notification will be added later
-        case .unableToCoverFee:
+        case .notEnoughtFeeForTokenTx:
             return .white
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .noAccount, .hasPendingTransactions, .notEnoughtFeeForTokenTx:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .noAccount, .hasPendingTransactions:
             return .init(image: Assets.attention.image)
         case .existentialDepositWarning:
             return .init(image: Assets.redCircleWarning.image)
-        case .unableToCoverFee(_, _, _, let blockchainIconName):
+        case .notEnoughtFeeForTokenTx(_, _, _, let blockchainIconName):
             return .init(image: Image(blockchainIconName))
         }
     }
@@ -130,7 +124,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .rentFee:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount, .unableToCoverFee:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return false
         }
     }
