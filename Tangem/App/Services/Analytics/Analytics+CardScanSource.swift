@@ -13,6 +13,7 @@ extension Analytics {
         case welcome
         case auth
         case main
+        case mainUnlock
         case myWalletsNewCard
         case myWalletsUnlock
         case settings
@@ -31,6 +32,8 @@ extension Analytics {
                 return .walletUnlockTapped
             case .settings:
                 return .buttonScanNewCardSettings
+            case .mainUnlock:
+                return .walletUnlockTappedMain
             }
         }
 
@@ -40,7 +43,7 @@ extension Analytics {
                 return .scanSourceWelcome
             case .auth:
                 return .scanSourceAuth
-            case .main:
+            case .main, .mainUnlock:
                 return .scanSourceMain
             case .myWalletsNewCard, .myWalletsUnlock:
                 return .scanSourceMyWallets
