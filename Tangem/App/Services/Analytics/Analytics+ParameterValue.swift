@@ -29,6 +29,7 @@ extension Analytics {
         case scanSourceMain = "Main"
         case scanSourceAuth = "Sign In"
         case scanSourceMyWallets = "My Wallets"
+        case scanSourceSettings = "Settings"
 
         case transactionSourceSend = "Send"
         case transactionSourceSwap = "Swap"
