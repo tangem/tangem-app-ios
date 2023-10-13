@@ -80,13 +80,13 @@ struct MainButton: View {
                     titleView
 
                 case .leading(let icon):
-                    HStack(alignment: .center, spacing: 10) {
+                    HStack(alignment: .center, spacing: 6) {
                         iconView(icon: icon)
 
                         titleView
                     }
                 case .trailing(let icon):
-                    HStack(alignment: .center, spacing: 10) {
+                    HStack(alignment: .center, spacing: 6) {
                         titleView
 
                         iconView(icon: icon)
