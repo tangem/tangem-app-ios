@@ -20,6 +20,7 @@ extension Analytics {
         case null = "Null"
         case empty = "Empty"
         case customToken = "Custom Token"
+        case noRate = "No Rate"
         case blockchainError = "Blockchain Error"
         case multicurrency = "Multicurrency"
         case accessCode = "Access Code"
@@ -78,6 +79,8 @@ extension Analytics {
         case sortTypeByBalance = "By Balance"
         case sortTypeManual = "Manually"
 
+        case balance = "Balance"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
@@ -94,10 +97,6 @@ extension Analytics {
         case readPrimary = "read_primary"
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
-
-        static func state(for balance: Decimal) -> ParameterValue {
-            return balance > 0 ? .full : .empty
-        }
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
             return boolean ? .on : .off
