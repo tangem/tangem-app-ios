@@ -39,9 +39,9 @@ struct MainHeaderView: View {
                     subtitleText
                 }
                 .lineLimit(1)
-                .frame(width: contentSettings.leadingContentWidth, height: imageSize.height, alignment: .leading)
                 .padding(.top, 14)
                 .padding(.bottom, 12)
+                .frame(width: contentSettings.leadingContentWidth, height: imageSize.height, alignment: .leading)
 
                 if let cardImage = viewModel.cardImage, contentSettings.shouldShowTrailingContent {
                     Spacer(minLength: horizontalSpacing)
