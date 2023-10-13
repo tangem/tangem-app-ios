@@ -52,6 +52,15 @@ extension View {
     }
 
     @ViewBuilder
+    func kerningCompat(_ kerning: CGFloat) -> some View {
+        if #available(iOS 16, *) {
+            self.kerning(kerning)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
     func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
         if condition {
             transform(self)
