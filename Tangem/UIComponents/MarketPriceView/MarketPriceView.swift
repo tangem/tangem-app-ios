@@ -37,7 +37,7 @@ struct MarketPriceView: View {
                         .layoutPriority(1)
                         .truncationMode(.middle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-                    
+
                     FixedSpacer(width: 7)
 
                     TokenPriceChangeView(state: priceChangeState)
