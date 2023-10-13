@@ -56,14 +56,14 @@ struct MainButton: View {
             content
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))
-                .cornerRadiusContinuous(Constants.cornerRadius)
+                .cornerRadiusContinuous(style.cornerRadius(for: size))
                 .overlay(border)
         }
         .buttonStyle(BorderlessButtonStyle())
         // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
         .background(
             Colors.Background.primary
-                .cornerRadiusContinuous(Constants.cornerRadius)
+                .cornerRadiusContinuous(style.cornerRadius(for: size))
         )
         .disabled(isDisabled || isLoading)
     }
@@ -130,7 +130,7 @@ struct MainButton: View {
     @ViewBuilder
     private var border: some View {
         if let borderColor = style.border(isDisabled: isDisabled) {
-            RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: style.cornerRadius(for: size), style: .continuous)
                 .stroke(borderColor)
         }
     }
@@ -205,6 +205,15 @@ extension MainButton {
 
             return Colors.Stroke.primary
         }
+
+        func cornerRadius(for size: MainButton.Size) -> Double {
+            switch size {
+            case .default:
+                return 14
+            case .notification:
+                return 10
+            }
+        }
     }
 
     enum Size: Hashable {
@@ -272,14 +281,6 @@ extension MainButton {
 extension MainButton: Setupable {
     func setIsLoading(to isLoading: Bool) -> Self {
         map { $0.isLoading = isLoading }
-    }
-}
-
-// MARK: - Constants
-
-private extension MainButton {
-    enum Constants {
-        static let cornerRadius = 14.0
     }
 }
 
