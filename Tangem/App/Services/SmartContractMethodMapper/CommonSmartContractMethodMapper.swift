@@ -9,12 +9,11 @@
 import Foundation
 
 class CommonSmartContractMethodMapper {
-    private typealias JSON = [String: [String]]
-    private lazy var json: JSON = {
+    private lazy var dataSource: [String: ContractMethod] = {
         do {
-            var json: JSON = [:]
+            var json: [String: ContractMethod] = [:]
             try DispatchQueue.global().sync {
-                json = try JsonUtils.readBundleFile(with: "contract_methods", type: JSON.self)
+                json = try JsonUtils.readBundleFile(with: "contract_methods", type: [String: ContractMethod].self)
             }
             return json
         } catch {
@@ -30,6 +29,14 @@ class CommonSmartContractMethodMapper {
 
 extension CommonSmartContractMethodMapper: SmartContractMethodMapper {
     func getName(for method: String) -> String? {
-        json.first(where: { $0.value.contains(method) })?.key
+        dataSource[method]?.name
+    }
+}
+
+private extension CommonSmartContractMethodMapper {
+    struct ContractMethod: Decodable {
+        let name: String
+        let source: URL?
+        let info: String?
     }
 }
