@@ -33,6 +33,7 @@ struct TokenItemView: View {
                                 color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
                             )
                             .lineLimit(1)
+                            .kerningCompat(-0.2)
 
                         if viewModel.hasPendingTransactions {
                             Assets.pendingTxIndicator.image
