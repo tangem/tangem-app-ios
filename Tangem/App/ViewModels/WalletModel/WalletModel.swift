@@ -573,7 +573,7 @@ extension WalletModel {
                     return nil
                 }
 
-                return Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
+                return Localization.warningSolanaRentFeeMessage(rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .replaceError(with: nil)
             .eraseToAnyPublisher()

@@ -43,38 +43,33 @@ enum TokenNotificationEvent: Hashable {
 }
 
 extension TokenNotificationEvent: NotificationEvent {
-    private var defaultTitle: String {
-        Localization.commonWarning
-    }
-
     var title: String {
         switch self {
         case .networkUnreachable:
-            return Localization.walletBalanceBlockchainUnreachable
+            return Localization.warningNetworkUnreachableTitle
         case .someNetworksUnreachable:
-            return Localization.warningTitleSomeNetworksUnreachable
+            return Localization.warningSomeNetworksUnreachableTitle
         case .rentFee:
-            // [REDACTED_TODO_COMMENT]
-            return "Network rent fee"
+            return Localization.warningRentFeeTitle
         case .noAccount:
-            return Localization.walletErrorNoAccount
+            return Localization.warningNoAccountTitle
         case .existentialDepositWarning:
-            return defaultTitle
+            return Localization.warningExistentialDepositTitle
         case .longTransaction:
-            return defaultTitle
+            return Localization.warningLongTransactionTitle
         case .hasPendingTransactions:
             return Localization.walletBalanceTxInProgress
         case .notEnoughtFeeForTokenTx(_, _, let blockchainName, _):
-            return Localization.notificationTitleNotEnoughFunds(blockchainName)
+            return Localization.warningSendBlockedFundsForFeeTitle(blockchainName)
         }
     }
 
     var description: String? {
         switch self {
         case .networkUnreachable:
-            return Localization.warningSubtitleNetworkUnreachable
+            return Localization.warningNetworkUnreachableMessage
         case .someNetworksUnreachable:
-            return Localization.warningSubtitleSomeNetworksUnreachable
+            return Localization.warningSomeNetworksUnreachableMessage
         case .rentFee(let message):
             return message
         case .noAccount(let message):
@@ -86,7 +81,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .hasPendingTransactions(let message):
             return message
         case .notEnoughtFeeForTokenTx(let tokenName, let blockchainCurrencySymbol, let blockchainName, _):
-            return Localization.notificationSubtitleNotEnoughFunds(tokenName, blockchainName, blockchainCurrencySymbol)
+            return Localization.warningSendBlockedFundsForFeeMessage(tokenName, blockchainName, tokenName, blockchainName, blockchainCurrencySymbol)
         }
     }
 
@@ -102,10 +97,10 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .noAccount, .hasPendingTransactions:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction:
             return .init(image: Assets.attention.image)
-        case .existentialDepositWarning:
-            return .init(image: Assets.redCircleWarning.image)
+        case .rentFee, .noAccount, .existentialDepositWarning, .hasPendingTransactions:
+            return .init(image: Assets.blueCircleWarning.image)
         case .notEnoughtFeeForTokenTx(_, _, _, let blockchainIconName):
             return .init(image: Image(blockchainIconName))
         }
