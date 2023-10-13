@@ -32,7 +32,7 @@ struct NotificationView: View {
 
             dismissOverlay
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 13)
         .padding(.horizontal, 14)
         .background(settings.event.colorScheme.color)
         .cornerRadiusContinuous(14)
@@ -75,7 +75,7 @@ struct NotificationView: View {
                 }
             }
         case .withButtons(let buttonSettings):
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 15) {
                 messageIconContent
 
                 HStack(spacing: 8) {
@@ -110,7 +110,7 @@ struct NotificationView: View {
                 if let description = settings.event.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
-                        .lineSpacing(3)
+                        .lineSpacing(2)
                         .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
