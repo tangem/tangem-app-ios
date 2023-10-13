@@ -87,7 +87,7 @@ struct LegacyTokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
         }
 
         if state.isBlockchainUnreachable {
-            return Localization.walletBalanceBlockchainUnreachable
+            return Localization.warningNetworkUnreachableTitle
         }
 
         if hasTransactionInProgress {
