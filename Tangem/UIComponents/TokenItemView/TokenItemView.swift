@@ -139,9 +139,13 @@ struct TokenItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             VStack(spacing: 0) {
+                TokenSectionView(title: "Ethereum network")
+
                 ForEach(infoProvider.viewModels, id: \.id) { model in
                     TokenItemView(viewModel: model)
                 }
+
+                Spacer()
             }
             .background(Colors.Background.primary)
             .cornerRadiusContinuous(14)
