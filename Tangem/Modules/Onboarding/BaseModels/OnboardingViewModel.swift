@@ -363,6 +363,8 @@ extension OnboardingViewModel {
     }
 
     func closeOnboarding() {
+        // reset services before exit
+        userWalletRepository.updateSelection()
         coordinator.closeOnboarding()
     }
 
