@@ -91,6 +91,9 @@ struct CardsInfoPagerView<
     }
 
     private var animationsFactory: CardsInfoPagerAnimationFactory {
+        let pageSwitchAnimationDuration = pageSwitchAnimationDurationConfigStorage[configStorageKey]
+            ?? Constants.pageSwitchAnimationDuration
+
         return CardsInfoPagerAnimationFactory(
             hasValidIndexToSelect: hasValidIndexToSelect,
             currentPageSwitchProgress: pageSwitchProgress,
@@ -123,9 +126,9 @@ struct CardsInfoPagerView<
 
     // MARK: - Configuration
 
+    private let configStorageKey: AnyHashable
     private var contentViewVerticalOffset: CGFloat = Constants.contentViewVerticalOffset
     private var pageSwitchThreshold: CGFloat = Constants.pageSwitchThreshold
-    private var pageSwitchAnimationDuration: TimeInterval = Constants.pageSwitchAnimationDuration
     private var isHorizontalScrollDisabled = false
     private var onPageChangeCallbacks: [OnPageChange] = []
 
@@ -202,10 +205,11 @@ struct CardsInfoPagerView<
         data: Data,
         id idProvider: KeyPath<(Data.Index, Data.Element), ID>,
         selectedIndex: Binding<Int>,
+        configStorageKey: AnyHashable,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder contentFactory: @escaping ContentFactory,
         @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory,
-        onPullToRefresh: OnPullToRefresh? = nil
+        onPullToRefresh: OnPullToRefresh?
     ) {
         self.data = data
         self.idProvider = idProvider
@@ -213,6 +217,7 @@ struct CardsInfoPagerView<
         _previouslySelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _contentSelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _externalSelectedIndex = selectedIndex
+        self.configStorageKey = configStorageKey
         self.headerFactory = headerFactory
         self.contentFactory = contentFactory
         self.bottomOverlayFactory = bottomOverlayFactory
@@ -574,8 +579,9 @@ extension CardsInfoPagerView: Setupable {
         map { $0.pageSwitchThreshold = threshold }
     }
 
-    func pageSwitchAnimationDuration(_ value: CGFloat) -> Self {
-        map { $0.pageSwitchAnimationDuration = value }
+    /// Pass `nil` to use the default value.
+    func pageSwitchAnimationDuration(_ value: CGFloat?) -> Self {
+        map { pageSwitchAnimationDurationConfigStorage[$0.configStorageKey] = value ?? Constants.pageSwitchAnimationDuration }
     }
 
     func horizontalScrollDisabled(_ disabled: Bool) -> Self {
@@ -626,6 +632,15 @@ private extension CardsInfoPagerView {
         static var scrollStateBottomContentInsetDiff: CGFloat { 14.0 }
     }
 }
+
+// MARK: - A global storage for `pageSwitchAnimationDuration` config property
+
+/// DO NOT replace this global storage with `let`/`var`/`@State`/`@StateObject` placed in the `CardsInfoPagerView` itself!
+/// There is something seriously broken in SwiftUI's view state management - all approaches above will result in
+/// old/stale values for the duration of the page switching animation in `switchPage(method:geometryProxy:)` method.
+///
+/// I have absolutely no clue why this is the case, but it is.
+private var pageSwitchAnimationDurationConfigStorage: [AnyHashable: TimeInterval] = [:]
 
 // MARK: - Previews
 
