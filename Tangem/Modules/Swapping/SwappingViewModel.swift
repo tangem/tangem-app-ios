@@ -155,7 +155,6 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapChangeDestinationButton() {
-        Analytics.log(.swapReceiveTokenClicked)
         openTokenListView()
     }
 
