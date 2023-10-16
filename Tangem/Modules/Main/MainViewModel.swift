@@ -226,6 +226,7 @@ final class MainViewModel: ObservableObject {
                     return
                 }
 
+                Analytics.log(.walletOpened)
                 self?.userWalletRepository.setSelectedUserWalletId(userWalletId.value, unlockIfNeeded: false, reason: .userSelected)
             }
             .store(in: &bag)
