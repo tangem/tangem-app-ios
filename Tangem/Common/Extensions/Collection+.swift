@@ -31,4 +31,8 @@ extension Swift.Collection {
             lhs[keyPath: keyPath] < rhs[keyPath: keyPath]
         }
     }
+
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
 }
