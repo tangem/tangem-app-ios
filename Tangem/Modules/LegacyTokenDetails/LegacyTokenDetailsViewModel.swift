@@ -142,7 +142,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return Localization.tokenDetailsTransactionLengthWarning
+        return Localization.warningLongTransactionMessage
     }
 
     var title: String {
