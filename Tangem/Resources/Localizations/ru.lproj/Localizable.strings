@@ -537,6 +537,7 @@
 "warning_low_signatures_message" = "На этой карте осталось всего %@ подписей. Вам следует вывести все ваши средства.";
 "warning_low_signatures_title" = "Малое количество подписей";
 "warning_manage_tokens_legacy_derivation_message" = "Токены на разных сетях могут иметь разные адреса. Пожалуйста, убедитесь при переводе средств, что ваш адрес соответствует сети.";
+"warning_missing_derivation_title" = "Некоторые адреса отсутствуют";
 "warning_network_unreachable_message" = "В данный момент сеть недоступна. Пожалуйста, попробуйте позже.";
 "warning_network_unreachable_title" = "Сеть недоступна";
 "warning_no_account_title" = "Пополните ваш кошелек";
@@ -554,6 +555,7 @@
 "warning_send_blocked_funds_for_fee_message" = "%1$@ - это токен в сети %2$@. Для совершения транзакции %3$@, вам необходимо внести депозит в размере %4$@ (%5$@), чтобы покрыть комиссию сети.";
 "warning_send_blocked_funds_for_fee_title" = "Недостаточно %1$@ для оплаты комиссии сети";
 "warning_send_blocked_pending_transactions_message" = "Отправка средств станет доступной после завершения транзакции %@";
+"warning_solana_rent_fee_message" = "Сеть Solana взимает арендную плату в размере %1$@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %2$@, чтобы не платить арендную плату.";
 "warning_some_networks_unreachable_message" = "Некоторые сети в настоящее время недоступны. Пожалуйста, повторите попытку позже.";
 "warning_some_networks_unreachable_title" = "Некоторые сети недоступны";
 "warning_system_deprecation_title" = "Требуется обновление системы";
