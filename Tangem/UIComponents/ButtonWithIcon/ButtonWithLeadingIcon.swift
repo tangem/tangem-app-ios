@@ -23,6 +23,7 @@ struct FixedSizeButtonWithLeadingIcon: View {
             title: title,
             icon: icon,
             colorConfiguration: colorConfiguration,
+            spacing: 4,
             maintainsIdealSize: true,
             action: action
         )
@@ -63,6 +64,7 @@ struct FlexySizeButtonWithLeadingIcon: View {
             title: title,
             icon: icon,
             colorConfiguration: colorConfiguration,
+            spacing: 6,
             maintainsIdealSize: false,
             action: action
         )
@@ -81,12 +83,13 @@ private struct ButtonWithLeadingIconContentView: View {
     let title: String
     let icon: Image
     let colorConfiguration: ColorConfiguration
+    let spacing: Double
     let maintainsIdealSize: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 4) {
+            HStack(spacing: spacing) {
                 icon
                     .renderingMode(.template)
                     .resizable()
@@ -98,6 +101,7 @@ private struct ButtonWithLeadingIconContentView: View {
                         .style(Fonts.Bold.subheadline, color: colorConfiguration.textColor)
                         .lineLimit(1)
                         .fixedSize(horizontal: maintainsIdealSize, vertical: maintainsIdealSize)
+                        .kerningCompat(-0.2)
                 }
             }
             .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
