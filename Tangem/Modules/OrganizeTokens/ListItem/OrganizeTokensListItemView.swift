@@ -26,7 +26,7 @@ struct OrganizeTokensListItemView: View {
             FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
                 .layoutPriority(1000.0)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 if let errorMessage = viewModel.errorMessage {
                     makeMiddleComponent(withErrorMessage: errorMessage)
                 } else {
@@ -47,15 +47,22 @@ struct OrganizeTokensListItemView: View {
                     )
             }
         }
-        .padding(14.0)
-        .frame(minHeight: 68)
+        .padding(.top, 15)
+        .padding(.bottom, 14)
+        .padding(.horizontal, 14)
+    }
+
+    @ViewBuilder
+    private var tokenName: some View {
+        Text(viewModel.name)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            .lineLimit(1)
+            .kerningCompat(-0.2)
     }
 
     @ViewBuilder
     private var defaultMiddleComponent: some View {
-        Text(viewModel.name)
-            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-            .lineLimit(1)
+        tokenName
 
         LoadableTextView(
             state: viewModel.balance,
@@ -68,9 +75,7 @@ struct OrganizeTokensListItemView: View {
 
     @ViewBuilder
     private func makeMiddleComponent(withErrorMessage errorMessage: String) -> some View {
-        Text(viewModel.name)
-            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-            .lineLimit(1)
+        tokenName
 
         Text(errorMessage)
             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
