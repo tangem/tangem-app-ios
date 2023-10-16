@@ -372,7 +372,7 @@
 "shop_web_checkout_title" = "Your order";
 "story_awe_description" = "Store your crypto assets secure while keeping private keys contained in your card";
 "story_awe_title" = "Revolutionary Hardware Wallet";
-"story_backup_description" = "Up to **3 physical cards** to one wallet";
+"story_backup_description" = "Up to 3 physical cards to one wallet";
 "story_backup_title" = "Ultra Secure Backup";
 "story_currencies_description" = "A hardware wallet for your Bitcoin, Ethereum and many more currencies simultaneously – all in one card";
 "story_currencies_title" = "Thousands of Currencies";
@@ -382,7 +382,7 @@
 "story_learn_learn" = "Learn";
 "story_meet_title" = "Meet Tangem";
 "story_web3_description" = "Exchange, buy NFT's, make loans and deposits in more than 100 different decentralized services";
-"story_web3_title" = "DeFi Compatible";
+"story_web3_title" = "Web 3.0 Compatible";
 "swapping_approve_information_text" = "Approvals are considered an industry standard across all decentralized exchanges and protect your wallet from being accessed by a smart contract without your permission. By design, smart contracts can't access your tokens unless you approve access from your end. By \"unlocking\" your tokens, you are give permission to the 1inch smart contract to spend your assets. The miners of the network are compensated with a gas fee (paid by you) to record this action on the blockchain. Once permission has been granted you will be able to swap your token.";
 "swapping_approve_information_title" = "Approve";
 "swapping_error_wrapper" = "Error: %@";
