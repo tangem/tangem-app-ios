@@ -58,8 +58,8 @@ struct TokenItemView: View {
                     }
                 }
 
-                HStack(alignment: .center, spacing: 0) {
-                    if !viewModel.hasError {
+                if !viewModel.hasError {
+                    HStack(alignment: .center, spacing: 0) {
                         LoadableTextView(
                             state: viewModel.balanceCrypto,
                             font: Fonts.Regular.footnote,
