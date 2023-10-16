@@ -103,7 +103,7 @@ struct MainButton: View {
     private var titleView: some View {
         Text(title)
             .style(
-                Fonts.Bold.subheadline,
+                Fonts.Bold.callout,
                 color: style.titleColor(isDisabled: isDisabled)
             )
             .lineLimit(1)
