@@ -11,7 +11,7 @@ def tangem_sdk_pod
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-391'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-393'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.2.4-tangem1'
@@ -47,9 +47,13 @@ target 'Tangem' do
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
   pod 'CombineExt', '~> 1.8.0'
   
+  # ⚠️ deprecated
   # support chat
   pod 'ZendeskSupportSDK', '~> 5.5.0'
   pod 'ZendeskChatSDK', '~> 2.12.0'
+  
+  # support chat
+  pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2'
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
