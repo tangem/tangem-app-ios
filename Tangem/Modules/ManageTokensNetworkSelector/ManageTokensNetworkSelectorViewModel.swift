@@ -57,7 +57,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Properties
 
-    private let coinId: CoinModel.ID
+    private let coinId: String
     private let tokenItems: [TokenItem]
     private weak var delegate: ManageTokensNetworkSelectorViewModelDelegate?
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
@@ -65,7 +65,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Init
 
     init(
-        coinId: CoinModel.ID,
+        coinId: String,
         tokenItems: [TokenItem],
         delegate: ManageTokensNetworkSelectorViewModelDelegate?,
         coordinator: ManageTokensNetworkSelectorCoordinator
