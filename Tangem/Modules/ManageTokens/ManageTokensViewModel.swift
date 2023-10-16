@@ -40,8 +40,6 @@ final class ManageTokensViewModel: ObservableObject {
     private unowned let coordinator: ManageTokensRoutable
 
     private lazy var loader = setupListDataLoader()
-    private let percentFormatter = PercentFormatter()
-    private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
 
