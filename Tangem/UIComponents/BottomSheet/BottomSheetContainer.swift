@@ -149,7 +149,7 @@ extension BottomSheetContainer {
         let animationDuration: Double
 
         init(
-            cornerRadius: CGFloat = 28,
+            cornerRadius: CGFloat = 24,
             backgroundColor: Color = Colors.Background.secondary,
             backgroundOpacity: CGFloat = 0.5,
             distanceToHide: CGFloat = UIScreen.main.bounds.height * 0.1,
