@@ -52,6 +52,11 @@ struct TokenDetailsView: View {
                     )
                 }
 
+                PendingTransactionsListView(
+                    items: viewModel.pendingTransactionViews,
+                    exploreTransactionAction: viewModel.openTransactionExplorer
+                )
+
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
