@@ -87,6 +87,7 @@ struct MultiWalletMainContentView: View {
                     Fonts.Regular.caption1,
                     color: Colors.Text.tertiary
                 )
+                .lineSpacing(2)
         }
         .padding(.top, 96)
         .padding(.horizontal, 48)
