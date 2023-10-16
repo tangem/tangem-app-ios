@@ -64,7 +64,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     self?.delete(userWalletIds: userWalletIds)
                 case .selected(let userWallet, let reason):
                     self?.setSelectedWallet(userWallet, reason: reason)
-                case .inserted:
+                case .inserted, .replaced:
                     break
                 }
             }
