@@ -23,6 +23,17 @@ extension SupportedBlockchains {
         // Here version isn't important because we take only coinId
         return Set(SupportedBlockchains(version: .v1).testableBlockchains().map { $0.coinId })
     }
+
+    /// Blockchain token support limitations
+    static var listTokenSupportedBlockchain: [Blockchain] {
+        all.filter { blockchain in
+            if case .solana = blockchain {
+                return false
+            }
+
+            return true
+        }
+    }
 }
 
 struct SupportedBlockchains {
