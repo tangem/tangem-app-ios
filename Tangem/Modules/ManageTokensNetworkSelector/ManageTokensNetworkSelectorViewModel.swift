@@ -13,7 +13,7 @@ import Combine
 final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject {
     // MARK: - Injected Properties
 
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published Properties
