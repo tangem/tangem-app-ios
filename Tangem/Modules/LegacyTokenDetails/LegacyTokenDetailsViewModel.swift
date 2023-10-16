@@ -53,11 +53,13 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     var walletModel: WalletModel?
 
     var incomingTransactions: [LegacyTransactionRecord] {
-        walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
+        let transactions = walletModel?.incomingPendingTransactions.filter { $0.amount.type == amountType } ?? []
+        return legacyTransactionMapper.mapToIncomingRecords(transactions)
     }
 
     var outgoingTransactions: [LegacyTransactionRecord] {
-        walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
+        let transactions = walletModel?.outgoingPendingTransactions.filter { $0.amount.type == amountType } ?? []
+        return legacyTransactionMapper.mapToOutgoingRecords(transactions)
     }
 
     var canBuyCrypto: Bool {
@@ -169,6 +171,9 @@ class LegacyTokenDetailsViewModel: ObservableObject {
 
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     private unowned let coordinator: LegacyTokenDetailsRoutable
+    private var legacyTransactionMapper: LegacyTransactionMapper {
+        LegacyTransactionMapper(formatter: BalanceFormatter())
+    }
 
     private var currencySymbol: String {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
@@ -471,7 +476,8 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openPushTx(for index: Int) {
-        guard let tx = wallet?.pendingOutgoingTransactions[index] else { return }
+        let outgoingPendingTransactions = wallet?.pendingTransactions.filter { !$0.isIncoming }
+        guard let tx = outgoingPendingTransactions?[index] else { return }
 
         coordinator.openPushTx(for: tx, blockchainNetwork: blockchainNetwork, card: card)
     }
