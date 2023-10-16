@@ -96,7 +96,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 didScan(card: cardDTO, walletData: response.walletData)
                 var cardInfo = response.getCardInfo()
                 resetServices()
-
+                initializeAnalyticsContext(with: cardInfo)
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
@@ -174,8 +174,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         if AppSettings.shared.saveUserWallets {
             add(completion)
         } else {
-            discardSensitiveData()
-            resetServices()
             unlockWithCard(nil, completion: completion)
         }
     }
@@ -443,16 +441,23 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
+        initializeAnalyticsContext(with: cardInfo)
+        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+        walletConnectService.initialize(with: cardModel)
+    }
+
+    // we can initialize it right after scan for more accurate analytics
+    func initializeAnalyticsContext(with cardInfo: CardInfo) {
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let userWalletId = config.userWalletIdSeed.map { UserWalletId(with: $0).value }
         let contextData = AnalyticsContextData(
             card: cardInfo.card,
-            productType: cardModel.productType,
-            userWalletId: cardModel.userWalletId.value,
-            embeddedEntry: cardModel.embeddedEntry
+            productType: config.productType,
+            userWalletId: userWalletId,
+            embeddedEntry: config.embeddedBlockchain
         )
 
         analyticsContext.setupContext(with: contextData)
-        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
-        walletConnectService.initialize(with: cardModel)
     }
 
     private func clearUserWalletStorage() {
@@ -621,10 +626,11 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func initializeServicesForSelectedModel() {
+        resetServices()
+
         guard let selectedModel else { return }
 
         let cardInfo = selectedModel.cardInfo
-        resetServices()
         initializeServices(for: selectedModel, cardInfo: cardInfo)
     }
 
