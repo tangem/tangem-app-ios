@@ -176,7 +176,7 @@
 "feedback_subject_support_tangem" = "Tangem反饋";
 "feedback_subject_tx_failed" = "無法發送交易";
 "feedback_subject_tx_push_failed" = "無法推送交易";
-"home_button_order" = "訂購";
+"home_button_order" = "Order card";
 "home_button_scan" = "掃描卡片";
 "initial_message_change_access_code_body" = "要更改訪問密碼，請完全按照上圖所示連接手機和卡片";
 "initial_message_change_passcode_body" = "要更改密碼，請完全按照上圖所示連接手機和卡";
@@ -373,7 +373,7 @@
 "shop_web_checkout_title" = "你的訂單";
 "story_awe_description" = "安全地存儲您的加密貨幣，同時將私鑰保存在您的卡中";
 "story_awe_title" = "創新式的硬體錢包";
-"story_backup_description" = "最多 **3張實體卡片** 到一個錢包";
+"story_backup_description" = "最多 3張實體卡片 到一個錢包";
 "story_backup_title" = "更多的安全備份";
 "story_currencies_description" = "一個冷錢包，可同時將您的比特幣、以太幣和其他幣種-全部存在一張卡中";
 "story_currencies_title" = "千種虛擬貨幣";
@@ -383,7 +383,7 @@
 "story_learn_learn" = "Learn";
 "story_meet_title" = "認識Tangem";
 "story_web3_description" = "交易、購買NFT、自由穿梭於100+去中心化服務";
-"story_web3_title" = "兼容DeFi";
+"story_web3_title" = "兼容Web3.0";
 "swapping_approve_information_text" = "批准被視為所有去中心化交易所的行業標準，並保護您的錢包在未經您許可的情況下不被智能合約訪問。按照設計，智能合約無法訪問您的代幣，除非您從您的終端批准訪問。通過“解鎖”您的代幣，您將獲得 1inch 智能合約使用您的資產的權限。網絡的礦工將獲得Gas Fee（由您支付）作為補償，以在區塊鏈上記錄此操作。一旦獲得許可，您就可以交易您的代幣。";
 "swapping_approve_information_title" = "批准";
 "swapping_error_wrapper" = "錯誤： %@";
