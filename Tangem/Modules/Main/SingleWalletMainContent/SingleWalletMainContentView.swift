@@ -17,12 +17,12 @@ struct SingleWalletMainContentView: View {
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .transition(.notificationTransition)
             }
 
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .transition(.notificationTransition)
             }
 
             MarketPriceView(
@@ -38,7 +38,6 @@ struct SingleWalletMainContentView: View {
                 exploreTransactionAction: viewModel.openTransactionExplorer,
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
                 fetchMore: viewModel.fetchMoreHistory()
             )
             .padding(.bottom, 40)

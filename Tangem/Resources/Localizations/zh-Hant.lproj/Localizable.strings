@@ -19,7 +19,6 @@
 "alert_negative_app_rate_sent_title" = "你的建議已送出";
 "alert_old_card" = "由於 iOS 限制，無法使用 iPhone 提取 2019 年 9 月之前發行的 Tangem 卡中的資金。您必須使用 Android 手機取回資金。2019 年 9 月之後發布的卡片可在兩個平台上正常使用";
 "alert_old_device_this_card" = "某些 iPhone 7/7+ 在某些操作過程中可能會遇到 NFC 問題";
-"alert_signed_hashes_message" = "這張卡不是不記名票據。我們目前無法將卡上的簽名計數與區塊鏈上的信息相匹配。這很正常，但在極少數情況下可能意味著以前的持有人正在阻止離線簽名，這是安全問題。不要接受此卡作為您不信任的人的實物付款。它在所有其他方面都非常安全。Tangem 是唯一提供簽名計數保護的硬件錢包。";
 "alert_troubleshooting_scan_card_message" = "請嘗試完全按照動畫中顯示的方式點擊卡片或請求支持";
 "alert_troubleshooting_scan_card_title" = "有困難在掃描卡上嗎？";
 "app_settings_off_saved_access_code_alert_message" = "這將刪除所有保存的錢包訪問代碼。對錢包的任何進一步操作都需要提交訪問代碼。";
@@ -222,6 +221,7 @@
 "manage_tokens_unavailable_description" = "The selected token is currently unavailable for actions within the crypto wallet. But worry not, you can express your interest by upvoting it.";
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
+"notification_subtitle_not_enough_funds" = "To make a %1$@ transaction you need to deposit some %2$@ (%3$@) to cover the network fee";
 "notification_title_not_enough_funds" = "Unable to cover %1$@ fee";
 "onboarding_access_code_feature_1_description" = "您必須設置一個單一的訪問代碼來保護您的所有錢包";
 "onboarding_access_code_feature_1_title" = "保護";
@@ -337,6 +337,8 @@
 "referral_tos_suffix" = "在推薦計劃";
 "registration_task_alert_message" = "請持有卡片直至操作完成";
 "reset_card_to_factory_button_title" = "重置卡片";
+"reset_card_to_factory_condition_1" = "我了解執行此操作後，我將無法再訪問當前錢包";
+"reset_card_to_factory_condition_2" = "I realize that I can't use this card to recover my access code on the other cards.";
 "reset_card_with_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包。您將無法恢復當前錢包或使用卡恢復訪問密碼";
 "reset_card_without_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包並將其從應用程序中刪除。您將無法恢復當前錢包";
 "russian_bank_card_warning_subtitle" = "Do you have a bank card from another country and a residence permit or registration outside the Russian Federation?";
@@ -539,11 +541,9 @@
 "warning_existential_deposit_message" = "%1$@ 網絡有一個 Existential Deposit 的概念。如果您的帳戶低於 %2$@，它將被停用，所有剩餘資金將被銷毀";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
 "warning_failed_to_verify_card_title" = "認證檢查失敗";
-"warning_important_security_info" = "重要安全信息 %@";
 "warning_low_signatures_format" = "此卡上只有 %@ 個簽名可用。您必須提取所有資金";
 "warning_rate_app_message" = "你喜歡 Tangem 嗎？";
 "warning_rate_app_title" = "一個問題";
-"warning_signed_tx_previously" = "此卡過去曾簽署過交易";
 "warning_system_deprecation_title" = "需要系統更新";
 "warning_system_deprecation_with_date_message" = "對您的操作系統版本的支持將於 %@ 結束。要接收未來的應用程式更新，您必須將其更新到最新版本";
 "warning_system_update_message" = "Tangem 建議安裝最新的 iOS 更新以穩定和安全地運行";

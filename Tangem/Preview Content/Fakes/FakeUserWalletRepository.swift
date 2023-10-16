@@ -80,7 +80,7 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func save(_ userWallet: UserWallet) {}
 
-    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool) {}
+    func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool) {}
 
     func clearNonSelectedUserWallets() {}
 

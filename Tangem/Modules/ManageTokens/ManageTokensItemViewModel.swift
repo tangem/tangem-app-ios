@@ -12,7 +12,7 @@ import Combine
 class ManageTokensItemViewModel: Identifiable, ObservableObject {
     // MARK: - Injected Properties
 
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published
@@ -29,7 +29,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     var name: String { coin.name }
     var symbol: String { coin.symbol }
 
-    let coin: CoinModel
+    let coinModel: CoinModel
     let didTapAction: (Action, CoinModel) -> Void
 
     private var bag = Set<AnyCancellable>()
@@ -61,7 +61,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         action: Action,
         didTapAction: @escaping (Action, CoinModel) -> Void
     ) {
-        coin = coinModel
+        self.coinModel = coinModel
         self.priceValue = priceValue
         self.priceChangeState = priceChangeState
         self.priceHistory = nil
@@ -74,13 +74,13 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     // MARK: - Public Implementation
 
     func setNeedUpdateAction() {
-        action = actionType(for: coin)
+        action = actionType(for: coinModel)
     }
 
     // MARK: - Private Implementation
 
     private func bind() {
-        tokenQuotesRepository.pricesPublisher.sink { [weak self] itemQuote in
+        tokenQuotesRepository.quotesPublisher.sink { [weak self] itemQuote in
             guard let self = self else { return }
             let quote = itemQuote[coin.id]
             update(quote: quote)
