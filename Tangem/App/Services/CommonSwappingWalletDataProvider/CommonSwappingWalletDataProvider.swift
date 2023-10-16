@@ -113,18 +113,17 @@ extension CommonSwappingWalletDataProvider: SwappingWalletDataProvider {
             throw SwappingManagerError.contractAddressNotFound
         }
 
-        var allowance = try await ethereumNetworkProvider.getAllowance(
+        let allowanceInWEI = try await ethereumNetworkProvider.getAllowance(
             owner: walletAddress,
             spender: spender,
             contractAddress: contractAddress
         ).async()
 
-        allowance = currency.convertFromWEI(value: allowance)
-        return allowance
+        return currency.convertFromWEI(value: allowanceInWEI)
     }
 
     func getApproveData(for currency: Currency, from spender: String, policy: SwappingApprovePolicy) -> Data {
-        ethereumTransactionProcessor.buildForApprove(spender: spender, amount: policy.value)
+        ethereumTransactionProcessor.buildForApprove(spender: spender, amount: policy.amount)
     }
 }
 
