@@ -47,7 +47,7 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect, .rateApp, .oldDeviceOldCard, .oldCard:
             return .info
-        case .failedToValidateCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .failedToVerifyCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .critical
         case .systemDeprecationTemporary:
             return .warning
@@ -60,7 +60,7 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect, .rateApp, .systemDeprecationTemporary:
             return .temporary
-        case .failedToValidateCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .failedToVerifyCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .permanent
         case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
             return .temporary
@@ -72,7 +72,7 @@ extension WarningEvent {
         switch self {
         case .rateApp:
             return Localization.warningRateAppTitle
-        case .failedToValidateCard:
+        case .failedToVerifyCard:
             return Localization.warningFailedToVerifyCardTitle
         case .systemDeprecationTemporary:
             return Localization.warningSystemUpdateTitle
