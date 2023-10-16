@@ -43,10 +43,12 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     }
 
     var pendingTransactionViews: [LegacyPendingTxView] {
-        let incTxViews = singleWalletModel.incomingPendingTransactions
+        let incTxViews = legacyTransactionMapper
+            .mapToIncomingRecords(singleWalletModel.incomingPendingTransactions)
             .map { LegacyPendingTxView(pendingTx: $0) }
 
-        let outgTxViews = singleWalletModel.outgoingPendingTransactions
+        let outgTxViews = legacyTransactionMapper
+            .mapToOutgoingRecords(singleWalletModel.outgoingPendingTransactions)
             .enumerated()
             .map { index, pendingTx -> LegacyPendingTxView in
                 LegacyPendingTxView(pendingTx: pendingTx) { [weak self] in
@@ -61,6 +63,10 @@ class LegacySingleWalletContentViewModel: ObservableObject {
 
     public var canSend: Bool {
         return singleWalletModel.wallet.canSend(amountType: .coin)
+    }
+
+    private var legacyTransactionMapper: LegacyTransactionMapper {
+        LegacyTransactionMapper(formatter: BalanceFormatter())
     }
 
     private let totalSumBalanceViewModel: TotalSumBalanceViewModel
