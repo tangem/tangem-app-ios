@@ -22,6 +22,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var isReloadingTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
     @Published private(set) var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
 
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
@@ -41,6 +42,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private var percentFormatter = PercentFormatter()
     private var transactionHistoryBag: AnyCancellable?
+    private var updateSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
     var canSend: Bool {
@@ -58,12 +60,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     var rateFormatted: String { walletModel.rateFormatted }
 
     var priceChangeState: TokenPriceChangeView.State {
-        guard let quote = walletModel.quote else {
+        guard let change = walletModel.quote?.change else {
             return .noData
         }
 
-        let signType = ChangeSignType(from: quote.change)
-        let percent = percentFormatter.percentFormat(value: quote.change)
+        let signType = ChangeSignType(from: change)
+        let percent = percentFormatter.percentFormat(value: change)
         return .loaded(signType: signType, text: percent)
     }
 
@@ -81,7 +83,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
-    lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, addresses: walletModel.wallet.addresses.map { $0.value })
+    lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
 
     init(
         userWalletModel: UserWalletModel,
@@ -132,6 +135,30 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         return FetchMore { [weak self] in
             self?.loadHistory()
         }
+    }
+
+    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        guard updateSubscription == nil else {
+            return
+        }
+
+        Analytics.log(.refreshed)
+
+        isReloadingTransactionHistory = true
+        updateSubscription = walletModel.generalUpdate(silent: false)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                AppLog.shared.debug("♻️ \(self) loading state changed")
+                isReloadingTransactionHistory = false
+                updateSubscription = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    completionHandler()
+                }
+            })
     }
 
     func reloadHistory() {
@@ -202,6 +229,7 @@ extension SingleTokenBaseViewModel {
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
+                self?.updatePendingTransactionView()
             }
             .store(in: &bag)
 
@@ -218,6 +246,17 @@ extension SingleTokenBaseViewModel {
             .removeDuplicates()
             .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func updatePendingTransactionView() {
+        guard transactionHistoryState == .notSupported else {
+            pendingTransactionViews = []
+            return
+        }
+
+        pendingTransactionViews = walletModel.pendingTransactions.map { transaction in
+            pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
+        }
     }
 
     private func updateActionButtons() {
@@ -353,4 +392,17 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel: ActionButtonsProvider {
     var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension SingleTokenBaseViewModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "WalletModel": walletModel.description,
+            ]
+        )
+    }
 }
