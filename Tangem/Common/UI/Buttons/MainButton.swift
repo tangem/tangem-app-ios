@@ -103,10 +103,11 @@ struct MainButton: View {
     private var titleView: some View {
         Text(title)
             .style(
-                Fonts.Bold.callout,
+                style.titleFont(for: size),
                 color: style.titleColor(isDisabled: isDisabled)
             )
             .lineLimit(1)
+            .kerningCompat(style.titleKerning(for: size))
     }
 
     @ViewBuilder
@@ -156,6 +157,24 @@ extension MainButton {
                 return Colors.Icon.primary2
             case .secondary:
                 return Colors.Icon.primary1
+            }
+        }
+        
+        func titleFont(for size: MainButton.Size) -> Font {
+            switch size {
+            case .default:
+                Fonts.Bold.callout
+            case .notification:
+                Fonts.Bold.subheadline
+            }
+        }
+        
+        func titleKerning(for size: MainButton.Size) -> Double {
+            switch size {
+            case .default:
+                return 0
+            case .notification:
+                return -0.2
             }
         }
 

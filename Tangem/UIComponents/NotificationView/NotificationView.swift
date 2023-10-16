@@ -103,7 +103,7 @@ struct NotificationView: View {
                 .foregroundColor(settings.event.icon.color)
                 .frame(size: .init(bothDimensions: 20))
 
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(settings.event.title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
@@ -111,7 +111,7 @@ struct NotificationView: View {
                     Text(description)
                         .multilineTextAlignment(.leading)
                         .lineSpacing(2)
-                        .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -136,10 +136,22 @@ struct NotificationView_Previews: PreviewProvider {
     class PreviewViewModel: ObservableObject {
         lazy var notificationInputs: [NotificationViewInput] = [
             .init(
-                style: .tappable(action: { [weak self] id in
-                    self?.notificationTapped(with: id)
-                }),
+                style: .withButtons([
+                    .init(action: { _, _ in
+                        
+                    }, actionType: .backupCard)
+                ]),
                 settings: NotificationView.Settings(event: WarningEvent.missingBackup, dismissAction: { [weak self] id in
+                    self?.removeNotification(with: id)
+                })
+            ),
+            .init(
+                style: .withButtons([
+                    .init(action: { _, _ in
+        
+                    }, actionType: .generateAddresses)
+                ]),
+                settings: NotificationView.Settings(event: WarningEvent.missingDerivation(numberOfNetworks: 1), dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
                 })
             ),
