@@ -13,7 +13,7 @@ enum TokenNotificationEvent: Hashable {
     case networkUnreachable
     case someNetworksUnreachable
     case rentFee(rentMessage: String)
-    case noAccount(message: String, isNoteWallet: Bool)
+    case noAccount(message: String)
     case existentialDepositWarning(message: String)
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
@@ -43,50 +43,36 @@ enum TokenNotificationEvent: Hashable {
 }
 
 extension TokenNotificationEvent: NotificationEvent {
-    private var defaultTitle: String {
-        Localization.commonWarning
-    }
-
     var title: String {
         switch self {
         case .networkUnreachable:
-            // [REDACTED_TODO_COMMENT]
-            return "Network is uncreachable"
+            return Localization.warningNetworkUnreachableTitle
         case .someNetworksUnreachable:
-            // [REDACTED_TODO_COMMENT]
-            return "Some networks are unreachable"
+            return Localization.warningSomeNetworksUnreachableTitle
         case .rentFee:
-            // [REDACTED_TODO_COMMENT]
-            return "Network rent fee"
-        case .noAccount(_, let isNoteWallet):
-            if isNoteWallet {
-                // [REDACTED_TODO_COMMENT]
-                return "Note top up"
-            }
-
-            return Localization.walletErrorNoAccount
+            return Localization.warningRentFeeTitle
+        case .noAccount:
+            return Localization.warningNoAccountTitle
         case .existentialDepositWarning:
-            return defaultTitle
+            return Localization.warningExistentialDepositTitle
         case .longTransaction:
-            return defaultTitle
+            return Localization.warningLongTransactionTitle
         case .hasPendingTransactions:
             return Localization.walletBalanceTxInProgress
         case .notEnoughtFeeForTokenTx(_, _, let blockchainName, _):
-            return Localization.notificationTitleNotEnoughFunds(blockchainName)
+            return Localization.warningSendBlockedFundsForFeeTitle(blockchainName)
         }
     }
 
     var description: String? {
         switch self {
         case .networkUnreachable:
-            // [REDACTED_TODO_COMMENT]
-            return "Network currently is unreachable. Please try again later."
+            return Localization.warningNetworkUnreachableMessage
         case .someNetworksUnreachable:
-            // [REDACTED_TODO_COMMENT]
-            return "Some networks currently are unreachable. Please try again later."
+            return Localization.warningSomeNetworksUnreachableMessage
         case .rentFee(let message):
             return message
-        case .noAccount(let message, _):
+        case .noAccount(let message):
             return message
         case .existentialDepositWarning(let message):
             return message
@@ -95,7 +81,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .hasPendingTransactions(let message):
             return message
         case .notEnoughtFeeForTokenTx(let tokenName, let blockchainCurrencySymbol, let blockchainName, _):
-            return Localization.notificationSubtitleNotEnoughFunds(tokenName, blockchainName, blockchainCurrencySymbol)
+            return Localization.warningSendBlockedFundsForFeeMessage(tokenName, blockchainName, tokenName, blockchainName, blockchainCurrencySymbol)
         }
     }
 
@@ -111,10 +97,10 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .noAccount, .hasPendingTransactions:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction:
             return .init(image: Assets.attention.image)
-        case .existentialDepositWarning:
-            return .init(image: Assets.redCircleWarning.image)
+        case .rentFee, .noAccount, .existentialDepositWarning, .hasPendingTransactions:
+            return .init(image: Assets.blueCircleWarning.image)
         case .notEnoughtFeeForTokenTx(_, _, _, let blockchainIconName):
             return .init(image: Image(blockchainIconName))
         }
