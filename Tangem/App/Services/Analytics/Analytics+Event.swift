@@ -172,7 +172,7 @@ extension Analytics {
         case onboardingSeedCheckingScreenOpened = "[Onboarding / Seed Phrase] Seed Checking Screen Opened"
         case onboardingSeedImportScreenOpened = "[Onboarding / Seed Phrase] Import Seed Phrase Screen Opened"
 
-        case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen capture"
+        case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen Capture"
 
         // MARK: - Card settings
 
