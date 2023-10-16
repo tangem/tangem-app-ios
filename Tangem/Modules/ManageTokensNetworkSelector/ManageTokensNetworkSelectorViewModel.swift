@@ -15,7 +15,7 @@ import TangemSdk
 final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject, WalletSelectorDelegate {
     // MARK: - Injected Properties
 
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published Properties

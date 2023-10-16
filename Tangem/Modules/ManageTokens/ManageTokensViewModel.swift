@@ -13,7 +13,7 @@ import Combine
 final class ManageTokensViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
@@ -43,7 +43,7 @@ final class ManageTokensViewModel: ObservableObject {
     private let percentFormatter = PercentFormatter()
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
-    private var cacheExistTokenUserList: [TokenItem] = []
+    private var cacheExistListCoinId: [String] = []
 
     private var derivationManagers: [UserWalletId: Int] = [:] {
         didSet {
@@ -74,39 +74,24 @@ final class ManageTokensViewModel: ObservableObject {
     func fetch() {
         loader.fetch(enteredSearchText.value)
     }
+}
 
+// MARK: - Private Implementation
+
+private extension ManageTokensViewModel {
     /// Obtain supported token list from UserWalletModels to determine the cell action typeю
     /// Should be reset after updating the list of tokens
     func updateAlreadyExistTokenUserList() {
-        let storageConverter = StorageEntryConverter()
-
-        let customEntriesList = userWalletRepository.models
+        let existEntriesList = userWalletRepository.models
             .map { $0.userTokenListManager }
             .flatMap { userTokenListManager in
-                userTokenListManager.userTokensList.entries
+                let entries = userTokenListManager.userTokensList.entries
+                return entries.compactMap { $0.isCustom ? nil : $0.id }
             }
 
-        let tokenItemList = customEntriesList
-            .filter {
-                !$0.isCustom
-            }
-            .map {
-                let blockchain = $0.blockchainNetwork.blockchain
-
-                guard let token = storageConverter.convertToToken($0) else {
-                    return TokenItem.blockchain(blockchain)
-                }
-
-                return TokenItem.token(token, blockchain)
-            }
-
-        cacheExistTokenUserList = tokenItemList
+        cacheExistListCoinId = existEntriesList
     }
-}
 
-// MARK: - Private
-
-private extension ManageTokensViewModel {
     func bind() {
         enteredSearchText
             .dropFirst()
@@ -159,10 +144,7 @@ private extension ManageTokensViewModel {
     // MARK: - Private Implementation
 
     private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        let isAlreadyExistToken = coinModel.items.contains(where: { tokenItem in
-            cacheExistTokenUserList.contains(tokenItem)
-        })
-
+        let isAlreadyExistToken = cacheExistListCoinId.contains(coinModel.id)
         return isAlreadyExistToken ? .edit : .add
     }
 
@@ -175,7 +157,9 @@ private extension ManageTokensViewModel {
     }
 
     private func updateQuote(by coinIds: [String]) {
-        tokenQuotesRepository.updateQuotes(coinIds: coinIds)
+        runTask(in: self) { root in
+            await root.tokenQuotesRepository.loadQuotes(currencyIds: coinIds)
+        }
     }
 
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {

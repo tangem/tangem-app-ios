@@ -184,15 +184,21 @@ struct PushTxView: View {
 
 struct PushTxView_Previews: PreviewProvider {
     static var previews: some View {
-        PushTxView(viewModel: .init(
-            transaction: .dummyTx(
-                blockchain: .bitcoin(testnet: false),
-                type: .coin,
-                destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"
-            ),
-            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-            cardViewModel: PreviewCard.ethereum.cardModel,
-            coordinator: PushTxCoordinator()
-        ))
+        PushTxView(
+            viewModel: .init(
+                transaction: .init(
+                    hash: "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d",
+                    source: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n",
+                    destination: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n",
+                    amount: .zeroCoin(for: .bitcoin(testnet: false)),
+                    fee: Fee(.zeroCoin(for: .bitcoin(testnet: false))),
+                    date: Date(),
+                    isIncoming: false
+                ),
+                blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+                cardViewModel: PreviewCard.ethereum.cardModel,
+                coordinator: PushTxCoordinator()
+            )
+        )
     }
 }
