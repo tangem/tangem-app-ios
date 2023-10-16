@@ -20,6 +20,7 @@ extension Analytics {
         case null = "Null"
         case empty = "Empty"
         case customToken = "Custom Token"
+        case noRate = "No Rate"
         case blockchainError = "Blockchain Error"
         case multicurrency = "Multicurrency"
         case accessCode = "Access Code"
@@ -29,6 +30,7 @@ extension Analytics {
         case scanSourceMain = "Main"
         case scanSourceAuth = "Sign In"
         case scanSourceMyWallets = "My Wallets"
+        case scanSourceSettings = "Settings"
 
         case transactionSourceSend = "Send"
         case transactionSourceSwap = "Swap"
@@ -44,9 +46,9 @@ extension Analytics {
         case signInTypeCard = "Card"
         case signInTypeBiometrics = "Biometric"
 
-        case walletCreationTypePrivateKey = "Private key"
-        case walletCreationTypeNewSeed = "New seed"
-        case walletCreationTypeSeedImport = "Seed import"
+        case walletCreationTypePrivateKey = "Private Key"
+        case walletCreationTypeNewSeed = "New Seed"
+        case walletCreationTypeSeedImport = "Seed Import"
 
         case enabled = "Enabled"
         case disabled = "Disabled"
@@ -77,6 +79,8 @@ extension Analytics {
         case sortTypeByBalance = "By Balance"
         case sortTypeManual = "Manually"
 
+        case balance = "Balance"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
@@ -93,10 +97,6 @@ extension Analytics {
         case readPrimary = "read_primary"
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
-
-        static func state(for balance: Decimal) -> ParameterValue {
-            return balance > 0 ? .full : .empty
-        }
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
             return boolean ? .on : .off
