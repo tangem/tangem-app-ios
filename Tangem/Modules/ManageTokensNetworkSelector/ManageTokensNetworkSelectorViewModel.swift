@@ -15,15 +15,15 @@ import TangemSdk
 final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject, WalletSelectorDelegate {
     // MARK: - Injected Properties
 
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published Properties
 
+    @Published var currentWalletName: String = ""
+
     @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
     @Published var nonNativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
-
-    @Published var currentWalletName: String = ""
 
     @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
@@ -50,7 +50,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             longHashesSupported: selectedModel?.longHashesSupported ?? false,
             derivationStyle: nil,
             shouldShowLegacyDerivationAlert: selectedModel?.shouldShowLegacyDerivationAlert ?? false,
-            existingCurves: selectedModel?.card.walletCurves ?? []
+            existingCurves: selectedModel?.card.walletCurves ?? [],
+            tokenSupportedBlockchains: SupportedBlockchains.listTokenSupportedBlockchain
         )
     }
 
@@ -143,28 +144,9 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         )
     }
 
-    private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
-        if selected,
-           case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
-           !settings.longHashesSupported {
-            displayAlertAndUpdateSelection(
-                for: tokenItem,
-                title: Localization.commonAttention,
-                message: Localization.alertManageTokensUnsupportedMessage
-            )
-
-            return
-        }
-
-        if selected, !settings.existingCurves.contains(tokenItem.blockchain.curve) {
-            displayAlertAndUpdateSelection(
-                for: tokenItem,
-                title: Localization.commonAttention,
-                message: Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
-            )
-
-            return
+    private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
+        if selected {
+            try tryTokenAvailable(tokenItem)
         }
 
         sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
@@ -192,7 +174,11 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         let binding = Binding<Bool> { [weak self] in
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
-            self?.displayAlertWarningDeleteIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
+            do {
+                try self?.displayAlertWarningDeleteIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
+            } catch {
+                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error)
+            }
         }
 
         return binding
@@ -231,18 +217,26 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 // MARK: - Helpers
 
 private extension ManageTokensNetworkSelectorViewModel {
-    func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+    func tryTokenAvailable(_ tokenItem: TokenItem) throws {
         if case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
+           !settings.tokenSupportedBlockchains.contains(blockchain),
            !settings.longHashesSupported {
-            return false
+            throw AvailableTokenError.failedSupportedTokens(tokenItem)
+        }
+
+        if !settings.supportedBlockchains.contains(tokenItem.blockchain) {
+            throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
         }
 
         if !settings.existingCurves.contains(tokenItem.blockchain.curve) {
-            return false
+            throw AvailableTokenError.failedSupportedCurve(tokenItem)
         }
 
-        return true
+        return
+    }
+
+    func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+        return (try? tryTokenAvailable(tokenItem)) != nil
     }
 
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
@@ -269,6 +263,22 @@ private extension ManageTokensNetworkSelectorViewModel {
 // MARK: - Alerts
 
 private extension ManageTokensNetworkSelectorViewModel {
+    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: Error) {
+        guard let availableTokenError = error as? AvailableTokenError else {
+            return
+        }
+
+        let okButton = Alert.Button.default(Text(Localization.commonOk)) {
+            self.updateSelection(tokenItem)
+        }
+
+        alert = AlertBinder(alert: Alert(
+            title: Text(availableTokenError.title),
+            message: Text(availableTokenError.errorDescription ?? ""),
+            dismissButton: okButton
+        ))
+    }
+
     func displayAlertAndUpdateSelection(for tokenItem: TokenItem, title: String, message: String) {
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {
             self.updateSelection(tokenItem)
@@ -281,13 +291,13 @@ private extension ManageTokensNetworkSelectorViewModel {
         ))
     }
 
-    func displayAlertWarningDeleteIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
+    func displayAlertWarningDeleteIfNeeded(isSelected: Bool, tokenItem: TokenItem) throws {
         guard
             !isSelected,
             !pendingAdd.contains(tokenItem),
             isTokenAvailable(tokenItem)
         else {
-            onSelect(isSelected, tokenItem)
+            try onSelect(isSelected, tokenItem)
             return
         }
 
@@ -298,7 +308,11 @@ private extension ManageTokensNetworkSelectorViewModel {
                     updateSelection(tokenItem)
                 },
                 hideAction: { [unowned self] in
-                    onSelect(isSelected, tokenItem)
+                    do {
+                        try onSelect(isSelected, tokenItem)
+                    } catch {
+                        displayAlertAndUpdateSelection(for: tokenItem, error: error)
+                    }
                 }
             )
         } else {
@@ -315,7 +329,7 @@ private extension ManageTokensNetworkSelectorViewModel {
 // MARK: - ManageTokensNetworkSelectorViewModelDelegate
 
 protocol ManageTokensNetworkSelectorViewModelDelegate: AnyObject {
-    func tokenItemsDidUpdate(by coinId: CoinModel.ID)
+    func tokenItemsDidUpdate(by coinId: String)
 }
 
 // MARK: - Settings
@@ -328,5 +342,31 @@ private extension ManageTokensNetworkSelectorViewModel {
         let derivationStyle: DerivationStyle?
         let shouldShowLegacyDerivationAlert: Bool
         let existingCurves: [EllipticCurve]
+        let tokenSupportedBlockchains: [Blockchain]
+    }
+}
+
+// MARK: - Errors
+
+private extension ManageTokensNetworkSelectorViewModel {
+    enum AvailableTokenError: Error, LocalizedError {
+        case failedSupportedTokens(TokenItem)
+        case failedSupportedCurve(TokenItem)
+        case failedSupportedBlockchainByCard(TokenItem)
+
+        var errorDescription: String? {
+            switch self {
+            case .failedSupportedTokens:
+                return Localization.alertManageTokensUnsupportedMessage
+            case .failedSupportedCurve(let tokenItem):
+                return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
+            case .failedSupportedBlockchainByCard:
+                return nil
+            }
+        }
+
+        var title: String {
+            return Localization.commonAttention
+        }
     }
 }
