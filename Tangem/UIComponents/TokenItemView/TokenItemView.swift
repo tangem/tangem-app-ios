@@ -18,6 +18,7 @@ struct TokenItemView: View {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
+                customTokenColor: viewModel.customTokenColor,
                 blockchainIconName: viewModel.blockchainIconName,
                 hasMonochromeIcon: viewModel.hasMonochromeIcon,
                 isCustom: viewModel.isCustom
@@ -131,8 +132,7 @@ private extension TokenItemView {
 struct TokenItemView_Previews: PreviewProvider {
     static var infoProvider: FakeTokenItemInfoProvider = {
         let walletManagers: [FakeWalletManager] = [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager]
-        InjectedValues[\.ratesRepository] = FakeRatesRepository(walletManagers: walletManagers)
-        InjectedValues[\.tokenQuotesRepository] = FakeTokenQuotesRepository()
+        InjectedValues[\.quotesRepository] = FakeTokenQuotesRepository(walletManagers: walletManagers)
         return FakeTokenItemInfoProvider(walletManagers: walletManagers)
     }()
 

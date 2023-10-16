@@ -22,7 +22,6 @@ struct ManageTokensView: View {
         }
         .scrollDismissesKeyboardCompat(true)
         .navigationBarTitle(Text(Localization.addTokensTitle), displayMode: .automatic)
-        .alert(item: $viewModel.alert, content: { $0.alert })
         .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
