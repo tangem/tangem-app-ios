@@ -44,9 +44,9 @@ extension Analytics {
         case signInTypeCard = "Card"
         case signInTypeBiometrics = "Biometric"
 
-        case walletCreationTypePrivateKey = "Private key"
-        case walletCreationTypeNewSeed = "New seed"
-        case walletCreationTypeSeedImport = "Seed import"
+        case walletCreationTypePrivateKey = "Private Key"
+        case walletCreationTypeNewSeed = "New Seed"
+        case walletCreationTypeSeedImport = "Seed Import"
 
         case enabled = "Enabled"
         case disabled = "Disabled"
