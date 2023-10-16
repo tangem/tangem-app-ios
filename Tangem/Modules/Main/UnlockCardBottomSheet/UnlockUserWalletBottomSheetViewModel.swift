@@ -48,8 +48,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func unlockWithCard() {
-        // [REDACTED_TODO_COMMENT]
-        Analytics.beginLoggingCardScan(source: .myWalletsUnlock)
+        Analytics.beginLoggingCardScan(source: .mainUnlock)
         isScannerBusy = true
         userWalletRepository.unlock(with: .card(userWallet: userWalletModel.userWallet)) { [weak self] result in
             DispatchQueue.main.async {
