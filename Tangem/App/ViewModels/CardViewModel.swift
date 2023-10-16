@@ -58,7 +58,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { _signer }
 
     var cardInteractor: CardInteractor {
-        .init(tangemSdk: config.makeTangemSdk(), cardId: cardId)
+        .init(cardInfo: cardInfo)
     }
 
     var cardId: String { cardInfo.card.cardId }
@@ -142,10 +142,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.tou
     }
 
-    var embeddedEntry: StorageEntry? {
-        config.embeddedBlockchain
-    }
-
     var canShowSwapping: Bool {
         !config.getFeatureAvailability(.swapping).isHidden
     }
@@ -222,10 +218,6 @@ class CardViewModel: Identifiable, ObservableObject {
         UserWalletFactory().userWallet(from: cardInfo, config: config, userWalletId: userWalletId)
     }
 
-    var productType: Analytics.ProductType {
-        config.productType
-    }
-
     private var isActive: Bool {
         if let selectedUserWalletId = userWalletRepository.selectedUserWalletId {
             return selectedUserWalletId == userWalletId.value
@@ -236,6 +228,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
+    private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -285,6 +278,7 @@ class CardViewModel: Identifiable, ObservableObject {
         _signer = config.tangemSigner
         accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
         _userWalletNamePublisher = .init(cardInfo.name)
+        _cardHeaderImagePublisher = .init(config.cardHeaderImage)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
@@ -417,6 +411,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func onUpdate() {
         AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
+        _cardHeaderImagePublisher.send(config.cardHeaderImage)
         _signer = config.tangemSigner
         updateModel()
         // prevent save until onboarding completed
@@ -552,7 +547,7 @@ extension CardViewModel: UserWalletModel {
 }
 
 extension CardViewModel: MainHeaderInfoProvider {
-    var cardHeaderImage: ImageType? { config.cardHeaderImage }
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
@@ -577,10 +572,7 @@ extension CardViewModel: DerivationManagerDelegate {
 
 extension CardViewModel: CardDerivableProvider {
     var cardDerivableInteractor: CardDerivable {
-        // [REDACTED_TODO_COMMENT]
-        let shouldSkipCardId = cardInfo.card.backupStatus?.isActive ?? false
-        let cardId = shouldSkipCardId ? nil : cardInfo.card.cardId
-        return CardInteractor(tangemSdk: config.makeTangemSdk(), cardId: cardId)
+        return cardInteractor
     }
 }
 

@@ -73,6 +73,9 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
+                // The 'sort-by-balance' button only allows to enable balance sorting but not to disable it
+                if viewModel.isSortByBalanceEnabled { return }
+
                 Analytics.log(.organizeTokensButtonSortByBalance)
                 viewModel.optionsEditing.sort(
                     by: viewModel.isSortByBalanceEnabled ? .dragAndDrop : .byBalance
