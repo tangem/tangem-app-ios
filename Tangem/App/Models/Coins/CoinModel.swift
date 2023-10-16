@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemSdk
 
-final class CoinModel: Identifiable {
+struct CoinModel {
     let id: String
     let name: String
     let symbol: String
