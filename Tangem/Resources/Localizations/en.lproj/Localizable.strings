@@ -175,7 +175,7 @@
 "feedback_subject_support_tangem" = "Tangem feedback";
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
-"home_button_order" = "Order";
+"home_button_order" = "Order card";
 "home_button_scan" = "Scan card";
 "initial_message_change_access_code_body" = "To change the access code tap the card as shown above and do not remove until the end of the operation";
 "initial_message_change_passcode_body" = "To change the passcode tap the card as shown above and do not remove until the end of the operation";
