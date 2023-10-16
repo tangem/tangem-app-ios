@@ -123,12 +123,16 @@ class WalletModel {
         wallet.blockchain.isTestnet
     }
 
-    var incomingPendingTransactions: [LegacyTransactionRecord] {
-        legacyTransactionMapper.mapToIncomingRecords(wallet.pendingIncomingTransactions)
+    var pendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { !$0.isDummy }
     }
 
-    var outgoingPendingTransactions: [LegacyTransactionRecord] {
-        legacyTransactionMapper.mapToOutgoingRecords(wallet.pendingOutgoingTransactions)
+    var incomingPendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { $0.isIncoming }
+    }
+
+    var outgoingPendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { !$0.isIncoming }
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {
@@ -237,9 +241,6 @@ class WalletModel {
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
-    private var legacyTransactionMapper: LegacyTransactionMapper {
-        LegacyTransactionMapper(formatter: formatter)
-    }
 
     deinit {
         AppLog.shared.debug("🗑 \(self) deinit")

@@ -41,11 +41,14 @@ struct MainView: View {
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .pageSwitchAnimationDuration(viewModel.isPageSwitchAnimationDisabled ? .zero : nil)
         .onPageChange(viewModel.onPageChange(dueTo:))
+        .onAppear(perform: viewModel.onViewAppear)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
+        .onAppear(perform: viewModel.onAppear)
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarLeading) {
                 Assets.newTangemLogo.image
@@ -106,7 +109,10 @@ struct MainView_Preview: PreviewProvider {
     static let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
-        return .init(coordinator: coordinator, mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator))
+        return .init(
+            coordinator: coordinator,
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
+        )
     }()
 
     static var previews: some View {
