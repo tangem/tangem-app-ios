@@ -14,7 +14,6 @@ struct TransactionsListView: View {
     let exploreTransactionAction: (String) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
-    let buyButtonAction: (() -> Void)?
     let fetchMore: FetchMore?
 
     var body: some View {
@@ -102,10 +101,6 @@ struct TransactionsListView: View {
 
             Text(Localization.transactionHistoryEmptyTransactions)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-
-            if let buyButtonAction = buyButtonAction {
-                simpleButton(with: Localization.commonBuy, and: buyButtonAction)
-            }
         }
         .padding(.vertical, 28)
     }
@@ -313,7 +308,6 @@ struct TransactionsListView_Previews: PreviewProvider {
                         exploreTransactionAction: { _ in },
                         reloadButtonAction: {},
                         isReloadButtonBusy: false,
-                        buyButtonAction: {},
                         fetchMore: nil
                     )
                     .animation(.default, value: model.state)

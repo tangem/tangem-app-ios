@@ -18,6 +18,8 @@ struct MainHeaderView: View {
     var body: some View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
+                let contentSettings = contentSettings(containerWidth: proxy.size.width)
+
                 VStack(alignment: .leading, spacing: 6) {
                     titleView
 
@@ -27,29 +29,16 @@ struct MainHeaderView: View {
                             .cornerRadiusContinuous(6)
                             .padding(.vertical, 5)
                     } else {
-                        SensitiveText(viewModel.balance)
-                            .multilineTextAlignment(.leading)
-                            .truncationMode(.middle)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
-                            .skeletonable(
-                                isShown: viewModel.isLoadingFiatBalance,
-                                size: .init(width: 102, height: 24),
-                                radius: 6
-                            )
-                            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                            .frame(minHeight: 34)
+                        BalanceTitleView(balance: viewModel.balance, isLoading: viewModel.isLoadingFiatBalance)
                     }
 
                     subtitleText
                 }
                 .lineLimit(1)
-                .frame(width: leadingContentWidth(containerWidth: proxy.size.width), alignment: .leading)
-                .padding(.vertical, 12)
+                .frame(width: contentSettings.leadingContentWidth, height: imageSize.height, alignment: .leading)
 
-                if let cardImage = viewModel.cardImage {
-                    Spacer()
-                        .frame(minWidth: horizontalSpacing)
+                if let cardImage = viewModel.cardImage, contentSettings.shouldShowTrailingContent {
+                    Spacer(minLength: horizontalSpacing)
 
                     cardImage.image
                         .frame(size: imageSize)
@@ -86,14 +75,26 @@ struct MainHeaderView: View {
         }
     }
 
-    private func leadingContentWidth(containerWidth: CGFloat) -> CGFloat {
-        var trailingOffset: CGFloat = 0
+    private func calculateTextWidth(_ text: NSAttributedString) -> CGFloat {
+        return text.string
+            .size(withAttributes: text.attributes(at: 0, effectiveRange: nil))
+            .width
+    }
 
-        if viewModel.cardImage != nil {
-            trailingOffset = imageSize.width + horizontalSpacing
+    private func widthForBalanceWithImage(containerWidth: CGFloat) -> CGFloat {
+        let imageWidth = viewModel.cardImage != nil ? imageSize.width : 0
+        return containerWidth - imageWidth - horizontalSpacing
+    }
+
+    private func contentSettings(containerWidth: CGFloat) -> (leadingContentWidth: CGFloat, shouldShowTrailingContent: Bool) {
+        let balanceWidth = calculateTextWidth(viewModel.balance)
+
+        let widthForBalanceWithImage = widthForBalanceWithImage(containerWidth: containerWidth)
+        if balanceWidth > widthForBalanceWithImage {
+            return (containerWidth, false)
         }
 
-        return max(containerWidth - trailingOffset, 0.0)
+        return (max(widthForBalanceWithImage, 0), true)
     }
 }
 

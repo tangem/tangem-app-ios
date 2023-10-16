@@ -30,6 +30,3 @@ PRODUCT_NAME = Tangem
 
 // app icon
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_$(ENVIRONMENT_NAME)
-
-// UIUserInterfaceStyle override
-UI_USER_INTERFACE_STYLE = Light
