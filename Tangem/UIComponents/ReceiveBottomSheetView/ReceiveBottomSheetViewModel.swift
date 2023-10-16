@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 import Combine
 import CombineExt
 
@@ -22,6 +23,10 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
 
     let iconURL: URL?
+
+    var customTokenColor: Color? {
+        tokenItem.token?.customTokenColor
+    }
 
     private let tokenItem: TokenItem
 
