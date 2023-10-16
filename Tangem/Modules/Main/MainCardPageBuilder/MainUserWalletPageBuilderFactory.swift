@@ -74,7 +74,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             return nil
         }
 
-        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel, isNoteWallet: true)
+        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel)
         let exchangeUtility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,
             address: walletModel.wallet.address,
