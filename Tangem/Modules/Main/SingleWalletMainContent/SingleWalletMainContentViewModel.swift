@@ -47,21 +47,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         bind()
     }
 
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
-        guard updateSubscription == nil else {
-            return
-        }
-
-        isReloadingTransactionHistory = true
-        updateSubscription = walletModel.generalUpdate(silent: false)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                self?.isReloadingTransactionHistory = false
-                completionHandler()
-                self?.updateSubscription = nil
-            })
-    }
-
     override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         mainViewDelegate?.present(actionSheet: actionSheet)
     }

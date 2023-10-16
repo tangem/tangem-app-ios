@@ -21,7 +21,7 @@ struct MultiWalletMainContentView: View {
                     ),
                 ])
                 .setButtonsLoadingState(to: viewModel.isScannerBusy)
-                .transition(.scaleOpacity)
+                .transition(.notificationTransition)
             }
 
             if let settings = viewModel.missingBackupNotificationSettings {
@@ -35,12 +35,12 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .transition(.notificationTransition)
             }
 
             ForEach(viewModel.tokensNotificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .transition(.notificationTransition)
             }
 
             tokensContent

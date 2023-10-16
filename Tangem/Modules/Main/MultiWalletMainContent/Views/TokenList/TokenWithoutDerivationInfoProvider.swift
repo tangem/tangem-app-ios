@@ -20,6 +20,7 @@ class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     var quote: TokenQuote? { nil }
 
     var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { .just(output: .noDerivation) }
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> { .just(output: ()) }
 
     init(id: Int, tokenItem: TokenItem) {
         self.id = id
