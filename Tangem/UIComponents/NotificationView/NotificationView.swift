@@ -103,7 +103,7 @@ struct NotificationView: View {
                 .foregroundColor(settings.event.icon.color)
                 .frame(size: .init(bothDimensions: 20))
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(settings.event.title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
