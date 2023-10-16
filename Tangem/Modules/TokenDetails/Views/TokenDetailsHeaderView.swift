@@ -22,7 +22,14 @@ struct TokenDetailsHeaderView: View {
 
                 Spacer()
 
-                IconView(url: viewModel.tokenIconModel.imageURL, sizeSettings: .tokenDetails, forceKingfisher: true)
+                TokenIcon(
+                    name: "",
+                    imageURL: viewModel.imageURL,
+                    customTokenColor: viewModel.customTokenColor,
+                    blockchainIconName: nil,
+                    isCustom: false,
+                    size: IconViewSizeSettings.tokenDetails.iconSize
+                )
             }
 
             HStack(spacing: 6) {
