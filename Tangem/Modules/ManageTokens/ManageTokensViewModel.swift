@@ -13,7 +13,7 @@ import Combine
 final class ManageTokensViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
@@ -125,7 +125,9 @@ private extension ManageTokensViewModel {
     }
 
     private func updateQuote(by coinIds: [String]) {
-        tokenQuotesRepository.updateQuotes(coinIds: coinIds)
+        runTask(in: self) { root in
+            await root.tokenQuotesRepository.loadQuotes(currencyIds: coinIds)
+        }
     }
 
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
