@@ -21,20 +21,11 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var hasPendingDerivations: Bool = false
 
     // MARK: - Properties
 
     var hasNextPage: Bool {
         loader.canFetchMore
-    }
-
-    var pendingDerivationOptions: GenerateAddressesView.Options {
-        .init(
-            numberOfNetworks: derivationManagers.map { $0.value }.reduce(0, +),
-            currentWalletNumber: (userWalletRepository.selectedIndexUserWalletModel ?? 0) + 1,
-            totalWalletNumber: userWalletRepository.userWallets.count
-        )
     }
 
     private unowned let coordinator: ManageTokensRoutable
@@ -44,14 +35,6 @@ final class ManageTokensViewModel: ObservableObject {
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
-
-    private var derivationManagers: [UserWalletId: Int] = [:] {
-        didSet {
-            hasPendingDerivations = !derivationManagers.filter { $0.value > 0 }.isEmpty
-        }
-    }
-
-    // MARK: - Init
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
@@ -79,7 +62,7 @@ final class ManageTokensViewModel: ObservableObject {
 // MARK: - Private Implementation
 
 private extension ManageTokensViewModel {
-    /// Obtain supported token list from UserWalletModels to determine the cell action typeю
+    /// Obtain supported token list from UserWalletModels to determine the cell action type
     /// Should be reset after updating the list of tokens
     func updateAlreadyExistTokenUserList() {
         let existEntriesList = userWalletRepository.models
@@ -105,21 +88,6 @@ private extension ManageTokensViewModel {
                 self?.loader.fetch(string)
             }
             .store(in: &bag)
-
-        derivationManagers = [:]
-        userWalletRepository.models.forEach { derivationManagers[$0.userWalletId] = 0 }
-
-        userWalletRepository.models.forEach { model in
-            model.userTokensManager
-                .derivationManager?
-                .pendingDerivationsCount
-                .sink(
-                    receiveValue: { [weak self] countDerivation in
-                        self?.derivationManagers[model.userWalletId] = countDerivation
-                    }
-                )
-                .store(in: &bag)
-        }
     }
 
     func setupListDataLoader() -> ListDataLoader {
@@ -143,15 +111,15 @@ private extension ManageTokensViewModel {
 
     // MARK: - Private Implementation
 
-    private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        let isAlreadyExistToken = cacheExistListCoinId.contains(coinModel.id)
+    private func actionType(for coinId: String) -> ManageTokensItemViewModel.Action {
+        let isAlreadyExistToken = cacheExistListCoinId.contains(coinId)
         return isAlreadyExistToken ? .edit : .add
     }
 
     private func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel {
         ManageTokensItemViewModel(
             coinModel: coinModel,
-            action: actionType(for: coinModel),
+            action: actionType(for: coinModel.id),
             didTapAction: handle(action:with:)
         )
     }
@@ -177,8 +145,10 @@ private extension ManageTokensViewModel {
 
 extension ManageTokensViewModel: ManageTokensNetworkSelectorViewModelDelegate {
     func tokenItemsDidUpdate(by coinId: String) {
+        updateAlreadyExistTokenUserList()
+
         tokenViewModels.filter { $0.id == coinId }.forEach {
-            $0.setNeedUpdateAction()
+            $0.action = actionType(for: coinId)
         }
     }
 }
