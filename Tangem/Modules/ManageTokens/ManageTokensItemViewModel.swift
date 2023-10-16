@@ -24,10 +24,10 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Properties
 
-    var id: String { coin.id }
-    var imageURL: URL? { TokenIconURLBuilder().iconURL(id: coin.id, size: .large) }
-    var name: String { coin.name }
-    var symbol: String { coin.symbol }
+    var id: String { coinModel.id }
+    var imageURL: URL? { TokenIconURLBuilder().iconURL(id: coinModel.id, size: .large) }
+    var name: String { coinModel.name }
+    var symbol: String { coinModel.symbol }
 
     let coinModel: CoinModel
     let didTapAction: (Action, CoinModel) -> Void
@@ -64,17 +64,11 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         self.coinModel = coinModel
         self.priceValue = priceValue
         self.priceChangeState = priceChangeState
-        self.priceHistory = nil
+        self.priceHistory = priceHistory
         self.action = action
         self.didTapAction = didTapAction
 
         bind()
-    }
-
-    // MARK: - Public Implementation
-
-    func setNeedUpdateAction() {
-        action = actionType(for: coinModel)
     }
 
     // MARK: - Private Implementation
@@ -82,39 +76,29 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     private func bind() {
         tokenQuotesRepository.quotesPublisher.sink { [weak self] itemQuote in
             guard let self = self else { return }
-            let quote = itemQuote[coin.id]
-            update(quote: quote)
+
+            if let quote = itemQuote[coinModel.id] {
+                updateView(by: quote)
+            }
+
+            return
         }
         .store(in: &bag)
     }
 
-    private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        let userWalletModels = userWalletRepository.models
-
-        let isAlreadyExistToken = userWalletModels.contains(where: { userWalletModel in
-            coinModel.items.contains(where: { tokenItem in
-                return userWalletModel.userTokensManager.contains(tokenItem, derivationPath: nil)
-
-            })
-        })
-
-        return isAlreadyExistToken ? .edit : .add
-    }
-
-    private func update(quote: TokenQuote?) {
-        if let quote = quote {
-            priceChangeState = getPriceChangeState(by: quote)
-            priceValue = balanceFormatter.formatFiatBalance(quote.price)
-        } else {
-            priceChangeState = .noData
-            priceValue = ""
+    private func updateView(by quote: TokenQuote) {
+        guard priceValue.isEmpty || priceChangeState == .loading || priceChangeState == .noData else {
+            return
         }
+
+        priceChangeState = getPriceChangeState(by: quote)
+        priceValue = balanceFormatter.formatFiatBalance(quote.price)
     }
 
     private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
-        let signType = ChangeSignType(from: quote.change)
+        let signType = ChangeSignType(from: quote.change ?? 0)
 
-        let percent = percentFormatter.percentFormat(value: quote.change)
+        let percent = percentFormatter.percentFormat(value: quote.change ?? 0)
         return .loaded(signType: signType, text: percent)
     }
 }
