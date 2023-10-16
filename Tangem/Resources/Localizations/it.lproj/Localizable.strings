@@ -176,7 +176,7 @@
 "feedback_subject_support_tangem" = "Tangem feedback";
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
-"home_button_order" = "Order";
+"home_button_order" = "Order card";
 "home_button_scan" = "Scansiona carta";
 "initial_message_change_access_code_body" = "Avvicina per modificare il codice di accesso";
 "initial_message_change_passcode_body" = "Avvicina per modificare la password";
