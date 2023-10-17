@@ -441,7 +441,7 @@ SPEC CHECKSUMS:
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: 81d52fee263fded11b0d4e7859863ae489fe753e
-  SPRMessengerClient: d76d60a31fc75fde036d6d73ef32d3e4bde6e0ec
+  SPRMessengerClient: f814ba9b241b9a05aa035a187242f619bd357704
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   stellar-ios-mac-sdk: d8ab1ff49ac48e25ac3097da4deebcef77af6047
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
