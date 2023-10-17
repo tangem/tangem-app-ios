@@ -38,7 +38,7 @@ struct MarketPriceView: View {
                         .truncationMode(.middle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
 
-                    FixedSpacer(width: 7)
+                    FixedSpacer(width: 6)
 
                     TokenPriceChangeView(state: priceChangeState)
 
@@ -75,7 +75,7 @@ struct MarketPriceView_Previews: PreviewProvider {
 
             MarketPriceView(currencySymbol: "ETH", price: "1 500,33 $", priceChangeState: .loaded(signType: .negative, text: "10,3%"), tapAction: nil)
 
-            MarketPriceView(currencySymbol: "ETH", price: "1 847.90$", priceChangeState: .loaded(signType: .negative, text: "0,08 %"), tapAction: nil)
+            MarketPriceView(currencySymbol: "ETH", price: "1 847.90$", priceChangeState: .loaded(signType: .positive, text: "0,08 %"), tapAction: { })
 
             MarketPriceView(currencySymbol: "XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP", price: "1 000 000 000 000 000 000 000 000 000 000 000,33 $", priceChangeState: .loaded(signType: .positive, text: "100000000000,33%"), tapAction: {})
 
