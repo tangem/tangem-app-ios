@@ -301,9 +301,9 @@ struct TransactionsListView_Previews: PreviewProvider {
 
     struct PreviewView: View {
         @ObservedObject var model: TxHistoryModel
-        
+
         init(state: TransactionsListView.State) {
-            self.model = .init(state: state)
+            model = .init(state: state)
         }
 
         var body: some View {
