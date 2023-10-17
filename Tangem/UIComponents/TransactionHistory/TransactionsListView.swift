@@ -61,7 +61,7 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private var notSupportedContent: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 21) {
             Assets.compassBig.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
@@ -240,7 +240,7 @@ extension TransactionsListView {
 extension TransactionsListView {
     enum Constants {
         /// An approximate value from the design
-        static let lineSpacing: CGFloat = 3.5
+        static let lineSpacing: CGFloat = 2.5
         @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
         static let ios14ListItemHeight = 56.0
     }
