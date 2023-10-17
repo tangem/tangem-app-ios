@@ -250,7 +250,7 @@ struct TransactionsListView_Previews: PreviewProvider {
     class TxHistoryModel: ObservableObject {
         @Published var state: TransactionsListView.State
 
-        let oldItems = [
+        static let oldItems = [
             TransactionListItem(
                 header: "Yesterday",
                 items: TransactionView_Previews.previewViewModels
@@ -261,7 +261,7 @@ struct TransactionsListView_Previews: PreviewProvider {
             ),
         ]
 
-        let todayItems = [
+        static let todayItems = [
             TransactionListItem(
                 header: "Today",
                 items: TransactionView_Previews.previewViewModels
@@ -270,17 +270,17 @@ struct TransactionsListView_Previews: PreviewProvider {
 
         private var onlyOldItems = true
 
-        init() {
-            state = .loaded(oldItems)
+        init(state: TransactionsListView.State) {
+            self.state = state
         }
 
         func toggleState() {
             switch state {
             case .loading:
-                state = .loaded(oldItems)
+                state = .loaded(Self.oldItems)
             case .loaded:
                 if onlyOldItems {
-                    state = .loaded(todayItems + oldItems)
+                    state = .loaded(Self.todayItems + Self.oldItems)
                     onlyOldItems = false
                     return
                 }
@@ -296,7 +296,11 @@ struct TransactionsListView_Previews: PreviewProvider {
     }
 
     struct PreviewView: View {
-        @ObservedObject var model: TxHistoryModel = .init()
+        @ObservedObject var model: TxHistoryModel
+        
+        init(state: TransactionsListView.State) {
+            self.model = .init(state: state)
+        }
 
         var body: some View {
             VStack {
@@ -322,6 +326,12 @@ struct TransactionsListView_Previews: PreviewProvider {
     }
 
     static var previews: some View {
-        PreviewView()
+        Group {
+            PreviewView(state: .loaded(TxHistoryModel.oldItems))
+            PreviewView(state: .loaded(TxHistoryModel.todayItems + TxHistoryModel.oldItems))
+            PreviewView(state: .loading)
+            PreviewView(state: .notSupported)
+            PreviewView(state: .error("eror!"))
+        }
     }
 }
