@@ -328,11 +328,17 @@ struct TransactionsListView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             PreviewView(state: .loaded(TxHistoryModel.oldItems))
+                .previewDisplayName("Yesterday")
             PreviewView(state: .loaded(TxHistoryModel.todayItems + TxHistoryModel.oldItems))
+                .previewDisplayName("Today")
             PreviewView(state: .loaded([]))
+                .previewDisplayName("Empty")
             PreviewView(state: .loading)
+                .previewDisplayName("Loading")
             PreviewView(state: .notSupported)
+                .previewDisplayName("Not supported")
             PreviewView(state: .error("eror!"))
+                .previewDisplayName("Error")
         }
     }
 }
