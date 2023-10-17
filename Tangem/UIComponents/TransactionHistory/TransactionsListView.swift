@@ -96,13 +96,13 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private var noTransactionsContent: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 22) {
             Assets.emptyHistory.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryEmptyTransactions)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
         .padding(.vertical, 28)
     }
