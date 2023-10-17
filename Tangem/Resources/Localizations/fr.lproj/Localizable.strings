@@ -516,7 +516,7 @@
 "wallet_pending_tx_sending" = "Envoi";
 "wallet_pending_tx_sending_address_format" = "jusqu'à %@";
 "wallet_title" = "Tangem";
-"warning_access_denied_message" = "Use %@ or scan a card";
+"warning_access_denied_message" = "Use %@ or scan a card to unlock access to your wallet";
 "warning_button_can_be_better" = "Can be better";
 "warning_button_learn_more" = "Learn more";
 "warning_button_ok" = "Ok, je l'ai!";
