@@ -329,6 +329,7 @@ struct TransactionsListView_Previews: PreviewProvider {
         Group {
             PreviewView(state: .loaded(TxHistoryModel.oldItems))
             PreviewView(state: .loaded(TxHistoryModel.todayItems + TxHistoryModel.oldItems))
+            PreviewView(state: .loaded([]))
             PreviewView(state: .loading)
             PreviewView(state: .notSupported)
             PreviewView(state: .error("eror!"))
