@@ -159,7 +159,7 @@ extension MainButton {
                 return Colors.Icon.primary1
             }
         }
-        
+
         func titleFont(for size: MainButton.Size) -> Font {
             switch size {
             case .default:
@@ -168,7 +168,7 @@ extension MainButton {
                 Fonts.Bold.subheadline
             }
         }
-        
+
         func titleKerning(for size: MainButton.Size) -> Double {
             switch size {
             case .default:
