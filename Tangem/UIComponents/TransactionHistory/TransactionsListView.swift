@@ -42,7 +42,8 @@ struct TransactionsListView: View {
                 }
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.leading, 16)
+        .padding(.trailing, 15)
     }
 
     @ViewBuilder
@@ -134,16 +135,19 @@ struct TransactionsListView: View {
         if transactionItems.isEmpty {
             noTransactionsContent
         } else {
-            LazyVStack(spacing: 12) {
-                ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, item in
-                    makeSectionHeader(for: item, atIndex: sectionIndex)
+            LazyVStack(spacing: 0) {
+                header
 
-                    ForEach(item.items, id: \.id) { item in
+                ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, sectionItem in
+                    makeSectionHeader(for: sectionItem, atIndex: sectionIndex)
+
+                    ForEach(sectionItem.items.indexed(), id: \.1.id) { cellIndex, cellItem in
                         Button {
-                            exploreTransactionAction(item.hash)
+                            exploreTransactionAction(cellItem.hash)
                         } label: {
-                            TransactionView(viewModel: item)
-                                .ios14FixedHeight(Constants.ios14ListItemHeight)
+                            // Extra padding to implement "cell spacing" without resorting to VStack spacing
+                            TransactionView(viewModel: cellItem)
+                                .padding(.bottom, cellIndex == (sectionItem.items.count - 1) ? 0 : 16)
                         }
                     }
                 }
@@ -194,31 +198,14 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private func makeSectionHeader(for item: TransactionListItem, atIndex sectionIndex: Int) -> some View {
-        let sectionHeader = HStack {
+        HStack {
             Text(item.header)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
             Spacer()
         }
         .padding(.horizontal, 16)
-
-        Group {
-            // Section header for the very first section also includes the header for the list itself
-            if sectionIndex == 0 {
-                VStack(spacing: 0.0) {
-                    header
-
-                    Spacer(minLength: 12.0)
-
-                    sectionHeader
-
-                    Spacer(minLength: 12.0)
-                }
-            } else {
-                sectionHeader
-            }
-        }
-        .ios14FixedHeight(Constants.ios14ListItemHeight)
+        .padding(.vertical, 14)
     }
 }
 
@@ -333,14 +320,27 @@ struct TransactionsListView_Previews: PreviewProvider {
         Group {
             PreviewView(state: .loaded(TxHistoryModel.oldItems))
                 .previewDisplayName("Yesterday")
+
             PreviewView(state: .loaded(TxHistoryModel.todayItems + TxHistoryModel.oldItems))
                 .previewDisplayName("Today")
+
+            PreviewView(state: .loaded(
+                [
+                    TransactionListItem(header: "Today", items: TransactionView_Previews.figmaViewModels1),
+                    TransactionListItem(header: "Yesterday", items: TransactionView_Previews.figmaViewModels2),
+                ]
+            ))
+            .previewDisplayName("Figma")
+
             PreviewView(state: .loaded([]))
                 .previewDisplayName("Empty")
+
             PreviewView(state: .loading)
                 .previewDisplayName("Loading")
+
             PreviewView(state: .notSupported)
                 .previewDisplayName("Not supported")
+
             PreviewView(state: .error("eror!"))
                 .previewDisplayName("Error")
         }
