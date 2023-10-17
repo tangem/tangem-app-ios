@@ -101,7 +101,7 @@ private struct ButtonWithLeadingIconContentView: View {
                         .style(Fonts.Bold.subheadline, color: colorConfiguration.textColor)
                         .lineLimit(1)
                         .fixedSize(horizontal: maintainsIdealSize, vertical: maintainsIdealSize)
-                        .kerningCompat(-0.2)
+                        .kerningCompat(-0.28)
                 }
             }
             .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
