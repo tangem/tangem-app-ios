@@ -180,6 +180,12 @@ final class SwappingViewModel: ObservableObject {
     func didTapWaringRefresh() {
         swappingInteractor.refresh(type: .full)
     }
+    
+    // Workaround iOS 17 a sheet memory leak
+    // https://developer.apple.com/forums/thread/738840
+    func onDisappear() {
+        stopTimer()
+    }
 }
 
 // MARK: - Navigation
