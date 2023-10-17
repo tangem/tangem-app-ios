@@ -62,7 +62,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialSourceCurrency: Currency
-    private let swappingInteractor: SwappingInteractor
+    private unowned let swappingInteractor: SwappingInteractor
     private let swappingDestinationService: SwappingDestinationServicing
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
