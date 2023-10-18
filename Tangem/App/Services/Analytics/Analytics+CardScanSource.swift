@@ -27,7 +27,7 @@ extension Analytics {
             case .main:
                 return .buttonScanCard
             case .myWalletsNewCard:
-                return .buttonScanNewCardMyWallets
+                return .myWalletsButtonScanNewCardMyWallets
             case .myWalletsUnlock:
                 return .walletUnlockTapped
             case .settings:
