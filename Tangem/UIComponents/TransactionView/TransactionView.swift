@@ -51,8 +51,7 @@ struct TransactionView: View {
             }
         }
         .padding(.horizontal, 14)
-        .padding(.top, 6)
-        .padding(.bottom, 6)
+        .padding(.vertical, 6)
     }
 }
 
