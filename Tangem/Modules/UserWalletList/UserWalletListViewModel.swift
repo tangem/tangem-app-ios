@@ -26,7 +26,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     var unlockAllButtonTitle: String {
-        Localization.userWalletListUnlockAll(BiometricAuthorizationUtils.biometryType.name)
+        Localization.userWalletListUnlockAllWith(BiometricAuthorizationUtils.biometryType.name)
     }
 
     var isLocked: Bool {
