@@ -208,7 +208,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 private extension ManageTokensNetworkSelectorViewModel {
     func tryTokenAvailable(_ tokenItem: TokenItem) throws {
         if case .token(_, let blockchain) = tokenItem,
-           !settings.tokenSupportedBlockchains.contains(blockchain),
+           settings.tokenSupportedBlockchains.contains(blockchain),
            !settings.longHashesSupported {
             throw AvailableTokenError.failedSupportedTokens(tokenItem)
         }
