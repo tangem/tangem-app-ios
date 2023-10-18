@@ -308,9 +308,9 @@ extension SingleTokenBaseViewModel {
         case .receive:
             return false
         case .exchange:
-            return !isSwapAvailable || isBlockchainUnreachable
+            return isBlockchainUnreachable || !isSwapAvailable
         case .sell:
-            return !(canExchange && exchangeUtility.sellAvailable) || isBlockchainUnreachable
+            return isBlockchainUnreachable || !(canExchange && exchangeUtility.sellAvailable)
         case .copyAddress, .hide:
             return true
         }
