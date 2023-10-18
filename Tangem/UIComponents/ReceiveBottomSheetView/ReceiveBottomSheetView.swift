@@ -113,7 +113,7 @@ struct ReceiveBottomSheetView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
-            .padding(.bottom, 8)
+            .padding(.bottom, 6)
         }
         .readGeometry(\.size.width, bindTo: $containerWidth)
     }
