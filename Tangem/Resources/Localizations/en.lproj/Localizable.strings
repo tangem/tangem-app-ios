@@ -105,6 +105,7 @@
 "common_success" = "Success";
 "common_swap" = "Swap";
 "common_terms_and_conditions" = "terms and conditions";
+"common_transaction_failed" = "Transaction failed";
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
 "common_understand" = "I understand";
