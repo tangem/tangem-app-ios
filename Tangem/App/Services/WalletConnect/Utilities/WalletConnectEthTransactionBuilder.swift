@@ -31,6 +31,10 @@ struct CommonWalletConnectEthTransactionBuilder {
             return dappGasLimit
         }
 
+        // If amount is zero it is better to use default zero string `0x0`, because some dApps (app.thorswap.finance) can send
+        // weird values such as `0x00`, `0x00000` and JSON-RPC node won't be able to handle this info
+        // and will return an error. `EthereumUtils` can correctly parse weird values, but it is still better
+        // to send value from dApp instead of creating it yourself. [REDACTED_INFO]
         let valueString = amount.value.isZero ? zeroString : tx.value
 
         let gasLimitBigInt = try await gasLoader.getGasLimit(
