@@ -184,7 +184,10 @@ private extension AppSettingsViewModel {
     func isSensitiveTextAvailability() -> BindingValue<Bool> {
         BindingValue<Bool>(
             get: { AppSettings.shared.isHidingSensitiveAvailable },
-            set: { AppSettings.shared.isHidingSensitiveAvailable = $0 }
+            set: { enabled in
+                Analytics.log(.hideBalanceChanged, params: [.state: Analytics.ParameterValue.toggleState(for: enabled)])
+                AppSettings.shared.isHidingSensitiveAvailable = enabled
+            }
         )
     }
 
