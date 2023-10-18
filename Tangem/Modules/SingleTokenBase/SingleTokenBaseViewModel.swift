@@ -299,6 +299,7 @@ extension SingleTokenBaseViewModel {
 
     private func isButtonDisabled(with type: TokenActionType) -> Bool {
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
+        let isBlockchainUnreachable = walletModel.state.isBlockchainUnreachable
         switch type {
         case .buy:
             return !(canExchange && exchangeUtility.buyAvailable)
@@ -307,9 +308,9 @@ extension SingleTokenBaseViewModel {
         case .receive:
             return false
         case .exchange:
-            return !isSwapAvailable
+            return !isSwapAvailable || isBlockchainUnreachable
         case .sell:
-            return !(canExchange && exchangeUtility.sellAvailable)
+            return !(canExchange && exchangeUtility.sellAvailable) || isBlockchainUnreachable
         case .copyAddress, .hide:
             return true
         }
