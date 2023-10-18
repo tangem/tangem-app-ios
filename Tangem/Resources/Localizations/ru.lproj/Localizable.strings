@@ -105,7 +105,7 @@
 "common_success" = "Успешно";
 "common_swap" = "Обмен";
 "common_terms_and_conditions" = "условия участия";
-"common_transaction_failed" = "Transaction failed";
+"common_transaction_failed" = "Ошибка транзакции";
 "common_transactions" = "Транзакции";
 "common_transfer" = "Перевод";
 "common_understand" = "Я понял";
