@@ -39,11 +39,11 @@ struct TokenActionListBuilder {
 
         availableActions.append(.receive)
 
-        if canExchange, canSell, isBlockchainReachable {
+        if isBlockchainReachable, canExchange, canSell {
             availableActions.append(.sell)
         }
 
-        if canSwap, isBlockchainReachable {
+        if isBlockchainReachable, canSwap {
             availableActions.append(.exchange)
         }
 
