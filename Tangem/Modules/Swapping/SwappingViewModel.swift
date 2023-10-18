@@ -730,7 +730,7 @@ private extension SwappingViewModel {
         switch error {
         case let error as SwappingManagerError:
             switch error {
-            case .walletAddressNotFound, .destinationNotFound, .amountNotFound, .gasModelNotFound:
+            case .walletAddressNotFound, .destinationNotFound, .amountNotFound, .gasModelNotFound, .contractAddressNotFound:
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         case let error as SwappingProviderError:
