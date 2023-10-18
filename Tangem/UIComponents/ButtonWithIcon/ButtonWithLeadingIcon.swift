@@ -105,7 +105,8 @@ private struct ButtonWithLeadingIconContentView: View {
                 }
             }
             .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
-            .padding(.horizontal, 14)
+            .padding(.leading, 14)
+            .padding(.trailing, 15)
             .padding(.vertical, 7)
             .background(colorConfiguration.backgroundColor)
         }
