@@ -554,6 +554,7 @@
 "warning_send_blocked_funds_for_fee_message" = "%1$@ - это токен в сети %2$@. Для совершения транзакции %3$@, вам необходимо внести депозит в размере %4$@ (%5$@), чтобы покрыть комиссию сети.";
 "warning_send_blocked_funds_for_fee_title" = "Недостаточно %1$@ для оплаты комиссии сети";
 "warning_send_blocked_pending_transactions_message" = "Отправка средств станет доступной после завершения транзакции %@";
+"warning_send_blocked_pending_transactions_title" = "Транзакция в обработке";
 "warning_solana_rent_fee_message" = "Сеть Solana взимает арендную плату в размере %1$@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %2$@, чтобы не платить арендную плату.";
 "warning_some_networks_unreachable_message" = "Некоторые сети в настоящее время недоступны. Пожалуйста, повторите попытку позже.";
 "warning_some_networks_unreachable_title" = "Некоторые сети недоступны";
