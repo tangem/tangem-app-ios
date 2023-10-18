@@ -72,7 +72,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func unlockAllWallets() {
-        Analytics.log(.buttonUnlockAllWithFaceID)
+        Analytics.log(.myWalletsButtonUnlockAllWithFaceID)
 
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
             switch result {
