@@ -163,9 +163,9 @@ extension MainButton {
         func titleFont(for size: MainButton.Size) -> Font {
             switch size {
             case .default:
-                Fonts.Bold.callout
+                return Fonts.Bold.callout
             case .notification:
-                Fonts.Bold.subheadline
+                return Fonts.Bold.subheadline
             }
         }
 
