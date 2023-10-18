@@ -489,8 +489,9 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
         let canSend = userWalletModel.config.hasFeature(.send) && walletModel.canSendTransaction
         let canSwap = swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem)
+        let isBlockchainReachable = !walletModel.state.isBlockchainUnreachable
 
-        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, canSwap: canSwap, exchangeUtility: utility)
+        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, canSwap: canSwap, isBlockchainReachable: isBlockchainReachable, exchangeUtility: utility)
     }
 }
 
