@@ -120,8 +120,7 @@ final class MainViewModel: ObservableObject {
     }
 
     func didTapEditWallet() {
-        // [REDACTED_TODO_COMMENT]
-//        Analytics.log(.buttonEditWalletTapped)
+        Analytics.log(.buttonEditWalletTapped)
 
         guard let userWallet = userWalletRepository.selectedModel?.userWallet else { return }
 
@@ -142,8 +141,7 @@ final class MainViewModel: ObservableObject {
     }
 
     func didTapDeleteWallet() {
-        // [REDACTED_TODO_COMMENT]
-//        Analytics.log(.buttonDeleteWalletTapped)
+        Analytics.log(.buttonDeleteWalletTapped)
 
         let sheet = ActionSheet(
             title: Text(Localization.userWalletListDeletePrompt),
