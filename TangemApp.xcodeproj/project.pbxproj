@@ -1031,6 +1031,9 @@
 		EF92E2B829954B3200DD9B06 /* config_beta.json in Resources */ = {isa = PBXBuildFile; fileRef = EF92E2B729954B3100DD9B06 /* config_beta.json */; };
 		EF92E2BA29963E7400DD9B06 /* SwapReferrerAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2B929963E7400DD9B06 /* SwapReferrerAccount.swift */; };
 		EF92E2BC29964CFE00DD9B06 /* SwappingManagerRefreshType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2BB29964CFE00DD9B06 /* SwappingManagerRefreshType.swift */; };
+		EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */; };
+		EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DC2ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift */; };
+		EF9448E22ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DD2ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift */; };
 		EF94A86E298A557D008F2C3F /* ExplorerURLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF94A86D298A557D008F2C3F /* ExplorerURLService.swift */; };
 		EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */; };
 		EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */; };
@@ -2294,6 +2297,9 @@
 		EF92E2B729954B3100DD9B06 /* config_beta.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_beta.json; path = "tangem-app-config/config_beta.json"; sourceTree = SOURCE_ROOT; };
 		EF92E2B929963E7400DD9B06 /* SwapReferrerAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapReferrerAccount.swift; sourceTree = "<group>"; };
 		EF92E2BB29964CFE00DD9B06 /* SwappingManagerRefreshType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingManagerRefreshType.swift; sourceTree = "<group>"; };
+		EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesView.swift; sourceTree = "<group>"; };
+		EF9448DC2ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesViewModel.swift; sourceTree = "<group>"; };
+		EF9448DD2ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesRoutable.swift; sourceTree = "<group>"; };
 		EF94A86D298A557D008F2C3F /* ExplorerURLService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerURLService.swift; sourceTree = "<group>"; };
 		EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsView.swift; sourceTree = "<group>"; };
@@ -5065,6 +5071,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EF9448D82ADFD19D00F4AFAC /* InformationHiddenBalances */,
 				EFD39C8F2A6A8A640055D215 /* SupportedBlockchainsPreferences */,
 				B6209E5D2A2F1BBF0066ACFE /* OrganizeTokens */,
 				B60B9FD72A952B9900A7E905 /* TokenSectionsAdapter */,
@@ -5803,6 +5810,16 @@
 				EF92413A2935F24A00C28551 /* SwappingTokenIconViewModel.swift */,
 			);
 			path = SwappingTokenIconView;
+			sourceTree = "<group>";
+		};
+		EF9448D82ADFD19D00F4AFAC /* InformationHiddenBalances */ = {
+			isa = PBXGroup;
+			children = (
+				EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */,
+				EF9448DC2ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift */,
+				EF9448DD2ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift */,
+			);
+			path = InformationHiddenBalances;
 			sourceTree = "<group>";
 		};
 		EF9CFC00288FEB4A00329BE0 /* ScanCardSettings */ = {
@@ -7159,6 +7176,7 @@
 				B01299452AA8560E00E7BA43 /* MultiWalletNotificationManager.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
 				B03ACAC92567CFFF00F5D269 /* LegacyCardView.swift in Sources */,
+				EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */,
 				EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */,
 				B6DF7E792AA95DBB007C92BD /* ListFooterOverlayShadowView.swift in Sources */,
 				B05A13A329FB975400FB511A /* LoadableTextView.swift in Sources */,
@@ -7210,6 +7228,7 @@
 				DC13D03E29DF28140003895C /* OnboardingStepsBuilder.swift in Sources */,
 				DC261CAC292CF56600875E64 /* AuthRoutable.swift in Sources */,
 				B09E518C2981825C0042998A /* DeprecationService.swift in Sources */,
+				EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
 				EF11DD8C293789C60044B33C /* SwappingSuccessViewModel.swift in Sources */,
 				B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */,
@@ -7549,6 +7568,7 @@
 				EFA6B04729533C860090A92F /* ResetToFactoryViewRoutable.swift in Sources */,
 				B0F319002A739477009F131E /* FakeWalletManager.swift in Sources */,
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
+				EF9448E22ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift in Sources */,
 				B04EADEC2A80D659009B5768 /* SingleTokenBaseViewModel.swift in Sources */,
 				B0E1564B26B941A4005B33E4 /* SingleCardOnboardingView.swift in Sources */,
 				DC37A0772A584BD000C2A3F2 /* WalletModelsManagerMock.swift in Sources */,
