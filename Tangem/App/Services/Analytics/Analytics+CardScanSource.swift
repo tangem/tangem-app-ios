@@ -33,7 +33,7 @@ extension Analytics {
             case .settings:
                 return .buttonScanNewCardSettings
             case .mainUnlock:
-                return .walletUnlockTappedMain
+                return .buttonUnlockWithCardScan
             }
         }
 
