@@ -62,32 +62,39 @@ struct ReceiveBottomSheetView: View {
                 indexUpdateNotifier: viewModel.addressIndexUpdateNotifier,
                 pageWidth: containerWidth
             ) { info in
-                VStack(spacing: 28) {
+                VStack(spacing: 0) {
                     Text(viewModel.headerForAddress(with: info))
                         .multilineTextAlignment(.center)
+                        .lineSpacing(1)
                         .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
+                        .padding(.top, 3)
 
                     Image(uiImage: info.addressQRImage)
                         .resizable()
                         .aspectRatio(1.0, contentMode: .fit)
-                        .padding(.horizontal, 56)
+                        .padding(.horizontal, 48)
+                        .padding(.top, 18)
 
                     Text(info.address)
                         .lineLimit(1)
                         .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
+                        .padding(.top, 20)
                         .truncationMode(.middle)
+
+                    Text(viewModel.warningMessageFull)
+                        .lineSpacing(2)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 44)
+                        .padding(.top, 13)
+                        .padding(.bottom, 29)
+                        .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
                 }
             }
-            .padding(.top, 28)
+            .padding(.top, 24)
+            .padding(.bottom, 16)
             .frame(width: containerWidth)
-
-            Text(viewModel.warningMessageFull)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 44)
-                .padding(.top, 12)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
             HStack(spacing: 12) {
                 MainButton(
@@ -145,48 +152,60 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
     }
 
     static var previews: some View {
-        VStack {
-            StatefulPreviewWrapper(
-                Optional(
-                    btcAddressBottomSheet
-                )
-            ) { viewModel in
-                VStack {
-                    Button("BTC address bottom sheet") {
-                        viewModel.wrappedValue = nil
-                        viewModel.wrappedValue = btcAddressBottomSheet
-                    }
-                    .padding()
+        Group {
+            VStack {
+                Colors.Background.secondary
+                    .overlay(
+                        ReceiveBottomSheetView(viewModel: btcAddressBottomSheet)
+                            .background(Colors.Background.primary),
 
-                    NavHolder()
-                        .bottomSheet(
-                            item: viewModel,
-                            settings: .init(backgroundColor: Colors.Background.primary)
-                        ) { model in
-                            ReceiveBottomSheetView(viewModel: model)
-                        }
-                }
+                        alignment: .bottom
+                    )
             }
 
-            StatefulPreviewWrapper(
-                Optional(
-                    singleAddressBottomSheet
-                )
-            ) { viewModel in
-                VStack {
-                    Button("Single address bottom sheet") {
-                        viewModel.wrappedValue = nil
-                        viewModel.wrappedValue = singleAddressBottomSheet
-                    }
-                    .padding()
-
-                    NavHolder()
-                        .bottomSheet(
-                            item: viewModel,
-                            settings: .init(backgroundColor: Colors.Background.primary)
-                        ) { model in
-                            ReceiveBottomSheetView(viewModel: model)
+            VStack {
+                StatefulPreviewWrapper(
+                    Optional(
+                        btcAddressBottomSheet
+                    )
+                ) { viewModel in
+                    VStack {
+                        Button("BTC address bottom sheet") {
+                            viewModel.wrappedValue = nil
+                            viewModel.wrappedValue = btcAddressBottomSheet
                         }
+                        .padding()
+
+                        NavHolder()
+                            .bottomSheet(
+                                item: viewModel,
+                                settings: .init(backgroundColor: Colors.Background.primary)
+                            ) { model in
+                                ReceiveBottomSheetView(viewModel: model)
+                            }
+                    }
+                }
+
+                StatefulPreviewWrapper(
+                    Optional(
+                        singleAddressBottomSheet
+                    )
+                ) { viewModel in
+                    VStack {
+                        Button("Single address bottom sheet") {
+                            viewModel.wrappedValue = nil
+                            viewModel.wrappedValue = singleAddressBottomSheet
+                        }
+                        .padding()
+
+                        NavHolder()
+                            .bottomSheet(
+                                item: viewModel,
+                                settings: .init(backgroundColor: Colors.Background.primary)
+                            ) { model in
+                                ReceiveBottomSheetView(viewModel: model)
+                            }
+                    }
                 }
             }
         }
