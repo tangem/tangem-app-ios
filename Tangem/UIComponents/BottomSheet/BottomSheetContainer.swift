@@ -76,7 +76,8 @@ struct BottomSheetContainer<ContentView: View>: View {
             Capsule(style: .continuous)
                 .fill(Colors.Icon.inactive)
                 .frame(size: indicatorSize)
-                .padding(.vertical, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 10)
         }
         .frame(maxWidth: .infinity)
         .background(settings.backgroundColor)
