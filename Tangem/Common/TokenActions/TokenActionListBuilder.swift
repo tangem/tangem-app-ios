@@ -22,6 +22,7 @@ struct TokenActionListBuilder {
         canExchange: Bool,
         canSend: Bool,
         canSwap: Bool,
+        isBlockchainReachable: Bool,
         exchangeUtility: ExchangeCryptoUtility
     ) -> [TokenActionType] {
         let canBuy = exchangeUtility.buyAvailable
@@ -38,11 +39,11 @@ struct TokenActionListBuilder {
 
         availableActions.append(.receive)
 
-        if canExchange, canSell {
+        if canExchange, canSell, isBlockchainReachable {
             availableActions.append(.sell)
         }
 
-        if canSwap {
+        if canSwap, isBlockchainReachable {
             availableActions.append(.exchange)
         }
 
