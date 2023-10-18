@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 final class InformationHiddenBalancesViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
