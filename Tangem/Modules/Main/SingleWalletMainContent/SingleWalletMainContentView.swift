@@ -32,6 +32,11 @@ struct SingleWalletMainContentView: View {
                 tapAction: nil
             )
 
+            PendingTransactionsListView(
+                items: viewModel.pendingTransactionViews,
+                exploreTransactionAction: viewModel.openTransactionExplorer
+            )
+
             TransactionsListView(
                 state: viewModel.transactionHistoryState,
                 exploreAction: viewModel.openExplorer,
