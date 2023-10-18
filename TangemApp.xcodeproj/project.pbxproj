@@ -165,6 +165,7 @@
 		B003BDAA2A0291C200B282F7 /* TokenIconInfoBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003BDA92A0291C200B282F7 /* TokenIconInfoBuilder.swift */; };
 		B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */; };
 		B004C40E298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B004C40D298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift */; };
+		B005ADA02ADFF83B008B6D1F /* View+AlertBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B005AD9F2ADFF83B008B6D1F /* View+AlertBinder.swift */; };
 		B008E13A29802157006E0E31 /* WebSocketError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13929802157006E0E31 /* WebSocketError.swift */; };
 		B008E13C29802612006E0E31 /* WebSocketConnectionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */; };
 		B008E13E2980264D006E0E31 /* WebSocketEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13D2980264D006E0E31 /* WebSocketEvent.swift */; };
@@ -1387,6 +1388,7 @@
 		B003BDA92A0291C200B282F7 /* TokenIconInfoBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconInfoBuilder.swift; sourceTree = "<group>"; };
 		B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceConverter.swift; sourceTree = "<group>"; };
 		B004C40D298AA9E00029C14A /* WalletConnectV2SendTransactionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2SendTransactionHandler.swift; sourceTree = "<group>"; };
+		B005AD9F2ADFF83B008B6D1F /* View+AlertBinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+AlertBinder.swift"; sourceTree = "<group>"; };
 		B008E13929802157006E0E31 /* WebSocketError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketError.swift; sourceTree = "<group>"; };
 		B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketConnectionDelegate.swift; sourceTree = "<group>"; };
 		B008E13D2980264D006E0E31 /* WebSocketEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketEvent.swift; sourceTree = "<group>"; };
@@ -3030,6 +3032,7 @@
 			isa = PBXGroup;
 			children = (
 				B0120A952A0E0FB900F485F1 /* Text+NSAttributedString.swift */,
+				B005AD9F2ADFF83B008B6D1F /* View+AlertBinder.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -7487,6 +7490,7 @@
 				DC7D39F329E00290007BCD23 /* SingleCardOnboardingStepsBuilder.swift in Sources */,
 				DC261CB5292CF6B700875E64 /* UncompletedBackupView.swift in Sources */,
 				EF1339B12AB2522200B78BA3 /* LegacyTransactionMapper.swift in Sources */,
+				B005ADA02ADFF83B008B6D1F /* View+AlertBinder.swift in Sources */,
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
 				DCD9CBA529F7F4EF00440C93 /* LogFileProvider.swift in Sources */,
 				65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */,
