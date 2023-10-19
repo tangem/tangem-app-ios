@@ -23,17 +23,6 @@ extension SupportedBlockchains {
         // Here version isn't important because we take only coinId
         return Set(SupportedBlockchains(version: .v1).testableBlockchains().map { $0.coinId })
     }
-
-    /// This list describe Blockchain token which needs to be checked with card configuration longHashes feature
-    static var longHashTokenSupportedBlockchains: [Blockchain] {
-        all.filter { blockchain in
-            if case .solana = blockchain {
-                return false
-            }
-
-            return true
-        }
-    }
 }
 
 struct SupportedBlockchains {
