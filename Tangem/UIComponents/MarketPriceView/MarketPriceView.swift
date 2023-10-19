@@ -60,9 +60,7 @@ struct MarketPriceView: View {
                     .padding(.trailing, 2)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 16)
-        .padding(.bottom, 15)
+        .padding(14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
     }
