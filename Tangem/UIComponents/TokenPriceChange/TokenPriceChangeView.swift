@@ -29,7 +29,7 @@ struct TokenPriceChangeView: View {
                     .cornerRadiusContinuous(3)
             }
         case .loaded(let signType, let text):
-            HStack(spacing: 3) {
+            HStack(spacing: 4) {
                 if let icon = signType.imageType?.image {
                     icon
                         .renderingMode(.template)
