@@ -134,11 +134,11 @@ struct TransactionsListView: View {
         } else {
             LazyVStack(spacing: 0) {
                 header
-                    .ios14FixedHeight(Constants.ios14ListItemHeight)
+                    .ios14MinHeight(Constants.ios14ListItemHeight)
 
                 ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, sectionItem in
                     makeSectionHeader(for: sectionItem, atIndex: sectionIndex)
-                        .ios14FixedHeight(Constants.ios14ListItemHeight)
+                        .ios14MinHeight(Constants.ios14ListItemHeight)
 
                     ForEach(sectionItem.items.indexed(), id: \.1.id) { cellIndex, cellItem in
                         Button {
@@ -147,7 +147,7 @@ struct TransactionsListView: View {
                             // Extra padding to implement "cell spacing" without resorting to VStack spacing
                             TransactionView(viewModel: cellItem)
                                 .padding(.bottom, cellIndex == (sectionItem.items.count - 1) ? 0 : 16)
-                                .ios14FixedHeight(Constants.ios14ListItemHeight)
+                                .ios14MinHeight(Constants.ios14ListItemHeight)
                         }
                     }
                 }
