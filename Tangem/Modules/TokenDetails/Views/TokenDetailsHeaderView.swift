@@ -13,7 +13,7 @@ struct TokenDetailsHeaderView: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 7) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(viewModel.tokenName)
                     .lineLimit(2)
                     .minimumScaleFactor(0.5)
