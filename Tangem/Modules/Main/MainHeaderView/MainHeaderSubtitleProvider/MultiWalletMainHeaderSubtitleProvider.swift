@@ -67,7 +67,7 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 
     private func formatSubtitle() {
         let numberOfCards = dataSource.cardsCount
-        let numberOfCardsPrefix = Localization.cardLabelCardCount(2)
+        let numberOfCardsPrefix = Localization.cardLabelCardCount(numberOfCards)
         var subtitle = [numberOfCardsPrefix]
         if let suffix {
             subtitle.append(suffix)
