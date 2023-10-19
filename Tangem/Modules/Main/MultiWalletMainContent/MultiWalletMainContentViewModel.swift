@@ -480,6 +480,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
             return [.hide]
         }
 
+        let canHide = userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         let actionsBuilder = TokenActionListBuilder()
         let utility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,
@@ -491,7 +492,14 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         let canSwap = swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem)
         let isBlockchainReachable = !walletModel.state.isBlockchainUnreachable
 
-        return actionsBuilder.buildTokenContextActions(canExchange: canExchange, canSend: canSend, canSwap: canSwap, isBlockchainReachable: isBlockchainReachable, exchangeUtility: utility)
+        return actionsBuilder.buildTokenContextActions(
+            canExchange: canExchange,
+            canSend: canSend,
+            canSwap: canSwap,
+            canHide: canHide,
+            isBlockchainReachable: isBlockchainReachable,
+            exchangeUtility: utility
+        )
     }
 }
 
