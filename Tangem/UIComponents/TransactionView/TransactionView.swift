@@ -20,8 +20,8 @@ struct TransactionView: View {
                 .background(viewModel.iconBackgroundColor)
                 .cornerRadiusContinuous(20)
 
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 7) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
                     Text(viewModel.name)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
