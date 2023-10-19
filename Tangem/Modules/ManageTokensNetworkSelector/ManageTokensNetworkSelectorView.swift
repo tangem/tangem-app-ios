@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import AlertToast
 
 struct ManageTokensNetworkSelectorView: View {
     @ObservedObject var viewModel: ManageTokensNetworkSelectorViewModel
@@ -43,7 +42,7 @@ struct ManageTokensNetworkSelectorView: View {
     private var walletSelectorContent: some View {
         Group {
             HStack(spacing: 16) {
-                Text("Wallet")
+                Text(Localization.manageTokensNetworkSelectorWallet)
                     .lineLimit(1)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
