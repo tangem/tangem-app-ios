@@ -50,6 +50,7 @@ struct SingleWalletMainContentView: View {
         .animation(.default, value: viewModel.notificationInputs)
         .animation(.default, value: viewModel.tokenNotificationInputs)
         .padding(.horizontal, 16)
+        .bindAlert($viewModel.alert)
     }
 }
 
