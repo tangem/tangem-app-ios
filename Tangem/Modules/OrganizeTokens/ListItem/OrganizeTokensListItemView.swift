@@ -26,7 +26,7 @@ struct OrganizeTokensListItemView: View {
             FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
                 .layoutPriority(1000.0)
 
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 4) {
                 if let errorMessage = viewModel.errorMessage {
                     makeMiddleComponent(withErrorMessage: errorMessage)
                 } else {
