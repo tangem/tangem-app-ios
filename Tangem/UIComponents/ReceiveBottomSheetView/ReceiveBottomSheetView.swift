@@ -68,7 +68,7 @@ struct ReceiveBottomSheetView: View {
                         .lineSpacing(1)
                         .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
-                        .padding(.top, 3)
+                        .padding(.top, 4)
 
                     Image(uiImage: info.addressQRImage)
                         .resizable()
@@ -87,8 +87,8 @@ struct ReceiveBottomSheetView: View {
                         .lineSpacing(2)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 44)
-                        .padding(.top, 13)
-                        .padding(.bottom, 29)
+                        .padding(.top, 12)
+                        .padding(.bottom, 28)
                         .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
                 }
             }
