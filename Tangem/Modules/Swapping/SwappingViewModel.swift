@@ -62,7 +62,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialSourceCurrency: Currency
-    private let swappingInteractor: SwappingInteractor
+    private unowned let swappingInteractor: SwappingInteractor
     private let swappingDestinationService: SwappingDestinationServicing
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
@@ -179,6 +179,12 @@ final class SwappingViewModel: ObservableObject {
 
     func didTapWaringRefresh() {
         swappingInteractor.refresh(type: .full)
+    }
+    
+    // Workaround iOS 17 a sheet memory leak
+    // https://developer.apple.com/forums/thread/738840
+    func onDisappear() {
+        stopTimer()
     }
 }
 
