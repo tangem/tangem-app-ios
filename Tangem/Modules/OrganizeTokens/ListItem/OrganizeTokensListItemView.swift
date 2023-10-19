@@ -55,7 +55,6 @@ struct OrganizeTokensListItemView: View {
         Text(viewModel.name)
             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
             .lineLimit(1)
-            .kerningCompat(-0.2)
     }
 
     @ViewBuilder
