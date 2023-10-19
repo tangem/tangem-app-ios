@@ -11,7 +11,7 @@ import SwiftUI
 import Combine
 
 final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableObject {
-    var id: Int
+    let id: Int
     var iconName: String { selectedPublisher ? _iconNameSelected : _iconName }
     var isSelected: Binding<Bool>
 
