@@ -65,7 +65,6 @@ struct ReceiveBottomSheetView: View {
                 VStack(spacing: 0) {
                     Text(viewModel.headerForAddress(with: info))
                         .multilineTextAlignment(.center)
-                        .lineSpacing(1)
                         .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
                         .padding(.top, 4)
@@ -84,7 +83,6 @@ struct ReceiveBottomSheetView: View {
                         .truncationMode(.middle)
 
                     Text(viewModel.warningMessageFull)
-                        .lineSpacing(2)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 44)
                         .padding(.top, 12)
