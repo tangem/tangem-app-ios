@@ -23,14 +23,23 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var userTokensManager: UserTokensManager { _userTokensManager }
 
-    private lazy var _userTokensManager = CommonUserTokensManager(
-        persistentEntries: config.persistentBlockchains,
-        userTokenListManager: userTokenListManager,
-        walletModelsManager: walletModelsManager,
-        derivationStyle: config.derivationStyle,
-        derivationManager: derivationManager,
-        cardDerivableProvider: self
-    )
+    private lazy var _userTokensManager = {
+        let persistentTokenItems: [TokenItem]?
+        if let persistentEntries = config.persistentBlockchains {
+            persistentTokenItems = StorageEntryConverter().convertToTokenItems(persistentEntries)
+        } else {
+            persistentTokenItems = nil
+        }
+
+        return CommonUserTokensManager(
+            persistentTokenItems: persistentTokenItems,
+            userTokenListManager: userTokenListManager,
+            walletModelsManager: walletModelsManager,
+            derivationStyle: config.derivationStyle,
+            derivationManager: derivationManager,
+            cardDerivableProvider: self
+        )
+    }()
 
     let userTokenListManager: UserTokenListManager
 
