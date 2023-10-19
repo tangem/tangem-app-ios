@@ -44,10 +44,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
-        let notificationManager = SingleTokenNotificationManager(
-            walletModel: options.walletModel,
-            isNoteWallet: false
-        )
+        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel)
 
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.cardModel,
