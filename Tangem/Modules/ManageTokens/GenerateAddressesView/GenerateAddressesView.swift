@@ -9,8 +9,7 @@
 import SwiftUI
 
 struct GenerateAddressesView: View {
-    let options: Options
-    let didTapGenerate: () -> Void
+    let viewModel: GenerateAddressesViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -25,17 +24,17 @@ struct GenerateAddressesView: View {
                     Text(Localization.warningMissingDerivationTitle)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                    Text(Localization.warningMissingDerivationMessage(options.numberOfNetworks))
+                    Text(Localization.warningMissingDerivationMessage(viewModel.numberOfNetworks))
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
             }
 
             MainButton(
                 title: Localization.commonGenerateAddresses,
-                subtitle: Localization.manageTokensNumberOfWallets(options.currentWalletNumber, options.totalWalletNumber),
+                subtitle: Localization.manageTokensNumberOfWallets(viewModel.currentWalletNumber, viewModel.totalWalletNumber),
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
-                action: didTapGenerate
+                action: viewModel.didTapGenerate
             )
         }
         .padding(.horizontal, 16)
@@ -48,23 +47,16 @@ struct GenerateAddressesView: View {
     }
 }
 
-extension GenerateAddressesView {
-    struct Options {
-        let numberOfNetworks: Int
-        let currentWalletNumber: Int
-        let totalWalletNumber: Int
-    }
-}
-
 struct GenerateAddressesView_Previews: PreviewProvider {
     static var previews: some View {
-        let options = GenerateAddressesView.Options(
+        let viewModel = GenerateAddressesViewModel(
             numberOfNetworks: 3,
             currentWalletNumber: 1,
-            totalWalletNumber: 2
+            totalWalletNumber: 2,
+            didTapGenerate: {}
         )
 
         return Colors.Background.primary.ignoresSafeArea()
-            .overlay(GenerateAddressesView(options: options, didTapGenerate: {}), alignment: .bottom)
+            .overlay(GenerateAddressesView(viewModel: viewModel), alignment: .bottom)
     }
 }
