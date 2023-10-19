@@ -16,7 +16,7 @@ struct CommonUserTokensManager {
 
     let derivationManager: DerivationManager?
 
-    private let persistentTokenItems: [TokenItem]?
+    private let persistentTokenItems: [TokenItem]
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
@@ -25,7 +25,7 @@ struct CommonUserTokensManager {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        persistentTokenItems: [TokenItem]?,
+        persistentTokenItems: [TokenItem],
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
@@ -165,7 +165,7 @@ extension CommonUserTokensManager: UserTokensManager {
         /// For now it's ok to ignore derivation path for persistent tokens, because we have them
         /// only on old cards that doen't support custom derivation. If this changed `TokenItem`
         /// should be refactored to include `BlockchainNetwork` instead of `Blockchain`
-        if let persistentTokenItems, persistentTokenItems.contains(tokenItem) {
+        if persistentTokenItems.contains(tokenItem) {
             return false
         }
 
