@@ -78,6 +78,8 @@ struct TokenItemView: View {
         }
         .readGeometry(\.size, bindTo: $viewSize)
         .padding(14.0)
+        .frame(minHeight: 68)
+        .background(Colors.Background.primary)
         .onTapGesture(perform: viewModel.tapAction)
         .highlightable(color: Colors.Button.primary.opacity(0.03))
         // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
@@ -87,8 +89,6 @@ struct TokenItemView: View {
                 contextMenuButton(for: menuAction)
             }
         }
-        .frame(minHeight: 68)
-        .background(Colors.Background.primary)
     }
 
     @ViewBuilder
