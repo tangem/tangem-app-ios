@@ -35,7 +35,7 @@ struct UnlockUserWalletBottomSheetView: View {
             .padding(.bottom, 10)
 
             MainButton(
-                title: Localization.welcomeUnlockCard,
+                title: Localization.scanCardSettingsButton,
                 icon: .trailing(Assets.tangemIcon),
                 style: .secondary,
                 isLoading: viewModel.isScannerBusy,
