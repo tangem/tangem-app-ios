@@ -83,6 +83,7 @@ enum UserWalletRepositoryEvent {
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletIds: [Data])
     case selected(userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason)
+    case replaced
 }
 
 enum UserWalletRepositorySelectionChangeReason {
