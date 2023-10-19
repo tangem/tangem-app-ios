@@ -110,7 +110,6 @@ struct NotificationView: View {
                 if let description = settings.event.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
-                        .lineSpacing(2)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
