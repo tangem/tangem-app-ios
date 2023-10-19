@@ -68,7 +68,6 @@ struct TransactionsListView: View {
 
             Text(Localization.transactionHistoryNotSupportedDescription)
                 .multilineTextAlignment(.center)
-                .lineSpacing(Constants.lineSpacing)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 36)
 
@@ -119,7 +118,6 @@ struct TransactionsListView: View {
             Text(Localization.transactionHistoryErrorFailedToLoad)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .lineSpacing(Constants.lineSpacing)
                 .padding(.horizontal, 36)
 
             FixedSpacer(height: 22)
@@ -224,15 +222,6 @@ extension TransactionsListView {
             default: return false
             }
         }
-    }
-}
-
-extension TransactionsListView {
-    enum Constants {
-        /// An approximate value from the design
-        static let lineSpacing: CGFloat = 2.5
-        @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
-        static let ios14ListItemHeight = 56.0
     }
 }
 
