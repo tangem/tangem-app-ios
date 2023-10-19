@@ -24,7 +24,7 @@ struct BalanceWithButtonsView: View {
                 SensitiveText(viewModel.cryptoBalance)
                     .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 70, height: 12))
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .padding(.top, 8)
+                    .frame(height: 18)
             }
 
             ScrollableButtonsView(itemsHorizontalOffset: 14, buttonsInfo: viewModel.buttons)
@@ -41,13 +41,30 @@ struct BalanceWithButtonsView_Previews: PreviewProvider {
         private let provider = FakeBalanceWithButtonsInfoProvider()
 
         var body: some View {
-            VStack {
-                ForEach(provider.models, id: \.id) { model in
-                    BalanceWithButtonsView(viewModel: model)
+            Group {
+                VStack {
+                    balanceStateViews(models: provider.models, opacity: 1)
                 }
+                .padding()
+                .frame(maxHeight: .infinity)
+                .background(Colors.Background.secondary)
+                .previewDisplayName("One by one")
+
+                ZStack {
+                    balanceStateViews(models: provider.modelsWithButtons, opacity: 0.1)
+                }
+                .padding()
+                .frame(maxHeight: .infinity)
+                .background(Color.black.edgesIgnoringSafeArea(.all))
+                .previewDisplayName("Overlaid")
             }
-            .padding(.vertical, 10)
-            .background(Colors.Background.secondary)
+        }
+
+        func balanceStateViews(models: [BalanceWithButtonsViewModel], opacity: Double) -> some View {
+            ForEach(models, id: \.id) { model in
+                BalanceWithButtonsView(viewModel: model)
+                    .opacity(opacity)
+            }
         }
     }
 
