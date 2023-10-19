@@ -24,7 +24,7 @@ struct TokenItemView: View {
                 isCustom: viewModel.isCustom
             )
 
-            VStack(spacing: 5) {
+            VStack(spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     HStack(spacing: 6) {
                         Text(viewModel.name)
@@ -78,9 +78,7 @@ struct TokenItemView: View {
             }
         }
         .readGeometry(\.size, bindTo: $viewSize)
-        .padding(.top, 15)
-        .padding(.bottom, 14)
-        .padding(.horizontal, 14)
+        .padding(14)
         .background(Colors.Background.primary)
         .onTapGesture(perform: viewModel.tapAction)
         .highlightable(color: Colors.Button.primary.opacity(0.03))
