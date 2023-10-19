@@ -108,19 +108,15 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private var errorContent: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 20) {
             Assets.fileExclamationMark.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
-
-            FixedSpacer(height: 22)
 
             Text(Localization.transactionHistoryErrorFailedToLoad)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 36)
-
-            FixedSpacer(height: 22)
 
             buttonWithLoader(title: Localization.commonReload, action: reloadButtonAction, isLoading: isReloadButtonBusy)
         }
