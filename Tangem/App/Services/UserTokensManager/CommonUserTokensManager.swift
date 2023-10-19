@@ -25,24 +25,20 @@ struct CommonUserTokensManager {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        persistentEntries: [StorageEntry]?,
+        persistentTokenItems: [TokenItem]?,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
         cardDerivableProvider: CardDerivableProvider
     ) {
+        self.persistentTokenItems = persistentTokenItems
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
 
-        if let persistentEntries {
-            persistentTokenItems = StorageEntryConverter().convertToTokenItems(persistentEntries)
-        } else {
-            persistentTokenItems = nil
-        }
         bind()
     }
 
