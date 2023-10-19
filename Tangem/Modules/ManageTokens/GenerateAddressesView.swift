@@ -22,10 +22,10 @@ struct GenerateAddressesView: View {
                     .overlay(Assets.blueCircleWarning.image)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(Localization.mainWarningMissingDerivationTitle)
+                    Text(Localization.warningMissingDerivationTitle)
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                    Text(Localization.mainWarningMissingDerivationDescription(options.numberOfNetworks))
+                    Text(Localization.warningMissingDerivationMessage(options.numberOfNetworks))
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
             }
