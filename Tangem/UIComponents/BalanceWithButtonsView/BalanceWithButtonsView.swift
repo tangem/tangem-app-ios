@@ -19,7 +19,7 @@ struct BalanceWithButtonsView: View {
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 BalanceTitleView(balance: viewModel.fiatBalance, isLoading: viewModel.isLoadingFiatBalance)
-                    .padding(.top, 7)
+                    .padding(.top, 8)
 
                 SensitiveText(viewModel.cryptoBalance)
                     .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 70, height: 12))
