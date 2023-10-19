@@ -25,7 +25,6 @@ struct UnlockUserWalletBottomSheetView: View {
             Text(Localization.unlockWalletDescriptionFull(BiometricAuthorizationUtils.biometryType.name))
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
-                .lineSpacing(2)
                 .padding(.bottom, 56)
                 .padding(.horizontal, 34)
 
