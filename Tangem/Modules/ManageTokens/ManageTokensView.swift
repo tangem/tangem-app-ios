@@ -62,12 +62,14 @@ struct ManageTokensView: View {
     }
 
     @ViewBuilder private var overlay: some View {
-        if let viewModel = viewModel.generateAddressesViewModel {
+        let generateAddressViewModel = viewModel.generateAddressesViewModel
+
+        if generateAddressViewModel.hasPendingDerivation {
             VStack {
                 Spacer()
 
                 // [REDACTED_TODO_COMMENT]
-                GenerateAddressesView(viewModel: viewModel)
+                GenerateAddressesView(viewModel: generateAddressViewModel)
             }
         }
     }
