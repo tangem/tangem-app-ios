@@ -32,7 +32,7 @@ struct NotificationView: View {
 
             dismissOverlay
         }
-        .padding(.vertical, 13)
+        .padding(.vertical, 12)
         .padding(.horizontal, 14)
         .background(settings.event.colorScheme.color)
         .cornerRadiusContinuous(14)
@@ -75,7 +75,7 @@ struct NotificationView: View {
                 }
             }
         case .withButtons(let buttonSettings):
-            VStack(alignment: .leading, spacing: 15) {
+            VStack(alignment: .leading, spacing: 14) {
                 messageIconContent
 
                 HStack(spacing: 8) {
@@ -103,7 +103,7 @@ struct NotificationView: View {
                 .foregroundColor(settings.event.icon.color)
                 .frame(size: .init(bothDimensions: 20))
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(settings.event.title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 

@@ -47,9 +47,7 @@ struct OrganizeTokensListItemView: View {
                     )
             }
         }
-        .padding(.top, 15)
-        .padding(.bottom, 14)
-        .padding(.horizontal, 14)
+        .padding(14)
     }
 
     @ViewBuilder
