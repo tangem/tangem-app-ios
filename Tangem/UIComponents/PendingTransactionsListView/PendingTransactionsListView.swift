@@ -19,6 +19,7 @@ struct PendingTransactionsListView: View {
                 exploreTransactionAction(item.hash)
             } label: {
                 TransactionView(viewModel: item)
+                    .ios14FixedHeight(Constants.ios14ListItemHeight)
             }
         }
         .frame(maxWidth: .infinity)
