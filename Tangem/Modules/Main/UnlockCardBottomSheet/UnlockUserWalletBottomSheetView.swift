@@ -20,7 +20,7 @@ struct UnlockUserWalletBottomSheetView: View {
 
             Text(Localization.commonAccessDenied)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                .padding(.bottom, 11)
+                .padding(.bottom, 14)
 
             Text(Localization.unlockWalletDescriptionFull(BiometricAuthorizationUtils.biometryType.name))
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
