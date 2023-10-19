@@ -21,7 +21,9 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var generateAddressesViewModel: GenerateAddressesViewModel?
+    @Published var hasPendingDerivation: Bool = false
+
+    let generateAddressesViewModel: GenerateAddressesViewModel
 
     // MARK: - Properties
 
@@ -35,26 +37,13 @@ final class ManageTokensViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
 
-    private var derivationManagers: [UserWalletId: Int] = [:] {
-        didSet {
-            guard !derivationManagers.filter({ $0.value > 0 }).isEmpty else {
-                generateAddressesViewModel = nil
-                return
-            }
-
-            generateAddressesViewModel = .init(
-                numberOfNetworks: derivationManagers.map { $0.value }.reduce(0, +),
-                currentWalletNumber: derivationManagers.filter { $0.value > 0 }.count,
-                totalWalletNumber: userWalletRepository.userWallets.count,
-                didTapGenerate: {}
-            )
-        }
-    }
-
     // MARK: - Init
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
+        hasPendingDerivation = false
+
+        generateAddressesViewModel = GenerateAddressesViewModel {}
 
         bind()
         updateAlreadyExistTokenUserList()
@@ -103,27 +92,6 @@ private extension ManageTokensViewModel {
                 }
 
                 self?.loader.fetch(string)
-            }
-            .store(in: &bag)
-
-        derivationManagers = [:]
-        userWalletRepository.models.forEach { derivationManagers[$0.userWalletId] = 0 }
-
-        let publishers = userWalletRepository.models
-            .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
-                if let derivationManager = model.userTokensManager.derivationManager {
-                    return derivationManager.pendingDerivationsCount
-                        .map { (model.userWalletId, $0) }
-                        .eraseToAnyPublisher()
-                }
-
-                return nil
-            }
-
-        Publishers.MergeMany(publishers)
-            .print()
-            .receiveValue { [weak self] id, count in
-                self?.derivationManagers[id] = count
             }
             .store(in: &bag)
     }
