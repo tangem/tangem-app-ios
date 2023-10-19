@@ -22,18 +22,20 @@ class ResetToFactoryViewModel: ObservableObject {
     }
 
     var message: String {
-        hasBackupCards ?
-            Localization.resetCardWithBackupToFactoryMessage :
-            Localization.resetCardWithoutBackupToFactoryMessage
+        if hasBackupCards {
+            return Localization.resetCardWithBackupToFactoryMessage
+        } else {
+            return Localization.resetCardWithoutBackupToFactoryMessage
+        }
     }
 
-    var isShowSecondWarning: Bool {
+    var shouldShowingSecondWarning: Bool {
         return hasBackupCards
     }
 
+    private let hasBackupCards: Bool
     private let cardInteractor: CardResettable
     private let userWalletId: UserWalletId
-    private let hasBackupCards: Bool
     private unowned let coordinator: ResetToFactoryViewRoutable
 
     init(input: ResetToFactoryViewModel.Input, coordinator: ResetToFactoryViewRoutable) {
