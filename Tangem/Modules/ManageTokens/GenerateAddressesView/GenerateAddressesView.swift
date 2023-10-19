@@ -49,12 +49,7 @@ struct GenerateAddressesView: View {
 
 struct GenerateAddressesView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = GenerateAddressesViewModel(
-            numberOfNetworks: 3,
-            currentWalletNumber: 1,
-            totalWalletNumber: 2,
-            didTapGenerate: {}
-        )
+        let viewModel = GenerateAddressesViewModel {}
 
         return Colors.Background.primary.ignoresSafeArea()
             .overlay(GenerateAddressesView(viewModel: viewModel), alignment: .bottom)
