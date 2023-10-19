@@ -42,8 +42,7 @@ struct TransactionsListView: View {
                 }
             }
         }
-        .padding(.leading, 16)
-        .padding(.trailing, 15)
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -62,7 +61,7 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private var notSupportedContent: some View {
-        VStack(spacing: 21) {
+        VStack(spacing: 20) {
             Assets.compassBig.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
@@ -123,7 +122,7 @@ struct TransactionsListView: View {
                 .lineSpacing(Constants.lineSpacing)
                 .padding(.horizontal, 36)
 
-            FixedSpacer(height: 21)
+            FixedSpacer(height: 22)
 
             buttonWithLoader(title: Localization.commonReload, action: reloadButtonAction, isLoading: isReloadButtonBusy)
         }
