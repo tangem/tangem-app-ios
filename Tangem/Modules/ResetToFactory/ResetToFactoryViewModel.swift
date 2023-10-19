@@ -29,11 +29,8 @@ class ResetToFactoryViewModel: ObservableObject {
         }
     }
 
-    var shouldShowingSecondWarning: Bool {
-        return hasBackupCards
-    }
+    let hasBackupCards: Bool
 
-    private let hasBackupCards: Bool
     private let cardInteractor: CardResettable
     private let userWalletId: UserWalletId
     private unowned let coordinator: ResetToFactoryViewRoutable
