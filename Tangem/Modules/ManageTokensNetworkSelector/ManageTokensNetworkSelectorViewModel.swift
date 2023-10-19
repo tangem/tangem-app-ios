@@ -52,7 +52,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             derivationStyle: nil,
             shouldShowLegacyDerivationAlert: selectedModel?.shouldShowLegacyDerivationAlert ?? false,
             existingCurves: selectedModel?.card.walletCurves ?? [],
-            tokenSupportedBlockchains: SupportedBlockchains.listTokenSupportedBlockchain
+            longHashTokenSupportedBlockchains: SupportedBlockchains.longHashTokenSupportedBlockchains
         )
     }
 
@@ -207,10 +207,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
 private extension ManageTokensNetworkSelectorViewModel {
     func tryTokenAvailable(_ tokenItem: TokenItem) throws {
-        if case .token(_, let blockchain) = tokenItem,
-           settings.tokenSupportedBlockchains.contains(blockchain),
-           !settings.longHashesSupported {
-            throw AvailableTokenError.failedSupportedTokens(tokenItem)
+        if !settings.longHashesSupported,
+           case .token(_, let blockchain) = tokenItem,
+           settings.longHashTokenSupportedBlockchains.contains(blockchain) {
+            throw AvailableTokenError.failedSupportedLongHahesTokens(tokenItem)
         }
 
         if !settings.supportedBlockchains.contains(tokenItem.blockchain) {
@@ -325,7 +325,7 @@ private extension ManageTokensNetworkSelectorViewModel {
         let derivationStyle: DerivationStyle?
         let shouldShowLegacyDerivationAlert: Bool
         let existingCurves: [EllipticCurve]
-        let tokenSupportedBlockchains: [Blockchain]
+        let longHashTokenSupportedBlockchains: [Blockchain]
     }
 }
 
@@ -333,13 +333,13 @@ private extension ManageTokensNetworkSelectorViewModel {
 
 private extension ManageTokensNetworkSelectorViewModel {
     enum AvailableTokenError: Error, LocalizedError {
-        case failedSupportedTokens(TokenItem)
+        case failedSupportedLongHahesTokens(TokenItem)
         case failedSupportedCurve(TokenItem)
         case failedSupportedBlockchainByCard(TokenItem)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedTokens:
+            case .failedSupportedLongHahesTokens:
                 return Localization.alertManageTokensUnsupportedMessage
             case .failedSupportedCurve(let tokenItem):
                 return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
