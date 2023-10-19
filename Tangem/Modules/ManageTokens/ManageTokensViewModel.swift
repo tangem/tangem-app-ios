@@ -44,7 +44,7 @@ final class ManageTokensViewModel: ObservableObject {
 
             generateAddressesViewModel = .init(
                 numberOfNetworks: derivationManagers.map { $0.value }.reduce(0, +),
-                currentWalletNumber: (userWalletRepository.selectedIndexUserWalletModel ?? 0) + 1,
+                currentWalletNumber: derivationManagers.filter { $0.value > 0 }.count,
                 totalWalletNumber: userWalletRepository.userWallets.count,
                 didTapGenerate: {}
             )
