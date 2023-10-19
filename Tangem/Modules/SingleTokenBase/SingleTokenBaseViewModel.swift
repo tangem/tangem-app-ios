@@ -214,6 +214,7 @@ extension SingleTokenBaseViewModel {
         bind()
         setupActionButtons()
         updateActionButtons()
+        updatePendingTransactionView()
         loadHistory()
     }
 
@@ -249,7 +250,8 @@ extension SingleTokenBaseViewModel {
     }
 
     private func updatePendingTransactionView() {
-        guard transactionHistoryState == .notSupported else {
+        // Only if the transaction history isn't supported
+        guard !walletModel.isSupportedTransactionHistory else {
             pendingTransactionViews = []
             return
         }
