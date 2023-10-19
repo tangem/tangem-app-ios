@@ -61,7 +61,7 @@ struct ResetToFactoryView: View {
         VStack(alignment: .leading, spacing: .zero) {
             firstWarning
 
-            if viewModel.isShowSecondWarning {
+            if viewModel.shouldShowingSecondWarning {
                 Spacer(minLength: 16).frame(maxHeight: 24)
 
                 secondWarning
