@@ -492,7 +492,7 @@
 		B67D90DD2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */; };
 		B67D90DF2ABAC8CC006B2C00 /* ManageTokensBottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90DE2ABAC8CC006B2C00 /* ManageTokensBottomSheetHeaderView.swift */; };
 		B67D90E12ABAC952006B2C00 /* ManageTokensBottomSheetContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90E02ABAC952006B2C00 /* ManageTokensBottomSheetContentView.swift */; };
-		B6805B722A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6805B712A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift */; };
+		B6805B722A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6805B712A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift */; };
 		B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */; };
 		B68907852A32482F00A0D246 /* ForEach+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68907842A32482F00A0D246 /* ForEach+.swift */; };
 		B68B35692A4ACF8B0069129F /* OrganizeTokensContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B35682A4ACF8B0069129F /* OrganizeTokensContainerView.swift */; };
@@ -1732,7 +1732,7 @@
 		B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetModifier.swift; sourceTree = "<group>"; };
 		B67D90DE2ABAC8CC006B2C00 /* ManageTokensBottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensBottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		B67D90E02ABAC952006B2C00 /* ManageTokensBottomSheetContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensBottomSheetContentView.swift; sourceTree = "<group>"; };
-		B6805B712A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensPreviewProvider.swift; sourceTree = "<group>"; };
+		B6805B712A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemPreviewProvider.swift; sourceTree = "<group>"; };
 		B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadContentOffset.swift"; sourceTree = "<group>"; };
 		B68907842A32482F00A0D246 /* ForEach+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ForEach+.swift"; sourceTree = "<group>"; };
 		B68B35682A4ACF8B0069129F /* OrganizeTokensContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensContainerView.swift; sourceTree = "<group>"; };
@@ -4192,7 +4192,7 @@
 		B6805B702A32F89E0015EC96 /* OrganizeTokens */ = {
 			isa = PBXGroup;
 			children = (
-				B6805B712A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift */,
+				B6805B712A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift */,
 				B65C07A82AE2973E00127CCE /* OrganizeTokensPreviewConfiguration.swift */,
 				B6180C852A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift */,
 			);
@@ -7504,7 +7504,7 @@
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				B0DD162A2A331C2100CB23AA /* TokenDetailsView.swift in Sources */,
 				DAC53CFA27BE63830027147D /* StoriesView.swift in Sources */,
-				B6805B722A32F8C90015EC96 /* OrganizeTokensPreviewProvider.swift in Sources */,
+				B6805B722A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
 				B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */,
 				B0F7D75C2A40487E007FEB2E /* TokenInfoExtractor.swift in Sources */,
