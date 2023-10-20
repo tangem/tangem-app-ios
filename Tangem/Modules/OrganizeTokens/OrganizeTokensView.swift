@@ -25,7 +25,7 @@ struct OrganizeTokensView: View {
 
     // MARK: - Content insets and overlay views
 
-    @StateObject private var scrollState = OrganizeTokensScrollState(headerAdditionalBottomInset: Constants.headerAdditionalBottomInset)
+    @StateObject private var scrollState = OrganizeTokensScrollState(bottomInset: Constants.headerAdditionalBottomInset)
 
     @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
     @State private var scrollViewTopContentInset: CGFloat = 0.0
