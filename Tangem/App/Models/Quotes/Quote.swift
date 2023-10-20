@@ -14,5 +14,5 @@ struct Quote: Decodable {
     /// Current coin price
     let price: Decimal
     /// Price change in percent
-    let priceChange: Decimal
+    let priceChange: Decimal?
 }

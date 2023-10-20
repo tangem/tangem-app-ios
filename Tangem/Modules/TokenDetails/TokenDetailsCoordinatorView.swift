@@ -29,11 +29,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.swappingCoordinator) {
-                SwappingCoordinatorView(coordinator: $0)
-            }
-            .navigation(item: $coordinator.pushedWebViewModel) {
-                WebViewContainer(viewModel: $0)
+            .navigation(item: $coordinator.tokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
             }
     }
 
@@ -42,6 +39,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.legacySendCoordinator) {
                 LegacySendCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.swappingCoordinator) {
+                SwappingCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)

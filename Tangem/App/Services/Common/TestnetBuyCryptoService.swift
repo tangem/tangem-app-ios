@@ -38,7 +38,7 @@ class TestnetBuyCryptoService {
                     return .anyFail(error: "Failed to create topup transaction for token. Try again later")
                 }
 
-                return walletModel.send(tx, signer: signer)
+                return walletModel.send(tx, signer: signer).mapToVoid().eraseToAnyPublisher()
             }
             .sink { [unowned self] completion in
                 if case .failure(let error) = completion {
