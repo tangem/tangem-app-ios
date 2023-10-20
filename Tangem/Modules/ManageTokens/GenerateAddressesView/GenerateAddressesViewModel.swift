@@ -8,7 +8,9 @@
 
 import Foundation
 
-class GenerateAddressesViewModel: Identifiable {
+struct GenerateAddressesViewModel: Identifiable {
+    var id: Int { hashValue }
+
     // MARK: - Properties
 
     let numberOfNetworks: Int
@@ -21,5 +23,17 @@ class GenerateAddressesViewModel: Identifiable {
         self.currentWalletNumber = currentWalletNumber
         self.totalWalletNumber = totalWalletNumber
         self.didTapGenerate = didTapGenerate
+    }
+}
+
+extension GenerateAddressesViewModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(numberOfNetworks)
+        hasher.combine(currentWalletNumber)
+        hasher.combine(totalWalletNumber)
+    }
+
+    static func == (lhs: GenerateAddressesViewModel, rhs: GenerateAddressesViewModel) -> Bool {
+        lhs.id == rhs.id
     }
 }
