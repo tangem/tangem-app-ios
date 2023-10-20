@@ -13,16 +13,14 @@ import BlockchainSdk
 
 class SingleTokenNotificationManager {
     private let walletModel: WalletModel
-    private let isNoteWallet: Bool
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputs: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
 
-    init(walletModel: WalletModel, isNoteWallet: Bool) {
+    init(walletModel: WalletModel) {
         self.walletModel = walletModel
-        self.isNoteWallet = isNoteWallet
     }
 
     func setupManager(with delegate: NotificationTapDelegate?) {
@@ -96,16 +94,14 @@ class SingleTokenNotificationManager {
             .send([
                 factory.buildNotificationInput(
                     for: .networkUnreachable,
-                    dismissAction: { [weak self] id in
-                        self?.dismissNotification(with: id)
-                    }
+                    dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
                 ),
             ])
     }
 
     private func setupNoAccountNotification(with message: String) {
         let factory = NotificationsFactory()
-        let event = TokenNotificationEvent.noAccount(message: message, isNoteWallet: isNoteWallet)
+        let event = TokenNotificationEvent.noAccount(message: message)
 
         notificationInputs
             .send([
@@ -135,9 +131,7 @@ class SingleTokenNotificationManager {
         let factory = NotificationsFactory()
         let input = factory.buildNotificationInput(
             for: .rentFee(rentMessage: rentMessage),
-            dismissAction: { [weak self] id in
-                self?.dismissNotification(with: id)
-            }
+            dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
         )
         return input
     }

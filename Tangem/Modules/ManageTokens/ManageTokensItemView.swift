@@ -65,7 +65,7 @@ struct ManageTokensItemView: View {
     private func manageButton(for action: ManageTokensItemViewModel.Action, with id: String) -> some View {
         ZStack {
             Button {
-                viewModel.didTapAction(action, viewModel.coin)
+                viewModel.didTapAction(action, viewModel.coinModel)
             } label: {
                 switch action {
                 case .add:
