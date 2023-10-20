@@ -8,11 +8,18 @@
 
 import Foundation
 
-struct GenerateAddressesViewModel {
+class GenerateAddressesViewModel: Identifiable {
     // MARK: - Properties
 
     let numberOfNetworks: Int
     let currentWalletNumber: Int
     let totalWalletNumber: Int
     let didTapGenerate: () -> Void
+
+    init(numberOfNetworks: Int, currentWalletNumber: Int, totalWalletNumber: Int, didTapGenerate: @escaping () -> Void) {
+        self.numberOfNetworks = numberOfNetworks
+        self.currentWalletNumber = currentWalletNumber
+        self.totalWalletNumber = totalWalletNumber
+        self.didTapGenerate = didTapGenerate
+    }
 }
