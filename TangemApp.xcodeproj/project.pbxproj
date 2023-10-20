@@ -1019,7 +1019,6 @@
 		EF862715297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF862713297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift */; };
 		EF8627172971897D007EBFF9 /* SwappingSuccessInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8627162971897D007EBFF9 /* SwappingSuccessInputModel.swift */; };
 		EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */; };
-		EF8D781129818E6100B67418 /* UserWalletModelMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D781029818E6100B67418 /* UserWalletModelMock.swift */; };
 		EF8D7814298281F700B67418 /* SwappingModulesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D7813298281F700B67418 /* SwappingModulesFactory.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
 		EF8F2352294098C80046F4C0 /* SwappingDestinationServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */; };
@@ -2287,7 +2286,6 @@
 		EF862713297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinatorView.swift; sourceTree = "<group>"; };
 		EF8627162971897D007EBFF9 /* SwappingSuccessInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessInputModel.swift; sourceTree = "<group>"; };
 		EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManagerMock.swift; sourceTree = "<group>"; };
-		EF8D781029818E6100B67418 /* UserWalletModelMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModelMock.swift; sourceTree = "<group>"; };
 		EF8D7813298281F700B67418 /* SwappingModulesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingModulesFactory.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
 		EF8F2351294098C80046F4C0 /* SwappingDestinationServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingDestinationServiceMock.swift; sourceTree = "<group>"; };
@@ -5754,7 +5752,6 @@
 				EFA9855429478AF200D1FCB3 /* SwappingTransactionData+Mock.swift */,
 				EFBA18022989063A00C23955 /* MockExplorerURLService.swift */,
 				EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */,
-				EF8D781029818E6100B67418 /* UserWalletModelMock.swift */,
 				EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */,
 				EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */,
 				EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */,
@@ -6818,7 +6815,6 @@
 				5D0A2CDF27E9D47900396399 /* StatefulPreviewWrapper.swift in Sources */,
 				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
 				EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */,
-				EF8D781129818E6100B67418 /* UserWalletModelMock.swift in Sources */,
 				EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
