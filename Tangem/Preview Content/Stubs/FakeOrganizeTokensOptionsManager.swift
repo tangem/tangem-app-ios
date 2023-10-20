@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensOptionsManagerStub.swift
+//  FakeOrganizeTokensOptionsManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-final class OrganizeTokensOptionsManagerStub {
+final class FakeOrganizeTokensOptionsManager {
     private let _groupingOption: CurrentValueSubject<UserTokensReorderingOptions.Grouping, Never>
     private let _sortingOption: CurrentValueSubject<UserTokensReorderingOptions.Sorting, Never>
 
@@ -24,7 +24,7 @@ final class OrganizeTokensOptionsManagerStub {
 
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
-extension OrganizeTokensOptionsManagerStub: OrganizeTokensOptionsProviding {
+extension FakeOrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
     var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         return _groupingOption.eraseToAnyPublisher()
     }
@@ -36,7 +36,7 @@ extension OrganizeTokensOptionsManagerStub: OrganizeTokensOptionsProviding {
 
 // MARK: - OrganizeTokensOptionsEditing protocol conformance
 
-extension OrganizeTokensOptionsManagerStub: OrganizeTokensOptionsEditing {
+extension FakeOrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
     func group(by groupingOption: UserTokensReorderingOptions.Grouping) {
         _groupingOption.send(groupingOption)
     }
