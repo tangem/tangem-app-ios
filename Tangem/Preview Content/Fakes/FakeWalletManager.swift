@@ -129,4 +129,10 @@ extension FakeWalletManager {
         wallet.add(coinValue: 5828830)
         return FakeWalletManager(wallet: wallet)
     }()
+
+    static let xlmManager: FakeWalletManager = {
+        var wallet = Wallet.xrpWalletStub
+        wallet.add(coinValue: 5828830)
+        return FakeWalletManager(wallet: wallet)
+    }()
 }
