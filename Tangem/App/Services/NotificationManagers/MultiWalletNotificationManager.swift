@@ -25,7 +25,7 @@ class MultiWalletNotificationManager {
         updateSubscription = walletModelsManager.walletModelsPublisher
             .removeDuplicates()
             .flatMap { walletModels in
-                let coinsOnlyModels = walletModels.filter { $0.tokenItem.isToken }
+                let coinsOnlyModels = walletModels.filter { !$0.tokenItem.isToken }
                 return Publishers.MergeMany(coinsOnlyModels.map { $0.walletDidChangePublisher })
                     .map { _ in coinsOnlyModels }
                     .filter { walletModels in
