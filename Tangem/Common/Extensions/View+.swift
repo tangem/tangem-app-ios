@@ -71,9 +71,9 @@ extension View {
     }
 
     @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
-    func ios14MinHeight(_ height: CGFloat) -> some View {
+    func ios14FixedHeight(_ height: CGFloat) -> some View {
         if #unavailable(iOS 15.0) {
-            return frame(minHeight: height)
+            return frame(height: height)
         }
         return self
     }
