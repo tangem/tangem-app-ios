@@ -17,8 +17,18 @@ struct ManageTokensNetworkSelectorCoordinatorView: CoordinatorView {
         NavigationView {
             if let model = coordinator.manageTokensNetworkSelectorViewModel {
                 ManageTokensNetworkSelectorView(viewModel: model)
+                    .navigationLinks(links)
             }
         }
         .navigationViewStyle(.stack)
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.walletSelectorViewModel) {
+                WalletSelectorView(viewModel: $0)
+            }
+            .emptyNavigationLink()
     }
 }
