@@ -12,7 +12,7 @@ struct OrganizeTokensPreviewViewModelFactory {
     func makeViewModel() -> OrganizeTokensViewModel {
         let coordinator = OrganizeTokensRoutableStub()
         let userWalletModel = UserWalletModelMock()
-        let optionsManager = OrganizeTokensOptionsManagerStub(
+        let optionsManager = FakeOrganizeTokensOptionsManager(
             initialGroupingOption: .none,
             initialSortingOption: .dragAndDrop
         )
