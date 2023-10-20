@@ -26,15 +26,15 @@ final class OrganizeTokensScrollState: ObservableObject {
     var contentOffsetSubject: some Subject<CGPoint, Never> { _contentOffsetSubject }
     private let _contentOffsetSubject = CurrentValueSubject<CGPoint, Never>(.zero)
 
-    private let headerAdditionalBottomInset: CGFloat
+    private let bottomInset: CGFloat
 
     private var bag: Set<AnyCancellable> = []
     private var didBind = false
 
     init(
-        headerAdditionalBottomInset: CGFloat
+        bottomInset: CGFloat
     ) {
-        self.headerAdditionalBottomInset = headerAdditionalBottomInset
+        self.bottomInset = bottomInset
     }
 
     func onViewAppear() {
@@ -55,7 +55,7 @@ final class OrganizeTokensScrollState: ObservableObject {
             .removeDuplicates()
             .share(replay: 1)
 
-        let bottomInset = headerAdditionalBottomInset
+        let bottomInset = bottomInset
 
         contentOffsetSubject
             .map { $0.y - bottomInset <= .zero }
