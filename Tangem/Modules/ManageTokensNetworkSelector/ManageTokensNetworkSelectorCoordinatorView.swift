@@ -14,15 +14,13 @@ struct ManageTokensNetworkSelectorCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ManageTokensNetworkSelectorCoordinator
 
     var body: some View {
-        ZStack {
-            NavigationView {
-                if let model = coordinator.manageTokensNetworkSelectorViewModel {
-                    ManageTokensNetworkSelectorView(viewModel: model)
-                        .navigationLinks(links)
-                }
+        NavigationView {
+            if let model = coordinator.manageTokensNetworkSelectorViewModel {
+                ManageTokensNetworkSelectorView(viewModel: model)
+                    .navigationLinks(links)
             }
-            .navigationViewStyle(.stack)
         }
+        .navigationViewStyle(.stack)
     }
 
     @ViewBuilder
