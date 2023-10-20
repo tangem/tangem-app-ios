@@ -37,13 +37,11 @@ struct ManageTokensNetworkSelectorView: View {
     private var walletSelectorContent: some View {
         HStack(spacing: 16) {
             Text(Localization.manageTokensNetworkSelectorWallet)
-                .lineLimit(1)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
             Spacer(minLength: 0)
 
             Text(viewModel.currentWalletName)
-                .lineLimit(1)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
 
             Assets.chevron.image
@@ -64,11 +62,9 @@ struct ManageTokensNetworkSelectorView: View {
     private var nativeNetworksContent: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(Localization.manageTokensNetworkSelectorNativeTitle)
-                .lineLimit(1)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Text(Localization.manageTokensNetworkSelectorNativeSubtitle)
-                .lineLimit(2)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
             Spacer(minLength: 8)
@@ -86,11 +82,9 @@ struct ManageTokensNetworkSelectorView: View {
     private var noneNativeNetworksContent: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(Localization.manageTokensNetworkSelectorNonNativeTitle)
-                .lineLimit(1)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Text(Localization.manageTokensNetworkSelectorNonNativeSubtitle)
-                .lineLimit(2)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
             Spacer(minLength: 8)
