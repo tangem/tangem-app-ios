@@ -52,7 +52,7 @@ struct ManageTokensNetworkSelectorView: View {
                 .foregroundColor(Colors.Icon.informative)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 19)
+        .padding(.vertical, 20)
         .contentShape(Rectangle())
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(Constants.cornerRadius)
