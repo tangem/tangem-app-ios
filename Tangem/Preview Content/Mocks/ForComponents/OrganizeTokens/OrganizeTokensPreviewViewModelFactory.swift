@@ -9,12 +9,12 @@
 import Foundation
 
 struct OrganizeTokensPreviewViewModelFactory {
-    func makeViewModel() -> OrganizeTokensViewModel {
+    func makeViewModel(for configuration: OrganizeTokensPreviewConfiguration) -> OrganizeTokensViewModel {
         let coordinator = OrganizeTokensRoutableStub()
-        let userWalletModel = UserWalletModelMock()
+        let userWalletModel = FakeUserWalletModel.walletWithoutDelay
         let optionsManager = FakeOrganizeTokensOptionsManager(
-            initialGroupingOption: .none,
-            initialSortingOption: .dragAndDrop
+            initialGroupingOption: configuration.groupingOption,
+            initialSortingOption: configuration.sortingOption
         )
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
