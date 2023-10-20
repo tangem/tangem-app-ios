@@ -26,7 +26,7 @@ class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     private let userWalletModel: UserWalletModel
-    private let coordinator: SingleTokenBaseRoutable
+    private unowned let coordinator: SingleTokenBaseRoutable
 
     init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable) {
         self.userWalletModel = userWalletModel
@@ -91,11 +91,8 @@ class SingleTokenRouter: SingleTokenRoutable {
 
         let input = CommonSwappingModulesFactory.InputModel(
             userTokensManager: userWalletModel.userTokensManager,
-            wallet: walletModel.wallet,
-            blockchainNetwork: walletModel.blockchainNetwork,
-            sender: walletModel.transactionSender,
+            walletModel: walletModel,
             signer: userWalletModel.signer,
-            transactionCreator: walletModel.transactionCreator,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
