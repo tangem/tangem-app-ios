@@ -116,7 +116,10 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
-        let optionsManager = OrganizeTokensOptionsManagerStub()
+        let optionsManager = OrganizeTokensOptionsManagerStub(
+            initialGroupingOption: .none,
+            initialSortingOption: .dragAndDrop
+        )
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
             optionsProviding: optionsManager,
