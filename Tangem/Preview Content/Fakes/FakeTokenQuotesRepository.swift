@@ -10,33 +10,48 @@ import Foundation
 import Combine
 
 class FakeTokenQuotesRepository: TokenQuotesRepository {
-    var pricesPublisher: AnyPublisher<Quotes, Never> {
-        currentPrices.eraseToAnyPublisher()
+    var quotes: Quotes {
+        currentQuotes.value
     }
 
-    private let currentPrices = CurrentValueSubject<Quotes, Never>([:])
+    var quotesPublisher: AnyPublisher<Quotes, Never> {
+        currentQuotes.eraseToAnyPublisher()
+    }
 
-    func quote(for item: TokenItem) -> TokenQuote? {
-        guard let id = item.currencyId else {
-            return nil
+    private let currentQuotes = CurrentValueSubject<Quotes, Never>([:])
+
+    init(walletManagers: [FakeWalletManager]) {
+        let walletModels = walletManagers.flatMap { $0.walletModels }
+        var filter = Set<String>()
+        let zipped: [(String, TokenQuote)] = walletModels.compactMap {
+            let id = $0.tokenItem.currencyId ?? ""
+            if filter.contains(id) {
+                return nil
+            }
+
+            filter.insert(id)
+            let quote = TokenQuote(
+                currencyId: id,
+                change: Decimal(floatLiteral: Double.random(in: -10 ... 10)),
+                price: Decimal(floatLiteral: Double.random(in: 1 ... 50000)),
+                currencyCode: AppSettings.shared.selectedCurrencyCode
+            )
+
+            return (id, quote)
         }
 
-        return currentPrices.value[id]
+        currentQuotes.send(Dictionary(uniqueKeysWithValues: zipped))
     }
 
-    func quote(for coinId: String) -> TokenQuote? {
-        return currentPrices.value[coinId]
+    func quote(for item: TokenItem) -> TokenQuote? {
+        TokenQuote(currencyId: item.currencyId!, change: 3.3, price: 1, currencyCode: AppSettings.shared.selectedCurrencyCode)
     }
 
-    func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never> {
-        let filter = Set(coinIds)
-        return currentPrices
-            .map { newQuotes in
-                newQuotes.filter {
-                    filter.contains($0.key)
-                }
-                .map { $0.value }
-            }
-            .eraseToAnyPublisher()
+    func quote(for currencyId: String) async throws -> TokenQuote {
+        await TokenQuote(currencyId: currencyId, change: 3.3, price: 1, currencyCode: AppSettings.shared.selectedCurrencyCode)
+    }
+
+    func loadQuotes(currencyIds: [String]) -> AnyPublisher<Void, Never> {
+        quotesPublisher.mapToVoid().eraseToAnyPublisher()
     }
 }
