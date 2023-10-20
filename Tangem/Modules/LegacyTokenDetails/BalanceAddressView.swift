@@ -26,7 +26,7 @@ struct BalanceAddressViewModel {
         }
 
         if state.isBlockchainUnreachable {
-            return Localization.walletBalanceBlockchainUnreachable
+            return Localization.warningNetworkUnreachableTitle
         }
 
         if hasTransactionInProgress {
