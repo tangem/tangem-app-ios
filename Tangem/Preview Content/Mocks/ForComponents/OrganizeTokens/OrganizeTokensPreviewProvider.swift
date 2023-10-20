@@ -99,7 +99,8 @@ struct OrganizeTokensPreviewProvider {
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconName: nil,
                             imageURL: nil,
-                            isCustom: true
+                            isCustom: true,
+                            customTokenColor: nil
                         ),
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
@@ -491,7 +492,8 @@ struct OrganizeTokensPreviewProvider {
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconName: nil,
                             imageURL: nil,
-                            isCustom: false
+                            isCustom: false,
+                            customTokenColor: nil
                         ),
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
@@ -544,7 +546,8 @@ struct OrganizeTokensPreviewProvider {
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconName: nil,
                             imageURL: nil,
-                            isCustom: true
+                            isCustom: true,
+                            customTokenColor: nil
                         ),
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
@@ -597,7 +600,8 @@ struct OrganizeTokensPreviewProvider {
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconName: nil,
                             imageURL: nil,
-                            isCustom: false
+                            isCustom: false,
+                            customTokenColor: nil
                         ),
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
@@ -650,7 +654,8 @@ struct OrganizeTokensPreviewProvider {
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconName: nil,
                             imageURL: nil,
-                            isCustom: true
+                            isCustom: true,
+                            customTokenColor: nil
                         ),
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
@@ -703,7 +708,8 @@ struct OrganizeTokensPreviewProvider {
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconName: nil,
                             imageURL: nil,
-                            isCustom: false
+                            isCustom: false,
+                            customTokenColor: nil
                         ),
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
