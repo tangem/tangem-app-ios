@@ -41,7 +41,7 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            guard let model = self.models.first else {
+            guard self.models.first != nil else {
                 completion(.error("No models"))
                 return
             }
