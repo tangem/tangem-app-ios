@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 import BlockchainSdk
 
 struct TokenIconInfoBuilder {
@@ -15,6 +16,7 @@ struct TokenIconInfoBuilder {
         let name: String
         var blockchainIconName: String?
         var imageURL: URL?
+        var customTokenColor: Color?
 
         switch type {
         case .coin, .reserve:
@@ -24,6 +26,7 @@ struct TokenIconInfoBuilder {
             id = token.id
             name = token.name
             blockchainIconName = blockchain.iconNameFilled
+            customTokenColor = token.customTokenColor
         }
 
         if let id {
@@ -31,7 +34,7 @@ struct TokenIconInfoBuilder {
                 .iconURL(id: id, size: .large)
         }
 
-        return .init(name: name, blockchainIconName: blockchainIconName, imageURL: imageURL, isCustom: isCustom)
+        return .init(name: name, blockchainIconName: blockchainIconName, imageURL: imageURL, isCustom: isCustom, customTokenColor: customTokenColor)
     }
 
     func build(from tokenItem: TokenItem, isCustom: Bool) -> TokenIconInfo {

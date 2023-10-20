@@ -13,16 +13,16 @@ extension WalletModel {
     enum SendBlockedReason {
         case cantSignLongTransactions
         case hasPendingCoinTx(symbol: String)
-        case notEnoughtFeeForTokenTx(tokenName: String, networkName: String, coinSymbol: String)
+        case notEnoughtFeeForTokenTx(tokenName: String, networkName: String, coinSymbol: String, networkIconName: String)
 
         var description: String {
             switch self {
             case .cantSignLongTransactions:
-                return Localization.tokenDetailsTransactionLengthWarning
+                return Localization.warningLongTransactionMessage
             case .hasPendingCoinTx(let symbol):
-                return Localization.tokenDetailsSendBlockedTxFormat(symbol)
-            case .notEnoughtFeeForTokenTx(let tokenName, let networkName, let coinSymbol):
-                return Localization.tokenDetailsSendBlockedFeeFormat(tokenName, networkName, tokenName, networkName, coinSymbol)
+                return Localization.warningSendBlockedPendingTransactionsMessage(symbol)
+            case .notEnoughtFeeForTokenTx(let tokenName, let networkName, let coinSymbol, _):
+                return Localization.warningSendBlockedFundsForFeeMessage(tokenName, networkName, tokenName, networkName, coinSymbol)
             }
         }
     }
