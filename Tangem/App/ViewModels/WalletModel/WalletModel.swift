@@ -100,7 +100,7 @@ class WalletModel {
     }
 
     var rateFormatted: String {
-        guard let rate else { return "" }
+        guard let rate = quote?.price else { return "" }
 
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
     }
@@ -233,14 +233,6 @@ class WalletModel {
     private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
-
-    private var rate: Decimal? {
-        guard let currencyId = tokenItem.currencyId else {
-            return nil
-        }
-
-        return quotesRepository.quotes[currencyId]?.price
-    }
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
