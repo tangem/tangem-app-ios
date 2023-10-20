@@ -14,7 +14,6 @@ struct TransactionsListView: View {
     let exploreTransactionAction: (String) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
-    let buyButtonAction: (() -> Void)?
     let fetchMore: FetchMore?
 
     var body: some View {
@@ -35,6 +34,7 @@ struct TransactionsListView: View {
             Button(action: exploreAction) {
                 HStack(spacing: 4) {
                     Assets.compass.image
+                        .renderingMode(.template)
                         .foregroundColor(Colors.Icon.informative)
 
                     Text(Localization.commonExplorer)
@@ -63,7 +63,8 @@ struct TransactionsListView: View {
     private var notSupportedContent: some View {
         VStack(spacing: 20) {
             Assets.compassBig.image
-                .foregroundColor(Colors.Icon.informative)
+                .renderingMode(.template)
+                .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryNotSupportedDescription)
                 .multilineTextAlignment(.center)
@@ -98,14 +99,10 @@ struct TransactionsListView: View {
         VStack(spacing: 20) {
             Assets.emptyHistory.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryEmptyTransactions)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-
-            if let buyButtonAction = buyButtonAction {
-                simpleButton(with: Localization.commonBuy, and: buyButtonAction)
-            }
         }
         .padding(.vertical, 28)
     }
@@ -114,7 +111,8 @@ struct TransactionsListView: View {
     private var errorContent: some View {
         VStack(spacing: 20) {
             Assets.fileExclamationMark.image
-                .foregroundColor(Colors.Icon.informative)
+                .renderingMode(.template)
+                .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryErrorFailedToLoad)
                 .multilineTextAlignment(.center)
@@ -313,7 +311,6 @@ struct TransactionsListView_Previews: PreviewProvider {
                         exploreTransactionAction: { _ in },
                         reloadButtonAction: {},
                         isReloadButtonBusy: false,
-                        buyButtonAction: {},
                         fetchMore: nil
                     )
                     .animation(.default, value: model.state)

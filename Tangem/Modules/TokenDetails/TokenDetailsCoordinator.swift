@@ -22,10 +22,10 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator? = nil
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     // MARK: - Child view models
 
-    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
@@ -44,10 +44,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
-        let notificationManager = SingleTokenNotificationManager(
-            walletModel: options.walletModel,
-            isNoteWallet: false
-        )
+        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel)
 
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.cardModel,
@@ -94,25 +91,49 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topupScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonBuy,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [
                 closeUrl: { [weak self] response in
-                    self?.pushedWebViewModel = nil
+                    self?.modalWebViewModel = nil
                     action(response)
                 },
             ]
         )
     }
 
+    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+        // [REDACTED_TODO_COMMENT]
+        guard let cardViewModel = userWalletModel as? CardViewModel else {
+            return
+        }
+
+        #warning("[REDACTED_TODO_COMMENT]")
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.tokenDetailsCoordinator = nil
+        }
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
+        coordinator.start(
+            with: .init(
+                cardModel: cardViewModel,
+                walletModel: model,
+                userTokensManager: userWalletModel.userTokensManager
+            )
+        )
+
+        tokenDetailsCoordinator = coordinator
+    }
+
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonSell,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [sellRequestUrl: action]
         )
     }

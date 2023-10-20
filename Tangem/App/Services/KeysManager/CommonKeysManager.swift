@@ -63,6 +63,10 @@ extension CommonKeysManager: KeysManager {
         keys.tangemComAuthorization
     }
 
+    var sprinklr: SprinklrConfig {
+        keys.sprinklr
+    }
+
     var zendesk: ZendeskConfig {
         keys.zendesk
     }
@@ -115,5 +119,6 @@ extension CommonKeysManager {
         let zendesk: ZendeskConfig
         let swapReferrerAccount: SwapReferrerAccount?
         let walletConnectProjectId: String
+        let sprinklr: SprinklrConfig
     }
 }
