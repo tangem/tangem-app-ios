@@ -10,8 +10,16 @@ import Foundation
 import Combine
 
 final class OrganizeTokensOptionsManagerStub {
-    private let _groupingOption = PassthroughSubject<UserTokensReorderingOptions.Grouping, Never>()
-    private let _sortingOption = PassthroughSubject<UserTokensReorderingOptions.Sorting, Never>()
+    private let _groupingOption: CurrentValueSubject<UserTokensReorderingOptions.Grouping, Never>
+    private let _sortingOption: CurrentValueSubject<UserTokensReorderingOptions.Sorting, Never>
+
+    init(
+        initialGroupingOption groupingOption: UserTokensReorderingOptions.Grouping,
+        initialSortingOption sortingOption: UserTokensReorderingOptions.Sorting
+    ) {
+        _groupingOption = .init(groupingOption)
+        _sortingOption = .init(sortingOption)
+    }
 }
 
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
