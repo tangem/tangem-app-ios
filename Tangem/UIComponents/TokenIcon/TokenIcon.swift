@@ -12,25 +12,32 @@ import Kingfisher
 struct TokenIcon: View {
     let name: String
     let imageURL: URL?
+    let customTokenColor: Color?
     let blockchainIconName: String?
     let isCustom: Bool
+    let size: CGSize
 
-    var size = CGSize(width: 40, height: 40)
     private let networkIconSize = CGSize(width: 14, height: 14)
     private let networkIconBorderWidth: Double = 2
     private let customTokenIndicatorSize = CGSize(width: 8, height: 8)
     private let customTokenIndicatorBorderWidth: CGFloat = 2
+    private let customTokenIconSizeRatio = 0.54
 
     private var customTokenIndicatorBorderSize: CGSize {
         customTokenIndicatorSize + CGSize(width: 2 * customTokenIndicatorBorderWidth, height: 2 * customTokenIndicatorBorderWidth)
     }
 
     var body: some View {
+        if let customTokenColor {
+            customTokenIcon(background: customTokenColor)
+        } else {
+            tokenIcon
+        }
+    }
+
+    private var tokenIcon: some View {
         IconView(url: imageURL, size: size, forceKingfisher: true)
-            .overlay(
-                networkIcon.offset(x: 4, y: -4),
-                alignment: .topTrailing
-            )
+            .overlay(networkIcon, alignment: .topTrailing)
             .overlay(
                 customTokenIndicator
                     .frame(size: size, alignment: .bottomTrailing)
@@ -52,6 +59,7 @@ struct TokenIcon: View {
                     .clipShape(Circle())
                     .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
             )
+            .offset(x: 4, y: -4)
         }
     }
 
@@ -67,6 +75,21 @@ struct TokenIcon: View {
                         .frame(size: customTokenIndicatorBorderSize)
                 )
         }
+    }
+
+    private func customTokenIcon(background: Color) -> some View {
+        customTokenColor
+            .clipShape(Circle())
+            .overlay(
+                Assets.customTokenStar.image
+                    .resizable()
+                    .frame(
+                        width: size.width * customTokenIconSizeRatio,
+                        height: size.height * customTokenIconSizeRatio
+                    )
+            )
+            .frame(size: size)
+            .overlay(networkIcon, alignment: .topTrailing)
     }
 }
 
@@ -92,8 +115,10 @@ struct TokenIcon_Preview: PreviewProvider {
                 ForEach(coins, id: \.id) { coin in
                     TokenIcon(
                         name: coin.id, imageURL: TokenIconURLBuilder().iconURL(id: coin.id, size: .large),
+                        customTokenColor: nil,
                         blockchainIconName: coin.iconName,
-                        isCustom: true
+                        isCustom: true,
+                        size: CGSize(width: 40, height: 40)
                     )
                 }
             }
