@@ -12,25 +12,20 @@ struct ManageTokensNetworkSelectorView: View {
     @ObservedObject var viewModel: ManageTokensNetworkSelectorViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                Spacer(minLength: 10)
+        GroupedScrollView {
+            walletSelectorContent
 
-                walletSelectorContent
+            if !viewModel.nativeSelectorItems.isEmpty {
+                Spacer(minLength: 24)
 
-                if !viewModel.nativeSelectorItems.isEmpty {
-                    Spacer(minLength: 24)
-
-                    nativeNetworksContent
-                }
-
-                if !viewModel.nonNativeSelectorItems.isEmpty {
-                    Spacer(minLength: 24)
-
-                    noneNativeNetworksContent
-                }
+                nativeNetworksContent
             }
-            .padding(.horizontal, 16)
+
+            if !viewModel.nonNativeSelectorItems.isEmpty {
+                Spacer(minLength: 24)
+
+                noneNativeNetworksContent
+            }
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
@@ -40,31 +35,30 @@ struct ManageTokensNetworkSelectorView: View {
     }
 
     private var walletSelectorContent: some View {
-        Group {
-            HStack(spacing: 16) {
-                Text(Localization.manageTokensNetworkSelectorWallet)
-                    .lineLimit(1)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+        HStack(spacing: 16) {
+            Text(Localization.manageTokensNetworkSelectorWallet)
+                .lineLimit(1)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
-                Spacer(minLength: 0)
+            Spacer(minLength: 0)
 
-                Text(viewModel.currentWalletName)
-                    .lineLimit(1)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+            Text(viewModel.currentWalletName)
+                .lineLimit(1)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
 
-                Assets.chevron.image
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(Colors.Icon.informative)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 19)
-            .contentShape(Rectangle())
-            .background(Colors.Background.primary)
-            .onTapGesture {
-                viewModel.selectWalletActionDidTap()
-            }
+            Assets.chevron.image
+                .renderingMode(.template)
+                .frame(width: 24, height: 24)
+                .foregroundColor(Colors.Icon.informative)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 20)
+        .contentShape(Rectangle())
+        .background(Colors.Background.primary)
         .cornerRadiusContinuous(Constants.cornerRadius)
+        .onTapGesture {
+            viewModel.selectWalletActionDidTap()
+        }
     }
 
     private var nativeNetworksContent: some View {
@@ -79,14 +73,12 @@ struct ManageTokensNetworkSelectorView: View {
 
             Spacer(minLength: 8)
 
-            Group {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.nativeSelectorItems) {
-                        ManageTokensNetworkSelectorItemView(viewModel: $0)
-                    }
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.nativeSelectorItems) {
+                    ManageTokensNetworkSelectorItemView(viewModel: $0)
                 }
-                .background(Colors.Background.primary)
             }
+            .background(Colors.Background.primary)
             .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
@@ -103,14 +95,12 @@ struct ManageTokensNetworkSelectorView: View {
 
             Spacer(minLength: 8)
 
-            Group {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.nonNativeSelectorItems) {
-                        ManageTokensNetworkSelectorItemView(viewModel: $0)
-                    }
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.nonNativeSelectorItems) {
+                    ManageTokensNetworkSelectorItemView(viewModel: $0)
                 }
-                .background(Colors.Background.primary)
             }
+            .background(Colors.Background.primary)
             .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
