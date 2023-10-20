@@ -30,6 +30,7 @@ class FakeWalletManager: WalletManager {
         cardTokens = wallet.amounts.compactMap { $0.key.token }
         walletModels = CommonWalletModelsFactory(derivationStyle: derivationStyle).makeWalletModels(from: self)
         bind()
+        updateWalletModels()
     }
 
     func scheduleSwitchFromLoadingState() {
@@ -96,6 +97,18 @@ class FakeWalletManager: WalletManager {
         case .loaded: return .failed("Some Wallet manager error")
         case .failed: return .loading
         }
+    }
+
+    private func updateWalletModels() {
+        let updatePublisher = walletModels
+            .map { $0.update(silent: true) }
+            .merge()
+
+        var updateSubscription: AnyCancellable?
+        updateSubscription = updatePublisher
+            .sink { _ in
+                withExtendedLifetime(updateSubscription) {}
+            }
     }
 }
 
