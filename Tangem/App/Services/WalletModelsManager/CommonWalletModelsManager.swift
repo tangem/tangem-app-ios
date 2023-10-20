@@ -11,6 +11,8 @@ import CombineExt
 import BlockchainSdk
 
 class CommonWalletModelsManager {
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
 
@@ -33,6 +35,20 @@ class CommonWalletModelsManager {
             .sink { [weak self] managers in
                 self?.updateWalletModels(with: managers)
             }
+            .store(in: &bag)
+
+        walletModelsPublisher
+            .removeDuplicates(by: { old, new in
+                // Pass when a WalletModel was added and ignore when deleted
+                return old.count > new.count
+            })
+            .withWeakCaptureOf(self)
+            .flatMapLatest { obj, walletModels in
+                let currencyIds = walletModels.compactMap { $0.tokenItem.currencyId }
+
+                return obj.quotesRepository.loadQuotes(currencyIds: currencyIds)
+            }
+            .sink()
             .store(in: &bag)
     }
 
