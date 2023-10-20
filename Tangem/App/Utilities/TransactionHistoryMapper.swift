@@ -159,11 +159,20 @@ private extension TransactionHistoryMapper {
         case .transfer:
             return .transfer
         case .contractMethod(let id):
-            if let method = smartContractMethodMapper.getName(for: id) {
-                return .custom(name: method)
-            }
+            let name = smartContractMethodMapper.getName(for: id)
 
-            return .custom(name: id)
+            switch name {
+            case "transfer":
+                return .transfer
+            case "approval":
+                return .approval
+            case "swap":
+                return .swap
+            case .none:
+                return .operation(name: id)
+            case .some(let name):
+                return .operation(name: name.capitalizingFirstLetter())
+            }
         }
     }
 
