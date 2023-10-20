@@ -4003,7 +4003,6 @@
 				B0F318F82A7393FA009F131E /* WalletStubs.swift */,
 				B0F318FA2A739418009F131E /* WalletPublicKeyDerivationStubs.swift */,
 				B0F318FC2A739432009F131E /* UserWalletStubs.swift */,
-				B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */,
 				B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */,
 				B0FB4EF62A8511A40057F4C2 /* UserTokenListStubs.swift */,
 			);
@@ -4023,6 +4022,7 @@
 				B00371C12A8A5F8800D77A4B /* FakeDerivationManager.swift */,
 				B0DC03E82A9CB15600058AEB /* FakeUserWalletNotificationManager.swift */,
 				B01178482AC1B86200C5AD07 /* FakeTokenQuotesRepository.swift */,
+				B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */,
 			);
 			path = Fakes;
 			sourceTree = "<group>";
