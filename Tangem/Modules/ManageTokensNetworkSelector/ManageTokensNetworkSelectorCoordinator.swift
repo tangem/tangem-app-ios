@@ -42,7 +42,7 @@ class ManageTokensNetworkSelectorCoordinator: CoordinatorObject {
 
 extension ManageTokensNetworkSelectorCoordinator {
     struct Options {
-        let coinId: CoinModel.ID
+        let coinId: String
         let tokenItems: [TokenItem]
         var delegate: ManageTokensNetworkSelectorViewModelDelegate?
     }
