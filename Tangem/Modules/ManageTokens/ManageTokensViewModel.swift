@@ -158,19 +158,7 @@ private extension ManageTokensViewModel {
             coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items)
         }
     }
-}
-
-// MARK: - ManageTokensNetworkSelectorViewModelDelegate
-
-extension ManageTokensViewModel: ManageTokensNetworkSelectorViewModelDelegate {
-    func tokenItemsDidUpdate(by coinId: String) {
-        updateAlreadyExistTokenUserList()
-
-        tokenViewModels.filter { $0.id == coinId }.forEach {
-            $0.action = actionType(for: coinId)
-        }
-    }
-
+    
     private func updateGenerateAddressesViewModel() {
         guard !pendingDerivationCountByWalletId.filter({ $0.value > 0 }).isEmpty else {
             return generateAddressesViewModel = nil
@@ -182,5 +170,17 @@ extension ManageTokensViewModel: ManageTokensNetworkSelectorViewModelDelegate {
             totalWalletNumber: userWalletRepository.userWallets.count,
             didTapGenerate: {}
         )
+    }
+}
+
+// MARK: - ManageTokensNetworkSelectorViewModelDelegate
+
+extension ManageTokensViewModel: ManageTokensNetworkSelectorViewModelDelegate {
+    func tokenItemsDidUpdate(by coinId: String) {
+        updateAlreadyExistTokenUserList()
+
+        tokenViewModels.filter { $0.id == coinId }.forEach {
+            $0.action = actionType(for: coinId)
+        }
     }
 }
