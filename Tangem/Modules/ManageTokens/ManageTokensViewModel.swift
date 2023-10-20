@@ -160,7 +160,7 @@ private extension ManageTokensViewModel {
     }
     
     private func updateGenerateAddressesViewModel() {
-        guard !pendingDerivationCountByWalletId.filter({ $0.value > 0 }).isEmpty else {
+        guard pendingDerivationCountByWalletId.contains(where: { $0.value > 0 }) else {
             return generateAddressesViewModel = nil
         }
 
