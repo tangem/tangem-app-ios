@@ -2,12 +2,12 @@
    "0xa9059cbb":{
       "info":"ERC20",
       "source":"https://eips.ethereum.org/EIPS/eip-20",
-      "name":"Transfer"
+      "name":"transfer"
    },
    "0x095ea7b3":{
       "info":"ERC20",
       "source":"https://eips.ethereum.org/EIPS/eip-20",
-      "name":"Approve"
+      "name":"approve"
    },
    "0x357a150b":{
       "info":"ERC721",
@@ -118,5 +118,8 @@
       "info":"unoswap",
       "source":"https://etherscan.io/address/0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
       "name":"execute"
+   },
+   "0xd0e30db0": {
+      "name":"deposit"
    }
 }
