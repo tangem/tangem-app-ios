@@ -96,6 +96,8 @@ class FakeWalletManager: WalletManager {
         case .loading: return .loaded(wallet)
         case .loaded: return .failed("Some Wallet manager error")
         case .failed: return .loading
+        @unknown default:
+            preconditionFailure()
         }
     }
 
