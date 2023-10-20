@@ -13,4 +13,12 @@ enum TransactionHistoryServiceState {
     case loading
     case failedToLoad(Error)
     case loaded
+
+    var isLoading: Bool {
+        if case .loading = self {
+            return true
+        }
+
+        return false
+    }
 }

@@ -10,9 +10,9 @@ import Foundation
 import Combine
 
 struct UserTokenListManagerMock: UserTokenListManager {
-    var isInitialSyncPerformed: Bool { true }
+    var initialized: Bool { true }
 
-    var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     var userTokens: [StorageEntry] { [] }
 

@@ -22,15 +22,16 @@ class CommonUserTokenListManager {
     private let supportedBlockchains: Set<Blockchain>
     private let hasTokenSynchronization: Bool
     private let hdWalletsSupported: Bool // hotfix migration
+    private let defaultBlockchains: [StorageEntry]
 
     private let tokenItemsRepository: TokenItemsRepository
-    private let initialTokenSyncSubject: CurrentValueSubject<Bool, Never>
     private let userTokensListSubject: CurrentValueSubject<StoredUserTokenList, Never>
 
     private var pendingTokensToUpdate: UserTokenList?
     private var pendingUpdateLocalRepositoryFromServerCompletions: [Completion] = []
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
+    private var initializedSubject: CurrentValueSubject<Bool, Never>
 
     /// Bool flag for migration custom token to token form our API
     private var migrated = false
@@ -39,35 +40,33 @@ class CommonUserTokenListManager {
         userWalletId: Data,
         supportedBlockchains: Set<Blockchain>,
         hdWalletsSupported: Bool,
-        hasTokenSynchronization: Bool
+        hasTokenSynchronization: Bool,
+        defaultBlockchains: [StorageEntry]
     ) {
         self.userWalletId = userWalletId
         self.supportedBlockchains = supportedBlockchains
         self.hdWalletsSupported = hdWalletsSupported
         self.hasTokenSynchronization = hasTokenSynchronization
-
+        self.defaultBlockchains = defaultBlockchains
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
-        initialTokenSyncSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
+        initializedSubject = .init(tokenItemsRepository.containsFile)
         userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
 
         removeInvalidTokens()
-        performInitialSync()
-    }
-
-    private func performInitialSync() {
-        if isInitialSyncPerformed {
-            return
-        }
-
-        updateLocalRepositoryFromServer { [weak self] _ in
-            self?.initialTokenSyncSubject.send(true)
-        }
     }
 }
 
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
+    var initialized: Bool {
+        initializedSubject.value
+    }
+
+    var initializedPublisher: AnyPublisher<Bool, Never> {
+        initializedSubject.eraseToAnyPublisher()
+    }
+
     var userTokens: [StorageEntry] {
         let converter = StorageEntryConverter()
         return converter.convertToStorageEntries(userTokensListSubject.value.entries)
@@ -131,16 +130,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
     }
 }
 
-extension CommonUserTokenListManager: UserTokensSyncService {
-    var isInitialSyncPerformed: Bool {
-        tokenItemsRepository.containsFile
-    }
-
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        initialTokenSyncSubject.eraseToAnyPublisher()
-    }
-}
-
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
@@ -148,6 +137,10 @@ private extension CommonUserTokenListManager {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
         DispatchQueue.main.async {
             self.userTokensListSubject.send(updatedUserTokenList)
+
+            if !self.initialized, self.tokenItemsRepository.containsFile {
+                self.initializedSubject.send(true)
+            }
         }
     }
 
@@ -187,18 +180,23 @@ private extension CommonUserTokenListManager {
                 switch subscriberCompletion {
                 case .finished:
                     completions.forEach { $0(.success(())) }
-                case .failure(let error) where error.code == .notFound:
-                    self?.updateTokensOnServer(completions: completions)
                 case .failure(let error):
                     completions.forEach { $0(.failure(error)) }
                 }
             } receiveValue: { [weak self] list, _ in
                 guard let self else { return }
-                let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
-                let updatedUserTokenList = converter.convertRemoteToStored(list)
 
-                self.tokenItemsRepository.update(updatedUserTokenList)
-                self.notifyAboutTokenListUpdates(with: updatedUserTokenList)
+                if let list {
+                    let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+                    let updatedUserTokenList = converter.convertRemoteToStored(list)
+                    tokenItemsRepository.update(updatedUserTokenList)
+                    notifyAboutTokenListUpdates(with: updatedUserTokenList)
+                } else {
+                    let converter = StorageEntryConverter()
+                    let entries = converter.convertToStoredUserTokens(defaultBlockchains)
+                    let newList = StoredUserTokenList(entries: entries, grouping: .none, sorting: .manual)
+                    update(with: newList)
+                }
             }
     }
 

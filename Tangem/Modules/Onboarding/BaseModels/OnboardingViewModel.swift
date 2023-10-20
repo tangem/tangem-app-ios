@@ -165,12 +165,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         userWalletRepository.initializeServices(for: userWallet, cardInfo: userWallet.cardInfo)
 
-        let defaultBlockchains = userWallet.config.defaultBlockchains
-        if !defaultBlockchains.isEmpty {
-            userWallet.userTokenListManager.update(.append(defaultBlockchains), shouldUpload: true)
-        }
-
-        userWallet.initialUpdate()
         Analytics.logTopUpIfNeeded(balance: 0)
 
         cardModel = userWallet
@@ -369,6 +363,8 @@ extension OnboardingViewModel {
     }
 
     func closeOnboarding() {
+        // reset services before exit
+        userWalletRepository.updateSelection()
         coordinator.closeOnboarding()
     }
 
