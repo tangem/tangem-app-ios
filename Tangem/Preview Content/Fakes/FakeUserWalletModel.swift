@@ -52,8 +52,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         _userWalletNamePublisher = .init(userWalletName)
 
-        walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers)
         let fakeUserTokenListManager = FakeUserTokenListManager()
+        walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers, isDelayed: isDelayed)
         userTokenListManager = fakeUserTokenListManager
         userTokensManager = FakeUserTokensManager(
             derivationManager: FakeDerivationManager(pendingDerivationsCount: 5),
