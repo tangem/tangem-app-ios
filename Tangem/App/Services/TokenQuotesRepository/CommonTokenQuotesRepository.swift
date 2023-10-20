@@ -23,9 +23,19 @@ class CommonTokenQuotesRepository {
 
     private func bind() {
         AppSettings.shared.$selectedCurrencyCode
-            .sink(receiveValue: { [weak self] _ in
-                self?._quotes.value.removeAll()
-            })
+            // Ignore already the selected code
+            .dropFirst()
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            // Ignore if the selected code is equal
+            .removeDuplicates()
+            .withLatestFrom(_quotes)
+            .withWeakCaptureOf(self)
+            // Reload existing quotes for a new currency code
+            .flatMapLatest { obj, quotes in
+                let currencyIds = Array(quotes.keys)
+                return obj.loadQuotes(currencyIds: currencyIds)
+            }
+            .sink()
             .store(in: &bag)
     }
 }
