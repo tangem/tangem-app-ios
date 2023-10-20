@@ -50,8 +50,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             longHashesSupported: selectedModel?.longHashesSupported ?? false,
             derivationStyle: nil,
             shouldShowLegacyDerivationAlert: selectedModel?.shouldShowLegacyDerivationAlert ?? false,
-            existingCurves: selectedModel?.card.walletCurves ?? [],
-            longHashTokenSupportedBlockchains: SupportedBlockchains.longHashTokenSupportedBlockchains
+            existingCurves: selectedModel?.card.walletCurves ?? []
         )
     }
 
@@ -218,18 +217,16 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
 private extension ManageTokensNetworkSelectorViewModel {
     func tryTokenAvailable(_ tokenItem: TokenItem) throws {
-        if !settings.longHashesSupported,
-           case .token(_, let blockchain) = tokenItem,
-           settings.longHashTokenSupportedBlockchains.contains(blockchain) {
-            throw AvailableTokenError.failedSupportedLongHahesTokens(tokenItem)
-        }
-
-        if !settings.supportedBlockchains.contains(tokenItem.blockchain) {
+        guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
             throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
         }
 
-        if !settings.existingCurves.contains(tokenItem.blockchain.curve) {
+        guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
             throw AvailableTokenError.failedSupportedCurve(tokenItem)
+        }
+
+        if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
+            throw AvailableTokenError.failedSupportedLongHahesTokens(tokenItem)
         }
 
         return
@@ -342,7 +339,6 @@ private extension ManageTokensNetworkSelectorViewModel {
         let derivationStyle: DerivationStyle?
         let shouldShowLegacyDerivationAlert: Bool
         let existingCurves: [EllipticCurve]
-        let longHashTokenSupportedBlockchains: [Blockchain]
     }
 }
 
