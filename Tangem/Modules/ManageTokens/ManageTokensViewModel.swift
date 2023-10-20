@@ -13,7 +13,7 @@ import Combine
 final class ManageTokensViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // I can't use @Published here, because of swiftui redraw perfomance drop
@@ -21,8 +21,7 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var alert: AlertBinder?
-    @Published var hasPendingDerivations: Bool = false
+    @Published var generateAddressesViewModel: GenerateAddressesViewModel?
 
     // MARK: - Properties
 
@@ -30,41 +29,20 @@ final class ManageTokensViewModel: ObservableObject {
         loader.canFetchMore
     }
 
-    var generateAddressViewOptions: GenerateAddressesView.Options {
-        .init(
-            numberOfNetworks: countPendingDerivationByWallet.map { $0.value }.reduce(0, +),
-            currentWalletNumber: countPendingDerivationByWallet.filter { $0.value > 0 }.count,
-            totalWalletNumber: userWalletRepository.userWallets.count
-        )
-    }
-
     private unowned let coordinator: ManageTokensRoutable
 
     private lazy var loader = setupListDataLoader()
-
-    private let percentFormatter = PercentFormatter()
-    private let balanceFormatter = BalanceFormatter()
     private let generateAddressProvider = ManageTokensGenerateAddressProvider()
 
     private var bag = Set<AnyCancellable>()
-    private var loadQuotesSubscribtion: AnyCancellable?
-
-    private var countPendingDerivationByWallet: [UserWalletId: Int] = [:] {
-        didSet {
-            hasPendingDerivations = !countPendingDerivationByWallet.filter { $0.value > 0 }.isEmpty
-        }
-    }
-
-    // MARK: - Init
+    private var cacheExistListCoinId: [String] = []
+    private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
 
         bind()
-    }
-
-    func tokenListDidSave() {
-        Analytics.log(.buttonSaveChanges)
+        updateAlreadyExistTokenUserList()
     }
 
     func onAppear() {
@@ -81,19 +59,24 @@ final class ManageTokensViewModel: ObservableObject {
     func fetch() {
         loader.fetch(enteredSearchText.value)
     }
-
-    func generateAddressButtonDidTap() {
-        guard let userWalletId = countPendingDerivationByWallet.first(where: { $0.value > 0 })?.key else {
-            return
-        }
-
-        generateAddressProvider.performDeriveIfNeeded(with: userWalletId)
-    }
 }
 
-// MARK: - Private
+// MARK: - Private Implementation
 
 private extension ManageTokensViewModel {
+    /// Obtain supported token list from UserWalletModels to determine the cell action type
+    /// Should be reset after updating the list of tokens
+    func updateAlreadyExistTokenUserList() {
+        let existEntriesList = userWalletRepository.models
+            .map { $0.userTokenListManager }
+            .flatMap { userTokenListManager in
+                let entries = userTokenListManager.userTokensList.entries
+                return entries.compactMap { $0.isCustom ? nil : $0.id }
+            }
+
+        cacheExistListCoinId = existEntriesList
+    }
+
     func bind() {
         enteredSearchText
             .dropFirst()
@@ -108,24 +91,27 @@ private extension ManageTokensViewModel {
             }
             .store(in: &bag)
 
-        countPendingDerivationByWallet = [:]
-        userWalletRepository.models.forEach { countPendingDerivationByWallet[$0.userWalletId] = 0 }
+        let publishers = userWalletRepository.models
+            .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
+                if let derivationManager = model.userTokensManager.derivationManager {
+                    return derivationManager.pendingDerivationsCount
+                        .map { (model.userWalletId, $0) }
+                        .eraseToAnyPublisher()
+                }
 
-        userWalletRepository.models.forEach { model in
-            model.userTokensManager
-                .derivationManager?
-                .pendingDerivationsCount
-                .sink(
-                    receiveValue: { [weak self] countPendingDerivation in
-                        self?.countPendingDerivationByWallet[model.userWalletId] = countPendingDerivation
-                    }
-                )
-                .store(in: &bag)
-        }
+                return nil
+            }
+
+        Publishers.MergeMany(publishers)
+            .receiveValue { [weak self] id, count in
+                self?.pendingDerivationCountByWalletId[id] = count
+                self?.updateGenerateAddressesViewModel()
+            }
+            .store(in: &bag)
     }
 
     func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = Set(userWalletRepository.models.map { $0.config.supportedBlockchains }.joined())
+        let supportedBlockchains = SupportedBlockchains.all
         let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
@@ -135,66 +121,33 @@ private extension ManageTokensViewModel {
                     return
                 }
 
-                let alreadyUpdateQuoteCoinIds = tokenViewModels.filter {
-                    $0.priceChangeState != .loading || $0.priceChangeState != .noData
-                }.map { $0.id }
-
-                let itemsShouldLoadQuote = items.filter {
-                    !alreadyUpdateQuoteCoinIds.contains($0.id)
-                }.map { $0.id }
-
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
-                updateQuote(by: itemsShouldLoadQuote)
+                updateQuote(by: items.map { $0.id })
             })
             .store(in: &bag)
 
         return loader
     }
 
-    func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(event: .tokenSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
-            .token: tokenItem.currencySymbol,
-        ])
-    }
-
     // MARK: - Private Implementation
 
-    private func displayAlert(title: String, message: String) {
-        let okButton = Alert.Button.default(Text(Localization.commonOk))
-
-        alert = AlertBinder(alert: Alert(
-            title: Text(title),
-            message: Text(message),
-            dismissButton: okButton
-        ))
-    }
-
-    private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        let userWalletModels = userWalletRepository.models
-
-        let isAlreadyExistToken = userWalletModels.contains(where: { userWalletModel in
-            coinModel.items.contains(where: { tokenItem in
-                userWalletModel.userTokensManager.contains(tokenItem, derivationPath: nil)
-
-            })
-        })
-
+    private func actionType(for coinId: String) -> ManageTokensItemViewModel.Action {
+        let isAlreadyExistToken = cacheExistListCoinId.contains(coinId)
         return isAlreadyExistToken ? .edit : .add
     }
 
     private func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel {
         ManageTokensItemViewModel(
             coinModel: coinModel,
-            action: actionType(for: coinModel),
+            action: actionType(for: coinModel.id),
             didTapAction: handle(action:with:)
         )
     }
 
     private func updateQuote(by coinIds: [String]) {
-        loadQuotesSubscribtion = tokenQuotesRepository
-            .loadQuotes(coinIds: coinIds)
-            .sink()
+        runTask(in: self) { root in
+            await root.tokenQuotesRepository.loadQuotes(currencyIds: coinIds)
+        }
     }
 
     private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
@@ -203,17 +156,40 @@ private extension ManageTokensViewModel {
             // [REDACTED_TODO_COMMENT]
             break
         case .add, .edit:
-            coordinator.openTokenSelectorModule(coinId: coinModel.id, with: coinModel.items)
+            coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items)
         }
+    }
+
+    private func updateGenerateAddressesViewModel() {
+        guard !pendingDerivationCountByWalletId.filter({ $0.value > 0 }).isEmpty else {
+            return generateAddressesViewModel = nil
+        }
+
+        generateAddressesViewModel = GenerateAddressesViewModel(
+            numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
+            currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
+            totalWalletNumber: userWalletRepository.userWallets.count,
+            didTapGenerate: { [weak self] in
+                guard let self = self else { return }
+
+                guard let userWalletId = pendingDerivationCountByWalletId.first(where: { $0.value > 0 })?.key else {
+                    return
+                }
+
+                generateAddressProvider.performDeriveIfNeeded(with: userWalletId)
+            }
+        )
     }
 }
 
 // MARK: - ManageTokensNetworkSelectorViewModelDelegate
 
 extension ManageTokensViewModel: ManageTokensNetworkSelectorViewModelDelegate {
-    func tokenItemsDidUpdate(by coinId: CoinModel.ID) {
+    func tokenItemsDidUpdate(by coinId: String) {
+        updateAlreadyExistTokenUserList()
+
         tokenViewModels.filter { $0.id == coinId }.forEach {
-            $0.setNeedUpdateAction()
+            $0.action = actionType(for: coinId)
         }
     }
 }
