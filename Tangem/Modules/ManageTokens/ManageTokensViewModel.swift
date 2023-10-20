@@ -21,9 +21,7 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var hasPendingDerivation: Bool = false
-
-    let generateAddressesViewModel: GenerateAddressesViewModel
+    @Published var generateAddressesViewModel: GenerateAddressesViewModel?
 
     // MARK: - Properties
 
@@ -36,14 +34,12 @@ final class ManageTokensViewModel: ObservableObject {
     private lazy var loader = setupListDataLoader()
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
+    private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     // MARK: - Init
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
-        hasPendingDerivation = false
-
-        generateAddressesViewModel = GenerateAddressesViewModel {}
 
         bind()
         updateAlreadyExistTokenUserList()
@@ -92,6 +88,24 @@ private extension ManageTokensViewModel {
                 }
 
                 self?.loader.fetch(string)
+            }
+            .store(in: &bag)
+
+        let publishers = userWalletRepository.models
+            .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
+                if let derivationManager = model.userTokensManager.derivationManager {
+                    return derivationManager.pendingDerivationsCount
+                        .map { (model.userWalletId, $0) }
+                        .eraseToAnyPublisher()
+                }
+
+                return nil
+            }
+
+        Publishers.MergeMany(publishers)
+            .receiveValue { [weak self] id, count in
+                self?.pendingDerivationCountByWalletId[id] = count
+                self?.updateGenerateAddressesViewModel()
             }
             .store(in: &bag)
     }
@@ -144,5 +158,18 @@ private extension ManageTokensViewModel {
         case .add, .edit:
             coordinator.openTokenSelector(with: coinModel.items)
         }
+    }
+
+    private func updateGenerateAddressesViewModel() {
+        guard !pendingDerivationCountByWalletId.filter({ $0.value > 0 }).isEmpty else {
+            return generateAddressesViewModel = nil
+        }
+
+        generateAddressesViewModel = GenerateAddressesViewModel(
+            numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
+            currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
+            totalWalletNumber: userWalletRepository.userWallets.count,
+            didTapGenerate: {}
+        )
     }
 }
