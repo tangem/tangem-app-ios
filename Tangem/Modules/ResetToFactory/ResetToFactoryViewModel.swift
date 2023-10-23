@@ -11,14 +11,12 @@ import SwiftUI
 class ResetToFactoryViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    @Published var accessToCardWarningSelected: Bool = false
-    @Published var accessCodeRecoveryWarningSelected: Bool = false
-
+    @Published var warnings: [Warning] = []
     @Published var actionSheet: ActionSheetBinder?
     @Published var alert: AlertBinder?
 
     var actionButtonIsEnabled: Bool {
-        accessToCardWarningSelected && accessCodeRecoveryWarningSelected
+        warnings.allConforms(\.isAccepted)
     }
 
     var message: String {
@@ -29,8 +27,7 @@ class ResetToFactoryViewModel: ObservableObject {
         }
     }
 
-    let hasBackupCards: Bool
-
+    private let hasBackupCards: Bool
     private let cardInteractor: CardResettable
     private let userWalletId: UserWalletId
     private unowned let coordinator: ResetToFactoryViewRoutable
@@ -40,14 +37,32 @@ class ResetToFactoryViewModel: ObservableObject {
         userWalletId = input.userWalletId
         hasBackupCards = input.hasBackupCards
         self.coordinator = coordinator
+
+        setupView()
     }
 
     func didTapMainButton() {
         showConfirmationAlert()
     }
+
+    func toggleWarning(warningType: WarningType) {
+        guard let index = warnings.firstIndex(where: { $0.type == warningType }) else {
+            return
+        }
+
+        warnings[index].isAccepted.toggle()
+    }
 }
 
 private extension ResetToFactoryViewModel {
+    func setupView() {
+        warnings.append(Warning(isAccepted: false, type: .accessToCard))
+
+        if hasBackupCards {
+            warnings.append(Warning(isAccepted: false, type: .accessCodeRecovery))
+        }
+    }
+
     func showConfirmationAlert() {
         let sheet = ActionSheet(
             title: Text(Localization.cardSettingsActionSheetTitle),
@@ -76,6 +91,29 @@ private extension ResetToFactoryViewModel {
                     AppLog.shared.error(error, params: [.action: .purgeWallet])
                     alert = error.alertBinder
                 }
+            }
+        }
+    }
+}
+
+extension ResetToFactoryViewModel {
+    struct Warning: Identifiable, Hashable {
+        var id: Int { hashValue }
+
+        var isAccepted: Bool
+        let type: WarningType
+    }
+
+    enum WarningType: String, CaseIterable, Hashable {
+        case accessToCard
+        case accessCodeRecovery
+
+        var title: String {
+            switch self {
+            case .accessToCard:
+                return Localization.resetCardToFactoryCondition1
+            case .accessCodeRecovery:
+                return Localization.resetCardToFactoryCondition2
             }
         }
     }
