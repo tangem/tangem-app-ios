@@ -625,7 +625,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             if backupServiceState == .finished {
                 Analytics.log(
                     event: .backupFinished,
-                    params: [.cardsCount: String((cardModel?.card.backupStatus?.linkedCardsCount ?? 0) + 1)]
+                    params: [.cardsCount: String((input.cardInput.config?.cardsCount ?? 0) + 1)]
                 )
                 goToNextStep()
             } else {
