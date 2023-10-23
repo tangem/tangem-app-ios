@@ -48,6 +48,10 @@ class FakeUserTokensManager: UserTokensManager {
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
 
+    func canHide(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
+        return true
+    }
+
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         false
     }
