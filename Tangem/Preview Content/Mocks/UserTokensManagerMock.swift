@@ -36,10 +36,6 @@ struct UserTokensManagerMock: UserTokensManager {
         []
     }
 
-    func canHide(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
-        return true
-    }
-
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         return false
     }
