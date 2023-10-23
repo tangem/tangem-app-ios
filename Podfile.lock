@@ -277,7 +277,7 @@ DEPENDENCIES:
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
   - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-267`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-269`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.2.4-tangem1`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
@@ -358,7 +358,7 @@ EXTERNAL SOURCES:
     :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-267
+    :tag: develop-269
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.2.4-tangem1
@@ -393,7 +393,7 @@ CHECKOUT OPTIONS:
     :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-267
+    :tag: develop-269
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.2.4-tangem1
@@ -464,6 +464,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 4236694bbd05065846465cd9fc48cef8e644dc2b
+PODFILE CHECKSUM: 8635e7301f159a26a9281fe5a3e6c2378b10827b
 
 COCOAPODS: 1.13.0
