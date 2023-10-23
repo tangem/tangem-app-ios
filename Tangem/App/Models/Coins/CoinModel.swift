@@ -15,13 +15,4 @@ struct CoinModel {
     let name: String
     let symbol: String
     let items: [TokenItem]
-
-    // MARK: - Init
-
-    init(id: String, name: String, symbol: String, items: [TokenItem]) {
-        self.id = id
-        self.name = name
-        self.symbol = symbol
-        self.items = items
-    }
 }
