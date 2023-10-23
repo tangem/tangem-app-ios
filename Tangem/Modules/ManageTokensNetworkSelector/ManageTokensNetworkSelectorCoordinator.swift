@@ -44,7 +44,7 @@ extension ManageTokensNetworkSelectorCoordinator {
     struct Options {
         let coinId: String
         let tokenItems: [TokenItem]
-        var delegate: ManageTokensNetworkSelectorViewModelDelegate?
+        let delegate: ManageTokensNetworkSelectorViewModelDelegate?
     }
 }
 
