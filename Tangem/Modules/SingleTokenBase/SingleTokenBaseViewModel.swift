@@ -221,7 +221,8 @@ extension SingleTokenBaseViewModel {
     private func setupActionButtons() {
         let listBuilder = TokenActionListBuilder()
         let canShowSwap = userWalletModel.config.hasFeature(.swapping)
-        availableActions = listBuilder.buildActionsForButtonsList(canShowSwap: canShowSwap)
+        let canShowBuySell = userWalletModel.config.isFeatureVisible(.exchange)
+        availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap)
     }
 
     private func bind() {
@@ -298,11 +299,10 @@ extension SingleTokenBaseViewModel {
     }
 
     private func isButtonDisabled(with type: TokenActionType) -> Bool {
-        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
         let isBlockchainUnreachable = walletModel.state.isBlockchainUnreachable
         switch type {
         case .buy:
-            return !(canExchange && exchangeUtility.buyAvailable)
+            return !exchangeUtility.buyAvailable
         case .send:
             return !canSend
         case .receive:
@@ -310,7 +310,7 @@ extension SingleTokenBaseViewModel {
         case .exchange:
             return isBlockchainUnreachable || !isSwapAvailable
         case .sell:
-            return isBlockchainUnreachable || !(canExchange && exchangeUtility.sellAvailable)
+            return isBlockchainUnreachable || !exchangeUtility.sellAvailable
         case .copyAddress, .hide:
             return true
         }
