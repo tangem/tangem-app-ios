@@ -169,7 +169,7 @@ private extension TransactionHistoryMapper {
             case "swap":
                 return .swap
             case .none:
-                return .operation(name: id)
+                return .unknownOperation
             case .some(let name):
                 return .operation(name: name.capitalizingFirstLetter())
             }
