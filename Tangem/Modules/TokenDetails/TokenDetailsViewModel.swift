@@ -44,7 +44,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     var canHideToken: Bool {
-        userWalletModel.userTokensManager.canRemove(tokenItem, derivationPath: blockchainNetwork.derivationPath)
+        userWalletModel.userTokensManager.canHide(tokenItem, derivationPath: blockchainNetwork.derivationPath)
     }
 
     init(
