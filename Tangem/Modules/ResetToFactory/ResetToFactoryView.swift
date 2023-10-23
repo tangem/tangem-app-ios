@@ -59,36 +59,24 @@ struct ResetToFactoryView: View {
 
     private var warningPointsView: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            accessToCardWarningMessage
+            ForEach(viewModel.warnings) { warning in
+                if viewModel.warnings.first != warning {
+                    Spacer(minLength: 16).frame(maxHeight: 24)
+                }
 
-            if viewModel.hasBackupCards {
-                Spacer(minLength: 16).frame(maxHeight: 24)
-
-                recoverBackupWarningMessage
+                warningMessageView(warning: warning)
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 16)
     }
 
-    private var accessToCardWarningMessage: some View {
-        Button(action: { viewModel.accessToCardWarningSelected.toggle() }) {
+    private func warningMessageView(warning: ResetToFactoryViewModel.Warning) -> some View {
+        Button(action: { viewModel.toggleWarning(warningType: warning.type) }) {
             HStack(spacing: 16) {
-                SelectableIcon(isSelected: $viewModel.accessToCardWarningSelected)
+                SelectableIcon(isSelected: warning.isAccepted)
 
                 Text(Localization.resetCardToFactoryCondition1)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-
-    private var recoverBackupWarningMessage: some View {
-        Button(action: { viewModel.accessCodeRecoveryWarningSelected.toggle() }) {
-            HStack(spacing: 16) {
-                SelectableIcon(isSelected: $viewModel.accessCodeRecoveryWarningSelected)
-
-                Text(Localization.resetCardToFactoryCondition2)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             }
         }
@@ -108,7 +96,7 @@ struct ResetToFactoryView: View {
 
 private extension ResetToFactoryView {
     struct SelectableIcon: View {
-        @Binding var isSelected: Bool
+        let isSelected: Bool
 
         var body: some View {
             ZStack(alignment: .center) {
