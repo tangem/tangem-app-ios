@@ -22,6 +22,7 @@ struct UserWalletConfigFactory {
     func makeConfig() -> UserWalletConfig {
         let isDemo = DemoUtil().isDemoCard(cardId: cardInfo.card.cardId)
         let isS2CCard = cardInfo.card.issuer.name.lowercased() == "start2coin"
+        let isRing = cardInfo.card.batchId == "AC17"
 
         switch cardInfo.walletData {
         case .none:
@@ -34,11 +35,11 @@ struct UserWalletConfigFactory {
 
             switch (isWallet2, isDemo) {
             case (true, _):
-                return Wallet2Config(card: cardInfo.card, isDemo: isDemo)
+                return Wallet2Config(card: cardInfo.card, isDemo: isDemo, isRing: isRing)
             case (false, true): // [REDACTED_TODO_COMMENT]
                 return GenericDemoConfig(card: cardInfo.card)
             case (false, false):
-                return GenericConfig(card: cardInfo.card)
+                return GenericConfig(card: cardInfo.card, isRing: isRing)
             }
         case .file(let noteData):
             if isS2CCard { // [REDACTED_TODO_COMMENT]
