@@ -53,7 +53,7 @@ target 'Tangem' do
   pod 'ZendeskChatSDK', '~> 2.12.0'
   
   # support chat
-  pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2'
+  pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2-tangem1'
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
