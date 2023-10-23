@@ -40,17 +40,14 @@ extension UserCurrenciesProvider: UserCurrenciesProviding {
 
         // Get user tokens from API with filled in fields
         // For checking exchangeable
-        let filledTokens = await getTokens(
-            blockchain: blockchain,
-            ids: tokenIds
-        )
-
-        currencies += filledTokens.compactMap { token in
-            guard token.exchangeable == true else {
-                return nil
+        do {
+            let tokens = try await filterTokens(with: tokenIds, in: blockchain)
+            currencies += tokens.compactMap { token in
+                currencyMapper.mapToCurrency(token: token, blockchain: blockchain)
             }
-
-            return currencyMapper.mapToCurrency(token: token, blockchain: blockchain)
+        } catch {
+            AppLog.shared.debug("UserCurrenciesProvider could not loaded tokens")
+            AppLog.shared.error(error)
         }
 
         return currencies
@@ -58,13 +55,18 @@ extension UserCurrenciesProvider: UserCurrenciesProviding {
 }
 
 private extension UserCurrenciesProvider {
-    func getTokens(blockchain: Blockchain, ids: [String]) async -> [Token] {
-        let coins = try? await tangemApiService.loadCoins(
-            requestModel: CoinsList.Request(supportedBlockchains: [blockchain], ids: ids)
-        ).async()
+    func filterTokens(with ids: [String], in blockchain: Blockchain) async throws -> [Token] {
+        let request = CoinsList.Request(supportedBlockchains: [blockchain], ids: ids)
+        let coins = try await tangemApiService.loadCoins(requestModel: request).async()
 
-        return coins?.compactMap { coin in
-            coin.items.first(where: { $0.id == coin.id })?.token
-        } ?? []
+        let tokens = coins.compactMap { coin -> Token? in
+            guard let item = coin.items.first(where: { $0.id == coin.id }), item.exchangeable else {
+                return nil
+            }
+
+            return item.tokenItem.token
+        }
+
+        return tokens
     }
 }
