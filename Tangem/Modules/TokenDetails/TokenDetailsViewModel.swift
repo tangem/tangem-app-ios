@@ -15,12 +15,14 @@ import TangemSwapping
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published var actionSheet: ActionSheetBinder?
+    @Published var shouldShowNotificationsWithAnimation: Bool = false
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
     private unowned let coordinator: TokenDetailsRoutable
     private var bag = Set<AnyCancellable>()
+    private var notificatioChangeSubscription: AnyCancellable?
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -64,13 +66,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             tokenRouter: tokenRouter
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
+        notificationManager.setupManager(with: self)
 
         prepareSelf()
     }
 
     func onAppear() {
         Analytics.log(.detailsScreenOpened)
-        // [REDACTED_TODO_COMMENT]
+    }
+
+    func onDidAppear() {
+        shouldShowNotificationsWithAnimation = true
     }
 
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -134,6 +140,8 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
+        updateBalance(walletModelState: walletModel.state)
+        tokenNotificationInputs = notificationManager.notificationInputs
         bind()
     }
 
