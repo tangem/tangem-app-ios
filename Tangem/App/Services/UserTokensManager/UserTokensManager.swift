@@ -35,6 +35,9 @@ protocol UserTokensManager: UserTokensReordering {
     /// Add token and retrieve it's address
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String
 
+    /// Determines whether or not the token can be hidden
+    func canHide(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
+    /// Determines whether the token can be removed from the user tokens list at current state
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?)
 
