@@ -36,10 +36,6 @@ struct LockedUserTokensManager: UserTokensManager {
         return []
     }
 
-    func canHide(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
-        return false
-    }
-
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         return false
     }
