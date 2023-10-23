@@ -323,12 +323,6 @@ private extension ManageTokensNetworkSelectorViewModel {
     }
 }
 
-// MARK: - ManageTokensNetworkSelectorViewModelDelegate
-
-protocol ManageTokensNetworkSelectorViewModelDelegate: AnyObject {
-    func tokenItemsDidUpdate(by coinId: String)
-}
-
 // MARK: - Settings
 
 private extension ManageTokensNetworkSelectorViewModel {
