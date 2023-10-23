@@ -480,7 +480,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
             return [.hide]
         }
 
-        let canHide = userWalletModel.userTokensManager.canHide(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        let canHide = userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         let actionsBuilder = TokenActionListBuilder()
         let utility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,

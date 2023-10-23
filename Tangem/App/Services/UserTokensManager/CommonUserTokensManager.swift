@@ -161,19 +161,11 @@ extension CommonUserTokensManager: UserTokensManager {
         deriveIfNeeded(completion: completion)
     }
 
-    func canHide(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
+    func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
         /// For now it's ok to ignore derivation path for persistent tokens, because we have them
         /// only on old cards that doen't support custom derivation. If this changed `TokenItem`
         /// should be refactored to include `BlockchainNetwork` instead of `Blockchain`
         if persistentTokenItems.contains(tokenItem) {
-            return false
-        }
-
-        return true
-    }
-
-    func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
-        guard canHide(tokenItem, derivationPath: derivationPath) else {
             return false
         }
 
