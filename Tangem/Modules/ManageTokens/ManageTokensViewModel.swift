@@ -158,7 +158,7 @@ private extension ManageTokensViewModel {
             coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items)
         }
     }
-    
+
     private func updateGenerateAddressesViewModel() {
         guard pendingDerivationCountByWalletId.contains(where: { $0.value > 0 }) else {
             return generateAddressesViewModel = nil
