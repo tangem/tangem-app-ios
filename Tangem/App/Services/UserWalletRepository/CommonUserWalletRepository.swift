@@ -25,6 +25,12 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     var selectedUserWalletId: Data?
 
+    var selectedIndexUserWalletModel: Int? {
+        models.firstIndex {
+            $0.userWallet.userWalletId == selectedUserWalletId
+        }
+    }
+
     var hasSavedWallets: Bool {
         !savedUserWallets(withSensitiveData: false).isEmpty
     }
@@ -96,7 +102,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 didScan(card: cardDTO, walletData: response.walletData)
                 var cardInfo = response.getCardInfo()
                 resetServices()
-
+                initializeAnalyticsContext(with: cardInfo)
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
@@ -174,8 +180,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         if AppSettings.shared.saveUserWallets {
             add(completion)
         } else {
-            discardSensitiveData()
-            resetServices()
             unlockWithCard(nil, completion: completion)
         }
     }
@@ -353,28 +357,30 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool) {
-        let userWalletId = userWallet.userWalletId
-        if selectedUserWalletId == userWalletId {
+    func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool) {
+        guard let userWallet = models.first(where: { $0.userWalletId == userWalletId })?.userWallet else {
+            return
+        }
+
+        if selectedUserWalletId == userWalletId.value {
             resetServices()
         }
 
         if FeatureProvider.isAvailable(.mainV2) {
-            let userWalletId = userWallet.userWalletId
-            if selectedUserWalletId == userWalletId {
+            if selectedUserWalletId == userWalletId.value {
                 resetServices()
             }
 
             let targetIndex: Int
-            if let currentIndex = models.firstIndex(where: { $0.userWalletId.value == userWalletId }) {
+            if let currentIndex = models.firstIndex(where: { $0.userWalletId == userWalletId }) {
                 targetIndex = currentIndex > 0 ? (currentIndex - 1) : 0
             } else {
                 targetIndex = 0
             }
 
-            encryptionKeyByUserWalletId[userWalletId] = nil
-            userWallets.removeAll { $0.userWalletId == userWalletId }
-            models.removeAll { $0.userWalletId.value == userWalletId }
+            encryptionKeyByUserWalletId[userWalletId.value] = nil
+            userWallets.removeAll { $0.userWalletId == userWalletId.value }
+            models.removeAll { $0.userWalletId == userWalletId }
 
             encryptionKeyStorage.delete(userWallet)
             saveUserWallets(userWallets)
@@ -389,14 +395,14 @@ class CommonUserWalletRepository: UserWalletRepository {
             }
         } else {
             // [REDACTED_TODO_COMMENT]
-            encryptionKeyByUserWalletId[userWalletId] = nil
-            userWallets.removeAll { $0.userWalletId == userWalletId }
-            models.removeAll { $0.userWalletId.value == userWalletId }
+            encryptionKeyByUserWalletId[userWalletId.value] = nil
+            userWallets.removeAll { $0.userWalletId == userWalletId.value }
+            models.removeAll { $0.userWalletId == userWalletId }
 
             encryptionKeyStorage.delete(userWallet)
             saveUserWallets(userWallets)
 
-            if selectedUserWalletId == userWalletId {
+            if selectedUserWalletId == userWalletId.value {
                 let sortedModels = models.sorted { $0.isMultiWallet && !$1.isMultiWallet }
                 let unlockedModels = sortedModels.filter { model in
                     guard let userWallet = userWallets.first(where: { $0.userWalletId == model.userWalletId.value }) else { return false }
@@ -418,8 +424,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             }
         }
 
-        walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.toHexString())
-        sendEvent(.deleted(userWalletIds: [userWalletId]))
+        walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        sendEvent(.deleted(userWalletIds: [userWalletId.value]))
     }
 
     func lock(reason: UserWalletRepositoryLockReason) {
@@ -441,16 +447,23 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
+        initializeAnalyticsContext(with: cardInfo)
+        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+        walletConnectService.initialize(with: cardModel)
+    }
+
+    // we can initialize it right after scan for more accurate analytics
+    func initializeAnalyticsContext(with cardInfo: CardInfo) {
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let userWalletId = config.userWalletIdSeed.map { UserWalletId(with: $0).value }
         let contextData = AnalyticsContextData(
             card: cardInfo.card,
-            productType: cardModel.productType,
-            userWalletId: cardModel.userWalletId.value,
-            embeddedEntry: cardModel.embeddedEntry
+            productType: config.productType,
+            userWalletId: userWalletId,
+            embeddedEntry: config.embeddedBlockchain
         )
 
         analyticsContext.setupContext(with: contextData)
-        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
-        walletConnectService.initialize(with: cardModel)
     }
 
     private func clearUserWalletStorage() {
@@ -530,6 +543,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     userWallets = [cardModel.userWallet]
                     models = [cardModel]
                     selectedUserWalletId = cardModel.userWalletId.value
+                    sendEvent(.replaced)
                     completion(result)
                     return
                 }
@@ -619,10 +633,11 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func initializeServicesForSelectedModel() {
+        resetServices()
+
         guard let selectedModel else { return }
 
         let cardInfo = selectedModel.cardInfo
-        resetServices()
         initializeServices(for: selectedModel, cardInfo: cardInfo)
     }
 
