@@ -25,6 +25,7 @@ struct ReceiveBottomSheetView: View {
         .toast(isPresenting: $viewModel.showToast, alert: {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
         })
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
