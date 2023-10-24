@@ -17,6 +17,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
 
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
@@ -52,11 +53,13 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     var walletModel: WalletModel?
 
     var incomingTransactions: [LegacyTransactionRecord] {
-        walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
+        let transactions = walletModel?.incomingPendingTransactions.filter { $0.amount.type == amountType } ?? []
+        return legacyTransactionMapper.mapToIncomingRecords(transactions)
     }
 
     var outgoingTransactions: [LegacyTransactionRecord] {
-        walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
+        let transactions = walletModel?.outgoingPendingTransactions.filter { $0.amount.type == amountType } ?? []
+        return legacyTransactionMapper.mapToOutgoingRecords(transactions)
     }
 
     var canBuyCrypto: Bool {
@@ -139,7 +142,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return nil
         }
 
-        return Localization.tokenDetailsTransactionLengthWarning
+        return Localization.warningLongTransactionMessage
     }
 
     var title: String {
@@ -168,6 +171,9 @@ class LegacyTokenDetailsViewModel: ObservableObject {
 
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     private unowned let coordinator: LegacyTokenDetailsRoutable
+    private var legacyTransactionMapper: LegacyTransactionMapper {
+        LegacyTransactionMapper(formatter: BalanceFormatter())
+    }
 
     private var currencySymbol: String {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
@@ -200,47 +206,15 @@ class LegacyTokenDetailsViewModel: ObservableObject {
             return
         }
 
-        // For a coin we can check it locally
-        if amountType == .coin {
-            canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchainNetwork.blockchain)
-            updateExchangeButtons()
-            return
-        }
-
-        // For a custom token id == nil
-        guard let currencyId = amountType.token?.id, !isCustomToken else {
+        switch amountType {
+        case .coin:
+            canSwap = swapAvailabilityProvider.canSwap(tokenItem: .blockchain(blockchainNetwork.blockchain))
+        case .token(let token):
+            canSwap = swapAvailabilityProvider.canSwap(tokenItem: .token(token, blockchainNetwork.blockchain))
+        default:
             canSwap = false
-            updateExchangeButtons()
-            return
         }
-
-        exchangeButtonIsLoading = true
-
-        let networkId = blockchainNetwork.blockchain.networkId
-        tangemApiService
-            .loadCoins(requestModel: CoinsList.Request(supportedBlockchains: [blockchainNetwork.blockchain], ids: [currencyId]))
-            .sink { [weak self] completion in
-                if case .failure = completion {
-                    self?.canSwap = false
-                }
-
-                self?.exchangeButtonIsLoading = false
-            } receiveValue: { [weak self] models in
-                let coin = models.first(where: { $0.id == currencyId })
-                let tokenItem = coin?.items.first(where: { $0.id == currencyId })
-
-                switch tokenItem {
-                case .none:
-                    self?.canSwap = false
-                case .token(let token, let blockchain):
-                    self?.canSwap = SwappingAvailableUtils().canSwap(amountType: .token(value: token), blockchain: blockchain)
-                case .blockchain(let blockchain):
-                    self?.canSwap = SwappingAvailableUtils().canSwap(amountType: .coin, blockchain: blockchain)
-                }
-
-                self?.updateExchangeButtons()
-            }
-            .store(in: &bag)
+        updateExchangeButtons()
     }
 
     func updateExchangeButtons() {
@@ -502,7 +476,8 @@ extension LegacyTokenDetailsViewModel {
     }
 
     func openPushTx(for index: Int) {
-        guard let tx = wallet?.pendingOutgoingTransactions[index] else { return }
+        let outgoingPendingTransactions = wallet?.pendingTransactions.filter { !$0.isIncoming }
+        guard let tx = outgoingPendingTransactions?[index] else { return }
 
         coordinator.openPushTx(for: tx, blockchainNetwork: blockchainNetwork, card: card)
     }
@@ -536,11 +511,8 @@ extension LegacyTokenDetailsViewModel {
 
         let input = CommonSwappingModulesFactory.InputModel(
             userTokensManager: card.userTokensManager,
-            wallet: walletModel.wallet,
-            blockchainNetwork: walletModel.blockchainNetwork,
-            sender: walletModel.transactionSender,
+            walletModel: walletModel,
             signer: card.signer,
-            transactionCreator: walletModel.transactionCreator,
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,

@@ -9,22 +9,22 @@
 import Foundation
 
 struct BalanceConverter {
-    @Injected(\.ratesRepository) private var ratesRepository: RatesRepository
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     /// Converts from crypto to fiat using `RatesProvider`. If values doesn't loaded will wait for loading info from backend and return converted value
-    /// Will throw error if failed to load rates or failed to find currency with specified code
+    /// Will throw error if failed to load quotes or failed to find currency with specified code
     /// - Parameters:
     ///   - value: Amout of crypto to convert to fiat
     ///   - currencyId: ID of the crypto currency
     /// - Returns: Converted decimal value in specified fiat currency
     func convertToFiat(value: Decimal, from currencyId: String) async throws -> Decimal {
-        let rate = try await ratesRepository.rate(for: currencyId)
+        let rate = try await quotesRepository.quote(for: currencyId).price
         let fiatValue = value * rate
         return fiatValue
     }
 
     func convertToFiat(value: Decimal, from currencyId: String) -> Decimal? {
-        guard let rate = ratesRepository.rates[currencyId] else {
+        guard let rate = quotesRepository.quotes[currencyId]?.price else {
             return nil
         }
 
@@ -33,7 +33,7 @@ struct BalanceConverter {
     }
 
     func convertFromFiat(value: Decimal, to currencyId: String) -> Decimal? {
-        guard let rate = ratesRepository.rates[currencyId] else {
+        guard let rate = quotesRepository.quotes[currencyId]?.price else {
             return nil
         }
 

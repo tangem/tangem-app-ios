@@ -21,7 +21,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private unowned let coordinator: TokenDetailsRoutable
     private var bag = Set<AnyCancellable>()
-    private var refreshCancellable: AnyCancellable?
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -39,6 +38,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
         return TokenIconURLBuilder().iconURL(id: id)
     }
+
+    var customTokenColor: Color? {
+        tokenItem.token?.customTokenColor
+    }
+
+    var canHideToken: Bool { userWalletModel.isMultiWallet }
 
     init(
         cardModel: CardViewModel,
@@ -64,22 +69,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     func onAppear() {
         Analytics.log(.detailsScreenOpened)
         // [REDACTED_TODO_COMMENT]
-    }
-
-    func onRefresh(_ done: @escaping () -> Void) {
-        Analytics.log(.refreshed)
-
-        refreshCancellable = walletModel
-            .update(silent: false)
-            .receive(on: DispatchQueue.main)
-            .sink { _ in
-                AppLog.shared.debug("♻️ Token wallet model loading state changed")
-                withAnimation(.default.delay(0.2)) {
-                    done()
-                }
-            } receiveValue: { _ in }
-
-        reloadHistory()
     }
 
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
