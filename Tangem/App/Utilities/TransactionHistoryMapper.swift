@@ -164,8 +164,8 @@ private extension TransactionHistoryMapper {
             switch name {
             case "transfer":
                 return .transfer
-            case "approval":
-                return .approval
+            case "approve":
+                return .approve
             case "swap":
                 return .swap
             case .none:
