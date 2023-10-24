@@ -134,11 +134,19 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var customOnboardingImage: ImageType? {
-        Assets.ring
+        if isRing {
+            return Assets.ring
+        }
+
+        return nil
     }
 
     var customScanImage: ImageType? {
-        Assets.ringShapeScan
+        if isRing {
+            return Assets.ringShapeScan
+        }
+
+        return nil
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
