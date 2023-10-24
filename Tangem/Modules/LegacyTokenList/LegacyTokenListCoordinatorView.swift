@@ -23,6 +23,7 @@ struct LegacyTokenListCoordinatorView: CoordinatorView {
                 }
             }
         }
+        .accentColor(Colors.Text.accent)
         .navigationViewStyle(.stack)
     }
 
