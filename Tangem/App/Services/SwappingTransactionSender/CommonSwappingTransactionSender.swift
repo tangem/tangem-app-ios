@@ -11,21 +11,18 @@ import BlockchainSdk
 import BigInt
 
 struct CommonSwappingTransactionSender {
-    private let transactionCreator: TransactionCreator
-    private let transactionSender: TransactionSender
+    private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let ethereumNetworkProvider: EthereumNetworkProvider
     private let currencyMapper: CurrencyMapping
 
     init(
-        transactionCreator: TransactionCreator,
-        transactionSender: TransactionSender,
+        walletModel: WalletModel,
         transactionSigner: TransactionSigner,
         ethereumNetworkProvider: EthereumNetworkProvider,
         currencyMapper: CurrencyMapping
     ) {
-        self.transactionCreator = transactionCreator
-        self.transactionSender = transactionSender
+        self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.currencyMapper = currencyMapper
@@ -38,7 +35,7 @@ extension CommonSwappingTransactionSender: SwappingTransactionSender {
     func sendTransaction(_ data: SwappingTransactionData) async throws -> TransactionSendResult {
         let nonce = try await ethereumNetworkProvider.getTxCount(data.sourceAddress).async()
         let transaction = try buildTransaction(for: data, nonce: nonce)
-        return try await transactionSender.send(transaction, signer: transactionSigner).async()
+        return try await walletModel.send(transaction, signer: transactionSigner).async()
     }
 }
 
@@ -59,9 +56,7 @@ private extension CommonSwappingTransactionSender {
             sourceAddress: data.sourceAddress,
             destinationAddress: data.destinationAddress,
             changeAddress: data.sourceAddress,
-            contractAddress: data.destinationAddress,
-            date: Date(),
-            status: .unconfirmed
+            contractAddress: data.destinationAddress
         )
 
         transaction.params = EthereumTransactionParams(
