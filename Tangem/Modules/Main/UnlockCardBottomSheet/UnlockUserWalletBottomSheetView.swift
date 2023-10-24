@@ -18,7 +18,7 @@ struct UnlockUserWalletBottomSheetView: View {
                 .padding(.top, 46)
                 .padding(.bottom, 30)
 
-            Text(Localization.commonUnlockNeeded)
+            Text(Localization.commonAccessDenied)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                 .padding(.bottom, 14)
 
@@ -30,7 +30,7 @@ struct UnlockUserWalletBottomSheetView: View {
                 .padding(.horizontal, 34)
 
             MainButton(
-                title: Localization.userWalletListUnlockAll(BiometricAuthorizationUtils.biometryType.name),
+                title: Localization.userWalletListUnlockAllWith(BiometricAuthorizationUtils.biometryType.name),
                 action: viewModel.unlockWithBiometry
             )
             .padding(.bottom, 10)
