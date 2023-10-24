@@ -34,6 +34,9 @@ struct AddCustomTokenCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.networkSelectorModel) {
                 AddCustomTokenNetworkSelectorView(viewModel: $0)
             }
+            .navigation(item: $coordinator.derivationSelectorModel) {
+                AddCustomTokenDerivationPathSelectorView(viewModel: $0)
+            }
     }
 
     @ViewBuilder

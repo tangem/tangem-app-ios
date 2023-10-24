@@ -56,7 +56,7 @@ struct AddCustomTokenView: View {
 
                     if viewModel.showDerivationPaths {
                         Button {
-                            viewModel.openNetworkSelector()
+                            viewModel.openDerivationSelector()
                         } label: {
                             ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: "Default")
                         }
