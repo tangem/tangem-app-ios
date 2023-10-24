@@ -221,21 +221,21 @@ extension DetailsViewModel {
         walletConnectRowViewModel = WalletConnectRowViewModel(
             title: Localization.walletConnectTitle,
             subtitle: Localization.walletConnectSubtitle,
-            action: openWalletConnect
+            action: weakify(self, forFunction: DetailsViewModel.openWalletConnect)
         )
     }
 
     func setupSupportSectionModels() {
         supportSectionModels = [
-            DefaultRowViewModel(title: Localization.detailsChat, action: openSupportChat),
+            DefaultRowViewModel(title: Localization.detailsChat, action: weakify(self, forFunction: DetailsViewModel.openSupportChat)),
         ]
 
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
-            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: openReferral))
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: weakify(self, forFunction: DetailsViewModel.openReferral)))
         }
 
         if userWalletModel.config.emailConfig != nil {
-            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: openMail))
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: weakify(self, forFunction: DetailsViewModel.openMail)))
         }
     }
 
@@ -244,14 +244,14 @@ extension DetailsViewModel {
 
         viewModels.append(DefaultRowViewModel(
             title: Localization.cardSettingsTitle,
-            action: openCardSettings
+            action: weakify(self, forFunction: DetailsViewModel.openCardSettings)
         ))
 
         // [REDACTED_TODO_COMMENT]
 
         viewModels.append(DefaultRowViewModel(
             title: Localization.appSettingsTitle,
-            action: openAppSettings
+            action: weakify(self, forFunction: DetailsViewModel.openAppSettings)
         ))
 
         settingsSectionViewModels = viewModels
@@ -260,13 +260,13 @@ extension DetailsViewModel {
     func setupLegalSectionViewModels() {
         legalSectionViewModel = DefaultRowViewModel(
             title: Localization.disclaimerTitle,
-            action: openDisclaimer
+            action: weakify(self, forFunction: DetailsViewModel.openDisclaimer)
         )
     }
 
     func setupEnvironmentSetupSection() {
         if !AppEnvironment.current.isProduction {
-            environmentSetupViewModel = DefaultRowViewModel(title: "Environment setup", action: openEnvironmentSetup)
+            environmentSetupViewModel = DefaultRowViewModel(title: "Environment setup", action: weakify(self, forFunction: DetailsViewModel.openEnvironmentSetup))
         }
     }
 
@@ -277,14 +277,14 @@ extension DetailsViewModel {
             viewModels.append(DefaultRowViewModel(
                 title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
                 detailsType: isScanning ? .loader : .none,
-                action: isScanning ? nil : addOrScanNewUserWallet
+                action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
             ))
         }
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
                 title: Localization.detailsRowTitleCreateBackup,
-                action: prepareBackup
+                action: weakify(self, forFunction: DetailsViewModel.prepareBackup)
             ))
         }
 
@@ -292,7 +292,7 @@ extension DetailsViewModel {
     }
 
     func addOrScanNewUserWallet() {
-        Analytics.beginLoggingCardScan(source: .myWalletsNewCard)
+        Analytics.beginLoggingCardScan(source: .settings)
         isScanning = true
 
         userWalletRepository.addOrScan { [weak self] result in

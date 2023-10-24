@@ -75,4 +75,18 @@ extension Wallet {
             ),
         ]
     )
+
+    static let xlmWalletStub = Wallet(
+        blockchain: .stellar(curve: .ed25519, testnet: false),
+        addresses: [
+            .default: PlainAddress(
+                value: "GCYURTBQWFCOR4QUVZLVJR2TYQFJX4VDGWO3IJDOAPDKF5Q2QLBIFC7R",
+                publicKey: .init(
+                    seedKey: Data(hexString: "0374D0F81F42DDFE34114D533E95E6AE5FE6EA271C96F1FA505199FDC365AE9720"),
+                    derivationType: .plain(.xrpDerivationStub)
+                ),
+                type: .default
+            ),
+        ]
+    )
 }
