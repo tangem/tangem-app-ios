@@ -43,23 +43,23 @@ class MultiWalletNotificationManager {
     }
 
     private func removeSomeNetworksUnreachable() {
-        notificationInputsSubject.value.removeAll(where: {
+        notificationInputsSubject.value.removeAll {
             guard let event = $0.settings.event as? TokenNotificationEvent else {
                 return false
             }
 
             return event == .someNetworksUnreachable
-        })
+        }
     }
 
     private func setupSomeNetworksUnreachable() {
-        let containsNotification = notificationInputsSubject.value.contains(where: {
+        let containsNotification = notificationInputsSubject.value.contains {
             guard let event = $0.settings.event as? TokenNotificationEvent else {
                 return false
             }
 
             return event == .someNetworksUnreachable
-        })
+        }
 
         if containsNotification {
             return
