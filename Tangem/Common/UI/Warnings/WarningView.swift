@@ -121,7 +121,7 @@ extension WarningView {
             switch self {
             case .okGotIt: return Localization.warningButtonOk
             case .rateApp: return Localization.warningButtonReallyCool
-            case .reportProblem: return Localization.warningButtonCanBeBetter
+            case .reportProblem: return Localization.warningButtonCouldBeBetter
             case .learnMore: return Localization.warningButtonLearnMore
             case .dismiss: return ""
             }
@@ -136,7 +136,6 @@ struct WarningView_Previews: PreviewProvider {
         AppWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
         AppWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
         AppWarning(title: "Attention!", message: "Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
-        WarningEvent.multiWalletSignedHashes.warning,
     ]
     static var previews: some View {
         ScrollView {
