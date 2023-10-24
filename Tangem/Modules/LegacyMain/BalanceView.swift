@@ -46,7 +46,7 @@ struct BalanceView: View {
         }
 
         if balanceViewModel.state.errorDescription != nil {
-            return Localization.walletBalanceBlockchainUnreachable
+            return Localization.warningNetworkUnreachableTitle
         }
 
         if balanceViewModel.hasTransactionInProgress {
