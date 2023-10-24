@@ -73,10 +73,16 @@ class SingleTokenNotificationManager {
         notificationInputsSubject.send(inputs)
 
         notificationsUpdateTask = Task { [weak self] in
-            if let rentInput = await self?.loadRentNotificationIfNeeded(),
-               !(self?.notificationInputsSubject.value.contains(where: { $0.id == rentInput.id }) ?? false) {
+            guard
+                let rentInput = await self?.loadRentNotificationIfNeeded(),
+                let self
+            else {
+                return
+            }
+
+            if !notificationInputsSubject.value.contains(where: { $0.id == rentInput.id }) {
                 await runOnMain {
-                    self?.notificationInputsSubject.value.append(rentInput)
+                    self.notificationInputsSubject.value.append(rentInput)
                 }
             }
         }
