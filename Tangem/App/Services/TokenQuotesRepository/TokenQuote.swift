@@ -10,7 +10,7 @@ import Foundation
 
 struct TokenQuote: Hashable {
     let currencyId: String
-    let change: Decimal
+    let change: Decimal?
     let price: Decimal
     let currencyCode: String
 }
