@@ -17,12 +17,12 @@ struct SingleWalletMainContentView: View {
 
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .transition(.notificationTransition)
             }
 
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .transition(.notificationTransition)
             }
 
             MarketPriceView(
@@ -30,6 +30,11 @@ struct SingleWalletMainContentView: View {
                 price: viewModel.rateFormatted,
                 priceChangeState: viewModel.priceChangeState,
                 tapAction: nil
+            )
+
+            PendingTransactionsListView(
+                items: viewModel.pendingTransactionViews,
+                exploreTransactionAction: viewModel.openTransactionExplorer
             )
 
             TransactionsListView(
@@ -45,6 +50,7 @@ struct SingleWalletMainContentView: View {
         .animation(.default, value: viewModel.notificationInputs)
         .animation(.default, value: viewModel.tokenNotificationInputs)
         .padding(.horizontal, 16)
+        .bindAlert($viewModel.alert)
     }
 }
 
