@@ -31,9 +31,6 @@ PRODUCT_NAME = Tangem $(ENVIRONMENT_NAME)
 // app icon
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_$(ENVIRONMENT_NAME)
 
-// UIUserInterfaceStyle override
-UI_USER_INTERFACE_STYLE = Automatic
-
 // Additional swift compiler flags
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = BETA ALPHA_OR_BETA
 
