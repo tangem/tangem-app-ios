@@ -234,7 +234,7 @@ struct AddCustomTokenView_Preview: PreviewProvider {
     )
 
     static let userTokensManager: UserTokensManager = {
-        let fakeUserTokenListManager = FakeUserTokenListManager()
+        let fakeUserTokenListManager = FakeUserTokenListManager(walletManagers: [], isDelayed: false)
         return FakeUserTokensManager(
             derivationManager: FakeDerivationManager(pendingDerivationsCount: 5),
             userTokenListManager: fakeUserTokenListManager
