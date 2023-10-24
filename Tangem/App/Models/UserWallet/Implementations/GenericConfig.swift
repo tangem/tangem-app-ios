@@ -12,9 +12,11 @@ import BlockchainSdk
 
 struct GenericConfig {
     let card: CardDTO
+    private let isRing: Bool
 
-    init(card: CardDTO) {
+    init(card: CardDTO, isRing: Bool) {
         self.card = card
+        self.isRing = isRing
     }
 }
 
@@ -119,11 +121,42 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
+        if isRing {
+            return .ring
+        }
+
+        return card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
     var cardHeaderImage: ImageType? {
-        Assets.Cards.wallet
+        if isRing {
+            return nil
+        }
+        switch card.batchId {
+        // Shiba cards
+        case "AF02", "AF03":
+            // There can't be more than 3 cards in single UserWallet
+            switch cardsCount {
+            case 2: return Assets.Cards.shibaDouble
+            case 3: return Assets.Cards.shibaTriple
+            default: return Assets.Cards.shibaSingle
+            }
+        default:
+            // There can't be more than 3 cards in single UserWallet
+            switch cardsCount {
+            case 2: return Assets.Cards.walletDouble
+            case 3: return Assets.Cards.walletTriple
+            default: return Assets.Cards.walletSingle
+            }
+        }
+    }
+
+    var customOnboardingImage: ImageType? {
+        Assets.ring
+    }
+
+    var customScanImage: ImageType? {
+        Assets.ringShapeScan
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
