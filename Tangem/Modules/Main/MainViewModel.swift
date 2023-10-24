@@ -19,6 +19,7 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
+    @Published var isPageSwitchAnimationDisabled = false
     @Published var showAddressCopiedToast = false
     @Published var actionSheet: ActionSheetBinder?
 
@@ -64,6 +65,10 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
+    func onAppear() {
+        Analytics.log(.mainScreenOpened)
+    }
+
     func openDetails() {
         let userWalletModel = userWalletRepository.models[selectedCardIndex]
 
@@ -76,6 +81,8 @@ final class MainViewModel: ObservableObject {
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        Analytics.log(.mainRefreshed)
+
         isHorizontalScrollDisabled = true
         let completion = { [weak self] in
             self?.isHorizontalScrollDisabled = false
@@ -97,6 +104,15 @@ final class MainViewModel: ObservableObject {
         guard reason == .byGesture else { return }
 
         Analytics.log(.mainScreenWalletChangedBySwipe)
+    }
+
+    func onViewAppear() {
+        if isPageSwitchAnimationDisabled {
+            // A small delay to turn on animations back after closing the Details screen
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isPageSwitchAnimationDisabled = false
+            }
+        }
     }
 
     func updateIsBackupAllowed() {
@@ -132,7 +148,7 @@ final class MainViewModel: ObservableObject {
         let sheet = ActionSheet(
             title: Text(Localization.userWalletListDeletePrompt),
             buttons: [
-                .destructive(Text(Localization.commonDelete), action: didConfirmWalletDeletion),
+                .destructive(Text(Localization.commonDelete), action: weakify(self, forFunction: MainViewModel.didConfirmWalletDeletion)),
                 .cancel(Text(Localization.commonCancel)),
             ]
         )
@@ -147,7 +163,7 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        userWalletRepository.delete(userWalletModel.userWallet, logoutIfNeeded: true)
+        userWalletRepository.delete(userWalletModel.userWalletId, logoutIfNeeded: true)
     }
 
     private func addNewPage(for userWalletModel: UserWalletModel) {
@@ -210,32 +226,36 @@ final class MainViewModel: ObservableObject {
                     return
                 }
 
+                Analytics.log(.walletOpened)
                 self?.userWalletRepository.setSelectedUserWalletId(userWalletId.value, unlockIfNeeded: false, reason: .userSelected)
             }
             .store(in: &bag)
 
         userWalletRepository.eventProvider
             .sink { [weak self] event in
+                guard let self else { return }
+
                 switch event {
                 case .locked:
-                    self?.isLoggingOut = true
+                    isLoggingOut = true
                 case .scan:
                     // [REDACTED_TODO_COMMENT]
                     break
                 case .inserted:
-                    // Useless event...
-                    break
+                    isPageSwitchAnimationDisabled = true
                 case .updated(let userWalletModel):
-                    self?.addNewPage(for: userWalletModel)
+                    addNewPage(for: userWalletModel)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
-                    if self?.isLoggingOut == true {
+                    if isLoggingOut == true {
                         return
                     }
-                    self?.removePages(with: userWalletIds)
+                    removePages(with: userWalletIds)
                 case .selected:
                     break
+                case .replaced:
+                    recreatePages()
                 }
             }
             .store(in: &bag)

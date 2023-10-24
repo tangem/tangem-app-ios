@@ -172,6 +172,10 @@ extension ReferralViewModel {
         return Localization.referralWalletsPurchasedCount(count)
     }
 
+    var isExpectingAwards: Bool {
+        referralProgramInfo?.expectedAwards != nil
+    }
+
     var hasExpectedAwards: Bool {
         let count = referralProgramInfo?.expectedAwards?.numberOfWallets ?? 0
         return count > 0
