@@ -24,6 +24,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var networkSelectorModel: AddCustomTokenNetworkSelectorViewModel?
+    @Published var derivationSelectorModel: AddCustomTokenDerivationPathSelectorViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -72,6 +73,16 @@ extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
         networkSelectorModel.delegate = self
         self.networkSelectorModel = networkSelectorModel
     }
+
+    func openDerivationSelector(selectedDerivationOption: AddCustomTokenDerivationOption, defaultDerivationPath: DerivationPath, blockchainDerivationOptions: [AddCustomTokenDerivationOption]) {
+        let derivationSelectorModel = AddCustomTokenDerivationPathSelectorViewModel(
+            selectedDerivationOption: selectedDerivationOption,
+            defaultDerivationPath: defaultDerivationPath,
+            blockchainDerivationOptions: blockchainDerivationOptions
+        )
+        derivationSelectorModel.delegate = self
+        self.derivationSelectorModel = derivationSelectorModel
+    }
 }
 
 extension AddCustomTokenCoordinator: AddCustomTokenNetworkSelectorDelegate {
@@ -79,5 +90,12 @@ extension AddCustomTokenCoordinator: AddCustomTokenNetworkSelectorDelegate {
         networkSelectorModel = nil
 
         rootViewModel?.setSelectedNetwork(networkId: networkId)
+    }
+}
+
+extension AddCustomTokenCoordinator: AddCustomTokenDerivationPathSelectorDelegate {
+    func didSelectOption(_ derivationOption: AddCustomTokenDerivationOption) {
+        derivationSelectorModel = nil
+        rootViewModel?.setSelectedDerivationOption(derivationOption: derivationOption)
     }
 }
