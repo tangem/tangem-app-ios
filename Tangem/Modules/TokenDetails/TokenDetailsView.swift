@@ -32,7 +32,7 @@ struct TokenDetailsView: View {
     }
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.onRefresh) {
+        RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
@@ -40,7 +40,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.scaleOpacity)
+                        .transition(.notificationTransition)
                 }
 
                 if viewModel.isMarketPriceAvailable {
@@ -51,6 +51,11 @@ struct TokenDetailsView: View {
                         tapAction: nil
                     )
                 }
+
+                PendingTransactionsListView(
+                    items: viewModel.pendingTransactionViews,
+                    exploreTransactionAction: viewModel.openTransactionExplorer
+                )
 
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
@@ -79,8 +84,15 @@ struct TokenDetailsView: View {
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
-                IconView(url: viewModel.iconUrl, sizeSettings: .tokenDetailsToolbar, forceKingfisher: true)
-                    .opacity(toolbarIconOpacity)
+                TokenIcon(
+                    name: "",
+                    imageURL: viewModel.iconUrl,
+                    customTokenColor: viewModel.customTokenColor,
+                    blockchainIconName: nil,
+                    isCustom: false,
+                    size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
+                )
+                .opacity(toolbarIconOpacity)
             }
 
             ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
@@ -90,15 +102,17 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var navbarTrailingButton: some View {
-        Menu {
-            if #available(iOS 15.0, *) {
-                Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-            } else {
-                Button(Localization.tokenDetailsHideToken, action: viewModel.hideTokenButtonAction)
+        if viewModel.canHideToken {
+            Menu {
+                if #available(iOS 15.0, *) {
+                    Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
+                } else {
+                    Button(Localization.tokenDetailsHideToken, action: viewModel.hideTokenButtonAction)
+                }
+            } label: {
+                NavbarDotsImage()
+                    .offset(x: 10)
             }
-        } label: {
-            NavbarDotsImage()
-                .offset(x: 10)
         }
     }
 }
