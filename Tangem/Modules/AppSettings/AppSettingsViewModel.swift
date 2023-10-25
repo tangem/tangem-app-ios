@@ -80,6 +80,19 @@ private extension AppSettingsViewModel {
                 self?.setupView()
             }
             .store(in: &bag)
+
+        $warningViewModel
+            .map {
+                $0 != nil
+            }
+            .removeDuplicates()
+            .sink { showingBiometryWarning in
+                // Can't do this in onAppear, the view could be updated and the warning displayed after biometry disabled in the settings
+                if showingBiometryWarning {
+                    Analytics.log(.settingsNoticeEnableBiometrics)
+                }
+            }
+            .store(in: &bag)
     }
 
     func isSavingWalletRequestChange(saveWallet: Bool) {
@@ -125,8 +138,6 @@ private extension AppSettingsViewModel {
     }
 
     func setupView() {
-        let wasShowingBiometryWarning = showingBiometryWarning
-
         if isBiometryAvailable {
             warningViewModel = nil
         } else {
@@ -137,11 +148,6 @@ private extension AppSettingsViewModel {
             ) { [weak self] in
                 self?.openBiometrySettings()
             }
-        }
-
-        // Can't do this in onAppear, the view could be updated and the warning displayed after biometry disabled in the settings
-        if showingBiometryWarning, !wasShowingBiometryWarning {
-            Analytics.log(.settingsNoticeEnableBiometrics)
         }
 
         savingWalletViewModel = DefaultToggleRowViewModel(
