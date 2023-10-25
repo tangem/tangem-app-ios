@@ -13,9 +13,7 @@ import struct TangemSdk.DerivationPath
 import enum TangemSdk.TangemSdkError
 
 final class AddCustomTokenViewModel: ObservableObject {
-    // MARK: - ViewState
-
-    // MARK: - Dependencies
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private unowned let coordinator: AddCustomTokenRoutable
 
@@ -29,6 +27,8 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     @Published var selectedBlockchainNetworkId: String?
     @Published var selectedBlockchainName: String = ""
+
+    @Published var selectedWalletName = ""
 
     @Published var derivationsPicker: LegacyPickerModel = .empty
 
@@ -59,6 +59,8 @@ final class AddCustomTokenViewModel: ObservableObject {
         let blockchain = try? enteredBlockchain()
         return blockchain?.canHandleTokens ?? false
     }
+    
+    private var selectedUserWalletId: Data?
 
     private var bag: Set<AnyCancellable> = []
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
@@ -85,6 +87,10 @@ final class AddCustomTokenViewModel: ObservableObject {
         self.settings = settings
         self.userTokensManager = userTokensManager
         self.coordinator = coordinator
+
+        let selectedUserWallet = userWalletRepository.selectedModel?.userWallet
+        selectedWalletName = selectedUserWallet?.name ?? ""
+        selectedUserWalletId = selectedUserWallet?.userWalletId
 
         bind()
     }
@@ -130,6 +136,7 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func onAppear() {
+        // [REDACTED_TODO_COMMENT]
         Analytics.log(.customTokenScreenOpened)
         updateDerivationPaths()
     }
@@ -140,6 +147,23 @@ final class AddCustomTokenViewModel: ObservableObject {
         symbol = ""
         contractAddress = ""
         decimals = ""
+    }
+
+    func openWalletSelector() {
+        coordinator.openWalletSelector(
+            userWallets: userWalletRepository.userWallets,
+            currentUserWalletId: selectedUserWalletId
+        )
+    }
+
+    func setSelectedWallet(userWalletId: Data) {
+        guard
+            let userWallet = userWalletRepository.userWallets.first(where: { $0.userWalletId == userWalletId }) else {
+            return
+        }
+
+        self.selectedUserWalletId = userWalletId
+        self.selectedWalletName = userWallet.name
     }
 
     func openNetworkSelector() {

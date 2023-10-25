@@ -27,6 +27,14 @@ struct AddCustomTokenView: View {
 
                 VStack(spacing: 14) {
                     Button {
+                        viewModel.openWalletSelector()
+                    } label: {
+                        ItemSelectorRow(title: Localization.manageTokensNetworkSelectorWallet, selectedItem: viewModel.selectedWalletName)
+                    }
+                    .background(Colors.Background.action)
+                    .cornerRadiusContinuous(12)
+
+                    Button {
                         viewModel.openNetworkSelector()
                     } label: {
                         ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
