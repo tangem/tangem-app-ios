@@ -44,12 +44,14 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     var showDerivationPaths: Bool {
-        cardHasDifferentDerivationPaths
+        cardHasDifferentDerivationPaths && selectedDerivationOption != nil
     }
 
     var showCustomDerivationPath: Bool {
         derivationsPicker.selection == customDerivationItemID
     }
+
+    var selectedDerivationOption: AddCustomTokenDerivationOption?
 
     @Published private var cardHasDifferentDerivationPaths: Bool = true
 
@@ -67,11 +69,12 @@ final class AddCustomTokenViewModel: ObservableObject {
     private let customDerivationItemID = "custom-derivation"
     private let settings: LegacyManageTokensSettings
 
-    private var supportedBlockchains: Set<Blockchain> {
-        settings.supportedBlockchains
+    private var supportedBlockchains: [Blockchain] {
+        Array(settings.supportedBlockchains)
             .filter {
                 $0.curve.supportsDerivation
             }
+            .sorted(by: \.displayName)
     }
 
     init(
@@ -128,7 +131,6 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.customTokenScreenOpened)
-        updateBlockchains(supportedBlockchains)
         updateDerivationPaths()
     }
 
@@ -140,15 +142,10 @@ final class AddCustomTokenViewModel: ObservableObject {
         decimals = ""
     }
 
-    var blockchains: [Blockchain] {
-        Array(settings.supportedBlockchains).sorted(by: \.displayName)
-    }
-
     func openNetworkSelector() {
-//        let blockchains = Array(settings.supportedBlockchains).sorted(by: \.displayName)
         coordinator.openNetworkSelector(
             selectedBlockchainNetworkId: self.selectedBlockchainNetworkId,
-            blockchains: blockchains
+            blockchains: supportedBlockchains
         )
     }
 
@@ -159,21 +156,25 @@ final class AddCustomTokenViewModel: ObservableObject {
 
         selectedBlockchainNetworkId = blockchain.networkId
         selectedBlockchainName = blockchain.displayName
+
+        if selectedDerivationOption == nil,
+           let derivationStyle = settings.derivationStyle,
+           let derivationPath = blockchain.derivationPath(for: derivationStyle) {
+            selectedDerivationOption = .default(derivationPath: derivationPath)
+        }
     }
 
-    var selectedDerivationOption: AddCustomTokenDerivationOption? = nil
-
     func openDerivationSelector() {
-        guard let selectedDerivationOption,
-              let derivationStyle = settings.derivationStyle
+        guard
+            let selectedDerivationOption,
+            let derivationStyle = settings.derivationStyle,
+            let selectedBlockchain = try? self.enteredBlockchain(),
+            let defaultDerivationPath = selectedBlockchain.derivationPath(for: derivationStyle)
         else {
             return
         }
 
-        #warning("TODO")
-        guard let defaultDerivationPath = Blockchain.bitcoin(testnet: false).derivationPath(for: .v3) else { return }
-
-        let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = blockchains.compactMap {
+        let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = supportedBlockchains.compactMap {
             guard let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
             return AddCustomTokenDerivationOption.blockchain(name: $0.displayName, derivationPath: derivationPath)
         }
@@ -244,15 +245,6 @@ final class AddCustomTokenViewModel: ObservableObject {
             self?.validate()
         }
         .store(in: &bag)
-    }
-
-    private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
-        #warning("[REDACTED_TODO_COMMENT]")
-        self.derivationPathByBlockchainName = Dictionary(uniqueKeysWithValues: blockchains.compactMap {
-            guard let derivationStyle = settings.derivationStyle,
-                  let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
-            return ($0.codingKey, derivationPath)
-        })
     }
 
     private func updateDerivationPaths() {
@@ -415,7 +407,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         }
 
         let requestModel = CoinsList.Request(
-            supportedBlockchains: supportedBlockchains,
+            supportedBlockchains: Set(supportedBlockchains),
             contractAddress: contractAddress
         )
 
