@@ -48,6 +48,6 @@ extension LegacyTokenListCoordinator: LegacyTokenListRoutable {
 
         let coordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         addCustomTokenCoordinator = coordinator
-        coordinator.start(with: AddCustomTokenCoordinator.Options(settings: settings, userTokensManager: userTokensManager))
+        coordinator.start(with: AddCustomTokenCoordinator.Options(settings: settings))
     }
 }
