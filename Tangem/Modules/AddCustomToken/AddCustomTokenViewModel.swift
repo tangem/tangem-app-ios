@@ -14,23 +14,17 @@ import enum TangemSdk.TangemSdkError
 
 final class AddCustomTokenViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
-    private unowned let coordinator: AddCustomTokenRoutable
-
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+
+    @Published var selectedWalletName = ""
+
+    @Published var selectedBlockchainNetworkId: String?
+    @Published var selectedBlockchainName: String = ""
 
     @Published var name = ""
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
-    @Published var customDerivationPath = ""
-
-    @Published var selectedBlockchainNetworkId: String?
-    @Published var selectedBlockchainName: String = ""
-
-    @Published var selectedWalletName = ""
-
-    @Published var derivationsPicker: LegacyPickerModel = .empty
 
     @Published var error: AlertBinder?
 
@@ -44,16 +38,10 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     var showDerivationPaths: Bool {
-        cardHasDifferentDerivationPaths && selectedDerivationOption != nil
-    }
-
-    var showCustomDerivationPath: Bool {
-        derivationsPicker.selection == customDerivationItemID
+        settings.hdWalletsSupported && selectedBlockchainNetworkId != nil
     }
 
     var selectedDerivationOption: AddCustomTokenDerivationOption?
-
-    @Published private var cardHasDifferentDerivationPaths: Bool = true
 
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
@@ -74,8 +62,6 @@ final class AddCustomTokenViewModel: ObservableObject {
             .userTokensManager
     }
 
-    private let defaultDerivationItemID = "default-derivation"
-    private let customDerivationItemID = "custom-derivation"
     private var settings: LegacyManageTokensSettings
 
     private var supportedBlockchains: [Blockchain] {
@@ -85,6 +71,8 @@ final class AddCustomTokenViewModel: ObservableObject {
             }
             .sorted(by: \.displayName)
     }
+
+    private unowned let coordinator: AddCustomTokenRoutable
 
     init(
         settings: LegacyManageTokensSettings,
@@ -133,15 +121,6 @@ final class AddCustomTokenViewModel: ObservableObject {
     func onAppear() {
         // [REDACTED_TODO_COMMENT]
         Analytics.log(.customTokenScreenOpened)
-        updateDerivationPaths()
-    }
-
-    func onDisappear() {
-        derivationsPicker = .empty
-        name = ""
-        symbol = ""
-        contractAddress = ""
-        decimals = ""
     }
 
     func openWalletSelector() {
@@ -170,6 +149,8 @@ final class AddCustomTokenViewModel: ObservableObject {
         self.selectedUserWalletId = userWalletId
         self.selectedWalletName = userWallet.name
         self.settings = makeSettings(userWalletModel: userWalletModel)
+
+        validate()
     }
 
     func openNetworkSelector() {
@@ -191,6 +172,8 @@ final class AddCustomTokenViewModel: ObservableObject {
            let derivationStyle = settings.derivationStyle,
            let derivationPath = blockchain.derivationPath(for: derivationStyle) {
             selectedDerivationOption = .default(derivationPath: derivationPath)
+
+            validate()
         }
     }
 
@@ -218,6 +201,8 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     func setSelectedDerivationOption(derivationOption: AddCustomTokenDerivationOption) {
         self.selectedDerivationOption = derivationOption
+
+        validate()
     }
 
     private func bind() {
@@ -255,17 +240,6 @@ final class AddCustomTokenViewModel: ObservableObject {
             .store(in: &bag)
 
         Publishers.CombineLatest3(
-            $selectedBlockchainNetworkId.removeAllDuplicates(),
-            $derivationsPicker.map { $0.selection }.removeDuplicates(),
-            $customDerivationPath.removeDuplicates()
-        )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [weak self] _ in
-            self?.validate()
-        }
-        .store(in: &bag)
-
-        Publishers.CombineLatest3(
             $name.removeDuplicates(),
             $symbol.removeDuplicates(),
             $decimals.removeDuplicates()
@@ -291,36 +265,6 @@ final class AddCustomTokenViewModel: ObservableObject {
             existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
         )
         return settings
-    }
-
-    private func updateDerivationPaths() {
-        let defaultItem = (Localization.customTokenDerivationPathDefault, defaultDerivationItemID)
-
-        let customItem = (Localization.customTokenCustomDerivation, customDerivationItemID)
-
-        let derivations: [(String, String)]
-        if !settings.hdWalletsSupported {
-            derivations = []
-        } else {
-            derivations = supportedBlockchains
-                .compactMap {
-                    guard let derivationStyle = settings.derivationStyle,
-                          let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
-
-                    let derivationPathFormatted = derivationPath.rawPath
-                    let blockchainName = $0.codingKey
-                    let description = "\($0.displayName) (\(derivationPathFormatted))"
-                    return (description, blockchainName)
-                }
-                .sorted {
-                    $0.0 < $1.0
-                }
-        }
-
-        let uniqueDerivations = Set(derivations.map(\.1))
-        self.cardHasDifferentDerivationPaths = uniqueDerivations.count > 1
-        let newDerivationSelection = self.derivationsPicker.selection
-        self.derivationsPicker = .init(items: [defaultItem, customItem] + derivations, selection: newDerivationSelection)
     }
 
     private func enteredTokenItem() throws -> TokenItem {
@@ -375,17 +319,6 @@ final class AddCustomTokenViewModel: ObservableObject {
         }
     }
 
-    private func validateDerivationPath() throws {
-        guard customDerivationItemID == derivationsPicker.selection else {
-            return
-        }
-
-        let derivationPath = try? DerivationPath(rawPath: customDerivationPath)
-        if derivationPath == nil {
-            throw DerivationPathError.invalidDerivationPath
-        }
-    }
-
     private func validateExistingCurves(for tokenItem: TokenItem) throws {
         guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
             throw TokenCreationErrors.unsupportedCurve(tokenItem.blockchain)
@@ -420,16 +353,10 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func enteredDerivationPath() -> DerivationPath? {
-        let derivationItemID = derivationsPicker.selection
-
-        switch derivationItemID {
-        case defaultDerivationItemID:
+        if settings.hdWalletsSupported {
+            return selectedDerivationOption?.derivationPath
+        } else {
             return nil
-        case customDerivationItemID:
-            return try? DerivationPath(rawPath: customDerivationPath)
-        default:
-            // ID is a blockchain name
-            return derivationPathByBlockchainName[derivationItemID]
         }
     }
 
@@ -503,7 +430,6 @@ final class AddCustomTokenViewModel: ObservableObject {
 
         do {
             let _ = try enteredTokenItem()
-            try validateDerivationPath()
             try checkLocalStorage()
             try validateEnteredContractAddress()
         } catch {
