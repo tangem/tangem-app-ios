@@ -623,10 +623,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             setupCardsSettings(animated: true, isContainerSetup: false)
         case .backupCards:
             if backupServiceState == .finished {
-                Analytics.log(
-                    event: .backupFinished,
-                    params: [.cardsCount: String((input.cardInput.config?.cardsCount ?? 0) + 1)]
-                )
                 goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
@@ -772,6 +768,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.cardModel?.onBackupCreated(updatedCard)
                             }
+
+                            if self.backupServiceState == .finished {
+                                Analytics.log(
+                                    event: .backupFinished,
+                                    params: [.cardsCount: String((updatedCard.backupStatus?.linkedCardsCount ?? 0) + 1)]
+                                )
+                            }
+
                             promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
