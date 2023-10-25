@@ -26,17 +26,13 @@ struct AddCustomTokenView: View {
                     .padding(.bottom, 22)
 
                 VStack(spacing: 14) {
-                    Button {
-                        viewModel.openWalletSelector()
-                    } label: {
+                    Button(action: viewModel.didTapWalletSelector) {
                         ItemSelectorRow(title: Localization.manageTokensNetworkSelectorWallet, selectedItem: viewModel.selectedWalletName)
                     }
                     .background(Colors.Background.action)
                     .cornerRadiusContinuous(14)
 
-                    Button {
-                        viewModel.openNetworkSelector()
-                    } label: {
+                    Button(action: viewModel.didTapNetworkSelector) {
                         ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
                     }
                     .background(Colors.Background.action)
@@ -63,9 +59,7 @@ struct AddCustomTokenView: View {
                     }
 
                     if viewModel.showDerivationPaths {
-                        Button {
-                            viewModel.openDerivationSelector()
-                        } label: {
+                        Button(action: viewModel.didTapDerivationSelector) {
                             ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: viewModel.selectedDerivationOption?.name ?? "")
                         }
                         .background(Colors.Background.action)
@@ -74,7 +68,6 @@ struct AddCustomTokenView: View {
 
                     MainButton(
                         title: Localization.customTokenAddToken,
-                        icon: .leading(Assets.plusMini),
                         isLoading: viewModel.isLoading,
                         isDisabled: viewModel.addButtonDisabled,
                         action: viewModel.createToken
