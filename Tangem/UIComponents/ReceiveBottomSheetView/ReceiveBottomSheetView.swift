@@ -75,10 +75,9 @@ struct ReceiveBottomSheetView: View {
                         .padding(.horizontal, 56)
 
                     Text(info.address)
-                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
                         .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
-                        .truncationMode(.middle)
                 }
             }
             .padding(.top, 28)
