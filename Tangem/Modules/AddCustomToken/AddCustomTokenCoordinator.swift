@@ -25,6 +25,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     @Published var networkSelectorModel: AddCustomTokenNetworkSelectorViewModel?
     @Published var derivationSelectorModel: AddCustomTokenDerivationPathSelectorViewModel?
+    @Published var walletSelectorViewModel: WalletSelectorViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -51,6 +52,15 @@ extension AddCustomTokenCoordinator {
 // MARK: - AddCustomTokenRoutable
 
 extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
+    func openWalletSelector(
+        userWallets: [UserWallet],
+        currentUserWalletId: Data?
+    ) {
+        let walletSelectorViewModel = WalletSelectorViewModel(userWallets: userWallets, currentUserWalletId: currentUserWalletId)
+        walletSelectorViewModel.delegate = self
+        self.walletSelectorViewModel = walletSelectorViewModel
+    }
+
     func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain]) {
         let networkSelectorModel = AddCustomTokenNetworkSelectorViewModel(
             selectedBlockchainNetworkId: selectedBlockchainNetworkId,
@@ -71,10 +81,16 @@ extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
     }
 }
 
+extension AddCustomTokenCoordinator: WalletSelectorDelegate {
+    func didSelectWallet(with userWalletId: Data) {
+        walletSelectorViewModel = nil
+        rootViewModel?.setSelectedWallet(userWalletId: userWalletId)
+    }
+}
+
 extension AddCustomTokenCoordinator: AddCustomTokenNetworkSelectorDelegate {
     func didSelectNetwork(networkId: String) {
         networkSelectorModel = nil
-
         rootViewModel?.setSelectedNetwork(networkId: networkId)
     }
 }
