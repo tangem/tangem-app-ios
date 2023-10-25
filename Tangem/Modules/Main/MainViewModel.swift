@@ -252,9 +252,7 @@ final class MainViewModel: ObservableObject {
                         return
                     }
                     removePages(with: userWalletIds)
-                case .selected:
-                    break
-                case .replaced:
+                case .selected, .replaced:
                     recreatePages()
                 }
             }
