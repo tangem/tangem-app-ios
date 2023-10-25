@@ -123,7 +123,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         Analytics.log(.customTokenScreenOpened)
     }
 
-    func openWalletSelector() {
+    func didTapWalletSelector() {
         let userWallets = userWalletRepository.models
             .filter {
                 $0.isMultiWallet
@@ -153,7 +153,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         validate()
     }
 
-    func openNetworkSelector() {
+    func didTapNetworkSelector() {
         coordinator.openNetworkSelector(
             selectedBlockchainNetworkId: self.selectedBlockchainNetworkId,
             blockchains: supportedBlockchains
@@ -177,7 +177,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         }
     }
 
-    func openDerivationSelector() {
+    func didTapDerivationSelector() {
         guard
             let selectedDerivationOption,
             let derivationStyle = settings.derivationStyle,
