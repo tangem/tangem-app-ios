@@ -242,8 +242,6 @@ struct AddCustomTokenView_Preview: PreviewProvider {
     }()
 
     static let viewModel = AddCustomTokenViewModel(
-        existingTokenItem: nil,
-        existingTokenDerivationPath: nil,
         settings: settings,
         userTokensManager: userTokensManager,
         coordinator: AddCustomTokenCoordinator()
