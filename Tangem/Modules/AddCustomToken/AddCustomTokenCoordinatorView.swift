@@ -37,6 +37,9 @@ struct AddCustomTokenCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.derivationSelectorModel) {
                 AddCustomTokenDerivationPathSelectorView(viewModel: $0)
             }
+            .navigation(item: $coordinator.walletSelectorViewModel) {
+                WalletSelectorView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
