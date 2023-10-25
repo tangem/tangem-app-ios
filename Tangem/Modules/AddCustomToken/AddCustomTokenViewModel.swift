@@ -65,7 +65,6 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     private let defaultDerivationItemID = "default-derivation"
     private let customDerivationItemID = "custom-derivation"
-    private let existingTokenItem: TokenItem?
     private let settings: LegacyManageTokensSettings
 
     private var supportedBlockchains: Set<Blockchain> {
@@ -76,24 +75,13 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     init(
-        existingTokenItem: TokenItem?,
-        existingTokenDerivationPath: DerivationPath?,
         settings: LegacyManageTokensSettings,
         userTokensManager: UserTokensManager,
         coordinator: AddCustomTokenRoutable
     ) {
-        self.existingTokenItem = existingTokenItem
         self.settings = settings
         self.userTokensManager = userTokensManager
         self.coordinator = coordinator
-
-        if let existingTokenItem {
-            updateFields(from: existingTokenItem)
-        }
-
-        if let existingTokenDerivationPath {
-            // [REDACTED_TODO_COMMENT]
-        }
 
         bind()
     }
@@ -256,19 +244,6 @@ final class AddCustomTokenViewModel: ObservableObject {
             self?.validate()
         }
         .store(in: &bag)
-    }
-
-    private func updateFields(from tokenItem: TokenItem) {
-        switch tokenItem {
-        case .blockchain(let blockchain):
-            setSelectedNetwork(networkId: blockchain.networkId)
-        case .token(let token, let blockchain):
-            setSelectedNetwork(networkId: blockchain.networkId)
-            contractAddress = token.contractAddress
-            name = token.name
-            symbol = token.symbol
-            decimals = "\(token.decimalCount)"
-        }
     }
 
     private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
