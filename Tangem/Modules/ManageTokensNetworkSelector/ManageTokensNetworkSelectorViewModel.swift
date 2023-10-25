@@ -42,17 +42,9 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         userWalletRepository.selectedModel?.userTokensManager
     }
 
-    private var settings: Settings {
-        let selectedModel = userWalletRepository.selectedModel
-
-        return .init(
-            supportedBlockchains: selectedModel?.config.supportedBlockchains ?? [],
-            hdWalletsSupported: selectedModel?.userWallet.isHDWalletAllowed ?? false,
-            longHashesSupported: selectedModel?.longHashesSupported ?? false,
-            derivationStyle: nil,
-            shouldShowLegacyDerivationAlert: selectedModel?.shouldShowLegacyDerivationAlert ?? false,
-            existingCurves: selectedModel?.card.walletCurves ?? []
-        )
+    private var settings: ManageTokensSettings {
+        let factory = ManageTokensSettingsFactory()
+        return factory.make(from: userWalletRepository.selectedModel)
     }
 
     // MARK: - Private Properties
@@ -309,19 +301,6 @@ private extension ManageTokensNetworkSelectorViewModel {
                 }
             )
         }
-    }
-}
-
-// MARK: - Settings
-
-private extension ManageTokensNetworkSelectorViewModel {
-    struct Settings {
-        let supportedBlockchains: Set<Blockchain>
-        let hdWalletsSupported: Bool
-        let longHashesSupported: Bool
-        let derivationStyle: DerivationStyle?
-        let shouldShowLegacyDerivationAlert: Bool
-        let existingCurves: [EllipticCurve]
     }
 }
 
