@@ -32,13 +32,6 @@ final class UserWalletNotificationManager {
         self.signatureCountValidator = signatureCountValidator
     }
 
-    func setupManager(with delegate: NotificationTapDelegate? = nil) {
-        self.delegate = delegate
-
-        createNotifications()
-        bind()
-    }
-
     private func createNotifications() {
         let factory = NotificationsFactory()
         let action: NotificationView.NotificationAction = { [weak self] id in
@@ -156,8 +149,19 @@ final class UserWalletNotificationManager {
 }
 
 extension UserWalletNotificationManager: NotificationManager {
+    var notificationInputs: [NotificationViewInput] {
+        notificationInputsSubject.value
+    }
+
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
         notificationInputsSubject.eraseToAnyPublisher()
+    }
+
+    func setupManager(with delegate: NotificationTapDelegate?) {
+        self.delegate = delegate
+
+        createNotifications()
+        bind()
     }
 
     func dismissNotification(with id: NotificationViewId) {
