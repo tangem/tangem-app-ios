@@ -59,17 +59,24 @@ final class AddCustomTokenViewModel: ObservableObject {
         let blockchain = try? enteredBlockchain()
         return blockchain?.canHandleTokens ?? false
     }
-    
+
     private var selectedUserWalletId: Data?
 
     private var bag: Set<AnyCancellable> = []
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var foundStandardToken: CoinModel?
-    private let userTokensManager: UserTokensManager
+    private var userTokensManager: UserTokensManager? {
+        userWalletRepository
+            .models
+            .first {
+                $0.userWalletId.value == selectedUserWalletId
+            }?
+            .userTokensManager
+    }
 
     private let defaultDerivationItemID = "default-derivation"
     private let customDerivationItemID = "custom-derivation"
-    private let settings: LegacyManageTokensSettings
+    private var settings: LegacyManageTokensSettings
 
     private var supportedBlockchains: [Blockchain] {
         Array(settings.supportedBlockchains)
@@ -81,11 +88,9 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     init(
         settings: LegacyManageTokensSettings,
-        userTokensManager: UserTokensManager,
         coordinator: AddCustomTokenRoutable
     ) {
         self.settings = settings
-        self.userTokensManager = userTokensManager
         self.coordinator = coordinator
 
         let selectedUserWallet = userWalletRepository.selectedModel?.userWallet
@@ -96,6 +101,8 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func createToken() {
+        guard let userTokensManager else { return }
+
         UIApplication.shared.endEditing()
 
         let tokenItem: TokenItem
@@ -117,22 +124,10 @@ final class AddCustomTokenViewModel: ObservableObject {
             return
         }
 
-        userTokensManager.add(tokenItem, derivationPath: derivationPath) { [weak self] result in
-            guard let self = self else { return }
+        userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem], derivationPath: derivationPath)
+        logSuccess(tokenItem: tokenItem, derivationPath: derivationPath)
 
-            switch result {
-            case .success:
-                self.closeModule()
-
-                self.logSuccess(tokenItem: tokenItem, derivationPath: derivationPath)
-            case .failure(let error):
-                if case TangemSdkError.userCancelled = error {
-                    return
-                }
-
-                self.error = error.alertBinder
-            }
-        }
+        closeModule()
     }
 
     func onAppear() {
@@ -150,20 +145,31 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func openWalletSelector() {
+        let userWallets = userWalletRepository.models
+            .filter {
+                $0.isMultiWallet
+            }
+            .map {
+                $0.userWallet
+            }
+
         coordinator.openWalletSelector(
-            userWallets: userWalletRepository.userWallets,
+            userWallets: userWallets,
             currentUserWalletId: selectedUserWalletId
         )
     }
 
     func setSelectedWallet(userWalletId: Data) {
         guard
-            let userWallet = userWalletRepository.userWallets.first(where: { $0.userWalletId == userWalletId }) else {
+            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }) else {
             return
         }
 
+        let userWallet = userWalletModel.userWallet
+
         self.selectedUserWalletId = userWalletId
         self.selectedWalletName = userWallet.name
+        self.settings = makeSettings(userWalletModel: userWalletModel)
     }
 
     func openNetworkSelector() {
@@ -269,6 +275,22 @@ final class AddCustomTokenViewModel: ObservableObject {
             self?.validate()
         }
         .store(in: &bag)
+    }
+
+    private func makeSettings(userWalletModel: UserWalletModel) -> LegacyManageTokensSettings {
+        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+        var supportedBlockchains = userWalletModel.config.supportedBlockchains
+        supportedBlockchains.remove(.ducatus)
+
+        let settings = LegacyManageTokensSettings(
+            supportedBlockchains: supportedBlockchains,
+            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
+            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
+            derivationStyle: userWalletModel.config.derivationStyle,
+            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
+            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
+        )
+        return settings
     }
 
     private func updateDerivationPaths() {
@@ -412,7 +434,10 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func checkLocalStorage() throws {
-        guard let tokenItem = try? enteredTokenItem() else {
+        guard
+            let tokenItem = try? enteredTokenItem(),
+            let userTokensManager
+        else {
             return
         }
 
