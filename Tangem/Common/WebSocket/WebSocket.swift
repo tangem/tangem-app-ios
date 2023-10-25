@@ -88,7 +88,7 @@ class WebSocket {
 
     deinit {
         session.invalidateAndCancel()
-        pingTimer?.invalidate()
+        invalidateTimer()
     }
 
     func connect() {
@@ -109,8 +109,7 @@ class WebSocket {
 
     func disconnect() {
         log("Disconnecting WebSocket with state: \(state) with \(url)")
-        pingTimer?.invalidate()
-        pingTimer = nil
+        invalidateTimer()
         state = .notConnected
         isWaitingForMessage = false
         if task == nil {
@@ -168,22 +167,6 @@ class WebSocket {
         }
     }
 
-    private func setupPingTimer() {
-        if pingTimer != nil {
-            pingTimer?.invalidate()
-            pingTimer = nil
-        }
-
-        DispatchQueue.main.async {
-            self.pingTimer = Timer.scheduledTimer(
-                withTimeInterval: self.pingInterval,
-                repeats: true
-            ) { [weak self] timer in
-                self?.sendPing()
-            }
-        }
-    }
-
     private func sendPing() {
         guard isConnected else { return }
 
@@ -212,7 +195,7 @@ class WebSocket {
             guard isConnected else { break }
 
             state = .notConnected
-            pingTimer?.invalidate()
+            invalidateTimer()
 
             var error: Error?
             switch closeCode {
@@ -281,6 +264,40 @@ class WebSocket {
         // some of the UIApplication components from current thread.
         DispatchQueue.main.async {
             self.onDisconnect?(error)
+        }
+    }
+
+    private func setupPingTimer() {
+        DispatchQueue.main.async {
+            self.invalidateTimer()
+            self.pingTimer = Timer.scheduledTimer(
+                withTimeInterval: self.pingInterval,
+                repeats: true
+            ) { [weak self] timer in
+                self?.sendPing()
+            }
+        }
+    }
+
+    /// `invalidate()` should be called from the same thread where it is was setup
+    /// https://developer.apple.com/documentation/foundation/timer/1415405-invalidate#
+    private func invalidateTimer() {
+        func invalidate() {
+            if pingTimer != nil {
+                pingTimer?.invalidate()
+                pingTimer = nil
+            }
+        }
+
+        if Thread.isMainThread {
+            log("Attempting to invalidate ping timer from main thread.")
+            invalidate()
+            return
+        }
+
+        log("Attempting to invalidate ping timer from different thread. Switching to main thread")
+        DispatchQueue.main.async {
+            invalidate()
         }
     }
 }
