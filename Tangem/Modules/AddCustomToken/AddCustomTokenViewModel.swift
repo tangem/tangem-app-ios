@@ -152,8 +152,12 @@ final class AddCustomTokenViewModel: ObservableObject {
         decimals = ""
     }
 
+    var blockchains: [Blockchain] {
+        Array(settings.supportedBlockchains).sorted(by: \.displayName)
+    }
+
     func openNetworkSelector() {
-        let blockchains = Array(settings.supportedBlockchains).sorted(by: \.displayName)
+//        let blockchains = Array(settings.supportedBlockchains).sorted(by: \.displayName)
         coordinator.openNetworkSelector(
             selectedBlockchainNetworkId: self.selectedBlockchainNetworkId,
             blockchains: blockchains
@@ -167,6 +171,34 @@ final class AddCustomTokenViewModel: ObservableObject {
 
         selectedBlockchainNetworkId = blockchain.networkId
         selectedBlockchainName = blockchain.displayName
+    }
+
+    var selectedDerivationOption: AddCustomTokenDerivationOption? = nil
+
+    func openDerivationSelector() {
+        guard let selectedDerivationOption,
+              let derivationStyle = settings.derivationStyle
+        else {
+            return
+        }
+
+        #warning("TODO")
+        guard let defaultDerivationPath = Blockchain.bitcoin(testnet: false).derivationPath(for: .v3) else { return }
+
+        let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = blockchains.compactMap {
+            guard let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
+            return AddCustomTokenDerivationOption.blockchain(name: $0.displayName, derivationPath: derivationPath)
+        }
+
+        coordinator.openDerivationSelector(
+            selectedDerivationOption: selectedDerivationOption,
+            defaultDerivationPath: defaultDerivationPath,
+            blockchainDerivationOptions: blockchainDerivationOptions
+        )
+    }
+
+    func setSelectedDerivationOption(derivationOption: AddCustomTokenDerivationOption) {
+        self.selectedDerivationOption = derivationOption
     }
 
     private func bind() {
