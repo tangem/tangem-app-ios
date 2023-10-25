@@ -14,6 +14,7 @@ import CoreMotion
 class SensitiveTextVisibilityService: ObservableObject {
     static let shared = SensitiveTextVisibilityService()
 
+    @Published var informationHiddenBalancesViewModel: InformationHiddenBalancesViewModel?
     @Published private(set) var isHidden: Bool
     private lazy var manager: CMMotionManager = {
         let manager = CMMotionManager()
@@ -39,7 +40,24 @@ class SensitiveTextVisibilityService: ObservableObject {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         DispatchQueue.main.async {
             self.isHidden = AppSettings.shared.isHidingSensitiveInformation
+            self.showBottomSheetIfNeeded()
         }
+    }
+
+    func showBottomSheetIfNeeded() {
+        guard AppSettings.shared.isHidingSensitiveInformation,
+              AppSettings.shared.shouldHidingSensitiveInformationSheetShowing else {
+            return
+        }
+
+        informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
+    }
+}
+
+extension SensitiveTextVisibilityService: InformationHiddenBalancesRoutable {
+    func dismissInformationHiddenBalances(forever: Bool) {
+        informationHiddenBalancesViewModel = nil
+        AppSettings.shared.shouldHidingSensitiveInformationSheetShowing = !forever
     }
 }
 
@@ -62,6 +80,16 @@ private extension SensitiveTextVisibilityService {
         AppSettings.shared.$isHidingSensitiveAvailable
             .sink { [weak self] isAvailable in
                 self?.updateAvailability(isAvailable)
+            }
+            .store(in: &bag)
+
+        $informationHiddenBalancesViewModel
+            .sink { [weak self] viewModel in
+                if viewModel == nil {
+                    self?.startUpdates()
+                } else {
+                    self?.endUpdates()
+                }
             }
             .store(in: &bag)
     }
