@@ -32,7 +32,7 @@ struct AddCustomTokenView: View {
                         ItemSelectorRow(title: Localization.manageTokensNetworkSelectorWallet, selectedItem: viewModel.selectedWalletName)
                     }
                     .background(Colors.Background.action)
-                    .cornerRadiusContinuous(12)
+                    .cornerRadiusContinuous(14)
 
                     Button {
                         viewModel.openNetworkSelector()
@@ -40,7 +40,7 @@ struct AddCustomTokenView: View {
                         ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
                     }
                     .background(Colors.Background.action)
-                    .cornerRadiusContinuous(12)
+                    .cornerRadiusContinuous(14)
 
                     if viewModel.canEnterTokenDetails {
                         VStack(spacing: 0) {
@@ -59,7 +59,7 @@ struct AddCustomTokenView: View {
                             TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: viewModel.isLoading)
                         }
                         .background(Colors.Background.action)
-                        .cornerRadiusContinuous(12)
+                        .cornerRadiusContinuous(14)
                     }
 
                     if viewModel.showDerivationPaths {
@@ -69,7 +69,7 @@ struct AddCustomTokenView: View {
                             ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: viewModel.selectedDerivationOption?.name ?? "")
                         }
                         .background(Colors.Background.action)
-                        .cornerRadiusContinuous(12)
+                        .cornerRadiusContinuous(14)
                     }
 
                     MainButton(
