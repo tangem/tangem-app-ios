@@ -11,6 +11,7 @@ import SwiftUI
 
 struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
+    @ObservedObject var sensitiveTextVisibilityService: SensitiveTextVisibilityService = .shared
 
     var body: some View {
         NavigationView {
@@ -24,5 +25,9 @@ struct AppCoordinatorView: CoordinatorView {
         }
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
+        // The bottom sheet works with UIViewController 
+        .bottomSheet(item: $sensitiveTextVisibilityService.informationHiddenBalancesViewModel) {
+            InformationHiddenBalancesView(viewModel: $0)
+        }
     }
 }
