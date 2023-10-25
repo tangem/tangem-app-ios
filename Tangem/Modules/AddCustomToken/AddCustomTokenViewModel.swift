@@ -150,6 +150,7 @@ final class AddCustomTokenViewModel: ObservableObject {
         self.selectedWalletName = userWallet.name
         self.settings = makeSettings(userWalletModel: userWalletModel)
 
+        updateDefaultDerivationOption()
         validate()
     }
 
@@ -168,13 +169,8 @@ final class AddCustomTokenViewModel: ObservableObject {
         selectedBlockchainNetworkId = blockchain.networkId
         selectedBlockchainName = blockchain.displayName
 
-        if selectedDerivationOption == nil,
-           let derivationStyle = settings.derivationStyle,
-           let derivationPath = blockchain.derivationPath(for: derivationStyle) {
-            selectedDerivationOption = .default(derivationPath: derivationPath)
-
-            validate()
-        }
+        updateDefaultDerivationOption()
+        validate()
     }
 
     func didTapDerivationSelector() {
@@ -455,6 +451,15 @@ final class AddCustomTokenViewModel: ObservableObject {
         }
 
         Analytics.log(event: .customTokenWasAdded, params: params)
+    }
+    
+    private func updateDefaultDerivationOption() {
+        if selectedDerivationOption == nil,
+           let blockchain = settings.supportedBlockchains.first(where: { $0.networkId == selectedBlockchainNetworkId }),
+           let derivationStyle = settings.derivationStyle,
+           let derivationPath = blockchain.derivationPath(for: derivationStyle) {
+            selectedDerivationOption = .default(derivationPath: derivationPath)
+        }
     }
 }
 
