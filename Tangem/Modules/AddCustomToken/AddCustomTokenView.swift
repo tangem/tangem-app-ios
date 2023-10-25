@@ -58,20 +58,10 @@ struct AddCustomTokenView: View {
                         Button {
                             viewModel.openDerivationSelector()
                         } label: {
-                            ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: "Default")
+                            ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: viewModel.selectedDerivationOption?.name ?? "")
                         }
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(12)
-                    }
-
-                    if viewModel.showDerivationPaths {
-                        VStack(spacing: 0) {
-                            PickerInputWithTitle(title: Localization.customTokenDerivationPathInputTitle, model: $viewModel.derivationsPicker)
-
-                            if viewModel.showCustomDerivationPath {
-                                TextInputWithTitle(title: Localization.customTokenCustomDerivation, placeholder: "m/44'/0'/0'/0/0", text: $viewModel.customDerivationPath, keyboardType: .default, isEnabled: true, isLoading: false)
-                            }
-                        }
                     }
 
                     MainButton(
