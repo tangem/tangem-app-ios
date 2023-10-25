@@ -340,7 +340,6 @@ extension LegacyMainCoordinator: UserWalletListCoordinatorOutput {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             self.modalOnboardingCoordinator = coordinator
-            Analytics.log(.onboardingStarted)
         }
     }
 }
