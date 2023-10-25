@@ -9,25 +9,20 @@
 import Combine
 import SwiftUI
 
-// [REDACTED_TODO_COMMENT]
 final class InformationHiddenBalancesViewModel: ObservableObject, Identifiable {
-    // MARK: - ViewState
-
     // MARK: - Dependencies
 
     private unowned let coordinator: InformationHiddenBalancesRoutable
 
-    init(
-        coordinator: InformationHiddenBalancesRoutable
-    ) {
+    init(coordinator: InformationHiddenBalancesRoutable) {
         self.coordinator = coordinator
     }
 
     func userDidRequestCloseView() {
-        coordinator.closeInformationHiddenBalances()
+        coordinator.dismissInformationHiddenBalances(forever: false)
     }
 
     func userDidRequestDoNotShowAgain() {
-        coordinator.closeInformationHiddenBalances()
+        coordinator.dismissInformationHiddenBalances(forever: true)
     }
 }

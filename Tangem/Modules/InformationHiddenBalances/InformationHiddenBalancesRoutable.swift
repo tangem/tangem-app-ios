@@ -9,5 +9,6 @@
 import Foundation
 
 protocol InformationHiddenBalancesRoutable: AnyObject {
-    func closeInformationHiddenBalances()
+    /// Pass the value `forever` as `true` to no longer show the sheet
+    func dismissInformationHiddenBalances(forever: Bool)
 }
