@@ -86,7 +86,6 @@ struct AddCustomTokenView: View {
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
-        .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
         .navigationBarTitle(Text(Localization.addCustomTokenTitle), displayMode: .inline)
     }
