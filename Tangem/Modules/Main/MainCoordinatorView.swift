@@ -21,7 +21,6 @@ struct MainCoordinatorView: CoordinatorView {
 
             sheets
         }
-        .environmentObject(sensitiveTextVisibilityViewModel)
     }
 
     @ViewBuilder
