@@ -43,6 +43,8 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     var selectedDerivationOption: AddCustomTokenDerivationOption?
 
+    @Published var notificationInput: NotificationViewInput?
+
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
         return blockchain?.canHandleTokens ?? false
@@ -423,6 +425,7 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     private func validate() {
         addButtonDisabled = false
+        notificationInput = nil
 
         do {
             let _ = try enteredTokenItem()
@@ -431,6 +434,17 @@ final class AddCustomTokenViewModel: ObservableObject {
         } catch {
             let dynamicValidationError = error as? DynamicValidationError
             addButtonDisabled = dynamicValidationError?.preventsFromAdding ?? false
+
+            if let notificationEventProviding = error as? NotificationEventProviding,
+               let notificationEvent = notificationEventProviding.notificationEvent {
+                notificationInput = NotificationViewInput(
+                    style: .plain,
+                    settings: NotificationView.Settings(
+                        event: notificationEvent,
+                        dismissAction: nil
+                    )
+                )
+            }
         }
     }
 
@@ -475,6 +489,10 @@ private protocol DynamicValidationError {
     var preventsFromAdding: Bool { get }
 }
 
+private protocol NotificationEventProviding {
+    var notificationEvent: (any NotificationEvent)? { get }
+}
+
 private extension AddCustomTokenViewModel {
     enum TokenCreationErrors: DynamicValidationError, LocalizedError {
         case blockchainNotSelected
@@ -509,7 +527,7 @@ private extension AddCustomTokenViewModel {
         }
     }
 
-    enum TokenSearchError: DynamicValidationError, LocalizedError {
+    enum TokenSearchError: DynamicValidationError, LocalizedError, NotificationEventProviding {
         case alreadyAdded
         case failedToFindToken
 
@@ -523,6 +541,15 @@ private extension AddCustomTokenViewModel {
                 return Localization.customTokenValidationErrorNotFound
             case .alreadyAdded:
                 return Localization.customTokenValidationErrorAlreadyAdded
+            }
+        }
+
+        var notificationEvent: (any NotificationEvent)? {
+            switch self {
+            case .failedToFindToken:
+                return AddCustomTokenNotificationEvent.scamWarning
+            case .alreadyAdded:
+                return nil
             }
         }
     }
