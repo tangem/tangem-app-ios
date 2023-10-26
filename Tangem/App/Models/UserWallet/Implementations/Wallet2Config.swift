@@ -14,10 +14,12 @@ import BlockchainSdk
 struct Wallet2Config {
     let card: CardDTO
     private let isDemo: Bool
+    private let isRing: Bool
 
-    init(card: CardDTO, isDemo: Bool) {
+    init(card: CardDTO, isDemo: Bool, isRing: Bool) {
         self.card = card
         self.isDemo = isDemo
+        self.isRing = isRing
     }
 }
 
@@ -141,10 +143,17 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        .wallet2
+        if isRing {
+            return .ring
+        }
+
+        return .wallet2
     }
 
     var cardHeaderImage: ImageType? {
+        if isRing {
+            return nil
+        }
         // Wallet 2.0 cards can't be used without backup, so min number of cards = 2
         // and there can't be more than 3 cards.
         switch card.batchId {
@@ -161,6 +170,14 @@ extension Wallet2Config: UserWalletConfig {
         default:
             return cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
         }
+    }
+
+    var customOnboardingImage: ImageType? {
+        Assets.ring
+    }
+
+    var customScanImage: ImageType? {
+        Assets.ringShapeScan
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
