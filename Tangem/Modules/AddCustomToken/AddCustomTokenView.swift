@@ -66,6 +66,10 @@ struct AddCustomTokenView: View {
                         .cornerRadiusContinuous(14)
                     }
 
+                    if let notificationInput = viewModel.notificationInput {
+                        NotificationView(input: notificationInput)
+                    }
+
                     MainButton(
                         title: Localization.customTokenAddToken,
                         isLoading: viewModel.isLoading,
