@@ -34,7 +34,6 @@ class ManageTokensNetworkSelectorCoordinator: CoordinatorObject {
         manageTokensNetworkSelectorViewModel = .init(
             coinId: options.coinId,
             tokenItems: options.tokenItems,
-            delegate: options.delegate,
             coordinator: self
         )
     }
@@ -44,7 +43,6 @@ extension ManageTokensNetworkSelectorCoordinator {
     struct Options {
         let coinId: String
         let tokenItems: [TokenItem]
-        let delegate: ManageTokensNetworkSelectorViewModelDelegate?
     }
 }
 
