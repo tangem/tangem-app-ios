@@ -188,6 +188,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     func didSelectWallet(with userWalletId: Data) {
         pendingAdd = []
         pendingRemove = []
+        
+        userWalletRepository.setSelectedUserWalletId(userWalletId, reason: .userSelected)
 
         settings = settingsFactory.make(from: userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }))
 
