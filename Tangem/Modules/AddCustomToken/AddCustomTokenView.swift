@@ -162,63 +162,6 @@ private struct TextInputWithTitle: View {
     }
 }
 
-private struct PickerInputWithTitle: View {
-    var title: String
-    var height: CGFloat = 60
-    @Binding var model: LegacyPickerModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
-
-            HStack {
-                Picker("", selection: $model.selection) {
-                    ForEach(model.items, id: \.1) { value in
-                        Text(value.0)
-                            .minimumScaleFactor(0.7)
-                            .tag(value.1)
-                    }
-                }
-                .id(model.id)
-                .accentColor(Colors.Button.positive)
-                .modifier(PickerStyleModifier())
-                .disabled(!model.isEnabled)
-                .modifier(PickerAlignmentModifier())
-
-                Spacer()
-            }
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-    }
-}
-
-// MARK: - Modifiers
-
-private struct PickerAlignmentModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 16, *) {
-            content
-                .padding(.leading, -12)
-        } else {
-            content
-        }
-    }
-}
-
-private struct PickerStyleModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 15, *) {
-            content
-                .pickerStyle(.menu)
-        } else {
-            content
-                .pickerStyle(.wheel)
-        }
-    }
-}
-
 struct AddCustomTokenView_Preview: PreviewProvider {
     static let settings = LegacyManageTokensSettings(
         supportedBlockchains: SupportedBlockchains.all.filter { !$0.isTestnet },
