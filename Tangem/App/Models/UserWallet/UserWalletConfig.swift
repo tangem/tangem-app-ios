@@ -52,6 +52,10 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardHeaderImage: ImageType? { get }
 
+    var customOnboardingImage: ImageType? { get }
+
+    var customScanImage: ImageType? { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func makeWalletModelsFactory() -> WalletModelsFactory
@@ -92,6 +96,10 @@ extension UserWalletConfig {
     var derivationStyle: DerivationStyle? {
         return nil
     }
+
+    var customOnboardingImage: ImageType? { nil }
+
+    var customScanImage: ImageType? { nil }
 }
 
 struct EmailConfig {
