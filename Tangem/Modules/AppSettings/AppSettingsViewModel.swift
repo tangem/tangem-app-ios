@@ -32,15 +32,23 @@ class AppSettingsViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var isBiometryAvailable: Bool = true
 
-    private var isSavingWallet: Bool {
-        didSet {
-            AppSettings.shared.saveUserWallets = isSavingWallet
+    var isSavingWallet: Bool {
+        get { AppSettings.shared.saveUserWallets }
+        set {
+            withAnimation {
+                objectWillChange.send()
+            }
+            AppSettings.shared.saveUserWallets = newValue
         }
     }
 
-    private var isSavingAccessCodes: Bool {
-        didSet {
-            AppSettings.shared.saveAccessCodes = isSavingAccessCodes
+    var isSavingAccessCodes: Bool {
+        get { AppSettings.shared.saveAccessCodes }
+        set {
+            withAnimation {
+                objectWillChange.send()
+            }
+            AppSettings.shared.saveAccessCodes = newValue
         }
     }
 
@@ -50,10 +58,6 @@ class AppSettingsViewModel: ObservableObject {
 
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
-
-        let isSavingWallet = AppSettings.shared.saveUserWallets
-        self.isSavingWallet = isSavingWallet
-        isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
 
         updateView()
         bind()
