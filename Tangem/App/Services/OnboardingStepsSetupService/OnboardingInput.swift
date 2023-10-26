@@ -70,6 +70,18 @@ extension OnboardingInput {
             }
         }
 
+        var config: UserWalletConfig? {
+            switch self {
+            case .cardInfo(let cardInfo):
+                let factory = UserWalletConfigFactory(cardInfo)
+                return factory.makeConfig()
+            case .cardModel(let cardModel):
+                return cardModel.config
+            case .cardId:
+                return nil
+            }
+        }
+
         var cardId: String {
             switch self {
             case .cardInfo(let cardInfo):
