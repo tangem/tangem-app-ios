@@ -45,6 +45,8 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     @Published var notificationInput: NotificationViewInput?
 
+    private(set) var canSelectWallet: Bool = false
+
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
         return blockchain?.canHandleTokens ?? false
@@ -74,6 +76,16 @@ final class AddCustomTokenViewModel: ObservableObject {
             .sorted(by: \.displayName)
     }
 
+    private var availableWallets: [UserWallet] {
+        userWalletRepository.models
+            .filter {
+                $0.isMultiWallet
+            }
+            .map {
+                $0.userWallet
+            }
+    }
+
     private unowned let coordinator: AddCustomTokenRoutable
 
     init(
@@ -82,6 +94,7 @@ final class AddCustomTokenViewModel: ObservableObject {
     ) {
         self.settings = settings
         self.coordinator = coordinator
+        self.canSelectWallet = availableWallets.count > 1
 
         let selectedUserWallet = userWalletRepository.selectedModel?.userWallet
         selectedWalletName = selectedUserWallet?.name ?? ""
@@ -126,16 +139,8 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func didTapWalletSelector() {
-        let userWallets = userWalletRepository.models
-            .filter {
-                $0.isMultiWallet
-            }
-            .map {
-                $0.userWallet
-            }
-
         coordinator.openWalletSelector(
-            userWallets: userWallets,
+            userWallets: availableWallets,
             currentUserWalletId: selectedUserWalletId
         )
     }
