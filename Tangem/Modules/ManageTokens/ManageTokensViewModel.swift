@@ -119,10 +119,8 @@ private extension ManageTokensViewModel {
 
                 updateAlreadyExistTokenUserList()
 
-                cacheExistListCoinId.forEach { coinId in
-                    self.tokenViewModels.filter { $0.id == coinId }.forEach {
-                        $0.action = self.actionType(for: coinId)
-                    }
+                tokenViewModels.forEach {
+                    $0.action = self.actionType(for: $0.id)
                 }
             }
             .store(in: &bag)
