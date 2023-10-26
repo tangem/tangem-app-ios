@@ -638,6 +638,7 @@
 		DA7859E12AB0451F004FAE04 /* GenerateAddressesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */; };
 		DA798E3D2A6FC3B3009BC25C /* SalesDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA798E3C2A6FC3B3009BC25C /* SalesDetails.swift */; };
 		DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */; };
+		DA8A342C2AEA8CE8007AF772 /* AddCustomTokenNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8A342B2AEA8CE8007AF772 /* AddCustomTokenNotificationEvent.swift */; };
 		DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
@@ -1896,6 +1897,7 @@
 		DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesView.swift; sourceTree = "<group>"; };
 		DA798E3C2A6FC3B3009BC25C /* SalesDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesDetails.swift; sourceTree = "<group>"; };
 		DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeSignType.swift; sourceTree = "<group>"; };
+		DA8A342B2AEA8CE8007AF772 /* AddCustomTokenNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNotificationEvent.swift; sourceTree = "<group>"; };
 		DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchGradientViews.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
@@ -3215,6 +3217,7 @@
 				B012A1182AA5CDE00079BAB4 /* NotificationButtonActionType.swift */,
 				B0D622FD2A9E33E5001FA044 /* SingleTokenNotificationManager.swift */,
 				B05DD9642A9F12A700B24ED9 /* TokenNotificationEvent.swift */,
+				DA8A342B2AEA8CE8007AF772 /* AddCustomTokenNotificationEvent.swift */,
 				B01299442AA8560E00E7BA43 /* MultiWalletNotificationManager.swift */,
 			);
 			path = NotificationManagers;
@@ -7089,6 +7092,7 @@
 				65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				B0DE006C2A431BA6005A77D4 /* LocalizationIconParser.swift in Sources */,
+				DA8A342C2AEA8CE8007AF772 /* AddCustomTokenNotificationEvent.swift in Sources */,
 				B04CD33E29122C64001EA84A /* ReferralViewModel.swift in Sources */,
 				DA7046142AAA17E500808FA8 /* ManageTokensItemView.swift in Sources */,
 				DCBC944B2993F3420050BC35 /* AnalyticsStorageKey.swift in Sources */,
