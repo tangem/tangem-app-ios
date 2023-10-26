@@ -144,6 +144,8 @@
 "custom_token_token_symbol_input_title_old" = "代幣符號";
 "custom_token_validation_error_already_added" = "此代幣/網路已被加入";
 "custom_token_validation_error_not_found" = "請注意代幣可以被任何人創造。小心詐騙";
+"custom_token_validation_error_not_found_description" = "Be aware of adding scam tokens, they can cost nothing";
+"custom_token_validation_error_not_found_title" = "Note that tokens can be created by anyone";
 "details_chat" = "交談";
 "details_manage_security_access_code" = "訪問密碼";
 "details_manage_security_access_code_description" = "在掃描卡之前，您必須提交正確的訪問密碼";
