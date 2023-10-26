@@ -120,13 +120,11 @@ private struct ItemSelectorRow: View {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
 private struct TextInputWithTitle: View {
-    var title: String
-    var placeholder: String
-    var text: Binding<String>
-    var keyboardType: UIKeyboardType
-    var height: CGFloat = 60
+    let title: String
+    let placeholder: String
+    let text: Binding<String>
+    let keyboardType: UIKeyboardType
     let isEnabled: Bool
     let isLoading: Bool
     var error: Error?
@@ -142,7 +140,7 @@ private struct TextInputWithTitle: View {
             }
 
             HStack(spacing: 0) {
-                CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 15, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
+                CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.textPrimary1 : UIColor.textDisabled, font: UIFonts.Regular.subheadline, placeholder: placeholder, isEnabled: isEnabled)
                     .opacity(isLoading ? 0 : 1)
                     .overlay(skeleton, alignment: .leading)
 
