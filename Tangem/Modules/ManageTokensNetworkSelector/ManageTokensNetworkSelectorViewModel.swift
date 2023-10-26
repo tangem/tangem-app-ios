@@ -35,16 +35,14 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Implementation
 
+    let settingsFactory = ManageTokensSettingsFactory()
+
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private var tokenItems: [TokenItem]
+    private var settings: ManageTokensSettings?
 
     private var userTokensManager: UserTokensManager? {
         userWalletRepository.selectedModel?.userTokensManager
-    }
-
-    private var settings: ManageTokensSettings {
-        let factory = ManageTokensSettingsFactory()
-        return factory.make(from: userWalletRepository.selectedModel)
     }
 
     // MARK: - Private Properties
@@ -56,6 +54,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     init(tokenItems: [TokenItem], coordinator: ManageTokensNetworkSelectorCoordinator) {
         self.coordinator = coordinator
         self.tokenItems = tokenItems
+
+        settings = settingsFactory.make(from: userWalletRepository.selectedModel)
 
         fillSelectorItemsFromTokenItems()
     }
@@ -198,6 +198,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
 private extension ManageTokensNetworkSelectorViewModel {
     func tryTokenAvailable(_ tokenItem: TokenItem) throws {
+        guard let settings = settings else {
+            return
+        }
+
         guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
             throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
         }
