@@ -252,8 +252,10 @@ final class MainViewModel: ObservableObject {
                         return
                     }
                     removePages(with: userWalletIds)
-                case .selected:
-                    break
+                case .selected(_, let reason):
+                    if reason == .inserted {
+                        recreatePages()
+                    }
                 case .replaced:
                     recreatePages()
                 }
