@@ -9,8 +9,18 @@
 import Foundation
 
 struct TokenActionListBuilder {
-    func buildActionsForButtonsList(canShowSwap: Bool) -> [TokenActionType] {
-        var actions: [TokenActionType] = [.buy, .send, .receive, .sell]
+    func buildActionsForButtonsList(canShowBuySell: Bool, canShowSwap: Bool) -> [TokenActionType] {
+        var actions: [TokenActionType] = []
+        if canShowBuySell {
+            actions.append(.buy)
+        }
+
+        actions.append(contentsOf: [.send, .receive])
+
+        if canShowBuySell {
+            actions.append(.sell)
+        }
+
         if canShowSwap {
             actions.append(.exchange)
         }
