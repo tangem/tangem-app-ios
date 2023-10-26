@@ -58,7 +58,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private let coinId: String
     private let tokenItems: [TokenItem]
-    private weak var delegate: ManageTokensNetworkSelectorViewModelDelegate?
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
     // MARK: - Init
@@ -66,12 +65,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     init(
         coinId: String,
         tokenItems: [TokenItem],
-        delegate: ManageTokensNetworkSelectorViewModelDelegate?,
         coordinator: ManageTokensNetworkSelectorCoordinator
     ) {
         self.coinId = coinId
         self.tokenItems = tokenItems
-        self.delegate = delegate
         self.coordinator = coordinator
 
         fillSelectorItemsFromTokenItems()
@@ -81,10 +78,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func onAppear() {
         currentWalletName = userWalletRepository.selectedModel?.name ?? ""
-    }
-
-    func onDisappear() {
-        delegate?.tokenItemsDidUpdate(by: coinId)
     }
 
     func selectWalletActionDidTap() {
