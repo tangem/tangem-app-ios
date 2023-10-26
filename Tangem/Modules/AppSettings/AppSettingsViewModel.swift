@@ -35,20 +35,20 @@ class AppSettingsViewModel: ObservableObject {
     var isSavingWallet: Bool {
         get { AppSettings.shared.saveUserWallets }
         set {
+            AppSettings.shared.saveUserWallets = newValue
             withAnimation {
                 objectWillChange.send()
             }
-            AppSettings.shared.saveUserWallets = newValue
         }
     }
 
     var isSavingAccessCodes: Bool {
         get { AppSettings.shared.saveAccessCodes }
         set {
+            AppSettings.shared.saveAccessCodes = newValue
             withAnimation {
                 objectWillChange.send()
             }
-            AppSettings.shared.saveAccessCodes = newValue
         }
     }
 
