@@ -190,9 +190,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingRemove = []
         
         userWalletRepository.setSelectedUserWalletId(userWalletId, reason: .userSelected)
-
         settings = settingsFactory.make(from: userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }))
-
         fillSelectorItemsFromTokenItems()
     }
 }
