@@ -187,7 +187,7 @@ extension CommonUserTokensManager: UserTokensManager {
             removeInternal($0, derivationPath: derivationPath, shouldUpload: false)
         }
 
-        addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
+        addInternal(itemsToAdd, derivationPath: derivationPath, shouldUpload: false)
         userTokenListManager.upload()
     }
 
