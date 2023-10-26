@@ -1,5 +1,5 @@
 //
-//  SensitiveTextVisibilityService.swift
+//  SensitiveTextVisibilityViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,9 @@ import UIKit
 import Combine
 import CoreMotion
 
-class SensitiveTextVisibilityService: ObservableObject {
+class SensitiveTextVisibilityViewModel: ObservableObject {
+    static let shared = SensitiveTextVisibilityViewModel()
+
     @Published var informationHiddenBalancesViewModel: InformationHiddenBalancesViewModel?
     @Published private(set) var isHidden: Bool
     private lazy var manager: CMMotionManager = {
@@ -24,7 +26,7 @@ class SensitiveTextVisibilityService: ObservableObject {
     private var previousIsFaceDown = false
     private var bag: Set<AnyCancellable> = []
 
-    init() {
+    private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
         bind()
     }
@@ -34,13 +36,13 @@ class SensitiveTextVisibilityService: ObservableObject {
     }
 }
 
-extension SensitiveTextVisibilityService: InformationHiddenBalancesRoutable {
+extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
     func closeInformationHiddenBalancesSheet() {
         informationHiddenBalancesViewModel = nil
     }
 }
 
-private extension SensitiveTextVisibilityService {
+private extension SensitiveTextVisibilityViewModel {
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
         UINotificationFeedbackGenerator().notificationOccurred(.success)
