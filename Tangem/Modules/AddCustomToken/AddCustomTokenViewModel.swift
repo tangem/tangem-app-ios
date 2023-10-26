@@ -309,7 +309,10 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func validateEnteredContractAddress() throws {
-        guard !contractAddress.isEmpty else {
+        guard
+            selectedBlockchainSupportsTokens,
+            !contractAddress.isEmpty
+        else {
             return
         }
 
