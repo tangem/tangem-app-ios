@@ -103,6 +103,7 @@ struct SupportedBlockchains {
             .octa,
             .chia(testnet: false),
             .ducatus,
+            .near(testnet: false),
         ]
     }
 
@@ -130,6 +131,7 @@ struct SupportedBlockchains {
             .cosmos(testnet: true),
             .octa,
             .chia(testnet: true),
+            .near(testnet: true),
         ]
     }
 }
