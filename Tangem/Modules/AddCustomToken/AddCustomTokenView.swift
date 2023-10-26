@@ -23,6 +23,7 @@ struct AddCustomTokenView: View {
                 Text(Localization.customTokenSubtitle)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, 38)
                     .padding(.bottom, 22)
 
                 VStack(spacing: 14) {
@@ -81,7 +82,7 @@ struct AddCustomTokenView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.vertical, 4)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
@@ -100,7 +101,7 @@ private struct ItemSelectorRow: View {
     let selectedItem: String?
 
     var body: some View {
-        HStack(spacing: 17) {
+        HStack(spacing: 16) {
             Text(title)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -141,7 +142,7 @@ private struct TextInputWithTitle: View {
             }
 
             HStack(spacing: 0) {
-                CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
+                CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 15, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
                     .opacity(isLoading ? 0 : 1)
                     .overlay(skeleton, alignment: .leading)
 
