@@ -90,7 +90,8 @@ private extension ManageTokensViewModel {
             }
             .store(in: &bag)
 
-        let publishers = userWalletRepository.models
+        // Used for update state generateAddressesViewModel property
+        let pendingDerivationsCountPublishers = userWalletRepository.models
             .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
                 if let derivationManager = model.userTokensManager.derivationManager {
                     return derivationManager.pendingDerivationsCount
@@ -101,10 +102,28 @@ private extension ManageTokensViewModel {
                 return nil
             }
 
-        Publishers.MergeMany(publishers)
+        Publishers.MergeMany(pendingDerivationsCountPublishers)
             .receiveValue { [weak self] id, count in
                 self?.pendingDerivationCountByWalletId[id] = count
                 self?.updateGenerateAddressesViewModel()
+            }
+            .store(in: &bag)
+
+        // Used for update state actionType tokenViewModels list property
+        let userTokensPublishers = userWalletRepository.models
+            .map { $0.userTokenListManager.userTokensPublisher }
+
+        Publishers.MergeMany(userTokensPublishers)
+            .receiveValue { [weak self] value in
+                guard let self = self else { return }
+
+                updateAlreadyExistTokenUserList()
+
+                cacheExistListCoinId.forEach { coinId in
+                    self.tokenViewModels.filter { $0.id == coinId }.forEach {
+                        $0.action = self.actionType(for: coinId)
+                    }
+                }
             }
             .store(in: &bag)
     }
@@ -170,17 +189,5 @@ private extension ManageTokensViewModel {
             totalWalletNumber: userWalletRepository.userWallets.count,
             didTapGenerate: {}
         )
-    }
-}
-
-// MARK: - ManageTokensNetworkSelectorViewModelDelegate
-
-extension ManageTokensViewModel: ManageTokensNetworkSelectorViewModelDelegate {
-    func tokenItemsDidUpdate(by coinId: String) {
-        updateAlreadyExistTokenUserList()
-
-        tokenViewModels.filter { $0.id == coinId }.forEach {
-            $0.action = actionType(for: coinId)
-        }
     }
 }
