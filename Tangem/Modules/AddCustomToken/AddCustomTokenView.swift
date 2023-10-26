@@ -26,11 +26,13 @@ struct AddCustomTokenView: View {
                     .padding(.bottom, 22)
 
                 VStack(spacing: 14) {
-                    Button(action: viewModel.didTapWalletSelector) {
-                        ItemSelectorRow(title: Localization.manageTokensNetworkSelectorWallet, selectedItem: viewModel.selectedWalletName)
+                    if viewModel.canSelectWallet {
+                        Button(action: viewModel.didTapWalletSelector) {
+                            ItemSelectorRow(title: Localization.manageTokensNetworkSelectorWallet, selectedItem: viewModel.selectedWalletName)
+                        }
+                        .background(Colors.Background.action)
+                        .cornerRadiusContinuous(14)
                     }
-                    .background(Colors.Background.action)
-                    .cornerRadiusContinuous(14)
 
                     Button(action: viewModel.didTapNetworkSelector) {
                         ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
