@@ -9,12 +9,18 @@
 import Foundation
 
 struct ManageTokensSettingsFactory {
-    func make(from userWalletModel: UserWalletModel?) -> ManageTokensSettings {
+    func make(from userWalletModel: UserWalletModel?) -> ManageTokensSettings? {
         guard let userWalletModel = userWalletModel else {
-            return empty()
+            return nil
         }
 
+        let settings: ManageTokensSettings = make(from: userWalletModel)
+        return settings
+    }
+
+    func make(from userWalletModel: UserWalletModel) -> ManageTokensSettings {
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
         supportedBlockchains.remove(.ducatus)
 
@@ -28,16 +34,5 @@ struct ManageTokensSettingsFactory {
         )
 
         return settings
-    }
-
-    private func empty() -> ManageTokensSettings {
-        .init(
-            supportedBlockchains: [],
-            hdWalletsSupported: false,
-            longHashesSupported: false,
-            derivationStyle: nil,
-            shouldShowLegacyDerivationAlert: false,
-            existingCurves: []
-        )
     }
 }
