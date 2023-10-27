@@ -55,7 +55,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
             derivationStyle: userWalletModel.config.derivationStyle,
             shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: userWalletModel.userWallet.card.walletCurves
+            existingCurves: userWalletModel.config.walletCurves
         )
 
         return settings
@@ -211,7 +211,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
         userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
 
-        userWalletRepository.setSelectedUserWalletId(userWalletId, reason: .userSelected)
         fillSelectorItemsFromTokenItems()
     }
 }
