@@ -41,21 +41,21 @@ struct AddCustomTokenView: View {
                     .background(Colors.Background.action)
                     .cornerRadiusContinuous(14)
 
-                    if viewModel.canEnterTokenDetails {
+                    if viewModel.selectedBlockchainSupportsTokens {
                         VStack(spacing: 0) {
                             TextInputWithTitle(title: Localization.customTokenContractAddressInputTitle, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: false, error: viewModel.contractAddressError)
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: viewModel.isLoading)
+                            TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitle, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: viewModel.isLoading)
+                            TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitle, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: viewModel.isLoading)
+                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: true, isLoading: viewModel.isLoading)
                         }
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(14)
