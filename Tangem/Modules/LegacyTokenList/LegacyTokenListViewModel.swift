@@ -289,9 +289,9 @@ private extension LegacyTokenListViewModel {
     func mapToCoinViewModel(coinModel: CoinModel) -> LegacyCoinViewModel {
         let currencyItems = coinModel.items.enumerated().map { index, item in
             LegacyCoinItemViewModel(
-                tokenItem: item,
+                tokenItem: item.tokenItem,
                 isReadonly: isReadonlyMode,
-                isSelected: bindSelection(item),
+                isSelected: bindSelection(item.tokenItem),
                 isCopied: bindCopy(),
                 position: .init(with: index, total: coinModel.items.count)
             )
