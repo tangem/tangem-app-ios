@@ -52,20 +52,20 @@ protocol UndoToastSettings {
     var title: String { get }
 }
 
-#Preview("light") {
-    VStack {
-        UndoToastView(settings: BalanceHiddenToastType.hidden) {}
+struct UndoToastView_Preview: PreviewProvider {
+    static var previews: some View {
+        VStack {
+            UndoToastView(settings: BalanceHiddenToastType.hidden) {}
 
-        UndoToastView(settings: BalanceHiddenToastType.shown) {}
+            UndoToastView(settings: BalanceHiddenToastType.shown) {}
+        }
+        .preferredColorScheme(.light)
+        
+        VStack {
+            UndoToastView(settings: BalanceHiddenToastType.hidden) {}
+
+            UndoToastView(settings: BalanceHiddenToastType.shown) {}
+        }
+        .preferredColorScheme(.dark)
     }
-    .preferredColorScheme(.light)
-}
-
-#Preview("dark") {
-    VStack {
-        UndoToastView(settings: BalanceHiddenToastType.hidden) {}
-
-        UndoToastView(settings: BalanceHiddenToastType.shown) {}
-    }
-    .preferredColorScheme(.dark)
 }
