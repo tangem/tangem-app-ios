@@ -60,7 +60,7 @@ struct UndoToastView_Preview: PreviewProvider {
             UndoToastView(settings: BalanceHiddenToastType.shown) {}
         }
         .preferredColorScheme(.light)
-        
+
         VStack {
             UndoToastView(settings: BalanceHiddenToastType.hidden) {}
 
