@@ -44,4 +44,8 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
         coordinator.start(with: .init(tokenItems: tokenItems))
         networkSelectorCoordinator = coordinator
     }
+
+    func openAddCustomToken() {
+        // [REDACTED_TODO_COMMENT]
+    }
 }
