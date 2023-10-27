@@ -113,6 +113,7 @@
 "common_transactions" = "Транзакции";
 "common_transfer" = "Перевод";
 "common_understand" = "Я понял";
+"common_undo" = "Отменить";
 "common_unreachable" = "Недоступно";
 "common_warning" = "Предупреждение";
 "common_yes" = "Да";
@@ -417,6 +418,8 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
+"toast_balance_hidden" = "Баланс скрыт";
+"toast_balance_shown" = "Баланс показан";
 "token_details_choose_address" = "Выберите адрес";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
