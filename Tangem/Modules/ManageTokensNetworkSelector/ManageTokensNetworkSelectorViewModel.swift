@@ -42,8 +42,25 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private var userWalletModel: UserWalletModel?
 
     private var settings: ManageTokensSettings? {
-        let factory = ManageTokensSettingsFactory()
-        return factory.make(from: userWalletModel)
+        guard let userWalletModel = userWalletModel else {
+            return nil
+        }
+
+        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+
+        var supportedBlockchains = userWalletModel.config.supportedBlockchains
+        supportedBlockchains.remove(.ducatus)
+
+        let settings = ManageTokensSettings(
+            supportedBlockchains: supportedBlockchains,
+            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
+            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
+            derivationStyle: userWalletModel.config.derivationStyle,
+            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
+            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
+        )
+
+        return settings
     }
 
     private var userTokensManager: UserTokensManager? {
