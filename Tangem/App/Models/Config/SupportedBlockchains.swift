@@ -104,7 +104,7 @@ struct SupportedBlockchains {
             .octa,
             .chia(testnet: false),
             .ducatus,
-            .near(testnet: false),
+            .near(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
@@ -132,7 +132,7 @@ struct SupportedBlockchains {
             .cosmos(testnet: true),
             .octa,
             .chia(testnet: true),
-            .near(testnet: true),
+            .near(curve: ed25519Curve(for: version), testnet: true),
         ]
     }
 
