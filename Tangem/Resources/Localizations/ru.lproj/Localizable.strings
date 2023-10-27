@@ -418,8 +418,8 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
-"toast_balance_hidden" = "Баланс скрыт";
-"toast_balance_shown" = "Баланс показан";
+"toast_balances_hidden" = "Балансы скрыты";
+"toast_balances_shown" = "Балансы показаны";
 "token_details_choose_address" = "Выберите адрес";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
