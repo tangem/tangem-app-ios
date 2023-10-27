@@ -35,8 +35,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Implementation
 
-    private let settingsFactory = ManageTokensSettingsFactory()
-
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private var tokenItems: [TokenItem]
     private var userWalletModel: UserWalletModel?
