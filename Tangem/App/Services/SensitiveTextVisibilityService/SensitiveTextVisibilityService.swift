@@ -24,6 +24,7 @@ class SensitiveTextVisibilityService: ObservableObject {
     private let operationQueue = OperationQueue()
     private var previousIsFaceDown = false
     private var bag: Set<AnyCancellable> = []
+    private var toast: Toast<UndoToastView>?
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
@@ -44,6 +45,24 @@ class SensitiveTextVisibilityService: ObservableObject {
 }
 
 private extension SensitiveTextVisibilityService {
+    // MARK: - Toast
+
+    func presentToast() {
+        let type: BalanceHiddenToastType = isHidden ? .hidden : .shown
+        let toastView = UndoToastView(settings: type) { [weak self] in
+            self?.toggleVisibility()
+            self?.dismissToast()
+        }
+
+        toast = Toast(view: toastView)
+        toast?.present(layout: .bottom(padding: 80), type: .temporary())
+    }
+
+    func dismissToast() {
+        toast?.dismiss(animated: false)
+        toast = nil
+    }
+
     func bind() {
         NotificationCenter.default
             .publisher(for: UIApplication.didEnterBackgroundNotification)
@@ -115,6 +134,10 @@ private extension SensitiveTextVisibilityService {
 
         if previousIsFaceDown, !isFaceDown {
             toggleVisibility()
+
+            DispatchQueue.main.async {
+                self.presentToast()
+            }
         }
 
         previousIsFaceDown = isFaceDown
