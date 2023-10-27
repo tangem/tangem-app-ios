@@ -106,9 +106,9 @@ extension WarningEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
-            return .white
+            return .primary
         default:
-            return .gray
+            return .secondary
         }
     }
 
