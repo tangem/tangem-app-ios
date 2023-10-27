@@ -33,31 +33,29 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     @Published var contractAddressError: Error?
 
-    var canEnterTokenDetails: Bool {
-        selectedBlockchainSupportsTokens
+    var selectedBlockchainSupportsTokens: Bool {
+        let blockchain = try? enteredBlockchain()
+        return blockchain?.canHandleTokens ?? false
     }
 
     var showDerivationPaths: Bool {
         settings.hdWalletsSupported && selectedBlockchainNetworkId != nil
     }
 
-    var selectedDerivationOption: AddCustomTokenDerivationOption?
-
     @Published var notificationInput: NotificationViewInput?
 
+    private(set) var selectedDerivationOption: AddCustomTokenDerivationOption?
     private(set) var canSelectWallet: Bool = false
-
-    private var selectedBlockchainSupportsTokens: Bool {
-        let blockchain = try? enteredBlockchain()
-        return blockchain?.canHandleTokens ?? false
-    }
-
     private var selectedUserWalletId: Data?
-
-    private var bag: Set<AnyCancellable> = []
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var didLogScreenAnalytics = false
     private var foundStandardToken: CoinModel?
+    #warning("DONT USE LEGACY SETTINGS")
+    private var settings: LegacyManageTokensSettings
+    private var bag: Set<AnyCancellable> = []
+
+    private unowned let coordinator: AddCustomTokenRoutable
+
     private var userTokensManager: UserTokensManager? {
         userWalletRepository
             .models
@@ -66,8 +64,6 @@ final class AddCustomTokenViewModel: ObservableObject {
             }?
             .userTokensManager
     }
-
-    private var settings: LegacyManageTokensSettings
 
     private var supportedBlockchains: [Blockchain] {
         Array(settings.supportedBlockchains)
@@ -87,8 +83,6 @@ final class AddCustomTokenViewModel: ObservableObject {
             }
     }
 
-    private unowned let coordinator: AddCustomTokenRoutable
-
     init(
         settings: LegacyManageTokensSettings,
         coordinator: AddCustomTokenRoutable
@@ -102,6 +96,13 @@ final class AddCustomTokenViewModel: ObservableObject {
         selectedUserWalletId = selectedUserWallet?.userWalletId
 
         bind()
+    }
+    
+    func onAppear() {
+        if !didLogScreenAnalytics {
+            Analytics.log(.customTokenScreenOpened)
+            didLogScreenAnalytics = true
+        }
     }
 
     func createToken() {
@@ -134,13 +135,6 @@ final class AddCustomTokenViewModel: ObservableObject {
         closeModule()
     }
 
-    func onAppear() {
-        if !didLogScreenAnalytics {
-            Analytics.log(.customTokenScreenOpened)
-            didLogScreenAnalytics = true
-        }
-    }
-
     func didTapWalletSelector() {
         coordinator.openWalletSelector(
             userWallets: availableWallets,
@@ -150,7 +144,8 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     func setSelectedWallet(userWalletId: Data) {
         guard
-            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }) else {
+            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }) 
+        else {
             return
         }
 
@@ -172,7 +167,9 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func setSelectedNetwork(networkId: String) {
-        guard let blockchain = settings.supportedBlockchains.first(where: { $0.networkId == networkId }) else {
+        guard
+            let blockchain = settings.supportedBlockchains.first(where: { $0.networkId == networkId })
+        else {
             return
         }
 
@@ -186,8 +183,8 @@ final class AddCustomTokenViewModel: ObservableObject {
     func didTapDerivationSelector() {
         guard
             let selectedDerivationOption,
-            let derivationStyle = settings.derivationStyle,
             let selectedBlockchain = try? self.enteredBlockchain(),
+            let derivationStyle = settings.derivationStyle,
             let defaultDerivationPath = selectedBlockchain.derivationPath(for: derivationStyle)
         else {
             return
