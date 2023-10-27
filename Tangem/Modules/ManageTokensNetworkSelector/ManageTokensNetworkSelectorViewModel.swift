@@ -39,7 +39,12 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private var tokenItems: [TokenItem]
-    private var settings: ManageTokensSettings?
+    private var userWalletModel: UserWalletModel?
+
+    private var settings: ManageTokensSettings? {
+        let factory = ManageTokensSettingsFactory()
+        return factory.make(from: userWalletModel)
+    }
 
     private var userTokensManager: UserTokensManager? {
         userWalletRepository.selectedModel?.userTokensManager
@@ -55,7 +60,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coordinator = coordinator
         self.tokenItems = tokenItems
 
-        settings = settingsFactory.make(from: userWalletRepository.selectedModel)
+        userWalletModel = userWalletRepository.models.first
 
         fillSelectorItemsFromTokenItems()
     }
@@ -189,7 +194,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd = []
         pendingRemove = []
 
-        settings = settingsFactory.make(from: userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId }))
+        userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
 
         userWalletRepository.setSelectedUserWalletId(userWalletId, reason: .userSelected)
         fillSelectorItemsFromTokenItems()
