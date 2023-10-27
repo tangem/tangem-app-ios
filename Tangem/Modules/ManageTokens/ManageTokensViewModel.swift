@@ -172,7 +172,7 @@ private extension ManageTokensViewModel {
             // [REDACTED_TODO_COMMENT]
             break
         case .add, .edit:
-            coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items)
+            coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items.map { $0.tokenItem })
         }
     }
 
