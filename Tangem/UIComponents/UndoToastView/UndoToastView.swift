@@ -19,10 +19,10 @@ struct UndoToastView: View {
                 titleView
 
                 Rectangle()
-                    .frame(width: 0.5, height: 21)
+                    .frame(width: 0.5, height: 12)
                     .foregroundColor(Colors.Stroke.secondary)
 
-                Text("Undo")
+                Text(Localization.commonUndo)
                     .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
             }
             .padding(.horizontal, 14)
@@ -68,14 +68,14 @@ enum BalanceHiddenToastType: UndoToastSettings {
     var title: String {
         switch self {
         case .hidden:
-            return "Balance hidden"
+            return Localization.toastBalancesHidden
         case .shown:
-            return "Balance shown"
+            return Localization.toastBalancesShown
         }
     }
 }
 
-#Preview {
+#Preview("light") {
     VStack {
         UndoToastView(settings: BalanceHiddenToastType.hidden) {}
 
@@ -84,7 +84,7 @@ enum BalanceHiddenToastType: UndoToastSettings {
     .preferredColorScheme(.light)
 }
 
-#Preview {
+#Preview("dark") {
     VStack {
         UndoToastView(settings: BalanceHiddenToastType.hidden) {}
 
