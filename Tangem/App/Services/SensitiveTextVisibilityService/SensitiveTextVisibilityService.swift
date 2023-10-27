@@ -120,3 +120,26 @@ private extension SensitiveTextVisibilityService {
         previousIsFaceDown = isFaceDown
     }
 }
+
+enum BalanceHiddenToastType: UndoToastSettings {
+    case hidden
+    case shown
+
+    var image: ImageType {
+        switch self {
+        case .hidden:
+            return Assets.crossedEyeIcon
+        case .shown:
+            return Assets.eyeIconMini
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .hidden:
+            return Localization.toastBalancesHidden
+        case .shown:
+            return Localization.toastBalancesShown
+        }
+    }
+}
