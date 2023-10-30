@@ -72,7 +72,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func unlockAllWallets() {
-        Analytics.log(.buttonUnlockAllWithFaceID)
+        Analytics.log(.myWalletsButtonUnlockAllWithFaceID)
 
         userWalletRepository.unlock(with: .biometry) { [weak self] result in
             switch result {
@@ -128,7 +128,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             return
         }
 
-        Analytics.log(.buttonEditWalletTapped)
+        Analytics.log(.myWalletsButtonEditWalletTapped)
 
         let alert = UIAlertController(title: Localization.userWalletListRenamePopupTitle, message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
@@ -159,7 +159,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func showDeletionConfirmation(_ userWalletId: Data) {
-        Analytics.log(.buttonDeleteWalletTapped)
+        Analytics.log(.myWalletsButtonDeleteWalletTapped)
 
         showingDeleteConfirmation = true
         userWalletIdToBeDeleted = userWalletId
