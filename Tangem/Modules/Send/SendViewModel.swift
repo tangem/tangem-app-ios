@@ -29,20 +29,25 @@ final class SendViewModel: ObservableObject {
     var title: String {
         step.name
     }
-
-    @Published var destination: String = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
-    @Published var fee: String = "Fast 🐰"
-
-    // MARK: - Dependencies
-
-    private unowned let coordinator: SendRoutable
-    private let sendModel: SendModel // private
     
     var sendAmountInput: SendAmountInput {
         sendModel
     }
+    
+    var sendDestinationInput: SendDestinationInput {
+        sendModel
+    }
+    
+    var sendFeeInput: SendFeeInput {
+        sendModel
+    }
 
-    var bag: Set<AnyCancellable> = []
+
+    // MARK: - Dependencies
+
+    private unowned let coordinator: SendRoutable
+    private let sendModel: SendModel
+    private var bag: Set<AnyCancellable> = []// remove?
 
     init(
         coordinator: SendRoutable
@@ -56,6 +61,10 @@ final class SendViewModel: ObservableObject {
                 print("!!!", s)
             }
             .store(in: &bag)
+        
+        sendModel.amountText = "100"
+        sendModel.destinationText = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
+        sendModel.feeText = "Fast 🐰"
     }
 
     func next() {
