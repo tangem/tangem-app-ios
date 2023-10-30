@@ -36,7 +36,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
-    private var tokenItems: [TokenItem]
 
     private var userTokensManager: UserTokensManager? {
         userWalletRepository.selectedModel?.userTokensManager
@@ -57,13 +56,20 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Properties
 
+    private let coinId: String
+    private let tokenItems: [TokenItem]
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
     // MARK: - Init
 
-    init(tokenItems: [TokenItem], coordinator: ManageTokensNetworkSelectorCoordinator) {
-        self.coordinator = coordinator
+    init(
+        coinId: String,
+        tokenItems: [TokenItem],
+        coordinator: ManageTokensNetworkSelectorCoordinator
+    ) {
+        self.coinId = coinId
         self.tokenItems = tokenItems
+        self.coordinator = coordinator
 
         fillSelectorItemsFromTokenItems()
     }
@@ -72,10 +78,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func onAppear() {
         currentWalletName = userWalletRepository.selectedModel?.name ?? ""
-    }
-
-    func onDisappear() {
-        saveChanges()
     }
 
     func selectWalletActionDidTap() {
@@ -156,6 +158,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                 pendingAdd.remove(tokenItem)
             }
         }
+
+        saveChanges()
     }
 
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
