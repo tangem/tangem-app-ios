@@ -74,8 +74,22 @@ struct SendSummaryView: View {
             })
             
             Spacer()
+                        
+            Button(action: { } ) {
+                Text("Send")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.black)
+                    .cornerRadius(10)
+            }
+            .animation(nil, value: UUID())
+            .transaction { transaction in
+                transaction.animation = nil
+                transaction.disablesAnimations = true
+            }
         }
-        .padding()
+        .padding(.horizontal)
     }
 }
 
