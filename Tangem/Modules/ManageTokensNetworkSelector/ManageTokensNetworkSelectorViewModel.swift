@@ -36,29 +36,37 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
+    private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
+    
+    private var tokenItems: [TokenItem]
+    private let coinId: String
+
+    private var userWalletModel: UserWalletModel?
+
+    private var settings: ManageTokensSettings? {
+        guard let userWalletModel = userWalletModel else {
+            return nil
+        }
+
+        var supportedBlockchains = userWalletModel.config.supportedBlockchains
+        supportedBlockchains.remove(.ducatus)
+        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
+
+        let settings = ManageTokensSettings(
+            supportedBlockchains: supportedBlockchains,
+            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
+            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
+            derivationStyle: userWalletModel.config.derivationStyle,
+            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
+            existingCurves: userWalletModel.config.walletCurves
+        )
+
+        return settings
+    }
 
     private var userTokensManager: UserTokensManager? {
         userWalletRepository.selectedModel?.userTokensManager
     }
-
-    private var settings: Settings {
-        let selectedModel = userWalletRepository.selectedModel
-
-        return .init(
-            supportedBlockchains: selectedModel?.config.supportedBlockchains ?? [],
-            hdWalletsSupported: selectedModel?.userWallet.isHDWalletAllowed ?? false,
-            longHashesSupported: selectedModel?.longHashesSupported ?? false,
-            derivationStyle: nil,
-            shouldShowLegacyDerivationAlert: selectedModel?.shouldShowLegacyDerivationAlert ?? false,
-            existingCurves: selectedModel?.card.walletCurves ?? []
-        )
-    }
-
-    // MARK: - Private Properties
-
-    private let coinId: String
-    private let tokenItems: [TokenItem]
-    private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
     // MARK: - Init
 
@@ -70,6 +78,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
+
+        userWalletModel = userWalletRepository.models.first
 
         fillSelectorItemsFromTokenItems()
     }
@@ -201,7 +211,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd = []
         pendingRemove = []
 
-        userWalletRepository.setSelectedUserWalletId(userWalletId, reason: .userSelected)
+        userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
+
         fillSelectorItemsFromTokenItems()
     }
 }
@@ -210,6 +221,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
 private extension ManageTokensNetworkSelectorViewModel {
     func tryTokenAvailable(_ tokenItem: TokenItem) throws {
+        guard let settings = settings else {
+            return
+        }
+
         guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
             throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
         }
@@ -313,19 +328,6 @@ private extension ManageTokensNetworkSelectorViewModel {
                 }
             )
         }
-    }
-}
-
-// MARK: - Settings
-
-private extension ManageTokensNetworkSelectorViewModel {
-    struct Settings {
-        let supportedBlockchains: Set<Blockchain>
-        let hdWalletsSupported: Bool
-        let longHashesSupported: Bool
-        let derivationStyle: DerivationStyle?
-        let shouldShowLegacyDerivationAlert: Bool
-        let existingCurves: [EllipticCurve]
     }
 }
 
