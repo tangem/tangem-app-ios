@@ -22,7 +22,7 @@ struct UndoToastView: View {
                     .frame(width: 0.5, height: 12)
                     .foregroundColor(Colors.Stroke.secondary)
 
-                Text(Localization.commonUndo)
+                Text(Localization.toastUndo)
                     .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
             }
             .padding(.horizontal, 14)
