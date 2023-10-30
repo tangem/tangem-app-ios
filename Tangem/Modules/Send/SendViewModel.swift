@@ -62,6 +62,12 @@ final class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
         
+        sendModel.$amount
+            .sink { amount in
+                print("New amount", amount)
+            }
+            .store(in: &bag)
+        
         sendModel.amountText = "100"
         sendModel.destinationText = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
         sendModel.feeText = "Fast 🐰"
