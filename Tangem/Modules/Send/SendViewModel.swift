@@ -34,9 +34,9 @@ final class SendViewModel: ObservableObject {
         step == .summary
     }
 
-    @Published var amountText: String = ""
-    @Published var destination: String = ""
-    @Published var fee: String = ""
+    @Published var amountText: String = "100,00 USDT"
+    @Published var destination: String = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
+    @Published var fee: String = "Fast 🐰"
 
     // MARK: - Dependencies
 
@@ -51,9 +51,9 @@ final class SendViewModel: ObservableObject {
 
     func next() {
         if let nextStep = step.nextStep {
-            withAnimation(.easeOut) {
+//            withAnimation() {
                 step = nextStep
-            }
+//            }
         }
     }
 
@@ -66,7 +66,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func didTapSummary(step: SendStep) {
-        withAnimation(.easeOut) {
+        withAnimation(.easeOut(duration: 0.15)) {
             self.step = step
         }
     }

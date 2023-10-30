@@ -39,6 +39,7 @@ struct SendSummaryView: View {
                         VStack(alignment: .leading) {
                             HStack {
                                 Text(sendViewModel.destination)
+                                    .lineLimit(1)
                                     .foregroundStyle(.black)
                                 Spacer()
                             }
