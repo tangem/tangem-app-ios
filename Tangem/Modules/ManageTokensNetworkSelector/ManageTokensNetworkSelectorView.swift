@@ -31,7 +31,6 @@ struct ManageTokensNetworkSelectorView: View {
         .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
-        .onDisappear(perform: viewModel.onDisappear)
     }
 
     private var walletSelectorContent: some View {
