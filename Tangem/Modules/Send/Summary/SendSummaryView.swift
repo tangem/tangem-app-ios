@@ -23,7 +23,7 @@ struct SendSummaryView: View {
                     .overlay(
                         VStack {
                             HStack {
-                                Text(sendViewModel.amountText)
+                                Text(sendViewModel.sendAmountInput.amountText)
                                     .foregroundStyle(.black)
                                 Spacer()
                             }
