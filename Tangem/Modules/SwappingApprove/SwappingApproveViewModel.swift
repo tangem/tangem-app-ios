@@ -29,7 +29,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let transactionSender: SwappingTransactionSender
-    private let swappingInteractor: SwappingInteractor
+    private unowned let swappingInteractor: SwappingInteractor
     private let fiatRatesProvider: FiatRatesProviding
     private unowned let coordinator: SwappingApproveRoutable
 
