@@ -22,6 +22,8 @@ struct SendFeeView: View {
             .border(Color.blue, width: 5)
             .matchedGeometryEffect(id: "fee", in: namespace)
 
+            Lorem()
+            
             Spacer()
 
             Button(action: {}, label: {
