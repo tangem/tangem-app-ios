@@ -30,10 +30,6 @@ final class SendViewModel: ObservableObject {
         step.name
     }
 
-    var showSendButton: Bool {
-        step == .summary
-    }
-
     @Published var amountText: String = "100,00 USDT"
     @Published var destination: String = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
     @Published var fee: String = "Fast 🐰"
