@@ -8,10 +8,15 @@
 import Foundation
 import SwiftUI
 
+protocol SendDestinationInput {
+    var destinationText: String { get set }
+    var destinationTextBinding: Binding<String> { get }
+}
+
 class SendDestinationViewModel {
     var destination: Binding<String>
 
-    init(destination: Binding<String>) {
-        self.destination = destination
+    init(input: SendDestinationInput) {
+        self.destination = input.destinationTextBinding
     }
 }
