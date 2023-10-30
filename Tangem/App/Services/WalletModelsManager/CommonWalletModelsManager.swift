@@ -36,20 +36,6 @@ class CommonWalletModelsManager {
                 self?.updateWalletModels(with: managers)
             }
             .store(in: &bag)
-
-        walletModelsPublisher
-            .removeDuplicates(by: { old, new in
-                // Pass when a WalletModel was added and ignore when deleted
-                return old.count > new.count
-            })
-            .withWeakCaptureOf(self)
-            .flatMapLatest { obj, walletModels in
-                let currencyIds = walletModels.compactMap { $0.tokenItem.currencyId }
-
-                return obj.quotesRepository.loadQuotes(currencyIds: currencyIds)
-            }
-            .sink()
-            .store(in: &bag)
     }
 
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {

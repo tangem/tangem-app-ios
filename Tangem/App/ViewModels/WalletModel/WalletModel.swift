@@ -323,8 +323,9 @@ class WalletModel {
 
         updateWalletModelSubscription = walletManager
             .updatePublisher()
+            .combineLatest(loadQuotes())
             .receive(on: updateQueue)
-            .sink { [weak self] newState in
+            .sink { [weak self] newState, _ in
                 guard let self else { return }
 
                 AppLog.shared.debug("🔄 Finished common update for \(self)")
@@ -377,6 +378,24 @@ class WalletModel {
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?._state.value = state
         }
+    }
+
+    // MARK: - Load Quotes
+
+    private func loadQuotes() -> AnyPublisher<Void, Never> {
+        guard let currencyId = tokenItem.currencyId else {
+            return .just(output: ())
+        }
+
+        AppLog.shared.debug("🔄 Start loading quotes for \(self)")
+
+        return quotesRepository
+            .loadQuotes(currencyIds: [currencyId])
+            .handleEvents(receiveOutput: { [weak self] _ in
+                AppLog.shared.debug("🔄 Finished loading quotes for \(String(describing: self))")
+            })
+            .mapToVoid()
+            .eraseToAnyPublisher()
     }
 
     func startUpdatingTimer() {
