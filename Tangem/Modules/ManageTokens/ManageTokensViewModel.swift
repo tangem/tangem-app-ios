@@ -32,7 +32,6 @@ final class ManageTokensViewModel: ObservableObject {
     private unowned let coordinator: ManageTokensRoutable
 
     private lazy var loader = setupListDataLoader()
-    private let generateAddressProvider = ManageTokensGenerateAddressProvider()
 
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
@@ -193,8 +192,16 @@ private extension ManageTokensViewModel {
                     return
                 }
 
-                generateAddressProvider.performDeriveIfNeeded(with: userWalletId)
+                generateAddressByWalletPendingDerivations(by: userWalletId)
             }
         )
+    }
+
+    private func generateAddressByWalletPendingDerivations(by userWalletId: UserWalletId) {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+            return
+        }
+
+        userWalletModel.userTokensManager.deriveIfNeeded(completion: { _ in })
     }
 }
