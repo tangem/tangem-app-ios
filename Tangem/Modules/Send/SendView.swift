@@ -65,9 +65,9 @@ struct SendView: View {
         case .amount:
             SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: viewModel.sendAmountInput))
         case .destination:
-            SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(destination: $viewModel.destination))
+            SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: viewModel.sendDestinationInput))
         case .fee:
-            SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(fee: $viewModel.fee))
+            SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: viewModel.sendFeeInput))
         case .summary:
             SendSummaryView(namespace: namespace, sendViewModel: viewModel)
         }
