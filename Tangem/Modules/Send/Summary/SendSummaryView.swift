@@ -19,7 +19,7 @@ struct SendSummaryView: View {
             }, label: {
                 Color.clear
                     .frame(maxHeight: height)
-                    .border(Color.red, width: 5)
+                    .border(Color.green, width: 5)
                     .overlay(
                         VStack {
                             HStack {
