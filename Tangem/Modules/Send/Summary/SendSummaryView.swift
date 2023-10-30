@@ -42,7 +42,7 @@ struct SendSummaryView: View {
                     .overlay(
                         VStack(alignment: .leading) {
                             HStack {
-                                Text(sendViewModel.destination)
+                                Text(sendViewModel.sendDestinationInput.destinationText)
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                                 Spacer()
@@ -63,7 +63,7 @@ struct SendSummaryView: View {
                     .overlay(
                         VStack(alignment: .leading) {
                             HStack {
-                                Text(sendViewModel.fee)
+                                Text(sendViewModel.sendFeeInput.feeText)
                                     .foregroundStyle(.black)
                                 Spacer()
                             }
