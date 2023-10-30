@@ -22,7 +22,7 @@ struct SendDestinationView: View {
             .matchedGeometryEffect(id: "dest", in: namespace)
 
             Lorem()
-            
+
             Spacer()
 
             Button(action: {}, label: {
