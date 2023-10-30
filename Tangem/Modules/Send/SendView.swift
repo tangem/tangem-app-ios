@@ -20,6 +20,7 @@ struct SendView: View {
         VStack {
             Text(viewModel.title)
                 .font(.title2)
+                .animation(nil)
 
             currentPage()
 
@@ -55,6 +56,11 @@ struct SendView: View {
                             .cornerRadius(10)
                     }
                 }
+            }
+            .animation(nil, value: UUID())
+            .transaction { transaction in
+                transaction.animation = nil
+                transaction.disablesAnimations = true
             }
             .padding(.horizontal)
 
