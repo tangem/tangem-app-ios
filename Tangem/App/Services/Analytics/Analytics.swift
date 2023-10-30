@@ -215,7 +215,7 @@ private extension Analytics.Event {
         switch self {
         case .introductionProcessButtonScanCard,
              .buttonScanCard,
-             .buttonScanNewCardMyWallets,
+             .myWalletsButtonScanNewCardMyWallets,
              .buttonScanNewCardSettings,
              .buttonCardSignIn,
              .cardWasScanned,
