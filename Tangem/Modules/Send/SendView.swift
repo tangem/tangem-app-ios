@@ -35,7 +35,7 @@ struct SendView: View {
                                 .cornerRadius(10)
                         })
                     }
-                    
+
                     if viewModel.showNextButton {
                         Button(action: viewModel.next) {
                             Text("Next")

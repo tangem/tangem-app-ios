@@ -23,7 +23,7 @@ struct SendFeeView: View {
             .matchedGeometryEffect(id: "fee", in: namespace)
 
             Lorem()
-            
+
             Spacer()
 
             Button(action: {}, label: {
