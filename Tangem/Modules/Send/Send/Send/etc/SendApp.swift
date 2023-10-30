@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct SendApp: App {
+    let viewModel = SendViewModel(coordinator: MockSendRoutable())
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SendView(viewModel: viewModel)
         }
     }
 }

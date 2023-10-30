@@ -6,7 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
 
 class SendFeeViewModel {
-    init() {}
+    var fee: Binding<String>
+
+    init(fee: Binding<String>) {
+        self.fee = fee
+    }
 }
