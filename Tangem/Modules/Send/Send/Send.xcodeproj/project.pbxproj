@@ -71,7 +71,6 @@
 		DAE42CDC2AEFB05C00A1087C /* Send */ = {
 			isa = PBXGroup;
 			children = (
-				DAFB14D92AEFCE7B00CA3D7E /* etc */,
 				DAFB14C32AEFC8CE00CA3D7E /* Amount */,
 				DAFB14CB2AEFCB7A00CA3D7E /* Destination */,
 				DAFB14CE2AEFCB7A00CA3D7E /* Fee */,
@@ -80,6 +79,7 @@
 				DAE42CEB2AEFB14B00A1087C /* SendViewModel.swift */,
 				DAFB14D72AEFCE4700CA3D7E /* SendStep.swift */,
 				DAE42CED2AEFB14B00A1087C /* SendRoutable.swift */,
+				DAFB14D92AEFCE7B00CA3D7E /* etc */,
 			);
 			path = Send;
 			sourceTree = "<group>";
