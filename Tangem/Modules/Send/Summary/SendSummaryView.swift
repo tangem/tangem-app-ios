@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct SendSummaryView: View {
-    let height = 100.0
+    let height = 150.0
     let namespace: Namespace.ID
     let sendViewModel: SendViewModel
-
+    
     var body: some View {
         VStack(spacing: 20) {
             Button(action: {
@@ -22,13 +22,17 @@ struct SendSummaryView: View {
                     .border(Color.red, width: 5)
                     .overlay(
                         VStack {
-                            Text(sendViewModel.amountText)
-                                .foregroundStyle(.primary)
+                            HStack {
+                                Text(sendViewModel.amountText)
+                                    .foregroundStyle(.black)
+                                Spacer()
+                            }
                         }
+                            .padding()
                     )
                     .matchedGeometryEffect(id: "amount", in: namespace)
             })
-
+            
             Button(action: {
                 sendViewModel.didTapSummary(step: .destination)
             }, label: {
@@ -44,12 +48,12 @@ struct SendSummaryView: View {
                                 Spacer()
                             }
                         }
-                        .padding()
+                            .padding()
                     )
                     .matchedGeometryEffect(id: "dest", in: namespace)
-
+                
             })
-
+            
             Button(action: {
                 sendViewModel.didTapSummary(step: .fee)
             }, label: {
@@ -64,11 +68,11 @@ struct SendSummaryView: View {
                                 Spacer()
                             }
                         }
-                        .padding()
+                            .padding()
                     )
                     .matchedGeometryEffect(id: "fee", in: namespace)
             })
-
+            
             Spacer()
         }
         .padding()
