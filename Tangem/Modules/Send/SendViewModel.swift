@@ -66,7 +66,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func didTapSummary(step: SendStep) {
-        withAnimation(.easeOut(duration: 0.15)) {
+        withAnimation(.easeOut(duration: 0.3)) {
             self.step = step
         }
     }
