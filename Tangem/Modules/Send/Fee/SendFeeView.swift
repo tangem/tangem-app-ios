@@ -30,7 +30,7 @@ struct SendFeeView: View {
                 Text("set")
             })
         }
-        .padding()
+        .padding(.horizontal)
     }
 }
 
