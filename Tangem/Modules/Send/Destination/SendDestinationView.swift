@@ -21,6 +21,8 @@ struct SendDestinationView: View {
             .border(Color.purple, width: 5)
             .matchedGeometryEffect(id: "dest", in: namespace)
 
+            Lorem()
+            
             Spacer()
 
             Button(action: {}, label: {
