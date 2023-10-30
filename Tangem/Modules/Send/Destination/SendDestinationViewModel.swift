@@ -17,6 +17,6 @@ class SendDestinationViewModel {
     var destination: Binding<String>
 
     init(input: SendDestinationInput) {
-        self.destination = input.destinationTextBinding
+        destination = input.destinationTextBinding
     }
 }
