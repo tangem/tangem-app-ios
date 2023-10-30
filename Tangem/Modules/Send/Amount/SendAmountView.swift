@@ -35,7 +35,7 @@ struct SendAmountView: View {
                     .keyboardType(.decimalPad)
             }
             .padding()
-            .border(Color.red, width: 5)
+            .border(Color.green, width: 5)
             .matchedGeometryEffect(id: "amount", in: namespace)
             
             Lorem()
