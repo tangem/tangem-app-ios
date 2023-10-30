@@ -70,7 +70,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.detailsScreenOpened)
+        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: tokenItem.currencySymbol])
     }
 
     func onDidAppear() {
