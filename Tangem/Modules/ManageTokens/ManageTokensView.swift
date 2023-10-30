@@ -62,18 +62,13 @@ struct ManageTokensView: View {
     }
 
     @ViewBuilder private var overlay: some View {
-        // [REDACTED_TODO_COMMENT]
-        VStack {
-            Spacer()
+        if let generateAddressViewModel = viewModel.generateAddressesViewModel {
+            VStack {
+                Spacer()
 
-            // [REDACTED_TODO_COMMENT]
-            GenerateAddressesView(
-                numberOfNetworks: 3,
-                currentWalletNumber: 1,
-                totalWalletNumber: 2,
-                didTapGenerate: {}
-            )
-            .padding(.zero)
+                // [REDACTED_TODO_COMMENT]
+                GenerateAddressesView(viewModel: generateAddressViewModel)
+            }
         }
     }
 }
