@@ -46,7 +46,7 @@ struct SendAmountView: View {
                 Text("set")
             })
         }
-        .padding()
+        .padding(.horizontal)
     }
 }
 
