@@ -11,7 +11,7 @@ struct SendSummaryView: View {
     let height = 150.0
     let namespace: Namespace.ID
     let sendViewModel: SendViewModel
-    
+
     var body: some View {
         VStack(spacing: 20) {
             Button(action: {
@@ -28,11 +28,11 @@ struct SendSummaryView: View {
                                 Spacer()
                             }
                         }
-                            .padding()
+                        .padding()
                     )
                     .matchedGeometryEffect(id: "amount", in: namespace)
             })
-            
+
             Button(action: {
                 sendViewModel.didTapSummary(step: .destination)
             }, label: {
@@ -48,12 +48,12 @@ struct SendSummaryView: View {
                                 Spacer()
                             }
                         }
-                            .padding()
+                        .padding()
                     )
                     .matchedGeometryEffect(id: "dest", in: namespace)
-                
+
             })
-            
+
             Button(action: {
                 sendViewModel.didTapSummary(step: .fee)
             }, label: {
@@ -68,14 +68,14 @@ struct SendSummaryView: View {
                                 Spacer()
                             }
                         }
-                            .padding()
+                        .padding()
                     )
                     .matchedGeometryEffect(id: "fee", in: namespace)
             })
-            
+
             Spacer()
-                        
-            Button(action: { } ) {
+
+            Button(action: {}) {
                 Text("Send")
                     .frame(maxWidth: .infinity)
                     .padding()
