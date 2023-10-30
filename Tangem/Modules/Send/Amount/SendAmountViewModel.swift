@@ -8,10 +8,15 @@
 import Foundation
 import SwiftUI
 
+protocol SendAmountInput {
+    var amountText: String { get set }
+    var amountTextBinding: Binding<String> { get }
+}
+
 class SendAmountViewModel {
     var amountText: Binding<String>
 
-    init(amountText: Binding<String>) {
-        self.amountText = amountText
+    init(input: SendAmountInput) {
+        amountText = input.amountTextBinding
     }
 }
