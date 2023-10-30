@@ -37,11 +37,11 @@ struct ManageTokensView: View {
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
 
+                addCutomTokenView
+
                 ForEach(viewModel.tokenViewModels) {
                     ManageTokensItemView(viewModel: $0)
                 }
-                
-                addCutomToken
 
                 if viewModel.hasNextPage {
                     HStack(alignment: .center) {
@@ -53,22 +53,8 @@ struct ManageTokensView: View {
         }
     }
 
-    private var addCutomToken: some View {
-        HStack(spacing: 12) {
-            CircleIconView(image: Assets.plusMini.image)
-                .padding(.trailing, 12)
-
-            Text(Localization.addCustomTokenTitle)
-                .lineLimit(1)
-                .layoutPriority(-1)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
-
-            Spacer()
-        }
-        .frame(height: 68)
-        .padding(.horizontal, 32)
-        .contentShape(Rectangle())
-        .onTapGesture {
+    private var addCutomTokenView: some View {
+        AddCustomTokenManageTokensItemView {
             viewModel.addCustomTokenDidTapAction()
         }
     }
