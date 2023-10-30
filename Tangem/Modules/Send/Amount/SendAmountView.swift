@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct SendAmountView: View {
     let namespace: Namespace.ID
 
