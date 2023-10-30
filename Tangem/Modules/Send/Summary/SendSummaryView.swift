@@ -9,34 +9,75 @@ import SwiftUI
 
 struct SendSummaryView: View {
     let height = 100.0
-
+    let namespace: Namespace.ID
     let sendViewModel: SendViewModel
 
     var body: some View {
         VStack(spacing: 20) {
-            Color.red
-                .frame(maxHeight: height)
-                .onTapGesture {
-                    sendViewModel.didTapSummary(step: .amount)
-                }
+            Button(action: {
+                sendViewModel.didTapSummary(step: .amount)
+            }, label: {
+                Color.clear
+                    .frame(maxHeight: height)
+                    .border(Color.red, width: 5)
+                    .overlay(
+                        VStack {
+                            Text(sendViewModel.amountText)
+                                .foregroundStyle(.primary)
+                        }
+                    )
+                    .matchedGeometryEffect(id: "amount", in: namespace)
+            })
 
-            Color.purple
-                .frame(maxHeight: height)
-                .onTapGesture {
-                    sendViewModel.didTapSummary(step: .destination)
-                }
+            Button(action: {
+                sendViewModel.didTapSummary(step: .destination)
+            }, label: {
+                Color.clear
+                    .frame(maxHeight: height)
+                    .border(Color.purple, width: 5)
+                    .overlay(
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text(sendViewModel.destination)
+                                    .foregroundStyle(.black)
+                                Spacer()
+                            }
+                        }
+                        .padding()
+                    )
+                    .matchedGeometryEffect(id: "dest", in: namespace)
 
-            Color.blue
-                .frame(maxHeight: height)
-                .onTapGesture {
-                    sendViewModel.didTapSummary(step: .fee)
-                }
+            })
+
+            Button(action: {
+                sendViewModel.didTapSummary(step: .fee)
+            }, label: {
+                Color.clear
+                    .frame(maxHeight: height)
+                    .border(Color.blue, width: 5)
+                    .overlay(
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text(sendViewModel.fee)
+                                    .foregroundStyle(.black)
+                                Spacer()
+                            }
+                        }
+                        .padding()
+                    )
+                    .matchedGeometryEffect(id: "fee", in: namespace)
+            })
 
             Spacer()
         }
+        .padding()
     }
 }
 
+private enum S {
+    @Namespace static var namespace // <- This
+}
+
 #Preview {
-    SendSummaryView(sendViewModel: SendViewModel(coordinator: MockSendRoutable()))
+    SendSummaryView(namespace: S.namespace, sendViewModel: SendViewModel(coordinator: MockSendRoutable()))
 }
