@@ -185,19 +185,15 @@ private extension ManageTokensViewModel {
             numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
             totalWalletNumber: userWalletRepository.userWallets.count,
-            didTapGenerate: { [weak self] in
-                guard let self = self else { return }
-
-                guard let userWalletId = pendingDerivationCountByWalletId.first(where: { $0.value > 0 })?.key else {
-                    return
-                }
-
-                generateAddressByWalletPendingDerivations(by: userWalletId)
-            }
+            didTapGenerate: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
         )
     }
 
-    private func generateAddressByWalletPendingDerivations(by userWalletId: UserWalletId) {
+    private func generateAddressByWalletPendingDerivations() {
+        guard let userWalletId = pendingDerivationCountByWalletId.first(where: { $0.value > 0 })?.key else {
+            return
+        }
+
         guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
