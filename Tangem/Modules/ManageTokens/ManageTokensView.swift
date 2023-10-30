@@ -37,11 +37,11 @@ struct ManageTokensView: View {
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
 
-                addCutomTokenView
-
                 ForEach(viewModel.tokenViewModels) {
                     ManageTokensItemView(viewModel: $0)
                 }
+                
+                addCutomTokenView
 
                 if viewModel.hasNextPage {
                     HStack(alignment: .center) {
