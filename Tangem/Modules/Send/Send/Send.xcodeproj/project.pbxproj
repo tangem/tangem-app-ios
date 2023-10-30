@@ -22,6 +22,7 @@
 		DAFB14D62AEFCB7A00CA3D7E /* SendFeeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFB14D02AEFCB7A00CA3D7E /* SendFeeViewModel.swift */; };
 		DAFB14D82AEFCE4700CA3D7E /* SendStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFB14D72AEFCE4700CA3D7E /* SendStep.swift */; };
 		DAFB14DB2AF010B900CA3D7E /* SendModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFB14DA2AF010B900CA3D7E /* SendModel.swift */; };
+		DAFB14DD2AF0162A00CA3D7E /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFB14DC2AF0162A00CA3D7E /* Lorem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 		DAFB14D02AEFCB7A00CA3D7E /* SendFeeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeViewModel.swift; sourceTree = "<group>"; };
 		DAFB14D72AEFCE4700CA3D7E /* SendStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SendStep.swift; path = ../../SendStep.swift; sourceTree = "<group>"; };
 		DAFB14DA2AF010B900CA3D7E /* SendModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SendModel.swift; path = ../../SendModel.swift; sourceTree = "<group>"; };
+		DAFB14DC2AF0162A00CA3D7E /* Lorem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Lorem.swift; path = ../../Lorem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 				DAFB14DA2AF010B900CA3D7E /* SendModel.swift */,
 				DAFB14D72AEFCE4700CA3D7E /* SendStep.swift */,
 				DAE42CED2AEFB14B00A1087C /* SendRoutable.swift */,
+				DAFB14DC2AF0162A00CA3D7E /* Lorem.swift */,
 				DAFB14D92AEFCE7B00CA3D7E /* etc */,
 			);
 			path = Send;
@@ -209,6 +212,7 @@
 				DAE42CE02AEFB05C00A1087C /* ContentView.swift in Sources */,
 				DAFB14C72AEFC8E500CA3D7E /* SendAmountViewModel.swift in Sources */,
 				DAE42CDE2AEFB05C00A1087C /* SendApp.swift in Sources */,
+				DAFB14DD2AF0162A00CA3D7E /* Lorem.swift in Sources */,
 				DAFB14D52AEFCB7A00CA3D7E /* SendFeeView.swift in Sources */,
 				DAE42CF02AEFB14B00A1087C /* SendRoutable.swift in Sources */,
 				DAFB14D22AEFCB7A00CA3D7E /* SendSummaryViewModel.swift in Sources */,
