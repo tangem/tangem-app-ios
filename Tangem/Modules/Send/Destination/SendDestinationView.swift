@@ -29,7 +29,7 @@ struct SendDestinationView: View {
                 Text("set")
             })
         }
-        .padding()
+        .padding(.horizontal)
     }
 }
 
