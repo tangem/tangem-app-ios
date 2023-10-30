@@ -30,25 +30,38 @@ final class SendViewModel: ObservableObject {
         step.name
     }
 
-    @Published var amountText: String = "100,00 USDT"
     @Published var destination: String = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
     @Published var fee: String = "Fast 🐰"
 
     // MARK: - Dependencies
 
     private unowned let coordinator: SendRoutable
+    private let sendModel: SendModel // private
+    
+    var sendAmountInput: SendAmountInput {
+        sendModel
+    }
+
+    var bag: Set<AnyCancellable> = []
 
     init(
         coordinator: SendRoutable
     ) {
         self.coordinator = coordinator
+        sendModel = SendModel()
         step = .amount
+
+        sendModel.$amountText
+            .sink { s in
+                print("!!!", s)
+            }
+            .store(in: &bag)
     }
 
     func next() {
         if let nextStep = step.nextStep {
 //            withAnimation() {
-                step = nextStep
+            step = nextStep
 //            }
         }
     }
