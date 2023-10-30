@@ -24,45 +24,36 @@ struct SendView: View {
 
             currentPage()
 
-            HStack {
-                if viewModel.showBackButton {
-                    Button(action: viewModel.back, label: {
-                        Text("Back")
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.black)
-                            .cornerRadius(10)
-                    })
-                }
-
-                if viewModel.showNextButton {
-                    Button(action: viewModel.next) {
-                        Text("Next")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.black)
-                            .cornerRadius(10)
+            if viewModel.showBackButton || viewModel.showNextButton {
+                HStack {
+                    if viewModel.showBackButton {
+                        Button(action: viewModel.back, label: {
+                            Text("Back")
+                                .padding()
+                                .foregroundColor(.white)
+                                .background(Color.black)
+                                .cornerRadius(10)
+                        })
+                    }
+                    
+                    if viewModel.showNextButton {
+                        Button(action: viewModel.next) {
+                            Text("Next")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .foregroundColor(.white)
+                                .background(Color.black)
+                                .cornerRadius(10)
+                        }
                     }
                 }
-
-                if viewModel.showSendButton {
-                    Button(action: viewModel.send) {
-                        Text("Send")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.black)
-                            .cornerRadius(10)
-                    }
+                .animation(nil, value: UUID())
+                .transaction { transaction in
+                    transaction.animation = nil
+                    transaction.disablesAnimations = true
                 }
+                .padding(.horizontal)
             }
-            .animation(nil, value: UUID())
-            .transaction { transaction in
-                transaction.animation = nil
-                transaction.disablesAnimations = true
-            }
-            .padding(.horizontal)
 
             Color.clear.frame(height: 1)
         }
