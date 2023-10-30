@@ -46,14 +46,14 @@ private extension SensitiveTextVisibilityViewModel {
             self.notifyUser()
         }
     }
-    
+
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
         DispatchQueue.main.async {
             self.isHidden = AppSettings.shared.isHidingSensitiveInformation
         }
     }
-    
+
     func notifyUser() {
         if isHidden,
            AppSettings.shared.shouldHidingSensitiveInformationSheetShowing {
@@ -66,7 +66,7 @@ private extension SensitiveTextVisibilityViewModel {
     func presetInformationBottomSheet() {
         informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
     }
-    
+
     // MARK: - Toast
 
     func presentToast() {
