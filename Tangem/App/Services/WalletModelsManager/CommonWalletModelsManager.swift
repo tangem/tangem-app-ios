@@ -11,8 +11,6 @@ import CombineExt
 import BlockchainSdk
 
 class CommonWalletModelsManager {
-    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
 
