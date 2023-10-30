@@ -113,7 +113,6 @@
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
 "common_understand" = "I understand";
-"common_undo" = "Undo";
 "common_unreachable" = "Unreachable";
 "common_warning" = "Warnung";
 "common_yes" = "Yes";
@@ -420,6 +419,7 @@
 "swapping_token_not_available" = "not available";
 "toast_balances_hidden" = "Balances hidden";
 "toast_balances_shown" = "Balances shown";
+"toast_undo" = "Undo";
 "token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
