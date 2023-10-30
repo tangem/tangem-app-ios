@@ -1,5 +1,5 @@
 //
-//  ToastPresenter.swift
+//  Toast.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
