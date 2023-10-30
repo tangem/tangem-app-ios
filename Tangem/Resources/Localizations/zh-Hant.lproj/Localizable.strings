@@ -113,7 +113,6 @@
 "common_transactions" = "交易";
 "common_transfer" = "Transfer";
 "common_understand" = "我了解";
-"common_undo" = "Undo";
 "common_unreachable" = "無法觸達";
 "common_warning" = "警告";
 "common_yes" = "是";
@@ -420,6 +419,7 @@
 "swapping_token_not_available" = "無法使用";
 "toast_balances_hidden" = "Balances hidden";
 "toast_balances_shown" = "Balances shown";
+"toast_undo" = "Undo";
 "token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "隱藏";
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
