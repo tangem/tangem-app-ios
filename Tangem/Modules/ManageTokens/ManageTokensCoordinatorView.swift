@@ -18,10 +18,10 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 if let model = coordinator.manageTokensViewModel {
                     ManageTokensView(viewModel: model)
                 }
-
-                sheets
             }
             .navigationViewStyle(.stack)
+
+            sheets
         }
     }
 
