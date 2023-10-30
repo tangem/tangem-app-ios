@@ -670,6 +670,11 @@
 		DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF527BE63830027147D /* Web3StoryPage.swift */; };
 		DADD18F82AA7516B0044AA66 /* UITraitCollection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */; };
 		DAE0F05A2A404CCC006074FF /* AwardToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE0F0592A404CCC006074FF /* AwardToken.swift */; };
+		DAE42CCC2AEFAD8200A1087C /* SendCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CC72AEFAD8200A1087C /* SendCoordinator.swift */; };
+		DAE42CCD2AEFAD8200A1087C /* SendCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CC82AEFAD8200A1087C /* SendCoordinatorView.swift */; };
+		DAE42CCE2AEFAD8200A1087C /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CC92AEFAD8200A1087C /* SendView.swift */; };
+		DAE42CCF2AEFAD8200A1087C /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CCA2AEFAD8200A1087C /* SendViewModel.swift */; };
+		DAE42CD02AEFAD8200A1087C /* SendRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CCB2AEFAD8200A1087C /* SendRoutable.swift */; };
 		DAE6F76D2800011400411F45 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6F76C2800011400411F45 /* AppError.swift */; };
 		DAF1EB9B2A9F83EF00467490 /* KingfisherImageProcessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF1EB9A2A9F83EF00467490 /* KingfisherImageProcessors.swift */; };
 		DAF59CC12ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBB2ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift */; };
@@ -1923,6 +1928,11 @@
 		DAC53CF527BE63830027147D /* Web3StoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3StoryPage.swift; sourceTree = "<group>"; };
 		DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITraitCollection+.swift"; sourceTree = "<group>"; };
 		DAE0F0592A404CCC006074FF /* AwardToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AwardToken.swift; sourceTree = "<group>"; };
+		DAE42CC72AEFAD8200A1087C /* SendCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCoordinator.swift; sourceTree = "<group>"; };
+		DAE42CC82AEFAD8200A1087C /* SendCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCoordinatorView.swift; sourceTree = "<group>"; };
+		DAE42CC92AEFAD8200A1087C /* SendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendView.swift; sourceTree = "<group>"; };
+		DAE42CCA2AEFAD8200A1087C /* SendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewModel.swift; sourceTree = "<group>"; };
+		DAE42CCB2AEFAD8200A1087C /* SendRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendRoutable.swift; sourceTree = "<group>"; };
 		DAE6F76C2800011400411F45 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		DAF1EB9A2A9F83EF00467490 /* KingfisherImageProcessors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherImageProcessors.swift; sourceTree = "<group>"; };
 		DAF466A599E954AB0543E190 /* Pods-TangemSwapping.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(alpha).xcconfig"; sourceTree = "<group>"; };
@@ -4666,6 +4676,11 @@
 		DAFC3E002AA8A50000D1013F /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				DAE42CC72AEFAD8200A1087C /* SendCoordinator.swift */,
+				DAE42CC82AEFAD8200A1087C /* SendCoordinatorView.swift */,
+				DAE42CC92AEFAD8200A1087C /* SendView.swift */,
+				DAE42CCA2AEFAD8200A1087C /* SendViewModel.swift */,
+				DAE42CCB2AEFAD8200A1087C /* SendRoutable.swift */,
 				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
 				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
 				DCAB57FD295ECA55005D0F4A /* SendError.swift */,
@@ -7134,6 +7149,7 @@
 				B6EAA5F92A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift in Sources */,
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
+				DAE42CD02AEFAD8200A1087C /* SendRoutable.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
 				EFAD02422A7D5E9100E9B959 /* LegacyTransactionRecord.swift in Sources */,
 				EF6CB17C292E1080001335EA /* SwappingView.swift in Sources */,
@@ -7263,6 +7279,7 @@
 				EF692A482951E7C8001F4B8A /* XCAssets+Generated.swift in Sources */,
 				5DDE22EF2608EFDB008657C6 /* UIViewController+.swift in Sources */,
 				5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */,
+				DAE42CCC2AEFAD8200A1087C /* SendCoordinator.swift in Sources */,
 				EF5769422A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift in Sources */,
 				DC13D03E29DF28140003895C /* OnboardingStepsBuilder.swift in Sources */,
 				DC261CAC292CF56600875E64 /* AuthRoutable.swift in Sources */,
@@ -7270,6 +7287,7 @@
 				EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
 				EF11DD8C293789C60044B33C /* SwappingSuccessViewModel.swift in Sources */,
+				DAE42CCE2AEFAD8200A1087C /* SendView.swift in Sources */,
 				B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */,
 				B06C084D2A73FB4D00D982BC /* MainCoordinatorView.swift in Sources */,
 				EF0F99AE289028F8008B01DF /* AppSettingsRoutable.swift in Sources */,
@@ -7306,6 +7324,7 @@
 				DA4371A62A7D1937006215CA /* LegacyAddCustomTokenView.swift in Sources */,
 				2D788E8A2ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift in Sources */,
 				B0E0AF5D2996488100E52F7B /* TransactionHistoryMapper.swift in Sources */,
+				DAE42CCD2AEFAD8200A1087C /* SendCoordinatorView.swift in Sources */,
 				B0F318FD2A739432009F131E /* UserWalletStubs.swift in Sources */,
 				DC22535928A4FD9C0094F30C /* UserWalletConfigFactory.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
@@ -7397,6 +7416,7 @@
 				B04CD3482912AA61001EA84A /* IconWithMessagePlaceholderView.swift in Sources */,
 				B602752B2A7A651000865EA7 /* ShadowAnimatableModifier.swift in Sources */,
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
+				DAE42CCF2AEFAD8200A1087C /* SendViewModel.swift in Sources */,
 				B6E9A8C52A997B09005CF137 /* MainFooterView.swift in Sources */,
 				EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */,
 				EF8D7814298281F700B67418 /* SwappingModulesFactory.swift in Sources */,
