@@ -17,29 +17,9 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         loadedSwapableTokenItems.eraseToAnyPublisher()
     }
 
-    private let supportedBlockchains: Set<Blockchain> = {
-        let supported: Set<SwappingBlockchain> = [
-            .ethereum,
-            .bsc,
-            .polygon,
-            .optimism,
-            .arbitrum,
-            .gnosis,
-            .avalanche,
-            .fantom,
-        ]
-
-        let mainnetBlockchains = Blockchain.allMainnetCases
-        return supported.compactMap { swappingBlockchain in
-            return mainnetBlockchains.first(where: { $0.networkId == swappingBlockchain.networkId })
-        }.toSet()
-    }()
-
     private var loadedSwapableTokenItems: CurrentValueSubject<[TokenItem: Bool], Never> = .init([:])
 
-    init() {
-        loadedSwapableTokenItems = .init(supportedBlockchains.reduce(into: [TokenItem: Bool]()) { $0[.blockchain($1)] = true })
-    }
+    init() {}
 
     func loadSwapAvailability(for items: [TokenItem], forceReload: Bool) {
         if items.isEmpty {
@@ -47,12 +27,6 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         }
 
         let filteredItemsToRequest = items.filter {
-            // We don't need to load exchangeable state for tokens in blockchains that not supported
-            // So we filter them
-            guard supportedBlockchains.contains($0.blockchain) else {
-                return false
-            }
-
             // If `forceReload` flag is true we need to force reload state for all items
             return loadedSwapableTokenItems.value[$0] == nil || forceReload
         }
@@ -74,17 +48,11 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                     return
                 }
 
-                let loadedTokenItems = models.flatMap { $0.items }
+                let loadedTokenItems = models
+                    .flatMap { $0.items }
+                    .map { ($0.tokenItem, $0.exchangeable) }
 
-                let preparedSwapStates = Dictionary(uniqueKeysWithValues: loadedTokenItems.map {
-                    switch $0 {
-                    case .token(let token, _):
-                        return ($0, token.exchangeable ?? false)
-                    case .blockchain(let blockchain):
-                        return ($0, self.supportedBlockchains.contains(blockchain))
-                    }
-                })
-
+                let preparedSwapStates = Dictionary(uniqueKeysWithValues: loadedTokenItems)
                 loadedSwapableTokenItems.value.merge(preparedSwapStates, uniquingKeysWith: { $1 })
             })
     }
