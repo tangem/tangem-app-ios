@@ -55,6 +55,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
         let item = QueueItem(ids: currencyIds, didLoadPublisher: outputPublisher)
         loadingQueue.send(item)
 
+        // Return the outputPublisher that the requester knew when quotes were loaded
         return outputPublisher.eraseToAnyPublisher()
     }
 }
