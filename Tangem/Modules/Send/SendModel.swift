@@ -12,9 +12,11 @@ class SendModel: ObservableObject {
     @Published var amountText: String = ""
     @Published var destinationText: String = ""
     @Published var feeText: String = ""
+    
+    @Published var amount: Decimal?
 
     var amountTextBinding: Binding<String> {
-        Binding(get: { self.amountText }, set: { self.amountText = $0 })
+        Binding(get: { self.amountText }, set: { self.setAmount($0) })
     }
     
     var destinationTextBinding: Binding<String> {
@@ -27,6 +29,14 @@ class SendModel: ObservableObject {
     
     init() {
         
+    }
+    
+    private func setAmount(_ amountText: String) {
+        if let amount = Decimal(string: amountText, locale: Locale.current) {
+            self.amount = amount
+        } else {
+            self.amount = nil
+        }
     }
 }
 
