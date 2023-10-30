@@ -6,7 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
 
 class SendDestinationViewModel {
-    init() {}
+    var destination: Binding<String>
+
+    init(destination: Binding<String>) {
+        self.destination = destination
+    }
 }
