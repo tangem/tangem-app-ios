@@ -10,12 +10,13 @@ import SwiftUI
 struct SendSummaryView: View {
     let height = 150.0
     let namespace: Namespace.ID
-    let sendViewModel: SendViewModel
+//    let sendViewModel: SendViewModel
+    let viewModel: SendSummaryViewModel
 
     var body: some View {
         VStack(spacing: 20) {
             Button(action: {
-                sendViewModel.didTapSummary(step: .amount)
+                viewModel.didTapSummary(step: .amount)
             }, label: {
                 Color.clear
                     .frame(maxHeight: height)
@@ -23,7 +24,7 @@ struct SendSummaryView: View {
                     .overlay(
                         VStack {
                             HStack {
-                                Text(sendViewModel.sendAmountInput.amountText)
+                                Text(viewModel.input.amountText)
                                     .foregroundStyle(.black)
                                 Spacer()
                             }
@@ -34,7 +35,7 @@ struct SendSummaryView: View {
             })
 
             Button(action: {
-                sendViewModel.didTapSummary(step: .destination)
+                viewModel.didTapSummary(step: .destination)
             }, label: {
                 Color.clear
                     .frame(maxHeight: height)
@@ -42,7 +43,7 @@ struct SendSummaryView: View {
                     .overlay(
                         VStack(alignment: .leading) {
                             HStack {
-                                Text(sendViewModel.sendDestinationInput.destinationText)
+                                Text(viewModel.input.destinationText)
                                     .lineLimit(1)
                                     .foregroundStyle(.black)
                                 Spacer()
@@ -55,7 +56,7 @@ struct SendSummaryView: View {
             })
 
             Button(action: {
-                sendViewModel.didTapSummary(step: .fee)
+                viewModel.didTapSummary(step: .fee)
             }, label: {
                 Color.clear
                     .frame(maxHeight: height)
@@ -63,7 +64,7 @@ struct SendSummaryView: View {
                     .overlay(
                         VStack(alignment: .leading) {
                             HStack {
-                                Text(sendViewModel.sendFeeInput.feeText)
+                                Text(viewModel.input.feeText)
                                     .foregroundStyle(.black)
                                 Spacer()
                             }
@@ -75,7 +76,7 @@ struct SendSummaryView: View {
 
             Spacer()
 
-            Button(action: {}) {
+            Button(action: viewModel.send) {
                 Text("Send")
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -97,6 +98,6 @@ private enum S {
     @Namespace static var namespace // <- This
 }
 
-#Preview {
-    SendSummaryView(namespace: S.namespace, sendViewModel: SendViewModel(coordinator: MockSendRoutable()))
-}
+// #Preview {
+//    SendSummaryView(namespace: S.namespace, sendViewModel: SendViewModel(coordinator: MockSendRoutable()))
+// }
