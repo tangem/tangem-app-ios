@@ -1,5 +1,5 @@
 //
-//  SensitiveTextVisibilityService.swift
+//  SensitiveTextVisibilityViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,9 +11,10 @@ import UIKit
 import Combine
 import CoreMotion
 
-class SensitiveTextVisibilityService: ObservableObject {
-    static let shared = SensitiveTextVisibilityService()
+class SensitiveTextVisibilityViewModel: ObservableObject {
+    static let shared = SensitiveTextVisibilityViewModel()
 
+    @Published var informationHiddenBalancesViewModel: InformationHiddenBalancesViewModel?
     @Published private(set) var isHidden: Bool
     private lazy var manager: CMMotionManager = {
         let manager = CMMotionManager()
@@ -34,17 +35,38 @@ class SensitiveTextVisibilityService: ObservableObject {
     deinit {
         endUpdates()
     }
+}
 
+private extension SensitiveTextVisibilityViewModel {
+    func deviceDidFlipped() {
+        toggleVisibility()
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+        DispatchQueue.main.async {
+            self.notifyUser()
+        }
+    }
+    
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
         DispatchQueue.main.async {
             self.isHidden = AppSettings.shared.isHidingSensitiveInformation
         }
     }
-}
+    
+    func notifyUser() {
+        if isHidden,
+           AppSettings.shared.shouldHidingSensitiveInformationSheetShowing {
+            presetInformationBottomSheet()
+        } else {
+            presentToast()
+        }
+    }
 
-private extension SensitiveTextVisibilityService {
+    func presetInformationBottomSheet() {
+        informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
+    }
+    
     // MARK: - Toast
 
     func presentToast() {
@@ -81,6 +103,16 @@ private extension SensitiveTextVisibilityService {
         AppSettings.shared.$isHidingSensitiveAvailable
             .sink { [weak self] isAvailable in
                 self?.updateAvailability(isAvailable)
+            }
+            .store(in: &bag)
+
+        $informationHiddenBalancesViewModel
+            .sink { [weak self] viewModel in
+                if viewModel == nil {
+                    self?.startUpdates()
+                } else {
+                    self?.endUpdates()
+                }
             }
             .store(in: &bag)
     }
@@ -133,14 +165,18 @@ private extension SensitiveTextVisibilityService {
         let isFaceDown = !faceUpRange.contains(roll) && !isPortrait
 
         if previousIsFaceDown, !isFaceDown {
-            toggleVisibility()
-
-            DispatchQueue.main.async {
-                self.presentToast()
-            }
+            deviceDidFlipped()
         }
 
         previousIsFaceDown = isFaceDown
+    }
+}
+
+// MARK: - InformationHiddenBalancesRoutable
+
+extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
+    func closeInformationHiddenBalancesSheet() {
+        informationHiddenBalancesViewModel = nil
     }
 }
 
