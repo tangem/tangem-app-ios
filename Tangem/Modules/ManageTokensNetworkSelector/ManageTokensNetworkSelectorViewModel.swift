@@ -36,7 +36,11 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
+    private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
+    
     private var tokenItems: [TokenItem]
+    private let coinId: String
+
     private var userWalletModel: UserWalletModel?
 
     private var settings: ManageTokensSettings? {
@@ -44,10 +48,9 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             return nil
         }
 
-        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
-
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
         supportedBlockchains.remove(.ducatus)
+        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
 
         let settings = ManageTokensSettings(
             supportedBlockchains: supportedBlockchains,
@@ -65,15 +68,16 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         userWalletRepository.selectedModel?.userTokensManager
     }
 
-    // MARK: - Private Properties
-
-    private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
-
     // MARK: - Init
 
-    init(tokenItems: [TokenItem], coordinator: ManageTokensNetworkSelectorCoordinator) {
-        self.coordinator = coordinator
+    init(
+        coinId: String,
+        tokenItems: [TokenItem],
+        coordinator: ManageTokensNetworkSelectorCoordinator
+    ) {
+        self.coinId = coinId
         self.tokenItems = tokenItems
+        self.coordinator = coordinator
 
         userWalletModel = userWalletRepository.models.first
 
@@ -84,10 +88,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func onAppear() {
         currentWalletName = userWalletRepository.selectedModel?.name ?? ""
-    }
-
-    func onDisappear() {
-        saveChanges()
     }
 
     func selectWalletActionDidTap() {
@@ -168,6 +168,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                 pendingAdd.remove(tokenItem)
             }
         }
+
+        saveChanges()
     }
 
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
