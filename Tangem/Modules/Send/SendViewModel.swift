@@ -34,6 +34,10 @@ final class SendViewModel: ObservableObject {
         step == .summary
     }
 
+    @Published var amountText: String = ""
+    @Published var destination: String = ""
+    @Published var fee: String = ""
+
     // MARK: - Dependencies
 
     private unowned let coordinator: SendRoutable
@@ -47,18 +51,24 @@ final class SendViewModel: ObservableObject {
 
     func next() {
         if let nextStep = step.nextStep {
-            step = nextStep
+            withAnimation(.easeOut) {
+                step = nextStep
+            }
         }
     }
 
     func back() {
         if let previousStep = step.previousStep {
-            step = previousStep
+            withAnimation(.easeOut) {
+                step = previousStep
+            }
         }
     }
 
     func didTapSummary(step: SendStep) {
-        self.step = step
+        withAnimation(.easeOut) {
+            self.step = step
+        }
     }
 
     func send() {

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SendView: View {
     @ObservedObject private var viewModel: SendViewModel
+    @Namespace var namespace
 
     init(viewModel: SendViewModel) {
         self.viewModel = viewModel
@@ -21,7 +22,6 @@ struct SendView: View {
                 .font(.title2)
 
             currentPage()
-                .padding()
 
             HStack {
                 if viewModel.showBackButton {
@@ -66,13 +66,13 @@ struct SendView: View {
     func currentPage() -> some View {
         switch viewModel.step {
         case .amount:
-            SendAmountView()
+            SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(amountText: $viewModel.amountText))
         case .destination:
-            SendDestinationView()
+            SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(destination: $viewModel.destination))
         case .fee:
-            SendFeeView()
+            SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(fee: $viewModel.fee))
         case .summary:
-            SendSummaryView(sendViewModel: viewModel)
+            SendSummaryView(namespace: namespace, sendViewModel: viewModel)
         }
     }
 }
