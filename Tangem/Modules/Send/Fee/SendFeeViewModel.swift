@@ -17,6 +17,6 @@ class SendFeeViewModel {
     var fee: Binding<String>
 
     init(input: SendFeeInput) {
-        self.fee = input.feeTextBinding
+        fee = input.feeTextBinding
     }
 }
