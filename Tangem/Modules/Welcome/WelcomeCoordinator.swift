@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 
-class WelcomeCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     var dismissAction: Action<Void>
@@ -33,10 +33,6 @@ class WelcomeCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediate
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel? = nil
-
-    // MARK: - Delegates
-
-    weak var nextManageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
 
     // MARK: - Private
 
@@ -95,7 +91,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
@@ -105,7 +100,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
     func openMain(with cardModel: CardViewModel) {
         if FeatureProvider.isAvailable(.mainV2) {
             let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-            coordinator.nextManageTokensBottomSheetDisplayable = self
             let options = MainCoordinator.Options(userWalletModel: cardModel)
             coordinator.start(with: options)
             mainCoordinator = coordinator

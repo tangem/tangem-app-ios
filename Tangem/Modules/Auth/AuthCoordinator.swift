@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class AuthCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+class AuthCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
@@ -28,10 +28,6 @@ class AuthCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDis
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel?
-
-    // MARK: - Delegates
-
-    weak var nextManageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -65,7 +61,6 @@ extension AuthCoordinator: AuthRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
@@ -75,7 +70,6 @@ extension AuthCoordinator: AuthRoutable {
     func openMain(with cardModel: CardViewModel) {
         if FeatureProvider.isAvailable(.mainV2) {
             let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-            coordinator.nextManageTokensBottomSheetDisplayable = self
             let options = MainCoordinator.Options(userWalletModel: cardModel)
             coordinator.start(with: options)
             mainCoordinator = coordinator
