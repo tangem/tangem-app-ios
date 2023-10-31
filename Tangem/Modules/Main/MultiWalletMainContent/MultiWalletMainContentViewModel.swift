@@ -355,8 +355,14 @@ private extension MultiWalletMainContentViewModel {
     func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
         let derivation = blockchainNetwork.derivationPath
         userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
-        
-        Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: tokenItem.currencySymbol])
+
+        Analytics.log(
+            event: .buttonRemoveToken,
+            params: [
+                Analytics.ParameterKey.source: Analytics.CommonSource.main.parameterValue,
+                Analytics.ParameterKey.token: tokenItem.currencySymbol,
+            ]
+        )
     }
 }
 
