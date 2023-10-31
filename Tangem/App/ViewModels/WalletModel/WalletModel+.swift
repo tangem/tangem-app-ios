@@ -18,11 +18,11 @@ extension WalletModel {
         var description: String {
             switch self {
             case .cantSignLongTransactions:
-                return Localization.tokenDetailsTransactionLengthWarning
+                return Localization.warningLongTransactionMessage
             case .hasPendingCoinTx(let symbol):
-                return Localization.tokenDetailsSendBlockedTxFormat(symbol)
+                return Localization.warningSendBlockedPendingTransactionsMessage(symbol)
             case .notEnoughtFeeForTokenTx(let tokenName, let networkName, let coinSymbol, _):
-                return Localization.tokenDetailsSendBlockedFeeFormat(tokenName, networkName, tokenName, networkName, coinSymbol)
+                return Localization.warningSendBlockedFundsForFeeMessage(tokenName, networkName, tokenName, networkName, coinSymbol)
             }
         }
     }
