@@ -37,7 +37,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
-    
+
     private var tokenItems: [TokenItem]
     private let coinId: String
 
