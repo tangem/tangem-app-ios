@@ -24,7 +24,7 @@ struct SendView: View {
 
             currentPage()
 
-            if viewModel.showBackButton || viewModel.showNextButton {
+            if viewModel.showNavigationButtons {
                 HStack {
                     if viewModel.showBackButton {
                         Button(action: viewModel.back, label: {
