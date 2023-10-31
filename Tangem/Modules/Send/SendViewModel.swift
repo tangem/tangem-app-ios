@@ -41,6 +41,10 @@ final class SendViewModel: ObservableObject {
     var sendDestinationInput: SendDestinationInput {
         sendModel
     }
+    
+    var sendDestinationValidator: SendDestinationValidator {
+        sendModel
+    }
 
     var sendFeeInput: SendFeeInput {
         sendModel
