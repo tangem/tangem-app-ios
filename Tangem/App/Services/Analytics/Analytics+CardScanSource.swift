@@ -44,23 +44,12 @@ extension Analytics {
             case .auth:
                 return .scanSourceAuth
             case .main, .mainUnlock:
-                return .scanSourceMain
+                return .sourceMain
             case .myWalletsNewCard, .myWalletsUnlock:
                 return .scanSourceMyWallets
             case .settings:
                 return .scanSourceSettings
             }
-        }
-    }
-}
-
-extension Analytics {
-    enum CommonSource: String {
-        case main
-        case token
-
-        var parameterValue: String {
-            return rawValue.capitalizingFirstLetter()
         }
     }
 }
