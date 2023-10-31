@@ -21,9 +21,9 @@ struct SendAmountView: View {
             .padding()
             .border(Color.green, width: 5)
             .matchedGeometryEffect(id: "amount", in: namespace)
-            
-            Text("Error")
-                .foregroundStyle(viewModel.hasError ? .red : .clear)
+
+            Text(viewModel.amountError ?? " ")
+                .foregroundStyle(.red)
 
             Lorem()
 
