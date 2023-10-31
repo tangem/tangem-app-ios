@@ -62,7 +62,7 @@ final class SwappingViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialSourceCurrency: Currency
-    private let swappingInteractor: SwappingInteractor
+    private unowned let swappingInteractor: SwappingInteractor
     private let swappingDestinationService: SwappingDestinationServicing
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
@@ -155,7 +155,6 @@ final class SwappingViewModel: ObservableObject {
     }
 
     func userDidTapChangeDestinationButton() {
-        Analytics.log(.swapReceiveTokenClicked)
         openTokenListView()
     }
 
@@ -180,6 +179,12 @@ final class SwappingViewModel: ObservableObject {
 
     func didTapWaringRefresh() {
         swappingInteractor.refresh(type: .full)
+    }
+
+    // Workaround iOS 17 a sheet memory leak
+    // https://developer.apple.com/forums/thread/738840
+    func onDisappear() {
+        stopTimer()
     }
 }
 
@@ -731,7 +736,7 @@ private extension SwappingViewModel {
         switch error {
         case let error as SwappingManagerError:
             switch error {
-            case .walletAddressNotFound, .destinationNotFound, .amountNotFound, .gasModelNotFound:
+            case .walletAddressNotFound, .destinationNotFound, .amountNotFound, .gasModelNotFound, .contractAddressNotFound:
                 updateRefreshWarningRowViewModel(message: error.localizedDescription)
             }
         case let error as SwappingProviderError:
