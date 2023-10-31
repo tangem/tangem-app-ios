@@ -66,13 +66,11 @@ enum MainUserWalletPageBuilder: Identifiable {
             Color.clear.frame(height: 0.0)
         case .multiWallet(_, _, let bodyModel):
             makeBottomOverlay(
-                manageTokensViewModel: bodyModel.manageTokensViewModel,
                 footerViewModel: bodyModel.footerViewModel,
                 didScrollToBottom: didScrollToBottom
             )
         case .lockedWallet(_, _, let bodyModel):
             makeBottomOverlay(
-                manageTokensViewModel: bodyModel.manageTokensViewModel,
                 footerViewModel: bodyModel.footerViewModel,
                 didScrollToBottom: didScrollToBottom
             )
@@ -81,18 +79,13 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     private func makeBottomOverlay(
-        manageTokensViewModel: ManageTokensBottomSheetViewModel?,
         footerViewModel: MainFooterViewModel?,
         didScrollToBottom: Bool
     ) -> some View {
         let isMainScreenBottomSheetEnabled = FeatureProvider.isAvailable(.mainScreenBottomSheet)
 
         if isMainScreenBottomSheetEnabled {
-            if manageTokensViewModel != nil {
-                ManageTokensBottomSheetMainFooterView()
-            } else {
-                EmptyMainFooterView()
-            }
+            ManageTokensBottomSheetMainFooterView()
         } else if let viewModel = footerViewModel {
             MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
         } else {
