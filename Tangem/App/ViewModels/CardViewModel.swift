@@ -142,10 +142,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.tou
     }
 
-    var embeddedEntry: StorageEntry? {
-        config.embeddedBlockchain
-    }
-
     var canShowSwapping: Bool {
         !config.getFeatureAvailability(.swapping).isHidden
     }
@@ -220,10 +216,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var userWallet: UserWallet {
         UserWalletFactory().userWallet(from: cardInfo, config: config, userWalletId: userWalletId)
-    }
-
-    var productType: Analytics.ProductType {
-        config.productType
     }
 
     private var isActive: Bool {

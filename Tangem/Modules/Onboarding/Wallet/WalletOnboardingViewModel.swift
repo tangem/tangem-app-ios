@@ -221,7 +221,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
         inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
-            self?.createWalletOnPrimaryCard(using: mnemonic)
+            self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .seedImport(length: mnemonic.mnemonicComponents.count))
         }
 
     lazy var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel? = {
@@ -243,8 +243,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     return
                 }
 
-                self?.walletCreationType = .seedImport
-                self?.createWalletOnPrimaryCard(using: mnemonic)
+                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
             }
         ))
     }()
@@ -303,7 +302,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     @Published private var previewBackupCardsAdded: Int = 0
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
-    private var walletCreationType: WalletCreationType = .privateKey
 
     private let backupService: BackupService
 
@@ -323,6 +321,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         if isFromMain {
             canDisplayCardImage = true
+        }
+
+        if let customOnboardingImage = input.cardInput.config?.customOnboardingImage {
+            self.customOnboardingImage = customOnboardingImage.image
         }
 
         bind()
@@ -412,7 +414,17 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     override func goToNextStep() {
         switch currentStep {
         case .createWallet, .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
-            goToStep(.backupIntro)
+            if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
+                let canSkipBackup = cardModel?.canSkipBackup ?? true
+                if canSkipBackup {
+                    goToStep(with: backupIntroStepIndex)
+                } else {
+                    goToStep(with: backupIntroStepIndex + 1)
+                }
+            } else {
+                // impossible case
+                super.goToNextStep()
+            }
         default:
             super.goToNextStep()
         }
@@ -626,7 +638,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         isMainButtonBusy = true
 
-        createWalletOnPrimaryCard()
+        createWalletOnPrimaryCard(using: nil, walletCreationType: .privateKey)
     }
 
     private func readPrimaryCard() {
@@ -652,7 +664,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             )
     }
 
-    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil) {
+    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, walletCreationType: WalletCreationType) {
         guard let cardInitializer = input.cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
@@ -668,7 +680,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     backupService.setPrimaryCard(primaryCard)
                 }
 
-                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: walletCreationType.analyticsValue])
+                Analytics.log(event: .walletCreatedSuccessfully, params: walletCreationType.params)
                 processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
@@ -738,10 +750,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func backupCard() {
         isMainButtonBusy = true
 
+        // Ring onboarding. Set custom image for first step
+        if let customOnboardingImage = input.cardInput.config?.customScanImage,
+           backupService.currentState == .finalizingPrimaryCard {
+            backupService.config.style.scanTagImage = .image(uiImage: customOnboardingImage.uiImage, verticalOffset: 0)
+        }
+
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
                     backupService.proceedBackup { result in
+
+                        // Ring onboarding. Reset to defaults
+                        self.backupService.config.style.scanTagImage = .genericCard
+
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
@@ -843,7 +865,6 @@ extension WalletOnboardingViewModel {
     private func generateSeedPhrase() {
         do {
             try seedPhraseManager.generateSeedPhrase()
-            walletCreationType = .newSeed
             goToNextStep()
         } catch {
             alert = error.alertBinder
@@ -873,13 +894,19 @@ extension WalletOnboardingViewModel {
     enum WalletCreationType {
         case privateKey
         case newSeed
-        case seedImport
+        case seedImport(length: Int)
 
-        var analyticsValue: Analytics.ParameterValue {
+        var params: [Analytics.ParameterKey: String] {
             switch self {
-            case .privateKey: return .walletCreationTypePrivateKey
-            case .newSeed: return .walletCreationTypeNewSeed
-            case .seedImport: return .walletCreationTypeSeedImport
+            case .privateKey:
+                return [.creationType: Analytics.ParameterValue.walletCreationTypePrivateKey.rawValue]
+            case .newSeed:
+                return [.creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue]
+            case .seedImport(let length):
+                return [
+                    .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
+                    .seedLength: "\(length)",
+                ]
             }
         }
     }
