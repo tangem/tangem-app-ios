@@ -112,7 +112,7 @@ extension CardSettingsCoordinator: ResetToFactoryViewRoutable {
         if userWalletRepository.selectedModel == nil {
             popToRoot()
         } else {
-            dismiss()
+            dismissAction(())
         }
     }
 }
