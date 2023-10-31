@@ -34,39 +34,41 @@ class SendModel: ObservableObject {
     var feeTextBinding: Binding<String> {
         Binding(get: { self.feeText }, set: { self.feeText = $0 })
     }
-    
-    var amountValid: AnyPublisher<Bool, Never> {
-        _amountValid.eraseToAnyPublisher()
+
+    var amountError: AnyPublisher<Error?, Never> {
+        _amountError.eraseToAnyPublisher()
     }
-    
-    private var _amountValid = CurrentValueSubject<Bool, Never>(false)
-    
-    
+
+    private var _amountError = CurrentValueSubject<Error?, Never>(nil)
+
     var destinationError: AnyPublisher<Error?, Never> {
         _destinationError.eraseToAnyPublisher()
     }
-    
+
     private var _destinationError = CurrentValueSubject<Error?, Never>(nil)
-    
+
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> {
         _destinationAdditionalFieldError.eraseToAnyPublisher()
     }
-    
+
     private var _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
-    
 
     init() {
         validateAmount()
-        
     }
 
     func send() {
         print("SEND")
     }
-    
-    
+
     func stepValid(_ step: SendStep) -> AnyPublisher<Bool, Never> {
         switch step {
+        case .amount:
+            return amountError
+                .map {
+                    $0 == nil
+                }
+                .eraseToAnyPublisher()
         case .destination:
             return Publishers.CombineLatest(destinationError, destinationAdditionalFieldError)
                 .map {
@@ -74,45 +76,44 @@ class SendModel: ObservableObject {
                 }
                 .eraseToAnyPublisher()
         default:
-            // TODO
+            // [REDACTED_TODO_COMMENT]
             return Just(true)
                 .eraseToAnyPublisher()
         }
     }
-    
 
     private func setAmount(_ amountText: String) {
         self.amountText = amountText
-        
+
         if let amount = Decimal(string: amountText, locale: Locale.current) {
             self.amount = amount
         } else {
             amount = nil
         }
-        
+
         validateAmount()
     }
-    
+
     private func validateAmount() {
-        let valid: Bool
-        if let amount {
-            let availableAmount: Decimal = 200
-            valid = (amount <= availableAmount)
+        let error: Error?
+        let availableAmount: Decimal = 200
+        if let amount, amount <= availableAmount {
+            error = nil
         } else {
-            valid = false
+            error = SendError.notEnoughMoney
         }
-        self._amountValid.send(valid)
+        _amountError.send(error)
     }
-    
+
     private func setDestination(_ text: String) {
-        self.destinationText = text
+        destinationText = text
         validateDestination()
     }
-    
+
     private func validateDestination() {
         let destination: String?
         let error: Error?
-        if destinationText.hasPrefix("0x") && destinationText.count == 42 {
+        if destinationText.hasPrefix("0x"), destinationText.count == 42 {
             destination = destinationText
             error = nil
         } else {
@@ -120,18 +121,18 @@ class SendModel: ObservableObject {
             error = SendError.invalidAddress
         }
         self.destination = destination
-        self._destinationError.send(error)
+        _destinationError.send(error)
     }
-    
+
     private func setDestinationAdditionalField(_ text: String) {
-        self.destinationAdditionalFieldText = text
+        destinationAdditionalFieldText = text
         validateDestinationAdditionalField()
     }
-    
+
     private func validateDestinationAdditionalField() {
         let destinationAdditionalField: String?
         let error: Error?
-        if (destinationAdditionalFieldText.isEmpty || destinationAdditionalFieldText.allSatisfy({ $0.isNumber })) {
+        if destinationAdditionalFieldText.isEmpty || destinationAdditionalFieldText.allSatisfy({ $0.isNumber }) {
             destinationAdditionalField = destinationAdditionalFieldText
             error = nil
         } else {
@@ -139,11 +140,12 @@ class SendModel: ObservableObject {
             error = SendError.invalidDestinationAdditionalField
         }
         self.destinationAdditionalField = destinationAdditionalField
-        self._destinationAdditionalFieldError.send(error)
+        _destinationAdditionalFieldError.send(error)
     }
 }
 
 enum SendError {
+    case notEnoughMoney
     case invalidAddress
     case invalidDestinationAdditionalField
 }
@@ -151,6 +153,8 @@ enum SendError {
 extension SendError: LocalizedError {
     var errorDescription: String? {
         switch self {
+        case .notEnoughMoney:
+            return "Not enough money"
         case .invalidAddress:
             return "Invalid address"
         case .invalidDestinationAdditionalField:
