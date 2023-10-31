@@ -13,8 +13,10 @@ extension Analytics {
         case welcome
         case auth
         case main
+        case mainUnlock
         case myWalletsNewCard
         case myWalletsUnlock
+        case settings
 
         var cardScanButtonEvent: Analytics.Event {
             switch self {
@@ -25,9 +27,13 @@ extension Analytics {
             case .main:
                 return .buttonScanCard
             case .myWalletsNewCard:
-                return .buttonScanNewCard
+                return .myWalletsButtonScanNewCardMyWallets
             case .myWalletsUnlock:
                 return .walletUnlockTapped
+            case .settings:
+                return .buttonScanNewCardSettings
+            case .mainUnlock:
+                return .buttonUnlockWithCardScan
             }
         }
 
@@ -37,10 +43,12 @@ extension Analytics {
                 return .scanSourceWelcome
             case .auth:
                 return .scanSourceAuth
-            case .main:
+            case .main, .mainUnlock:
                 return .scanSourceMain
             case .myWalletsNewCard, .myWalletsUnlock:
                 return .scanSourceMyWallets
+            case .settings:
+                return .scanSourceSettings
             }
         }
     }

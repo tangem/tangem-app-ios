@@ -27,6 +27,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     @Published var isNavBarVisible: Bool = false
     @Published var alert: AlertBinder?
     @Published var cardImage: Image?
+    @Published var customOnboardingImage: Image?
     @Published var secondImage: Image?
 
     private var confettiFired: Bool = false
@@ -363,6 +364,8 @@ extension OnboardingViewModel {
     }
 
     func closeOnboarding() {
+        // reset services before exit
+        userWalletRepository.updateSelection()
         coordinator.closeOnboarding()
     }
 

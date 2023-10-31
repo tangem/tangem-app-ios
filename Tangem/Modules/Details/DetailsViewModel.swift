@@ -292,7 +292,7 @@ extension DetailsViewModel {
     }
 
     func addOrScanNewUserWallet() {
-        Analytics.beginLoggingCardScan(source: .myWalletsNewCard)
+        Analytics.beginLoggingCardScan(source: .settings)
         isScanning = true
 
         userWalletRepository.addOrScan { [weak self] result in
