@@ -1,5 +1,5 @@
 //
-//  SensitiveTextVisibilityService.swift
+//  SensitiveTextVisibilityViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,9 +11,10 @@ import UIKit
 import Combine
 import CoreMotion
 
-class SensitiveTextVisibilityService: ObservableObject {
-    static let shared = SensitiveTextVisibilityService()
+class SensitiveTextVisibilityViewModel: ObservableObject {
+    static let shared = SensitiveTextVisibilityViewModel()
 
+    @Published var informationHiddenBalancesViewModel: InformationHiddenBalancesViewModel?
     @Published private(set) var isHidden: Bool
     private lazy var manager: CMMotionManager = {
         let manager = CMMotionManager()
@@ -33,17 +34,33 @@ class SensitiveTextVisibilityService: ObservableObject {
     deinit {
         endUpdates()
     }
+}
 
+extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
+    func closeInformationHiddenBalancesSheet() {
+        informationHiddenBalancesViewModel = nil
+    }
+}
+
+private extension SensitiveTextVisibilityViewModel {
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         DispatchQueue.main.async {
             self.isHidden = AppSettings.shared.isHidingSensitiveInformation
+            self.showBottomSheetIfNeeded()
         }
     }
-}
 
-private extension SensitiveTextVisibilityService {
+    func showBottomSheetIfNeeded() {
+        guard AppSettings.shared.isHidingSensitiveInformation,
+              AppSettings.shared.shouldHidingSensitiveInformationSheetShowing else {
+            return
+        }
+
+        informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
+    }
+
     func bind() {
         NotificationCenter.default
             .publisher(for: UIApplication.didEnterBackgroundNotification)
@@ -62,6 +79,16 @@ private extension SensitiveTextVisibilityService {
         AppSettings.shared.$isHidingSensitiveAvailable
             .sink { [weak self] isAvailable in
                 self?.updateAvailability(isAvailable)
+            }
+            .store(in: &bag)
+
+        $informationHiddenBalancesViewModel
+            .sink { [weak self] viewModel in
+                if viewModel == nil {
+                    self?.startUpdates()
+                } else {
+                    self?.endUpdates()
+                }
             }
             .store(in: &bag)
     }

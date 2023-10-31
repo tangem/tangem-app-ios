@@ -33,6 +33,10 @@ class WalletModel {
         transactionHistoryState()
     }
 
+    var isSupportedTransactionHistory: Bool {
+        transactionHistoryService != nil
+    }
+
     var shoudShowFeeSelector: Bool {
         walletManager.allowsFeeSelection
     }
@@ -73,7 +77,7 @@ class WalletModel {
     }
 
     var balance: String {
-        guard let balanceValue else { return "" }
+        guard let balanceValue else { return BalanceFormatter.defaultEmptyBalanceString }
 
         return formatter.formatCryptoBalance(balanceValue, currencyCode: tokenItem.currencySymbol)
     }
@@ -96,7 +100,7 @@ class WalletModel {
     }
 
     var rateFormatted: String {
-        guard let rate else { return "" }
+        guard let rate else { return BalanceFormatter.defaultEmptyBalanceString }
 
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
     }
@@ -222,7 +226,6 @@ class WalletModel {
     private let walletManager: WalletManager
     private let _transactionHistoryService: TransactionHistoryService?
     private var updateTimer: AnyCancellable?
-    private var txHistoryUpdateSubscription: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var updatePublisher: PassthroughSubject<State, Never>?
@@ -428,22 +431,23 @@ class WalletModel {
             mode: .common
         )
         .autoconnect()
-        .sink { [weak self] _ in
+        .withWeakCaptureOf(self)
+        .flatMap { root, _ in
             AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(String(describing: self)) will be updated")
-            self?.update(silent: false)
+            return root.generalUpdate(silent: false)
+        }
+        .sink { [weak self] in
             self?.updateTimer?.cancel()
         }
     }
 
-    func send(_ tx: Transaction, signer: TangemSigner) -> AnyPublisher<Void, Error> {
+    func send(_ tx: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, Error> {
         if isDemo {
-            return signer.sign(
-                hash: Data.randomData(count: 32),
-                walletPublicKey: wallet.publicKey
-            )
-            .mapToVoid()
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+            let hash = Data.randomData(count: 32)
+            return signer.sign(hash: hash, walletPublicKey: wallet.publicKey)
+                .map { _ in TransactionSendResult(hash: hash.hexString) }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
         }
 
         return walletManager.send(tx, signer: signer)
@@ -452,7 +456,6 @@ class WalletModel {
                 self?.startUpdatingTimer()
             })
             .receive(on: DispatchQueue.main)
-            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -511,9 +514,7 @@ extension WalletModel {
             return .just(output: ())
         }
 
-        return transactionHistoryService
-            .update()
-            .eraseToAnyPublisher()
+        return transactionHistoryService.update()
     }
 
     private func transactionHistoryState() -> AnyPublisher<WalletModel.TransactionHistoryState, Never> {
@@ -573,7 +574,7 @@ extension WalletModel {
                     return nil
                 }
 
-                return Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
+                return Localization.warningSolanaRentFeeMessage(rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .replaceError(with: nil)
             .eraseToAnyPublisher()
