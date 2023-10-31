@@ -16,6 +16,10 @@ final class SendViewModel: ObservableObject {
 
     @Published var currentPageInvalid: Bool = false
 
+    var showNavigationButtons: Bool {
+        step.hasNavigationButtons
+    }
+    
     var showBackButton: Bool {
         if case .summary = step {
             return false
