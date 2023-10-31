@@ -67,7 +67,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
     }
 
     private func onLockedWalletNotificationTap() {
-        Analytics.log(.mainNoticeWalletLocked)
+        Analytics.log(.mainNoticeWalletUnlockTapped)
         openUnlockSheet()
     }
 
