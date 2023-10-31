@@ -76,7 +76,7 @@ struct ResetToFactoryView: View {
             HStack(spacing: 16) {
                 SelectableIcon(isSelected: warning.isAccepted)
 
-                Text(Localization.resetCardToFactoryCondition1)
+                Text(warning.type.title)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             }
         }
