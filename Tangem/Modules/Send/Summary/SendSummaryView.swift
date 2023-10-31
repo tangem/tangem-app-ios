@@ -12,50 +12,69 @@ struct SendSummaryView: View {
     let namespace: Namespace.ID
 //    let sendViewModel: SendViewModel
     let viewModel: SendSummaryViewModel
+    
+    @SceneStorage("ContentView.selectedProduct") var animateOther = true
+    
+    @State var showAmount = true
+    @State var showDestination = true
 
     var body: some View {
         VStack(spacing: 20) {
-            Button(action: {
-                viewModel.didTapSummary(step: .amount)
-            }, label: {
-                Color.clear
-                    .frame(maxHeight: height)
-                    .border(Color.green, width: 5)
-                    .overlay(
-                        VStack {
-                            HStack {
-                                Text(viewModel.input.amountText)
-                                    .foregroundStyle(.black)
-                                Spacer()
+            
+            if showAmount {
+                Button(action: {
+                    viewModel.didTapSummary(step: .amount)
+                }, label: {
+                    Color.clear
+                        .frame(maxHeight: height)
+                        .border(Color.green, width: 5)
+                        .overlay(
+                            VStack {
+                                HStack {
+                                    Text(viewModel.input.amountText)
+                                        .foregroundStyle(.black)
+                                    Spacer()
+                                }
                             }
-                        }
-                        .padding()
-                    )
-                    .matchedGeometryEffect(id: "amount", in: namespace)
-            })
+                                .padding()
+                        )
+                        .matchedGeometryEffect(id: "amount", in: namespace)
+                })
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+            }
 
-            Button(action: {
-                viewModel.didTapSummary(step: .destination)
-            }, label: {
-                Color.clear
-                    .frame(maxHeight: height)
-                    .border(Color.purple, width: 5)
-                    .overlay(
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text(viewModel.input.destinationText)
-                                    .lineLimit(1)
-                                    .foregroundStyle(.black)
-                                Spacer()
+            if showDestination {
+                Button(action: {
+                    viewModel.didTapSummary(step: .destination)
+                }, label: {
+                    Color.clear
+                        .frame(maxHeight: height)
+                        .border(Color.purple, width: 5)
+                        .overlay(
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Text(viewModel.input.destinationText)
+                                        .lineLimit(1)
+                                        .foregroundStyle(.black)
+                                    Spacer()
+                                }
                             }
-                        }
-                        .padding()
-                    )
-                    .matchedGeometryEffect(id: "dest", in: namespace)
-
-            })
+                                .padding()
+                        )
+                        .matchedGeometryEffect(id: "dest", in: namespace)
+                    
+                })
+                
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+            }
 
             Button(action: {
+                if animateOther {
+                    withAnimation(.easeOut(duration: 0.1 * 1)) {
+                        showAmount = false
+                        showDestination = false
+                    }
+                }
                 viewModel.didTapSummary(step: .fee)
             }, label: {
                 Color.clear
@@ -71,10 +90,23 @@ struct SendSummaryView: View {
                         }
                         .padding()
                     )
+                    .transition(.identity)
                     .matchedGeometryEffect(id: "fee", in: namespace)
             })
 
             Spacer()
+            
+            Button {
+                withAnimation {
+                    showAmount.toggle()
+                }
+            } label: {
+                Text("Toggle amount")
+            }
+            
+            Toggle(isOn: $animateOther, label: {
+                Text("Animate other")
+            })
 
             Button(action: viewModel.send) {
                 Text("Send")
