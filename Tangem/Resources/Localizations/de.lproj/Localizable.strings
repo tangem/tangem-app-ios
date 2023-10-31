@@ -75,6 +75,11 @@
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
+"common_fee_selector_footer" = "Network transaction fees are small charges paid to support network security, incentivize validators, allocate resources, and determine transaction priority.";
+"common_fee_selector_option_fast" = "Fast";
+"common_fee_selector_option_market" = "Market";
+"common_fee_selector_option_slow" = "Slow";
+"common_fee_selector_title" = "Speed and fee";
 "common_generate_addresses" = "Generate addresses";
 "common_import" = "Import";
 "common_learn_and_earn" = "Learn & Earn";
