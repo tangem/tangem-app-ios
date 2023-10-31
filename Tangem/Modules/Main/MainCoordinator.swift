@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class MainCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+class MainCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
@@ -44,7 +44,7 @@ class MainCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDis
 
     // MARK: - Delegates
 
-    weak var nextManageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
+    weak var manageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -80,7 +80,6 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         let options = DetailsCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
         coordinator.popToRootAction = popToRootAction
@@ -98,7 +97,6 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
@@ -109,11 +107,11 @@ extension MainCoordinator: MainRoutable {
     }
 
     func showManageTokensBottomSheet(with viewModel: ManageTokensBottomSheetViewModel) {
-        nextManageTokensBottomSheetDisplayable?.coordinator(self, wantsToShowManageTokensBottomSheetWithViewModel: viewModel)
+        manageTokensBottomSheetDisplayable?.coordinator(self, wantsToShowManageTokensBottomSheetWithViewModel: viewModel)
     }
 
     func hideManageTokensBottomSheet() {
-        nextManageTokensBottomSheetDisplayable?.coordinatorWantsToHideManageTokensBottomSheet(self)
+        manageTokensBottomSheetDisplayable?.coordinatorWantsToHideManageTokensBottomSheet(self)
     }
 }
 
