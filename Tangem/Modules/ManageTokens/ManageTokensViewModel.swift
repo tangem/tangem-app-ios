@@ -180,15 +180,16 @@ private extension ManageTokensViewModel {
     }
 
     private func updateGenerateAddressesViewModel() {
-        // [REDACTED_TODO_COMMENT]
-        Analytics.log(
-            event: .manageTokensButtonGenerateAddresses,
-            params: [:]
-        )
+        let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
 
-        guard pendingDerivationCountByWalletId.contains(where: { $0.value > 0 }) else {
+        guard countWalletPendingDerivation > 0 else {
             return generateAddressesViewModel = nil
         }
+
+        Analytics.log(
+            event: .manageTokensButtonGenerateAddresses,
+            params: [.cardsCount: String(countWalletPendingDerivation)]
+        )
 
         generateAddressesViewModel = GenerateAddressesViewModel(
             numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
