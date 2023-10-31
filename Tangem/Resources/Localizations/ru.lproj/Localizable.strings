@@ -432,6 +432,7 @@
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
 "transaction_history_multiple_addresses" = "Несколько адресов";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
+"transaction_history_operation" = "Операция";
 "transaction_history_transaction_from_address" = "от: %@";
 "transaction_history_transaction_to_address" = "на: %@";
 "transaction_history_tx_in_progress" = "В процессе…";
