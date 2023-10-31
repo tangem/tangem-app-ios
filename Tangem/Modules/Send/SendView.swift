@@ -63,7 +63,7 @@ struct SendView: View {
     func currentPage() -> some View {
         switch viewModel.step {
         case .amount:
-            SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: viewModel.sendAmountInput))
+            SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: viewModel.sendAmountInput, validator: viewModel.sendAmountValidator))
         case .destination:
             SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: viewModel.sendDestinationInput))
         case .fee:
