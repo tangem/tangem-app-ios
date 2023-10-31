@@ -5776,8 +5776,6 @@
 				B6364F892ACEF63C00D615B5 /* ManageTokensBottomSheetHeaderContainerView.swift */,
 				B67D90E02ABAC952006B2C00 /* ManageTokensBottomSheetContentView.swift */,
 				B69A43E32ACAA510007FEA60 /* ManageTokensBottomSheetDisplayable.swift */,
-				B63A313E2ACB3100003455E8 /* ManageTokensBottomSheetIntermediateDisplayable.swift */,
-				B63A31422ACB3E21003455E8 /* ManageTokensBottomSheetIntermediateDisplayable+CoordinatorObject.swift */,
 			);
 			path = ManageTokensBottomSheet;
 			sourceTree = "<group>";
@@ -7522,7 +7520,6 @@
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* LegacyMainCoordinator.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
-				B63A313F2ACB3100003455E8 /* ManageTokensBottomSheetIntermediateDisplayable.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
 				DC7D39FF29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift in Sources */,
 				B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */,
@@ -7718,7 +7715,6 @@
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
-				B63A31432ACB3E21003455E8 /* ManageTokensBottomSheetIntermediateDisplayable+CoordinatorObject.swift in Sources */,
 				EF862715297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift in Sources */,
 				B02B74AE29879DA5006473F2 /* WalletConnectV2PersonalSignHandler.swift in Sources */,
 				EFD32AED29EE7F540026353E /* FeatureState.swift in Sources */,
