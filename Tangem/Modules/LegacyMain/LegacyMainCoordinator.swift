@@ -332,7 +332,6 @@ extension LegacyMainCoordinator: UserWalletListCoordinatorOutput {
 
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
-            self?.userWalletRepository.updateSelection()
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
