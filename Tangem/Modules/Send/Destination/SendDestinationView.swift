@@ -9,19 +9,30 @@ import SwiftUI
 
 struct SendDestinationView: View {
     let namespace: Namespace.ID
-    let viewModel: SendDestinationViewModel
+    @ObservedObject var viewModel: SendDestinationViewModel
 
     var body: some View {
         VStack {
             VStack {
-                TextField("Enter addr3ess", text: viewModel.destination)
-                    .keyboardType(.decimalPad)
+                TextField("Enter address", text: viewModel.destination)
             }
             .padding()
             .border(Color.purple, width: 5)
             .matchedGeometryEffect(id: "dest", in: namespace)
+            
+               
+            Text(viewModel.destinationErrorText ?? " ")
+                .foregroundStyle(.red)
+            
+            VStack {
+                TextField("Enter memo", text: viewModel.additionalField)
+            }
+            .padding()
+            .border(Color.purple, width: 5)
 
-            Lorem()
+            Text(viewModel.destinationAdditionalFieldErrorText ?? " ")
+                .foregroundStyle(.red)
+            
 
             Spacer()
 
