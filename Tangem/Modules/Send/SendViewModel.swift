@@ -13,9 +13,9 @@ final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var step: SendStep
-    
+
     @Published var currentPageInvalid: Bool = false
-    
+
     var showBackButton: Bool {
         if case .summary = step {
             return false
@@ -44,13 +44,7 @@ final class SendViewModel: ObservableObject {
         self.coordinator = coordinator
         sendModel = SendModel()
         step = .amount
-        
-//        self.$step
-//            .sink { currentStep in
-//                self.updateStepValidation(currentStep)
-//            }
-//            .store(in: &bag)
-        
+
         $step
             .flatMap { currentStep in
                 self.sendModel.stepValid(currentStep)
@@ -59,19 +53,10 @@ final class SendViewModel: ObservableObject {
                 !$0
             }
             .assign(to: &$currentPageInvalid)
-        
+
         sendModel.amountText = "100"
         sendModel.destinationText = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
         sendModel.feeText = "Fast 🐰"
-    }
-    
-    func updateStepValidation(_ step: SendStep) {
-        sendModel
-            .stepValid(step)
-            .map {
-                !$0
-            }
-            .assign(to: &$currentPageInvalid)
     }
 
     func next() {
@@ -92,11 +77,10 @@ final class SendViewModel: ObservableObject {
 }
 
 extension SendViewModel {
-    
     var sendAmountInput: SendAmountInput {
         sendModel
     }
-    
+
     var sendAmountValidator: SendAmountValidator {
         sendModel
     }
@@ -104,7 +88,7 @@ extension SendViewModel {
     var sendDestinationInput: SendDestinationInput {
         sendModel
     }
-    
+
     var sendDestinationValidator: SendDestinationValidator {
         sendModel
     }
@@ -116,8 +100,6 @@ extension SendViewModel {
     var sendSummaryInput: SendSummaryInput {
         sendModel
     }
-    
-
 }
 
 extension SendViewModel: SendSummaryRoutable {
