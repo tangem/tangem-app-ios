@@ -13,7 +13,9 @@ final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var step: SendStep
-
+    
+    @Published var currentPageInvalid: Bool = false
+    
     var showBackButton: Bool {
         if case .summary = step {
             return false
@@ -30,6 +32,67 @@ final class SendViewModel: ObservableObject {
         step.name
     }
 
+    // MARK: - Dependencies
+
+    private unowned let coordinator: SendRoutable
+    private let sendModel: SendModel
+    private var bag: Set<AnyCancellable> = [] // remove?
+
+    init(
+        coordinator: SendRoutable
+    ) {
+        self.coordinator = coordinator
+        sendModel = SendModel()
+        step = .amount
+        
+//        self.$step
+//            .sink { currentStep in
+//                self.updateStepValidation(currentStep)
+//            }
+//            .store(in: &bag)
+        
+        $step
+            .flatMap { currentStep in
+                self.sendModel.stepValid(currentStep)
+            }
+            .map {
+                !$0
+            }
+            .assign(to: &$currentPageInvalid)
+        
+        sendModel.amountText = "100"
+        sendModel.destinationText = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
+        sendModel.feeText = "Fast 🐰"
+    }
+    
+    func updateStepValidation(_ step: SendStep) {
+        sendModel
+            .stepValid(step)
+            .map {
+                !$0
+            }
+            .assign(to: &$currentPageInvalid)
+    }
+
+    func next() {
+        if let nextStep = step.nextStep {
+//            withAnimation() {
+            step = nextStep
+//            }
+        }
+    }
+
+    func back() {
+        if let previousStep = step.previousStep {
+            withAnimation(.easeOut) {
+                step = previousStep
+            }
+        }
+    }
+}
+
+extension SendViewModel {
+    
     var sendAmountInput: SendAmountInput {
         sendModel
     }
@@ -53,52 +116,8 @@ final class SendViewModel: ObservableObject {
     var sendSummaryInput: SendSummaryInput {
         sendModel
     }
+    
 
-    // MARK: - Dependencies
-
-    private unowned let coordinator: SendRoutable
-    private let sendModel: SendModel
-    private var bag: Set<AnyCancellable> = [] // remove?
-
-    init(
-        coordinator: SendRoutable
-    ) {
-        self.coordinator = coordinator
-        sendModel = SendModel()
-        step = .amount
-
-        sendModel.$amountText
-            .sink { s in
-                print("!!!", s)
-            }
-            .store(in: &bag)
-
-        sendModel.$amount
-            .sink { amount in
-                print("New amount", amount)
-            }
-            .store(in: &bag)
-
-        sendModel.amountText = "100"
-        sendModel.destinationText = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
-        sendModel.feeText = "Fast 🐰"
-    }
-
-    func next() {
-        if let nextStep = step.nextStep {
-//            withAnimation() {
-            step = nextStep
-//            }
-        }
-    }
-
-    func back() {
-        if let previousStep = step.previousStep {
-            withAnimation(.easeOut) {
-                step = previousStep
-            }
-        }
-    }
 }
 
 extension SendViewModel: SendSummaryRoutable {
