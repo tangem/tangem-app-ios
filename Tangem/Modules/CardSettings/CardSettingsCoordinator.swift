@@ -8,7 +8,7 @@
 
 import Foundation
 
-class CardSettingsCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+class CardSettingsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
@@ -35,10 +35,6 @@ class CardSettingsCoordinator: CoordinatorObject, ManageTokensBottomSheetInterme
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-
-    // MARK: - Delegates
-
-    weak var nextManageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -79,7 +75,6 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             dismissAction: dismissAction,
             popToRootAction: hasOtherCards ? popToMainAction : popToRootAction
         )
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         let options = OnboardingCoordinator.Options(input: input, destination: .root)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
