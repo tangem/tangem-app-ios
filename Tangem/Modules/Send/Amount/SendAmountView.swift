@@ -10,7 +10,7 @@ import SwiftUI
 struct SendAmountView: View {
     let namespace: Namespace.ID
 
-    let viewModel: SendAmountViewModel
+    @ObservedObject var viewModel: SendAmountViewModel
 
     var body: some View {
         VStack {
@@ -21,6 +21,9 @@ struct SendAmountView: View {
             .padding()
             .border(Color.green, width: 5)
             .matchedGeometryEffect(id: "amount", in: namespace)
+            
+            Text("Error")
+                .foregroundStyle(viewModel.hasError ? .red : .clear)
 
             Lorem()
 
