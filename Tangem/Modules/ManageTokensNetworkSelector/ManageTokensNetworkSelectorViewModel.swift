@@ -37,7 +37,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
-    
+
     private var tokenItems: [TokenItem]
     private let coinId: String
 
@@ -91,6 +91,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     func selectWalletActionDidTap() {
+        Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
+
         coordinator.openWalletSelectorModule(
             userWallets: userWalletRepository.userWallets,
             currentUserWalletId: userWalletRepository.selectedUserWalletId,
@@ -199,7 +201,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(event: .tokenSwitcherChanged, params: [
+        Analytics.log(event: .manageTokensSwitcherChanged, params: [
             .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
         ])
@@ -208,6 +210,13 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - ManageTokensNetworkSelectorViewModel
 
     func didSelectWallet(with userWalletId: Data) {
+        if userWalletModel?.userWalletId.value != userWalletId {
+            Analytics.log(
+                event: .manageTokensWalletSelected,
+                params: [.source: Analytics.ParameterValue.mainToken.rawValue]
+            )
+        }
+
         pendingAdd = []
         pendingRemove = []
 
