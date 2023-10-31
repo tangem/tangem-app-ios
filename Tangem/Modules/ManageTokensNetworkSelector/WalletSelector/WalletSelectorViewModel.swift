@@ -11,7 +11,7 @@ import Combine
 
 class WalletSelectorViewModel: ObservableObject {
     var itemViewModels: [WalletSelectorItemViewModel] = []
-    
+
     weak var delegate: WalletSelectorDelegate?
 
     init(userWallets: [UserWallet], currentUserWalletId: Data?) {
