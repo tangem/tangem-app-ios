@@ -19,7 +19,7 @@ struct StoredUserTokenList: Codable, Equatable {
         case byBalance
     }
 
-    struct Entry: Codable, Equatable {
+    struct Entry: Codable, Hashable {
         let id: String?
         let name: String
         let symbol: String
