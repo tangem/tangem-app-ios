@@ -38,12 +38,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private(set) lazy var manageTokensViewModel: ManageTokensBottomSheetViewModel? = {
-        guard canManageTokens else { return nil }
-
-        return ManageTokensBottomSheetViewModel()
-    }()
-
     var isOrganizeTokensVisible: Bool {
         guard canManageTokens else { return false }
 
