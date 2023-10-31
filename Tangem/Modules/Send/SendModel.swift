@@ -54,13 +54,32 @@ class SendModel: ObservableObject {
     
     private var _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     
+
     init() {
         validateAmount()
+        
     }
 
     func send() {
         print("SEND")
     }
+    
+    
+    func stepValid(_ step: SendStep) -> AnyPublisher<Bool, Never> {
+        switch step {
+        case .destination:
+            return Publishers.CombineLatest(destinationError, destinationAdditionalFieldError)
+                .map {
+                    $0 == nil && $1 == nil
+                }
+                .eraseToAnyPublisher()
+        default:
+            // TODO
+            return Just(true)
+                .eraseToAnyPublisher()
+        }
+    }
+    
 
     private func setAmount(_ amountText: String) {
         self.amountText = amountText
