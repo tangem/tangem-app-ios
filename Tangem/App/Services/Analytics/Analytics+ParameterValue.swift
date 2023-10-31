@@ -27,7 +27,8 @@ extension Analytics {
         case longTap = "Long tap"
         case passcode = "Passcode"
 
-        case sourceMain = "Main"
+        case main = "Main"
+        case token = "Token"
 
         case scanSourceWelcome = "Introduction"
         case scanSourceAuth = "Sign In"
@@ -71,7 +72,6 @@ extension Analytics {
         case fail = "Fail"
 
         // SelectedCurrency
-        case selectedCurrencyToken = "Token"
         case selectedCurrencyApp = "App Currency"
 
         // Client Type
