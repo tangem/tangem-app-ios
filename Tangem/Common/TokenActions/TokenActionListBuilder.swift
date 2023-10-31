@@ -9,8 +9,18 @@
 import Foundation
 
 struct TokenActionListBuilder {
-    func buildActionsForButtonsList(canShowSwap: Bool) -> [TokenActionType] {
-        var actions: [TokenActionType] = [.buy, .send, .receive, .sell]
+    func buildActionsForButtonsList(canShowBuySell: Bool, canShowSwap: Bool) -> [TokenActionType] {
+        var actions: [TokenActionType] = []
+        if canShowBuySell {
+            actions.append(.buy)
+        }
+
+        actions.append(contentsOf: [.send, .receive])
+
+        if canShowBuySell {
+            actions.append(.sell)
+        }
+
         if canShowSwap {
             actions.append(.exchange)
         }
@@ -22,6 +32,8 @@ struct TokenActionListBuilder {
         canExchange: Bool,
         canSend: Bool,
         canSwap: Bool,
+        canHide: Bool,
+        isBlockchainReachable: Bool,
         exchangeUtility: ExchangeCryptoUtility
     ) -> [TokenActionType] {
         let canBuy = exchangeUtility.buyAvailable
@@ -38,15 +50,17 @@ struct TokenActionListBuilder {
 
         availableActions.append(.receive)
 
-        if canExchange, canSell {
+        if isBlockchainReachable, canExchange, canSell {
             availableActions.append(.sell)
         }
 
-        if canSwap {
+        if isBlockchainReachable, canSwap {
             availableActions.append(.exchange)
         }
 
-        availableActions.append(.hide)
+        if canHide {
+            availableActions.append(.hide)
+        }
 
         return availableActions
     }
