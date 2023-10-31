@@ -15,20 +15,20 @@ protocol SendAmountInput {
 }
 
 protocol SendAmountValidator {
-    var amountValid: AnyPublisher<Bool, Never> { get }
+    var amountError: AnyPublisher<Error?, Never> { get }
 }
 
 class SendAmountViewModel: ObservableObject {
     var amountText: Binding<String>
 
-    @Published var hasError = false
-    
+    @Published var amountError: String?
+
     init(input: SendAmountInput, validator: SendAmountValidator) {
         amountText = input.amountTextBinding
 
         validator
-            .amountValid
-            .map { !$0 }
-            .assign(to: &$hasError) // weak
+            .amountError
+            .map { $0?.localizedDescription }
+            .assign(to: &$amountError) // weak
     }
 }
