@@ -44,7 +44,7 @@ extension Analytics {
             case .auth:
                 return .scanSourceAuth
             case .main, .mainUnlock:
-                return .sourceMain
+                return .main
             case .myWalletsNewCard, .myWalletsUnlock:
                 return .scanSourceMyWallets
             case .settings:
