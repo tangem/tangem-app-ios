@@ -7,10 +7,9 @@
 //
 
 import Foundation
+import Combine
 import UIKit
 import SwiftUI
-import Combine
-import CombineExt
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -38,7 +37,7 @@ final class MainViewModel: ObservableObject {
     private var isViewVisible = false {
         didSet {
             if oldValue != isViewVisible {
-                updateManageTokensSheetViewModel(forPageAtIndex: selectedCardIndex)
+                // [REDACTED_TODO_COMMENT]
             }
         }
     }
@@ -251,13 +250,6 @@ final class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        $selectedCardIndex
-            .withWeakCaptureOf(self)
-            .sink { viewModel, newIndex in
-                viewModel.updateManageTokensSheetViewModel(forPageAtIndex: newIndex)
-            }
-            .store(in: &bag)
-
         userWalletRepository.eventProvider
             .sink { [weak self] event in
                 guard let self else { return }
@@ -290,32 +282,6 @@ final class MainViewModel: ObservableObject {
 
     private func log(_ message: String) {
         AppLog.shared.debug("[Main V2] \(message)")
-    }
-
-    private func updateManageTokensSheetViewModel(forPageAtIndex newIndex: Int) {
-        guard isViewVisible else {
-            coordinator?.hideManageTokensBottomSheet()
-            return
-        }
-
-        let selectedPage = pages[newIndex]
-
-        switch selectedPage {
-        case .singleWallet:
-            coordinator?.hideManageTokensBottomSheet()
-        case .multiWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.manageTokensViewModel {
-                coordinator?.showManageTokensBottomSheet(with: viewModel)
-            } else {
-                coordinator?.hideManageTokensBottomSheet()
-            }
-        case .lockedWallet(_, _, let bodyModel):
-            if let viewModel = bodyModel.manageTokensViewModel {
-                coordinator?.showManageTokensBottomSheet(with: viewModel)
-            } else {
-                coordinator?.hideManageTokensBottomSheet()
-            }
-        }
     }
 }
 
