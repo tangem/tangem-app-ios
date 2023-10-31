@@ -9,10 +9,10 @@
 import Foundation
 
 public struct SwappingData: Decodable {
-    public let fromToken: SwappingTokenData
-    public let toToken: SwappingTokenData
-    public let toTokenAmount: String
-    public let fromTokenAmount: String
-    public let protocols: [[[ProtocolInfo]]]
+    public let toAmount: String
     public let tx: TransactionData
+
+    public let fromToken: SwappingTokenData?
+    public let toToken: SwappingTokenData?
+    public let protocols: [[[ProtocolInfo]]]?
 }
