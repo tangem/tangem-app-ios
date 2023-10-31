@@ -26,8 +26,10 @@ extension Analytics {
         case accessCode = "Access Code"
         case longTap = "Long tap"
         case passcode = "Passcode"
+
+        case sourceMain = "Main"
+
         case scanSourceWelcome = "Introduction"
-        case scanSourceMain = "Main"
         case scanSourceAuth = "Sign In"
         case scanSourceMyWallets = "My Wallets"
         case scanSourceSettings = "Settings"
