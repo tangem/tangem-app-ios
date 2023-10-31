@@ -11,13 +11,10 @@ import Combine
 
 class WalletSelectorViewModel: ObservableObject {
     var itemViewModels: [WalletSelectorItemViewModel] = []
+    
     weak var delegate: WalletSelectorDelegate?
 
-    private let currentUserWalletId: Data?
-
     init(userWallets: [UserWallet], currentUserWalletId: Data?) {
-        self.currentUserWalletId = currentUserWalletId
-
         itemViewModels = userWallets.map { userWallet in
             WalletSelectorItemViewModel(
                 userWallet: userWallet,
