@@ -25,23 +25,3 @@ struct FeeRowViewModel: Hashable, Identifiable {
         self.isSelected = isSelected
     }
 }
-
-extension FeeOption {
-    var icon: ImageType {
-        switch self {
-        case .market:
-            return Assets.marketFeeIcon
-        case .fast:
-            return Assets.fastFeeIcon
-        }
-    }
-
-    var title: String {
-        switch self {
-        case .market:
-            return "Market"
-        case .fast:
-            return "Fast"
-        }
-    }
-}
