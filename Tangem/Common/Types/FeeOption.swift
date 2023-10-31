@@ -17,13 +17,13 @@ enum FeeOption: String, Hashable {
     var icon: ImageType {
         switch self {
         case .slow:
-            return Assets.slowFeeIcon
+            return Assets.FeeOptions.slowFeeIcon
         case .market:
-            return Assets.marketFeeIcon
+            return Assets.FeeOptions.marketFeeIcon
         case .fast:
-            return Assets.fastFeeIcon
+            return Assets.FeeOptions.fastFeeIcon
         case .custom:
-            return Assets.customFeeIcon
+            return Assets.FeeOptions.customFeeIcon
         }
     }
 
