@@ -7,16 +7,28 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 protocol SendAmountInput {
     var amountText: String { get set }
     var amountTextBinding: Binding<String> { get }
 }
 
-class SendAmountViewModel {
+protocol SendAmountValidator {
+    var amountValid: AnyPublisher<Bool, Never> { get }
+}
+
+class SendAmountViewModel: ObservableObject {
     var amountText: Binding<String>
 
-    init(input: SendAmountInput) {
+    @Published var hasError = false
+    
+    init(input: SendAmountInput, validator: SendAmountValidator) {
         amountText = input.amountTextBinding
+
+        validator
+            .amountValid
+            .map { !$0 }
+            .assign(to: &$hasError) // weak
     }
 }
