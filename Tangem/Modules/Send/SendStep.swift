@@ -27,6 +27,15 @@ extension SendStep {
             "Send"
         }
     }
+    
+    var hasNavigationButtons: Bool {
+        switch self {
+        case .amount, .destination, .fee:
+            return true
+        case .summary:
+            return false
+        }
+    }
 
     var nextStep: SendStep? {
         switch self {
