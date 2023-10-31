@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class UncompletedBackupCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+class UncompletedBackupCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
@@ -26,10 +26,6 @@ class UncompletedBackupCoordinator: CoordinatorObject, ManageTokensBottomSheetIn
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-
-    // MARK: - Delegates
-
-    weak var nextManageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -62,7 +58,6 @@ extension UncompletedBackupCoordinator: UncompletedBackupRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
