@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import TangemSdk
 
-class DetailsCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediateDisplayable {
+class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     var dismissAction: Action<Void>
@@ -39,10 +39,6 @@ class DetailsCoordinator: CoordinatorObject, ManageTokensBottomSheetIntermediate
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-
-    // MARK: - Delegates
-
-    weak var nextManageTokensBottomSheetDisplayable: ManageTokensBottomSheetDisplayable?
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -75,7 +71,6 @@ extension DetailsCoordinator: DetailsRoutable {
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -141,7 +136,6 @@ extension DetailsCoordinator: ScanCardSettingsRoutable {
         scanCardSettingsViewModel = nil
 
         let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.nextManageTokensBottomSheetDisplayable = self
         coordinator.start(with: .init(cardModel: cardModel))
         cardSettingsCoordinator = coordinator
     }
