@@ -52,6 +52,10 @@ struct AppSettingsView: View {
     private var savingWalletSection: some View {
         GroupedSection(viewModel.savingWalletViewModel) {
             DefaultToggleRowView(viewModel: $0)
+                // Workaround for force rendering the view
+                // Will be update in [REDACTED_INFO]
+                // Use @Published from directly from the ViewModel
+                .id(viewModel.isSavingWallet)
         } footer: {
             DefaultFooterView(Localization.appSettingsSavedWalletFooter)
         }
@@ -60,6 +64,10 @@ struct AppSettingsView: View {
     private var savingAccessCodesSection: some View {
         GroupedSection(viewModel.savingAccessCodesViewModel) {
             DefaultToggleRowView(viewModel: $0)
+                // Workaround for force rendering the view
+                // Will be update in [REDACTED_INFO]
+                // Use @Published from directly from the ViewModel
+                .id(viewModel.isSavingAccessCodes)
         } footer: {
             DefaultFooterView(Localization.appSettingsSavedAccessCodesFooter)
         }
