@@ -359,7 +359,7 @@ private extension MultiWalletMainContentViewModel {
         Analytics.log(
             event: .buttonRemoveToken,
             params: [
-                Analytics.ParameterKey.source: Analytics.ParameterValue.sourceMain.rawValue,
+                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
                 Analytics.ParameterKey.token: tokenItem.currencySymbol,
             ]
         )
