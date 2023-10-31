@@ -17,12 +17,12 @@ struct ExpressFeeBottomSheetView: View {
 
     var body: some View {
         VStack {
-            BottomSheetHeaderView(title: "Speed and fee")
+            BottomSheetHeaderView(title: Localization.commonFeeSelectorTitle)
 
             GroupedSection(viewModel.feeRowViewModels) {
                 FeeRowView(viewModel: $0)
             } footer: {
-                DefaultFooterView("Network transaction fees are small charges paid to support network security, incentivize validators, allocate resources, and determine transaction priority.")
+                DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
             .verticalPadding(0)
             .padding(.horizontal, 14)
