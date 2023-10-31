@@ -53,3 +53,14 @@ extension Analytics {
         }
     }
 }
+
+extension Analytics {
+    enum CommonSource: String {
+        case main
+        case token
+
+        var parameterValue: String {
+            return rawValue.capitalizingFirstLetter()
+        }
+    }
+}
