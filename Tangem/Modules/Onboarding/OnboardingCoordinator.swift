@@ -59,6 +59,8 @@ class OnboardingCoordinator: CoordinatorObject {
             onDismissalAttempt = model.backButtonAction
             walletViewModel = model
         }
+
+        Analytics.log(.onboardingStarted)
     }
 }
 
