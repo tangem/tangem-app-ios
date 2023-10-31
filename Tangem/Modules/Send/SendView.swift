@@ -42,9 +42,10 @@ struct SendView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .foregroundColor(.white)
-                                .background(Color.black)
+                                .background(viewModel.currentPageInvalid ? Color.gray : Color.black)
                                 .cornerRadius(10)
                         }
+                        .disabled(viewModel.currentPageInvalid)
                     }
                 }
                 .animation(nil, value: UUID())
