@@ -13,22 +13,14 @@ import BlockchainSdk
 
 class SingleTokenNotificationManager {
     private let walletModel: WalletModel
-    private let isNoteWallet: Bool
     private weak var delegate: NotificationTapDelegate?
 
-    private let notificationInputs: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
+    private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
 
-    init(walletModel: WalletModel, isNoteWallet: Bool) {
+    init(walletModel: WalletModel) {
         self.walletModel = walletModel
-        self.isNoteWallet = isNoteWallet
-    }
-
-    func setupManager(with delegate: NotificationTapDelegate?) {
-        self.delegate = delegate
-
-        bind()
     }
 
     private func bind() {
@@ -78,21 +70,27 @@ class SingleTokenNotificationManager {
             )
         }
 
+        notificationInputsSubject.send(inputs)
+
         notificationsUpdateTask = Task { [weak self] in
-            var inputs = inputs
-            if let rentInput = await self?.loadRentNotificationIfNeeded() {
-                inputs.append(rentInput)
+            guard
+                let rentInput = await self?.loadRentNotificationIfNeeded(),
+                let self
+            else {
+                return
             }
 
-            await runOnMain {
-                self?.notificationInputs.send(inputs)
+            if !notificationInputsSubject.value.contains(where: { $0.id == rentInput.id }) {
+                await runOnMain {
+                    self.notificationInputsSubject.value.append(rentInput)
+                }
             }
         }
     }
 
     private func setupNetworkUnreachable() {
         let factory = NotificationsFactory()
-        notificationInputs
+        notificationInputsSubject
             .send([
                 factory.buildNotificationInput(
                     for: .networkUnreachable,
@@ -103,9 +101,9 @@ class SingleTokenNotificationManager {
 
     private func setupNoAccountNotification(with message: String) {
         let factory = NotificationsFactory()
-        let event = TokenNotificationEvent.noAccount(message: message, isNoteWallet: isNoteWallet)
+        let event = TokenNotificationEvent.noAccount(message: message)
 
-        notificationInputs
+        notificationInputsSubject
             .send([
                 factory.buildNotificationInput(
                     for: event,
@@ -140,11 +138,22 @@ class SingleTokenNotificationManager {
 }
 
 extension SingleTokenNotificationManager: NotificationManager {
+    var notificationInputs: [NotificationViewInput] {
+        notificationInputsSubject.value
+    }
+
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
-        notificationInputs.eraseToAnyPublisher()
+        notificationInputsSubject.eraseToAnyPublisher()
+    }
+
+    func setupManager(with delegate: NotificationTapDelegate?) {
+        self.delegate = delegate
+
+        setupLoadedStateNotifications()
+        bind()
     }
 
     func dismissNotification(with id: NotificationViewId) {
-        notificationInputs.value.removeAll(where: { $0.id == id })
+        notificationInputsSubject.value.removeAll(where: { $0.id == id })
     }
 }

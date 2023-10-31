@@ -43,7 +43,7 @@ struct LegacyTokenListView: View {
                 }
 
                 if viewModel.shouldShowAlert {
-                    Text(Localization.alertManageTokensAddressesMessage)
+                    Text(Localization.warningManageTokensLegacyDerivationMessage)
                         .font(.system(size: 13, weight: .medium, design: .default))
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color(hex: "#848488"))
