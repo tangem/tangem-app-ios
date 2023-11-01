@@ -23,6 +23,12 @@ class CommonUserWalletRepository: UserWalletRepository {
         } as? CardViewModel
     }
 
+    var selectedUserModelModel: UserWalletModel? {
+        return models.first {
+            $0.userWalletId.value == selectedUserWalletId
+        }
+    }
+
     var selectedUserWalletId: Data?
 
     var selectedIndexUserWalletModel: Int? {
