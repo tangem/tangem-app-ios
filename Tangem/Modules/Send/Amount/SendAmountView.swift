@@ -14,7 +14,7 @@ struct SendAmountView: View {
 
     var body: some View {
         VStack {
-            SendInputField(text: viewModel.amountText, placeholderText: "0", currencyCode: "USDT")
+            TextField("0", text: viewModel.amountText)
                 .padding()
                 .border(Color.green, width: 5)
                 .matchedGeometryEffect(id: "amount", in: namespace)
@@ -22,18 +22,16 @@ struct SendAmountView: View {
             Text(viewModel.amountError ?? " ")
                 .foregroundColor(.red)
 
-            Lorem()
-
             Spacer()
-
-            Button(action: {}, label: {
-                Text("set")
-            })
         }
         .padding(.horizontal)
     }
 }
 
-// #Preview {
-//    SendAmountView(viewModel: SendAmountViewModel(amountText: .constant("100 USDT")))
-// }
+private enum PreviewData {
+    @Namespace static var namespace
+}
+
+#Preview {
+    SendAmountView(namespace: PreviewData.namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock()))
+}
