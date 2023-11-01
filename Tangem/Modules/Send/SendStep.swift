@@ -15,6 +15,7 @@ enum SendStep {
 }
 
 extension SendStep {
+    #warning("L10n")
     var name: String {
         switch self {
         case .amount:
