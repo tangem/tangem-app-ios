@@ -67,7 +67,7 @@ private extension CommonTokenQuotesRepository {
         AppSettings.shared.$selectedCurrencyCode
             // Ignore already the selected code
             .dropFirst()
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             // Ignore if the selected code is equal
             .removeDuplicates()
             .withLatestFrom(_quotes)
@@ -94,7 +94,7 @@ private extension CommonTokenQuotesRepository {
                 guard case .failure(let error) = completion else {
                     return
                 }
-                
+
                 AppLog.shared.debug("Loading quotes catch error")
                 AppLog.shared.error(error: error, params: [:])
             }, receiveValue: { items in
@@ -125,8 +125,7 @@ private extension CommonTokenQuotesRepository {
         let quotes = quotes.map { quote in
             TokenQuote(
                 currencyId: quote.id,
-                // We round price change for the user friendly size
-                change: quote.priceChange?.rounded(scale: 1),
+                change: quote.priceChange,
                 price: quote.price,
                 currencyCode: currencyCode
             )
