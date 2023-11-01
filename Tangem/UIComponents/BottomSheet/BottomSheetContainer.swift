@@ -40,6 +40,7 @@ struct BottomSheetContainer<ContentView: View>: View {
                         stateObject.viewDidHidden()
                     }
                 }
+                .animation(.default, value: opacity)
 
             sheetView
                 .transition(.move(edge: .bottom))
@@ -53,8 +54,6 @@ struct BottomSheetContainer<ContentView: View>: View {
                 .offset(y: -1)
         }
         .edgesIgnoringSafeArea(.all)
-        .animation(.default, value: opacity)
-        .animation(.interactiveSpring(), value: stateObject.isDragging)
     }
 
     private var sheetView: some View {
@@ -90,19 +89,16 @@ struct BottomSheetContainer<ContentView: View>: View {
                     stateObject.isDragging = true
                 }
 
-                let dragValue = value.translation.height - stateObject.previousDragTranslation.height
                 let locationChange = value.startLocation.y - value.location.y
 
                 if locationChange > 0 {
-                    stateObject.offset += dragValue / 3
+                    // If user drags on up then reduce the dragging value
+                    stateObject.offset = 0 - locationChange / 3
                 } else {
-                    stateObject.offset += dragValue
+                    stateObject.offset = 0 - locationChange
                 }
-
-                stateObject.previousDragTranslation = value.translation
             }
             .onEnded { value in
-                stateObject.previousDragTranslation = .zero
                 stateObject.isDragging = false
 
                 // If swipe was been enough to hide view
@@ -112,7 +108,9 @@ struct BottomSheetContainer<ContentView: View>: View {
                     }
                     // Otherwise set the view to default state
                 } else {
-                    stateObject.offset = 0
+                    withAnimation(.default) {
+                        stateObject.offset = 0
+                    }
                 }
             }
     }
@@ -132,7 +130,11 @@ struct BottomSheetContainer<ContentView: View>: View {
     }
 
     func showView() {
-        stateObject.offset = 0
+        let duration = settings.animationDuration
+
+        withAnimation(.linear(duration: duration)) {
+            stateObject.offset = 0
+        }
     }
 }
 
@@ -168,7 +170,6 @@ extension BottomSheetContainer {
     class StateObject: ObservableObject {
         @Published var contentHeight: CGFloat = UIScreen.main.bounds.height / 2
         @Published var isDragging: Bool = false
-        @Published var previousDragTranslation: CGSize = .zero
         @Published var offset: CGFloat = UIScreen.main.bounds.height
 
         public var dragPercentage: CGFloat {

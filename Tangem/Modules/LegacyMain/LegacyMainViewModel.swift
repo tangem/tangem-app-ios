@@ -6,10 +6,11 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
-import Combine
 import Foundation
 import SwiftUI
+import Combine
+import CombineExt
+import BlockchainSdk
 import TangemSdk
 
 class LegacyMainViewModel: ObservableObject {
@@ -122,9 +123,8 @@ class LegacyMainViewModel: ObservableObject {
 
     var buyCryptoURL: URL? {
         if let wallet {
-            let blockchain = wallet.blockchain
-            if blockchain.isTestnet {
-                return blockchain.testnetFaucetURL
+            if wallet.blockchain.isTestnet {
+                return wallet.getTestnetFaucetURL()
             }
 
             return exchangeService.getBuyUrl(
@@ -213,7 +213,7 @@ class LegacyMainViewModel: ObservableObject {
         cardModel.derivationManager?.hasPendingDerivations
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .weakAssign(to: \.hasPendingDerivations, on: self)
+            .assign(to: \.hasPendingDerivations, on: self, ownership: .weak)
             .store(in: &bag)
 
         AppSettings.shared.$saveUserWallets
@@ -424,20 +424,7 @@ extension LegacyMainViewModel {
             rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
         case .learnMore:
-            if case .multiWalletSignedHashes = warning.event {
-                error = AlertBinder(alert: Alert(
-                    title: Text(warning.title),
-                    message: Text(Localization.alertSignedHashesMessage),
-                    primaryButton: .cancel(),
-                    secondaryButton: .default(Text(Localization.commonUnderstand)) { [weak self] in
-                        withAnimation {
-                            registerValidatedSignedHashesCard()
-                            self?.cardModel.warningsService.hideWarning(warning)
-                        }
-                    }
-                ))
-                return
-            }
+            break
         }
 
         cardModel.warningsService.hideWarning(warning)
@@ -597,7 +584,7 @@ extension LegacyMainViewModel {
 
 extension LegacyMainViewModel {
     func openSettings() {
-        coordinator.openSettings(cardModel: cardModel)
+        coordinator.openSettings(userWalletModel: cardModel)
     }
 
     func openSend(for amountToSend: Amount) {
@@ -691,7 +678,7 @@ extension LegacyMainViewModel {
 
 extension LegacyMainViewModel: LegacySingleWalletContentViewModelOutput {
     func openPushTx(for index: Int, walletModel: WalletModel) {
-        let tx = walletModel.wallet.pendingOutgoingTransactions[index]
+        let tx = walletModel.outgoingPendingTransactions[index]
         coordinator.openPushTx(for: tx, blockchainNetwork: walletModel.blockchainNetwork, card: cardModel)
     }
 

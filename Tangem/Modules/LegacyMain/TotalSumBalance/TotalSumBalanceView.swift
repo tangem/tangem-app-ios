@@ -47,11 +47,18 @@ struct TotalSumBalanceView: View {
 
     private var balanceView: some View {
         VStack(alignment: .leading, spacing: 6) {
-            AttributedTextView(viewModel.totalFiatValueString)
-                .foregroundColor(Color.tangemGrayDark6)
-                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
-                .frame(height: 33)
+            Group {
+                if viewModel.isLoading {
+                    Color.clear
+                        .skeletonable(isShown: true, size: CGSize(width: 100, height: 25))
+                } else {
+                    AttributedTextView(viewModel.totalFiatValueString)
+                        .foregroundColor(Color.tangemGrayDark6)
+                }
+            }
+            .frame(height: 33)
         }
+        .animation(.default, value: viewModel.isLoading)
     }
 
     @ViewBuilder

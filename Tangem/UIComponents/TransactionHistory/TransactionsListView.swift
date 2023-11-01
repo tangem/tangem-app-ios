@@ -11,9 +11,9 @@ import SwiftUI
 struct TransactionsListView: View {
     let state: State
     let exploreAction: () -> Void
+    let exploreTransactionAction: (String) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
-    let buyButtonAction: (() -> Void)?
     let fetchMore: FetchMore?
 
     var body: some View {
@@ -26,7 +26,7 @@ struct TransactionsListView: View {
     @ViewBuilder
     private var header: some View {
         HStack {
-            Text(Localization.transactionHistoryTitle)
+            Text(Localization.commonTransactions)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
@@ -41,6 +41,7 @@ struct TransactionsListView: View {
                 }
             }
         }
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -82,7 +83,6 @@ struct TransactionsListView: View {
     private var loadingContent: some View {
         VStack(spacing: 12) {
             header
-                .padding(.horizontal, 16)
 
             ForEach(0 ... 2) { _ in
                 TokenListItemLoadingPlaceholderView(style: .transactionHistory)
@@ -95,15 +95,12 @@ struct TransactionsListView: View {
     @ViewBuilder
     private var noTransactionsContent: some View {
         VStack(spacing: 20) {
-            Assets.coinSlot.image
+            Assets.emptyHistory.image
+                .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)
 
             Text(Localization.transactionHistoryEmptyTransactions)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-
-            if let buyButtonAction = buyButtonAction {
-                simpleButton(with: Localization.commonBuy, and: buyButtonAction)
-            }
         }
         .padding(.vertical, 28)
     }
@@ -131,20 +128,16 @@ struct TransactionsListView: View {
             noTransactionsContent
         } else {
             LazyVStack(spacing: 12) {
-                header
-                    .padding(.horizontal, 16)
-
-                ForEach(transactionItems, id: \.id) { item in
-                    HStack {
-                        Text(item.header)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
+                ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, item in
+                    makeSectionHeader(for: item, atIndex: sectionIndex)
 
                     ForEach(item.items, id: \.id) { item in
-                        TransactionView(viewModel: item)
+                        Button {
+                            exploreTransactionAction(item.hash)
+                        } label: {
+                            TransactionView(viewModel: item)
+                                .ios14FixedHeight(Constants.ios14ListItemHeight)
+                        }
                     }
                 }
 
@@ -191,14 +184,53 @@ struct TransactionsListView: View {
         .background(Colors.Button.secondary)
         .cornerRadiusContinuous(10)
     }
+
+    @ViewBuilder
+    private func makeSectionHeader(for item: TransactionListItem, atIndex sectionIndex: Int) -> some View {
+        let sectionHeader = HStack {
+            Text(item.header)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+
+        Group {
+            // Section header for the very first section also includes the header for the list itself
+            if sectionIndex == 0 {
+                VStack(spacing: 0.0) {
+                    header
+
+                    Spacer(minLength: 12.0)
+
+                    sectionHeader
+
+                    Spacer(minLength: 12.0)
+                }
+            } else {
+                sectionHeader
+            }
+        }
+        .ios14FixedHeight(Constants.ios14ListItemHeight)
+    }
 }
 
 extension TransactionsListView {
-    enum State {
+    enum State: Equatable {
         case loading
         case error(Error)
         case loaded([TransactionListItem])
         case notSupported
+
+        static func == (lhs: State, rhs: State) -> Bool {
+            switch (lhs, rhs) {
+            case (.loading, .loading): return true
+            case (.error, .error): return true
+            case (.loaded(let lhsItems), .loaded(let rhsItems)): return lhsItems == rhsItems
+            case (.notSupported, .notSupported): return true
+            default: return false
+            }
+        }
     }
 }
 
@@ -206,81 +238,87 @@ extension TransactionsListView {
     enum Constants {
         /// An approximate value from the design
         static let lineSpacing: CGFloat = 3.5
+        @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
+        static let ios14ListItemHeight = 56.0
     }
 }
 
 struct TransactionsListView_Previews: PreviewProvider {
-    static let listItems = [
-        TransactionListItem(
-            header: "Today",
-            items: TransactionView_Previews.previewViewModels
-        ),
-        TransactionListItem(
-            header: "Yesterday",
-            items: TransactionView_Previews.previewViewModels
-        ),
-        TransactionListItem(
-            header: "02.05.23",
-            items: TransactionView_Previews.previewViewModels
-        ),
-    ]
+    class TxHistoryModel: ObservableObject {
+        @Published var state: TransactionsListView.State
+
+        let oldItems = [
+            TransactionListItem(
+                header: "Yesterday",
+                items: TransactionView_Previews.previewViewModels
+            ),
+            TransactionListItem(
+                header: "02.05.23",
+                items: TransactionView_Previews.previewViewModels
+            ),
+        ]
+
+        let todayItems = [
+            TransactionListItem(
+                header: "Today",
+                items: TransactionView_Previews.previewViewModels
+            ),
+        ]
+
+        private var onlyOldItems = true
+
+        init() {
+            state = .loaded(oldItems)
+        }
+
+        func toggleState() {
+            switch state {
+            case .loading:
+                state = .loaded(oldItems)
+            case .loaded:
+                if onlyOldItems {
+                    state = .loaded(todayItems + oldItems)
+                    onlyOldItems = false
+                    return
+                }
+
+                state = .error("Don't touch this!!!")
+                onlyOldItems = true
+            case .error:
+                state = .notSupported
+            case .notSupported:
+                state = .loading
+            }
+        }
+    }
+
+    struct PreviewView: View {
+        @ObservedObject var model: TxHistoryModel = .init()
+
+        var body: some View {
+            VStack {
+                Button(action: model.toggleState) {
+                    Text("Toggle state")
+                }
+
+                ScrollView {
+                    TransactionsListView(
+                        state: model.state,
+                        exploreAction: {},
+                        exploreTransactionAction: { _ in },
+                        reloadButtonAction: {},
+                        isReloadButtonBusy: false,
+                        fetchMore: nil
+                    )
+                    .animation(.default, value: model.state)
+                    .padding(.horizontal, 16)
+                }
+            }
+            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        }
+    }
 
     static var previews: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                TransactionsListView(
-                    state: .notSupported,
-                    exploreAction: {},
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-
-                TransactionsListView(
-                    state: .loading,
-                    exploreAction: {},
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-
-                TransactionsListView(
-                    state: .loaded([]),
-                    exploreAction: {},
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-
-                TransactionsListView(
-                    state: .error(""),
-                    exploreAction: {},
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    buyButtonAction: {},
-                    fetchMore: nil
-                )
-            }
-            .padding(.horizontal, 16)
-        }
-        .preferredColorScheme(.dark)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-
-        ScrollView {
-            TransactionsListView(
-                state: .loaded(listItems),
-                exploreAction: {},
-                reloadButtonAction: {},
-                isReloadButtonBusy: false,
-                buyButtonAction: {},
-                fetchMore: nil
-            )
-            .padding(.horizontal, 16)
-        }
-        .preferredColorScheme(.dark)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        PreviewView()
     }
 }
