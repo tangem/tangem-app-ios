@@ -84,7 +84,7 @@ private extension ManageTokensViewModel {
             .removeDuplicates()
             .sink { [weak self] string in
                 if !string.isEmpty {
-                    Analytics.log(.tokenSearched)
+                    Analytics.log(.manageTokensSearched)
                 }
 
                 self?.loader.fetch(string)
@@ -173,14 +173,24 @@ private extension ManageTokensViewModel {
             // [REDACTED_TODO_COMMENT]
             break
         case .add, .edit:
+            let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
+            Analytics.log(event: event, params: [.token: coinModel.id])
+
             coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items.map { $0.tokenItem })
         }
     }
 
     private func updateGenerateAddressesViewModel() {
-        guard pendingDerivationCountByWalletId.contains(where: { $0.value > 0 }) else {
+        let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
+
+        guard countWalletPendingDerivation > 0 else {
             return generateAddressesViewModel = nil
         }
+
+        Analytics.log(
+            event: .manageTokensButtonGenerateAddresses,
+            params: [.cardsCount: String(countWalletPendingDerivation)]
+        )
 
         generateAddressesViewModel = GenerateAddressesViewModel(
             numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
