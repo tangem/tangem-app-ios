@@ -9,12 +9,8 @@ import Foundation
 import SwiftUI
 import Combine
 
-protocol SendAmountInput {
-    var amountText: String { get set }
+protocol SendAmountViewModelInput {
     var amountTextBinding: Binding<String> { get }
-}
-
-protocol SendAmountValidator {
     var amountError: AnyPublisher<Error?, Never> { get }
 }
 
@@ -23,10 +19,10 @@ class SendAmountViewModel: ObservableObject {
 
     @Published var amountError: String?
 
-    init(input: SendAmountInput, validator: SendAmountValidator) {
+    init(input: SendAmountViewModelInput) {
         amountText = input.amountTextBinding
 
-        validator
+        input
             .amountError
             .map { $0?.localizedDescription }
             .assign(to: &$amountError) // weak
