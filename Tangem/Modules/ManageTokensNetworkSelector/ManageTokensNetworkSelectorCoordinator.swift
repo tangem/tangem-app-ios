@@ -50,11 +50,14 @@ extension ManageTokensNetworkSelectorCoordinator: ManageTokensNetworkSelectorRou
     func openAddCustomTokenModule() {}
 
     func openWalletSelectorModule(
-        userWallets: [UserWallet],
+        userWallets: [UserWalletModel],
         currentUserWalletId: UserWalletId?,
         delegate: WalletSelectorDelegate?
     ) {
-        walletSelectorViewModel = .init(userWallets: userWallets, currentUserWalletId: currentUserWalletId?.value)
+        walletSelectorViewModel = .init(
+            userWallets: userWallets.map { $0.userWallet },
+            currentUserWalletId: currentUserWalletId?.value
+        )
         walletSelectorViewModel?.delegate = delegate
     }
 

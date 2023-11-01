@@ -94,8 +94,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func selectWalletActionDidTap() {
         coordinator.openWalletSelectorModule(
-            userWallets: walletSelectorProvider.fetchListWalletForSelector(),
-            currentUserWalletId: walletSelectorProvider.fetchCurrentWalletSelected()?.userWalletId,
+            userWallets: walletSelectorProvider.listWalletForSelector(),
+            currentUserWalletId: walletSelectorProvider.currentWalletSelected()?.userWalletId,
             delegate: self
         )
     }
@@ -103,7 +103,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private func fillWalletSelector() {
-        guard let currentUserWalletModel = walletSelectorProvider.fetchCurrentWalletSelected() else {
+        guard let currentUserWalletModel = walletSelectorProvider.currentWalletSelected() else {
+            alert = AlertBinder(title: "[REDACTED_TODO_COMMENT]")
             return
         }
 
