@@ -26,16 +26,16 @@ struct WalletSelectorProvider {
     }
 
     /// Return of first selected wallet for diplay
-    func fetchCurrentWalletSelected() -> UserWalletId? {
+    func fetchCurrentWalletSelected() -> UserWalletModel? {
         let currentUserWalletModel = userWalletRepository.models.first(where: { userWalletModel in
             return userWalletModel.userWalletId.value == userWalletRepository.selectedUserWalletId
         })
 
         // If current wallet already selected for right path condition
         if let currentUserWalletModel, !currentUserWalletModel.isUserWalletLocked {
-            return currentUserWalletModel.userWalletId
+            return currentUserWalletModel
         }
 
-        return userWalletRepository.models.first(where: { !$0.isUserWalletLocked })?.userWalletId
+        return userWalletRepository.models.first(where: { !$0.isUserWalletLocked })
     }
 }
