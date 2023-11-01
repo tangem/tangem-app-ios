@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import Moya
 import BlockchainSdk
 
@@ -47,14 +48,24 @@ extension CommonTangemApiService: TangemApiService {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
         let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
 
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(UserTokenList.self)
+            .map(UserTokenList?.self)
             .mapTangemAPIError()
+            .catch { error -> AnyPublisher<UserTokenList?, TangemAPIError> in
+                if error.code == .notFound {
+                    return Just(nil)
+                        .setFailureType(to: TangemAPIError.self)
+                        .eraseToAnyPublisher()
+                }
+
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
             .retry(3)
             .eraseToAnyPublisher()
     }
@@ -66,7 +77,7 @@ extension CommonTangemApiService: TangemApiService {
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .mapTangemAPIError()
-            .mapVoid()
+            .mapToVoid()
             .eraseToAnyPublisher()
     }
 
@@ -215,9 +226,10 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusAndRedirectCodes()
             .map(GeoResponse.self)
             .map(\.code)
+            .map(Optional.some)
             .replaceError(with: fallbackRegionCode)
             .subscribe(on: DispatchQueue.global())
-            .weakAssign(to: \._geoIpRegionCode, on: self)
+            .assign(to: \._geoIpRegionCode, on: self, ownership: .weak)
             .store(in: &bag)
 
         AppLog.shared.debug("CommonTangemApiService initialized")
