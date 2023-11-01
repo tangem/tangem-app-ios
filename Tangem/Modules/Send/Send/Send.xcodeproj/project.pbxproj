@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DA7883F92AF24A4E00B6425B /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7883F82AF24A4E00B6425B /* CustomTextField.swift */; };
+		DA7883FB2AF2648A00B6425B /* readgeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7883FA2AF2648A00B6425B /* readgeometry.swift */; };
 		DAE42CDE2AEFB05C00A1087C /* SendApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CDD2AEFB05C00A1087C /* SendApp.swift */; };
 		DAE42CE02AEFB05C00A1087C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CDF2AEFB05C00A1087C /* ContentView.swift */; };
 		DAE42CEE2AEFB14B00A1087C /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE42CEB2AEFB14B00A1087C /* SendViewModel.swift */; };
@@ -23,9 +25,12 @@
 		DAFB14D82AEFCE4700CA3D7E /* SendStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFB14D72AEFCE4700CA3D7E /* SendStep.swift */; };
 		DAFB14DB2AF010B900CA3D7E /* SendModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFB14DA2AF010B900CA3D7E /* SendModel.swift */; };
 		DAFB14DD2AF0162A00CA3D7E /* Lorem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFB14DC2AF0162A00CA3D7E /* Lorem.swift */; };
+		DAFC9E7F2AF1576F00B150E9 /* SendInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFC9E7E2AF1576F00B150E9 /* SendInputField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DA7883F82AF24A4E00B6425B /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
+		DA7883FA2AF2648A00B6425B /* readgeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = readgeometry.swift; sourceTree = "<group>"; };
 		DAE42CDA2AEFB05C00A1087C /* Send.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Send.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAE42CDD2AEFB05C00A1087C /* SendApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendApp.swift; sourceTree = "<group>"; };
 		DAE42CDF2AEFB05C00A1087C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -43,6 +48,7 @@
 		DAFB14D72AEFCE4700CA3D7E /* SendStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SendStep.swift; path = ../../SendStep.swift; sourceTree = "<group>"; };
 		DAFB14DA2AF010B900CA3D7E /* SendModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SendModel.swift; path = ../../SendModel.swift; sourceTree = "<group>"; };
 		DAFB14DC2AF0162A00CA3D7E /* Lorem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Lorem.swift; path = ../../Lorem.swift; sourceTree = "<group>"; };
+		DAFC9E7E2AF1576F00B150E9 /* SendInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendInputField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +101,9 @@
 			children = (
 				DAFB14C42AEFC8E100CA3D7E /* SendAmountView.swift */,
 				DAFB14C62AEFC8E500CA3D7E /* SendAmountViewModel.swift */,
+				DAFC9E7E2AF1576F00B150E9 /* SendInputField.swift */,
+				DA7883F82AF24A4E00B6425B /* CustomTextField.swift */,
+				DA7883FA2AF2648A00B6425B /* readgeometry.swift */,
 			);
 			name = Amount;
 			path = ../../Amount;
@@ -212,10 +221,13 @@
 				DAE42CE02AEFB05C00A1087C /* ContentView.swift in Sources */,
 				DAFB14C72AEFC8E500CA3D7E /* SendAmountViewModel.swift in Sources */,
 				DAE42CDE2AEFB05C00A1087C /* SendApp.swift in Sources */,
+				DA7883FB2AF2648A00B6425B /* readgeometry.swift in Sources */,
 				DAFB14DD2AF0162A00CA3D7E /* Lorem.swift in Sources */,
 				DAFB14D52AEFCB7A00CA3D7E /* SendFeeView.swift in Sources */,
 				DAE42CF02AEFB14B00A1087C /* SendRoutable.swift in Sources */,
+				DA7883F92AF24A4E00B6425B /* CustomTextField.swift in Sources */,
 				DAFB14D22AEFCB7A00CA3D7E /* SendSummaryViewModel.swift in Sources */,
+				DAFC9E7F2AF1576F00B150E9 /* SendInputField.swift in Sources */,
 				DAFB14D42AEFCB7A00CA3D7E /* SendDestinationViewModel.swift in Sources */,
 				DAFB14D32AEFCB7A00CA3D7E /* SendDestinationView.swift in Sources */,
 				DAE42CEF2AEFB14B00A1087C /* SendView.swift in Sources */,
