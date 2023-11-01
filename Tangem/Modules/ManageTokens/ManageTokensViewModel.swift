@@ -19,6 +19,7 @@ final class ManageTokensViewModel: ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
+    @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
     @Published var generateAddressesViewModel: GenerateAddressesViewModel?
@@ -185,7 +186,23 @@ private extension ManageTokensViewModel {
             numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
             totalWalletNumber: userWalletRepository.userWallets.count,
-            didTapGenerate: {}
+            didTapGenerate: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
         )
+    }
+
+    private func generateAddressByWalletPendingDerivations() {
+        guard let userWalletId = pendingDerivationCountByWalletId.first(where: { $0.value > 0 })?.key else {
+            return
+        }
+
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+            return
+        }
+
+        userWalletModel.userTokensManager.deriveIfNeeded { result in
+            if case .failure(let error) = result, !error.isUserCancelled {
+                self.alert = error.alertBinder
+            }
+        }
     }
 }
