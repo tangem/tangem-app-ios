@@ -13,28 +13,21 @@ struct SendFeeView: View {
 
     var body: some View {
         VStack {
-            VStack {
-                TextField("fee", text: viewModel.fee)
-//                TextField("0.00 USDT", text: viewModel.amountText)
-//                    .keyboardType(.decimalPad)
-            }
-            .padding()
-            .border(Color.blue, width: 5)
-            .matchedGeometryEffect(id: "fee", in: namespace)
-
-            Lorem()
+            TextField("fee", text: viewModel.fee)
+                .padding()
+                .border(Color.blue, width: 5)
+                .matchedGeometryEffect(id: "fee", in: namespace)
 
             Spacer()
-
-            Button(action: {}, label: {
-                Text("set")
-            })
         }
         .padding(.horizontal)
     }
 }
 
-//
-// #Preview {
-//    SendFeeView()
-// }
+private enum PreviewData {
+    @Namespace static var namespace
+}
+
+#Preview {
+    SendFeeView(namespace: PreviewData.namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock()))
+}
