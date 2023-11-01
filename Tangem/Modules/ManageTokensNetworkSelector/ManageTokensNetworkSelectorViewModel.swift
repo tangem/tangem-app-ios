@@ -89,18 +89,32 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Implementation
 
     func onAppear() {
-        currentWalletName = userWalletRepository.selectedModel?.name ?? ""
+        fillWalletSelector()
     }
 
     func selectWalletActionDidTap() {
         coordinator.openWalletSelectorModule(
             userWallets: walletSelectorProvider.fetchListWalletForSelector(),
-            currentUserWalletId: walletSelectorProvider.fetchCurrentWalletSelected(),
+            currentUserWalletId: walletSelectorProvider.fetchCurrentWalletSelected()?.userWalletId,
             delegate: self
         )
     }
 
     // MARK: - Private Implementation
+
+    private func fillWalletSelector() {
+        guard let currentUserWalletModel = walletSelectorProvider.fetchCurrentWalletSelected() else {
+            return
+        }
+
+        currentWalletName = currentUserWalletModel.userWallet.name
+
+        // [REDACTED_TODO_COMMENT]
+
+        if !currentUserWalletModel.isMultiWallet {
+            alert = AlertBinder(title: "[REDACTED_TODO_COMMENT]")
+        }
+    }
 
     private func fillSelectorItemsFromTokenItems() {
         nativeSelectorItems = tokenItems
