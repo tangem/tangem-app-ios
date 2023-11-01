@@ -33,15 +33,15 @@ struct SendDestinationView: View {
                 .foregroundColor(.red)
 
             Spacer()
-
-            Button(action: {}, label: {
-                Text("set")
-            })
         }
         .padding(.horizontal)
     }
 }
 
-// #Preview {
-//    SendDestinationView()
-// }
+private enum PreviewData {
+    @Namespace static var namespace
+}
+
+#Preview {
+    SendDestinationView(namespace: PreviewData.namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock()))
+}
