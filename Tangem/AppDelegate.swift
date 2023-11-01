@@ -13,6 +13,8 @@ import AppsFlyerLib
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView?
 
+    var window: UIWindow? // Do not remove, this is needed by Sprinklr
+
     private lazy var servicesManager = ServicesManager()
 
     func addLoadingView() {
@@ -43,6 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().titleTextAttributes = [
             .foregroundColor: UIColor(Colors.Text.primary1),
         ]
+        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
 
         servicesManager.initialize()
         return true

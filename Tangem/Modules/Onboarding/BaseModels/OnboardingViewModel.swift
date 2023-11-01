@@ -27,6 +27,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     @Published var isNavBarVisible: Bool = false
     @Published var alert: AlertBinder?
     @Published var cardImage: Image?
+    @Published var customOnboardingImage: Image?
     @Published var secondImage: Image?
 
     private var confettiFired: Bool = false
@@ -165,12 +166,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         userWalletRepository.initializeServices(for: userWallet, cardInfo: userWallet.cardInfo)
 
-        let defaultBlockchains = userWallet.config.defaultBlockchains
-        if !defaultBlockchains.isEmpty {
-            userWallet.userTokenListManager.update(.append(defaultBlockchains), shouldUpload: true)
-        }
-
-        userWallet.initialUpdate()
         Analytics.logTopUpIfNeeded(balance: 0)
 
         cardModel = userWallet
@@ -296,7 +291,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AppSettings.shared.saveUserWallets = agreed
         AppSettings.shared.saveAccessCodes = agreed
 
-        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed)])
+        Analytics.log(.onboardingEnableBiometric, params: [.state: Analytics.ParameterValue.toggleState(for: agreed)])
     }
 
     func disclaimerAccepted() {
@@ -369,6 +364,8 @@ extension OnboardingViewModel {
     }
 
     func closeOnboarding() {
+        // reset services before exit
+        userWalletRepository.updateSelection()
         coordinator.closeOnboarding()
     }
 
@@ -409,7 +406,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
             }
 
             Analytics.log(.allowBiometricID, params: [
-                .state: Analytics.ParameterValue.state(for: biometryAccessGranted),
+                .state: Analytics.ParameterValue.toggleState(for: biometryAccessGranted),
             ])
 
             self?.goToNextStep()

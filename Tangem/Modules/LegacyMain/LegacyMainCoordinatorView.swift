@@ -46,8 +46,8 @@ struct LegacyMainCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.sendCoordinator) {
-                SendCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.legacySendCoordinator) {
+                LegacySendCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.pushTxCoordinator) {
                 PushTxCoordinatorView(coordinator: $0)
@@ -57,6 +57,9 @@ struct LegacyMainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.legacyTokenListCoordinator) {
                 LegacyTokenListCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.manageTokensCoordinator) {
+                ManageTokensCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
