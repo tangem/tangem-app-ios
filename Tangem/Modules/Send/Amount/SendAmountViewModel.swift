@@ -22,9 +22,10 @@ class SendAmountViewModel: ObservableObject {
     init(input: SendAmountViewModelInput) {
         amountText = input.amountTextBinding
 
+        #warning("weak")
         input
             .amountError
             .map { $0?.localizedDescription }
-            .assign(to: &$amountError) // weak
+            .assign(to: &$amountError)
     }
 }
