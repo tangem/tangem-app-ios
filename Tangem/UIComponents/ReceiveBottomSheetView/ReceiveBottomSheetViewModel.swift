@@ -7,8 +7,10 @@
 //
 
 import Foundation
-import Combine
 import UIKit
+import SwiftUI
+import Combine
+import CombineExt
 
 class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     @Published var isUserUnderstandsAddressNetworkRequirements: Bool
@@ -21,6 +23,10 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
 
     let iconURL: URL?
+
+    var customTokenColor: Color? {
+        tokenItem.token?.customTokenColor
+    }
 
     private let tokenItem: TokenItem
 
@@ -42,9 +48,13 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
             tokenItem.networkName
         )
 
-        isUserUnderstandsAddressNetworkRequirements = AppSettings.shared.understandsAddressNetworkRequirements.contains(tokenItem.networkName)
+        isUserUnderstandsAddressNetworkRequirements = true
 
         bind()
+    }
+
+    func onViewAppear() {
+        Analytics.log(.receiveScreenOpened)
     }
 
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
@@ -78,6 +88,6 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     private func bind() {
         indexUpdateSubscription = addressIndexUpdateNotifier
-            .weakAssign(to: \.currentIndex, on: self)
+            .assign(to: \.currentIndex, on: self, ownership: .weak)
     }
 }
