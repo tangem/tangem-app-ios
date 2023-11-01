@@ -12,53 +12,78 @@ struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
 
     var body: some View {
-        HStack(spacing: 12.0) {
+        HStack(spacing: 0.0) {
             TokenItemViewLeadingComponent(
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
+                customTokenColor: viewModel.customTokenColor,
                 blockchainIconName: viewModel.blockchainIconName,
-                hasMonochromeIcon: viewModel.isNetworkUnreachable
+                hasMonochromeIcon: viewModel.hasMonochromeIcon,
+                isCustom: viewModel.isCustom
             )
 
-            // According to the mockups, network unreachable state on the Organize Tokens screen
-            // looks different than on the main screen
-            if viewModel.isNetworkUnreachable {
-                networkUnreachableMiddleComponent
-            } else {
-                defaultMiddleComponent
+            // Fixed size spacer
+            FixedSpacer(width: Constants.spacerLength, length: Constants.spacerLength)
+                .layoutPriority(1000.0)
+
+            VStack(alignment: .leading, spacing: 4) {
+                if let errorMessage = viewModel.errorMessage {
+                    makeMiddleComponent(withErrorMessage: errorMessage)
+                } else {
+                    defaultMiddleComponent
+                }
             }
 
-            Spacer(minLength: 0.0)
+            // Flexible size spacer
+            Spacer(minLength: viewModel.isDraggable ? Constants.spacerLength : 0.0)
 
             if viewModel.isDraggable {
                 Assets.OrganizeTokens.itemDragAndDropIcon
                     .image
                     .foregroundColor(Colors.Icon.informative)
+                    .overlay(
+                        OrganizeTokensDragAndDropGestureMarkView(context: .init(identifier: viewModel.id))
+                            .frame(size: Constants.dragAndDropTapZoneSize)
+                    )
             }
         }
         .padding(14.0)
+        .frame(minHeight: 68)
     }
 
-    private var networkUnreachableMiddleComponent: some View {
-        VStack(alignment: .leading, spacing: 2.0) {
-            Text(viewModel.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                .lineLimit(2)
-
-            Text(Localization.commonUnreachable)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 2.0)
-    }
-
+    @ViewBuilder
     private var defaultMiddleComponent: some View {
-        TokenItemViewMiddleComponent(
-            name: viewModel.name,
-            balance: viewModel.balance,
-            hasPendingTransactions: false, // Pending transactions aren't shown on the Organize Tokens screen
-            hasError: viewModel.isNetworkUnreachable
+        Text(viewModel.name)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            .lineLimit(1)
+
+        LoadableTextView(
+            state: viewModel.balance,
+            font: Fonts.Regular.footnote,
+            textColor: Colors.Text.tertiary,
+            loaderSize: .init(width: 52, height: 12),
+            isSensitiveText: true
         )
+    }
+
+    @ViewBuilder
+    private func makeMiddleComponent(withErrorMessage errorMessage: String) -> some View {
+        Text(viewModel.name)
+            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            .lineLimit(1)
+
+        Text(errorMessage)
+            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .lineLimit(1)
+    }
+}
+
+// MARK: - Constants
+
+private extension OrganizeTokensListItemView {
+    enum Constants {
+        static let spacerLength = 12.0
+        static let dragAndDropTapZoneSize = CGSize(bothDimensions: 64.0)
     }
 }
 
