@@ -47,7 +47,7 @@ extension CardImageProvider: CardImageProviding {
 
     func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<CardImageResult, Never> {
         guard supportsOnlineImage else {
-            return Just(.embedded(defaultImage)).eraseToAnyPublisher()
+            return .just(output: .embedded(defaultImage))
         }
 
         let cardArtwork = artwork ?? cardArtwork(for: cardId) ?? .notLoaded
@@ -62,8 +62,7 @@ extension CardImageProvider: CardImageProviding {
         let cacheKey = "twin_\(number)"
 
         if let image = getImageFromCache(for: cacheKey) {
-            return Just(.cached(image))
-                .eraseToAnyPublisher()
+            return .just(output: .cached(image))
         }
 
         return imageLoader.loadTwinImage(for: number)
