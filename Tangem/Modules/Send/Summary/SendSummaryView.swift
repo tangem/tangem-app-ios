@@ -32,7 +32,7 @@ struct SendSummaryView: View {
                             VStack {
                                 HStack {
                                     Text(viewModel.input.amountText)
-                                        .foregroundStyle(.black)
+                                        .foregroundColor(.black)
                                     Spacer()
                                 }
                             }
@@ -55,7 +55,7 @@ struct SendSummaryView: View {
                                 HStack {
                                     Text(viewModel.input.destinationText)
                                         .lineLimit(1)
-                                        .foregroundStyle(.black)
+                                        .foregroundColor(.black)
                                     Spacer()
                                 }
                             }
@@ -84,7 +84,7 @@ struct SendSummaryView: View {
                         VStack(alignment: .leading) {
                             HStack {
                                 Text(viewModel.input.feeText)
-                                    .foregroundStyle(.black)
+                                    .foregroundColor(.black)
                                 Spacer()
                             }
                         }
