@@ -18,42 +18,12 @@ struct SendView: View {
 
     var body: some View {
         VStack {
-            Text(viewModel.title)
-                .font(.title2)
-                .animation(nil)
+            title
 
-            currentPage()
+            currentPage
 
             if viewModel.showNavigationButtons {
-                HStack {
-                    if viewModel.showBackButton {
-                        Button(action: viewModel.back, label: {
-                            Text("Back")
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(Color.black)
-                                .cornerRadius(10)
-                        })
-                    }
-
-                    if viewModel.showNextButton {
-                        Button(action: viewModel.next) {
-                            Text("Next")
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(viewModel.currentStepInvalid ? Color.gray : Color.black)
-                                .cornerRadius(10)
-                        }
-                        .disabled(viewModel.currentStepInvalid)
-                    }
-                }
-                .animation(nil, value: UUID())
-                .transaction { transaction in
-                    transaction.animation = nil
-                    transaction.disablesAnimations = true
-                }
-                .padding(.horizontal)
+                navigationButtons
             }
 
             Color.clear.frame(height: 1)
@@ -61,7 +31,14 @@ struct SendView: View {
     }
 
     @ViewBuilder
-    func currentPage() -> some View {
+    private var title: some View {
+        Text(viewModel.title)
+            .font(.title2)
+            .animation(nil)
+    }
+
+    @ViewBuilder
+    private var currentPage: some View {
         switch viewModel.step {
         case .amount:
             SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: viewModel.sendModel))
@@ -72,6 +49,34 @@ struct SendView: View {
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: viewModel.sendModel, router: viewModel))
         }
+    }
+
+    @ViewBuilder
+    private var navigationButtons: some View {
+        HStack {
+            if viewModel.showBackButton {
+                Button(action: viewModel.back, label: {
+                    Text("Back")
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.black)
+                        .cornerRadius(10)
+                })
+            }
+
+            if viewModel.showNextButton {
+                Button(action: viewModel.next) {
+                    Text("Next")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(viewModel.currentStepInvalid ? Color.gray : Color.black)
+                        .cornerRadius(10)
+                }
+                .disabled(viewModel.currentStepInvalid)
+            }
+        }
+        .padding(.horizontal)
     }
 }
 
