@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import TangemSdk
 import Combine
+import CombineExt
+import TangemSdk
 
 protocol CardInitializable {
     func initializeCard(mnemonic: Mnemonic?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void)
@@ -33,9 +34,14 @@ extension CardInitializer: CardInitializable {
         let initialMessage = Message(header: nil, body: Localization.initialMessageCreateWalletBody)
         runnableBag = task
 
+        // Ring onboarding. Set custom image
+        if let customOnboardingImage = config.customScanImage {
+            tangemSdk.config.style.scanTagImage = .image(uiImage: customOnboardingImage.uiImage, verticalOffset: 0)
+        }
+
         let didBecomeActivePublisher = NotificationCenter.didBecomeActivePublisher
             .mapError { $0.toTangemSdkError() }
-            .mapVoid()
+            .mapToVoid()
             .first()
 
         cancellable = tangemSdk.startSessionPublisher(
@@ -54,6 +60,9 @@ extension CardInitializer: CardInitializable {
         .sink(receiveCompletion: { [weak self] completionResult in
             self?.runnableBag = nil
             self?.cancellable = nil
+
+            // Ring onboarding. Reset the image
+            self?.tangemSdk.config.style.scanTagImage = .genericCard
 
             switch completionResult {
             case .finished:

@@ -12,11 +12,11 @@ import TangemSdk
 import BlockchainSdk
 
 protocol UserTokensSyncService {
-    var isInitialSyncPerformed: Bool { get }
-    var initialSyncPublisher: AnyPublisher<Bool, Never> { get }
+    var initialized: Bool { get }
+    var initializedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
-protocol UserTokensManager: UserTokensSyncService {
+protocol UserTokensManager: UserTokensReordering {
     var derivationManager: DerivationManager? { get }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
@@ -29,8 +29,6 @@ protocol UserTokensManager: UserTokensSyncService {
     /// Update storage without derivtion
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?)
 
-    func updateUserTokens()
-
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
@@ -39,6 +37,8 @@ protocol UserTokensManager: UserTokensSyncService {
 
     func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?)
+
+    func sync(completion: @escaping () -> Void)
 }
 
 extension UserTokensManager {
