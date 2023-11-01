@@ -26,9 +26,6 @@ struct DetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.currencySelectViewModel) {
-                CurrencySelectView(viewModel: $0)
-            }
             .navigation(item: $coordinator.cardSettingsCoordinator) {
                 CardSettingsCoordinatorView(coordinator: $0)
             }
@@ -62,7 +59,7 @@ struct DetailsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.supportChatViewModel) {
+            .sheet(item: $coordinator.supportChatViewModel, fullScreen: SupportChatViewModel.useFullScreen) {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)
             }
