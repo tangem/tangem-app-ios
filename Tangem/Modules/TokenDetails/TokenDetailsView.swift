@@ -32,18 +32,37 @@ struct TokenDetailsView: View {
     }
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.onRefresh) {
+        RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
                 BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
 
+                ForEach(viewModel.tokenNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(.notificationTransition)
+                }
+
+                if viewModel.isMarketPriceAvailable {
+                    MarketPriceView(
+                        currencySymbol: viewModel.currencySymbol,
+                        price: viewModel.rateFormatted,
+                        priceChangeState: viewModel.priceChangeState,
+                        tapAction: nil
+                    )
+                }
+
+                PendingTransactionsListView(
+                    items: viewModel.pendingTransactionViews,
+                    exploreTransactionAction: viewModel.openTransactionExplorer
+                )
+
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
+                    exploreTransactionAction: viewModel.openTransactionExplorer,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
                     fetchMore: viewModel.fetchMoreHistory()
                 )
                 .padding(.bottom, 40)
@@ -54,17 +73,26 @@ struct TokenDetailsView: View {
                 bindTo: $contentOffset
             )
         }
+        .animation(.default, value: viewModel.tokenNotificationInputs)
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
-                IconView(url: viewModel.iconUrl, sizeSettings: .tokenDetailsToolbar)
-                    .opacity(toolbarIconOpacity)
+                TokenIcon(
+                    name: "",
+                    imageURL: viewModel.iconUrl,
+                    customTokenColor: viewModel.customTokenColor,
+                    blockchainIconName: nil,
+                    isCustom: false,
+                    size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
+                )
+                .opacity(toolbarIconOpacity)
             }
 
             ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
@@ -74,15 +102,17 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var navbarTrailingButton: some View {
-        Menu {
-            if #available(iOS 15.0, *) {
-                Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-            } else {
-                Button(Localization.tokenDetailsHideToken, action: viewModel.hideTokenButtonAction)
+        if viewModel.canHideToken {
+            Menu {
+                if #available(iOS 15.0, *) {
+                    Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
+                } else {
+                    Button(Localization.tokenDetailsHideToken, action: viewModel.hideTokenButtonAction)
+                }
+            } label: {
+                NavbarDotsImage()
+                    .offset(x: 10)
             }
-        } label: {
-            NavbarDotsImage()
-                .offset(x: 11)
         }
     }
 }

@@ -17,28 +17,29 @@ struct DetailsView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            GroupedScrollView {
-                walletConnectSection
+        GroupedScrollView {
+            walletConnectSection
 
-                GroupedSection(viewModel.supportSectionModels) {
-                    DefaultRowView(viewModel: $0)
-                }
+            commonSection
 
-                settingsSection
+            settingsSection
 
-                legalSection
+            supportSection
 
-                environmentSetupSection
+            legalSection
 
-                Color.clear.frame(height: socialNetworksViewSize.height)
-            }
+            environmentSetupSection
 
             socialNetworks
-                .readGeometry(\.size, bindTo: $socialNetworksViewSize)
         }
-        .ignoresSafeArea(.container, edges: .bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(
+            ScanTroubleshootingView(
+                isPresented: $viewModel.showTroubleshootingView,
+                tryAgainAction: viewModel.tryAgain,
+                requestSupportAction: viewModel.requestSupport
+            )
+        )
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitle(Text(Localization.detailsTitle), displayMode: .inline)
         .onAppear(perform: viewModel.onAppear)
@@ -58,10 +59,6 @@ struct DetailsView: View {
     private var settingsSection: some View {
         GroupedSection(viewModel.settingsSectionViewModels) {
             DefaultRowView(viewModel: $0)
-        } footer: {
-            if viewModel.canCreateBackup {
-                DefaultFooterView(Localization.detailsRowTitleCreateBackupFooter)
-            }
         }
     }
 
@@ -73,11 +70,29 @@ struct DetailsView: View {
         }
     }
 
+    private var supportSection: some View {
+        GroupedSection(viewModel.supportSectionModels) {
+            DefaultRowView(viewModel: $0)
+        }
+    }
+
+    private var commonSection: some View {
+        GroupedSection(viewModel.commonSectionViewModels) {
+            DefaultRowView(viewModel: $0)
+        } footer: {
+            if viewModel.canCreateBackup {
+                DefaultFooterView(Localization.detailsRowTitleCreateBackupFooter)
+            }
+        }
+    }
+
     private var socialNetworks: some View {
-        VStack(alignment: .center, spacing: 20) {
-            HStack(spacing: 16) {
-                ForEach(SocialNetwork.allCases) { network in
-                    socialNetworkView(network: network)
+        VStack(alignment: .center, spacing: 16) {
+            ForEach(SocialNetwork.list, id: \.hashValue) { networks in
+                HStack(spacing: 16) {
+                    ForEach(networks) { network in
+                        socialNetworkView(network: network)
+                    }
                 }
             }
 
@@ -88,8 +103,6 @@ struct DetailsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 16)
-        .padding(.bottom, max(16, UIApplication.safeAreaInsets.bottom))
-        .background(Colors.Background.secondary)
     }
 
     @ViewBuilder
@@ -118,7 +131,7 @@ struct SettingsView_Previews: PreviewProvider {
         NavigationView {
             DetailsView(
                 viewModel: DetailsViewModel(
-                    cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                    userWalletModel: PreviewCard.tangemWalletEmpty.cardModel,
                     coordinator: DetailsCoordinator()
                 )
             )
