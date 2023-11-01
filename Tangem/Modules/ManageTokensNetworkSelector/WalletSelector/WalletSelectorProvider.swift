@@ -17,23 +17,17 @@ struct WalletSelectorProvider {
     // MARK: - Implementation
 
     /// Full Available list of wallets for selection
-    func fetchListWalletForSelector() -> [UserWallet] {
+    func listWalletForSelector() -> [UserWalletModel] {
         userWalletRepository.models.filter { userWalletModel in
             userWalletModel.isMultiWallet && !userWalletModel.isUserWalletLocked
-        }.map {
-            $0.userWallet
         }
     }
 
     /// Return of first selected wallet for diplay
-    func fetchCurrentWalletSelected() -> UserWalletModel? {
-        let currentUserWalletModel = userWalletRepository.models.first(where: { userWalletModel in
-            return userWalletModel.userWalletId.value == userWalletRepository.selectedUserWalletId
-        })
-
-        // If current wallet already selected for right path condition
-        if let currentUserWalletModel, !currentUserWalletModel.isUserWalletLocked {
-            return currentUserWalletModel
+    func currentWalletSelected() -> UserWalletModel? {
+        if let selectedUserModelModel = userWalletRepository.selectedUserModelModel,
+           !selectedUserModelModel.isUserWalletLocked {
+            return selectedUserModelModel
         }
 
         return userWalletRepository.models.first(where: { !$0.isUserWalletLocked })
