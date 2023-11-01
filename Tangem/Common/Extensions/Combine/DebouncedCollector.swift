@@ -40,6 +40,11 @@ extension Publishers {
 }
 
 extension Publisher {
+    /// This method will collect all the sequence elements into an array during the debounce time
+    /// - Parameters:
+    ///   - debouncedTime: The time the publisher should collect  elements before publishing an array of elements
+    ///   - scheduler: The scheduler on which this publisher delivers elements
+    ///   - options: Scheduler options that customize this publisher’s delivery of elements.
     func collect<S: Scheduler>(
         debouncedTime: S.SchedulerTimeType.Stride,
         scheduler: S,
