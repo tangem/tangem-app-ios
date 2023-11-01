@@ -47,9 +47,9 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var formattedAmount: String? {
         switch transactionType {
-        case .approval:
+        case .approve:
             return nil
-        case .transfer, .swap, .operation:
+        case .transfer, .swap, .operation, .unknownOperation:
             return amount
         }
     }
@@ -89,7 +89,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .transfer: return Localization.commonTransfer
         case .swap: return Localization.commonSwap
-        case .approval: return Localization.commonApproval
+        case .approve: return Localization.commonApproval
+        case .unknownOperation: return Localization.transactionHistoryOperation
         case .operation(name: let name): return name
         }
     }
@@ -100,15 +101,10 @@ struct TransactionViewModel: Hashable, Identifiable {
         }
 
         switch transactionType {
-        case .transfer:
-            return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
-        case .swap:
-            return Assets.exchangeMini.image
-        case .approval:
+        case .approve:
             return Assets.approve.image
-        case .operation:
-            // [REDACTED_TODO_COMMENT]
-            return Assets.exchangeMini.image
+        case .transfer, .swap, .operation, .unknownOperation:
+            return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         }
     }
 
@@ -142,7 +138,8 @@ extension TransactionViewModel {
     enum TransactionType: Hashable {
         case transfer
         case swap
-        case approval
+        case approve
+        case unknownOperation
         case operation(name: String)
     }
 
