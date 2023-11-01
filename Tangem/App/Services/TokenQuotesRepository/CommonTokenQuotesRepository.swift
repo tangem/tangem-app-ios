@@ -83,21 +83,28 @@ private extension CommonTokenQuotesRepository {
         loadingQueue
             .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)
-            .flatMapLatest { repository, items in
+            .flatMap { repository, items in
                 let ids = items.flatMap { $0.ids }
 
                 return repository
                     .loadAndSaveQuotes(currencyIds: ids)
                     .map { items }
             }
-            .sink { items in
+            .sink(receiveCompletion: { completion in
+                guard case .failure(let error) = completion else {
+                    return
+                }
+                
+                AppLog.shared.debug("Loading quotes catch error")
+                AppLog.shared.error(error: error, params: [:])
+            }, receiveValue: { items in
                 // Send the event that quotes for currencyIds have been loaded
                 items.forEach { $0.didLoadPublisher.send(()) }
-            }
+            })
             .store(in: &bag)
     }
 
-    func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<Void, Never> {
+    func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<Void, Error> {
         AppLog.shared.debug("Start loading quotes for ids: \(currencyIds)")
 
         let currencyCode = AppSettings.shared.selectedCurrencyCode
@@ -106,7 +113,6 @@ private extension CommonTokenQuotesRepository {
 
         return tangemApiService
             .loadQuotes(requestModel: request)
-            .replaceError(with: [])
             .map { [weak self] quotes in
                 AppLog.shared.debug("Finish loading quotes for ids: \(currencyIds)")
                 self?.saveQuotes(quotes, currencyCode: currencyCode)
