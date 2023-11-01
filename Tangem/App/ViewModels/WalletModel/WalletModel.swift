@@ -628,8 +628,8 @@ extension WalletModel {
         walletManager as? SignatureCountValidator
     }
 
-    var addressModifier: AddressModifier? {
-        walletManager as? AddressModifier
+    var addressResolver: AddressResolver? {
+        walletManager as? AddressResolver
     }
 
     var hasRent: Bool {
