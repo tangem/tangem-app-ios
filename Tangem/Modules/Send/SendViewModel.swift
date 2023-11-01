@@ -14,7 +14,7 @@ final class SendViewModel: ObservableObject {
 
     @Published var step: SendStep
 
-    @Published var currentPageInvalid: Bool = false
+    @Published var currentStepInvalid: Bool = false
 
     var showNavigationButtons: Bool {
         step.hasNavigationButtons
@@ -41,6 +41,35 @@ final class SendViewModel: ObservableObject {
     private unowned let coordinator: SendRoutable
     private let sendModel: SendModel
     private var bag: Set<AnyCancellable> = [] // remove?
+    
+    private var currentStepValid: AnyPublisher<Bool, Never> {
+        $step
+            .flatMap { [weak self] step in
+                guard let self else {
+                    return Just(true).eraseToAnyPublisher() // [REDACTED_TODO_COMMENT]
+                }
+                
+                switch step {
+                case .amount:
+                    return sendModel.amountError
+                        .map {
+                            $0 == nil
+                        }
+                        .eraseToAnyPublisher()
+                case .destination:
+                    return Publishers.CombineLatest(sendModel.destinationError, sendModel.destinationAdditionalFieldError)
+                        .map {
+                            $0 == nil && $1 == nil
+                        }
+                        .eraseToAnyPublisher()
+                default:
+                    // [REDACTED_TODO_COMMENT]
+                    return Just(true)
+                        .eraseToAnyPublisher()
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 
     init(
         coordinator: SendRoutable
@@ -49,14 +78,11 @@ final class SendViewModel: ObservableObject {
         sendModel = SendModel()
         step = .amount
 
-        $step
-            .flatMap { currentStep in
-                self.sendModel.stepValid(currentStep)
-            }
+        currentStepValid
             .map {
                 !$0
             }
-            .assign(to: &$currentPageInvalid)
+            .assign(to: &$currentStepInvalid)
 
         sendModel.amountText = "100"
         sendModel.destinationText = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
