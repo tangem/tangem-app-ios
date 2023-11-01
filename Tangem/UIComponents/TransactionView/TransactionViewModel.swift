@@ -10,7 +10,8 @@ import Foundation
 import SwiftUI
 
 struct TransactionViewModel: Hashable, Identifiable {
-    let id: String
+    var id: String { hash }
+    let hash: String
     private let interactionAddress: InteractionAddressType
     private let timeFormatted: String?
     private let amount: String
@@ -19,7 +20,7 @@ struct TransactionViewModel: Hashable, Identifiable {
     private let status: Status
 
     init(
-        id: String,
+        hash: String,
         interactionAddress: InteractionAddressType,
         timeFormatted: String?,
         amount: String,
@@ -27,7 +28,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         transactionType: TransactionViewModel.TransactionType,
         status: TransactionViewModel.Status
     ) {
-        self.id = id
+        self.hash = hash
         self.interactionAddress = interactionAddress
         self.timeFormatted = timeFormatted
         self.amount = amount
@@ -41,25 +42,24 @@ struct TransactionViewModel: Hashable, Identifiable {
     }
 
     var subtitleText: String {
-        switch status {
-        case .confirmed, .failed:
-            return timeFormatted ?? "-"
-        case .inProgress:
-            return Localization.transactionHistoryTxInProgress
-        }
+        return timeFormatted ?? "-"
     }
 
     var formattedAmount: String? {
         switch transactionType {
-        case .approval:
+        case .approve:
             return nil
-        case .transfer, .swap, .custom:
+        case .transfer, .swap, .operation, .unknownOperation:
             return amount
         }
     }
 
     var amountTextColor: Color {
-        isOutgoing ? Colors.Text.tertiary : Colors.Text.accent
+        if status == .failed {
+            return Colors.Text.warning
+        }
+
+        return isOutgoing ? Colors.Text.tertiary : Colors.Text.accent
     }
 
     var localizeDestination: String {
@@ -73,7 +73,15 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .contract(let address):
             return Localization.transactionHistoryContractAddress(address)
         case .multiple:
-            return Localization.transactionHistoryMultipleAddresses
+            if isOutgoing {
+                return Localization.transactionHistoryTransactionToAddress(
+                    Localization.transactionHistoryMultipleAddresses
+                )
+            } else {
+                return Localization.transactionHistoryTransactionFromAddress(
+                    Localization.transactionHistoryMultipleAddresses
+                )
+            }
         }
     }
 
@@ -81,21 +89,22 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .transfer: return Localization.commonTransfer
         case .swap: return Localization.commonSwap
-        case .approval: return Localization.commonApproval
-        case .custom(name: let name): return name.capitalized
+        case .approve: return Localization.commonApproval
+        case .unknownOperation: return Localization.transactionHistoryOperation
+        case .operation(name: let name): return name
         }
     }
 
     var icon: Image {
+        if status == .failed {
+            return Assets.cross.image
+        }
+
         switch transactionType {
-        case .transfer:
-            return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
-        case .swap:
-            return Assets.exchangeMini.image
-        case .approval:
+        case .approve:
             return Assets.approve.image
-        case .custom:
-            return Assets.exchangeMini.image
+        case .transfer, .swap, .operation, .unknownOperation:
+            return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         }
     }
 
@@ -103,24 +112,18 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch status {
         case .inProgress:
             return Colors.Icon.attention
-        case .confirmed, .failed:
+        case .confirmed:
             return Colors.Icon.informative
+        case .failed:
+            return Colors.Icon.warning
         }
     }
 
     var iconBackgroundColor: Color {
         switch status {
-        case .inProgress: return iconColor.opacity(0.1)
-        case .confirmed, .failed: return Colors.Background.secondary
-        }
-    }
-
-    var textColor: Color {
-        switch status {
-        case .inProgress:
-            return Colors.Text.attention
-        case .confirmed, .failed:
-            return Colors.Text.tertiary
+        case .inProgress: return Colors.Icon.attention.opacity(0.1)
+        case .confirmed: return Colors.Background.secondary
+        case .failed: return Colors.Icon.warning.opacity(0.1)
         }
     }
 }
@@ -135,8 +138,9 @@ extension TransactionViewModel {
     enum TransactionType: Hashable {
         case transfer
         case swap
-        case approval
-        case custom(name: String)
+        case approve
+        case unknownOperation
+        case operation(name: String)
     }
 
     enum Status {
