@@ -9,6 +9,15 @@
 import SwiftUI
 
 struct GeometryInfo: Equatable {
+    static var zero: Self {
+        return GeometryInfo(
+            coordinateSpace: .local,
+            frame: .zero,
+            size: .zero,
+            safeAreaInsets: .init()
+        )
+    }
+
     let coordinateSpace: CoordinateSpace
     let frame: CGRect
     let size: CGSize
@@ -57,7 +66,7 @@ extension View {
     /// in the whole `GeometryInfo` but rather a single property of it.
     func readGeometry<T>(
         _ keyPath: KeyPath<GeometryInfo, T> = \.self,
-        inCoordinateSpace coordinateSpace: CoordinateSpace = .global,
+        inCoordinateSpace coordinateSpace: CoordinateSpace = .local,
         throttleInterval: GeometryInfo.ThrottleInterval = .zero,
         onChange: @escaping (_ value: T) -> Void
     ) -> some View {
@@ -88,7 +97,7 @@ extension View {
     /// ```
     func readGeometry<T>(
         _ keyPath: KeyPath<GeometryInfo, T> = \.self,
-        inCoordinateSpace coordinateSpace: CoordinateSpace = .global,
+        inCoordinateSpace coordinateSpace: CoordinateSpace = .local,
         throttleInterval: GeometryInfo.ThrottleInterval = .zero,
         bindTo value: Binding<T>
     ) -> some View {
@@ -140,13 +149,7 @@ private struct GeometryInfoReaderPreferenceKey: PreferenceKey {
     typealias Value = TimeStampContainer
 
     static var defaultValue: Value {
-        let defaultValue = GeometryInfo(
-            coordinateSpace: .global,
-            frame: .zero,
-            size: .zero,
-            safeAreaInsets: .init()
-        )
-        return Value(timeStamp: .zero, throttleInterval: .zero, geometryInfo: defaultValue)
+        return Value(timeStamp: .zero, throttleInterval: .zero, geometryInfo: .zero)
     }
 
     static func reduce(value: inout Value, nextValue: () -> Value) {}
@@ -158,8 +161,6 @@ private struct TimeStampContainer: Equatable {
     let geometryInfo: GeometryInfo
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        assert(lhs.throttleInterval == rhs.throttleInterval)
-
         if abs(lhs.timeStamp - rhs.timeStamp) < rhs.throttleInterval {
             return true
         }
