@@ -37,7 +37,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
-    
+
     private var tokenItems: [TokenItem]
     private let coinId: String
 
@@ -96,6 +96,16 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             currentUserWalletId: userWalletRepository.selectedUserWalletId,
             delegate: self
         )
+    }
+
+    func displayNonNativeNetworkAlert() {
+        let okButton = Alert.Button.default(Text(Localization.commonOk)) {}
+
+        alert = AlertBinder(alert: Alert(
+            title: Text(""),
+            message: Text(Localization.manageTokensNetworkSelectorNonNativeInfo),
+            dismissButton: okButton
+        ))
     }
 
     // MARK: - Private Implementation
