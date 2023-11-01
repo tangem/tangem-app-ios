@@ -82,7 +82,7 @@ private extension TotalBalanceProvider {
     }
 
     func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
-        guard !hasEntriesWithoutDerivation else {
+        if hasEntriesWithoutDerivation {
             totalBalanceSubject.send(.loaded(.init(balance: nil, currencyCode: currencyCode, hasError: false)))
             return
         }
@@ -94,8 +94,13 @@ private extension TotalBalanceProvider {
     func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) -> TotalBalance {
         var hasError = false
         var balance: Decimal?
+        var hasCryptoError = false
 
         for token in walletModels {
+            if case .failed = token.state {
+                hasCryptoError = true
+            }
+
             if !token.state.isSuccesfullyLoaded {
                 balance = nil
                 break
@@ -120,7 +125,29 @@ private extension TotalBalanceProvider {
             Analytics.logTopUpIfNeeded(balance: balance)
         }
 
+        Analytics.log(.balanceLoaded, params: [.balance: mapToBalanceParameterValue(hasCryptoError, hasError, balance)])
+
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
+    }
+
+    private func mapToBalanceParameterValue(_ hasCryptoError: Bool, _ hasError: Bool, _ balance: Decimal?) -> Analytics.ParameterValue {
+        if hasCryptoError {
+            return .blockchainError
+        }
+
+        if hasError {
+            return .customToken
+        }
+
+        if let balance {
+            if balance > 0 {
+                return .full
+            } else {
+                return .empty
+            }
+        } else {
+            return .noRate
+        }
     }
 }
 

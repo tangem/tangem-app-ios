@@ -18,7 +18,7 @@ struct UnlockUserWalletBottomSheetView: View {
                 .padding(.top, 46)
                 .padding(.bottom, 30)
 
-            Text(Localization.commonUnlockNeeded)
+            Text(Localization.commonAccessDenied)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                 .padding(.bottom, 14)
 
@@ -30,7 +30,7 @@ struct UnlockUserWalletBottomSheetView: View {
                 .padding(.horizontal, 34)
 
             MainButton(
-                title: Localization.userWalletListUnlockAll(BiometricAuthorizationUtils.biometryType.name),
+                title: Localization.userWalletListUnlockAllWith(BiometricAuthorizationUtils.biometryType.name),
                 action: viewModel.unlockWithBiometry
             )
             .padding(.bottom, 10)
@@ -46,21 +46,28 @@ struct UnlockUserWalletBottomSheetView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 10)
         .alert(item: $viewModel.error) { $0.alert }
+        .background(
+            ScanTroubleshootingView(
+                isPresented: $viewModel.showTroubleshootingView,
+                tryAgainAction: viewModel.unlockWithCard,
+                requestSupportAction: viewModel.requestSupport
+            )
+        )
     }
 }
 
 struct UnlockUserWalletBottomSheetView_Previews: PreviewProvider {
     class FakeUnlockUserWalletDelegate: UnlockUserWalletBottomSheetDelegate {
+        func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+            print("Open mail")
+        }
+
         func unlockedWithBiometry() {
             print("Unlocked with biometry")
         }
 
         func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
             print("Unlocked with card: \(userWalletModel.userWalletId.stringValue)")
-        }
-
-        func showTroubleshooting() {
-            print("Request troubleshooting")
         }
     }
 
