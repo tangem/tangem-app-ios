@@ -8,8 +8,8 @@
 import Foundation
 
 public struct QuoteParameters: Encodable {
-    public var fromTokenAddress: String
-    public var toTokenAddress: String
+    public var src: String
+    public var dst: String
     public var amount: String
     public var protocols: String?
     public var fee: String?
@@ -20,8 +20,8 @@ public struct QuoteParameters: Encodable {
     public var gasPrice: String?
 
     public init(
-        fromTokenAddress: String,
-        toTokenAddress: String,
+        src: String,
+        dst: String,
         amount: String,
         protocols: String? = nil,
         fee: String? = nil,
@@ -31,8 +31,8 @@ public struct QuoteParameters: Encodable {
         parts: String? = nil,
         gasPrice: String? = nil
     ) {
-        self.fromTokenAddress = fromTokenAddress
-        self.toTokenAddress = toTokenAddress
+        self.src = src
+        self.dst = dst
         self.amount = amount
         self.protocols = protocols
         self.fee = fee
