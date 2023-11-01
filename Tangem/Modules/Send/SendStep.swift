@@ -27,7 +27,7 @@ extension SendStep {
             "Send"
         }
     }
-    
+
     var hasNavigationButtons: Bool {
         switch self {
         case .amount, .destination, .fee:
