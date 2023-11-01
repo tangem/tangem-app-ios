@@ -8,15 +8,14 @@
 import Foundation
 import SwiftUI
 
-protocol SendFeeInput {
-    var feeText: String { get set }
+protocol SendFeeViewModelInput {
     var feeTextBinding: Binding<String> { get }
 }
 
 class SendFeeViewModel {
     var fee: Binding<String>
 
-    init(input: SendFeeInput) {
+    init(input: SendFeeViewModelInput) {
         fee = input.feeTextBinding
     }
 }

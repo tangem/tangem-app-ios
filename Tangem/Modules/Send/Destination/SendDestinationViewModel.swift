@@ -9,15 +9,10 @@ import Foundation
 import SwiftUI
 import Combine
 
-protocol SendDestinationInput {
-    var destinationText: String { get set }
+protocol SendDestinationViewModelInput {
     var destinationTextBinding: Binding<String> { get }
-
-    var destinationAdditionalFieldText: String { get set }
     var destinationAdditionalFieldTextBinding: Binding<String> { get }
-}
 
-protocol SendDestinationValidator {
     var destinationError: AnyPublisher<Error?, Never> { get }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { get }
 }
@@ -29,18 +24,18 @@ class SendDestinationViewModel: ObservableObject {
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
 
-    init(input: SendDestinationInput, validator: SendDestinationValidator) {
+    init(input: SendDestinationViewModelInput) {
         destination = input.destinationTextBinding
         additionalField = input.destinationAdditionalFieldTextBinding
 
-        validator
+        input
             .destinationError
             .map {
                 $0?.localizedDescription
             }
             .assign(to: &$destinationErrorText) // weak
 
-        validator
+        input
             .destinationAdditionalFieldError
             .map {
                 $0?.localizedDescription
