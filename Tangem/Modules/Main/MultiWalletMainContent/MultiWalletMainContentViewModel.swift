@@ -359,8 +359,8 @@ private extension MultiWalletMainContentViewModel {
         Analytics.log(
             event: .buttonRemoveToken,
             params: [
-                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
                 Analytics.ParameterKey.token: tokenItem.currencySymbol,
+                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
             ]
         )
     }
