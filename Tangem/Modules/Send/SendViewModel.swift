@@ -19,7 +19,7 @@ final class SendViewModel: ObservableObject {
     var showNavigationButtons: Bool {
         step.hasNavigationButtons
     }
-    
+
     var showBackButton: Bool {
         if case .summary = step {
             return false
@@ -41,14 +41,14 @@ final class SendViewModel: ObservableObject {
     private unowned let coordinator: SendRoutable
     private let sendModel: SendModel
     private var bag: Set<AnyCancellable> = [] // remove?
-    
+
     private var currentStepValid: AnyPublisher<Bool, Never> {
         $step
             .flatMap { [weak self] step in
                 guard let self else {
                     return Just(true).eraseToAnyPublisher() // [REDACTED_TODO_COMMENT]
                 }
-                
+
                 switch step {
                 case .amount:
                     return sendModel.amountError
@@ -91,17 +91,13 @@ final class SendViewModel: ObservableObject {
 
     func next() {
         if let nextStep = step.nextStep {
-//            withAnimation() {
             step = nextStep
-//            }
         }
     }
 
     func back() {
         if let previousStep = step.previousStep {
-            withAnimation(.easeOut) {
-                step = previousStep
-            }
+            step = previousStep
         }
     }
 }
