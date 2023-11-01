@@ -31,6 +31,10 @@ struct CardsInfoPagerAnimationFactory {
         dragGestureVelocity: CGSize,
         pageHasBeenSwitched: Bool
     ) -> Animation {
+        if pageSwitchAnimationDuration == .zero {
+            return Animation.linear(duration: .zero)
+        }
+
         let remainingPageSwitchProgress = pageHasBeenSwitched
             ? 1.0 - currentPageSwitchProgress
             : currentPageSwitchProgress

@@ -12,10 +12,6 @@ import TangemSdk
 import BlockchainSdk
 
 struct LockedUserTokensManager: UserTokensManager {
-    var isInitialSyncPerformed: Bool { false }
-
-    var initialSyncPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
-
     var derivationManager: DerivationManager? { nil }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
@@ -46,5 +42,17 @@ struct LockedUserTokensManager: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {}
 
-    func updateUserTokens() {}
+    func sync(completion: @escaping () -> Void) {}
+}
+
+// MARK: - UserTokensReordering protocol conformance
+
+extension LockedUserTokensManager: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+
+    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+
+    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+
+    func reorder(_ reorderingActions: [UserTokensReorderingAction]) -> AnyPublisher<Void, Never> { .just }
 }
