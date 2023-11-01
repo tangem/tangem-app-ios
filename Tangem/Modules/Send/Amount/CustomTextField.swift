@@ -155,7 +155,7 @@ struct CustomTextField: UIViewRepresentable {
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.required, for: .vertical)
-        
+
 //        textField.textAlignment = .ri
         textField.clearButtonMode = clearButtonMode
         var toolbarItems = [UIBarButtonItem]()
