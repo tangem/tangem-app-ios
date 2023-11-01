@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import Combine
 import SwiftUI
+import Combine
+import CombineExt
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher where Output: Equatable {
     var uiPublisher: AnyPublisher<Output, Failure> {
         dropFirst()
@@ -26,57 +26,20 @@ extension Publisher where Output: Equatable {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
-extension Publisher where Failure == Never {
-    func weakAssign<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output>, on root: Root) -> AnyCancellable {
-        sink { [weak root] in
-            root?[keyPath: keyPath] = $0
-        }
-    }
-
-    func weakAssign<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output?>, on root: Root) -> AnyCancellable {
-        sink { [weak root] in
-            root?[keyPath: keyPath] = $0
-        }
-    }
-
-    func weakAssignAnimated<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output>, on root: Root) -> AnyCancellable {
-        sink { [weak root] value in
-            withAnimation {
-                root?[keyPath: keyPath] = value
-            }
-        }
-    }
-
-    func weakAssignAnimated<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output?>, on root: Root) -> AnyCancellable {
-        sink { [weak root] value in
-            withAnimation {
-                root?[keyPath: keyPath] = value
-            }
-        }
-    }
-}
-
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 public extension Publisher {
     /// Subscribes to current publisher without handling events
     func sink() -> AnyCancellable {
         return sink(receiveCompletion: { _ in }, receiveValue: { _ in })
     }
 
-    /// `receiveValue` clouser from default `sink` method
+    /// An overload of the default `sink` method with the only `receiveValue` required closure.
     func receiveValue(_ receiveValue: @escaping ((Self.Output) -> Void)) -> AnyCancellable {
         sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
     }
 
-    /// `receiveCompletion` clouser from default `sink` method
+    /// An overload of the default `sink` method with the only `receiveCompletion` required closure.
     func receiveCompletion(_ receiveCompletion: @escaping ((Subscribers.Completion<Self.Failure>) -> Void)) -> AnyCancellable {
         sink(receiveCompletion: receiveCompletion, receiveValue: { _ in })
-    }
-
-    /// Transforms any received value to Void
-    func mapVoid() -> Publishers.Map<Self, Void> {
-        map { _ in }
     }
 
     func eraseError() -> AnyPublisher<Output, Error> {
@@ -87,21 +50,18 @@ public extension Publisher {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher where Output == Void, Failure == Error {
     static var just: AnyPublisher<Output, Failure> {
         Just(()).setFailureType(to: Failure.self).eraseToAnyPublisher()
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher where Output == Void, Failure == Never {
     static var just: AnyPublisher<Output, Failure> {
-        Just(()).eraseToAnyPublisher()
+        .just(output: ())
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 extension Publisher {
     func asyncMap<T>(
         _ transform: @escaping (Output) async throws -> T
@@ -134,7 +94,6 @@ extension Publisher {
     }
 }
 
-@available(*, deprecated, message: "Migrate to CombineExt if applicable ([REDACTED_INFO])")
 @available(iOS, deprecated: 15.0, message: "AsyncCompatibilityKit is only useful when targeting iOS versions earlier than 15")
 public extension Publisher where Failure == Never {
     /// Convert this publisher into an `AsyncStream` that can

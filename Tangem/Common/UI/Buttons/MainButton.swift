@@ -9,15 +9,18 @@ import SwiftUI
 
 struct MainButton: View {
     private let title: String
+    private let subtitle: String?
     private let icon: Icon?
     private let style: Style
     private let size: Size
-    private let isLoading: Bool
     private let isDisabled: Bool
     private let action: () -> Void
 
+    private var isLoading: Bool
+
     init(
         title: String,
+        subtitle: String? = nil,
         icon: Icon? = nil,
         style: Style = .primary,
         size: Size = .default,
@@ -26,6 +29,7 @@ struct MainButton: View {
         action: @escaping (() -> Void)
     ) {
         self.title = title
+        self.subtitle = subtitle
         self.icon = icon
         self.style = style
         self.size = size
@@ -37,6 +41,7 @@ struct MainButton: View {
     init(settings: Settings) {
         self.init(
             title: settings.title,
+            subtitle: settings.subtitle,
             icon: settings.icon,
             style: settings.style,
             size: settings.size,
@@ -52,6 +57,7 @@ struct MainButton: View {
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))
                 .cornerRadiusContinuous(Constants.cornerRadius)
+                .overlay(border)
         }
         .buttonStyle(BorderlessButtonStyle())
         // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
@@ -68,37 +74,48 @@ struct MainButton: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: style.loaderColor()))
         } else {
-            Group {
+            VStack(spacing: 0) {
                 switch icon {
                 case .none:
-                    textView
+                    titleView
 
                 case .leading(let icon):
                     HStack(alignment: .center, spacing: 10) {
                         iconView(icon: icon)
 
-                        textView
+                        titleView
                     }
                 case .trailing(let icon):
                     HStack(alignment: .center, spacing: 10) {
-                        textView
+                        titleView
 
                         iconView(icon: icon)
                     }
                 }
+
+                subtitleView
             }
             .padding(.horizontal, 16)
         }
     }
 
     @ViewBuilder
-    private var textView: some View {
+    private var titleView: some View {
         Text(title)
             .style(
                 Fonts.Bold.callout,
-                color: style.textColor(isDisabled: isDisabled)
+                color: style.titleColor(isDisabled: isDisabled)
             )
             .lineLimit(1)
+    }
+
+    @ViewBuilder
+    private var subtitleView: some View {
+        if let subtitle {
+            Text(subtitle)
+                .style(Fonts.Regular.caption2, color: style.subtitleColor())
+                .lineLimit(1)
+        }
     }
 
     @ViewBuilder
@@ -108,6 +125,14 @@ struct MainButton: View {
             .renderingMode(.template)
             .frame(width: 20, height: 20)
             .foregroundColor(style.iconColor(isDisabled: isDisabled))
+    }
+
+    @ViewBuilder
+    private var border: some View {
+        if let borderColor = style.border(isDisabled: isDisabled) {
+            RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+                .stroke(borderColor)
+        }
     }
 }
 
@@ -134,7 +159,7 @@ extension MainButton {
             }
         }
 
-        func textColor(isDisabled: Bool) -> Color {
+        func titleColor(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Text.disabled
             }
@@ -145,6 +170,10 @@ extension MainButton {
             case .secondary:
                 return Colors.Text.primary1
             }
+        }
+
+        func subtitleColor() -> Color {
+            Colors.Text.disabled
         }
 
         func loaderColor() -> Color {
@@ -168,6 +197,14 @@ extension MainButton {
                 return Colors.Button.secondary
             }
         }
+
+        func border(isDisabled: Bool) -> Color? {
+            guard isDisabled else {
+                return nil
+            }
+
+            return Colors.Stroke.primary
+        }
     }
 
     enum Size: Hashable {
@@ -186,6 +223,7 @@ extension MainButton {
 
     struct Settings: Identifiable, Hashable {
         let title: String
+        let subtitle: String?
         let icon: Icon?
         let style: Style
         let size: Size
@@ -197,6 +235,7 @@ extension MainButton {
 
         init(
             title: String,
+            subtitle: String? = nil,
             icon: Icon? = nil,
             style: Style = .primary,
             size: Size = .default,
@@ -205,6 +244,7 @@ extension MainButton {
             action: @escaping (() -> Void)
         ) {
             self.title = title
+            self.subtitle = subtitle
             self.icon = icon
             self.style = style
             self.size = size
@@ -219,12 +259,19 @@ extension MainButton {
 
         func hash(into hasher: inout Hasher) {
             hasher.combine(title)
+            hasher.combine(subtitle)
             hasher.combine(icon)
             hasher.combine(style)
             hasher.combine(size)
             hasher.combine(isLoading)
             hasher.combine(isDisabled)
         }
+    }
+}
+
+extension MainButton: Setupable {
+    func setIsLoading(to isLoading: Bool) -> Self {
+        map { $0.isLoading = isLoading }
     }
 }
 
@@ -306,6 +353,33 @@ struct MainButton_Previews: PreviewProvider {
                     icon: .leading(Assets.tangemIcon),
                     style: style,
                     size: .notification
+                ) {}
+            }
+
+            Group {
+                MainButton(
+                    title: "Do something",
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Do something else",
+                    subtitle: "Or don't do it at all",
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    subtitle: "Blahblah",
+                    icon: .leading(Assets.tangemIcon),
+                    style: style
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    subtitle: "Blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah",
+                    icon: .trailing(Assets.tangemIcon),
+                    style: style
                 ) {}
             }
         }

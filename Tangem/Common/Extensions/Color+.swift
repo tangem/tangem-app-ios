@@ -94,6 +94,10 @@ extension Color {
         return Color("tangem_skeleton_gray2")
     }
 
+    @nonobjc static var tangemSkeletonGray3: Color {
+        return Color("tangem_skeleton_gray3")
+    }
+
     @nonobjc static var tangemHoverButton: Color {
         return Color("tangem_btn_hover_bg")
     }
@@ -124,6 +128,28 @@ extension Color {
 }
 
 extension UIColor {
+    // DO NOT remove this
+    // This is a UIColor from the new palette, used in UITextField's accessory view
+    // There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
+    // 👇👇👇 ------------------------------------ 👇👇👇
+    @nonobjc static var backgroundPrimary: UIColor {
+        return UIColor(named: "BackgroundPrimary")!
+    }
+
+    @nonobjc static var inputAccessoryViewTintColor: UIColor {
+        return UIColor(named: "ButtonPrimary")!
+    }
+
+    @nonobjc static var textWarningColor: UIColor {
+        return UIColor(named: "TextWarning")!
+    }
+
+    @nonobjc static var textAccent: UIColor {
+        return UIColor(named: "TextAccent")!
+    }
+
+    // ☝️☝️☝️ End of UIColors from the new palette ☝️☝️☝️
+
     // MARK: Background
 
     @nonobjc static var tangemBgGray: UIColor {
@@ -156,6 +182,10 @@ extension UIColor {
 
     @nonobjc static var tangemCritical: UIColor {
         UIColor(named: "tangem_critical")!
+    }
+
+    @nonobjc static var iconAccent: UIColor {
+        UIColor(named: "IconAccent")!
     }
 }
 
