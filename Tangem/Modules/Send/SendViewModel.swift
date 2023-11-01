@@ -13,27 +13,22 @@ final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var step: SendStep
-
     @Published var currentStepInvalid: Bool = false
+
+    var title: String {
+        step.name
+    }
 
     var showNavigationButtons: Bool {
         step.hasNavigationButtons
     }
 
     var showBackButton: Bool {
-        if case .summary = step {
-            return false
-        } else {
-            return step.previousStep != nil
-        }
+        step.previousStep != nil
     }
 
     var showNextButton: Bool {
         step.nextStep != nil
-    }
-
-    var title: String {
-        step.name
     }
 
     // MARK: - Dependencies
@@ -41,7 +36,6 @@ final class SendViewModel: ObservableObject {
     let sendModel: SendModel
 
     private unowned let coordinator: SendRoutable
-    private var bag: Set<AnyCancellable> = [] // remove?
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
         $step
@@ -65,6 +59,7 @@ final class SendViewModel: ObservableObject {
                         .eraseToAnyPublisher()
                 default:
                     // [REDACTED_TODO_COMMENT]
+                    // [REDACTED_TODO_COMMENT]
                     return Just(true)
                         .eraseToAnyPublisher()
                 }
@@ -72,22 +67,12 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(
-        coordinator: SendRoutable
-    ) {
+    init(coordinator: SendRoutable) {
         self.coordinator = coordinator
         sendModel = SendModel()
         step = .amount
 
-        currentStepValid
-            .map {
-                !$0
-            }
-            .assign(to: &$currentStepInvalid)
-
-        sendModel.amountText = "100"
-        sendModel.destinationText = "0x8C8D7C46219D9205f056f28fee5950aD564d7465"
-        sendModel.feeText = "Fast 🐰"
+        bind()
     }
 
     func next() {
@@ -101,10 +86,18 @@ final class SendViewModel: ObservableObject {
             step = previousStep
         }
     }
+
+    private func bind() {
+        currentStepValid
+            .map {
+                !$0
+            }
+            .assign(to: &$currentStepInvalid)
+    }
 }
 
 extension SendViewModel: SendSummaryRoutable {
-    func openStep(step: SendStep) {
+    func openStep(_ step: SendStep) {
         withAnimation(.easeOut(duration: 0.3)) {
             self.step = step
         }
