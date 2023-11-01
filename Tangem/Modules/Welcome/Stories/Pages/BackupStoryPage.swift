@@ -11,11 +11,10 @@ import SwiftUI
 struct BackupStoryPage: View {
     @Binding var progress: Double
     @Binding var isScanning: Bool
-    let cardImage: Image
     let scanCard: () -> Void
     let orderCard: () -> Void
 
-    private let descriptionFontSize: CGFloat = 24
+    private let descriptionFontSize: CGFloat = 16
 
     var body: some View {
         VStack {
@@ -24,19 +23,18 @@ struct BackupStoryPage: View {
 
             VStack(spacing: 14) {
                 Text(Localization.storyBackupTitle)
-                    .font(.system(size: 36, weight: .semibold))
+                    .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
                 Text(TangemRichTextFormatter().format(Localization.storyBackupDescription, fontSize: descriptionFontSize))
                     .font(.system(size: descriptionFontSize))
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
+                    .foregroundColor(Colors.Text.tertiary)
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
+            .padding(.horizontal, 28)
             .fixedSize(horizontal: false, vertical: true)
 
             Spacer()
@@ -45,7 +43,7 @@ struct BackupStoryPage: View {
                 Color.clear
                     .background(
                         // Bottom card
-                        cardImage
+                        Assets.Stories.tangemCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.7 * geometry.size.width)
@@ -60,7 +58,7 @@ struct BackupStoryPage: View {
                     )
                     .background(
                         // Top left
-                        cardImage
+                        Assets.Stories.tangemCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.65 * geometry.size.width)
@@ -74,7 +72,7 @@ struct BackupStoryPage: View {
                     )
                     .background(
                         // Top right
-                        cardImage
+                        Assets.Stories.tangemCard.image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.5 * geometry.size.width)
@@ -91,7 +89,7 @@ struct BackupStoryPage: View {
 
             Spacer()
 
-            StoriesBottomButtons(scanColorStyle: .secondary, orderColorStyle: .primary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .primary, orderColorStyle: .secondary, isScanning: $isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
@@ -102,7 +100,7 @@ struct BackupStoryPage: View {
 
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        BackupStoryPage(progress: .constant(1), isScanning: .constant(false), cardImage: Assets.Stories.tangemCard.image) {} orderCard: {}
+        BackupStoryPage(progress: .constant(1), isScanning: .constant(false)) {} orderCard: {}
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
