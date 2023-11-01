@@ -19,6 +19,7 @@ final class ManageTokensViewModel: ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
+    @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
     @Published var generateAddressesViewModel: GenerateAddressesViewModel?
@@ -198,6 +199,10 @@ private extension ManageTokensViewModel {
             return
         }
 
-        userWalletModel.userTokensManager.deriveIfNeeded(completion: { _ in })
+        userWalletModel.userTokensManager.deriveIfNeeded { result in
+            if case .failure(let error) = result, !error.isUserCancelled {
+                self.alert = error.alertBinder
+            }
+        }
     }
 }
