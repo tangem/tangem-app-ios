@@ -702,7 +702,7 @@ class LegacySendViewModel: ObservableObject {
                         ])
 
                         Analytics.log(.selectedCurrency, params: [
-                            .commonType: isFiatCalculation ? .selectedCurrencyApp : .selectedCurrencyToken,
+                            .commonType: isFiatCalculation ? .selectedCurrencyApp : .token,
                         ])
                     }
 
