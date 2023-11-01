@@ -77,7 +77,7 @@ class WalletModel {
     }
 
     var balance: String {
-        guard let balanceValue else { return "" }
+        guard let balanceValue else { return BalanceFormatter.defaultEmptyBalanceString }
 
         return formatter.formatCryptoBalance(balanceValue, currencyCode: tokenItem.currencySymbol)
     }
@@ -100,7 +100,9 @@ class WalletModel {
     }
 
     var rateFormatted: String {
-        guard let rate = quote?.price else { return "" }
+        guard let rate = quote?.price else { 
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
 
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
     }
