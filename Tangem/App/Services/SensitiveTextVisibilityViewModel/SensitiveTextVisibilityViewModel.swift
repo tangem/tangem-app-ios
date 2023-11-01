@@ -25,6 +25,7 @@ class SensitiveTextVisibilityViewModel: ObservableObject {
     private let operationQueue = OperationQueue()
     private var previousIsFaceDown = false
     private var bag: Set<AnyCancellable> = []
+    private var toast: Toast<UndoToastView>?
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
@@ -36,29 +37,52 @@ class SensitiveTextVisibilityViewModel: ObservableObject {
     }
 }
 
-extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
-    func closeInformationHiddenBalancesSheet() {
-        informationHiddenBalancesViewModel = nil
-    }
-}
-
 private extension SensitiveTextVisibilityViewModel {
+    func deviceDidFlipped() {
+        toggleVisibility()
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+        DispatchQueue.main.async {
+            self.notifyUser()
+        }
+    }
+
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
         DispatchQueue.main.async {
             self.isHidden = AppSettings.shared.isHidingSensitiveInformation
-            self.showBottomSheetIfNeeded()
         }
     }
 
-    func showBottomSheetIfNeeded() {
-        guard AppSettings.shared.isHidingSensitiveInformation,
-              AppSettings.shared.shouldHidingSensitiveInformationSheetShowing else {
-            return
+    func notifyUser() {
+        if isHidden,
+           AppSettings.shared.shouldHidingSensitiveInformationSheetShowing {
+            presetInformationBottomSheet()
+        } else {
+            presentToast()
+        }
+    }
+
+    func presetInformationBottomSheet() {
+        informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
+    }
+
+    // MARK: - Toast
+
+    func presentToast() {
+        let type: BalanceHiddenToastType = isHidden ? .hidden : .shown
+        let toastView = UndoToastView(settings: type) { [weak self] in
+            self?.toggleVisibility()
+            self?.dismissToast()
         }
 
-        informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
+        toast = Toast(view: toastView)
+        toast?.present(layout: .bottom(padding: 80), type: .temporary())
+    }
+
+    func dismissToast() {
+        toast?.dismiss(animated: false)
+        toast = nil
     }
 
     func bind() {
@@ -141,9 +165,40 @@ private extension SensitiveTextVisibilityViewModel {
         let isFaceDown = !faceUpRange.contains(roll) && !isPortrait
 
         if previousIsFaceDown, !isFaceDown {
-            toggleVisibility()
+            deviceDidFlipped()
         }
 
         previousIsFaceDown = isFaceDown
+    }
+}
+
+// MARK: - InformationHiddenBalancesRoutable
+
+extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
+    func closeInformationHiddenBalancesSheet() {
+        informationHiddenBalancesViewModel = nil
+    }
+}
+
+enum BalanceHiddenToastType: UndoToastSettings {
+    case hidden
+    case shown
+
+    var image: ImageType {
+        switch self {
+        case .hidden:
+            return Assets.crossedEyeIcon
+        case .shown:
+            return Assets.eyeIconMini
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .hidden:
+            return Localization.toastBalancesHidden
+        case .shown:
+            return Localization.toastBalancesShown
+        }
     }
 }
