@@ -25,10 +25,10 @@ struct LegacyTokenListView: View {
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
-            AlertToast(type: .complete(Color.tangemGreen), title: Localization.contractAddressCopiedMessage)
+            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.contractAddressCopiedMessage)
         }
         .searchableCompat(text: $viewModel.enteredSearchText.value)
-        .background(Colors.Background.plain.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
     }
@@ -43,7 +43,7 @@ struct LegacyTokenListView: View {
                 }
 
                 if viewModel.shouldShowAlert {
-                    Text(Localization.alertManageTokensAddressesMessage)
+                    Text(Localization.warningManageTokensLegacyDerivationMessage)
                         .font(.system(size: 13, weight: .medium, design: .default))
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color(hex: "#848488"))
@@ -118,7 +118,7 @@ struct LegacyTokenListView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
                 .background(LinearGradient(
-                    colors: [Color.tangemBg, Color.tangemBg, Color.tangemBg.opacity(0)],
+                    colors: [Colors.Background.primary, Colors.Background.primary, Colors.Background.primary.opacity(0)],
                     startPoint: .bottom,
                     endPoint: .top
                 )
