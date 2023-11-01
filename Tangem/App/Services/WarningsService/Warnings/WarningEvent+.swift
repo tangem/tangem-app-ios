@@ -13,7 +13,7 @@ extension WarningEvent {
     var warning: AppWarning {
         AppWarning(
             title: appWarningTitle,
-            message: description,
+            message: description ?? "",
             priority: priority,
             type: type,
             location: Array(locationsToDisplay),
@@ -36,8 +36,6 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return [.okGotIt]
-        case .multiWalletSignedHashes:
-            return [.learnMore]
         case .rateApp:
             return [.reportProblem, .rateApp]
         default:
@@ -47,38 +45,42 @@ extension WarningEvent {
 
     private var priority: WarningPriority {
         switch self {
-        case .numberOfSignedHashesIncorrect, .multiWalletSignedHashes, .rateApp, .oldDeviceOldCard, .oldCard:
+        case .numberOfSignedHashesIncorrect, .rateApp, .oldDeviceOldCard, .oldCard:
             return .info
-        case .failedToValidateCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .failedToVerifyCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .critical
         case .systemDeprecationTemporary:
             return .warning
+        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
+            return .info
         }
     }
 
     private var type: WarningType {
         switch self {
-        case .numberOfSignedHashesIncorrect, .multiWalletSignedHashes, .rateApp, .systemDeprecationTemporary:
+        case .numberOfSignedHashesIncorrect, .rateApp, .systemDeprecationTemporary:
             return .temporary
-        case .failedToValidateCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .failedToVerifyCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .permanent
+        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
+            return .temporary
         }
     }
 
     @available(*, deprecated, message: "We need to have different titles for notification and for AppWarning. Will be removed after new design release")
     private var appWarningTitle: String {
         switch self {
-        case .multiWalletSignedHashes:
-            return Localization.warningImportantSecurityInfo("\u{26A0}")
         case .rateApp:
             return Localization.warningRateAppTitle
-        case .failedToValidateCard:
+        case .failedToVerifyCard:
             return Localization.warningFailedToVerifyCardTitle
         case .systemDeprecationTemporary:
             return Localization.warningSystemUpdateTitle
         case .systemDeprecationPermanent:
             return Localization.warningSystemDeprecationTitle
         case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect, .legacyDerivation:
+            return defaultTitle
+        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
             return defaultTitle
         }
     }
