@@ -12,15 +12,14 @@ struct SendSummaryView: View {
     let namespace: Namespace.ID
 //    let sendViewModel: SendViewModel
     let viewModel: SendSummaryViewModel
-    
+
     @SceneStorage("ContentView.selectedProduct") var animateOther = true
-    
+
     @State var showAmount = true
     @State var showDestination = true
 
     var body: some View {
         VStack(spacing: 20) {
-            
             if showAmount {
                 Button(action: {
                     viewModel.didTapSummary(step: .amount)
@@ -36,7 +35,7 @@ struct SendSummaryView: View {
                                     Spacer()
                                 }
                             }
-                                .padding()
+                            .padding()
                         )
                         .matchedGeometryEffect(id: "amount", in: namespace)
                 })
@@ -59,12 +58,12 @@ struct SendSummaryView: View {
                                     Spacer()
                                 }
                             }
-                                .padding()
+                            .padding()
                         )
                         .matchedGeometryEffect(id: "dest", in: namespace)
-                    
+
                 })
-                
+
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
             }
 
@@ -95,7 +94,7 @@ struct SendSummaryView: View {
             })
 
             Spacer()
-            
+
             Button {
                 withAnimation {
                     showAmount.toggle()
@@ -103,7 +102,7 @@ struct SendSummaryView: View {
             } label: {
                 Text("Toggle amount")
             }
-            
+
             Toggle(isOn: $animateOther, label: {
                 Text("Animate other")
             })
