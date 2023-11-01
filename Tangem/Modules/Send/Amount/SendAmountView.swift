@@ -14,13 +14,10 @@ struct SendAmountView: View {
 
     var body: some View {
         VStack {
-            VStack {
-                TextField("0.00 USDT", text: viewModel.amountText)
-                    .keyboardType(.decimalPad)
-            }
-            .padding()
-            .border(Color.green, width: 5)
-            .matchedGeometryEffect(id: "amount", in: namespace)
+            SendInputField(text: viewModel.amountText, placeholderText: "0", currencyCode: "USDT")
+                .padding()
+                .border(Color.green, width: 5)
+                .matchedGeometryEffect(id: "amount", in: namespace)
 
             Text(viewModel.amountError ?? " ")
                 .foregroundColor(.red)
