@@ -23,7 +23,7 @@ struct SendAmountView: View {
             .matchedGeometryEffect(id: "amount", in: namespace)
 
             Text(viewModel.amountError ?? " ")
-                .foregroundStyle(.red)
+                .foregroundColor(.red)
 
             Lorem()
 
