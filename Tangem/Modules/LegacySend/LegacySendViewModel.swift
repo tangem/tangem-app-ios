@@ -146,7 +146,7 @@ class LegacySendViewModel: ObservableObject {
     @Published private var validatedDestination: String? = nil
     @Published private var validatedAmount: Amount? = nil
 
-    private var destinationModificationRequest: Task<Void, Error>?
+    private var destinationResolutionRequest: Task<Void, Error>?
 
     let amountToSend: Amount
 
@@ -507,7 +507,7 @@ class LegacySendViewModel: ObservableObject {
     }
 
     func validateDestination(_ destination: String) {
-        destinationModificationRequest?.cancel()
+        destinationResolutionRequest?.cancel()
         validatedDestination = nil
         destinationHint = nil
         isAdditionalInputEnabled = false
@@ -519,8 +519,8 @@ class LegacySendViewModel: ObservableObject {
         let isAddressValid = validateAddress(destination)
 
         if isAddressValid {
-            if let addressModifier = walletModel.addressModifier {
-                modifyDestination(destination, with: addressModifier)
+            if let addressResolver = walletModel.addressResolver {
+                resolveDestination(destination, using: addressResolver)
             } else {
                 handleSuccessfulValidation(of: destination)
             }
@@ -579,16 +579,16 @@ class LegacySendViewModel: ObservableObject {
         error = AlertBinder(alert: alert)
     }
 
-    // MARK: - Address modification
+    // MARK: - Address resolution
 
-    private func modifyDestination(_ destination: String, with addressModifier: AddressModifier) {
-        destinationModificationRequest = runTask(in: self) { viewModel in
+    private func resolveDestination(_ destination: String, using addressResolver: AddressResolver) {
+        destinationResolutionRequest = runTask(in: self) { viewModel in
             do {
-                let modifiedDestination = try await addressModifier.modify(destination)
+                let resolvedDestination = try await addressResolver.resolve(destination)
 
                 guard !Task.isCancelled else { return }
 
-                viewModel.handleSuccessfulValidation(of: modifiedDestination)
+                viewModel.handleSuccessfulValidation(of: resolvedDestination)
             } catch {
                 guard !Task.isCancelled else { return }
 
@@ -597,7 +597,7 @@ class LegacySendViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Handling verification and modification result
+    // MARK: - Handling verification and resolution result
 
     @MainActor
     private func handleSuccessfulValidation(of destination: String) {
