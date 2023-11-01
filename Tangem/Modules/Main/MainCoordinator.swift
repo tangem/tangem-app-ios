@@ -23,14 +23,14 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator?
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
-    @Published var sendCoordinator: SendCoordinator?
+    @Published var legacySendCoordinator: LegacySendCoordinator?
     @Published var swappingCoordinator: SwappingCoordinator?
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
+    @Published var manageTokensCoordinator: ManageTokensCoordinator? = nil
 
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel?
-    @Published var pushedWebViewModel: WebViewContainerViewModel?
     @Published var warningBankCardViewModel: WarningBankCardViewModel?
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
@@ -68,13 +68,13 @@ extension MainCoordinator {
 // MARK: - MainRoutable protocol conformance
 
 extension MainCoordinator: MainRoutable {
-    func openDetails(for cardModel: CardViewModel) {
+    func openDetails(for userWalletModel: UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.detailsCoordinator = nil
         }
 
         let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = DetailsCoordinator.Options(cardModel: cardModel)
+        let options = DetailsCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
         coordinator.popToRootAction = popToRootAction
         detailsCoordinator = coordinator
@@ -127,33 +127,34 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        let userTokenListManager = userWalletModel.userTokenListManager
-        let optionsManager = OrganizeTokensOptionsManager(
-            userTokenListManager: userTokenListManager,
-            editingThrottleInterval: 1.0
-        )
-        let walletModelComponentsBuilder = WalletModelComponentsBuilder(
-            supportedBlockchains: userWalletModel.config.supportedBlockchains
-        )
-        let walletModelsAdapter = OrganizeWalletModelsAdapter(
-            userTokenListManager: userTokenListManager,
-            walletModelComponentsBuilder: walletModelComponentsBuilder,
-            organizeTokensOptionsProviding: optionsManager,
-            organizeTokensOptionsEditing: optionsManager
+        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
+        let tokenSectionsAdapter = TokenSectionsAdapter(
+            userTokenListManager: userWalletModel.userTokenListManager,
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
 
         organizeTokensViewModel = OrganizeTokensViewModel(
             coordinator: self,
             walletModelsManager: userWalletModel.walletModelsManager,
-            walletModelsAdapter: walletModelsAdapter,
-            organizeTokensOptionsProviding: optionsManager,
-            organizeTokensOptionsEditing: optionsManager
+            tokenSectionsAdapter: tokenSectionsAdapter,
+            optionsProviding: optionsManager,
+            optionsEditing: optionsManager
         )
     }
 
     func openManageTokens(with settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.legacyTokenListCoordinator = nil
+            self?.manageTokensCoordinator = nil
+        }
+
+        if FeatureProvider.isAvailable(.manageTokens) {
+            let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
+            let options = ManageTokensCoordinator.Options()
+            coordinator.start(with: options)
+            manageTokensCoordinator = coordinator
+            return
         }
 
         let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
@@ -181,13 +182,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.topupScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonBuy,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [
                 closeUrl: { [weak self] response in
-                    self?.pushedWebViewModel = nil
+                    self?.modalWebViewModel = nil
                     action(response)
                 },
             ]
@@ -196,40 +198,51 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
-        pushedWebViewModel = WebViewContainerViewModel(
+        modalWebViewModel = WebViewContainerViewModel(
             url: url,
             title: Localization.commonSell,
             addLoadingIndicator: true,
+            withCloseButton: true,
             urlActions: [sellRequestUrl: action]
         )
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = SendCoordinator { [weak self] in
-            self?.sendCoordinator = nil
+        guard FeatureProvider.isAvailable(.sendV2) else {
+            let coordinator = LegacySendCoordinator { [weak self] in
+                self?.legacySendCoordinator = nil
+            }
+            let options = LegacySendCoordinator.Options(
+                amountToSend: amountToSend,
+                destination: nil,
+                blockchainNetwork: blockchainNetwork,
+                cardViewModel: cardViewModel
+            )
+            coordinator.start(with: options)
+            legacySendCoordinator = coordinator
+            return
         }
-        let options = SendCoordinator.Options(
-            amountToSend: amountToSend,
-            destination: nil,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
-        coordinator.start(with: options)
-        sendCoordinator = coordinator
+
+        assertionFailure("[REDACTED_TODO_COMMENT]")
     }
 
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = SendCoordinator { [weak self] in
-            self?.sendCoordinator = nil
+        guard FeatureProvider.isAvailable(.sendV2) else {
+            let coordinator = LegacySendCoordinator { [weak self] in
+                self?.legacySendCoordinator = nil
+            }
+            let options = LegacySendCoordinator.Options(
+                amountToSend: amountToSend,
+                destination: destination,
+                blockchainNetwork: blockchainNetwork,
+                cardViewModel: cardViewModel
+            )
+            coordinator.start(with: options)
+            legacySendCoordinator = coordinator
+            return
         }
-        let options = SendCoordinator.Options(
-            amountToSend: amountToSend,
-            destination: destination,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
-        )
-        coordinator.start(with: options)
-        sendCoordinator = coordinator
+
+        assertionFailure("[REDACTED_TODO_COMMENT]")
     }
 
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
@@ -283,14 +296,14 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 }
 
-// MARK: - SingleWalletMainContentRoutable protocol conformance
-
-extension MainCoordinator: SingleWalletMainContentRoutable {}
-
 // MARK: - OrganizeTokensRoutable protocol conformance
 
 extension MainCoordinator: OrganizeTokensRoutable {
     func didTapCancelButton() {
+        organizeTokensViewModel = nil
+    }
+
+    func didTapSaveButton() {
         organizeTokensViewModel = nil
     }
 }
