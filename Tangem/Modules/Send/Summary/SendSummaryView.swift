@@ -10,7 +10,6 @@ import SwiftUI
 struct SendSummaryView: View {
     let height = 150.0
     let namespace: Namespace.ID
-//    let sendViewModel: SendViewModel
     let viewModel: SendSummaryViewModel
 
     @SceneStorage("ContentView.selectedProduct") var animateOther = true
@@ -22,7 +21,7 @@ struct SendSummaryView: View {
         VStack(spacing: 20) {
             if showAmount {
                 Button(action: {
-                    viewModel.didTapSummary(step: .amount)
+                    viewModel.didTapSummary(for: .amount)
                 }, label: {
                     Color.clear
                         .frame(maxHeight: height)
@@ -30,7 +29,7 @@ struct SendSummaryView: View {
                         .overlay(
                             VStack {
                                 HStack {
-                                    Text(viewModel.input.amountText)
+                                    Text(viewModel.amountText)
                                         .foregroundColor(.black)
                                     Spacer()
                                 }
@@ -44,7 +43,7 @@ struct SendSummaryView: View {
 
             if showDestination {
                 Button(action: {
-                    viewModel.didTapSummary(step: .destination)
+                    viewModel.didTapSummary(for: .destination)
                 }, label: {
                     Color.clear
                         .frame(maxHeight: height)
@@ -52,7 +51,7 @@ struct SendSummaryView: View {
                         .overlay(
                             VStack(alignment: .leading) {
                                 HStack {
-                                    Text(viewModel.input.destinationText)
+                                    Text(viewModel.destinationText)
                                         .lineLimit(1)
                                         .foregroundColor(.black)
                                     Spacer()
@@ -74,7 +73,7 @@ struct SendSummaryView: View {
                         showDestination = false
                     }
                 }
-                viewModel.didTapSummary(step: .fee)
+                viewModel.didTapSummary(for: .fee)
             }, label: {
                 Color.clear
                     .frame(maxHeight: height)
@@ -82,7 +81,7 @@ struct SendSummaryView: View {
                     .overlay(
                         VStack(alignment: .leading) {
                             HStack {
-                                Text(viewModel.input.feeText)
+                                Text(viewModel.feeText)
                                     .foregroundColor(.black)
                                 Spacer()
                             }
