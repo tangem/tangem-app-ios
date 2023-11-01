@@ -19,6 +19,7 @@ extension Analytics {
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
+        case mainToken = "Main Token"
         case customToken = "Custom Token"
         case noRate = "No Rate"
         case blockchainError = "Blockchain Error"
