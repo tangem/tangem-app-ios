@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
+import CombineExt
 import BlockchainSdk
 import TangemSdk
-import SwiftUI
 
 class LegacyTokenListViewModel: ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
@@ -174,7 +175,7 @@ private extension LegacyTokenListViewModel {
                 items.compactMap { self?.mapToCoinViewModel(coinModel: $0) }
             }
             .receive(on: DispatchQueue.main)
-            .weakAssign(to: \.coinViewModels, on: self)
+            .assign(to: \.coinViewModels, on: self, ownership: .weak)
             .store(in: &bag)
 
         return loader
@@ -364,7 +365,7 @@ private extension LegacyTokenListViewModel {
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         Analytics.log(event: .tokenSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.state(for: tokenIsSelected).rawValue,
+            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
         ])
     }

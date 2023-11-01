@@ -229,15 +229,15 @@ final class AppScanTask: CardSessionRunnable {
 
             // Force add blockchains for demo cards
             if let persistentBlockchains = config.persistentBlockchains {
-                tokenItemsRepository.append(persistentBlockchains)
+                let converter = StorageEntryConverter()
+                tokenItemsRepository.append(converter.convertToStoredUserTokens(persistentBlockchains))
             }
 
-            let savedItems = tokenItemsRepository.getItems()
+            let savedItems = tokenItemsRepository.getList().entries
 
             savedItems.forEach { item in
-                if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
-                   let path = item.blockchainNetwork.derivationPath {
-                    derivations[wallet.curve, default: []].append(path)
+                if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }) {
+                    derivations[wallet.curve, default: []].append(contentsOf: item.blockchainNetwork.derivationPaths())
                 }
             }
         }
