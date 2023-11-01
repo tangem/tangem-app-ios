@@ -88,7 +88,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var cardHeaderImage: ImageType? {
-        Assets.Cards.twin
+        Assets.Cards.twins
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -154,7 +154,7 @@ extension TwinConfig: UserWalletConfig {
         return CommonWalletModelsFactory(derivationStyle: nil)
     }
 
-    func makeAnyWalletManagerFacrory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         guard let savedPairKey = twinData.pairPublicKey else {
             throw CommonError.noData
         }

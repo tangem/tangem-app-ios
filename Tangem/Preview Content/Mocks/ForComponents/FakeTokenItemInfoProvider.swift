@@ -10,12 +10,8 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class FakeTokenItemInfoProvider: PriceChangeProvider, ObservableObject {
-    var priceChangePublisher: AnyPublisher<Void, Never> { priceChangedSubject.eraseToAnyPublisher() }
-
+class FakeTokenItemInfoProvider: ObservableObject {
     let pendingTransactionNotifier = PassthroughSubject<(WalletModelId, Bool), Never>()
-
-    let priceChangedSubject = PassthroughSubject<Void, Never>()
 
     private var amountsIndex = 0
     private var previouslyTappedModelId: Int?
@@ -29,20 +25,17 @@ class FakeTokenItemInfoProvider: PriceChangeProvider, ObservableObject {
 
     init(walletManagers: [FakeWalletManager]) {
         walletModels = walletManagers.flatMap { $0.walletModels }
-        viewModels = walletModels.map {
+        viewModels = walletModels.map { walletModel in
             TokenItemViewModel(
-                id: $0.id,
-                tokenIcon: makeTokenIconInfo(for: $0),
-                tokenItem: makeTokenItem(for: $0),
+                id: walletModel.id,
+                tokenIcon: makeTokenIconInfo(for: walletModel),
+                isTestnetToken: walletModel.blockchainNetwork.blockchain.isTestnet,
+                infoProvider: DefaultTokenItemInfoProvider(walletModel: walletModel),
                 tokenTapped: modelTapped(with:),
-                infoProvider: DefaultTokenItemInfoProvider(walletModel: $0),
-                priceChangeProvider: self
+                contextActionsProvider: self,
+                contextActionsDelegate: self
             )
         }
-    }
-
-    func change(for currencyCode: String, in blockchain: BlockchainSdk.Blockchain) -> Double {
-        0
     }
 
     func modelTapped(with id: Int) {
@@ -62,15 +55,16 @@ class FakeTokenItemInfoProvider: PriceChangeProvider, ObservableObject {
         return TokenIconInfoBuilder()
             .build(
                 for: walletModel.tokenItem.amountType,
-                in: walletModel.blockchainNetwork.blockchain
+                in: walletModel.blockchainNetwork.blockchain,
+                isCustom: walletModel.isCustom
             )
     }
+}
 
-    private func makeTokenItem(for walletModel: WalletModel) -> TokenItem {
-        let blockchain = walletModel.blockchainNetwork.blockchain
-        switch walletModel.amountType {
-        case .coin, .reserve: return .blockchain(blockchain)
-        case .token(let value): return .token(value, blockchain)
-        }
+extension FakeTokenItemInfoProvider: TokenItemContextActionsProvider, TokenItemContextActionDelegate {
+    func buildContextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenActionType] {
+        [.copyAddress, .hide]
     }
+
+    func didTapContextAction(_ action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {}
 }
