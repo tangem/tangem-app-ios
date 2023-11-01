@@ -14,11 +14,6 @@ protocol SendSummaryViewModelInput {
     var feeTextBinding: Binding<String> { get }
 }
 
-protocol SendSummaryRoutable {
-    func openStep(_ step: SendStep)
-    func send()
-}
-
 class SendSummaryViewModel {
     let amountText: String
     let destinationText: String
