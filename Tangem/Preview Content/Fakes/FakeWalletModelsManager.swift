@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
+import TangemSdk
 
 class FakeWalletModelsManager: WalletModelsManager {
     var walletModels: [WalletModel] {
@@ -36,7 +36,7 @@ class FakeWalletModelsManager: WalletModelsManager {
         updateAllSubscription = Publishers
             .MergeMany(publishers)
             .collect(publishers.count)
-            .mapVoid()
+            .mapToVoid()
             .receive(on: RunLoop.main)
             .receiveCompletion { _ in
                 completion()
