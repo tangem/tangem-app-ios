@@ -75,7 +75,7 @@
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
-"common_fee_selector_footer" = "Network transaction fees are small charges paid to support network security, incentivize validators, allocate resources, and determine transaction priority.";
+"common_fee_selector_footer" = "Сетевые комиссии за транзакции используются для поддержки безопасности сети, поощрения валидаторов, выделения ресурсов и определения приоритета транзакции.";
 "common_fee_selector_option_custom" = "Свое";
 "common_fee_selector_option_fast" = "Быстро";
 "common_fee_selector_option_market" = "По рынку";
