@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-class SendModel: ObservableObject {
+class SendModel {
     // MARK: - Bindings
 
     var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
@@ -23,14 +23,20 @@ class SendModel: ObservableObject {
     var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
 
-    @Published private var _amountText: String = ""
-    @Published private var _destinationText: String = ""
-    @Published private var _destinationAdditionalFieldText: String = ""
-    @Published private var _feeText: String = ""
+    // MARK: - Data
 
-    @Published private var amount: Decimal?
-    @Published private var destination: String?
-    @Published private var destinationAdditionalField: String?
+    private var amount: Decimal?
+    private var destination: String?
+    private var destinationAdditionalField: String?
+
+    // MARK: - Raw data
+
+    private var _amountText: String = ""
+    private var _destinationText: String = ""
+    private var _destinationAdditionalFieldText: String = ""
+    private var _feeText: String = ""
+
+    // MARK: - Errors (raw implementation)
 
     private var _amountError = CurrentValueSubject<Error?, Never>(nil)
     private var _destinationError = CurrentValueSubject<Error?, Never>(nil)
