@@ -38,8 +38,9 @@ final class SendViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    let sendModel: SendModel
+
     private unowned let coordinator: SendRoutable
-    private let sendModel: SendModel
     private var bag: Set<AnyCancellable> = [] // remove?
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
@@ -99,32 +100,6 @@ final class SendViewModel: ObservableObject {
         if let previousStep = step.previousStep {
             step = previousStep
         }
-    }
-}
-
-extension SendViewModel {
-    var sendAmountInput: SendAmountInput {
-        sendModel
-    }
-
-    var sendAmountValidator: SendAmountValidator {
-        sendModel
-    }
-
-    var sendDestinationInput: SendDestinationInput {
-        sendModel
-    }
-
-    var sendDestinationValidator: SendDestinationValidator {
-        sendModel
-    }
-
-    var sendFeeInput: SendFeeInput {
-        sendModel
-    }
-
-    var sendSummaryInput: SendSummaryInput {
-        sendModel
     }
 }
 
