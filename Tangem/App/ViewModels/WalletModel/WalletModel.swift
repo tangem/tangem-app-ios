@@ -100,7 +100,7 @@ class WalletModel {
     }
 
     var rateFormatted: String {
-        guard let rate = quote?.price else { 
+        guard let rate = quote?.price else {
             return BalanceFormatter.defaultEmptyBalanceString
         }
 
