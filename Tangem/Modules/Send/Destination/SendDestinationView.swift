@@ -21,7 +21,7 @@ struct SendDestinationView: View {
             .matchedGeometryEffect(id: "dest", in: namespace)
 
             Text(viewModel.destinationErrorText ?? " ")
-                .foregroundStyle(.red)
+                .foregroundColor(.red)
 
             VStack {
                 TextField("Enter memo", text: viewModel.additionalField)
@@ -30,7 +30,7 @@ struct SendDestinationView: View {
             .border(Color.purple, width: 5)
 
             Text(viewModel.destinationAdditionalFieldErrorText ?? " ")
-                .foregroundStyle(.red)
+                .foregroundColor(.red)
 
             Spacer()
 
