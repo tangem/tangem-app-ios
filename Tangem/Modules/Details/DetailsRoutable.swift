@@ -13,7 +13,6 @@ protocol DetailsRoutable: AnyObject {
     func openOnboardingModal(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
     func openWalletConnect(with disabledLocalizedReason: String?)
-    func openCurrencySelection()
     func openDisclaimer(at url: URL)
     func openScanCardSettings(with userWalletId: Data, sdk: TangemSdk)
     func openAppSettings()
@@ -21,4 +20,5 @@ protocol DetailsRoutable: AnyObject {
     func openInSafari(url: URL)
     func openEnvironmentSetup()
     func openReferral(input: ReferralInputModel)
+    func dismiss()
 }
