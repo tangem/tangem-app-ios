@@ -59,7 +59,7 @@ class SendModel: ObservableObject {
         let amount: Decimal?
         let error: Error?
 
-        // [REDACTED_TODO_COMMENT]
+        #warning("validate")
         amount = Decimal(string: _amountText, locale: Locale.current) ?? 0
         error = nil
 
@@ -78,7 +78,7 @@ class SendModel: ObservableObject {
         let destination: String?
         let error: Error?
 
-        // [REDACTED_TODO_COMMENT]
+        #warning("validate")
         destination = _destinationText
         error = nil
 
@@ -95,7 +95,7 @@ class SendModel: ObservableObject {
         let destinationAdditionalField: String?
         let error: Error?
 
-        // [REDACTED_TODO_COMMENT]
+        #warning("validate")
         destinationAdditionalField = _destinationAdditionalFieldText
         error = nil
 
@@ -106,7 +106,7 @@ class SendModel: ObservableObject {
     // MARK: - Fees
 
     private func setFee(_ feeText: String) {
-        // [REDACTED_TODO_COMMENT]
+        #warning("set and validate")
         _feeText = feeText
     }
 }
