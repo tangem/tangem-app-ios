@@ -95,6 +95,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private func bind() {
         infoProvider.tokenItemStatePublisher
             .receive(on: DispatchQueue.main)
+            // We need this debounce to prevent initial sequential state updates that can skip `loading` state
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .sink { [weak self] newState in
                 guard let self else { return }
 
