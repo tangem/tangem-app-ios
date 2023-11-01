@@ -28,18 +28,20 @@ class SendDestinationViewModel: ObservableObject {
         destination = input.destinationTextBinding
         additionalField = input.destinationAdditionalFieldTextBinding
 
+        #warning("weak")
         input
             .destinationError
             .map {
                 $0?.localizedDescription
             }
-            .assign(to: &$destinationErrorText) // weak
+            .assign(to: &$destinationErrorText)
 
+        #warning("weak")
         input
             .destinationAdditionalFieldError
             .map {
                 $0?.localizedDescription
             }
-            .assign(to: &$destinationAdditionalFieldErrorText) // weak
+            .assign(to: &$destinationAdditionalFieldErrorText)
     }
 }
