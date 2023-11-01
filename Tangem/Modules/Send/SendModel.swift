@@ -61,27 +61,6 @@ class SendModel: ObservableObject {
         print("SEND")
     }
 
-    func stepValid(_ step: SendStep) -> AnyPublisher<Bool, Never> {
-        switch step {
-        case .amount:
-            return amountError
-                .map {
-                    $0 == nil
-                }
-                .eraseToAnyPublisher()
-        case .destination:
-            return Publishers.CombineLatest(destinationError, destinationAdditionalFieldError)
-                .map {
-                    $0 == nil && $1 == nil
-                }
-                .eraseToAnyPublisher()
-        default:
-            // [REDACTED_TODO_COMMENT]
-            return Just(true)
-                .eraseToAnyPublisher()
-        }
-    }
-
     private func setAmount(_ amountText: String) {
         self.amountText = amountText
 
