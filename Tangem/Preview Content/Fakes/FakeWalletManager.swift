@@ -46,7 +46,7 @@ class FakeWalletManager: WalletManager {
     func updatePublisher() -> AnyPublisher<WalletManagerState, Never> {
         print("Receive update request")
 
-        return Just(nextState())
+        return .just(output: nextState())
             .delay(for: 5, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
@@ -125,6 +125,12 @@ extension FakeWalletManager {
     }()
 
     static let xrpManager: FakeWalletManager = {
+        var wallet = Wallet.xrpWalletStub
+        wallet.add(coinValue: 5828830)
+        return FakeWalletManager(wallet: wallet)
+    }()
+
+    static let xlmManager: FakeWalletManager = {
         var wallet = Wallet.xrpWalletStub
         wallet.add(coinValue: 5828830)
         return FakeWalletManager(wallet: wallet)

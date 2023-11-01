@@ -45,7 +45,8 @@ extension Analytics {
         case commonType = "Type"
         case signInType = "Sign in type"
         case balance = "Balance"
-        case creationType = "Creation type"
+        case creationType = "Creation Type"
+        case seedLength = "Seed Phrase Length"
         case status = "Status"
         case option
         case feeType = "Fee Type"
@@ -53,6 +54,7 @@ extension Analytics {
         case validation = "Validation"
         case memo = "Memo"
         case walletsCount = "Wallets Count"
+        case walletHasBackup = "Backuped"
         case exceptionHost = "exception_host"
         case selectedHost = "selected_host"
         case region
@@ -61,5 +63,7 @@ extension Analytics {
         case dAppName = "DApp Name"
         case dAppUrl = "DApp Url"
         case methodName = "Method Name"
+        case groupType = "Group"
+        case sortType = "Sort"
     }
 }
