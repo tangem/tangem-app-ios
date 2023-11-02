@@ -18,8 +18,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published var isLoadingTokenList: Bool = true
     @Published var sections: [Section] = []
-    @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
-    @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var tokensNotificationInputs: [NotificationViewInput] = []
 
@@ -127,21 +125,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func setup() {
-        updateBackupStatus()
         subscribeToTokenListUpdatesIfNeeded()
         bind()
     }
 
     private func bind() {
-        userWalletModel.userTokensManager.derivationManager?
-            .pendingDerivationsCount
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .sink(receiveValue: { [weak self] pendingDerivationsCount in
-                self?.updateMissingDerivationNotification(for: pendingDerivationsCount)
-            })
-            .store(in: &bag)
-
         // The contents of the coins and tokens collection for the user wallet
         let walletModelsPublisher = userWalletModel
             .walletModelsManager
@@ -182,12 +170,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, sections in
                 viewModel.removeOldCachedTokenViewModels(sections)
-            }
-            .store(in: &bag)
-
-        userWalletModel.updatePublisher
-            .sink { [weak self] in
-                self?.updateBackupStatus()
             }
             .store(in: &bag)
 
@@ -282,26 +264,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
-
-    private func updateMissingDerivationNotification(for pendingDerivationsCount: Int) {
-        guard pendingDerivationsCount > 0 else {
-            missingDerivationNotificationSettings = nil
-            return
-        }
-
-        let factory = NotificationsFactory()
-        missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
-    }
-
-    private func updateBackupStatus() {
-        guard userWalletModel.config.hasFeature(.backup) else {
-            missingBackupNotificationSettings = nil
-            return
-        }
-
-        let factory = NotificationsFactory()
-        missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
-    }
 }
 
 // MARK: Hide token
@@ -353,9 +315,16 @@ private extension MultiWalletMainContentViewModel {
     }
 
     func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
-        // [REDACTED_TODO_COMMENT]
         let derivation = blockchainNetwork.derivationPath
         userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
+
+        Analytics.log(
+            event: .buttonRemoveToken,
+            params: [
+                Analytics.ParameterKey.token: tokenItem.currencySymbol,
+                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
+            ]
+        )
     }
 }
 
