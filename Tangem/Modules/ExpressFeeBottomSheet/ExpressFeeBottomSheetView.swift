@@ -24,10 +24,9 @@ struct ExpressFeeBottomSheetView: View {
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
-            .horizontalPadding(0)
+            .horizontalPadding(14)
             .verticalPadding(0)
             .separatorStyle(.minimum)
-            .separatorPadding(8)
             .padding(.horizontal, 14)
         }
     }

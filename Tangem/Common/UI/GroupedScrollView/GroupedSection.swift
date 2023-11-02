@@ -82,7 +82,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 .padding(.leading, separatorPadding)
         case .minimum:
             Separator(height: .minimal, color: Colors.Stroke.primary)
-                .padding(.horizontal, separatorPadding)
+                .padding(.leading, separatorPadding)
         }
     }
 }
