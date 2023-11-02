@@ -36,7 +36,6 @@ class SendDestinationViewModel: ObservableObject {
             .map {
                 $0?.localizedDescription
             }
-
             .assign(to: \.destinationErrorText, on: self, ownership: .weak)
             .store(in: &bag)
 
