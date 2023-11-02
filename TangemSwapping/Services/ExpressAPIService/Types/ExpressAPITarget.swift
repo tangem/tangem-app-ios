@@ -27,7 +27,7 @@ enum ExpressAPITarget: Moya.TargetType {
         case .providers: return "providers"
         case .exchangeQuote: return "exchange-quote"
         case .exchangeData: return "exchange-data"
-        case .exchangeResults: return "exchange-results"
+        case .exchangeResults: return "exchange-result"
         }
     }
 
