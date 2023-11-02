@@ -9,35 +9,34 @@
 import Foundation
 
 struct NotificationsFactory {
-    func buildMissingDerivationNotificationSettings(for numberOfNetworks: Int) -> NotificationView.Settings {
-        .init(event: WarningEvent.missingDerivation(numberOfNetworks: numberOfNetworks), dismissAction: nil)
-    }
-
     func lockedWalletNotificationSettings() -> NotificationView.Settings {
         .init(event: WarningEvent.walletLocked, dismissAction: nil)
-    }
-
-    func missingBackupNotificationSettings() -> NotificationView.Settings {
-        .init(event: WarningEvent.missingBackup, dismissAction: nil)
     }
 
     func buildNotificationInputs(
         for events: [WarningEvent],
         action: @escaping NotificationView.NotificationAction,
+        buttonAction: @escaping NotificationView.NotificationButtonTapAction,
         dismissAction: @escaping NotificationView.NotificationAction
     ) -> [NotificationViewInput] {
         return events.map { event in
-            buildNotificationInput(for: event, action: action, dismissAction: dismissAction)
+            buildNotificationInput(
+                for: event,
+                action: action,
+                buttonAction: buttonAction,
+                dismissAction: dismissAction
+            )
         }
     }
 
     func buildNotificationInput(
         for event: WarningEvent,
         action: @escaping NotificationView.NotificationAction,
+        buttonAction: @escaping NotificationView.NotificationButtonTapAction,
         dismissAction: @escaping NotificationView.NotificationAction
     ) -> NotificationViewInput {
         return NotificationViewInput(
-            style: notificationStyle(for: event, action: action),
+            style: event.style(tapAction: action, buttonAction: buttonAction),
             settings: .init(event: event, dismissAction: dismissAction)
         )
     }
@@ -53,14 +52,6 @@ struct NotificationsFactory {
         )
     }
 
-    private func notificationStyle(for event: WarningEvent, action: @escaping NotificationView.NotificationAction) -> NotificationView.Style {
-        if event.hasAction {
-            return .tappable(action: action)
-        } else {
-            return .plain
-        }
-    }
-
     private func tokenNotificationStyle(
         for event: TokenNotificationEvent,
         action: NotificationView.NotificationButtonTapAction?
@@ -73,7 +64,7 @@ struct NotificationsFactory {
         }
 
         return .withButtons([
-            .init(action: action, actionType: actionType),
+            .init(action: action, actionType: actionType, isWithLoader: false),
         ])
     }
 }
