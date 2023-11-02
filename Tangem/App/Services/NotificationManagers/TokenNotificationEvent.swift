@@ -88,10 +88,10 @@ extension TokenNotificationEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .noAccount:
-            return .gray
+            return .secondary
         // One white notification will be added later
         case .notEnoughtFeeForTokenTx:
-            return .white
+            return .primary
         }
     }
 
