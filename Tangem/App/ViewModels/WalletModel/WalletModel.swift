@@ -607,6 +607,10 @@ extension WalletModel {
         walletManager as? SignatureCountValidator
     }
 
+    var addressResolver: AddressResolver? {
+        walletManager as? AddressResolver
+    }
+
     var hasRent: Bool {
         walletManager is RentProvider
     }
