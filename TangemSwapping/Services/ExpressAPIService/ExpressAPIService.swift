@@ -17,5 +17,5 @@ protocol ExpressAPIService {
     func providers() async throws
     func exchangeQuote(request: ExpressDTO.ExchangeQuote.Request) async throws
     func exchangeData(request: ExpressDTO.ExchangeData.Request) async throws
-    func exchangeResults(request: ExpressDTO.ExchangeResult.Request) async throws
+    func exchangeResult(request: ExpressDTO.ExchangeResult.Request) async throws
 }
