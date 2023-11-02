@@ -81,7 +81,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "00:04",
             amount: "0 wxDAI",
             isOutgoing: true,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .confirmed
         ),
         TransactionViewModel(
@@ -117,7 +117,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "18:32",
             amount: "0.0012 ETH",
             isOutgoing: true,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .confirmed
         ),
         TransactionViewModel(
@@ -126,7 +126,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "18:32",
             amount: "0.0012 ETH",
             isOutgoing: true,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .inProgress
         ),
     ]

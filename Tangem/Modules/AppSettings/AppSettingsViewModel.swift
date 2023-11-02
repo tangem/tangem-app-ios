@@ -20,6 +20,13 @@ class AppSettingsViewModel: ObservableObject {
     @Published var savingAccessCodesViewModel: DefaultToggleRowViewModel?
     @Published var currencySelectionViewModel: DefaultRowViewModel?
     @Published var sensitiveTextAvailabilityViewModel: DefaultToggleRowViewModel?
+    @Published var isSavingWallet: Bool {
+        didSet { AppSettings.shared.saveUserWallets = isSavingWallet }
+    }
+
+    @Published var isSavingAccessCodes: Bool {
+        didSet { AppSettings.shared.saveAccessCodes = isSavingAccessCodes }
+    }
 
     @Published var alert: AlertBinder?
 
@@ -31,18 +38,6 @@ class AppSettingsViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
     private var isBiometryAvailable: Bool = true
-
-    private var isSavingWallet: Bool {
-        didSet {
-            AppSettings.shared.saveUserWallets = isSavingWallet
-        }
-    }
-
-    private var isSavingAccessCodes: Bool {
-        didSet {
-            AppSettings.shared.saveAccessCodes = isSavingAccessCodes
-        }
-    }
 
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
