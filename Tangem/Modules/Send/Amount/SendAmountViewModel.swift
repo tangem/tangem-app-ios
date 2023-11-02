@@ -20,13 +20,15 @@ class SendAmountViewModel: ObservableObject {
 
     @Published var amountError: String?
 
+    private var bag: Set<AnyCancellable> = []
+
     init(input: SendAmountViewModelInput) {
         amountText = input.amountTextBinding
 
-        #warning("weak")
         input
             .amountError
             .map { $0?.localizedDescription }
-            .assign(to: &$amountError)
+            .assign(to: \.amountError, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
