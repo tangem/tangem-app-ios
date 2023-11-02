@@ -39,10 +39,10 @@ struct SendDestinationView: View {
     }
 }
 
-private enum SendPreviewData {
+struct SendDestinationView_Previews: PreviewProvider {
     @Namespace static var namespace
-}
 
-#Preview {
-    SendDestinationView(namespace: SendPreviewData.namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock()))
+    static var previews: some View {
+        SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock()))
+    }
 }
