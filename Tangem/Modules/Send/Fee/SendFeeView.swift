@@ -25,10 +25,10 @@ struct SendFeeView: View {
     }
 }
 
-private enum SendPreviewData {
+struct SendFeeView_Previews: PreviewProvider {
     @Namespace static var namespace
-}
 
-#Preview {
-    SendFeeView(namespace: SendPreviewData.namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock()))
+    static var previews: some View {
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock()))
+    }
 }
