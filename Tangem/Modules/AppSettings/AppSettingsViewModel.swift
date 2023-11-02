@@ -43,6 +43,10 @@ class AppSettingsViewModel: ObservableObject {
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var selectedCurrencyCode: String = "USD"
 
+    private var showingBiometryWarning: Bool {
+        warningViewModel != nil
+    }
+
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
@@ -69,6 +73,19 @@ private extension AppSettingsViewModel {
             .dropFirst()
             .sink { [weak self] _ in
                 self?.setupView()
+            }
+            .store(in: &bag)
+
+        $warningViewModel
+            .map {
+                $0 != nil
+            }
+            .removeDuplicates()
+            .sink { showingBiometryWarning in
+                // Can't do this in onAppear, the view could be updated and the warning displayed after biometry disabled in the settings
+                if showingBiometryWarning {
+                    Analytics.log(.settingsNoticeEnableBiometrics)
+                }
             }
             .store(in: &bag)
     }
@@ -179,7 +196,10 @@ private extension AppSettingsViewModel {
     func isSensitiveTextAvailability() -> BindingValue<Bool> {
         BindingValue<Bool>(
             get: { AppSettings.shared.isHidingSensitiveAvailable },
-            set: { AppSettings.shared.isHidingSensitiveAvailable = $0 }
+            set: { enabled in
+                Analytics.log(.hideBalanceChanged, params: [.state: Analytics.ParameterValue.toggleState(for: enabled)])
+                AppSettings.shared.isHidingSensitiveAvailable = enabled
+            }
         )
     }
 
