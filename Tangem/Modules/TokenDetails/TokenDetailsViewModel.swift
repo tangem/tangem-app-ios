@@ -70,7 +70,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.detailsScreenOpened)
+        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: tokenItem.currencySymbol])
     }
 
     func onDidAppear() {
@@ -127,7 +127,13 @@ extension TokenDetailsViewModel {
     }
 
     private func hideToken() {
-        Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
+        Analytics.log(
+            event: .buttonRemoveToken,
+            params: [
+                Analytics.ParameterKey.token: currencySymbol,
+                Analytics.ParameterKey.source: Analytics.ParameterValue.token.rawValue,
+            ]
+        )
 
         userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         dismiss()
