@@ -26,32 +26,32 @@ struct CommonExpressAPIService {
 
 extension CommonExpressAPIService: ExpressAPIService {
     func assets(request: ExpressDTO.Assets.Request) async throws {
-        let _: ExpressDTO.Assets.Response = try await asyncRequest(target: .assets(request: request))
+        let _: ExpressDTO.Assets.Response = try await _request(target: .assets(request: request))
     }
 
     func pairs(request: ExpressDTO.Pairs.Request) async throws {
-        let _: ExpressDTO.Pairs.Response = try await asyncRequest(target: .pairs(request: request))
+        let _: ExpressDTO.Pairs.Response = try await _request(target: .pairs(request: request))
     }
 
     func providers() async throws {
-        let _: ExpressDTO.Providers.Response = try await asyncRequest(target: .providers)
+        let _: ExpressDTO.Providers.Response = try await _request(target: .providers)
     }
 
     func exchangeQuote(request: ExpressDTO.ExchangeQuote.Request) async throws {
-        let _: ExpressDTO.ExchangeQuote.Response = try await asyncRequest(target: .exchangeQuote(request: request))
+        let _: ExpressDTO.ExchangeQuote.Response = try await _request(target: .exchangeQuote(request: request))
     }
 
     func exchangeData(request: ExpressDTO.ExchangeData.Request) async throws {
-        let _: ExpressDTO.ExchangeData.Response = try await asyncRequest(target: .exchangeData(request: request))
+        let _: ExpressDTO.ExchangeData.Response = try await _request(target: .exchangeData(request: request))
     }
 
     func exchangeResult(request: ExpressDTO.ExchangeResult.Request) async throws {
-        let _: ExpressDTO.ExchangeResult.Response = try await asyncRequest(target: .exchangeResult(request: request))
+        let _: ExpressDTO.ExchangeResult.Response = try await _request(target: .exchangeResult(request: request))
     }
 }
 
 private extension CommonExpressAPIService {
-    func asyncRequest<T: Decodable>(target: ExpressAPITarget) async throws -> T {
+    func _request<T: Decodable>(target: ExpressAPITarget) async throws -> T {
         var response: Response
 
         do {
@@ -64,7 +64,7 @@ private extension CommonExpressAPIService {
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
-            try catchError(target: target, response: response)
+            try handleError(target: target, response: response)
         }
 
         do {
@@ -75,7 +75,7 @@ private extension CommonExpressAPIService {
         }
     }
 
-    func catchError(target: ExpressAPITarget, response: Response) throws {
+    func handleError(target: ExpressAPITarget, response: Response) throws {
         let decoder = JSONDecoder()
 
         do {
