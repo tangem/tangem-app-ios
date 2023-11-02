@@ -17,6 +17,6 @@ struct BottomSheetHeaderView: View {
             .style(Fonts.Bold.body, color: Colors.Text.primary1)
             .frame(maxWidth: .infinity)
             .multilineTextAlignment(.center)
-            .padding(.vertical, 11)
+            .padding(.vertical, 10)
     }
 }
