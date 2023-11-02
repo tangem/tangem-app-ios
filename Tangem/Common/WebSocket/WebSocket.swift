@@ -11,7 +11,7 @@ import UIKit
 import Combine
 
 class WebSocket {
-    enum ConnectionState {
+    enum ConnectionState: String {
         case notConnected
         case connecting
         case connected
@@ -88,7 +88,7 @@ class WebSocket {
 
     deinit {
         session.invalidateAndCancel()
-        pingTimer?.invalidate()
+        invalidateTimer()
     }
 
     func connect() {
@@ -109,8 +109,7 @@ class WebSocket {
 
     func disconnect() {
         log("Disconnecting WebSocket with state: \(state) with \(url)")
-        pingTimer?.invalidate()
-        pingTimer = nil
+        invalidateTimer()
         state = .notConnected
         isWaitingForMessage = false
         if task == nil {
@@ -168,22 +167,6 @@ class WebSocket {
         }
     }
 
-    private func setupPingTimer() {
-        if pingTimer != nil {
-            pingTimer?.invalidate()
-            pingTimer = nil
-        }
-
-        DispatchQueue.main.async {
-            self.pingTimer = Timer.scheduledTimer(
-                withTimeInterval: self.pingInterval,
-                repeats: true
-            ) { [weak self] timer in
-                self?.sendPing()
-            }
-        }
-    }
-
     private func sendPing() {
         guard isConnected else { return }
 
@@ -204,15 +187,19 @@ class WebSocket {
             log("Receive connected event")
             state = .connected
             setupPingTimer()
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnected)
             onConnect?()
         case .disconnected(let closeCode):
             let closeCodeRawValue = String(describing: closeCode.rawValue)
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketDisconnected(
+                closeCode: closeCodeRawValue,
+                connectionState: state.rawValue
+            ))
 
             log("Receive disconnect event. Close code: \(closeCodeRawValue)")
             guard isConnected else { break }
 
-            state = .notConnected
-            pingTimer?.invalidate()
+            disconnect()
 
             var error: Error?
             switch closeCode {
@@ -231,6 +218,7 @@ class WebSocket {
 
             notifyOnDisconnectOnMainThread(with: error)
         case .messageReceived(let text):
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketReceiveText)
             onText?(text)
         case .messageSent(let text):
             log("==> Message successfully sent \(text)")
@@ -242,6 +230,7 @@ class WebSocket {
             // We need to check if task is still running, and if not - recreate it and start observing messages
             // Otherwise WC will stuck with not connected state, and only app restart will fix this problem
             log("Connection error: \(error.localizedDescription)")
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionError(error: error))
             if task?.state != .running {
                 log("URLSessionWebSocketTask is not running. Resetting WebSocket state and attempting to reconnect")
                 state = .notConnected
@@ -281,6 +270,40 @@ class WebSocket {
         // some of the UIApplication components from current thread.
         DispatchQueue.main.async {
             self.onDisconnect?(error)
+        }
+    }
+
+    private func setupPingTimer() {
+        DispatchQueue.main.async {
+            self.invalidateTimer()
+            self.pingTimer = Timer.scheduledTimer(
+                withTimeInterval: self.pingInterval,
+                repeats: true
+            ) { [weak self] timer in
+                self?.sendPing()
+            }
+        }
+    }
+
+    /// `invalidate()` should be called from the same thread where it is was setup
+    /// https://developer.apple.com/documentation/foundation/timer/1415405-invalidate#
+    private func invalidateTimer() {
+        func invalidate() {
+            if pingTimer != nil {
+                pingTimer?.invalidate()
+                pingTimer = nil
+            }
+        }
+
+        if Thread.isMainThread {
+            log("Attempting to invalidate ping timer from main thread.")
+            invalidate()
+            return
+        }
+
+        log("Attempting to invalidate ping timer from different thread. Switching to main thread")
+        DispatchQueue.main.async {
+            invalidate()
         }
     }
 }
