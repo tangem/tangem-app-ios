@@ -29,13 +29,15 @@ class SendCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: Options) {}
+    func start(with options: Options) {
+        rootViewModel = SendViewModel(coordinator: self)
+    }
 }
 
 // MARK: - Options
 
 extension SendCoordinator {
-    enum Options {}
+    struct Options {}
 }
 
 // MARK: - SendRoutable
