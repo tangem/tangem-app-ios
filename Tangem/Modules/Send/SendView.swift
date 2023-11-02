@@ -80,12 +80,8 @@ struct SendView: View {
     }
 }
 
-class MockSendRoutable: SendRoutable {
-    init() {}
-}
-
 struct SendView_Preview: PreviewProvider {
-    static let viewModel = SendViewModel(coordinator: MockSendRoutable())
+    static let viewModel = SendViewModel(coordinator: SendRoutableMock())
 
     static var previews: some View {
         SendView(viewModel: viewModel)
