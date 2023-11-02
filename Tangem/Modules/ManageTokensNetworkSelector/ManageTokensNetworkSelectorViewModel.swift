@@ -93,11 +93,23 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     func selectWalletActionDidTap() {
+        Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
+
         coordinator.openWalletSelectorModule(
             userWallets: walletSelectorProvider.listWalletForSelector(),
             currentUserWalletId: walletSelectorProvider.currentWalletSelected()?.userWalletId,
             delegate: self
         )
+    }
+
+    func displayNonNativeNetworkAlert() {
+        let okButton = Alert.Button.default(Text(Localization.commonOk)) {}
+
+        alert = AlertBinder(alert: Alert(
+            title: Text(""),
+            message: Text(Localization.manageTokensNetworkSelectorNonNativeInfo),
+            dismissButton: okButton
+        ))
     }
 
     // MARK: - Private Implementation
@@ -216,7 +228,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(event: .tokenSwitcherChanged, params: [
+        Analytics.log(event: .manageTokensSwitcherChanged, params: [
             .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
         ])
@@ -225,6 +237,13 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - ManageTokensNetworkSelectorViewModel
 
     func didSelectWallet(with userWalletId: Data) {
+        if userWalletModel?.userWalletId.value != userWalletId {
+            Analytics.log(
+                event: .manageTokensWalletSelected,
+                params: [.source: Analytics.ParameterValue.mainToken.rawValue]
+            )
+        }
+
         pendingAdd = []
         pendingRemove = []
 
