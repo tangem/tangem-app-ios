@@ -45,8 +45,8 @@ extension CommonExpressAPIService: ExpressAPIService {
         let _: ExpressDTO.ExchangeData.Response = try await asyncRequest(target: .exchangeData(request: request))
     }
 
-    func exchangeResults(request: ExpressDTO.ExchangeResult.Request) async throws {
-        let _: ExpressDTO.ExchangeResult.Response = try await asyncRequest(target: .exchangeResults(request: request))
+    func exchangeResult(request: ExpressDTO.ExchangeResult.Request) async throws {
+        let _: ExpressDTO.ExchangeResult.Response = try await asyncRequest(target: .exchangeResult(request: request))
     }
 }
 
