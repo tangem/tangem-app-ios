@@ -18,9 +18,9 @@ enum ExpressDTO {
 
     struct Provider: Codable {
         let providerId: Int
-        let options: Option
+        let rateType: RateType
 
-        enum Option: String, Codable {
+        enum RateType: String, Codable {
             case float
             case fixed
         }
@@ -108,7 +108,7 @@ enum ExpressDTO {
             let toNetwork: String
             let fromAmount: Int
             let providerId: Int
-            let option: Provider.Option
+            let rateType: Provider.RateType
         }
 
         struct Response: Decodable {
@@ -129,7 +129,7 @@ enum ExpressDTO {
             let toNetwork: String
             let fromAmount: Decimal
             let providerId: Int
-            let option: Provider.Option
+            let rateType: Provider.RateType
             let toAddress: String // address for receiving token
         }
 
