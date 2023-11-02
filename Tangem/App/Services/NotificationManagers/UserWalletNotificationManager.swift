@@ -25,52 +25,77 @@ final class UserWalletNotificationManager {
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
     private weak var delegate: NotificationTapDelegate?
-    private var updateSubscription: AnyCancellable?
+    private var bag = Set<AnyCancellable>()
+    private var numberOfPendingDerivations: Int = 0
 
     init(userWalletModel: UserWalletModel, signatureCountValidator: SignatureCountValidator?) {
         self.userWalletModel = userWalletModel
         self.signatureCountValidator = signatureCountValidator
     }
 
-    func setupManager(with delegate: NotificationTapDelegate? = nil) {
-        self.delegate = delegate
-
-        createNotifications()
-        bind()
-    }
-
     private func createNotifications() {
         let factory = NotificationsFactory()
-        let action: NotificationView.NotificationAction = { [weak self] id in
-            self?.delegate?.didTapNotification(with: id)
-        }
-        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
-            self?.dismissNotification(with: id)
-        }
+        let action: NotificationView.NotificationAction = delegate?.didTapNotification(with:) ?? { _ in }
+        let buttonAction = delegate?.didTapNotificationButton(with:action:) ?? { _, _ in }
+        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+
+        var inputs: [NotificationViewInput] = []
+        inputs.append(contentsOf: factory.buildNotificationInputs(
+            for: deprecationService.deprecationWarnings,
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        ))
 
         // We need to remove legacyDerivation WarningEvent, because it must be shown in Manage tokens only
         let eventsWithoutDerivationWarning = userWalletModel.config.warningEvents.filter { $0 != .legacyDerivation }
-        let notificationInputsFromConfig = factory.buildNotificationInputs(
+        inputs.append(contentsOf: factory.buildNotificationInputs(
             for: eventsWithoutDerivationWarning,
             action: action,
+            buttonAction: buttonAction,
             dismissAction: dismissAction
-        )
-        let deprecationNotificationInputs = factory.buildNotificationInputs(
-            for: deprecationService.deprecationWarnings,
-            action: action,
-            dismissAction: dismissAction
-        )
+        ))
 
-        notificationInputsSubject.send(deprecationNotificationInputs + notificationInputsFromConfig)
+        if numberOfPendingDerivations > 0 {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .missingDerivation(numberOfNetworks: numberOfPendingDerivations),
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
+        if userWalletModel.config.hasFeature(.backup) {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .missingBackup,
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
+        notificationInputsSubject.send(inputs)
 
         validateHashesCount()
     }
 
     private func bind() {
-        updateSubscription = userWalletModel.updatePublisher
-            .sink(receiveValue: { [weak self] in
-                self?.createNotifications()
-            })
+        bag.removeAll()
+
+        userWalletModel.updatePublisher
+            .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
+            .store(in: &bag)
+
+        userWalletModel.userTokensManager.derivationManager?
+            .pendingDerivationsCount
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
+            .store(in: &bag)
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -114,6 +139,7 @@ final class UserWalletNotificationManager {
             let notification = factory.buildNotificationInput(
                 for: .numberOfSignedHashesIncorrect,
                 action: delegate?.didTapNotification(with:) ?? { _ in },
+                buttonAction: { _, _ in },
                 dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
             )
             notificationInputsSubject.value.append(notification)
@@ -135,6 +161,7 @@ final class UserWalletNotificationManager {
                     let notification = factory.buildNotificationInput(
                         for: .numberOfSignedHashesIncorrect,
                         action: { id in self?.delegate?.didTapNotification(with: id) },
+                        buttonAction: { _, _ in },
                         dismissAction: { id in self?.dismissNotification(with: id) }
                     )
                     self?.notificationInputsSubject.value.append(notification)
@@ -143,6 +170,15 @@ final class UserWalletNotificationManager {
 
                 withExtendedLifetime(validatorSubscription) {}
             }
+    }
+
+    private func addMissingDerivationWarningIfNeeded(pendingDerivationsCount: Int) {
+        guard numberOfPendingDerivations != pendingDerivationsCount else {
+            return
+        }
+
+        numberOfPendingDerivations = pendingDerivationsCount
+        createNotifications()
     }
 
     private func recordUserWalletHashesCountValidation() {
@@ -156,8 +192,19 @@ final class UserWalletNotificationManager {
 }
 
 extension UserWalletNotificationManager: NotificationManager {
+    var notificationInputs: [NotificationViewInput] {
+        notificationInputsSubject.value
+    }
+
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
         notificationInputsSubject.eraseToAnyPublisher()
+    }
+
+    func setupManager(with delegate: NotificationTapDelegate?) {
+        self.delegate = delegate
+
+        createNotifications()
+        bind()
     }
 
     func dismissNotification(with id: NotificationViewId) {
