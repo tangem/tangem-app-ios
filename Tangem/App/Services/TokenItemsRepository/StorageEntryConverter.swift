@@ -59,7 +59,7 @@ struct StorageEntryConverter {
             )
 
             partialResult += entry.tokens.map { convertToStoredUserToken($0, in: blockchainNetwork) }
-        }
+        }.unique()
     }
 
     func convertToStoredUserToken(
