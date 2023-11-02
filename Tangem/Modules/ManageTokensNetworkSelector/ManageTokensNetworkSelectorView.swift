@@ -59,14 +59,14 @@ struct ManageTokensNetworkSelectorView: View {
     }
 
     private var nativeNetworksContent: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(Localization.manageTokensNetworkSelectorNativeTitle)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Text(Localization.manageTokensNetworkSelectorNativeSubtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 10)
 
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.nativeSelectorItems) {
@@ -79,14 +79,23 @@ struct ManageTokensNetworkSelectorView: View {
     }
 
     private var noneNativeNetworksContent: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(Localization.manageTokensNetworkSelectorNonNativeTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+        VStack(alignment: .leading, spacing: 4) {
+            Button(action: viewModel.displayNonNativeNetworkAlert) {
+                HStack(spacing: 4) {
+                    Text(Localization.manageTokensNetworkSelectorNonNativeTitle)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            Text(Localization.manageTokensNetworkSelectorNonNativeSubtitle)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    Assets.infoIconMini.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(size: .init(bothDimensions: 20))
+                        .foregroundColor(Colors.Icon.inactive)
 
-            Spacer(minLength: 8)
+                    Spacer()
+                }
+            }
+
+            Spacer(minLength: 10)
 
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.nonNativeSelectorItems) {
