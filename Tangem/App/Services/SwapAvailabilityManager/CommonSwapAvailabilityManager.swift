@@ -75,17 +75,25 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                 }
 
                 let loadedTokenItems = models.flatMap { $0.items }
-
-                let preparedSwapStates = Dictionary(uniqueKeysWithValues: loadedTokenItems.map {
-                    switch $0 {
-                    case .token(let token, _):
-                        return ($0, token.exchangeable ?? false)
-                    case .blockchain(let blockchain):
-                        return ($0, self.supportedBlockchains.contains(blockchain))
-                    }
+                
+                let preparedSwapStates: [TokenItem: Bool] = loadedTokenItems.reduce(into: [:], { result, item in
+                    let exchangeable: Bool = {
+                        switch item {
+                        case .token(let token, _):
+                            return token.exchangeable ?? false
+                        case .blockchain(let blockchain):
+                            return self.supportedBlockchains.contains(blockchain)
+                        }
+                    }()
+                    
+                    result.updateValue(exchangeable, forKey: item)
                 })
-
-                loadedSwapableTokenItems.value.merge(preparedSwapStates, uniquingKeysWith: { $1 })
+                
+                var items = loadedSwapableTokenItems.value
+                preparedSwapStates.forEach { key, value in
+                    items.updateValue(value, forKey: key)
+                }
+                loadedSwapableTokenItems.value = items
             })
     }
 
