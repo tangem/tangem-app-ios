@@ -25,24 +25,27 @@ class SendDestinationViewModel: ObservableObject {
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
 
+    private var bag: Set<AnyCancellable> = []
+
     init(input: SendDestinationViewModelInput) {
         destination = input.destinationTextBinding
         additionalField = input.destinationAdditionalFieldTextBinding
 
-        #warning("weak")
         input
             .destinationError
             .map {
                 $0?.localizedDescription
             }
-            .assign(to: &$destinationErrorText)
 
-        #warning("weak")
+            .assign(to: \.destinationErrorText, on: self, ownership: .weak)
+            .store(in: &bag)
+
         input
             .destinationAdditionalFieldError
             .map {
                 $0?.localizedDescription
             }
-            .assign(to: &$destinationAdditionalFieldErrorText)
+            .assign(to: \.destinationAdditionalFieldErrorText, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
