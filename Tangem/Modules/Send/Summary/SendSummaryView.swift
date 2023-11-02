@@ -92,10 +92,10 @@ struct SendSummaryView: View {
     }
 }
 
-private enum PreviewData {
+private enum SendPreviewData {
     @Namespace static var namespace
 }
 
 #Preview {
-    SendSummaryView(namespace: PreviewData.namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), router: SendSummaryRoutableMock()))
+    SendSummaryView(namespace: SendPreviewData.namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), router: SendSummaryRoutableMock()))
 }
