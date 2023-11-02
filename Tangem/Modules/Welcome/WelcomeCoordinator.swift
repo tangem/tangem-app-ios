@@ -94,7 +94,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
-        Analytics.log(.onboardingStarted)
     }
 
     func openMain(with cardModel: CardViewModel) {
