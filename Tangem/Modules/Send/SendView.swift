@@ -9,8 +9,9 @@
 import SwiftUI
 
 struct SendView: View {
-    @ObservedObject private var viewModel: SendViewModel
     @Namespace var namespace
+
+    @ObservedObject private var viewModel: SendViewModel
 
     init(viewModel: SendViewModel) {
         self.viewModel = viewModel
