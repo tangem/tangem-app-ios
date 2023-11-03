@@ -1016,6 +1016,12 @@
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
+		EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */; };
+		EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */; };
+		EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */; };
+		EF729B602AF1567000D80205 /* ExpressAPIServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */; };
+		EF729B622AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */; };
+		EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */; };
 		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
@@ -2302,6 +2308,12 @@
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
+		EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIService.swift; sourceTree = "<group>"; };
+		EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
+		EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPITarget.swift; sourceTree = "<group>"; };
+		EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIServiceError.swift; sourceTree = "<group>"; };
+		EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAuthorizationPlugin.swift; sourceTree = "<group>"; };
+		EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIService.swift; sourceTree = "<group>"; };
 		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
@@ -5427,7 +5439,8 @@
 		EF4661B82923B00100346B6C /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				DCAB5807295F47A7005D0F4A /* CommonSwappingLogger.swift */,
+				EF729B662AF15D3D00D80205 /* SwappingLogger */,
+				EF729B582AF14A7700D80205 /* ExpressAPIService */,
 				EF29BEDB292E5CF900D7C782 /* OneInchSwappingProvider */,
 				EF5F1BB829D6C77F0093307B /* OneInchAPIService */,
 			);
@@ -5438,7 +5451,6 @@
 			isa = PBXGroup;
 			children = (
 				EF46618B2923AFA200346B6C /* SwappingWalletDataProvider.swift */,
-				DCAB5805295F45AA005D0F4A /* SwappingLogger.swift */,
 				E9C17C6A291AACFD00FDE4BC /* SwappingProvider.swift */,
 				EFBFD5702979991100B20C2E /* FiatRatesProviding.swift */,
 			);
@@ -5802,6 +5814,36 @@
 				EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */,
 			);
 			path = BottomSheetHeaderView;
+			sourceTree = "<group>";
+		};
+		EF729B582AF14A7700D80205 /* ExpressAPIService */ = {
+			isa = PBXGroup;
+			children = (
+				EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */,
+				EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */,
+				EF729B652AF15D2200D80205 /* Types */,
+			);
+			path = ExpressAPIService;
+			sourceTree = "<group>";
+		};
+		EF729B652AF15D2200D80205 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */,
+				EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */,
+				EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */,
+				EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
+		EF729B662AF15D3D00D80205 /* SwappingLogger */ = {
+			isa = PBXGroup;
+			children = (
+				DCAB5805295F45AA005D0F4A /* SwappingLogger.swift */,
+				DCAB5807295F47A7005D0F4A /* CommonSwappingLogger.swift */,
+			);
+			path = SwappingLogger;
 			sourceTree = "<group>";
 		};
 		EF763E902A7935B400D12644 /* ManageTokensBottomSheet */ = {
@@ -7859,6 +7901,7 @@
 				EF5F1BBF29D6CDA90093307B /* ApproveAllowanceParameters.swift in Sources */,
 				EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */,
 				EF4662002924CC6E00346B6C /* ApproveTransactionParameters.swift in Sources */,
+				EF729B602AF1567000D80205 /* ExpressAPIServiceError.swift in Sources */,
 				DCAB5808295F47A7005D0F4A /* CommonSwappingLogger.swift in Sources */,
 				EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */,
 				EF07082A2A1638890072AA0E /* SwappingAvailabilityModel.swift in Sources */,
@@ -7889,14 +7932,18 @@
 				EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF5F1BC229D6CEC80093307B /* SwappingData.swift in Sources */,
+				EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */,
+				EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */,
 				EF4661C02923B42A00346B6C /* OneInchSwappingProvider.swift in Sources */,
 				EF5F1BD129D6D0510093307B /* SwappingToken.swift in Sources */,
 				EFDDE5262A04379300899812 /* SwappingApprovePolicy.swift in Sources */,
+				EF729B622AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift in Sources */,
 				EF4661C42923B42A00346B6C /* Currency.swift in Sources */,
 				EF4661D02923CD4C00346B6C /* SwappingWalletDataProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TangemSwapping.docc in Sources */,
 				EF92E2BC29964CFE00DD9B06 /* SwappingManagerRefreshType.swift in Sources */,
 				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
+				EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* SwappingBlockchain.swift in Sources */,
 				EF5F1BC829D6CF090093307B /* ProtocolInfo.swift in Sources */,
@@ -7912,6 +7959,7 @@
 				EF5F1BCB29D6CFB50093307B /* PresetsGas.swift in Sources */,
 				EF29BEE2292E5DB400D7C782 /* SwappingTransactionData.swift in Sources */,
 				EF4661F52924CC6E00346B6C /* TransactionData.swift in Sources */,
+				EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */,
 				EF5F1BC629D6CEFA0093307B /* TokenInfo.swift in Sources */,
 				EF4661C82923B42A00346B6C /* SwappingDataModel.swift in Sources */,
 				B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */,
