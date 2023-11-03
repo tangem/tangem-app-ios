@@ -13,6 +13,7 @@ import SwiftUI
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @InjectedWritable(\.mainBottomSheetVisibility) private var bottomSheetVisibility: MainBottomSheetVisibility
 
     // MARK: - ViewState
 
@@ -33,14 +34,6 @@ final class MainViewModel: ObservableObject {
     // MARK: - Internal state
 
     private var isLoggingOut = false
-
-    private var isViewVisible = false {
-        didSet {
-            if oldValue != isViewVisible {
-                // [REDACTED_TODO_COMMENT]
-            }
-        }
-    }
 
     private var bag = Set<AnyCancellable>()
 
@@ -92,7 +85,7 @@ final class MainViewModel: ObservableObject {
     func onViewAppear() {
         Analytics.log(.mainScreenOpened)
 
-        isViewVisible = true
+        bottomSheetVisibility.show()
 
         if isPageSwitchAnimationDisabled {
             // A small delay to turn on animations back after closing the Details screen
@@ -103,7 +96,7 @@ final class MainViewModel: ObservableObject {
     }
 
     func onViewDisappear() {
-        isViewVisible = false
+        bottomSheetVisibility.hide()
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
