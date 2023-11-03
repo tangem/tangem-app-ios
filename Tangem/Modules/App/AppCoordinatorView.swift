@@ -20,29 +20,29 @@ struct AppCoordinatorView: CoordinatorView {
                 UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
             } else if let authCoordinator = coordinator.authCoordinator {
                 AuthCoordinatorView(coordinator: authCoordinator)
-                    .if(coordinator.isMainScreenBottomSheetEnabled) { view in
+                    .if(coordinator.isMainBottomSheetEnabled) { view in
                         view.animation(nil) // Fixes weird animations on appear when the view has a bottom scrollable sheet
                     }
             }
         }
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
-        .if(coordinator.isMainScreenBottomSheetEnabled) { view in
+        .if(coordinator.isMainBottomSheetEnabled) { view in
             // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only when
-            // `coordinator.manageTokensViewModel != nil` because this will break the root view's structural identity and
+            // `coordinator.mainBottomSheetViewModel != nil` because this will break the root view's structural identity and
             // therefore all its state. Therefore `bottomScrollableSheet` view modifier is always applied,
-            // but `header`/`content` views are created only when there is a non-nil `manageTokensViewModel`
+            // but `header`/`content` views are created only when there is a non-nil `mainBottomSheetViewModel`
             view.bottomScrollableSheet(
                 isHiddenWhenCollapsed: true,
-                allowsHitTesting: coordinator.manageTokensViewModel != nil,
+                allowsHitTesting: coordinator.mainBottomSheetViewModel != nil,
                 header: {
-                    if let viewModel = coordinator.manageTokensViewModel {
-                        ManageTokensBottomSheetHeaderContainerView(viewModel: viewModel)
+                    if let viewModel = coordinator.mainBottomSheetViewModel {
+                        MainBottomSheetHeaderContainerView(viewModel: viewModel)
                     }
                 },
                 content: {
-                    if let viewModel = coordinator.manageTokensViewModel {
-                        ManageTokensBottomSheetContentView(viewModel: viewModel)
+                    if let viewModel = coordinator.mainBottomSheetViewModel {
+                        MainBottomSheetContentView(viewModel: viewModel)
                     }
                 }
             )
