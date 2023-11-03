@@ -25,6 +25,7 @@ struct ReceiveBottomSheetView: View {
         .toast(isPresenting: $viewModel.showToast, alert: {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
         })
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
@@ -76,11 +77,10 @@ struct ReceiveBottomSheetView: View {
                         .padding(.top, 18)
 
                     Text(info.address)
-                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
                         .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                         .padding(.horizontal, 60)
                         .padding(.top, 20)
-                        .truncationMode(.middle)
 
                     Text(viewModel.warningMessageFull)
                         .multilineTextAlignment(.center)
