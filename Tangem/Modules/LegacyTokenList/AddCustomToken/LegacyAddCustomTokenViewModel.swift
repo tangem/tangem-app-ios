@@ -120,7 +120,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             if case .token(_, let blockchain) = tokenItem,
                case .solana = blockchain,
                !settings.longHashesSupported {
-                throw TokenCreationErrors.tokensNotSupported(blockchain)
+                throw TokenCreationErrors.tokensNotSupported(blockchain.displayName)
             }
         } catch {
             self.error = error.alertBinder
@@ -447,7 +447,7 @@ private extension LegacyAddCustomTokenViewModel {
         case blockchainNotSelected
         case unsupportedCurve(Blockchain)
         case emptyFields
-        case tokensNotSupported(Blockchain)
+        case tokensNotSupported(String)
         case invalidDecimals(precision: Int)
         case invalidContractAddress
         case invalidDerivationPath
@@ -460,8 +460,8 @@ private extension LegacyAddCustomTokenViewModel {
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchain.displayName)
             case .emptyFields:
                 return Localization.customTokenCreationErrorEmptyFields
-            case .tokensNotSupported(let blockchain):
-                return Localization.alertManageTokensUnsupportedMessage(blockchain.displayName)
+            case .tokensNotSupported(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .invalidDecimals(let precision):
                 return Localization.customTokenCreationErrorWrongDecimals(precision)
             case .invalidContractAddress:
