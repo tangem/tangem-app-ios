@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Combine
+import CombineExt
 
 class AppCoordinator: CoordinatorObject {
     // MARK: - Dependencies
@@ -20,6 +21,7 @@ class AppCoordinator: CoordinatorObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.walletConnectSessionsStorageInitializable) private var walletConnectSessionStorageInitializer: Initializable
+    @Injected(\.mainBottomSheetVisibility) private var bottomSheetVisibility: MainBottomSheetVisibility
 
     // MARK: - Child coordinators
 
@@ -125,6 +127,16 @@ class AppCoordinator: CoordinatorObject {
                     self?.handleLock(reason: reason)
                 }
             }
+            .store(in: &bag)
+
+        // This single VM instance is intentionally strongly captured
+        // below in the `map` closure to prevent it from deallocation
+        let manageTokensViewModel = ManageTokensBottomSheetViewModel()
+
+        bottomSheetVisibility
+            .isShown
+            .map { $0 ? manageTokensViewModel : nil }
+            .assign(to: \.manageTokensViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
