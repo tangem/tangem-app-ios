@@ -31,11 +31,11 @@ class AppCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published private(set) var manageTokensViewModel: ManageTokensBottomSheetViewModel?
+    @Published private(set) var mainBottomSheetViewModel: MainBottomSheetViewModel?
 
     // MARK: - View State
 
-    var isMainScreenBottomSheetEnabled: Bool { FeatureProvider.isAvailable(.mainScreenBottomSheet) }
+    var isMainBottomSheetEnabled: Bool { FeatureProvider.isAvailable(.mainScreenBottomSheet) }
 
     // MARK: - Private
 
@@ -131,12 +131,12 @@ class AppCoordinator: CoordinatorObject {
 
         // This single VM instance is intentionally strongly captured
         // below in the `map` closure to prevent it from deallocation
-        let manageTokensViewModel = ManageTokensBottomSheetViewModel()
+        let mainBottomSheetViewModel = MainBottomSheetViewModel()
 
         bottomSheetVisibility
             .isShown
-            .map { $0 ? manageTokensViewModel : nil }
-            .assign(to: \.manageTokensViewModel, on: self, ownership: .weak)
+            .map { $0 ? mainBottomSheetViewModel : nil }
+            .assign(to: \.mainBottomSheetViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
