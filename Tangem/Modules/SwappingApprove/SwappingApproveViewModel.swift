@@ -55,7 +55,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
-        self.selectedAction = swappingInteractor.getSwappingApprovePolicy()
+        selectedAction = swappingInteractor.getSwappingApprovePolicy()
         setupView()
         bind()
     }
