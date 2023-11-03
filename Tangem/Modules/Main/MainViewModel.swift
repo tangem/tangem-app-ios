@@ -26,6 +26,8 @@ final class MainViewModel: ObservableObject {
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
 
+    var isMainScreenBottomSheetEnabled: Bool { FeatureProvider.isAvailable(.mainScreenBottomSheet) }
+
     // MARK: - Dependencies
 
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
