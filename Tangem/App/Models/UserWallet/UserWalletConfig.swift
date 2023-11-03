@@ -21,6 +21,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardName: String { get }
 
+    var walletCurves: [EllipticCurve] { get }
+
     var mandatoryCurves: [EllipticCurve] { get }
 
     var derivationStyle: DerivationStyle? { get }
@@ -51,6 +53,10 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var productType: Analytics.ProductType { get }
 
     var cardHeaderImage: ImageType? { get }
+
+    var customOnboardingImage: ImageType? { get }
+
+    var customScanImage: ImageType? { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
@@ -92,6 +98,10 @@ extension UserWalletConfig {
     var derivationStyle: DerivationStyle? {
         return nil
     }
+
+    var customOnboardingImage: ImageType? { nil }
+
+    var customScanImage: ImageType? { nil }
 }
 
 struct EmailConfig {
@@ -116,6 +126,10 @@ protocol CardContainer {
 }
 
 extension UserWalletConfig where Self: CardContainer {
+    var walletCurves: [EllipticCurve] {
+        card.walletCurves
+    }
+
     func makeTangemSdk() -> TangemSdk {
         let factory = GenericTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet)
         return factory.makeTangemSdk()

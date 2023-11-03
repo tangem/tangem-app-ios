@@ -323,6 +323,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             canDisplayCardImage = true
         }
 
+        if let customOnboardingImage = input.cardInput.config?.customOnboardingImage {
+            self.customOnboardingImage = customOnboardingImage.image
+        }
+
         bind()
     }
 
@@ -410,7 +414,17 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     override func goToNextStep() {
         switch currentStep {
         case .createWallet, .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
-            goToStep(.backupIntro)
+            if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
+                let canSkipBackup = cardModel?.canSkipBackup ?? true
+                if canSkipBackup {
+                    goToStep(with: backupIntroStepIndex)
+                } else {
+                    goToStep(with: backupIntroStepIndex + 1)
+                }
+            } else {
+                // impossible case
+                super.goToNextStep()
+            }
         default:
             super.goToNextStep()
         }
@@ -609,7 +623,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             setupCardsSettings(animated: true, isContainerSetup: false)
         case .backupCards:
             if backupServiceState == .finished {
-                Analytics.log(event: .backupFinished, params: [.cardsCount: String(backupService.addedBackupCardsCount)])
                 goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
@@ -736,15 +749,33 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func backupCard() {
         isMainButtonBusy = true
 
+        // Ring onboarding. Set custom image for first step
+        if let customOnboardingImage = input.cardInput.config?.customScanImage,
+           backupService.currentState == .finalizingPrimaryCard {
+            backupService.config.style.scanTagImage = .image(uiImage: customOnboardingImage.uiImage, verticalOffset: 0)
+        }
+
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
                     backupService.proceedBackup { result in
+
+                        // Ring onboarding. Reset to defaults
+                        self.backupService.config.style.scanTagImage = .genericCard
+
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.cardModel?.onBackupCreated(updatedCard)
                             }
+
+                            if self.backupServiceState == .finished {
+                                Analytics.log(
+                                    event: .backupFinished,
+                                    params: [.cardsCount: String((updatedCard.backupStatus?.linkedCardsCount ?? 0) + 1)]
+                                )
+                            }
+
                             promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
