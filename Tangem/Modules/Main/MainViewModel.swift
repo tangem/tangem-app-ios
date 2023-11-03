@@ -71,8 +71,6 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal functions
 
-    func onAppear() {}
-
     func openDetails() {
         let userWalletModel = userWalletRepository.models[selectedCardIndex]
 
