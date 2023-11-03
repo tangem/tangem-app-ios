@@ -18,6 +18,8 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private var horizontalPadding: CGFloat = 16
     private var separatorPadding: CGFloat = 16
     private var separatorStyle: SeparatorStyle = .single
+    private var interItemSpacing: CGFloat = 0
+    private var interSectionPadding: CGFloat = 0
 
     init(
         _ models: [Model],
@@ -51,7 +53,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 header()
                     .padding(.horizontal, horizontalPadding)
 
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: interItemSpacing) {
                     ForEach(models) { model in
                         content(model)
                             .padding(.horizontal, horizontalPadding)
@@ -61,6 +63,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                         }
                     }
                 }
+                .padding(.vertical, interSectionPadding)
                 .background(Colors.Background.primary)
                 .cornerRadius(12)
 
@@ -110,5 +113,13 @@ extension GroupedSection: Setupable {
 
     func separatorStyle(_ style: SeparatorStyle) -> Self {
         map { $0.separatorStyle = style }
+    }
+
+    func interItemSpacing(_ spacing: CGFloat) -> Self {
+        map { $0.interItemSpacing = spacing }
+    }
+
+    func interSectionPadding(_ spacing: CGFloat) -> Self {
+        map { $0.interSectionPadding = spacing }
     }
 }
