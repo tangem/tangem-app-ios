@@ -75,6 +75,12 @@
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
+"common_fee_selector_footer" = "Сетевые комиссии за транзакции используются для поддержки безопасности сети, поощрения валидаторов, выделения ресурсов и определения приоритета транзакции.";
+"common_fee_selector_option_custom" = "Свое";
+"common_fee_selector_option_fast" = "Быстро";
+"common_fee_selector_option_market" = "По рынку";
+"common_fee_selector_option_slow" = "Медленно";
+"common_fee_selector_title" = "Скорость и комиссия";
 "common_generate_addresses" = "Сгенерировать адреса";
 "common_import" = "Импортировать";
 "common_learn_and_earn" = "Learn & Earn";
