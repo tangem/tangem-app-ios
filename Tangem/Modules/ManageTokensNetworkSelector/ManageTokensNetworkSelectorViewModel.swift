@@ -245,7 +245,7 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
-            throw AvailableTokenError.failedSupportedBlockchainByCard(blockchainDisplayName: tokenItem.blockchain.displayName)
+            throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
         }
 
         guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
@@ -253,7 +253,7 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
-            throw AvailableTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+            throw AvailableTokenError.failedSupportedLongHahesTokens(tokenItem)
         }
 
         return
@@ -354,14 +354,14 @@ private extension ManageTokensNetworkSelectorViewModel {
 
 private extension ManageTokensNetworkSelectorViewModel {
     enum AvailableTokenError: Error, LocalizedError {
-        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedLongHahesTokens(TokenItem)
         case failedSupportedCurve(blockchainDisplayName: String)
-        case failedSupportedBlockchainByCard(blockchainDisplayName: String)
+        case failedSupportedBlockchainByCard(TokenItem)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
-                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+            case .failedSupportedLongHahesTokens(let tokenItem):
+                return Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .failedSupportedBlockchainByCard:
