@@ -1,5 +1,5 @@
 //
-//  ManageTokensBottomSheetViewModel.swift
+//  MainBottomSheetViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 /// A temporary entity for integration and testing, subject to change.
-final class ManageTokensBottomSheetViewModel: ObservableObject {
+final class MainBottomSheetViewModel: ObservableObject {
     // MARK: - ViewModel
 
     @Published var searchText: String = ""
