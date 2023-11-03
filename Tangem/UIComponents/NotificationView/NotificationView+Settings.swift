@@ -30,6 +30,7 @@ extension NotificationView {
     struct NotificationButton: Identifiable, Equatable {
         let action: NotificationButtonTapAction
         let actionType: NotificationButtonActionType
+        let isWithLoader: Bool
 
         var id: Int { actionType.id }
 
@@ -55,13 +56,13 @@ extension NotificationView {
     }
 
     enum ColorScheme {
-        case white
-        case gray
+        case primary
+        case secondary
 
         var color: Color {
             switch self {
-            case .white: return Colors.Background.primary
-            case .gray: return Colors.Button.disabled
+            case .primary: return Colors.Background.primary
+            case .secondary: return Colors.Button.disabled
             }
         }
     }

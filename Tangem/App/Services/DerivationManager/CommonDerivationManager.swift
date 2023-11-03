@@ -40,7 +40,7 @@ class CommonDerivationManager {
         entries.forEach { entry in
             let curve = entry.blockchainNetwork.blockchain.curve
 
-            let derivationPaths = derivationPaths(from: entry.blockchainNetwork)
+            let derivationPaths = entry.blockchainNetwork.derivationPaths()
             guard let masterKey = keys.first(where: { $0.curve == curve }) else {
                 return
             }
@@ -57,26 +57,6 @@ class CommonDerivationManager {
         }
 
         pendingDerivations.send(derivations)
-    }
-
-    private func derivationPaths(from network: BlockchainNetwork) -> [DerivationPath] {
-        guard let derivationPath = network.derivationPath else {
-            return []
-        }
-
-        // If we use the extended cardano then
-        // we should have two derivations for collect correct PublicKey
-        guard case .cardano(let extended) = network.blockchain, extended else {
-            return [derivationPath]
-        }
-
-        do {
-            let extendedPath = try CardanoUtil().extendedDerivationPath(for: derivationPath)
-            return [derivationPath, extendedPath]
-        } catch {
-            AppLog.shared.error(error)
-            return [derivationPath]
-        }
     }
 }
 

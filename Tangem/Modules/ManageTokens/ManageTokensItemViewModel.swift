@@ -13,7 +13,6 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     // MARK: - Injected Properties
 
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Published
 

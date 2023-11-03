@@ -267,7 +267,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-395`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-400`)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -275,9 +275,9 @@ DEPENDENCIES:
   - Kingfisher (~> 7.9.0)
   - Mobile-Buy-SDK
   - Moya
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-7`)
-  - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-267`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-8`)
+  - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-268`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.2.4-tangem1`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
@@ -346,19 +346,19 @@ EXTERNAL SOURCES:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-395
+    :tag: develop-400
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-7
+    :tag: add-external-signer-8
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
-    :tag: sprinklr-3.6.2
+    :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-267
+    :tag: develop-268
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.2.4-tangem1
@@ -381,19 +381,19 @@ CHECKOUT OPTIONS:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-395
+    :tag: develop-400
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-7
+    :tag: add-external-signer-8
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
-    :tag: sprinklr-3.6.2
+    :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-267
+    :tag: develop-268
   TangemWalletCore:
     :git: https://github.com/tangem/wallet-core-binaries-ios.git
     :tag: 3.2.4-tangem1
@@ -441,7 +441,7 @@ SPEC CHECKSUMS:
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: 81d52fee263fded11b0d4e7859863ae489fe753e
-  SPRMessengerClient: 898cf32fb49c4f37ff57ccb0da278c719ce86e71
+  SPRMessengerClient: 6c1ab0a60e254ef17515f1433f95c9ee951f0395
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   stellar-ios-mac-sdk: d8ab1ff49ac48e25ac3097da4deebcef77af6047
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
@@ -464,6 +464,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 4b509b8357f2009ebdfaf67bc02f0d9d327a594f
+PODFILE CHECKSUM: 963d91091b10996452a1b400ddd6b37dfc1ec9cb
 
 COCOAPODS: 1.13.0

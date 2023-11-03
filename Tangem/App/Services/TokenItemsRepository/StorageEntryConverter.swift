@@ -59,7 +59,7 @@ struct StorageEntryConverter {
             )
 
             partialResult += entry.tokens.map { convertToStoredUserToken($0, in: blockchainNetwork) }
-        }
+        }.unique()
     }
 
     func convertToStoredUserToken(
@@ -94,6 +94,18 @@ struct StorageEntryConverter {
                 id: $0.id
             )
             return .token(token, blockchain)
+        }
+    }
+
+    func convertToTokenItems(_ entries: [StorageEntry]) -> [TokenItem] {
+        entries.flatMap { entry in
+            let blockchain = entry.blockchainNetwork.blockchain
+            let blockchainToken = TokenItem.blockchain(blockchain)
+            let tokens = entry.tokens.map {
+                TokenItem.token($0, blockchain)
+            }
+
+            return [blockchainToken] + tokens
         }
     }
 }
