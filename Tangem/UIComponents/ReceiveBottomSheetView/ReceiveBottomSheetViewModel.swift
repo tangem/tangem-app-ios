@@ -53,6 +53,10 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func onViewAppear() {
+        Analytics.log(.receiveScreenOpened)
+    }
+
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
         Localization.receiveBottomSheetTitle(
             addressInfos.count > 1 ? info.type.rawValue.capitalizingFirstLetter() : "",
