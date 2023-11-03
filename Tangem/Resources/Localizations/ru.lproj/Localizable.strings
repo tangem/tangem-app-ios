@@ -24,6 +24,10 @@
 "app_settings_title" = "Настройки приложения";
 "app_settings_warning_subtitle" = "Перейдите в настройки, чтобы включить биометрическую аутентификацию в приложении Tangem";
 "app_settings_warning_title" = "Включите биометрическую аутентификацию";
+"balance_hidden_description" = "Чтобы скрыть или показать баланс, просто поверните ваше устройство вниз или отключите опцию его в разделе \"Настройки\"";
+"balance_hidden_do_not_show_button" = "Больше не показывать";
+"balance_hidden_got_it_button" = "Понятно";
+"balance_hidden_title" = "Балансы скрыты";
 "biometry_touch_id_reason" = "Touch ID используется для сохранения карт в приложении";
 "button_start_backup_process" = "Начать резервное копирование";
 "card_settings_access_code_recovery_disabled_description" = "Отключите эту опцию, если не хотите, чтобы эта карта использовалась для сброса кодов доступа на другие карты этого кошелька. Обратите внимание, сброс кода также не будет доступен на этой карте.";
@@ -327,7 +331,7 @@
 "registration_task_alert_message" = "Пожалуйста, удерживайте карту до завершения операции";
 "reset_card_to_factory_button_title" = "Сбросить карту";
 "reset_card_to_factory_condition_1" = "Я понимаю, что после выполнения этого действия у меня больше не будет доступа к текущему кошельку";
-"reset_card_to_factory_condition_2" = "Я понимаю, что не смогу этой картой восстановить пароль на остальных картах, если я его забуду";
+"reset_card_to_factory_condition_2" = "Я понимаю, что не смогу этой картой восстановить пароль на остальных картах этого кошелька, если я его забуду";
 "reset_card_with_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты. Вы не сможете восстановить текущий кошелек или использовать данную карту для восстановления кода доступа.";
 "reset_card_without_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты. Вы не сможете восстановить текущий кошелек.";
 "russian_bank_card_warning_subtitle" = "У вас есть карта банка другой страны, а также вид на жительство или регистрация вне РФ?";
@@ -345,6 +349,7 @@
 "scan_card_settings_title" = "Приготовьте свою карту";
 "send_amount_label" = "Сумма";
 "send_destination_hint_address" = "Адрес";
+"send_error_address_same_as_wallet" = "Адрес совпадает с адресом кошелька";
 "send_extras_error_invalid_destination_tag" = "Недопустимый Tag. Он не будет добавлен в транзакцию.";
 "send_extras_hint_destination_tag" = "Tag";
 "send_extras_hint_memo" = "Memo";
@@ -390,7 +395,7 @@
 "swapping_high_price_impact" = "Сильные колебания цены!";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
 "swapping_insufficient_funds" = "Недостаточно средств";
-"swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты на вашем %1$@ кошельке для создания транзакции. Сначала пополните свой %2$@ кошелек.";
+"swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты комиссии на вашем %1$@ кошельке для создания транзакции. Сначала пополните свой %2$@ кошелек.";
 "swapping_pending_transaction_subtitle" = "Транзакция в процессе…";
 "swapping_pending_transaction_title" = "Подождите";
 "swapping_permission_buttons_approve" = "Подтвердить";
@@ -413,6 +418,9 @@
 "swapping_token_list_title" = "Выберите токен";
 "swapping_token_list_your_tokens" = "Ваши токены";
 "swapping_token_not_available" = "не доступен";
+"toast_balances_hidden" = "Балансы скрыты";
+"toast_balances_shown" = "Балансы показаны";
+"toast_undo" = "Отменить";
 "token_details_choose_address" = "Выберите адрес";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
@@ -427,6 +435,7 @@
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
 "transaction_history_multiple_addresses" = "Несколько адресов";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
+"transaction_history_operation" = "Операция";
 "transaction_history_transaction_from_address" = "от: %@";
 "transaction_history_transaction_to_address" = "на: %@";
 "transaction_history_tx_in_progress" = "В процессе…";
