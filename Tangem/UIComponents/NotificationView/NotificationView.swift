@@ -89,7 +89,7 @@ struct NotificationView: View {
                                 buttonInfo.action(settings.id, buttonInfo.actionType)
                             }
                         )
-                        .setIsLoading(to: isLoading)
+                        .setIsLoading(to: buttonInfo.isWithLoader && isLoading)
                     }
                 }
             }
