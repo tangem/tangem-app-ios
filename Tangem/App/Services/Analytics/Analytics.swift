@@ -124,6 +124,14 @@ class Analytics {
         logEventInternal(event, params: params, analyticsSystems: analyticsSystems)
     }
 
+    static func debugLog(eventInfo: any AnalyticsDebugEvent) {
+        logInternal(
+            eventInfo.title,
+            params: eventInfo.analyticsParams,
+            analyticsSystems: [.crashlytics]
+        )
+    }
+
     // MARK: - Private
 
     fileprivate static func log(error: Error, params: [ParameterKey: String] = [:]) {
