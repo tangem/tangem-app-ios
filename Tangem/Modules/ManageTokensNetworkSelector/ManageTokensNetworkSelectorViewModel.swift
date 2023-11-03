@@ -20,7 +20,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Published Properties
 
-    @Published var currentWalletName: String = ""
+    @Published var isNeedDisplayWalletSelector: Bool = false
+    @Published var isNeedDisplaySupportsNotificationInput: Bool = false
 
     @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
     @Published var nonNativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
@@ -33,20 +34,33 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd.isEmpty && pendingRemove.isEmpty
     }
 
+    var currentWalletName: String? {
+        selectedUserWalletModel?.userWallet.name
+    }
+
+    var supportsNotificationInput: NotificationViewInput {
+        notificationsFactory.buildNotificationInput(
+            for: .walletSupportsOnlyOneCurrency(blockchainDescription: coinId),
+            action: { _ in },
+            dismissAction: { _ in }
+        )
+    }
+
     // MARK: - Private Implementation
 
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
+    private let notificationsFactory = NotificationsFactory()
     private let walletSelectorProvider = WalletSelectorProvider()
 
     private var tokenItems: [TokenItem]
     private let coinId: String
-
-    private var userWalletModel: UserWalletModel?
+    private let userWalletModels: [UserWalletModel]
+    private var selectedUserWalletModel: UserWalletModel?
 
     private var settings: ManageTokensSettings? {
-        guard let userWalletModel = userWalletModel else {
+        guard let userWalletModel = selectedUserWalletModel else {
             return nil
         }
 
@@ -81,39 +95,37 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.tokenItems = tokenItems
         self.coordinator = coordinator
 
-        userWalletModel = userWalletRepository.models.first
-
-        fillSelectorItemsFromTokenItems()
+        userWalletModels = walletSelectorProvider.listWalletForSelector(for: coinId)
+        selectedUserWalletModel = userWalletRepository.models.first
     }
 
     // MARK: - Implementation
 
     func onAppear() {
-        fillWalletSelector()
+        setNeedDisplayWalletSelector()
+        setNeedDisplaySupportsNotifications()
+        fillSelectorItemsFromTokenItems()
     }
 
     func selectWalletActionDidTap() {
         coordinator.openWalletSelectorModule(
-            userWallets: walletSelectorProvider.listWalletForSelector(),
-            currentUserWalletId: walletSelectorProvider.currentWalletSelected()?.userWalletId,
+            userWalletModels: userWalletModels,
+            currentUserWalletId: selectedUserWalletModel?.userWalletId,
             delegate: self
         )
     }
 
     // MARK: - Private Implementation
 
-    private func fillWalletSelector() {
-        guard let currentUserWalletModel = walletSelectorProvider.currentWalletSelected() else {
-            alert = AlertBinder(title: "[REDACTED_TODO_COMMENT]")
-            return
-        }
+    private func setNeedDisplayWalletSelector() {
+        isNeedDisplayWalletSelector = !userWalletModels.isEmpty
+    }
 
-        currentWalletName = currentUserWalletModel.userWallet.name
-
-        // [REDACTED_TODO_COMMENT]
-
-        if !currentUserWalletModel.isMultiWallet {
-            alert = AlertBinder(title: "[REDACTED_TODO_COMMENT]")
+    private func setNeedDisplaySupportsNotifications() {
+        if walletSelectorProvider.isCurrentSelectedNonMultiWalletWallet(by: coinId, with: userWalletModels) {
+            isNeedDisplaySupportsNotificationInput = true
+        } else {
+            isNeedDisplaySupportsNotificationInput = false
         }
     }
 
@@ -228,7 +240,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd = []
         pendingRemove = []
 
-        userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
+        selectedUserWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
 
         fillSelectorItemsFromTokenItems()
     }
