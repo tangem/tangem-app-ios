@@ -167,12 +167,7 @@ extension BottomScrollableSheetStateObject {
         case top
         case bottom
 
-        var isBottom: Bool {
-            if case .bottom = self {
-                return true
-            }
-            return false
-        }
+        var isBottom: Bool { self == .bottom }
     }
 }
 
