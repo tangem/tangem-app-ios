@@ -138,7 +138,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "10:45",
             amount: "−0.500913 BTC",
             isOutgoing: true,
-            transactionType: .custom(name: "Sending"),
+            transactionType: .operation(name: "Sending"),
             status: .inProgress
         ),
         TransactionViewModel(
@@ -156,7 +156,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "10:45",
             amount: "+0.500913 BTC",
             isOutgoing: false,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .inProgress
         ),
         TransactionViewModel(
@@ -177,7 +177,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "10:45",
             amount: "−0.500913 BTC",
             isOutgoing: true,
-            transactionType: .custom(name: "Sending"),
+            transactionType: .operation(name: "Sending"),
             status: .confirmed
         ),
         TransactionViewModel(
@@ -186,7 +186,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "10:45",
             amount: "+0.500913 BTC",
             isOutgoing: false,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .confirmed
         ),
         TransactionViewModel(
