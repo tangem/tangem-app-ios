@@ -138,7 +138,7 @@ struct NotificationView_Previews: PreviewProvider {
                 style: .withButtons([
                     .init(action: { _, _ in
 
-                    }, actionType: .backupCard),
+                    }, actionType: .backupCard, isWithLoader: false),
                 ]),
                 settings: NotificationView.Settings(event: WarningEvent.missingBackup, dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
@@ -148,7 +148,7 @@ struct NotificationView_Previews: PreviewProvider {
                 style: .withButtons([
                     .init(action: { _, _ in
 
-                    }, actionType: .generateAddresses),
+                    }, actionType: .generateAddresses, isWithLoader: false),
                 ]),
                 settings: NotificationView.Settings(event: WarningEvent.missingDerivation(numberOfNetworks: 1), dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
