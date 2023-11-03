@@ -245,15 +245,15 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
-            throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
+            throw AvailableTokenError.failedSupportedBlockchainByCard(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw AvailableTokenError.failedSupportedCurve(tokenItem)
+            throw AvailableTokenError.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
-            throw AvailableTokenError.failedSupportedLongHahesTokens(tokenItem)
+            throw AvailableTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         return
@@ -354,16 +354,16 @@ private extension ManageTokensNetworkSelectorViewModel {
 
 private extension ManageTokensNetworkSelectorViewModel {
     enum AvailableTokenError: Error, LocalizedError {
-        case failedSupportedLongHahesTokens(TokenItem)
-        case failedSupportedCurve(TokenItem)
-        case failedSupportedBlockchainByCard(TokenItem)
+        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedCurve(blockchainDisplayName: String)
+        case failedSupportedBlockchainByCard(blockchainDisplayName: String)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens(let tokenItem):
-                return Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName)
-            case .failedSupportedCurve(let tokenItem):
-                return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
+            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+            case .failedSupportedCurve(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .failedSupportedBlockchainByCard:
                 return nil
             }
