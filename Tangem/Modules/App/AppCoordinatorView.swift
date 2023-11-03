@@ -13,9 +13,6 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
 
     var body: some View {
-        let isMainScreenBottomSheetEnabled = FeatureProvider.isAvailable(.mainScreenBottomSheet)
-        let hasManageTokensViewModel = coordinator.manageTokensViewModel != nil
-
         NavigationView {
             if let welcomeCoordinator = coordinator.welcomeCoordinator {
                 WelcomeCoordinatorView(coordinator: welcomeCoordinator)
@@ -23,32 +20,29 @@ struct AppCoordinatorView: CoordinatorView {
                 UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
             } else if let authCoordinator = coordinator.authCoordinator {
                 AuthCoordinatorView(coordinator: authCoordinator)
-                    .if(isMainScreenBottomSheetEnabled) { view in
+                    .if(coordinator.isMainScreenBottomSheetEnabled) { view in
                         view.animation(nil) // Fixes weird animations on appear when the view has a bottom scrollable sheet
                     }
             }
         }
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
-        .if(isMainScreenBottomSheetEnabled) { view in
+        .if(coordinator.isMainScreenBottomSheetEnabled) { view in
             // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only when
             // `coordinator.manageTokensViewModel != nil` because this will break the root view's structural identity and
-            // therefore all its state. So dummy views (`Color.clear`) are used as `header`/`content` views placeholders.
+            // therefore all its state. Therefore `bottomScrollableSheet` view modifier is always applied,
+            // but `header`/`content` views are created only when there is a non-nil `manageTokensViewModel`
             view.bottomScrollableSheet(
-                prefersGrabberVisible: hasManageTokensViewModel,
-                allowsHitTesting: hasManageTokensViewModel,
+                isHiddenWhenCollapsed: true,
+                allowsHitTesting: coordinator.manageTokensViewModel != nil,
                 header: {
                     if let viewModel = coordinator.manageTokensViewModel {
                         ManageTokensBottomSheetHeaderContainerView(viewModel: viewModel)
-                    } else {
-                        Color.clear.frame(size: .zero)
                     }
                 },
                 content: {
                     if let viewModel = coordinator.manageTokensViewModel {
                         ManageTokensBottomSheetContentView(viewModel: viewModel)
-                    } else {
-                        Color.clear.frame(size: .zero)
                     }
                 }
             )
