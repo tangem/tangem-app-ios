@@ -564,7 +564,7 @@ extension WalletModel {
 
         return rentProvider.rentAmount()
             .zip(rentProvider.minimalBalanceForRentExemption())
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .map { [weak self] rentAmount, minimalBalanceForRentExemption in
                 guard
                     let self = self,
@@ -626,6 +626,10 @@ extension WalletModel {
 
     var signatureCountValidator: SignatureCountValidator? {
         walletManager as? SignatureCountValidator
+    }
+
+    var addressResolver: AddressResolver? {
+        walletManager as? AddressResolver
     }
 
     var hasRent: Bool {
