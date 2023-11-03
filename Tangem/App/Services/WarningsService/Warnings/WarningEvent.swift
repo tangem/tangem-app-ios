@@ -106,9 +106,9 @@ extension WarningEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
-            return .white
+            return .primary
         default:
-            return .gray
+            return .secondary
         }
     }
 
@@ -136,12 +136,32 @@ extension WarningEvent: NotificationEvent {
         }
     }
 
-    var hasAction: Bool {
+    func style(tapAction: NotificationView.NotificationAction? = nil, buttonAction: NotificationView.NotificationButtonTapAction? = nil) -> NotificationView.Style {
         switch self {
         case .walletLocked:
-            return true
-        default:
-            return false
+            guard let tapAction else {
+                break
+            }
+
+            return .tappable(action: tapAction)
+        case .missingBackup:
+            guard let buttonAction else {
+                break
+            }
+
+            return .withButtons([
+                NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
+            ])
+        case .missingDerivation:
+            guard let buttonAction else {
+                break
+            }
+
+            return .withButtons([
+                .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
+            ])
+        default: break
         }
+        return .plain
     }
 }
