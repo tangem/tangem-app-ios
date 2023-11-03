@@ -35,5 +35,5 @@ struct OneInchBaseTarget: TargetType {
 }
 
 extension OneInchBaseTarget {
-    static let swappingBaseURL = URL(string: "https://api-tangem.1inch.io/v5.0/")!
+    static let swappingBaseURL = URL(string: "https://api-tangem.1inch.io/v5.2/")!
 }
