@@ -25,6 +25,12 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     var selectedUserWalletId: Data?
 
+    var selectedIndexUserWalletModel: Int? {
+        models.firstIndex {
+            $0.userWallet.userWalletId == selectedUserWalletId
+        }
+    }
+
     var hasSavedWallets: Bool {
         !savedUserWallets(withSensitiveData: false).isEmpty
     }
