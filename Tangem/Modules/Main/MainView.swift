@@ -35,7 +35,7 @@ struct MainView: View {
             },
             bottomOverlayFactory: { info, didScrollToBottom in
                 info.makeBottomOverlay(
-                    isMainScreenBottomSheetEnabled: viewModel.isMainScreenBottomSheetEnabled,
+                    isMainBottomSheetEnabled: viewModel.isMainBottomSheetEnabled,
                     didScrollToBottom: didScrollToBottom
                 )
             },
