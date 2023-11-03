@@ -24,6 +24,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
+    case walletSupportsOnlyOneCurrency(blockchainDescription: String)
 }
 
 // For Notifications
@@ -64,6 +65,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.commonAccessDenied
         case .missingBackup:
             return Localization.warningNoBackupTitle
+        case .walletSupportsOnlyOneCurrency:
+            return "Wallet supports only one currency and network"
         }
     }
 
@@ -100,6 +103,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
+        case .walletSupportsOnlyOneCurrency(let blockchainDescription):
+            return blockchainDescription
         }
     }
 
@@ -116,7 +121,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .devCard:
             return .init(image: Assets.redCircleWarning.image)
-        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup:
+        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .walletSupportsOnlyOneCurrency:
             return .init(image: Assets.attention.image)
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(image: Assets.blueCircleWarning.image)
@@ -129,7 +134,7 @@ extension WarningEvent: NotificationEvent {
 
     var isDismissable: Bool {
         switch self {
-        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
+        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .walletSupportsOnlyOneCurrency:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
