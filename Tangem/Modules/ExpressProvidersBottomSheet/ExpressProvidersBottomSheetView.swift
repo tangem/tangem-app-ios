@@ -18,8 +18,8 @@ struct ExpressProvidersBottomSheetView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(
-                title: "Choose provider",
-                subtitle: "Providers facilitate transactions, ensuring smooth and efficient token exchanges"
+                title: Localization.expressChooseProvidersTitle,
+                subtitle: Localization.expressChooseProvidersSubtitle
             )
 
             GroupedSection(viewModel.providerViewModels) {
