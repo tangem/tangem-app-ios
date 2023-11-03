@@ -13,10 +13,21 @@ struct ManageTokensNetworkSelectorView: View {
 
     var body: some View {
         GroupedScrollView {
-            walletSelectorContent
+            if viewModel.isNeedDisplaySupportsNotificationInput {
+                NotificationView(input: viewModel.supportsNotificationInput)
+                    .transition(.notificationTransition)
+
+                Spacer(minLength: 14)
+            }
+
+            if viewModel.isNeedDisplayWalletSelector {
+                walletSelectorContent
+
+                Spacer(minLength: 14)
+            }
 
             if !viewModel.nativeSelectorItems.isEmpty {
-                Spacer(minLength: 24)
+                Spacer(minLength: 10)
 
                 nativeNetworksContent
             }
@@ -40,7 +51,7 @@ struct ManageTokensNetworkSelectorView: View {
 
             Spacer(minLength: 0)
 
-            Text(viewModel.currentWalletName)
+            Text(viewModel.currentWalletName ?? "")
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
 
             Assets.chevron.image
