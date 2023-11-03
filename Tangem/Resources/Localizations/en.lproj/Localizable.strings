@@ -176,6 +176,8 @@
 "error_wrong_wallet_tapped" = "You have used a card from another wallet. Tap the card associated with this wallet";
 "exchange_receive_view_header" = "You Receive";
 "exchange_send_view_header" = "You Send";
+"express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token exchanges";
+"express_choose_providers_title" = "Choose provider";
 "feedback_preface_rate_negative" = "Tell us what functions you are missing, and we will try to help you.";
 "feedback_preface_scan_failed" = "Please tell us what card do you have";
 "feedback_preface_support" = "Hi support team,";
