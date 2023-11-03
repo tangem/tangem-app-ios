@@ -360,8 +360,8 @@ private extension ManageTokensNetworkSelectorViewModel {
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens:
-                return Localization.alertManageTokensUnsupportedMessage
+            case .failedSupportedLongHahesTokens(let tokenItem):
+                return Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName)
             case .failedSupportedCurve(let tokenItem):
                 return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
             case .failedSupportedBlockchainByCard:
