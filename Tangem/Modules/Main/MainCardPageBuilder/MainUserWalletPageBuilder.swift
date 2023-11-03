@@ -72,11 +72,11 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     func makeBottomOverlay(
-        isMainScreenBottomSheetEnabled: Bool,
+        isMainBottomSheetEnabled: Bool,
         didScrollToBottom: Bool
     ) -> some View {
-        if isMainScreenBottomSheetEnabled {
-            ManageTokensBottomSheetMainFooterView()
+        if isMainBottomSheetEnabled {
+            MainBottomSheetFooterView()
         } else if let viewModel = footerViewModel {
             MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
         } else {
