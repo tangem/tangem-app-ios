@@ -88,7 +88,7 @@ struct ProviderRowView: View {
     }
 
     private var titleView: some View {
-        HStack(alignment: .bottom, spacing: 4) {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
             Text(viewModel.provider.name)
                 .style(
                     Fonts.Bold.subheadline,
@@ -101,7 +101,6 @@ struct ProviderRowView: View {
 
             badgeView
         }
-        .border(Color.red)
     }
 
     private var subtitleView: some View {
