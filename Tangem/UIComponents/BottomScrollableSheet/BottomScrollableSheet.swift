@@ -15,6 +15,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
     @State private var isHidden = true
+    private var isHiddenWhenCollapsed = false
 
     private var prefersGrabberVisible = true
 
@@ -102,7 +103,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
         .frame(height: stateObject.visibleHeight)
         .cornerRadius(24.0, corners: [.topLeft, .topRight])
         .bottomScrollableSheetShadow()
-        .hidden(isHidden)
+        .hidden(isHiddenWhenCollapsed ? isHidden : false)
         .onAnimationStarted(for: stateObject.progress) {
             if isHidden {
                 isHidden = false
@@ -142,6 +143,10 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
 extension BottomScrollableSheet: Setupable {
     func prefersGrabberVisible(_ visible: Bool) -> Self {
         map { $0.prefersGrabberVisible = visible }
+    }
+
+    func isHiddenWhenCollapsed(_ isHidden: Bool) -> Self {
+        map { $0.isHiddenWhenCollapsed = isHidden }
     }
 }
 
