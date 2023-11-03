@@ -19,8 +19,10 @@ final class ManageTokensViewModel: ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
+    @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
+    @Published var generateAddressesViewModel: GenerateAddressesViewModel?
 
     // MARK: - Properties
 
@@ -31,10 +33,10 @@ final class ManageTokensViewModel: ObservableObject {
     private unowned let coordinator: ManageTokensRoutable
 
     private lazy var loader = setupListDataLoader()
-    private let percentFormatter = PercentFormatter()
-    private let balanceFormatter = BalanceFormatter()
+
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
+    private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
@@ -62,7 +64,7 @@ final class ManageTokensViewModel: ObservableObject {
 // MARK: - Private Implementation
 
 private extension ManageTokensViewModel {
-    /// Obtain supported token list from UserWalletModels to determine the cell action typeю
+    /// Obtain supported token list from UserWalletModels to determine the cell action type
     /// Should be reset after updating the list of tokens
     func updateAlreadyExistTokenUserList() {
         let existEntriesList = userWalletRepository.models
@@ -82,10 +84,45 @@ private extension ManageTokensViewModel {
             .removeDuplicates()
             .sink { [weak self] string in
                 if !string.isEmpty {
-                    Analytics.log(.tokenSearched)
+                    Analytics.log(.manageTokensSearched)
                 }
 
                 self?.loader.fetch(string)
+            }
+            .store(in: &bag)
+
+        // Used for update state generateAddressesViewModel property
+        let pendingDerivationsCountPublishers = userWalletRepository.models
+            .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
+                if let derivationManager = model.userTokensManager.derivationManager {
+                    return derivationManager.pendingDerivationsCount
+                        .map { (model.userWalletId, $0) }
+                        .eraseToAnyPublisher()
+                }
+
+                return nil
+            }
+
+        Publishers.MergeMany(pendingDerivationsCountPublishers)
+            .receiveValue { [weak self] id, count in
+                self?.pendingDerivationCountByWalletId[id] = count
+                self?.updateGenerateAddressesViewModel()
+            }
+            .store(in: &bag)
+
+        // Used for update state actionType tokenViewModels list property
+        let userTokensPublishers = userWalletRepository.models
+            .map { $0.userTokenListManager.userTokensPublisher }
+
+        Publishers.MergeMany(userTokensPublishers)
+            .receiveValue { [weak self] value in
+                guard let self = self else { return }
+
+                updateAlreadyExistTokenUserList()
+
+                tokenViewModels.forEach {
+                    $0.action = self.actionType(for: $0.id)
+                }
             }
             .store(in: &bag)
     }
@@ -111,15 +148,15 @@ private extension ManageTokensViewModel {
 
     // MARK: - Private Implementation
 
-    private func actionType(for coinModel: CoinModel) -> ManageTokensItemViewModel.Action {
-        let isAlreadyExistToken = cacheExistListCoinId.contains(coinModel.id)
+    private func actionType(for coinId: String) -> ManageTokensItemViewModel.Action {
+        let isAlreadyExistToken = cacheExistListCoinId.contains(coinId)
         return isAlreadyExistToken ? .edit : .add
     }
 
     private func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel {
         ManageTokensItemViewModel(
             coinModel: coinModel,
-            action: actionType(for: coinModel),
+            action: actionType(for: coinModel.id),
             didTapAction: handle(action:with:)
         )
     }
@@ -136,7 +173,46 @@ private extension ManageTokensViewModel {
             // [REDACTED_TODO_COMMENT]
             break
         case .add, .edit:
-            coordinator.openTokenSelector(with: coinModel.items)
+            let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
+            Analytics.log(event: event, params: [.token: coinModel.id])
+
+            coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items.map { $0.tokenItem })
+        }
+    }
+
+    private func updateGenerateAddressesViewModel() {
+        let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
+
+        guard countWalletPendingDerivation > 0 else {
+            return generateAddressesViewModel = nil
+        }
+
+        Analytics.log(
+            event: .manageTokensButtonGenerateAddresses,
+            params: [.cardsCount: String(countWalletPendingDerivation)]
+        )
+
+        generateAddressesViewModel = GenerateAddressesViewModel(
+            numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
+            currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
+            totalWalletNumber: userWalletRepository.userWallets.count,
+            didTapGenerate: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
+        )
+    }
+
+    private func generateAddressByWalletPendingDerivations() {
+        guard let userWalletId = pendingDerivationCountByWalletId.first(where: { $0.value > 0 })?.key else {
+            return
+        }
+
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+            return
+        }
+
+        userWalletModel.userTokensManager.deriveIfNeeded { result in
+            if case .failure(let error) = result, !error.isUserCancelled {
+                self.alert = error.alertBinder
+            }
         }
     }
 }
