@@ -32,7 +32,7 @@ enum ExpressDTO {
     }
 
     enum TransactionType: String, Codable {
-        case sent
+        case send
         case swap
     }
 
