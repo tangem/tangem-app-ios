@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct SensitiveText: View {
-    @ObservedObject private var viewModel: SensitiveTextVisibilityService = .shared
+    @ObservedObject private var sensitiveTextVisibilityViewModel: SensitiveTextVisibilityViewModel = .shared
     private let textType: TextType
 
     init(_ text: String) {
@@ -28,11 +28,11 @@ struct SensitiveText: View {
     var body: some View {
         switch textType {
         case .string(let string):
-            Text(viewModel.isHidden ? Constants.maskedBalanceString : string)
+            Text(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : string)
         case .attributed(let string):
-            Text(viewModel.isHidden ? NSAttributedString(string: Constants.maskedBalanceString) : string)
+            Text(sensitiveTextVisibilityViewModel.isHidden ? NSAttributedString(string: Constants.maskedBalanceString) : string)
         case .builder(let builder, let sensitive):
-            Text(builder(viewModel.isHidden ? Constants.maskedBalanceString : sensitive))
+            Text(builder(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : sensitive))
         }
     }
 }
