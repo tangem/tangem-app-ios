@@ -31,6 +31,10 @@ class AppCoordinator: CoordinatorObject {
 
     @Published private(set) var manageTokensViewModel: ManageTokensBottomSheetViewModel?
 
+    // MARK: - View State
+
+    var isMainScreenBottomSheetEnabled: Bool { FeatureProvider.isAvailable(.mainScreenBottomSheet) }
+
     // MARK: - Private
 
     private var bag: Set<AnyCancellable> = []
