@@ -53,7 +53,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>кошелека</string>
+        <string>кошелька</string>
         <key>few</key>
         <string>кошельков</string>
         <key>many</key>
