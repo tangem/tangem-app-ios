@@ -967,6 +967,7 @@
 		EF5769402A8BAF7900901571 /* TransactionHistoryServiceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF57693F2A8BAF7900901571 /* TransactionHistoryServiceState.swift */; };
 		EF5769422A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5769412A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift */; };
 		EF5769442A8BB90100901571 /* FakeTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5769432A8BB90100901571 /* FakeTransactionHistoryService.swift */; };
+		EF5812092AF42ACF00A65AA3 /* ExpressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5812082AF42ACF00A65AA3 /* ExpressProvider.swift */; };
 		EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */; };
 		EF5903A42909285E00C527C9 /* FeaturesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A32909285E00C527C9 /* FeaturesStorage.swift */; };
 		EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A729092BC600C527C9 /* FeatureProvider.swift */; };
@@ -1014,6 +1015,10 @@
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
+		EF729B712AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */; };
+		EF729B722AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */; };
+		EF729B732AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */; };
+		EF729B772AF3E95F00D80205 /* ProviderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B762AF3E95F00D80205 /* ProviderRowView.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF78433B29431903007E57D1 /* SwappingManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF78433A29431903007E57D1 /* SwappingManagerError.swift */; };
@@ -2247,6 +2252,7 @@
 		EF57693F2A8BAF7900901571 /* TransactionHistoryServiceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryServiceState.swift; sourceTree = "<group>"; };
 		EF5769412A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryFactoryProvider.swift; sourceTree = "<group>"; };
 		EF5769432A8BB90100901571 /* FakeTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTransactionHistoryService.swift; sourceTree = "<group>"; };
+		EF5812082AF42ACF00A65AA3 /* ExpressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvider.swift; sourceTree = "<group>"; };
 		EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupView.swift; sourceTree = "<group>"; };
 		EF5903A32909285E00C527C9 /* FeaturesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesStorage.swift; sourceTree = "<group>"; };
 		EF5903A729092BC600C527C9 /* FeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureProvider.swift; sourceTree = "<group>"; };
@@ -2297,6 +2303,10 @@
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
+		EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetView.swift; sourceTree = "<group>"; };
+		EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetViewModel.swift; sourceTree = "<group>"; };
+		EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetRoutable.swift; sourceTree = "<group>"; };
+		EF729B762AF3E95F00D80205 /* ProviderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderRowView.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF78433A29431903007E57D1 /* SwappingManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingManagerError.swift; sourceTree = "<group>"; };
@@ -2780,6 +2790,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF729B742AF3E94D00D80205 /* ProviderRowView */,
 				EF729B522AF12B0E00D80205 /* BottomSheetHeaderView */,
 				EF729B4D2AF10DCF00D80205 /* FeeRowView */,
 				EFC6846E2A0FA86200660690 /* SelectableSwappingFeeRow */,
@@ -5140,6 +5151,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EF729B672AF3E82C00D80205 /* ExpressProvidersBottomSheet */,
 				EF729B412AF108E200D80205 /* ExpressFeeBottomSheet */,
 				EF9448D82ADFD19D00F4AFAC /* InformationHiddenBalances */,
 				EFD39C8F2A6A8A640055D215 /* SupportedBlockchainsPreferences */,
@@ -5448,6 +5460,7 @@
 				E9C17C6F291ABA8000FDE4BC /* SwappingApprovedDataModel.swift */,
 				EFF5BA8129B32A5C0070694A /* EthereumGasDataModel.swift */,
 				EF29BEE0292E5D9B00D7C782 /* OneInchDTO */,
+				EF5812082AF42ACF00A65AA3 /* ExpressProvider.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -5785,6 +5798,24 @@
 				EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */,
 			);
 			path = BottomSheetHeaderView;
+			sourceTree = "<group>";
+		};
+		EF729B672AF3E82C00D80205 /* ExpressProvidersBottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */,
+				EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */,
+				EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */,
+			);
+			path = ExpressProvidersBottomSheet;
+			sourceTree = "<group>";
+		};
+		EF729B742AF3E94D00D80205 /* ProviderRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF729B762AF3E95F00D80205 /* ProviderRowView.swift */,
+			);
+			path = ProviderRowView;
 			sourceTree = "<group>";
 		};
 		EF763E902A7935B400D12644 /* ManageTokensBottomSheet */ = {
@@ -6901,6 +6932,7 @@
 				B05A859729937E2400E87C6E /* TransactionView.swift in Sources */,
 				EF0DC11C2A0CE29E007E3DA7 /* SwappingApproveViewModel.swift in Sources */,
 				EFAD02472A824E6700E9B959 /* TransactionViewModel.swift in Sources */,
+				EF729B722AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift in Sources */,
 				5D51037927C539B60025EA55 /* ABIError.swift in Sources */,
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				B0CE1E492A309F9E00D297F8 /* FakeCryptoBalanceProvider.swift in Sources */,
@@ -6965,6 +6997,7 @@
 				DC858A3928AA48B000D58EE7 /* CardEmailDataFactory.swift in Sources */,
 				B06C084F2A73FB4E00D982BC /* MainViewModel.swift in Sources */,
 				5D51037327C5371D0025EA55 /* EthereumAddress.swift in Sources */,
+				EF729B712AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift in Sources */,
 				B05F1E66299CB81D00E27E32 /* TransactionViewPlaceholder.swift in Sources */,
 				EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
@@ -7394,6 +7427,7 @@
 				B00371BE2A8A5E5900D77A4B /* FakeUserTokensManager.swift in Sources */,
 				DC261CA9292CF56600875E64 /* AuthCoordinatorView.swift in Sources */,
 				DAA5E30328D21369003C0E80 /* BiometryLogoImage.swift in Sources */,
+				EF729B732AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
 				B0A596562992A5B700C7C512 /* ButtonWithIconInfo.swift in Sources */,
@@ -7429,6 +7463,7 @@
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
 				B668D2582A685DD800D9A12A /* BinaryFloatingPoint+.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
+				EF729B772AF3E95F00D80205 /* ProviderRowView.swift in Sources */,
 				EFEC653C292E1B9100AE8521 /* SwappingViewModel.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				B69D5EEB2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift in Sources */,
@@ -7860,6 +7895,7 @@
 				EF4661D42923E5BB00346B6C /* SwappingItems.swift in Sources */,
 				EF4661F82924CC6E00346B6C /* QuoteParameters.swift in Sources */,
 				EF4661BF2923B41F00346B6C /* SwappingManager.swift in Sources */,
+				EF5812092AF42ACF00A65AA3 /* ExpressProvider.swift in Sources */,
 				B6C358672A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
 				EF4662052924CC6E00346B6C /* HealthCheckTarget.swift in Sources */,
 				EF4662082924CC6E00346B6C /* SwappingParameters.swift in Sources */,
