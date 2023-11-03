@@ -10,7 +10,7 @@
 "alert_failed_to_send_email_title" = "Failed to send the email";
 "alert_failed_to_send_transaction_message" = "Reason: %@";
 "alert_manage_tokens_unsupported_curve_message" = "To activate the %1$@ blockchain's cryptographic encryption, you'll need to reset the wallet to factory settings. Please withdraw your funds before doing so to ensure that you don't lose them, and then complete the reset process. Access to the current wallet will not be possible after the reset.";
-"alert_manage_tokens_unsupported_message" = "Tokens in Solana network are not supported by this card due to firmware limitation.";
+"alert_manage_tokens_unsupported_message" = "Tokens in %1$@ network are not supported by this card due to firmware limitation.";
 "alert_negative_app_rate_sent_message" = "Thank you for your feedback. We will respond as soon as possible";
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
