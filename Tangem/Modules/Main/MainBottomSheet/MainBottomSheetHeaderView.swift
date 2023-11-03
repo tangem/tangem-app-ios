@@ -1,5 +1,5 @@
 //
-//  ManageTokensBottomSheetHeaderView.swift
+//  MainBottomSheetHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 
 /// A temporary entity for integration and testing, subject to change.
-struct ManageTokensBottomSheetHeaderView: View {
+struct MainBottomSheetHeaderView: View {
     @Binding private var searchText: String
     private let textFieldAllowsHitTesting: Bool
 
@@ -37,7 +37,7 @@ struct ManageTokensBottomSheetHeaderView: View {
 
 // MARK: - Constants
 
-private extension ManageTokensBottomSheetHeaderView {
+private extension MainBottomSheetHeaderView {
     enum Constants {
         static let verticalInset = 20.0
     }
