@@ -32,6 +32,17 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
+    private var footerViewModel: MainFooterViewModel? {
+        switch self {
+        case .singleWallet:
+            return nil
+        case .multiWallet(_, _, let bodyModel):
+            return bodyModel.footerViewModel
+        case .lockedWallet(_, _, let bodyModel):
+            return bodyModel.footerViewModel
+        }
+    }
+
     @ViewBuilder
     var header: some View {
         switch self {
@@ -60,33 +71,10 @@ enum MainUserWalletPageBuilder: Identifiable {
     }
 
     @ViewBuilder
-    func makeBottomOverlay(didScrollToBottom: Bool) -> some View {
-        switch self {
-        case .singleWallet:
-            makeBottomOverlay(
-                footerViewModel: nil,
-                didScrollToBottom: didScrollToBottom
-            )
-        case .multiWallet(_, _, let bodyModel):
-            makeBottomOverlay(
-                footerViewModel: bodyModel.footerViewModel,
-                didScrollToBottom: didScrollToBottom
-            )
-        case .lockedWallet(_, _, let bodyModel):
-            makeBottomOverlay(
-                footerViewModel: bodyModel.footerViewModel,
-                didScrollToBottom: didScrollToBottom
-            )
-        }
-    }
-
-    @ViewBuilder
-    private func makeBottomOverlay(
-        footerViewModel: MainFooterViewModel?,
+    func makeBottomOverlay(
+        isMainScreenBottomSheetEnabled: Bool,
         didScrollToBottom: Bool
     ) -> some View {
-        let isMainScreenBottomSheetEnabled = FeatureProvider.isAvailable(.mainScreenBottomSheet)
-
         if isMainScreenBottomSheetEnabled {
             ManageTokensBottomSheetMainFooterView()
         } else if let viewModel = footerViewModel {
