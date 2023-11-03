@@ -63,7 +63,10 @@ enum MainUserWalletPageBuilder: Identifiable {
     func makeBottomOverlay(didScrollToBottom: Bool) -> some View {
         switch self {
         case .singleWallet:
-            Color.clear.frame(height: 0.0)
+            makeBottomOverlay(
+                footerViewModel: nil,
+                didScrollToBottom: didScrollToBottom
+            )
         case .multiWallet(_, _, let bodyModel):
             makeBottomOverlay(
                 footerViewModel: bodyModel.footerViewModel,
