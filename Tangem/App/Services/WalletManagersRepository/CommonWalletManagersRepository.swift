@@ -55,6 +55,9 @@ class CommonWalletManagersRepository {
                 let tokensToAdd = Set(entry.tokens).subtracting(existingWalletManager.cardTokens)
                 if !tokensToAdd.isEmpty {
                     existingWalletManager.addTokens(Array(tokensToAdd))
+                    // We need to reset lastUpdateTime to be able to load token info, if tokens added one by one sequentially.
+                    // Otherwise balances on main will be displayed as dashes
+                    existingWalletManager.setNeedsUpdate()
                     hasUpdates = true
                 }
 
