@@ -58,7 +58,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     private var headerTapGesture: some Gesture {
         // [REDACTED_TODO_COMMENT]
         TapGesture()
-            .onEnded { stateObject.onHeaderTap() }
+            .onEnded(stateObject.onHeaderTap)
     }
 
     @ViewBuilder private var backgroundView: some View {
