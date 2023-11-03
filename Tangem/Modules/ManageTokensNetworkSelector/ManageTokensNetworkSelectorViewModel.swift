@@ -249,11 +249,11 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw AvailableTokenError.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
+            throw AvailableTokenError.failedSupportedCurve(tokenItem)
         }
 
         if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
-            throw AvailableTokenError.failedSupportedLongHahesTokens(tokenItem)
+            throw AvailableTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         return
@@ -354,16 +354,16 @@ private extension ManageTokensNetworkSelectorViewModel {
 
 private extension ManageTokensNetworkSelectorViewModel {
     enum AvailableTokenError: Error, LocalizedError {
-        case failedSupportedLongHahesTokens(TokenItem)
-        case failedSupportedCurve(blockchainDisplayName: String)
+        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedCurve(TokenItem)
         case failedSupportedBlockchainByCard(TokenItem)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens(let tokenItem):
-                return Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName)
-            case .failedSupportedCurve(let blockchainDisplayName):
-                return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
+            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+            case .failedSupportedCurve(let tokenItem):
+                return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
             case .failedSupportedBlockchainByCard:
                 return nil
             }
