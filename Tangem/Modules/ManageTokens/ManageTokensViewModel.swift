@@ -45,9 +45,10 @@ final class ManageTokensViewModel: ObservableObject {
         updateAlreadyExistTokenUserList()
     }
 
-    func onAppear() {
+    func onAppear(with searchText: String = "") {
         Analytics.log(.manageTokensScreenOpened)
-        loader.reset(enteredSearchText.value)
+        loader.reset(searchText)
+        loader.fetch(searchText)
     }
 
     func onDisappear() {
