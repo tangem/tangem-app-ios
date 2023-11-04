@@ -1,0 +1,21 @@
+//
+//  MainBottomSheetContentView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+
+/// A temporary entity for integration and testing, subject to change.
+struct MainBottomSheetContentView: View {
+    @ObservedObject var viewModel: MainBottomSheetContentViewModel
+
+    var body: some View {
+        if let viewModel = viewModel.manageTokensViewModel {
+            Color.red.frame(height: 2000.0)
+//            ManageTokensView(viewModel: viewModel)    // this ain't gonna work
+        }
+    }
+}
