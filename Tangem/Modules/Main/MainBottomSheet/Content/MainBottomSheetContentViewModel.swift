@@ -17,14 +17,14 @@ final class MainBottomSheetContentViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let coordinator: MainBottomSheetCoordinator // [REDACTED_TODO_COMMENT]
+    private let coordinator: MainBottomSheetContentRoutable
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
     init(
         enteredSearchTextPublisher: some Publisher<String, Never>,
-        coordinator: MainBottomSheetCoordinator // [REDACTED_TODO_COMMENT]
+        coordinator: MainBottomSheetContentRoutable
     ) {
         self.coordinator = coordinator
         manageTokensViewModel = .init(coordinator: coordinator)
@@ -35,20 +35,13 @@ final class MainBottomSheetContentViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private func bind(enteredSearchTextPublisher: some Publisher<String, Never>) {
-        // [REDACTED_TODO_COMMENT]
         enteredSearchTextPublisher
-            .sink { enteredSearchText in
-                print("enteredSearchText:", enteredSearchText)
+            .dropFirst()
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] enteredSearchText in
+                self?.manageTokensViewModel?.fetch(searchText: enteredSearchText)
             }
             .store(in: &bag)
-
-//        $enteredSearchText
-//            .dropFirst()
-//            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-//            .removeDuplicates()
-//            .sink { [weak self] string in
-//                self?.manageTokensViewModel?.fetch(searchText: string)
-//            }
-//            .store(in: &bag)
     }
 }
