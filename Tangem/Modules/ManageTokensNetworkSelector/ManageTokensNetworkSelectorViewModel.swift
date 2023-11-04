@@ -42,6 +42,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         notificationsFactory.buildNotificationInput(
             for: .walletSupportsOnlyOneCurrency(blockchainDescription: coinId),
             action: { _ in },
+            buttonAction: { _, _ in },
             dismissAction: { _ in }
         )
     }
@@ -249,7 +250,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - ManageTokensNetworkSelectorViewModel
 
     func didSelectWallet(with userWalletId: Data) {
-        if userWalletModel?.userWalletId.value != userWalletId {
+        if selectedUserWalletModel?.userWalletId.value != userWalletId {
             Analytics.log(
                 event: .manageTokensWalletSelected,
                 params: [.source: Analytics.ParameterValue.mainToken.rawValue]
