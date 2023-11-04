@@ -10,9 +10,9 @@ import SwiftUI
 
 /// A temporary entity for integration and testing, subject to change.
 struct MainBottomSheetHeaderContainerView: View {
-    @ObservedObject var viewModel: MainBottomSheetViewModel
+    @ObservedObject var viewModel: MainBottomSheetHeaderViewModel
 
     var body: some View {
-        MainBottomSheetHeaderView(searchText: $viewModel.searchText, textFieldAllowsHitTesting: true)
+        MainBottomSheetHeaderView(searchText: $viewModel.enteredSearchText, textFieldAllowsHitTesting: true)
     }
 }
