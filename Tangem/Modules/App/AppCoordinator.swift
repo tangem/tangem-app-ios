@@ -28,14 +28,7 @@ class AppCoordinator: CoordinatorObject {
     @Published var welcomeCoordinator: WelcomeCoordinator?
     @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
     @Published var authCoordinator: AuthCoordinator?
-
-    // MARK: - Child view models
-
-    @Published private(set) var mainBottomSheetViewModel: MainBottomSheetViewModel?
-
-    // MARK: - View State
-
-    var isMainBottomSheetEnabled: Bool { FeatureProvider.isAvailable(.mainScreenBottomSheet) }
+    @Published var mainBottomSheetCoordinator: MainBottomSheetCoordinator?
 
     // MARK: - Private
 
@@ -60,6 +53,8 @@ class AppCoordinator: CoordinatorObject {
         case .uncompletedBackup:
             setupUncompletedBackup()
         }
+
+        setupMainBottomSheetCoordinator()
     }
 
     private func restart(with options: AppCoordinator.Options = .default) {
@@ -119,6 +114,23 @@ class AppCoordinator: CoordinatorObject {
         uncompletedBackupCoordinator = coordinator
     }
 
+    private func setupMainBottomSheetCoordinator() {
+        guard FeatureProvider.isAvailable(.mainScreenBottomSheet) else {
+            return
+        }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.mainBottomSheetCoordinator = nil
+        }
+
+        let coordinator = MainBottomSheetCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start()
+        mainBottomSheetCoordinator = coordinator
+    }
+
     private func bind() {
         userWalletRepository
             .eventProvider
@@ -127,16 +139,6 @@ class AppCoordinator: CoordinatorObject {
                     self?.handleLock(reason: reason)
                 }
             }
-            .store(in: &bag)
-
-        // This single VM instance is intentionally strongly captured
-        // below in the `map` closure to prevent it from deallocation
-        let mainBottomSheetViewModel = MainBottomSheetViewModel()
-
-        bottomSheetVisibility
-            .isShown
-            .map { $0 ? mainBottomSheetViewModel : nil }
-            .assign(to: \.mainBottomSheetViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
