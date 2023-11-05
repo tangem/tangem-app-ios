@@ -134,6 +134,11 @@ private extension Blockchain {
         case .telos: return "telos"
         case .octa: return "octaspace"
         case .chia: return "chia"
+        case .near:
+            switch type {
+            case .network: return "near-protocol"
+            case .coin: return "near"
+            }
         }
     }
 
