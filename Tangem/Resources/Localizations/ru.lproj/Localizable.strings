@@ -116,6 +116,7 @@
 "common_unreachable" = "Недоступно";
 "common_warning" = "Предупреждение";
 "common_yes" = "Да";
+"common_only" = "только";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
 "currency_subtitle_expanded" = "Доступные сети";
 "custom_token_add_token" = "Добавить токен";
@@ -216,6 +217,7 @@
 "manage_tokens_unavailable_description" = "Выбранный токен не доступен в кошельке на данный момент. Но не переживайте, вы можете выразить свой интерес проголосовав за его добавление.";
 "manage_tokens_unavailable_vote" = "Голосовать";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
+"manage_tokens_wallet_support_only_one_network" = "Кошелёк не поддерживает более одной сети";
 "onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты";
