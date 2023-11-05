@@ -66,7 +66,7 @@ extension WarningEvent: NotificationEvent {
         case .missingBackup:
             return Localization.warningNoBackupTitle
         case .walletSupportsOnlyOneCurrency:
-            return "Wallet supports only one currency and network"
+            return Localization.manageTokensWalletSupportOnlyOneNetwork
         }
     }
 
@@ -104,7 +104,7 @@ extension WarningEvent: NotificationEvent {
         case .missingBackup:
             return Localization.warningNoBackupMessage
         case .walletSupportsOnlyOneCurrency(let blockchainDescription):
-            return blockchainDescription
+            return "\(blockchainDescription.capitalizingFirstLetter()) \(Localization.commonOnly)"
         }
     }
 
