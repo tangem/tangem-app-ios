@@ -56,10 +56,10 @@ mint bootstrap --mintfile ./Utilites/Mintfile
 echo "✅ Dependencies succesfully installed"
 
 echo "🚀 Running SwiftFormat"
-mint run swiftformat@0.51.11 . --config .swiftformat
+mint run swiftformat@0.52.8 . --config .swiftformat
 
 echo "🚀 Running SwiftGen"
-mint run swiftgen@6.5.1 config run --config swiftgen.yml 
+mint run swiftgen@6.6.2 config run --config swiftgen.yml 
 
 if [ "$OPT_POD" = true ] ; then
     echo "🚀 Running pod install"
