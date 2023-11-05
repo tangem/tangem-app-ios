@@ -116,6 +116,7 @@
 "common_unreachable" = "Unreachable";
 "common_warning" = "Warning";
 "common_yes" = "Yes";
+"common_only" = "only";
 "contract_address_copied_message" = "Contract address copied!";
 "currency_subtitle_expanded" = "Available networks";
 "custom_token_add_token" = "Add token";
@@ -216,6 +217,7 @@
 "manage_tokens_unavailable_description" = "The selected token is currently unavailable for actions within the crypto wallet. But worry not, you can express your interest by upvoting it.";
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
+"manage_tokens_wallet_support_only_one_network" = "The wallet doesn't support more than one network";
 "onboarding_access_code_feature_1_description" = "You have to set up a single access code to protect all your wallets";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "You can set up an individual access code on each card later";
