@@ -13,14 +13,14 @@ struct ManageTokensNetworkSelectorView: View {
 
     var body: some View {
         GroupedScrollView {
-            if viewModel.isNeedDisplaySupportsNotificationInput {
-                NotificationView(input: viewModel.supportsNotificationInput)
+            if let notificationInput = viewModel.notificationInput {
+                NotificationView(input: notificationInput)
                     .transition(.notificationTransition)
 
                 Spacer(minLength: 14)
             }
 
-            if viewModel.isNeedDisplayWalletSelector {
+            if viewModel.showWalletSelector {
                 walletSelectorContent
 
                 Spacer(minLength: 14)
