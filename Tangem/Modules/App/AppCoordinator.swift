@@ -9,8 +9,11 @@
 import Foundation
 import UIKit
 import Combine
+import CombineExt
 
 class AppCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     let dismissAction: Action<Void> = { _ in }
     let popToRootAction: Action<PopToRootOptions> = { _ in }
 
@@ -18,12 +21,21 @@ class AppCoordinator: CoordinatorObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.walletConnectSessionsStorageInitializable) private var walletConnectSessionStorageInitializer: Initializable
+    @Injected(\.mainBottomSheetVisibility) private var bottomSheetVisibility: MainBottomSheetVisibility
 
     // MARK: - Child coordinators
 
     @Published var welcomeCoordinator: WelcomeCoordinator?
     @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
     @Published var authCoordinator: AuthCoordinator?
+
+    // MARK: - Child view models
+
+    @Published private(set) var mainBottomSheetViewModel: MainBottomSheetViewModel?
+
+    // MARK: - View State
+
+    var isMainBottomSheetEnabled: Bool { FeatureProvider.isAvailable(.mainScreenBottomSheet) }
 
     // MARK: - Private
 
@@ -116,6 +128,16 @@ class AppCoordinator: CoordinatorObject {
                 }
             }
             .store(in: &bag)
+
+        // This single VM instance is intentionally strongly captured
+        // below in the `map` closure to prevent it from deallocation
+        let mainBottomSheetViewModel = MainBottomSheetViewModel()
+
+        bottomSheetVisibility
+            .isShown
+            .map { $0 ? mainBottomSheetViewModel : nil }
+            .assign(to: \.mainBottomSheetViewModel, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func handleLock(reason: UserWalletRepositoryLockReason) {
@@ -158,6 +180,8 @@ class AppCoordinator: CoordinatorObject {
         }
     }
 }
+
+// MARK: - Options
 
 extension AppCoordinator {
     struct Options {
