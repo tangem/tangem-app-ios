@@ -8,16 +8,6 @@
 
 import SwiftUI
 
-class SendWalletSummaryViewModel: Identifiable {
-    let walletName: String
-    let totalBalance: String
-
-    init(walletName: String, totalBalance: String) {
-        self.walletName = walletName
-        self.totalBalance = totalBalance
-    }
-}
-
 struct SendWalletSummaryView: View {
     let viewModel: SendWalletSummaryViewModel
 
