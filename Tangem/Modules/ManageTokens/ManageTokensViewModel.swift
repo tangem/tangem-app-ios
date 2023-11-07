@@ -176,7 +176,7 @@ private extension ManageTokensViewModel {
             let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
             Analytics.log(event: event, params: [.token: coinModel.id])
 
-            coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items.map { $0.tokenItem })
+            coordinator.openTokenSelector(coinModel: coinModel)
         }
     }
 
