@@ -9,5 +9,5 @@
 import Foundation
 
 protocol ManageTokensRoutable: AnyObject {
-    func openTokenSelector(coinId: String, with tokenItems: [TokenItem])
+    func openTokenSelector(coinModel: CoinModel)
 }
