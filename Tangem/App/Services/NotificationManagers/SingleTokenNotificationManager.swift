@@ -72,11 +72,16 @@ class SingleTokenNotificationManager {
 
         notificationInputsSubject.send(inputs)
 
+        notificationsUpdateTask?.cancel()
         notificationsUpdateTask = Task { [weak self] in
             guard
                 let rentInput = await self?.loadRentNotificationIfNeeded(),
                 let self
             else {
+                return
+            }
+
+            if Task.isCancelled {
                 return
             }
 
