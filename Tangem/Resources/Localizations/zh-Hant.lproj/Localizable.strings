@@ -178,6 +178,8 @@
 "exchange_send_view_header" = "您發送";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token exchanges";
 "express_choose_providers_title" = "Choose provider";
+"express_provider_best_rate" = "Best Rate";
+"express_provider_permission_needed" = "Permission Needed";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
 "feedback_preface_support" = "嗨! 幫助團隊，";
