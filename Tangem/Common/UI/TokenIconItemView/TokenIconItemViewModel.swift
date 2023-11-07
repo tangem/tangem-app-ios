@@ -1,0 +1,16 @@
+//
+//  TokenIconItemViewModel.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+struct TokenIconItemViewModel: Hashable, Identifiable {
+    var id: Int { hashValue }
+
+    let imageURL: URL
+    let networkURL: URL?
+}
