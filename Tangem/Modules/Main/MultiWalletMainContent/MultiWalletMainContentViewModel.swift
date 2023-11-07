@@ -130,31 +130,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func bind() {
-        // The contents of the coins and tokens collection for the user wallet
-        let walletModelsPublisher = userWalletModel
-            .walletModelsManager
-            .walletModelsPublisher
-            .share(replay: 1)
-            .eraseToAnyPublisher()
-
-        // Fiat/balance changes for the coins and tokens for the user wallet
-        let walletModelsDidChangePublisher = walletModelsPublisher
-            .flatMap { walletModels in
-                return walletModels
-                    .map(\.walletDidChangePublisher)
-                    .merge()
-            }
-            .debounce(for: Constants.tokensDeliveryDelay, scheduler: DispatchQueue.main)
-            .withLatestFrom(walletModelsPublisher)
-            .eraseToAnyPublisher()
-
-        let aggregatedWalletModelsPublisher = [
-            walletModelsPublisher,
-            walletModelsDidChangePublisher,
-        ].merge()
+        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
+        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
-            .organizedSections(from: aggregatedWalletModelsPublisher, on: mappingQueue)
+            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
             .share(replay: 1)
 
         organizedTokensSectionsPublisher
