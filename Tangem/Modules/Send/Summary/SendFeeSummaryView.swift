@@ -8,14 +8,6 @@
 
 import SwiftUI
 
-class SendFeeSummaryViewModel: Identifiable {
-    let fee: String
-
-    init(fee: String) {
-        self.fee = fee
-    }
-}
-
 struct SendFeeSummaryView: View {
     let viewModel: SendFeeSummaryViewModel
 
