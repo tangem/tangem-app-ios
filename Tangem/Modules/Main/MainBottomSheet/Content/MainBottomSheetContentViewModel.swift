@@ -27,6 +27,7 @@ final class MainBottomSheetContentViewModel: ObservableObject {
         coordinator: MainBottomSheetContentRoutable
     ) {
         self.coordinator = coordinator
+
         manageTokensViewModel = .init(coordinator: coordinator)
 
         bind(enteredSearchTextPublisher: enteredSearchTextPublisher)
@@ -39,8 +40,8 @@ final class MainBottomSheetContentViewModel: ObservableObject {
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
-            .sink { [weak self] enteredSearchText in
-                self?.manageTokensViewModel?.fetch(searchText: enteredSearchText)
+            .sink { [weak self] value in
+                self?.manageTokensViewModel?.fetch(with: value)
             }
             .store(in: &bag)
     }
