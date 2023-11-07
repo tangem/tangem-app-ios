@@ -14,67 +14,71 @@ struct ExpressTokensListView: View {
     init(viewModel: ExpressTokensListViewModel) {
         self.viewModel = viewModel
     }
+    
+    private var isEmpty: Bool {
+        viewModel.availableTokens.isEmpty && viewModel.unavailableTokens.isEmpty
+    }
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
-            availableTokensView
-
-            unavailableTokensView
+        ZStack(alignment: .center) {
+            Colors.Background.secondary.ignoresSafeArea(.all)
+            
+            content
         }
         .navigationTitle("Choose Token")
         .searchableCompat(text: $viewModel.searchText)
-        .background(Colors.Background.secondary.ignoresSafeArea(.all))
     }
-
-    private var availableTokensView: some View {
-        ExpressTokensSection(title: "My tokens", items: viewModel.availableTokens) {
-            SwappingTokenItemView(viewModel: $0)
-                .border(Color.red)
+    
+    @ViewBuilder
+    private var content: some View {
+        if isEmpty {
+            emptyContent
+        } else {
+            listContent
+        }
+    }
+    
+    private var emptyContent: some View {
+        VStack(spacing: 16) {
+            Assets.emptyTokenList.image
+                .renderingMode(.template)
+                .foregroundColor(Colors.Icon.inactive)
+            
+            Text("You don't have any added tokens yet. Add tokens via Market to swap")
+                .multilineTextAlignment(.center)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .padding(.horizontal, 50)
+        }
+    }
+    
+    private var listContent: some View {
+        GroupedScrollView(spacing: 14) {
+            section(title: "My tokens", viewModels: viewModel.availableTokens)
+            
+            section(title: "Unavailable for swap from Bitcoin", viewModels: viewModel.unavailableTokens)
         }
     }
 
-    private var unavailableTokensView: some View {
-        ExpressTokensSection(title: "Unavailable for swap from Bitcoin", items: viewModel.unavailableTokens) {
-            SwappingTokenItemView(viewModel: $0)
-        }
-    }
-}
-
-struct ExpressTokensSection<Item: Identifiable, Content: View>: View {
-    private let title: String
-    private let items: [Item]
-    private let content: (Item) -> Content
-
-    private var horizontalPadding: CGFloat = 14
-
-    init(
-        title: String,
-        items: [Item],
-        @ViewBuilder content: @escaping (Item) -> Content
-    ) {
-        self.title = title
-        self.items = items
-        self.content = content
-    }
-
-    var body: some View {
-        if !items.isEmpty {
-            VStack(alignment: .leading, spacing: 14) {
+    @ViewBuilder
+    private func section(title: String, viewModels: [ExpressTokenItemViewModel]) -> some View {
+        if !viewModels.isEmpty {
+            let horizontalPadding: CGFloat = 14
+            VStack(alignment: .leading, spacing: .zero) {
                 Text(title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.horizontal, horizontalPadding)
+                    .padding(.vertical, 12)
                 
-                ForEach(items) { model in
-                    content(model)
+                ForEach(viewModels) { viewModel in
+                    ExpressTokenItemView(viewModel: viewModel)
                         .padding(.horizontal, horizontalPadding)
                     
-                    if items.last?.id != model.id {
+                    if viewModels.last?.id != viewModel.id {
                         Separator(height: .minimal, color: Colors.Stroke.primary)
                             .padding(.leading, horizontalPadding)
                     }
                 }
             }
-            .padding(.vertical, 12)
             .background(Colors.Background.primary)
             .cornerRadiusContinuous(14)
         }
