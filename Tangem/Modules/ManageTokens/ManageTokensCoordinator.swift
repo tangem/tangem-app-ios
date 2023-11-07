@@ -39,9 +39,9 @@ extension ManageTokensCoordinator {
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
-    func openTokenSelector(coinId: String, with tokenItems: [TokenItem]) {
+    func openTokenSelector(coinModel: CoinModel) {
         let coordinator = ManageTokensNetworkSelectorCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(coinId: coinId, tokenItems: tokenItems))
+        coordinator.start(with: .init(coinModel: coinModel))
         networkSelectorCoordinator = coordinator
     }
 }
