@@ -17,22 +17,27 @@ struct WalletSelectorProvider {
     // MARK: - Implementation
 
     /// Full Available list of wallets for selection
-    func listWalletForSelector(for coinId: String) -> [UserWalletModel] {
+    func userWalletModels(for coinId: String?) -> [UserWalletModel] {
         userWalletRepository.models.filter { userWalletModel in
-            userWalletModel.isMultiWallet &&
-                !userWalletModel.isUserWalletLocked &&
-                userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId == coinId })
+            let walletCondition = userWalletModel.isMultiWallet && !userWalletModel.isUserWalletLocked
+
+            if let coinId {
+                return walletCondition && userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId == coinId })
+            } else {
+                return walletCondition
+            }
         }
     }
 
     /// Return of first selected wallet for diplay
-    func currentWalletSelected(from userWalletModels: [UserWalletModel]) -> UserWalletModel? {
+    func currentUserWalletModel(from userWalletModels: [UserWalletModel]) -> UserWalletModel? {
         userWalletModels.first { userWalletModel in
             userWalletModel.userWalletId == userWalletRepository.selectedUserModelModel?.userWalletId
         } ?? userWalletModels.first
     }
 
-    func isCurrentSelectedNonMultiWalletWallet(by coinId: String, with userWalletModels: [UserWalletModel]) -> Bool {
+    /// Return flag if currency selected UserWalletModel is single currency wallet
+    func isCurrentSelectedNonMultiUserWalletModel(by coinId: String, with userWalletModels: [UserWalletModel]) -> Bool {
         guard let selectedUserModelModel = userWalletRepository.selectedUserModelModel else {
             return false
         }
