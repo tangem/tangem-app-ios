@@ -20,8 +20,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Published Properties
 
-    @Published var isNeedDisplayWalletSelector: Bool = false
-    @Published var isNeedDisplaySupportsNotificationInput: Bool = false
+    @Published var showWalletSelector: Bool = false
+    @Published var notificationInput: NotificationViewInput?
 
     @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
     @Published var nonNativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
@@ -36,15 +36,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     var currentWalletName: String? {
         selectedUserWalletModel?.userWallet.name
-    }
-
-    var supportsNotificationInput: NotificationViewInput {
-        notificationsFactory.buildNotificationInput(
-            for: .walletSupportsOnlyOneCurrency(blockchainDescription: coinId),
-            action: { _ in },
-            buttonAction: { _, _ in },
-            dismissAction: { _ in }
-        )
     }
 
     // MARK: - Private Implementation
@@ -96,7 +87,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.tokenItems = tokenItems
         self.coordinator = coordinator
 
-        userWalletModels = walletSelectorProvider.listWalletForSelector(for: coinId)
+        userWalletModels = walletSelectorProvider.userWalletModels(for: coinId)
         selectedUserWalletModel = userWalletRepository.models.first
     }
 
@@ -131,14 +122,19 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private func setNeedDisplayWalletSelector() {
-        isNeedDisplayWalletSelector = !userWalletModels.isEmpty
+        showWalletSelector = !userWalletModels.isEmpty
     }
 
     private func setNeedDisplaySupportsNotifications() {
-        if walletSelectorProvider.isCurrentSelectedNonMultiWalletWallet(by: coinId, with: userWalletModels) {
-            isNeedDisplaySupportsNotificationInput = true
+        if walletSelectorProvider.isCurrentSelectedNonMultiUserWalletModel(by: coinId, with: userWalletModels) {
+            notificationInput = notificationsFactory.buildNotificationInput(
+                for: .walletSupportsOnlyOneCurrency(coinId),
+                action: { _ in },
+                buttonAction: { _, _ in },
+                dismissAction: { _ in }
+            )
         } else {
-            isNeedDisplaySupportsNotificationInput = false
+            notificationInput = nil
         }
     }
 
