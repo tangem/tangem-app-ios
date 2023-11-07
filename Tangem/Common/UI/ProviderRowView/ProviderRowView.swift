@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-
 struct ProviderRowView: View {
     let viewModel: ProviderRowViewModel
 
