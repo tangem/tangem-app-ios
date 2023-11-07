@@ -14,7 +14,7 @@ struct ExpressTokensListView: View {
     init(viewModel: ExpressTokensListViewModel) {
         self.viewModel = viewModel
     }
-    
+
     private var isEmpty: Bool {
         viewModel.availableTokens.isEmpty && viewModel.unavailableTokens.isEmpty
     }
@@ -22,13 +22,13 @@ struct ExpressTokensListView: View {
     var body: some View {
         ZStack(alignment: .center) {
             Colors.Background.secondary.ignoresSafeArea(.all)
-            
+
             content
         }
-        .navigationTitle("Choose Token")
+        .navigationTitle(Localization.swappingTokenListTitle)
         .searchableCompat(text: $viewModel.searchText)
     }
-    
+
     @ViewBuilder
     private var content: some View {
         if isEmpty {
@@ -37,25 +37,25 @@ struct ExpressTokensListView: View {
             listContent
         }
     }
-    
+
     private var emptyContent: some View {
         VStack(spacing: 16) {
             Assets.emptyTokenList.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
-            
-            Text("You don't have any added tokens yet. Add tokens via Market to swap")
+
+            Text(Localization.exchangeTokensEmptyTokens)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 50)
         }
     }
-    
+
     private var listContent: some View {
         GroupedScrollView(spacing: 14) {
-            section(title: "My tokens", viewModels: viewModel.availableTokens)
-            
-            section(title: "Unavailable for swap from Bitcoin", viewModels: viewModel.unavailableTokens)
+            section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: viewModel.availableTokens)
+
+            section(title: viewModel.unavailableSectionHeader, viewModels: viewModel.unavailableTokens)
         }
     }
 
@@ -68,11 +68,11 @@ struct ExpressTokensListView: View {
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.horizontal, horizontalPadding)
                     .padding(.vertical, 12)
-                
+
                 ForEach(viewModels) { viewModel in
                     ExpressTokenItemView(viewModel: viewModel)
                         .padding(.horizontal, horizontalPadding)
-                    
+
                     if viewModels.last?.id != viewModel.id {
                         Separator(height: .minimal, color: Colors.Stroke.primary)
                             .padding(.leading, horizontalPadding)
