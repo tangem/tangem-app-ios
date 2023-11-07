@@ -140,7 +140,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .numberOfSignedHashesIncorrect: return .mainNoticeCardSignedTransactions
         case .rateApp: return nil
-        case .failedToVerifyCard: return nil
+        case .failedToVerifyCard: return .mainNoticeProductSampleCard
         case .testnetCard: return .mainNoticeTestnetCard
         case .demoCard: return .mainNoticeDemoCard
         case .oldDeviceOldCard: return .mainNoticeOldCard
