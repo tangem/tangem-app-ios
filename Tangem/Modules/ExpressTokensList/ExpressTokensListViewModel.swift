@@ -9,10 +9,6 @@
 import Combine
 import SwiftUI
 
-class ExpressTokensListRoutableMock: ExpressTokensListRoutable {
-    init() {}
-}
-
 final class ExpressTokensListViewModel: ObservableObject {
     // MARK: - ViewState
 
