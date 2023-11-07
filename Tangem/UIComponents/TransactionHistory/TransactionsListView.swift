@@ -130,11 +130,11 @@ struct TransactionsListView: View {
         } else {
             LazyVStack(spacing: 0) {
                 header
-                    .ios14FixedHeight(Constants.ios14ListItemHeight)
+                    .ios14FixedHeight(Constants.ios14ListHeaderItem)
 
                 ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, sectionItem in
                     makeSectionHeader(for: sectionItem, atIndex: sectionIndex)
-                        .ios14FixedHeight(Constants.ios14ListItemHeight)
+                        .ios14FixedHeight(Constants.ios14ListHeaderItem)
 
                     ForEach(sectionItem.items.indexed(), id: \.1.id) { cellIndex, cellItem in
                         Button {
@@ -227,6 +227,7 @@ extension TransactionsListView {
 extension TransactionsListView {
     enum Constants {
         @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
+        static let ios14ListHeaderItem = 42.0
         static let ios14ListItemHeight = 56.0
     }
 }
