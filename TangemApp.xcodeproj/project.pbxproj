@@ -567,6 +567,8 @@
 		B6FF1EFE2A57E59100B208E4 /* Subject+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FF1EFD2A57E59100B208E4 /* Subject+.swift */; };
 		BC3BCAF910DB455D23661425 /* Pods_TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADDBC9E43D315C358E078BC8 /* Pods_TangemSwapping.framework */; };
 		CA4CE122EA06BFF58F298C1F /* Pods_TangemSwappingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18DFAA500D7B2AF19B3D48B8 /* Pods_TangemSwappingTests.framework */; };
+		DA03E97C2AFA82B8000824C4 /* SendDestinationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03E97B2AFA82B8000824C4 /* SendDestinationInputView.swift */; };
+		DA03E97E2AFA97B9000824C4 /* SendDestinationInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03E97D2AFA97B9000824C4 /* SendDestinationInputViewModel.swift */; };
 		DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */; };
 		DA070DE32ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */; };
 		DA070DE52ADD4F6600F7C0E4 /* SprinklrConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */; };
@@ -1009,6 +1011,7 @@
 		EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD83296C0EA9001B21A3 /* IncomingActionParser.swift */; };
 		EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */; };
 		EF7000812A94BE7300C56E8A /* CardanoWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */; };
+		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF729B492AF1091900D80205 /* ExpressFeeBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B442AF1091900D80205 /* ExpressFeeBottomSheetView.swift */; };
 		EF729B4A2AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B452AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift */; };
 		EF729B4B2AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift */; };
@@ -1022,7 +1025,6 @@
 		EF729B602AF1567000D80205 /* ExpressAPIServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */; };
 		EF729B622AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */; };
 		EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */; };
-		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF78433B29431903007E57D1 /* SwappingManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF78433A29431903007E57D1 /* SwappingManagerError.swift */; };
@@ -1836,6 +1838,8 @@
 		D2313A69E005802F0E551C08 /* Pods-Tangem.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		D4CF153401E1CA0F93E4A641 /* Pods-TangemSwapping.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(production).xcconfig"; sourceTree = "<group>"; };
 		D4E67C3833548EA7FAF75825 /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA03E97B2AFA82B8000824C4 /* SendDestinationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInputView.swift; sourceTree = "<group>"; };
+		DA03E97D2AFA97B9000824C4 /* SendDestinationInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInputViewModel.swift; sourceTree = "<group>"; };
 		DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatView.swift; sourceTree = "<group>"; };
 		DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatViewModel.swift; sourceTree = "<group>"; };
 		DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrConfig.swift; sourceTree = "<group>"; };
@@ -2301,6 +2305,7 @@
 		EF6EDD88296D4DE1001B21A3 /* TangemAlpha.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TangemAlpha.entitlements; sourceTree = "<group>"; };
 		EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextField.swift; sourceTree = "<group>"; };
 		EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoWalletManagerFactory.swift; sourceTree = "<group>"; };
+		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
 		EF729B442AF1091900D80205 /* ExpressFeeBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetView.swift; sourceTree = "<group>"; };
 		EF729B452AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		EF729B462AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetRoutable.swift; sourceTree = "<group>"; };
@@ -2314,7 +2319,6 @@
 		EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIServiceError.swift; sourceTree = "<group>"; };
 		EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAuthorizationPlugin.swift; sourceTree = "<group>"; };
 		EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIService.swift; sourceTree = "<group>"; };
-		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF78433A29431903007E57D1 /* SwappingManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingManagerError.swift; sourceTree = "<group>"; };
@@ -4469,6 +4473,15 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		DA03E97A2AFA8246000824C4 /* Destination */ = {
+			isa = PBXGroup;
+			children = (
+				DA03E97B2AFA82B8000824C4 /* SendDestinationInputView.swift */,
+				DA03E97D2AFA97B9000824C4 /* SendDestinationInputViewModel.swift */,
+			);
+			path = Destination;
+			sourceTree = "<group>";
+		};
 		DA070DDF2ADD4F0F00F7C0E4 /* Sprinklr */ = {
 			isa = PBXGroup;
 			children = (
@@ -4734,6 +4747,7 @@
 		DAFC3E002AA8A50000D1013F /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				DA03E97A2AFA8246000824C4 /* Destination */,
 				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
 				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
 				DCAB57FD295ECA55005D0F4A /* SendError.swift */,
@@ -7493,6 +7507,7 @@
 				EFEC653C292E1B9100AE8521 /* SwappingViewModel.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				B69D5EEB2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift in Sources */,
+				DA03E97C2AFA82B8000824C4 /* SendDestinationInputView.swift in Sources */,
 				B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */,
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
@@ -7571,6 +7586,7 @@
 				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0468CE72954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
+				DA03E97E2AFA97B9000824C4 /* SendDestinationInputViewModel.swift in Sources */,
 				EF0DC11B2A0CE29E007E3DA7 /* SwappingApproveView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				DC66BC16285C529600CDF765 /* LegacySendRoutable.swift in Sources */,
