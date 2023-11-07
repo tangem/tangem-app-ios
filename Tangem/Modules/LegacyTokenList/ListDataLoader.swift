@@ -75,6 +75,10 @@ class ListDataLoader {
                 }
             }
     }
+
+    func batch() {
+        fetch(lastSearchText)
+    }
 }
 
 // MARK: Private
