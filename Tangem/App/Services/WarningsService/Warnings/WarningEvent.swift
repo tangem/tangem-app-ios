@@ -24,7 +24,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
-    case walletSupportsOnlyOneCurrency(String)
+    case walletSupportsOnlyOneCurrency(description: String)
 }
 
 // For Notifications
