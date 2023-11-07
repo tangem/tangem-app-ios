@@ -22,31 +22,42 @@ struct ManageTokensView: View {
         }
         .scrollDismissesKeyboardCompat(true)
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .navigationBarTitle(Text(Localization.addTokensTitle), displayMode: .automatic)
-        .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
-        .onAppear { viewModel.onAppear() }
-        .onDisappear { viewModel.onDisappear() }
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Coin market cup")
+                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .lineLimit(1)
+
+            Text("Couldn’t find this token, you can add it manually")
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .lineLimit(1)
+        }
+        .frame(
+            maxWidth: .infinity,
+            alignment: .topLeading
+        )
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
     }
 
     private var list: some View {
         LazyVStack(spacing: 0) {
+            header
+
             ForEach(viewModel.tokenViewModels) {
                 ManageTokensItemView(viewModel: $0)
             }
 
-//                if viewModel.hasNextPage {
-//                    HStack(alignment: .center) {
-//                        ActivityIndicatorView(color: .gray)
-//                            .onAppear(perform: viewModel.fetch)
-//                    }
-//                }
+            if viewModel.hasNextPage {
+                HStack(alignment: .center) {
+                    ActivityIndicatorView(color: .gray)
+                        .onAppear(perform: viewModel.batch)
+                }
+            }
         }
-    }
-
-    private var divider: some View {
-        Divider()
-            .padding(.leading)
     }
 
     @ViewBuilder private var titleView: some View {
