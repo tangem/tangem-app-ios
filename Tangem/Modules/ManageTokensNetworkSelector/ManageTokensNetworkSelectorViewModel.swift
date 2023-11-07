@@ -46,8 +46,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private let notificationsFactory = NotificationsFactory()
     private let walletSelectorProvider = WalletSelectorProvider()
 
-    private var tokenItems: [TokenItem]
-    private let coinId: String
+    private let coinModel: CoinModel
     private let userWalletModels: [UserWalletModel]
     private var selectedUserWalletModel: UserWalletModel?
 
@@ -79,15 +78,13 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Init
 
     init(
-        coinId: String,
-        tokenItems: [TokenItem],
+        coinModel: CoinModel,
         coordinator: ManageTokensNetworkSelectorCoordinator
     ) {
-        self.coinId = coinId
-        self.tokenItems = tokenItems
+        self.coinModel = coinModel
         self.coordinator = coordinator
 
-        userWalletModels = walletSelectorProvider.userWalletModels(for: coinId)
+        userWalletModels = walletSelectorProvider.userWalletModels(for: coinModel.id)
         selectedUserWalletModel = userWalletRepository.models.first
     }
 
@@ -126,9 +123,14 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func setNeedDisplaySupportsNotifications() {
-        if walletSelectorProvider.isCurrentSelectedNonMultiUserWalletModel(by: coinId, with: userWalletModels) {
+        if walletSelectorProvider.isCurrentSelectedNonMultiUserWalletModel(by: coinModel.id, with: userWalletModels) {
             notificationInput = notificationsFactory.buildNotificationInput(
-                for: .walletSupportsOnlyOneCurrency(coinId),
+                for: .walletSupportsOnlyOneCurrency(
+                    Localization.manageTokensWalletSupportOnlyOneNetworkDescription(
+                        coinModel.name,
+                        coinModel.symbol
+                    )
+                ),
                 action: { _ in },
                 buttonAction: { _, _ in },
                 dismissAction: { _ in }
@@ -139,6 +141,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func fillSelectorItemsFromTokenItems() {
+        let tokenItems = coinModel.items.map { $0.tokenItem }
+
         nativeSelectorItems = tokenItems
             .filter {
                 $0.isBlockchain
