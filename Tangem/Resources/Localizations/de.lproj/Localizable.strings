@@ -93,6 +93,7 @@
 "common_no_address" = "No address";
 "common_no_data" = "No data";
 "common_ok" = "OK";
+"common_only" = "only";
 "common_origin_card" = "Primary Card";
 "common_push" = "Push";
 "common_receive" = "Receive";
@@ -124,7 +125,6 @@
 "common_unreachable" = "Unreachable";
 "common_warning" = "Warnung";
 "common_yes" = "Yes";
-"common_only" = "only";
 "contract_address_copied_message" = "Contract address copied!";
 "currency_subtitle_expanded" = "Available networks";
 "custom_token_add_token" = "Add token";
