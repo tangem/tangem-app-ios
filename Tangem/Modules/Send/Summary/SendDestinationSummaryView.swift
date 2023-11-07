@@ -56,8 +56,7 @@ struct SendDestinationSummaryView: View {
     @ViewBuilder
     private func addressView(address: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            #warning("L10n")
-            Text("Recipient")
+            Text(Localization.sendRecipient)
                 .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
             HStack(spacing: 12) {
