@@ -76,10 +76,15 @@ class SingleTokenNotificationManager {
             )
         }
 
+        notificationsUpdateTask?.cancel()
         notificationsUpdateTask = Task { [weak self] in
             var inputs = inputs
             if let rentInput = await self?.loadRentNotificationIfNeeded() {
                 inputs.append(rentInput)
+            }
+
+            if Task.isCancelled {
+                return
             }
 
             await runOnMain {
