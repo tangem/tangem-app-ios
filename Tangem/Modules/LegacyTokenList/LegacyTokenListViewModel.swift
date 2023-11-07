@@ -221,7 +221,7 @@ private extension LegacyTokenListViewModel {
             displayAlertAndUpdateSelection(
                 for: tokenItem,
                 title: Localization.commonAttention,
-                message: Localization.alertManageTokensUnsupportedMessage
+                message: Localization.alertManageTokensUnsupportedMessage(blockchain.displayName)
             )
 
             return
