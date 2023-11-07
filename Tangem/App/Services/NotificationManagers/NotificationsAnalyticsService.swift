@@ -1,5 +1,5 @@
 //
-//  NotificationsAnalyticsManager.swift
+//  NotificationsAnalyticsService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,9 +11,10 @@ import Combine
 
 class NotificationsAnalyticsService {
     private weak var notificationManager: NotificationManager?
-    private var subscription: AnyCancellable?
 
+    private var subscription: AnyCancellable?
     private var trackedEvents: Set<Analytics.Event> = []
+
     init() {}
 
     func setup(with notificationManager: NotificationManager) {
@@ -27,8 +28,6 @@ class NotificationsAnalyticsService {
             .receive(on: DispatchQueue.global())
             .sink(receiveValue: weakify(self, forFunction: NotificationsAnalyticsService.sendEventsIfNeeded(for:)))
     }
-
-    private func bindToTokenNotifications(using manager: NotificationManager) {}
 
     private func sendEventsIfNeeded(for notifications: [NotificationViewInput]) {
         notifications.forEach(sendEventIfNeeded(for:))
