@@ -372,7 +372,7 @@
 "send_fee_picker_low" = "Низкая";
 "send_fee_picker_normal" = "Нормальная";
 "send_fee_picker_priority" = "Приоритетная";
-"send_from_wallet" = "From %@";
+"send_from_wallet" = "From **%@**";
 "send_gas_limit" = "Лимит газа";
 "send_gas_limit_footer" = "Gas Limit is auto-calculated; raise it during network congestion";
 "send_gas_price" = "Цена газа";
