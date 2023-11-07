@@ -10,205 +10,51 @@ import SwiftUI
 
 enum Fonts {
     enum Regular {
-        /// weight: regular, size: 34
-        static var largeTitle: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.largeTitle
-            } else {
-                return StaticFonts.largeTitle
-            }
-        }
+        static let largeTitle: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.largeTitle : StaticFonts.largeTitle
 
-        /// weight: semibold, size: 28
-        static var title1: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.title1
-            } else {
-                return StaticFonts.title1
-            }
-        }
+        static let title1: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.title1 : StaticFonts.title1
 
-        /// weight: regular, size: 22
-        static var title2: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.title2
-            } else {
-                return StaticFonts.title2
-            }
-        }
+        static let title2: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.title2 : StaticFonts.title2
 
-        /// weight: regular, size: 20
-        static var title3: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.title3
-            } else {
-                return StaticFonts.title3
-            }
-        }
+        static let title3: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.title3 : StaticFonts.title3
 
-        /// weight: semibold, size: 17
-        static var headline: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.headline
-            } else {
-                return StaticFonts.headline
-            }
-        }
+        static let headline: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.headline : StaticFonts.headline
 
-        /// weight: regular, size: 17
-        static var body: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.body
-            } else {
-                return StaticFonts.body
-            }
-        }
+        static let body: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.body : StaticFonts.body
 
-        /// weight: regular, size: 16
-        static var callout: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.callout
-            } else {
-                return StaticFonts.callout
-            }
-        }
+        static let callout: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.callout : StaticFonts.callout
 
-        /// weight: regular, size: 15
-        static var subheadline: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.subheadline
-            } else {
-                return StaticFonts.subheadline
-            }
-        }
+        static let subheadline: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.subheadline : StaticFonts.subheadline
 
-        /// weight: regular, size: 13
-        static var footnote: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.footnote
-            } else {
-                return StaticFonts.footnote
-            }
-        }
+        static let footnote: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.footnote : StaticFonts.footnote
 
-        /// weight: regular, size: 12
-        static var caption1: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.caption1
-            } else {
-                return StaticFonts.caption1
-            }
-        }
+        static let caption1: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.caption1 : StaticFonts.caption1
 
-        /// weight: regular, size: 11
-        static var caption2: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.caption2
-            } else {
-                return StaticFonts.caption2
-            }
-        }
+        static let caption2: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.caption2 : StaticFonts.caption2
     }
 
     enum Bold {
-        /// weight: bold, size: 34
-        static var largeTitle: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.largeTitleBold
-            } else {
-                return StaticFonts.largeTitleBold
-            }
-        }
+        static let largeTitle: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.largeTitleBold : StaticFonts.largeTitleBold
 
-        /// weight: bold, size: 28
-        static var title1: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.title1Bold
-            } else {
-                return StaticFonts.title1Bold
-            }
-        }
+        static let title1: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.title1Bold : StaticFonts.title1Bold
 
-        /// weight: bold, size: 22
-        static var title2: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.title2Bold
-            } else {
-                return StaticFonts.title2Bold
-            }
-        }
+        static let title2: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.title2Bold : StaticFonts.title2Bold
 
-        /// weight: semibold, size: 20
-        static var title3: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.title3Bold
-            } else {
-                return StaticFonts.title3Bold
-            }
-        }
+        static let title3: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.title3Bold : StaticFonts.title3Bold
 
-        /// weight: semibold, size: 17
-        static var headline: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.headline
-            } else {
-                return StaticFonts.headline
-            }
-        }
+        static let headline = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.headline : StaticFonts.headline
 
-        /// weight: semibold, size: 17
-        static var body: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.bodySemibold
-            } else {
-                return StaticFonts.bodySemibold
-            }
-        }
+        static let body: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.bodySemibold : StaticFonts.bodySemibold
 
-        /// weight: medium, size: 16
-        static var callout: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.calloutMedium
-            } else {
-                return StaticFonts.calloutMedium
-            }
-        }
+        static let callout: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.calloutMedium : StaticFonts.calloutMedium
 
-        /// weight: medium, size: 15
-        static var subheadline: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.subheadlineMedium
-            } else {
-                return StaticFonts.subheadlineMedium
-            }
-        }
+        static let subheadline: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.subheadlineMedium : StaticFonts.subheadlineMedium
 
-        /// weight: semibold, size: 13
-        static var footnote: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.footnoteSemibold
-            } else {
-                return StaticFonts.footnoteSemibold
-            }
-        }
+        static let footnote: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.footnoteSemibold : StaticFonts.footnoteSemibold
 
-        /// weight: medium, size: 12
-        static var caption1: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.caption1Medium
-            } else {
-                return StaticFonts.caption1Medium
-            }
-        }
+        static let caption1: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.caption1Medium : StaticFonts.caption1Medium
 
-        /// weight: semibold, size: 11
-        static var caption2: Font {
-            if FeatureProvider.isAvailable(.dynamicFonts) {
-                return DynamicFonts.caption2Semibold
-            } else {
-                return StaticFonts.caption2Semibold
-            }
-        }
+        static let caption2: Font = FeatureProvider.isAvailable(.dynamicFonts) ? DynamicFonts.caption2Semibold : StaticFonts.caption2Semibold
     }
 }
 
