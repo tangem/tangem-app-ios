@@ -11,7 +11,7 @@ import SwiftUI
 class SendWalletSummaryViewModel: Identifiable {
     let walletName: String
     let totalBalance: String
-    
+
     init(walletName: String, totalBalance: String) {
         self.walletName = walletName
         self.totalBalance = totalBalance
@@ -20,13 +20,13 @@ class SendWalletSummaryViewModel: Identifiable {
 
 struct SendWalletSummaryView: View {
     let viewModel: SendWalletSummaryViewModel
-    
+
     var body: some View {
         GroupedSection(viewModel) { viewModel in
             VStack(alignment: .leading, spacing: 4) {
-                Text(TangemRichTextFormatter().format("asdasd **bold**", fontSize: UIFonts.Regular.caption1.pointSize))
+                Text(TangemRichTextFormatter().format(Localization.sendFromWallet(viewModel.walletName), fontSize: UIFonts.Regular.caption1.pointSize))
                     .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
-                
+
                 Text(viewModel.totalBalance)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
@@ -36,7 +36,6 @@ struct SendWalletSummaryView: View {
         }
     }
 }
-
 
 // MARK: - Rich text formatter
 
@@ -74,7 +73,6 @@ private struct TangemRichTextFormatter {
 
 #Preview {
     GroupedScrollView {
-        
         SendWalletSummaryView(viewModel: SendWalletSummaryViewModel(walletName: "Family Wallet", totalBalance: "2 130,88 USDT (2 129,92 $)"))
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
