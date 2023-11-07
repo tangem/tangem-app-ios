@@ -93,6 +93,7 @@
 "common_no_address" = "No address";
 "common_no_data" = "No data";
 "common_ok" = "OK";
+"common_only" = "только";
 "common_origin_card" = "主卡片";
 "common_push" = "推送";
 "common_receive" = "Receive";
@@ -124,7 +125,6 @@
 "common_unreachable" = "無法觸達";
 "common_warning" = "警告";
 "common_yes" = "是";
-"common_only" = "только";
 "contract_address_copied_message" = "已複製代幣地址";
 "currency_subtitle_expanded" = "支持的網路";
 "custom_token_add_token" = "添加代幣";
