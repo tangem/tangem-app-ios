@@ -1010,6 +1010,7 @@
 		EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD83296C0EA9001B21A3 /* IncomingActionParser.swift */; };
 		EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */; };
 		EF7000812A94BE7300C56E8A /* CardanoWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */; };
+		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF729B492AF1091900D80205 /* ExpressFeeBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B442AF1091900D80205 /* ExpressFeeBottomSheetView.swift */; };
 		EF729B4A2AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B452AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift */; };
 		EF729B4B2AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift */; };
@@ -1017,17 +1018,16 @@
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
-		EF729B712AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */; };
-		EF729B722AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */; };
-		EF729B732AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */; };
-		EF729B772AF3E95F00D80205 /* ProviderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B762AF3E95F00D80205 /* ProviderRowView.swift */; };
 		EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */; };
 		EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */; };
 		EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */; };
 		EF729B602AF1567000D80205 /* ExpressAPIServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */; };
 		EF729B622AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */; };
 		EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */; };
-		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
+		EF729B712AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */; };
+		EF729B722AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */; };
+		EF729B732AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */; };
+		EF729B772AF3E95F00D80205 /* ProviderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B762AF3E95F00D80205 /* ProviderRowView.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF78433B29431903007E57D1 /* SwappingManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF78433A29431903007E57D1 /* SwappingManagerError.swift */; };
@@ -1042,6 +1042,7 @@
 		EF808440293F69C7000D91EA /* Currency+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF80843F293F69C7000D91EA /* Currency+Mock.swift */; };
 		EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
+		EF842DEE2AFA6D07006E472E /* ProviderRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */; };
 		EF862714297182B6007EBFF9 /* SwappingSuccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF862712297182B6007EBFF9 /* SwappingSuccessCoordinator.swift */; };
 		EF862715297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF862713297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift */; };
 		EF8627172971897D007EBFF9 /* SwappingSuccessInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8627162971897D007EBFF9 /* SwappingSuccessInputModel.swift */; };
@@ -2307,6 +2308,7 @@
 		EF6EDD88296D4DE1001B21A3 /* TangemAlpha.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TangemAlpha.entitlements; sourceTree = "<group>"; };
 		EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextField.swift; sourceTree = "<group>"; };
 		EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoWalletManagerFactory.swift; sourceTree = "<group>"; };
+		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
 		EF729B442AF1091900D80205 /* ExpressFeeBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetView.swift; sourceTree = "<group>"; };
 		EF729B452AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		EF729B462AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetRoutable.swift; sourceTree = "<group>"; };
@@ -2314,17 +2316,16 @@
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
-		EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetView.swift; sourceTree = "<group>"; };
-		EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetViewModel.swift; sourceTree = "<group>"; };
-		EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetRoutable.swift; sourceTree = "<group>"; };
-		EF729B762AF3E95F00D80205 /* ProviderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderRowView.swift; sourceTree = "<group>"; };
 		EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIService.swift; sourceTree = "<group>"; };
 		EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
 		EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPITarget.swift; sourceTree = "<group>"; };
 		EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIServiceError.swift; sourceTree = "<group>"; };
 		EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAuthorizationPlugin.swift; sourceTree = "<group>"; };
 		EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIService.swift; sourceTree = "<group>"; };
-		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
+		EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetView.swift; sourceTree = "<group>"; };
+		EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetViewModel.swift; sourceTree = "<group>"; };
+		EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetRoutable.swift; sourceTree = "<group>"; };
+		EF729B762AF3E95F00D80205 /* ProviderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderRowView.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF78433A29431903007E57D1 /* SwappingManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingManagerError.swift; sourceTree = "<group>"; };
@@ -2341,6 +2342,7 @@
 		EF80843F293F69C7000D91EA /* Currency+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Currency+Mock.swift"; sourceTree = "<group>"; };
 		EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilding.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
+		EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderRowViewModel.swift; sourceTree = "<group>"; };
 		EF862712297182B6007EBFF9 /* SwappingSuccessCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinator.swift; sourceTree = "<group>"; };
 		EF862713297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinatorView.swift; sourceTree = "<group>"; };
 		EF8627162971897D007EBFF9 /* SwappingSuccessInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingSuccessInputModel.swift; sourceTree = "<group>"; };
@@ -5829,24 +5831,6 @@
 			path = BottomSheetHeaderView;
 			sourceTree = "<group>";
 		};
-		EF729B672AF3E82C00D80205 /* ExpressProvidersBottomSheet */ = {
-			isa = PBXGroup;
-			children = (
-				EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */,
-				EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */,
-				EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */,
-			);
-			path = ExpressProvidersBottomSheet;
-			sourceTree = "<group>";
-		};
-		EF729B742AF3E94D00D80205 /* ProviderRowView */ = {
-			isa = PBXGroup;
-			children = (
-				EF729B762AF3E95F00D80205 /* ProviderRowView.swift */,
-			);
-			path = ProviderRowView;
-			sourceTree = "<group>";
-		};
 		EF729B582AF14A7700D80205 /* ExpressAPIService */ = {
 			isa = PBXGroup;
 			children = (
@@ -5875,6 +5859,25 @@
 				DCAB5807295F47A7005D0F4A /* CommonSwappingLogger.swift */,
 			);
 			path = SwappingLogger;
+			sourceTree = "<group>";
+		};
+		EF729B672AF3E82C00D80205 /* ExpressProvidersBottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */,
+				EF729B6D2AF3E86300D80205 /* ExpressProvidersBottomSheetViewModel.swift */,
+				EF729B6E2AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift */,
+			);
+			path = ExpressProvidersBottomSheet;
+			sourceTree = "<group>";
+		};
+		EF729B742AF3E94D00D80205 /* ProviderRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF729B762AF3E95F00D80205 /* ProviderRowView.swift */,
+				EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */,
+			);
+			path = ProviderRowView;
 			sourceTree = "<group>";
 		};
 		EF763E902A7935B400D12644 /* ManageTokensBottomSheet */ = {
@@ -7782,6 +7785,7 @@
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
 				B6ED08362A7DA9780090E51F /* OrganizeTokensOptionsManager.swift in Sources */,
 				B6FC07042AC3F989003C2FE2 /* ScrollViewRepresentableDelegate.swift in Sources */,
+				EF842DEE2AFA6D07006E472E /* ProviderRowViewModel.swift in Sources */,
 				EFBFA43729ACC4B9008FD598 /* CommonSwappingWalletDataProvider.swift in Sources */,
 				B674D6DD2A97556F00172491 /* StorageEntryConverter.swift in Sources */,
 				B67D90DD2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift in Sources */,
