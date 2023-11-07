@@ -43,7 +43,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
-    private let notificationsFactory = NotificationsFactory()
     private let walletSelectorProvider = WalletSelectorProvider()
 
     private let coinModel: CoinModel
@@ -124,8 +123,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private func setNeedDisplaySupportsNotifications() {
         if walletSelectorProvider.isCurrentSelectedNonMultiUserWalletModel(by: coinModel.id, with: userWalletModels) {
+            let notificationsFactory = NotificationsFactory()
+
             notificationInput = notificationsFactory.buildNotificationInput(
-                for: .walletSupportsOnlyOneCurrency(
+                for: .walletSupportsOnlyOneCurrency(description:
                     Localization.manageTokensWalletSupportOnlyOneNetworkDescription(
                         coinModel.name,
                         coinModel.symbol
