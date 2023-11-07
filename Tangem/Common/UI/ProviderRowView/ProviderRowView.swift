@@ -124,7 +124,7 @@ struct ProviderRowView: View {
         case .none:
             EmptyView()
         case .permissionNeeded:
-            Text("Permission Needed")
+            Text(Localization.expressProviderPermissionNeeded)
                 .style(
                     Fonts.Bold.caption2,
                     color: viewModel.isDisabled ? Colors.Icon.inactive : Colors.Icon.informative
@@ -134,7 +134,7 @@ struct ProviderRowView: View {
                 .background(Colors.Background.secondary)
                 .cornerRadiusContinuous(8)
         case .bestRate:
-            Text("Best Rate")
+            Text(Localization.expressProviderBestRate)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
