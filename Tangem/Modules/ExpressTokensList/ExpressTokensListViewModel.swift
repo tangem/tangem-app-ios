@@ -20,6 +20,10 @@ final class ExpressTokensListViewModel: ObservableObject {
     @Published var availableTokens: [ExpressTokenItemViewModel] = []
     @Published var unavailableTokens: [ExpressTokenItemViewModel] = []
 
+    var unavailableSectionHeader: String {
+        Localization.exchangeTokensUnavailableTokensHeader("Bitcoin")
+    }
+
     // MARK: - Dependencies
 
     private unowned let coordinator: ExpressTokensListRoutable
@@ -49,7 +53,7 @@ private extension ExpressTokensListViewModel {
             }
             .store(in: &bag)
     }
-    
+
     // Temporary. Will be replaced
     func getAvailableTokens() -> [ExpressTokenItemViewModel] {
         [
@@ -94,7 +98,7 @@ private extension ExpressTokensListViewModel {
             ),
         ]
     }
-    
+
     // Temporary. Will be replaced
     func getUnavailableTokens() -> [ExpressTokenItemViewModel] {
         [
@@ -139,7 +143,7 @@ private extension ExpressTokensListViewModel {
             ),
         ]
     }
-    
+
     func setupView() {
         availableTokens = getAvailableTokens()
         unavailableTokens = getUnavailableTokens()
