@@ -22,7 +22,7 @@ struct SendFeeSummaryView: View {
     var body: some View {
         GroupedSection([viewModel]) { viewModel in
             VStack(alignment: .leading, spacing: 4) {
-                Text("Network fee")
+                Text(Localization.sendNetworkFeeTitle)
                     .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
                 Text(viewModel.fee)
