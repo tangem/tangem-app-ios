@@ -24,7 +24,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
-    case walletSupportsOnlyOneCurrency(blockchainDescription: String)
+    case walletSupportsOnlyOneCurrency(String)
 }
 
 // For Notifications
@@ -103,8 +103,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
-        case .walletSupportsOnlyOneCurrency(let blockchainDescription):
-            return "\(blockchainDescription.capitalizingFirstLetter()) \(Localization.commonOnly)"
+        case .walletSupportsOnlyOneCurrency(let description):
+            return description
         }
     }
 

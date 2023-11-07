@@ -93,6 +93,7 @@
 "common_no_address" = "Нет адреса";
 "common_no_data" = "Нет данных";
 "common_ok" = "OK";
+"common_only" = "только";
 "common_origin_card" = "Основная карта";
 "common_push" = "Ускорить";
 "common_receive" = "Получить";
@@ -124,7 +125,6 @@
 "common_unreachable" = "Недоступно";
 "common_warning" = "Предупреждение";
 "common_yes" = "Да";
-"common_only" = "только";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
 "currency_subtitle_expanded" = "Доступные сети";
 "custom_token_add_token" = "Добавить токен";
