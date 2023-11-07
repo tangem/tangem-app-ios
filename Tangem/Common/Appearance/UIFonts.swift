@@ -12,5 +12,7 @@ enum UIFonts {
     enum Regular {
         /// weight: regular, size: 17
         static let body: UIFont = .systemFont(ofSize: 17, weight: .regular)
+        
+        static let caption1: UIFont = .systemFont(ofSize: 12, weight: .regular)
     }
 }
