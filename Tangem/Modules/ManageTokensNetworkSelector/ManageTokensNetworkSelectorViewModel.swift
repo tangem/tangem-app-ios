@@ -253,7 +253,7 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
-            throw AvailableTokenError.failedSupportedLongHahesTokens(tokenItem)
+            throw AvailableTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         return
@@ -354,14 +354,14 @@ private extension ManageTokensNetworkSelectorViewModel {
 
 private extension ManageTokensNetworkSelectorViewModel {
     enum AvailableTokenError: Error, LocalizedError {
-        case failedSupportedLongHahesTokens(TokenItem)
+        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(TokenItem)
         case failedSupportedBlockchainByCard(TokenItem)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens:
-                return Localization.alertManageTokensUnsupportedMessage
+            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let tokenItem):
                 return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
             case .failedSupportedBlockchainByCard:
