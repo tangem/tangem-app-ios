@@ -24,6 +24,17 @@ enum SendAdditionalFields {
         }
     }
 
+    var name: String {
+        switch self {
+        case .destinationTag:
+            return Localization.sendExtrasHintDestinationTag
+        case .memo:
+            return Localization.sendExtrasHintMemo
+        case .none:
+            return ""
+        }
+    }
+
     static func fields(for blockchain: Blockchain) -> SendAdditionalFields {
         switch blockchain {
         case .stellar, .binance, .ton, .cosmos, .terraV1, .terraV2:
