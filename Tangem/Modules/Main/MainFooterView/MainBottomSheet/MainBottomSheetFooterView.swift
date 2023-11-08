@@ -15,7 +15,7 @@ struct MainBottomSheetFooterView: View {
 
             // `MainBottomSheetHeaderView` is used here as a dummy noninteractive placeholder
             MainBottomSheetHeaderView(searchText: .constant(""), textFieldAllowsHitTesting: false)
-                .cornerRadius(24.0, corners: [.topLeft, .topRight]) // Replicates corner radius in `BottomScrollableSheet`
+                .bottomScrollableSheetCornerRadius()
                 .bottomScrollableSheetGrabber()
                 .bottomScrollableSheetShadow()
         }
