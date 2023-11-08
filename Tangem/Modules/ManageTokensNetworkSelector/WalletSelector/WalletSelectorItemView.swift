@@ -42,7 +42,7 @@ struct WalletSelectorItemView: View {
         .padding(.vertical, 19)
         .contentShape(Rectangle())
         .onTapGesture {
-            viewModel.didTapWallet()
+            viewModel.didTapWallet(viewModel.id)
         }
     }
 }
@@ -50,9 +50,9 @@ struct WalletSelectorItemView: View {
 struct WalletSelectorItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            WalletSelectorItemView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: true, cardImageProvider: CardImageProvider(), didTapWallet: {}))
+            WalletSelectorItemView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards, isSelected: true, cardImageProvider: CardImageProvider(), didTapWallet: { _ in }))
 
-            WalletSelectorItemView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards.userWallet, isSelected: false, cardImageProvider: CardImageProvider(), didTapWallet: {}))
+            WalletSelectorItemView(viewModel: .init(userWallet: FakeUserWalletModel.wallet3Cards, isSelected: false, cardImageProvider: CardImageProvider(), didTapWallet: { _ in }))
         }
     }
 }
