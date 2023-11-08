@@ -12,25 +12,35 @@ import Combine
 class WalletSelectorViewModel: ObservableObject {
     var itemViewModels: [WalletSelectorItemViewModel] = []
 
-    weak var delegate: WalletSelectorDelegate?
+    private weak var dataSource: WalletSelectorDataSource?
+    private var bag = Set<AnyCancellable>()
 
-    init(userWallets: [UserWallet], currentUserWalletId: Data?) {
-        itemViewModels = userWallets.map { userWallet in
-            WalletSelectorItemViewModel(
-                userWallet: userWallet,
-                isSelected: userWallet.userWalletId == currentUserWalletId,
-                cardImageProvider: CardImageProvider()
-            ) { [weak self] in
-                self?.didTapWallet(with: userWallet)
-            }
-        }
+    // MARK: - Init
+
+    init(dataSource: WalletSelectorDataSource?) {
+        self.dataSource = dataSource
+
+        bind()
     }
 
-    func didTapWallet(with userWallet: UserWallet) {
-        for itemViewModel in itemViewModels {
-            itemViewModel.isSelected = userWallet.userWalletId == itemViewModel.userWallet.userWalletId
-        }
+    func bind() {
+        dataSource?.selectedUserWalletModelPublisher
+            .sink { [weak self] userWalletModel in
+                self?.itemViewModels.forEach { item in
+                    item.isSelected = item.id == userWalletModel?.userWalletId
+                }
+            }
+            .store(in: &bag)
 
-        delegate?.didSelectWallet(with: userWallet.userWalletId)
+        itemViewModels = dataSource?.userWalletModels.map { userWalletModel in
+            WalletSelectorItemViewModel(
+                userWallet: userWalletModel,
+                isSelected: userWalletModel.userWalletId == dataSource?.selectedUserWalletModelPublisher.value?.userWalletId,
+                cardImageProvider: CardImageProvider()
+            ) { [weak self] userWalletId in
+                let selectedUserWalletModel = self?.dataSource?.userWalletModels.first(where: { $0.userWalletId == userWalletId })
+                self?.dataSource?.selectedUserWalletModelPublisher.send(selectedUserWalletModel)
+            }
+        } ?? []
     }
 }
