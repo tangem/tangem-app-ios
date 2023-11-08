@@ -11,7 +11,7 @@
 "alert_failed_to_send_transaction_message" = "Причина: %@";
 "alert_manage_tokens_unsupported_blockchain_by_card_message" = "Выбранный кошелёк не поддерживает сеть %1$@";
 "alert_manage_tokens_unsupported_curve_message" = "Для активации криптографии сети %1$@ необходимо сбросить кошелек до заводских настроек. Пожалуйста, выведите свои средства, чтобы не потерять их, после сброса доступ к текущему кошельку будет невозможен.";
-"alert_manage_tokens_unsupported_message" = "Токены в сети Solana не поддерживаются этой картой из-за ограничений прошивки.";
+"alert_manage_tokens_unsupported_message" = "Токены в сети %1$@ не поддерживаются этой картой из-за ограничений прошивки.";
 "alert_negative_app_rate_sent_message" = "Спасибо за ваш отзыв. Мы ответим в кратчайшие сроки.";
 "alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
 "alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту в точности, как показано на анимации, или запросите поддержку.";
@@ -180,6 +180,10 @@
 "error_wrong_wallet_tapped" = "Вы использовали карту от другого кошелька. Приложите карту, связанную с этим кошельком.";
 "exchange_receive_view_header" = "Вы получаете";
 "exchange_send_view_header" = "Вы отправляете";
+"express_choose_providers_subtitle" = "Провайдеры проводят транзакции, обеспечивая плавный и эффективный обмен токенами";
+"express_choose_providers_title" = "Выберите провайдера";
+"express_provider_best_rate" = "Лучший курс";
+"express_provider_permission_needed" = "Требуется разрешение";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
 "feedback_preface_support" = "Привет, команда поддержки,";
