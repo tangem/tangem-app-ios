@@ -129,12 +129,15 @@ struct TransactionsListView: View {
             noTransactionsContent
         } else {
             LazyVStack(spacing: 0) {
-                header
-                    .ios14FixedHeight(Constants.ios14ListItemHeight)
-
                 ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, sectionItem in
-                    makeSectionHeader(for: sectionItem, atIndex: sectionIndex)
-                        .ios14FixedHeight(Constants.ios14ListItemHeight)
+                    VStack {
+                        if sectionIndex == 0 {
+                            header
+                        }
+
+                        makeSectionHeader(for: sectionItem, atIndex: sectionIndex)
+                    }
+                    .ios14FixedHeight(Constants.ios14ListItemHeight)
 
                     ForEach(sectionItem.items.indexed(), id: \.1.id) { cellIndex, cellItem in
                         Button {
