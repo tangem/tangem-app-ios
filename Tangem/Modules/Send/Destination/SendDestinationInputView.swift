@@ -37,6 +37,9 @@ struct SendDestinationInputView: View {
                     .padding(.vertical, 12)
                 }
             }
+        } footer: {
+            Text(viewModel.description)
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
         .horizontalPadding(14)
     }
@@ -92,13 +95,13 @@ struct SendDestinationInputView: View {
 
 #Preview {
     GroupedScrollView {
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .constant(""), showAddressIcon: true, placeholder: "Enter address", didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .constant(""), showAddressIcon: true, placeholder: "Enter address", description: "Description", didPasteAddress: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .constant("0x391316d97a07027a0702c8A002c8A0C25d8470"), showAddressIcon: true, placeholder: "Enter address", didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .constant("0x391316d97a07027a0702c8A002c8A0C25d8470"), showAddressIcon: true, placeholder: "Enter address", description: "Description", didPasteAddress: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .constant(""), showAddressIcon: false, placeholder: "Optional", didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .constant(""), showAddressIcon: false, placeholder: "Optional", description: "Description", didPasteAddress: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .constant("123456789"), showAddressIcon: false, placeholder: "Optional", didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .constant("123456789"), showAddressIcon: false, placeholder: "Optional", description: "Description", didPasteAddress: { _ in }))
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
