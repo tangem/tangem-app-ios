@@ -15,27 +15,28 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var isSelected: Bool = false
 
     var id: UserWalletId {
-        userWallet.userWalletId
+        userWalletModel.userWalletId
     }
 
     var name: String {
-        userWallet.config.cardName
+        userWalletModel.config.cardName
     }
 
     let didTapWallet: (UserWalletId) -> Void
     let imageHeight = 30.0
-    let userWallet: UserWalletModel
+
+    private let userWalletModel: UserWalletModel
 
     private let cardImageProvider: CardImageProviding
     private var bag: Set<AnyCancellable> = []
 
     init(
-        userWallet: UserWalletModel,
+        userWalletModel: UserWalletModel,
         isSelected: Bool,
         cardImageProvider: CardImageProviding,
         didTapWallet: @escaping (UserWalletId) -> Void
     ) {
-        self.userWallet = userWallet
+        self.userWalletModel = userWalletModel
         self.isSelected = isSelected
         self.cardImageProvider = cardImageProvider
         self.didTapWallet = didTapWallet
@@ -44,24 +45,24 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     }
 
     private func loadImage() {
-//        let artwork: CardArtwork
-//        if let artworkInfo = userWallet.config...artwork {
-//            artwork = .artwork(artworkInfo)
-//        } else {
-//            artwork = .notLoaded
-//        }
+        let artwork: CardArtwork
+        if let artworkInfo = userWalletModel.userWallet.artwork {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
+        }
 
-//        cardImageProvider.loadImage(
-//            cardId: userWallet.config.cardId,
-//            cardPublicKey: userWallet.card.cardPublicKey,
-//            artwork: artwork
-//        )
-//        .sink { [weak self] loadResult in
-//            guard let self else { return }
-//
-//            image = scaleImage(loadResult.uiImage, newHeight: imageHeight * UIScreen.main.scale)
-//        }
-//        .store(in: &bag)
+        cardImageProvider.loadImage(
+            cardId: userWalletModel.config.cardId,
+            cardPublicKey: userWalletModel.userWallet.card.cardPublicKey,
+            artwork: artwork
+        )
+        .sink { [weak self] loadResult in
+            guard let self else { return }
+
+            image = scaleImage(loadResult.uiImage, newHeight: imageHeight * UIScreen.main.scale)
+        }
+        .store(in: &bag)
     }
 
     private func scaleImage(_ image: UIImage, newHeight: CGFloat) -> UIImage {
