@@ -31,6 +31,7 @@ struct MainBottomSheetHeaderView: View {
             .padding(.horizontal, 16.0)
             .padding(.top, Constants.verticalInset)
             .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
+            .background(Colors.Background.primary)
     }
 }
 
