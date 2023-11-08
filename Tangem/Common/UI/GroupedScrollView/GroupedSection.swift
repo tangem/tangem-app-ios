@@ -123,7 +123,7 @@ extension GroupedSection: Setupable {
     func interSectionPadding(_ spacing: CGFloat) -> Self {
         map { $0.interSectionPadding = spacing }
     }
-    
+
     func backgroundColor(_ color: Color) -> Self {
         map { $0.backgroundColor = color }
     }
