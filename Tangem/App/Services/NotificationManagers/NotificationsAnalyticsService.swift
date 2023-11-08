@@ -13,7 +13,7 @@ class NotificationsAnalyticsService {
     private weak var notificationManager: NotificationManager?
 
     private var subscription: AnyCancellable?
-    private var trackedEvents: Set<Analytics.Event> = []
+    private var alreadyTrackedEvents: Set<Analytics.Event> = []
 
     init() {}
 
@@ -40,11 +40,11 @@ class NotificationsAnalyticsService {
 
         switch notification.settings.event {
         case is WarningEvent:
-            if trackedEvents.contains(analyticsEvent) {
+            if alreadyTrackedEvents.contains(analyticsEvent) {
                 return
             }
 
-            trackedEvents.insert(analyticsEvent)
+            alreadyTrackedEvents.insert(analyticsEvent)
             Analytics.log(analyticsEvent)
         case is TokenNotificationEvent:
             Analytics.log(analyticsEvent)
