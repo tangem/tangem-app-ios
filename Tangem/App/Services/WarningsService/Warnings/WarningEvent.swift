@@ -158,6 +158,7 @@ extension WarningEvent: NotificationEvent {
         case .missingDerivation: return .mainNoticeMissingAddress
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
+        case .walletSupportsOnlyOneCurrency: return nil
         }
     }
 
