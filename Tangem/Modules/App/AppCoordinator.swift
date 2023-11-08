@@ -30,6 +30,10 @@ class AppCoordinator: CoordinatorObject {
     @Published var authCoordinator: AuthCoordinator?
     @Published var mainBottomSheetCoordinator: MainBottomSheetCoordinator?
 
+    // MARK: - View State
+
+    @Published private(set) var isMainBottomSheetShown = false
+
     // MARK: - Private
 
     private var bag: Set<AnyCancellable> = []
@@ -54,7 +58,7 @@ class AppCoordinator: CoordinatorObject {
             setupUncompletedBackup()
         }
 
-        setupMainBottomSheetCoordinator()
+        setupMainBottomSheetCoordinatorIfNeeded()
     }
 
     private func restart(with options: AppCoordinator.Options = .default) {
@@ -114,8 +118,12 @@ class AppCoordinator: CoordinatorObject {
         uncompletedBackupCoordinator = coordinator
     }
 
-    private func setupMainBottomSheetCoordinator() {
-        guard FeatureProvider.isAvailable(.mainScreenBottomSheet) else {
+    /// - Note: The coordinator is set up only once and only when the feature toggle is enabled.
+    private func setupMainBottomSheetCoordinatorIfNeeded() {
+        guard
+            FeatureProvider.isAvailable(.mainScreenBottomSheet),
+            mainBottomSheetCoordinator == nil
+        else {
             return
         }
 
@@ -139,6 +147,11 @@ class AppCoordinator: CoordinatorObject {
                     self?.handleLock(reason: reason)
                 }
             }
+            .store(in: &bag)
+
+        bottomSheetVisibility
+            .isShown
+            .assign(to: \.isMainBottomSheetShown, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
