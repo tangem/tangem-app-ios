@@ -22,7 +22,6 @@ struct ManageTokensView: View {
         }
         .scrollDismissesKeyboardCompat(true)
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
     }
 
     private var header: some View {
