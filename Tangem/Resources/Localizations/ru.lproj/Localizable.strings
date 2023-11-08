@@ -11,7 +11,7 @@
 "alert_failed_to_send_transaction_message" = "Причина: %@";
 "alert_manage_tokens_unsupported_blockchain_by_card_message" = "Выбранный кошелёк не поддерживает сеть %1$@";
 "alert_manage_tokens_unsupported_curve_message" = "Для активации криптографии сети %1$@ необходимо сбросить кошелек до заводских настроек. Пожалуйста, выведите свои средства, чтобы не потерять их, после сброса доступ к текущему кошельку будет невозможен.";
-"alert_manage_tokens_unsupported_message" = "Токены в сети Solana не поддерживаются этой картой из-за ограничений прошивки.";
+"alert_manage_tokens_unsupported_message" = "Токены в сети %1$@ не поддерживаются этой картой из-за ограничений прошивки.";
 "alert_negative_app_rate_sent_message" = "Спасибо за ваш отзыв. Мы ответим в кратчайшие сроки.";
 "alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
 "alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту в точности, как показано на анимации, или запросите поддержку.";
