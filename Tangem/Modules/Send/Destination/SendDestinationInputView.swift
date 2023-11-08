@@ -95,9 +95,9 @@ struct SendDestinationInputView: View {
                         .padding(.vertical, 6)
                         .padding(.horizontal, 12)
                         .background(viewModel.hasTextInClipboard ? Colors.Button.primary : Colors.Button.disabled)
-                        .disabled(!viewModel.hasTextInClipboard)
                         .clipShape(Capsule())
                 }
+                .disabled(!viewModel.hasTextInClipboard)
             }
         }
     }
