@@ -94,6 +94,7 @@
 "common_no_data" = "Нет данных";
 "common_ok" = "OK";
 "common_origin_card" = "Основная карта";
+"common_paste" = "Вставить";
 "common_push" = "Ускорить";
 "common_receive" = "Получить";
 "common_reject" = "Отклонить";
