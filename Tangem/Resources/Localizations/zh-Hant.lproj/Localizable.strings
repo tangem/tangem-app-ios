@@ -94,6 +94,7 @@
 "common_no_data" = "No data";
 "common_ok" = "OK";
 "common_origin_card" = "主卡片";
+"common_paste" = "Paste";
 "common_push" = "推送";
 "common_receive" = "Receive";
 "common_reject" = "拒絕";
