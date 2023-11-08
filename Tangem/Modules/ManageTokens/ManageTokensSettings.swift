@@ -17,4 +17,5 @@ struct ManageTokensSettings {
     let derivationStyle: DerivationStyle?
     let shouldShowLegacyDerivationAlert: Bool
     let existingCurves: [EllipticCurve]
+    let isAvailableTokenSelection: Bool
 }

@@ -12,12 +12,7 @@ import Combine
 import BlockchainSdk
 import TangemSdk
 
-final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject, WalletSelectorDelegate {
-    // MARK: - Injected Properties
-
-    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
+final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject {
     // MARK: - Published Properties
 
     @Published var currentWalletName: String = ""
@@ -38,13 +33,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private var bag = Set<AnyCancellable>()
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
+    private let networkDataSource: ManageTokensNetworkDataSource
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
-    private let walletSelectorProvider = WalletSelectorProvider()
-    private let networkDataSource: ManageTokensNetworkDataSource
-
     private let coinModel: CoinModel
-    private let userWalletModels: [UserWalletModel]
     private var selectedUserWalletModel: UserWalletModel?
 
     private var settings: ManageTokensSettings? {
@@ -62,14 +54,15 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
             derivationStyle: userWalletModel.config.derivationStyle,
             shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: userWalletModel.config.walletCurves
+            existingCurves: userWalletModel.config.walletCurves,
+            isAvailableTokenSelection: true
         )
 
         return settings
     }
 
     private var userTokensManager: UserTokensManager? {
-        userWalletRepository.selectedModel?.userTokensManager
+        selectedUserWalletModel?.userTokensManager
     }
 
     // MARK: - Init
@@ -80,23 +73,17 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     ) {
         self.coinModel = coinModel
         self.coordinator = coordinator
+        networkDataSource = ManageTokensNetworkDataSource(coinId: coinModel.id)
 
-        networkDataSource = .init(coinId: coinModel.id)
+        bind()
 
-        userWalletModels = walletSelectorProvider.userWalletModels(for: coinModel.id)
-
-        networkDataSource.selectedUserWalletModelPublisher
-            .sink { [weak self] userWalletModel in
-                self?.selectedUserWalletModel = userWalletModel
-                self?.currentWalletName = userWalletModel?.config.cardName ?? ""
-            }
-            .store(in: &bag)
+        // Need use after binding for selectedUserWalletModelPublisher property
+        networkDataSource.prepare()
     }
 
     // MARK: - Implementation
 
     func onAppear() {
-        setNeedDisplaySupportsNotifications()
         fillSelectorItemsFromTokenItems()
     }
 
@@ -117,23 +104,31 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Implementation
 
-    private func setNeedDisplaySupportsNotifications() {
-        if walletSelectorProvider.isCurrentSelectedNonMultiUserWalletModel(by: coinModel.id, with: userWalletModels) {
-            let notificationsFactory = NotificationsFactory()
+    private func bind() {
+        networkDataSource.selectedUserWalletModelPublisher
+            .sink { [weak self] userWalletModel in
+                self?.didSelect(userWalletModel)
+            }
+            .store(in: &bag)
+    }
 
-            notificationInput = notificationsFactory.buildNotificationInput(
-                for: .walletSupportsOnlyOneCurrency(description:
-                    Localization.manageTokensWalletSupportOnlyOneNetworkDescription(
-                        coinModel.name,
-                        coinModel.symbol
-                    )
-                ),
-                action: { _ in },
-                buttonAction: { _, _ in },
-                dismissAction: { _ in }
+    private func setNeedDisplayNotifications() {
+        notificationInput = nil
+
+        guard networkDataSource.userWalletModels.isEmpty else {
+            return
+        }
+
+        if networkDataSource.isSelectedNonMultiUserWalletModelForCoinId() {
+            // Display flow notifications if use only single currency wallets
+            displayWarningNotification(
+                for: .failedSupportedSingleCurrencyWallet(
+                    description: Localization.manageTokensWalletSupportOnlyOneNetworkDescription(coinModel.name, coinModel.symbol)
+                )
             )
         } else {
-            notificationInput = nil
+            // Display flow notifications if list of wallets not supported current coinId
+            displayWarningNotification(for: .failedSupportedBlockchainByWallets)
         }
     }
 
@@ -152,7 +147,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     iconNameSelected: $0.blockchain.iconNameFilled,
                     networkName: $0.networkName,
                     tokenTypeName: nil,
-                    isSelected: bindSelection($0)
+                    isSelected: bindSelection($0),
+                    isAvailable: settings?.isAvailableTokenSelection ?? false
                 )
             }
 
@@ -168,7 +164,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     iconNameSelected: $0.blockchain.iconNameFilled,
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
-                    isSelected: bindSelection($0)
+                    isSelected: bindSelection($0),
+                    isAvailable: settings?.isAvailableTokenSelection ?? false
                 )
             }
     }
@@ -244,10 +241,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         ])
     }
 
-    // MARK: - ManageTokensNetworkSelectorViewModel
-
-    func didSelectWallet(with userWalletId: Data) {
-        if selectedUserWalletModel?.userWalletId.value != userWalletId {
+    private func didSelect(_ userWalletModel: UserWalletModel?) {
+        if selectedUserWalletModel?.userWalletId != userWalletModel?.userWalletId {
             Analytics.log(
                 event: .manageTokensWalletSelected,
                 params: [.source: Analytics.ParameterValue.mainToken.rawValue]
@@ -257,9 +252,11 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd = []
         pendingRemove = []
 
-        selectedUserWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
+        selectedUserWalletModel = userWalletModel
+        currentWalletName = userWalletModel?.config.cardName ?? ""
 
         fillSelectorItemsFromTokenItems()
+        setNeedDisplayNotifications()
     }
 }
 
@@ -375,6 +372,17 @@ private extension ManageTokensNetworkSelectorViewModel {
             )
         }
     }
+
+    func displayWarningNotification(for event: WarningEvent) {
+        let notificationsFactory = NotificationsFactory()
+
+        notificationInput = notificationsFactory.buildNotificationInput(
+            for: event,
+            action: { _ in },
+            buttonAction: { _, _ in },
+            dismissAction: { _ in }
+        )
+    }
 }
 
 // MARK: - Errors
@@ -392,7 +400,7 @@ private extension ManageTokensNetworkSelectorViewModel {
             case .failedSupportedCurve(let tokenItem):
                 return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
             case .failedSupportedBlockchainByCard:
-                return nil
+                return "Wallet Incompatible with Selected Coin"
             }
         }
 

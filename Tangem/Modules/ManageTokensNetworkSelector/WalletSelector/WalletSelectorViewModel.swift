@@ -12,7 +12,10 @@ import Combine
 class WalletSelectorViewModel: ObservableObject {
     var itemViewModels: [WalletSelectorItemViewModel] = []
 
-    weak var dataSource: WalletSelectorDataSource?
+    private weak var dataSource: WalletSelectorDataSource?
+    private var bag = Set<AnyCancellable>()
+
+    // MARK: - Init
 
     init(dataSource: WalletSelectorDataSource?) {
         self.dataSource = dataSource
@@ -21,10 +24,14 @@ class WalletSelectorViewModel: ObservableObject {
     }
 
     func bind() {
-        dataSource?.selectedUserWalletModelPublisher.sink(receiveValue: { userWalletModel in
-            let itemViewModel = itemViewModels.first(where: { $0.id == userWalletModel. })
-        })
-        
+        dataSource?.selectedUserWalletModelPublisher
+            .sink { [weak self] userWalletModel in
+                self?.itemViewModels.forEach { item in
+                    item.isSelected = item.id == userWalletModel?.userWalletId
+                }
+            }
+            .store(in: &bag)
+
         itemViewModels = dataSource?.userWalletModels.map { userWalletModel in
             WalletSelectorItemViewModel(
                 userWallet: userWalletModel,
