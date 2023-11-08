@@ -34,6 +34,9 @@
 		2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */; };
 		2DAA9BD02AE9A4D200549886 /* ManageTokensSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAA9BCF2AE9A4D200549886 /* ManageTokensSettings.swift */; };
 		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
+		2DB6C6CE2AFBD015000D0C6A /* WalletSelectorDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6C6CD2AFBD015000D0C6A /* WalletSelectorDataSource.swift */; };
+		2DB6C6D02AFBD131000D0C6A /* WalletSelectorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6C6CF2AFBD131000D0C6A /* WalletSelectorProvider.swift */; };
+		2DB6C6D22AFBD154000D0C6A /* ManageTokensNetworkDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6C6D12AFBD154000D0C6A /* ManageTokensNetworkDataSource.swift */; };
 		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
 		2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
@@ -1264,6 +1267,9 @@
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DAA9BCF2AE9A4D200549886 /* ManageTokensSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensSettings.swift; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
+		2DB6C6CD2AFBD015000D0C6A /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
+		2DB6C6CF2AFBD131000D0C6A /* WalletSelectorProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorProvider.swift; sourceTree = "<group>"; };
+		2DB6C6D12AFBD154000D0C6A /* ManageTokensNetworkDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkDataSource.swift; sourceTree = "<group>"; };
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesViewModel.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
@@ -2544,6 +2550,7 @@
 				2D5EBAA42ADD15EA00A25AC4 /* ManageTokensNetworkSelectorCoordinatorView.swift */,
 				2D1146A42ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift */,
 				2D1146A52ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift */,
+				2DB6C6D12AFBD154000D0C6A /* ManageTokensNetworkDataSource.swift */,
 			);
 			name = ManageTokensNetworkSelector;
 			path = Tangem/Modules/ManageTokensNetworkSelector;
@@ -2557,6 +2564,8 @@
 				2D788E812ADD657000E0884B /* WalletSelectorItemView.swift */,
 				2D788E822ADD657000E0884B /* WalletSelectorView.swift */,
 				2D788E832ADD657000E0884B /* WalletSelectorDelegate.swift */,
+				2DB6C6CD2AFBD015000D0C6A /* WalletSelectorDataSource.swift */,
+				2DB6C6CF2AFBD131000D0C6A /* WalletSelectorProvider.swift */,
 			);
 			path = WalletSelector;
 			sourceTree = "<group>";
@@ -7141,6 +7150,7 @@
 				B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
+				2DB6C6D02AFBD131000D0C6A /* WalletSelectorProvider.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
 				B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */,
 				2D805ECA29ADE17100C030F7 /* ExchangeButtonStateType.swift in Sources */,
@@ -7471,6 +7481,7 @@
 				B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				DC3B49F62893E51B00C207EA /* UserWalletConfig.swift in Sources */,
+				2DB6C6D22AFBD154000D0C6A /* ManageTokensNetworkDataSource.swift in Sources */,
 				B03156AA2A8636CB001D9646 /* TokenItemViewState+WalletModelState.swift in Sources */,
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
@@ -7738,6 +7749,7 @@
 				EF11DD8A293789C60044B33C /* SwappingSuccessRoutable.swift in Sources */,
 				EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
+				2DB6C6CE2AFBD015000D0C6A /* WalletSelectorDataSource.swift in Sources */,
 				DAC53CFB27BE63830027147D /* CurrenciesStoryPage.swift in Sources */,
 				65B4DEDA28835C82001524CF /* LegacyBottomSheetModifier.swift in Sources */,
 				DCAB5800295EE820005D0F4A /* AppLog.swift in Sources */,
