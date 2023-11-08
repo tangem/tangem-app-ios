@@ -17,17 +17,41 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     var userWalletModels: [UserWalletModel] = []
     var selectedUserWalletModelPublisher: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
+    // MARK: - Private Implementation
+
+    private let coinId: String
+
     // MARK: - Init
 
-    init(coinId: String?) {
+    init(coinId: String) {
+        self.coinId = coinId
+    }
+
+    // MARK: - Public Implementation
+
+    func prepare() {
         userWalletModels = userWalletModels(for: coinId)
-        selectedUserWalletModelPublisher = .init(selectedUserWalletModel(from: userWalletModels))
+
+        let selectedUserWalletModel = selectedUserWalletModel()
+        selectedUserWalletModelPublisher.send(selectedUserWalletModel)
     }
 
     // MARK: - Implementation
 
+    /// Return flag if find sing currency wallet supported coinId
+    public func isSelectedNonMultiUserWalletModelForCoinId() -> Bool {
+        let singleCurrencyUserWalletModels = userWalletRepository.models.filter { userWalletModel in
+            guard !userWalletModel.isMultiWallet else { return false }
+            return userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId == coinId })
+        }
+
+        return !singleCurrencyUserWalletModels.isEmpty
+    }
+
+    // MARK: - Private Implementation
+
     /// Full Available list of wallets for selection
-    func userWalletModels(for coinId: String?) -> [UserWalletModel] {
+    private func userWalletModels(for coinId: String?) -> [UserWalletModel] {
         userWalletRepository.models.filter { userWalletModel in
             let walletCondition = userWalletModel.isMultiWallet && !userWalletModel.isUserWalletLocked
 
@@ -40,20 +64,9 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     }
 
     /// Return of first selected wallet for diplay
-    func selectedUserWalletModel(from userWalletModels: [UserWalletModel]) -> UserWalletModel? {
+    private func selectedUserWalletModel() -> UserWalletModel? {
         userWalletModels.first { userWalletModel in
             userWalletModel.userWalletId == userWalletRepository.selectedUserModelModel?.userWalletId
         } ?? userWalletModels.first
-    }
-
-    /// Return flag if currency selected UserWalletModel is single currency wallet
-    func isCurrentSelectedNonMultiUserWalletModel(by coinId: String, with userWalletModels: [UserWalletModel]) -> Bool {
-        guard let selectedUserModelModel = userWalletRepository.selectedUserModelModel else {
-            return false
-        }
-
-        return userWalletModels.isEmpty &&
-            !selectedUserModelModel.isMultiWallet &&
-            !selectedUserModelModel.config.supportedBlockchains.contains(where: { $0.coinId == coinId })
     }
 }
