@@ -101,7 +101,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func deriveEntriesWithoutDerivation() {
-        Analytics.log(.noticeScanYourCardTapped)
+        Analytics.log(.mainNoticeScanYourCardTapped)
         isScannerBusy = true
         userWalletModel.userTokensManager.deriveIfNeeded { [weak self] _ in
             DispatchQueue.main.async {
@@ -114,7 +114,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         if let cardViewModel = userWalletModel as? CardViewModel,
            let input = cardViewModel.backupInput {
-            Analytics.log(.noticeBackupYourWalletTapped)
+            Analytics.log(.mainNoticeBackupWalletTapped)
             coordinator.openOnboardingModal(with: input)
         }
     }
