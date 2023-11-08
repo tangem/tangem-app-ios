@@ -81,7 +81,7 @@ struct SendDestinationInputView: View {
                 .buttonBorderShape(.capsule)
             } else {
                 Button(action: viewModel.didTapLegacyPasteButton) {
-                    Text("Paste")
+                    Text(Localization.commonPaste)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 12)
