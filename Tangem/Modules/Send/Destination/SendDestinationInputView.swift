@@ -42,6 +42,13 @@ struct SendDestinationInputView: View {
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
         .horizontalPadding(14)
+        .onAppear {
+            viewModel.onAppear()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .receive(on: DispatchQueue.main)) { _ in
+                viewModel.onBecomingActive()
+        }
     }
 
     private var fieldName: some View {
@@ -87,7 +94,8 @@ struct SendDestinationInputView: View {
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 12)
-                        .background(Colors.Button.primary)
+                        .background(viewModel.hasTextInClipboard ? Colors.Button.primary : Colors.Button.disabled)
+                        .disabled(!viewModel.hasTextInClipboard)
                         .clipShape(Capsule())
                 }
             }
