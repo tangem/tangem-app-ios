@@ -60,9 +60,11 @@ struct SendDestinationInputView: View {
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
             if !viewModel.input.wrappedValue.isEmpty {
-                Assets.clear.image
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.informative)
+                Button(action: viewModel.clearInput) {
+                    Assets.clear.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.informative)
+                }
             }
         }
     }
