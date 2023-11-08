@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-/// A temporary entity for integration and testing, subject to change.
 final class MainBottomSheetContentViewModel: ObservableObject {
     // MARK: - ViewModel
 
