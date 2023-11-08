@@ -51,9 +51,16 @@ struct SendDestinationInputView: View {
         }
     }
 
+    @ViewBuilder
     private var fieldName: some View {
-        Text(viewModel.name)
-            .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+        if let errorText = viewModel.errorText {
+            Text(errorText)
+                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                .lineLimit(1)
+        } else {
+            Text(viewModel.name)
+                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+        }
     }
 
     private var addressIconView: some View {
