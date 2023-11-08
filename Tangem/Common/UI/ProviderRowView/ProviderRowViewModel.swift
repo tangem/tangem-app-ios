@@ -19,7 +19,7 @@ struct ProviderRowViewModel {
 
 extension ProviderRowViewModel: Hashable, Identifiable {
     var id: Int { hashValue }
-    
+
     static func == (lhs: ProviderRowViewModel, rhs: ProviderRowViewModel) -> Bool {
         lhs.id == rhs.id
     }
