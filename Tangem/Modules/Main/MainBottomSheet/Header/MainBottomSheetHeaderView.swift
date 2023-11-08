@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-/// A temporary entity for integration and testing, subject to change.
 struct MainBottomSheetHeaderView: View {
     @Binding private var searchText: String
     private let textFieldAllowsHitTesting: Bool
