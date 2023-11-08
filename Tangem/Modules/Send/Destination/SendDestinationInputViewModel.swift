@@ -33,4 +33,8 @@ class SendDestinationInputViewModel: Identifiable {
 
         didPasteAddress([input])
     }
+
+    func clearInput() {
+        input.wrappedValue = ""
+    }
 }
