@@ -138,8 +138,12 @@ struct TransactionsListView: View {
                         if #available(iOS 15, *) {
                             makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
                         } else {
+                            Spacer(minLength: 0)
+                            
                             // Remove vertical padding from iOS 14 header to make it fit into fixed-height cell
                             makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: false)
+                            
+                            Spacer(minLength: 0)
                         }
                     }
                     .ios14FixedHeight(Constants.ios14ListItemHeight)
