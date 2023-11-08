@@ -11,7 +11,7 @@
 "alert_failed_to_send_transaction_message" = "原因：%@";
 "alert_manage_tokens_unsupported_blockchain_by_card_message" = "The selected does not support the %1$@ network";
 "alert_manage_tokens_unsupported_curve_message" = "To activate the %1$@ blockchain's cryptographic encryption, you'll need to reset the wallet to factory settings. Please withdraw your funds before doing so to ensure that you don't lose them, and then complete the reset process. Access to the current wallet will not be possible after the reset.";
-"alert_manage_tokens_unsupported_message" = "此卡不支持Solana網路上的代幣因為韌體限制";
+"alert_manage_tokens_unsupported_message" = "此卡不支持%1$@網路上的代幣因為韌體限制";
 "alert_negative_app_rate_sent_message" = "感謝您的反饋。我們會盡快回复";
 "alert_negative_app_rate_sent_title" = "你的建議已送出";
 "alert_troubleshooting_scan_card_message" = "請嘗試完全按照動畫中顯示的方式點擊卡片或請求支持";
@@ -180,6 +180,10 @@
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
 "exchange_receive_view_header" = "您收到";
 "exchange_send_view_header" = "您發送";
+"express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token exchanges";
+"express_choose_providers_title" = "Choose Provider";
+"express_provider_best_rate" = "Best Rate";
+"express_provider_permission_needed" = "Permission Needed";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
 "feedback_preface_support" = "嗨! 幫助團隊，";
