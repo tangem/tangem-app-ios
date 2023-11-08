@@ -55,6 +55,10 @@ public enum IPhoneModel {
     case iPhone14Plus
     case iPhone14Pro
     case iPhone14ProMax
+    case iPhone15
+    case iPhone15Plus
+    case iPhone15Pro
+    case iPhone15ProMax
 
     init?(identifier: String) {
         switch identifier {
@@ -86,6 +90,10 @@ public enum IPhoneModel {
         case "iPhone14,8": self = .iPhone14Plus
         case "iPhone15,2": self = .iPhone14Pro
         case "iPhone15,3": self = .iPhone14ProMax
+        case "iPhone15,4": self = .iPhone15
+        case "iPhone15,5": self = .iPhone15Plus
+        case "iPhone16,1": self = .iPhone15Pro
+        case "iPhone16,2": self = .iPhone15ProMax
         default:
             return nil
         }
@@ -121,6 +129,10 @@ public enum IPhoneModel {
         case .iPhone14Plus: return "iPhone 14 Plus"
         case .iPhone14Pro: return "iPhone 14 Pro"
         case .iPhone14ProMax: return "iPhone 14 Pro Max"
+        case .iPhone15: return "iPhone 15"
+        case .iPhone15Plus: return "iPhone 15 Plus"
+        case .iPhone15Pro: return "iPhone 15 Pro"
+        case .iPhone15ProMax: return "iPhone 15 Pro Max"
         }
     }
 }
