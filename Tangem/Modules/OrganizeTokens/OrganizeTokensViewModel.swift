@@ -25,7 +25,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     private unowned let coordinator: OrganizeTokensRoutable
 
-    private let walletModelsManager: WalletModelsManager
+    private let userWalletModel: UserWalletModel
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let optionsProviding: OrganizeTokensOptionsProviding
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -46,13 +46,13 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     init(
         coordinator: OrganizeTokensRoutable,
-        walletModelsManager: WalletModelsManager,
+        userWalletModel: UserWalletModel,
         tokenSectionsAdapter: TokenSectionsAdapter,
         optionsProviding: OrganizeTokensOptionsProviding,
         optionsEditing: OrganizeTokensOptionsEditing
     ) {
         self.coordinator = coordinator
-        self.walletModelsManager = walletModelsManager
+        self.userWalletModel = userWalletModel
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.optionsProviding = optionsProviding
         self.optionsEditing = optionsEditing
@@ -79,7 +79,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         if didBind { return }
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: walletModelsManager)
+        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
