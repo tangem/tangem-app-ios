@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-/// A temporary entity for integration and testing, subject to change.
 struct MainBottomSheetContentView: View {
     @ObservedObject var viewModel: MainBottomSheetContentViewModel
 
