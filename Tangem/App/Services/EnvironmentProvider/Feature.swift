@@ -17,6 +17,7 @@ enum Feature: String, Hashable, CaseIterable {
     case sendV2
     case manageTokens
     case sprinklr
+    case dynamicFonts
 
     var name: String {
         switch self {
@@ -28,6 +29,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendV2: return "Send screen 2.0"
         case .manageTokens: return "Manage tokens screen [TokenList 2.0]"
         case .sprinklr: return "Sprinklr support chat"
+        case .dynamicFonts: return "Dynamic fonts"
         }
     }
 
@@ -41,6 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendV2: return .unspecified
         case .manageTokens: return .unspecified
         case .sprinklr: return .version("4.11.3")
+        case .dynamicFonts: return .unspecified
         }
     }
 }
