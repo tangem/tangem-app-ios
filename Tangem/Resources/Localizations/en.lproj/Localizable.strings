@@ -94,6 +94,7 @@
 "common_no_data" = "No data";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
+"common_paste" = "Paste";
 "common_push" = "Push";
 "common_receive" = "Receive";
 "common_reject" = "Reject";
