@@ -11,7 +11,5 @@ import Combine
 
 protocol WalletSelectorDataSource: AnyObject {
     var userWalletModels: [UserWalletModel] { get set }
-    var selectedUserWalletId: UserWalletId { get set }
-
-    var selectedUserWalletModelPublisher: AnyPublisher<UserWalletModel, Never> { get set }
+    var selectedUserWalletModelPublisher: CurrentValueSubject<UserWalletModel?, Never> { get set }
 }
