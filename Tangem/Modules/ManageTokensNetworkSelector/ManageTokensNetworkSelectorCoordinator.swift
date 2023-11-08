@@ -44,16 +44,8 @@ extension ManageTokensNetworkSelectorCoordinator {
 extension ManageTokensNetworkSelectorCoordinator: ManageTokensNetworkSelectorRoutable {
     func openAddCustomTokenModule() {}
 
-    func openWalletSelectorModule(
-        userWalletModels: [UserWalletModel],
-        currentUserWalletId: UserWalletId?,
-        delegate: WalletSelectorDelegate?
-    ) {
-        walletSelectorViewModel = .init(
-            userWallets: userWalletModels.map { $0.userWallet },
-            currentUserWalletId: currentUserWalletId?.value
-        )
-        walletSelectorViewModel?.delegate = delegate
+    func openWalletSelectorModule(with dataSource: WalletSelectorDataSource) {
+        walletSelectorViewModel = WalletSelectorViewModel(dataSource: dataSource)
     }
 
     func closeModule() {
