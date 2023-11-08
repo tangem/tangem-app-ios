@@ -19,6 +19,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardSetLabel: String? { get }
 
+    var cardId: String { get }
+
     var cardName: String { get }
 
     var walletCurves: [EllipticCurve] { get }
@@ -126,6 +128,10 @@ protocol CardContainer {
 }
 
 extension UserWalletConfig where Self: CardContainer {
+    var cardId: String {
+        card.cardId
+    }
+
     var walletCurves: [EllipticCurve] {
         card.walletCurves
     }
