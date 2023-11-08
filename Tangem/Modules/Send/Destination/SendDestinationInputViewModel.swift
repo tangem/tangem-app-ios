@@ -14,13 +14,15 @@ class SendDestinationInputViewModel: Identifiable {
     var input: Binding<String>
     let showAddressIcon: Bool
     let placeholder: String
+    let description: String
     let didPasteAddress: ([String]) -> Void
 
-    init(name: String, input: Binding<String>, showAddressIcon: Bool, placeholder: String, didPasteAddress: @escaping ([String]) -> Void) {
+    init(name: String, input: Binding<String>, showAddressIcon: Bool, placeholder: String, description: String, didPasteAddress: @escaping ([String]) -> Void) {
         self.name = name
         self.input = input
         self.showAddressIcon = showAddressIcon
         self.placeholder = placeholder
+        self.description = description
         self.didPasteAddress = didPasteAddress
     }
 
