@@ -135,7 +135,12 @@ struct TransactionsListView: View {
                             header
                         }
 
-                        makeSectionHeader(for: sectionItem, atIndex: sectionIndex)
+                        if #available(iOS 15, *) {
+                            makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
+                        } else {
+                            // Remove vertical padding from iOS 14 header to make it fit into fixed-height cell
+                            makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: false)
+                        }
                     }
                     .ios14FixedHeight(Constants.ios14ListItemHeight)
 
@@ -196,7 +201,7 @@ struct TransactionsListView: View {
     }
 
     @ViewBuilder
-    private func makeSectionHeader(for item: TransactionListItem, atIndex sectionIndex: Int) -> some View {
+    private func makeSectionHeader(for item: TransactionListItem, atIndex sectionIndex: Int, withVerticalPadding useVerticalPadding: Bool) -> some View {
         HStack {
             Text(item.header)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -204,7 +209,7 @@ struct TransactionsListView: View {
             Spacer()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.vertical, useVerticalPadding ? 14 : 0)
     }
 }
 
