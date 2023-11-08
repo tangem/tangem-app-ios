@@ -34,7 +34,7 @@ class WalletSelectorViewModel: ObservableObject {
 
         itemViewModels = dataSource?.userWalletModels.map { userWalletModel in
             WalletSelectorItemViewModel(
-                userWallet: userWalletModel,
+                userWalletModel: userWalletModel,
                 isSelected: userWalletModel.userWalletId == dataSource?.selectedUserWalletModelPublisher.value?.userWalletId,
                 cardImageProvider: CardImageProvider()
             ) { [weak self] userWalletId in
