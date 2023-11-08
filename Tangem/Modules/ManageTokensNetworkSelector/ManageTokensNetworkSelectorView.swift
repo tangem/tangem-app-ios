@@ -20,7 +20,7 @@ struct ManageTokensNetworkSelectorView: View {
                 Spacer(minLength: 14)
             }
 
-            if viewModel.showWalletSelector {
+            if !viewModel.currentWalletName.isEmpty {
                 walletSelectorContent
 
                 Spacer(minLength: 14)
@@ -51,7 +51,7 @@ struct ManageTokensNetworkSelectorView: View {
 
             Spacer(minLength: 0)
 
-            Text(viewModel.currentWalletName ?? "")
+            Text(viewModel.currentWalletName)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
 
             Assets.chevron.image
