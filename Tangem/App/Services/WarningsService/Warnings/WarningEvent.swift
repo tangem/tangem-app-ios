@@ -66,7 +66,7 @@ extension WarningEvent: NotificationEvent {
         case .missingBackup:
             return Localization.warningNoBackupTitle
         case .walletSupportsOnlyOneCurrency:
-            return Localization.manageTokensWalletSupportOnlyOneNetworkTitle
+            return Localization.manageTokensWalletSupportOnlyOneNetworkDescription("", "")
         }
     }
 
