@@ -27,19 +27,19 @@ struct AppCoordinatorView: CoordinatorView {
         }
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
-        .modifier(ifLet: coordinator.mainBottomSheetCoordinator) { view, coordinator in
-            // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally only when
-            // `coordinator.mainBottomSheetViewModel != nil` because this will break the root view's structural identity and
-            // therefore all its state. Therefore `bottomScrollableSheet` view modifier is always applied,
-            // but `header`/`content` views are created only when there is a non-nil `mainBottomSheetViewModel`
+        .modifier(ifLet: coordinator.mainBottomSheetCoordinator) { view, mainBottomSheetCoordinator in
+            // Unfortunately, we can't just apply the `bottomScrollableSheet` modifier here conditionally when
+            // `mainBottomSheetCoordinator.headerViewModel != nil` or `mainBottomSheetCoordinator.contentViewModel != nil`
+            // because this will change the structural identity of `AppCoordinatorView` and therefore all its state.
+            //
+            // Therefore, the `bottomScrollableSheet` view modifier is always applied when the main bottom sheet
+            // coordinator exists, but `header`/`content` views are created only when there is a non-nil
+            // `mainBottomSheetCoordinator.headerViewModel` or `mainBottomSheetCoordinator.contentViewModel`
             view.bottomScrollableSheet(
-                // These required options are temporarily disabled, investigation is needed
-                /*
-                 isHiddenWhenCollapsed: true,
-                 allowsHitTesting: coordinator.contentViewModel != nil,
-                  */
-                header: { MainBottomSheetHeaderCoordinatorView(coordinator: coordinator) },
-                content: { MainBottomSheetContentCoordinatorView(coordinator: coordinator) }
+                isHiddenWhenCollapsed: true,
+                allowsHitTesting: coordinator.isMainBottomSheetShown,
+                header: { MainBottomSheetHeaderCoordinatorView(coordinator: mainBottomSheetCoordinator) },
+                content: { MainBottomSheetContentCoordinatorView(coordinator: mainBottomSheetCoordinator) }
             )
         }
     }
