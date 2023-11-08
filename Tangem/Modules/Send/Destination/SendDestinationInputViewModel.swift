@@ -17,6 +17,8 @@ class SendDestinationInputViewModel: Identifiable {
     let description: String
     let didPasteAddress: ([String]) -> Void
 
+    var hasTextInClipboard = false
+
     init(name: String, input: Binding<String>, showAddressIcon: Bool, placeholder: String, description: String, didPasteAddress: @escaping ([String]) -> Void) {
         self.name = name
         self.input = input
@@ -24,6 +26,31 @@ class SendDestinationInputViewModel: Identifiable {
         self.placeholder = placeholder
         self.description = description
         self.didPasteAddress = didPasteAddress
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updatePasteButton),
+            name: UIPasteboard.changedNotification,
+            object: nil
+        )
+        updatePasteButton()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    func onAppear() {
+        updatePasteButton()
+    }
+
+    func onBecomingActive() {
+        updatePasteButton()
+    }
+
+    @objc
+    func updatePasteButton() {
+        hasTextInClipboard = UIPasteboard.general.hasStrings
     }
 
     func didTapLegacyPasteButton() {
