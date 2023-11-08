@@ -26,7 +26,7 @@ struct ManageTokensView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Coin market cup")
+            Text("Coin market cap")
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .lineLimit(1)
 
