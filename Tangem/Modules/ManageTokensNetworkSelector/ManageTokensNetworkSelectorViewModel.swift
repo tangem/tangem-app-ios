@@ -20,7 +20,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Published Properties
 
-    @Published var showWalletSelector: Bool = false
+    @Published var currentWalletName: String = ""
     @Published var notificationInput: NotificationViewInput?
 
     @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
@@ -34,16 +34,14 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd.isEmpty && pendingRemove.isEmpty
     }
 
-    var currentWalletName: String? {
-        selectedUserWalletModel?.userWallet.name
-    }
-
     // MARK: - Private Implementation
 
+    private var bag = Set<AnyCancellable>()
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
     private let walletSelectorProvider = WalletSelectorProvider()
+    private let networkDataSource: ManageTokensNetworkDataSource
 
     private let coinModel: CoinModel
     private let userWalletModels: [UserWalletModel]
@@ -83,26 +81,28 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinModel = coinModel
         self.coordinator = coordinator
 
+        networkDataSource = .init(coinId: coinModel.id)
+
         userWalletModels = walletSelectorProvider.userWalletModels(for: coinModel.id)
-        selectedUserWalletModel = userWalletRepository.models.first
+
+        networkDataSource.selectedUserWalletModelPublisher
+            .sink { [weak self] userWalletModel in
+                self?.selectedUserWalletModel = userWalletModel
+                self?.currentWalletName = userWalletModel?.config.cardName ?? ""
+            }
+            .store(in: &bag)
     }
 
     // MARK: - Implementation
 
     func onAppear() {
-        setNeedDisplayWalletSelector()
         setNeedDisplaySupportsNotifications()
         fillSelectorItemsFromTokenItems()
     }
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
-
-        coordinator.openWalletSelectorModule(
-            userWalletModels: userWalletModels,
-            currentUserWalletId: selectedUserWalletModel?.userWalletId,
-            delegate: self
-        )
+        coordinator.openWalletSelectorModule(with: networkDataSource)
     }
 
     func displayNonNativeNetworkAlert() {
@@ -116,10 +116,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     // MARK: - Private Implementation
-
-    private func setNeedDisplayWalletSelector() {
-        showWalletSelector = !userWalletModels.isEmpty
-    }
 
     private func setNeedDisplaySupportsNotifications() {
         if walletSelectorProvider.isCurrentSelectedNonMultiUserWalletModel(by: coinModel.id, with: userWalletModels) {
