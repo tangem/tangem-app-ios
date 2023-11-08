@@ -5939,15 +5939,6 @@
 			path = MainBottomSheet;
 			sourceTree = "<group>";
 		};
-		EF763E912A7935C000D12644 /* ScrollViewRepresentable */ = {
-			isa = PBXGroup;
-			children = (
-				EF193BFB2A7793050048C0C3 /* ScrollViewRepresentable.swift */,
-				B6FC07032AC3F989003C2FE2 /* ScrollViewRepresentableDelegate.swift */,
-			);
-			path = ScrollViewRepresentable;
-			sourceTree = "<group>";
-		};
 		EF7B9CED286C6B95004C33A9 /* CardSettings */ = {
 			isa = PBXGroup;
 			children = (
