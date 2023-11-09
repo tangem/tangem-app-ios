@@ -11,19 +11,41 @@ import Foundation
 // MARK: - View model
 
 class SendSuggestedDestinationViewModel {
-    let cellViewModels: [SendSuggestedDestinationViewCellModel]
+    private(set) var cellViewModels: [SendSuggestedDestinationViewCellModel] = []
 
-    init(wallets: [SendSuggestedDestinationWallet], recentTransactions: [SendSuggestedDestinationTransactionRecord]) {
+    private let tapAction: (SendSuggestedDestination) -> Void
+
+    init(wallets: [SendSuggestedDestinationWallet], recentTransactions: [SendSuggestedDestinationTransactionRecord], tapAction: @escaping (SendSuggestedDestination) -> Void) {
+        self.tapAction = tapAction
+
         var cellViewModels: [SendSuggestedDestinationViewCellModel] = []
 
         if !wallets.isEmpty {
-            cellViewModels.append(.init(type: .header(title: Localization.sendRecipientWalletsTitle)))
-            cellViewModels.append(contentsOf: wallets.map { .init(type: .wallet(wallet: $0)) })
+            cellViewModels.append(SendSuggestedDestinationViewCellModel(type: .header(title: Localization.sendRecipientWalletsTitle), tapAction: nil))
+            cellViewModels.append(
+                contentsOf: wallets.map { [weak self] wallet in
+                    SendSuggestedDestinationViewCellModel(
+                        type: .wallet(wallet: wallet),
+                        tapAction: {
+                            self?.tapAction(SendSuggestedDestination(address: wallet.address, additionalField: nil))
+                        }
+                    )
+                }
+            )
         }
 
         if !recentTransactions.isEmpty {
-            cellViewModels.append(.init(type: .header(title: Localization.sendRecentTransactions)))
-            cellViewModels.append(contentsOf: recentTransactions.map { .init(type: .recentTransaction(record: $0)) })
+            cellViewModels.append(SendSuggestedDestinationViewCellModel(type: .header(title: Localization.sendRecentTransactions), tapAction: nil))
+            cellViewModels.append(
+                contentsOf: recentTransactions.map { [weak self] record in
+                    SendSuggestedDestinationViewCellModel(
+                        type: .recentTransaction(record: record),
+                        tapAction: {
+                            self?.tapAction(SendSuggestedDestination(address: record.address, additionalField: record.additionalField))
+                        }
+                    )
+                }
+            )
         }
 
         self.cellViewModels = cellViewModels
@@ -34,9 +56,11 @@ class SendSuggestedDestinationViewModel {
 
 class SendSuggestedDestinationViewCellModel: Identifiable {
     let type: `Type`
+    let tapAction: (() -> Void)?
 
-    init(type: Type) {
+    init(type: Type, tapAction: (() -> Void)?) {
         self.type = type
+        self.tapAction = tapAction
     }
 }
 
@@ -50,6 +74,11 @@ extension SendSuggestedDestinationViewCellModel {
     }
 }
 
+struct SendSuggestedDestination {
+    let address: String
+    let additionalField: String?
+}
+
 struct SendSuggestedDestinationWallet {
     let name: String
     let address: String
@@ -57,6 +86,7 @@ struct SendSuggestedDestinationWallet {
 
 struct SendSuggestedDestinationTransactionRecord {
     let address: String
+    let additionalField: String?
     let isOutgoing: Bool
     let description: String
 }
