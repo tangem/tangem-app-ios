@@ -21,6 +21,7 @@ class WalletSelectorViewModel: ObservableObject {
         self.dataSource = dataSource
 
         bind()
+        fillItemViewModels()
     }
 
     func bind() {
@@ -31,7 +32,9 @@ class WalletSelectorViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
 
+    func fillItemViewModels() {
         itemViewModels = dataSource?.userWalletModels.map { userWalletModel in
             WalletSelectorItemViewModel(
                 userWalletModel: userWalletModel,
