@@ -55,7 +55,7 @@ struct ManageTokensView: View {
     }
 
     private var addCutomTokenView: some View {
-        AddCustomTokenManageTokensItemView {
+        ManageTokensAddCustomItemView {
             viewModel.addCustomTokenDidTapAction()
         }
     }
