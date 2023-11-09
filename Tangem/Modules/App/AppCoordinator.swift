@@ -32,6 +32,7 @@ class AppCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published private(set) var mainBottomSheetViewModel: MainBottomSheetViewModel?
+    private lazy var __mainBottomSheetViewModel = MainBottomSheetViewModel()
 
     // MARK: - View State
 
@@ -129,13 +130,11 @@ class AppCoordinator: CoordinatorObject {
             }
             .store(in: &bag)
 
-        // This single VM instance is intentionally strongly captured
-        // below in the `map` closure to prevent it from deallocation
-        let mainBottomSheetViewModel = MainBottomSheetViewModel()
-
         bottomSheetVisibility
             .isShown
-            .map { $0 ? mainBottomSheetViewModel : nil }
+            .map { [weak self] isShown in
+                return isShown ? self?.__mainBottomSheetViewModel : nil
+            }
             .assign(to: \.mainBottomSheetViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
