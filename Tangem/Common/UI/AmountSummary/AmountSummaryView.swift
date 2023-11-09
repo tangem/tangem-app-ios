@@ -46,7 +46,6 @@ struct AmountSummaryView: View {
             .padding(.vertical, 12)
         }
         .horizontalPadding(14)
-        .separatorStyle(.single)
     }
 }
 
