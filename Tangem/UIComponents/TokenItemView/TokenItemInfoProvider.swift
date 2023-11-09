@@ -11,6 +11,7 @@ import BlockchainSdk
 
 protocol TokenItemInfoProvider: AnyObject {
     var id: Int { get }
+    var tokenItemState: TokenItemViewState { get }
     var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { get }
     var tokenItem: TokenItem { get }
     var hasPendingTransactions: Bool { get }

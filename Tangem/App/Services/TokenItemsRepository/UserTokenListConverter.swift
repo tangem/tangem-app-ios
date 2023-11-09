@@ -104,7 +104,7 @@ struct UserTokenListConverter {
             }
 
         return StoredUserTokenList(
-            entries: entries,
+            entries: entries.unique(),
             grouping: convertToGroupingOption(groupType: remoteUserTokenList.group),
             sorting: convertToSortingOption(sortType: remoteUserTokenList.sort)
         )
