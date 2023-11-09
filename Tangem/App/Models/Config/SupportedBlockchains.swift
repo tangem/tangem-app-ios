@@ -58,7 +58,6 @@ struct SupportedBlockchains {
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
         [
-            .telos(testnet: false),
             .azero(curve: ed25519Curve(for: version), testnet: false),
             .chia(testnet: false),
         ]
@@ -105,6 +104,7 @@ struct SupportedBlockchains {
             .chia(testnet: false),
             .ducatus,
             .near(curve: ed25519Curve(for: version), testnet: false),
+            .telos(testnet: false),
         ]
     }
 
