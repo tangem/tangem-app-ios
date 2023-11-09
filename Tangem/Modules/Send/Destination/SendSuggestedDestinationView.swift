@@ -18,19 +18,30 @@ struct SendSuggestedDestinationView: View {
     var body: some View {
         GroupedScrollView {
             GroupedSection(viewModel.cellViewModels) { cellViewModel in
-                switch cellViewModel.type {
-                case .header(let title):
-                    headerView(for: title)
-                case .wallet(let wallet):
-                    walletView(for: wallet)
-                case .recentTransaction(let record):
-                    transactionView(for: record)
+                if let tapAction = cellViewModel.tapAction {
+                    Button(action: tapAction) {
+                        cellView(for: cellViewModel.type)
+                    }
+                } else {
+                    cellView(for: cellViewModel.type)
                 }
             }
             .separatorStyle(.none)
             .horizontalPadding(14)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    }
+
+    @ViewBuilder
+    private func cellView(for type: SendSuggestedDestinationViewCellModel.`Type`) -> some View {
+        switch type {
+        case .header(let title):
+            headerView(for: title)
+        case .wallet(let wallet):
+            walletView(for: wallet)
+        case .recentTransaction(let record):
+            transactionView(for: record)
+        }
     }
 
     @ViewBuilder
@@ -99,6 +110,7 @@ struct SendSuggestedDestinationView: View {
             .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             .truncationMode(.middle)
             .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -111,10 +123,11 @@ struct SendSuggestedDestinationView: View {
                 .init(name: "Main Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
             ],
             recentTransactions: [
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
-                .init(address: "0x391316d97a07027a", isOutgoing: true, description: "1 USDT, today at 14:46"),
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: false, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
-            ]
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
+                .init(address: "0x391316d97a07027a", additionalField: "123142", isOutgoing: true, description: "1 USDT, today at 14:46"),
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
+            ],
+            tapAction: { _ in }
         )
     )
 }
@@ -126,9 +139,10 @@ struct SendSuggestedDestinationView: View {
                 .init(name: "Main Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
             ],
             recentTransactions: [
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: true, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
-            ]
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: true, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
+            ],
+            tapAction: { _ in }
         )
     )
 }
