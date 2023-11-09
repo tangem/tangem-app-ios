@@ -12,30 +12,29 @@ struct ThemeSelectionView: View {
     @ObservedObject var viewModel: ThemeSelectionViewModel
 
     var body: some View {
-        ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
-
-            GroupedScrollView {
-                SelectableGropedSection(
-                    viewModel.themeViewModels,
-                    selection: $viewModel.currentThemeOption,
-                    content: {
-                        DefaultSelectableRowView(viewModel: $0)
-                    },
-                    footer: {
-                        Text(Localization.appSettingsThemeSelectionFooter)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    }
-                )
-            }
+        GroupedScrollView {
+            SelectableGropedSection(
+                viewModel.themeViewModels,
+                selection: $viewModel.currentThemeOption,
+                content: {
+                    DefaultSelectableRowView(viewModel: $0)
+                },
+                footer: {
+                    Text(Localization.appSettingsThemeSelectionFooter)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                }
+            )
         }
+        .background(Colors.Background.secondary.ignoresSafeArea(edges: .all))
         .navigationTitle(Text(Localization.appSettingsThemeSelectorTitle))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-#Preview {
-    NavigationView(content: {
-        ThemeSelectionView(viewModel: .init())
-    })
+struct ThemeSelectionView_Preview: PreviewProvider {
+    static var previews: some View {
+        NavigationView(content: {
+            ThemeSelectionView(viewModel: .init())
+        })
+    }
 }
