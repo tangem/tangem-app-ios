@@ -24,7 +24,7 @@ extension CommonAllowanceProvider {
 protocol AllowanceProvider {
     func getAllowance(from spender: String) async throws -> Decimal
     func getApproveData(from spender: String, policy: SwappingApprovePolicy) -> Data
-    
+
     func getSwappingApprovePolicy() -> SwappingApprovePolicy
     func getSwappingGasPricePolicy() -> SwappingGasPricePolicy
     func isEnoughAllowance() -> Bool
@@ -46,9 +46,9 @@ class ExpressInteraction {
 //    private let blockchainNetwork: BlockchainNetwork
 
     // MARK: - Private
-    
+
     // MARK: - Options
-    
+
     private var approvePolicy: SwappingApprovePolicy = .unlimited
     private var gasPricePolicy: SwappingGasPricePolicy = .normal
 
@@ -131,8 +131,8 @@ extension ExpressInteraction {
         updateState(.loading(type))
         updateStateTask = Task { [weak self] in
             guard let self else { return }
-            let state = await self.swappingManager.refresh(type: type)
-            self.updateState(state)
+            let state = await swappingManager.refresh(type: type)
+            updateState(state)
         }
     }
 
