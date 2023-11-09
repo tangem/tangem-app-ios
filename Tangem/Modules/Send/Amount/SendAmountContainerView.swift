@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-class SendAmountContainerViewModel: Identifiable {
+class SendAmountContainerViewModel: ObservableObject, Identifiable {
     let walletName: String = "Family Wallet"
     let balance: String = "2 130,88 USDT (2 129,92 $)"
 
@@ -18,7 +18,9 @@ class SendAmountContainerViewModel: Identifiable {
     let tokenIconBlockchainIconName: String? = "ethereum.fill"
     let isCustomToken: Bool = false
 
-    var decimalValue: Binding<DecimalNumberTextField.DecimalValue?> = .constant(DecimalNumberTextField.DecimalValue.internal(1))
+    //    [REDACTED_USERNAME] var decimalValue2: DecimalNumberTextField.DecimalValue?
+
+    var decimalValue: Binding<DecimalNumberTextField.DecimalValue?>
     var amountInput: Binding<String> = .constant("0,00")
     let amountPlaceholder: String = "0,00"
 
@@ -27,10 +29,14 @@ class SendAmountContainerViewModel: Identifiable {
     let amountAlternative: String = "0,00 $"
 
     var error: String? = "Insufficient funds for transfer"
+
+    init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>) {
+        self.decimalValue = decimalValue
+    }
 }
 
 struct SendAmountContainerView: View {
-    let viewModel: SendAmountContainerViewModel
+    @ObservedObject var viewModel: SendAmountContainerViewModel
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
@@ -78,7 +84,7 @@ struct SendAmountContainerView: View {
 
 #Preview("Figma") {
     GroupedScrollView {
-        SendAmountContainerView(viewModel: SendAmountContainerViewModel())
+        SendAmountContainerView(viewModel: SendAmountContainerViewModel(decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(1))))
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
