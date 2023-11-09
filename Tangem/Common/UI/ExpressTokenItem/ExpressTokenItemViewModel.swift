@@ -9,9 +9,7 @@
 import Foundation
 
 struct ExpressTokenItemViewModel: Identifiable {
-    var id: String { tokenId }
-
-    let tokenId: String
+    let id: String
     let tokenIconItem: TokenIconItemViewModel
     let name: String
     let symbol: String
@@ -31,7 +29,7 @@ struct ExpressTokenItemViewModel: Identifiable {
     private let fiatBalance: Decimal?
 
     init(
-        tokenId: String,
+        id: String,
         tokenIconItem: TokenIconItemViewModel,
         name: String,
         symbol: String,
@@ -40,7 +38,7 @@ struct ExpressTokenItemViewModel: Identifiable {
         isDisable: Bool,
         itemDidTap: @escaping () -> Void
     ) {
-        self.tokenId = tokenId
+        self.id = id
         self.tokenIconItem = tokenIconItem
         self.name = name
         self.symbol = symbol
