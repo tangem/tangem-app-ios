@@ -38,6 +38,12 @@ final class ManageTokensViewModel: ObservableObject {
     private var cacheExistListCoinId: [String] = []
     private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
+    private var userWalletModels: [UserWalletModel] {
+        userWalletRepository.models.filter { !$0.isUserWalletLocked }
+    }
+
+    // MARK: - Init
+
     init(coordinator: ManageTokensRoutable) {
         self.coordinator = coordinator
 
@@ -92,7 +98,7 @@ private extension ManageTokensViewModel {
             .store(in: &bag)
 
         // Used for update state generateAddressesViewModel property
-        let pendingDerivationsCountPublishers = userWalletRepository.models
+        let pendingDerivationsCountPublishers = userWalletModels
             .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
                 if let derivationManager = model.userTokensManager.derivationManager {
                     return derivationManager.pendingDerivationsCount
@@ -111,7 +117,7 @@ private extension ManageTokensViewModel {
             .store(in: &bag)
 
         // Used for update state actionType tokenViewModels list property
-        let userTokensPublishers = userWalletRepository.models
+        let userTokensPublishers = userWalletModels
             .map { $0.userTokenListManager.userTokensPublisher }
 
         Publishers.MergeMany(userTokensPublishers)
@@ -205,7 +211,7 @@ private extension ManageTokensViewModel {
             return
         }
 
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+        guard let userWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
 
