@@ -54,14 +54,6 @@ struct TransactionViewModel: Hashable, Identifiable {
         }
     }
 
-    var amountTextColor: Color {
-        if status == .failed {
-            return Colors.Text.warning
-        }
-
-        return isOutgoing ? Colors.Text.tertiary : Colors.Text.accent
-    }
-
     var localizeDestination: String {
         if status == .failed {
             return Localization.commonTransactionFailed
@@ -101,7 +93,7 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var icon: Image {
         if status == .failed {
-            return Assets.cross.image
+            return Assets.crossBig.image
         }
 
         switch transactionType {
@@ -115,7 +107,7 @@ struct TransactionViewModel: Hashable, Identifiable {
     var iconColor: Color {
         switch status {
         case .inProgress:
-            return Colors.Icon.attention
+            return Colors.Icon.accent
         case .confirmed:
             return Colors.Icon.informative
         case .failed:
@@ -125,7 +117,7 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var iconBackgroundColor: Color {
         switch status {
-        case .inProgress: return Colors.Icon.attention.opacity(0.1)
+        case .inProgress: return Colors.Icon.accent.opacity(0.1)
         case .confirmed: return Colors.Background.secondary
         case .failed: return Colors.Icon.warning.opacity(0.1)
         }
