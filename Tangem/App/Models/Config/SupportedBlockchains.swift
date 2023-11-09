@@ -57,10 +57,7 @@ struct SupportedBlockchains {
 
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
-        [
-            .azero(curve: ed25519Curve(for: version), testnet: false),
-            .chia(testnet: false),
-        ]
+        []
     }
 
     private func mainnetBlockchains() -> Set<Blockchain> {
