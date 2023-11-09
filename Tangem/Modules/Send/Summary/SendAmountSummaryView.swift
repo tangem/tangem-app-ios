@@ -17,7 +17,7 @@ struct SendAmountSummaryView: View {
         GroupedSection([viewModel]) { viewModel in
             VStack(alignment: .leading, spacing: 12) {
                 Text(Localization.sendAmountLabel)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
                 HStack(spacing: 0) {
                     TokenIcon(
