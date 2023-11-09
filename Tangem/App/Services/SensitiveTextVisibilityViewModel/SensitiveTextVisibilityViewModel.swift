@@ -1,5 +1,5 @@
 //
-//  SensitiveTextVisibilityService.swift
+//  SensitiveTextVisibilityViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,9 +11,10 @@ import UIKit
 import Combine
 import CoreMotion
 
-class SensitiveTextVisibilityService: ObservableObject {
-    static let shared = SensitiveTextVisibilityService()
+class SensitiveTextVisibilityViewModel: ObservableObject {
+    static let shared = SensitiveTextVisibilityViewModel()
 
+    @Published var informationHiddenBalancesViewModel: InformationHiddenBalancesViewModel?
     @Published private(set) var isHidden: Bool
     private lazy var manager: CMMotionManager = {
         let manager = CMMotionManager()
@@ -24,6 +25,7 @@ class SensitiveTextVisibilityService: ObservableObject {
     private let operationQueue = OperationQueue()
     private var previousIsFaceDown = false
     private var bag: Set<AnyCancellable> = []
+    private var toast: Toast<UndoToastView>?
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
@@ -33,17 +35,56 @@ class SensitiveTextVisibilityService: ObservableObject {
     deinit {
         endUpdates()
     }
+}
+
+private extension SensitiveTextVisibilityViewModel {
+    func deviceDidFlipped() {
+        toggleVisibility()
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+        DispatchQueue.main.async {
+            self.notifyUser()
+        }
+    }
 
     func toggleVisibility() {
         AppSettings.shared.isHidingSensitiveInformation.toggle()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
         DispatchQueue.main.async {
             self.isHidden = AppSettings.shared.isHidingSensitiveInformation
         }
     }
-}
 
-private extension SensitiveTextVisibilityService {
+    func notifyUser() {
+        if isHidden,
+           AppSettings.shared.shouldHidingSensitiveInformationSheetShowing {
+            presetInformationBottomSheet()
+        } else {
+            presentToast()
+        }
+    }
+
+    func presetInformationBottomSheet() {
+        informationHiddenBalancesViewModel = InformationHiddenBalancesViewModel(coordinator: self)
+    }
+
+    // MARK: - Toast
+
+    func presentToast() {
+        let type: BalanceHiddenToastType = isHidden ? .hidden : .shown
+        let toastView = UndoToastView(settings: type) { [weak self] in
+            self?.toggleVisibility()
+            self?.dismissToast()
+        }
+
+        toast = Toast(view: toastView)
+        toast?.present(layout: .bottom(padding: 80), type: .temporary())
+    }
+
+    func dismissToast() {
+        toast?.dismiss(animated: false)
+        toast = nil
+    }
+
     func bind() {
         NotificationCenter.default
             .publisher(for: UIApplication.didEnterBackgroundNotification)
@@ -62,6 +103,16 @@ private extension SensitiveTextVisibilityService {
         AppSettings.shared.$isHidingSensitiveAvailable
             .sink { [weak self] isAvailable in
                 self?.updateAvailability(isAvailable)
+            }
+            .store(in: &bag)
+
+        $informationHiddenBalancesViewModel
+            .sink { [weak self] viewModel in
+                if viewModel == nil {
+                    self?.startUpdates()
+                } else {
+                    self?.endUpdates()
+                }
             }
             .store(in: &bag)
     }
@@ -114,9 +165,40 @@ private extension SensitiveTextVisibilityService {
         let isFaceDown = !faceUpRange.contains(roll) && !isPortrait
 
         if previousIsFaceDown, !isFaceDown {
-            toggleVisibility()
+            deviceDidFlipped()
         }
 
         previousIsFaceDown = isFaceDown
+    }
+}
+
+// MARK: - InformationHiddenBalancesRoutable
+
+extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
+    func closeInformationHiddenBalancesSheet() {
+        informationHiddenBalancesViewModel = nil
+    }
+}
+
+enum BalanceHiddenToastType: UndoToastSettings {
+    case hidden
+    case shown
+
+    var image: ImageType {
+        switch self {
+        case .hidden:
+            return Assets.crossedEyeIcon
+        case .shown:
+            return Assets.eyeIconMini
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .hidden:
+            return Localization.toastBalancesHidden
+        case .shown:
+            return Localization.toastBalancesShown
+        }
     }
 }
