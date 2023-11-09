@@ -30,6 +30,7 @@ extension NotificationView {
     struct NotificationButton: Identifiable, Equatable {
         let action: NotificationButtonTapAction
         let actionType: NotificationButtonActionType
+        let isWithLoader: Bool
 
         var id: Int { actionType.id }
 
