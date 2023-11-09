@@ -54,7 +54,7 @@ private extension ExpressTokensListViewModel {
     func getAvailableTokens() -> [ExpressTokenItemViewModel] {
         [
             ExpressTokenItemViewModel(
-                tokenId: "Polygon",
+                id: "Polygon",
                 tokenIconItem: TokenIconItemViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
                     networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
@@ -67,7 +67,7 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                tokenId: "Cardano",
+                id: "Cardano",
                 tokenIconItem: TokenIconItemViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
                     networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
@@ -80,7 +80,7 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                tokenId: "Binance",
+                id: "Binance",
                 tokenIconItem: TokenIconItemViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
                     networkURL: nil
@@ -99,7 +99,7 @@ private extension ExpressTokensListViewModel {
     func getUnavailableTokens() -> [ExpressTokenItemViewModel] {
         [
             ExpressTokenItemViewModel(
-                tokenId: "Polygon",
+                id: "Polygon",
                 tokenIconItem: TokenIconItemViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
                     networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
@@ -112,7 +112,7 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                tokenId: "Cardano",
+                id: "Cardano",
                 tokenIconItem: TokenIconItemViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
                     networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
@@ -125,7 +125,7 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                tokenId: "Binance",
+                id: "Binance",
                 tokenIconItem: TokenIconItemViewModel(
                     imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
                     networkURL: nil
