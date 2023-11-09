@@ -126,11 +126,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
         if networkDataSource.isExistSingleCurrencyWalletDoesNotSupportedCoinId() {
             // Display flow notifications if use only single currency wallets does not supported current coinId
-            displayWarningNotification(
-                for: .failedSupportedSingleCurrencyWallet(
-                    description: Localization.manageTokensWalletSupportOnlyOneNetworkDescription(coinModel.name, coinModel.symbol)
-                )
-            )
+            displayWarningNotification(for: .failedSupportedSingleCurrencyWallet)
 
             return
         }
