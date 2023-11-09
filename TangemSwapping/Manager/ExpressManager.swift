@@ -16,7 +16,7 @@ import Foundation
 public protocol ExpressManager {
     var amount: Decimal? { get set }
     var fromWallet: ExpressWallet { get set }
-    var toWallet: ExpressWallet?  { get set }
+    var toWallet: ExpressWallet? { get set }
     var provider: ExpressProvider? { get set }
 
     func refresh() async -> SwappingAvailabilityState
