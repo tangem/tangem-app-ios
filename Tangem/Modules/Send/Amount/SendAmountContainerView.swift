@@ -18,8 +18,6 @@ class SendAmountContainerViewModel: ObservableObject, Identifiable {
     let tokenIconBlockchainIconName: String? = "ethereum.fill"
     let isCustomToken: Bool = false
 
-    //    [REDACTED_USERNAME] var decimalValue2: DecimalNumberTextField.DecimalValue?
-
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?>
     var amountInput: Binding<String> = .constant("0,00")
     let amountPlaceholder: String = "0,00"
