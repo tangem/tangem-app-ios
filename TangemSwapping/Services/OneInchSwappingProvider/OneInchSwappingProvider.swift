@@ -28,12 +28,12 @@ extension OneInchSwappingProvider: SwappingProvider {
     func fetchSwappingData(items: SwappingItems, walletAddress: String, amount: String, referrer: SwappingReferrerAccount?) async throws -> SwappingDataModel {
         let destination = items.destination
         let parameters = SwappingParameters(
-            fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-            toTokenAddress: destination?.contractAddress ?? oneInchCoinContractAddress,
+            src: items.source.contractAddress ?? oneInchCoinContractAddress,
+            dst: destination?.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
-            fromAddress: walletAddress,
+            from: walletAddress,
             slippage: defaultSlippage,
-            referrerAddress: referrer?.address,
+            referrer: referrer?.address,
             fee: referrer?.fee.description
         )
 
@@ -41,7 +41,7 @@ extension OneInchSwappingProvider: SwappingProvider {
 
         switch result {
         case .success(let swappingData):
-            return try SwappingDataModel(swappingData: swappingData)
+            return try SwappingDataModel(sourceAmount: amount, swappingData: swappingData)
         case .failure(let error):
             throw error
         }
@@ -49,8 +49,8 @@ extension OneInchSwappingProvider: SwappingProvider {
 
     func fetchQuote(items: SwappingItems, amount: String, referrer: SwappingReferrerAccount?) async throws -> SwappingQuoteDataModel {
         let parameters = QuoteParameters(
-            fromTokenAddress: items.source.contractAddress ?? oneInchCoinContractAddress,
-            toTokenAddress: items.destination?.contractAddress ?? oneInchCoinContractAddress,
+            src: items.source.contractAddress ?? oneInchCoinContractAddress,
+            dst: items.destination?.contractAddress ?? oneInchCoinContractAddress,
             amount: amount,
             fee: referrer?.fee.description
         )
@@ -59,7 +59,7 @@ extension OneInchSwappingProvider: SwappingProvider {
 
         switch result {
         case .success(let quoteData):
-            return try SwappingQuoteDataModel(quoteData: quoteData)
+            return try SwappingQuoteDataModel(sourceAmount: amount, quoteData: quoteData)
         case .failure(let error):
             throw error
         }
