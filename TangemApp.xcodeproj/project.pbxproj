@@ -593,12 +593,12 @@
 		DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA28D57C290AAE2000F0C335 /* ScrollView+.swift */; };
 		DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */; };
 		DA32B5922AFCD2A0000767F5 /* SendDestinationSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B58A2AFCD2A0000767F5 /* SendDestinationSummaryView.swift */; };
-		DA32B5932AFCD2A0000767F5 /* SendAmountSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B58B2AFCD2A0000767F5 /* SendAmountSummaryViewModel.swift */; };
+		DA32B5932AFCD2A0000767F5 /* AmountSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B58B2AFCD2A0000767F5 /* AmountSummaryViewModel.swift */; };
 		DA32B5942AFCD2A0000767F5 /* SendWalletSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B58C2AFCD2A0000767F5 /* SendWalletSummaryView.swift */; };
 		DA32B5952AFCD2A0000767F5 /* SendWalletSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B58D2AFCD2A0000767F5 /* SendWalletSummaryViewModel.swift */; };
 		DA32B5962AFCD2A0000767F5 /* SendDestinationSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B58E2AFCD2A0000767F5 /* SendDestinationSummaryViewModel.swift */; };
 		DA32B5972AFCD2A0000767F5 /* SendFeeSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B58F2AFCD2A0000767F5 /* SendFeeSummaryViewModel.swift */; };
-		DA32B5982AFCD2A0000767F5 /* SendAmountSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B5902AFCD2A0000767F5 /* SendAmountSummaryView.swift */; };
+		DA32B5982AFCD2A0000767F5 /* AmountSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B5902AFCD2A0000767F5 /* AmountSummaryView.swift */; };
 		DA32B5992AFCD2A0000767F5 /* SendFeeSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B5912AFCD2A0000767F5 /* SendFeeSummaryView.swift */; };
 		DA4055252ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */; };
 		DA4055262ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */; };
@@ -1878,12 +1878,12 @@
 		DA28D57C290AAE2000F0C335 /* ScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+.swift"; sourceTree = "<group>"; };
 		DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderProgressView.swift; sourceTree = "<group>"; };
 		DA32B58A2AFCD2A0000767F5 /* SendDestinationSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryView.swift; sourceTree = "<group>"; };
-		DA32B58B2AFCD2A0000767F5 /* SendAmountSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAmountSummaryViewModel.swift; sourceTree = "<group>"; };
+		DA32B58B2AFCD2A0000767F5 /* AmountSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountSummaryViewModel.swift; sourceTree = "<group>"; };
 		DA32B58C2AFCD2A0000767F5 /* SendWalletSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletSummaryView.swift; sourceTree = "<group>"; };
 		DA32B58D2AFCD2A0000767F5 /* SendWalletSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletSummaryViewModel.swift; sourceTree = "<group>"; };
 		DA32B58E2AFCD2A0000767F5 /* SendDestinationSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryViewModel.swift; sourceTree = "<group>"; };
 		DA32B58F2AFCD2A0000767F5 /* SendFeeSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryViewModel.swift; sourceTree = "<group>"; };
-		DA32B5902AFCD2A0000767F5 /* SendAmountSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAmountSummaryView.swift; sourceTree = "<group>"; };
+		DA32B5902AFCD2A0000767F5 /* AmountSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountSummaryView.swift; sourceTree = "<group>"; };
 		DA32B5912AFCD2A0000767F5 /* SendFeeSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryView.swift; sourceTree = "<group>"; };
 		DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
 		DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemView.swift; sourceTree = "<group>"; };
@@ -2830,6 +2830,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				DA32B59A2AFCF2F8000767F5 /* AmountSummary */,
 				EF729B742AF3E94D00D80205 /* ProviderRowView */,
 				EF729B522AF12B0E00D80205 /* BottomSheetHeaderView */,
 				EF729B4D2AF10DCF00D80205 /* FeeRowView */,
@@ -4569,16 +4570,23 @@
 		DA32B5892AFCD2A0000767F5 /* Summary */ = {
 			isa = PBXGroup;
 			children = (
-				DA32B58A2AFCD2A0000767F5 /* SendDestinationSummaryView.swift */,
-				DA32B58B2AFCD2A0000767F5 /* SendAmountSummaryViewModel.swift */,
 				DA32B58C2AFCD2A0000767F5 /* SendWalletSummaryView.swift */,
 				DA32B58D2AFCD2A0000767F5 /* SendWalletSummaryViewModel.swift */,
+				DA32B58A2AFCD2A0000767F5 /* SendDestinationSummaryView.swift */,
 				DA32B58E2AFCD2A0000767F5 /* SendDestinationSummaryViewModel.swift */,
-				DA32B58F2AFCD2A0000767F5 /* SendFeeSummaryViewModel.swift */,
-				DA32B5902AFCD2A0000767F5 /* SendAmountSummaryView.swift */,
 				DA32B5912AFCD2A0000767F5 /* SendFeeSummaryView.swift */,
+				DA32B58F2AFCD2A0000767F5 /* SendFeeSummaryViewModel.swift */,
 			);
 			path = Summary;
+			sourceTree = "<group>";
+		};
+		DA32B59A2AFCF2F8000767F5 /* AmountSummary */ = {
+			isa = PBXGroup;
+			children = (
+				DA32B5902AFCD2A0000767F5 /* AmountSummaryView.swift */,
+				DA32B58B2AFCD2A0000767F5 /* AmountSummaryViewModel.swift */,
+			);
+			path = AmountSummary;
 			sourceTree = "<group>";
 		};
 		DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */ = {
@@ -7686,7 +7694,7 @@
 				2D0E4F532A8D114E00001D8E /* GenericWalletManagerFactory.swift in Sources */,
 				2D727E9C2AB8280D00CD121A /* ManageTokensCoordinatorView.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
-				DA32B5932AFCD2A0000767F5 /* SendAmountSummaryViewModel.swift in Sources */,
+				DA32B5932AFCD2A0000767F5 /* AmountSummaryViewModel.swift in Sources */,
 				EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */,
 				B0A0911026D3636F00F46DF5 /* AnimationProgressObserverModifier.swift in Sources */,
 				B0120A932A0E0F4400F485F1 /* FakeCardHeaderPreviewProvider.swift in Sources */,
@@ -7788,7 +7796,7 @@
 				B06C94CC2A3B70E000D17E85 /* TokenActionListBuilder.swift in Sources */,
 				DC7D39F329E00290007BCD23 /* SingleCardOnboardingStepsBuilder.swift in Sources */,
 				DC261CB5292CF6B700875E64 /* UncompletedBackupView.swift in Sources */,
-				DA32B5982AFCD2A0000767F5 /* SendAmountSummaryView.swift in Sources */,
+				DA32B5982AFCD2A0000767F5 /* AmountSummaryView.swift in Sources */,
 				EF1339B12AB2522200B78BA3 /* LegacyTransactionMapper.swift in Sources */,
 				B005ADA02ADFF83B008B6D1F /* View+AlertBinder.swift in Sources */,
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
