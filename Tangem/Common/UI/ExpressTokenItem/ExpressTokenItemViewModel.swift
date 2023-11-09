@@ -8,7 +8,9 @@
 
 import Foundation
 
-struct ExpressTokenItemViewModel {
+struct ExpressTokenItemViewModel: Identifiable {
+    var id: String { tokenId }
+    
     let tokenId: String
     let tokenIconItem: TokenIconItemViewModel
     let name: String
@@ -46,23 +48,5 @@ struct ExpressTokenItemViewModel {
         self.fiatBalance = fiatBalance
         self.isDisable = isDisable
         self.itemDidTap = itemDidTap
-    }
-}
-
-extension ExpressTokenItemViewModel: Hashable, Identifiable {
-    var id: Int { hashValue }
-
-    static func == (lhs: ExpressTokenItemViewModel, rhs: ExpressTokenItemViewModel) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(tokenId)
-        hasher.combine(tokenIconItem)
-        hasher.combine(name)
-        hasher.combine(symbol)
-        hasher.combine(balance)
-        hasher.combine(fiatBalance)
-        hasher.combine(isDisable)
     }
 }
