@@ -47,6 +47,16 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
 
         return !singleCurrencyUserWalletModels.isEmpty
     }
+    
+    /// Return flag if find single currency wallet does supported coinId
+    public func isExistSingleCurrencyWalletDoesNotSupportedCoinId() -> Bool {
+        let singleCurrencyUserWalletModels = userWalletRepository.models.filter { userWalletModel in
+            guard !userWalletModel.isMultiWallet else { return false }
+            return userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId != coinId })
+        }
+
+        return !singleCurrencyUserWalletModels.isEmpty
+    }
 
     // MARK: - Private Implementation
 
