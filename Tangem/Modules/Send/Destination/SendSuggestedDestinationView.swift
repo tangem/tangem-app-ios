@@ -8,16 +8,7 @@
 
 import SwiftUI
 
-// import BlockchainSdk
-
 class SendSuggestedDestinationViewModel: Identifiable {
-    //    let address: String = ""
-    //    let type: Type
-
-    //    var address: String {
-    //        type.address
-    //    }
-
     let cellViewModels: [SendSuggestedDestinationViewCellModel]
 
     init(wallets: [SendSuggestedDestinationWallet], recentTransactions: [SendSuggestedDestinationTransactionRecord]) {
@@ -50,15 +41,6 @@ extension SendSuggestedDestinationViewCellModel {
         case header(title: String)
         case wallet(wallet: SendSuggestedDestinationWallet)
         case recentTransaction(record: SendSuggestedDestinationTransactionRecord)
-        //
-        //        var address: String {
-        //            switch self {
-        //            case .myWallet(let wallet):
-        //                return address
-        //            case .recentTransaction(let record):
-        //                return record.address
-        //            }
-        //        }
     }
 }
 
