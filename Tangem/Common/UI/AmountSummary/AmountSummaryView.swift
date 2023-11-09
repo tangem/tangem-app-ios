@@ -1,5 +1,5 @@
 //
-//  SendAmountSummaryView.swift
+//  AmountSummaryView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct SendAmountSummaryView: View {
-    let viewModel: SendAmountSummaryViewModel
+struct AmountSummaryView: View {
+    let viewModel: AmountSummaryViewModel
 
     private let iconSize = CGSize(bothDimensions: 36)
 
@@ -52,8 +52,8 @@ struct SendAmountSummaryView: View {
 
 #Preview {
     GroupedScrollView {
-        SendAmountSummaryView(
-            viewModel: SendAmountSummaryViewModel(
+        AmountSummaryView(
+            viewModel: AmountSummaryViewModel(
                 amount: "100.00 USDT",
                 amountFiat: "99.98$",
                 tokenIconName: "tether",
@@ -64,8 +64,8 @@ struct SendAmountSummaryView: View {
             )
         )
 
-        SendAmountSummaryView(
-            viewModel: SendAmountSummaryViewModel(
+        AmountSummaryView(
+            viewModel: AmountSummaryViewModel(
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
                 tokenIconName: "optimism",
