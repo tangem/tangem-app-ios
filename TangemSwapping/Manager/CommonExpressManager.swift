@@ -9,8 +9,6 @@
 import Foundation
 import Combine
 
-
-
 public protocol ExpressWallet {
     func getBalance() async throws -> Decimal
 
@@ -78,22 +76,22 @@ extension CommonExpressManager: ExpressManager {
         get { _amount }
         set { _amount = newValue }
     }
-    
+
     var fromWallet: ExpressWallet {
         get { _fromWallet }
-        set { _fromWallet = newValue  }
+        set { _fromWallet = newValue }
     }
-    
+
     var toWallet: ExpressWallet? {
         get { _toWallet }
-        set { _toWallet = newValue  }
+        set { _toWallet = newValue }
     }
-    
+
     var provider: ExpressProvider? {
         get { _provider }
         set { _provider = newValue }
     }
-    
+
     func refresh() async -> SwappingAvailabilityState {
         return await refreshValues()
     }
@@ -102,6 +100,5 @@ extension CommonExpressManager: ExpressManager {
 // MARK: - Requests
 
 private extension CommonExpressManager {
-    func refreshValues() async -> SwappingAvailabilityState {
-    }
+    func refreshValues() async -> SwappingAvailabilityState {}
 }
