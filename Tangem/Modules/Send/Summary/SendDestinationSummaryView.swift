@@ -35,7 +35,7 @@ struct SendDestinationSummaryView: View {
             }
         }
         .horizontalPadding(14)
-        .separatorStyle(.single)
+        .separatorStyle(.minimum)
     }
 
     @ViewBuilder
