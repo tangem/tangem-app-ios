@@ -35,13 +35,11 @@ extension AnyPublisher where Failure == Never {
     func async() async -> Output {
         await withCheckedContinuation { continuation in
             var cancellable: AnyCancellable?
-
             cancellable = first()
-                .sink { completion in
-                    cancellable?.cancel()
-                } receiveValue: { output in
+                .sink(receiveValue: { output in
                     continuation.resume(returning: output)
-                }
+                    withExtendedLifetime(cancellable) {}
+                })
         }
     }
 }
