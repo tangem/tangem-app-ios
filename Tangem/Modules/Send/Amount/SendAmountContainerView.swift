@@ -8,6 +8,14 @@
 
 import SwiftUI
 
+// class SendViewModel {
+//    [REDACTED_USERNAME] var sendAmountContainerViewModel: SendAmountContainerViewModel!
+//    [REDACTED_USERNAME] var decimalValue: BindingValue<DecimalNumberTextField.DecimalValue?>
+//
+//    func bind() {
+//    }
+// }
+
 class SendAmountContainerViewModel: ObservableObject, Identifiable {
     let walletName: String = "Family Wallet"
     let balance: String = "2 130,88 USDT (2 129,92 $)"
@@ -31,10 +39,27 @@ class SendAmountContainerViewModel: ObservableObject, Identifiable {
     init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>) {
         self.decimalValue = decimalValue
     }
+
+    deinit {
+        print("deinit SendAmountContainerViewModel")
+    }
 }
 
 struct SendAmountContainerView: View {
     @ObservedObject var viewModel: SendAmountContainerViewModel
+//    [REDACTED_USERNAME] var decimalValue: DecimalNumberTextField.DecimalValue?
+    @Binding var toggle: Bool
+
+    init(
+        viewModel: SendAmountContainerViewModel,
+//        decimalValue: Binding<DecimalNumberTextField.DecimalValue?>,
+        toggle: Binding<Bool>
+    ) {
+        self.viewModel = viewModel
+        _toggle = toggle
+//        _decimalValue = decimalValue
+    }
+
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
@@ -63,6 +88,8 @@ struct SendAmountContainerView: View {
                 DecimalNumberTextField(decimalValue: viewModel.decimalValue, decimalNumberFormatter: .init(maximumFractionDigits: viewModel.amountFractionDigits))
                     .padding(.top, 16)
 
+                Toggle("", isOn: $toggle)
+
                 Text(viewModel.amountAlternative)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .lineLimit(1)
@@ -82,7 +109,7 @@ struct SendAmountContainerView: View {
 
 #Preview("Figma") {
     GroupedScrollView {
-        SendAmountContainerView(viewModel: SendAmountContainerViewModel(decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(1))))
+//        SendAmountContainerView(viewModel: SendAmountContainerViewModel(decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(1))))
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }

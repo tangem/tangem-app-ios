@@ -25,7 +25,11 @@ struct WelcomeView: View {
 //                )
 //            )
 //        GroupedScrollView {
-        SendAmountContainerView(viewModel: SendAmountContainerViewModel(decimalValue: $viewModel.decimalValue))
+        SendAmountContainerView(
+            viewModel: viewModel.sendAmountContainerViewModel,
+//            decimalValue: $viewModel.decimalValue,
+            toggle: $viewModel.toggle
+        )
 //        }
 //        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 //        DecimalNumberTextField(decimalValue: $viewModel.decimalValue, decimalNumberFormatter: .init(maximumFractionDigits: 3))
