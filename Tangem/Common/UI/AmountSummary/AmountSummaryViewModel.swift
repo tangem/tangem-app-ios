@@ -1,5 +1,5 @@
 //
-//  SendAmountSummaryViewModel.swift
+//  AmountSummaryViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-class SendAmountSummaryViewModel: Identifiable {
+class AmountSummaryViewModel: Identifiable {
     let amount: String
     let amountFiat: String
     let tokenIconName: String
