@@ -81,6 +81,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
 
+        setupState(infoProvider.tokenItemState)
         bind()
     }
 
@@ -95,33 +96,9 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private func bind() {
         infoProvider.tokenItemStatePublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] newState in
-                guard let self else { return }
-
-                switch newState {
-                case .noDerivation:
-                    missingDerivation = true
-                    networkUnreachable = false
-                    updateBalances()
-                    updatePriceChange()
-                case .networkError:
-                    missingDerivation = false
-                    networkUnreachable = true
-                case .notLoaded:
-                    missingDerivation = false
-                    networkUnreachable = false
-                case .loaded, .noAccount:
-                    missingDerivation = false
-                    networkUnreachable = false
-                    updateBalances()
-                    updatePriceChange()
-                case .loading:
-                    break
-                }
-
-                updatePendingTransactionsStateIfNeeded()
-                buildContextActions()
-            }
+            // We need this debounce to prevent initial sequential state updates that can skip `loading` state
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .sink(receiveValue: weakify(self, forFunction: TokenItemViewModel.setupState(_:)))
             .store(in: &bag)
 
         infoProvider.actionsUpdatePublisher
@@ -130,6 +107,32 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
                 self?.buildContextActions()
             }
             .store(in: &bag)
+    }
+
+    private func setupState(_ state: TokenItemViewState) {
+        switch state {
+        case .noDerivation:
+            missingDerivation = true
+            networkUnreachable = false
+            updateBalances()
+            updatePriceChange()
+        case .networkError:
+            missingDerivation = false
+            networkUnreachable = true
+        case .notLoaded:
+            missingDerivation = false
+            networkUnreachable = false
+        case .loaded, .noAccount:
+            missingDerivation = false
+            networkUnreachable = false
+            updateBalances()
+            updatePriceChange()
+        case .loading:
+            break
+        }
+
+        updatePendingTransactionsStateIfNeeded()
+        buildContextActions()
     }
 
     private func updatePendingTransactionsStateIfNeeded() {
