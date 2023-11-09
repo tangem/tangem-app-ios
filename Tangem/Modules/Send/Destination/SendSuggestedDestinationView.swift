@@ -74,7 +74,7 @@ struct SendSuggestedDestinationTransactionRecord {
 }
 
 struct SendSuggestedDestinationView: View {
-    private let cellVerticalSpacing: Double = 6
+    private let cellVerticalSpacing: Double = 4
     private let cellHorizontalSpacing: Double = 12
     private let cellVerticalPadding: Double = 14
 
@@ -102,7 +102,7 @@ struct SendSuggestedDestinationView: View {
     private func headerView(for title: String) -> some View {
         Text(title)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-            .padding(.vertical, 12)
+            .padding(.vertical, 14)
     }
 
     @ViewBuilder
@@ -167,7 +167,7 @@ struct SendSuggestedDestinationView: View {
     }
 }
 
-#Preview {
+#Preview("Different cases") {
     SendSuggestedDestinationView(
         viewModel: SendSuggestedDestinationViewModel(
             wallets: [
@@ -179,6 +179,20 @@ struct SendSuggestedDestinationView: View {
                 .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
                 .init(address: "0x391316d97a07027a", isOutgoing: true, description: "1 USDT, today at 14:46"),
                 .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: false, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
+            ]
+        )
+    )
+}
+
+#Preview("Figma") {
+    SendSuggestedDestinationView(
+        viewModel: SendSuggestedDestinationViewModel(
+            wallets: [
+                .init(name: "Main Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+            ],
+            recentTransactions: [
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: true, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
             ]
         )
     )
