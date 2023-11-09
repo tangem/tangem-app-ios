@@ -27,7 +27,13 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel? = nil
+    private lazy var __headerViewModel = MainBottomSheetHeaderViewModel()
+
     @Published private(set) var contentViewModel: MainBottomSheetContentViewModel? = nil
+    private lazy var __contentViewModel = MainBottomSheetContentViewModel(
+        enteredSearchTextPublisher: __headerViewModel.enteredSearchTextPublisher,
+        coordinator: self
+    )
 
     // MARK: - Private Properties
 
@@ -50,22 +56,21 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     }
 
     private func bind() {
-        let headerViewModel = MainBottomSheetHeaderViewModel()
-        let contentViewModel = MainBottomSheetContentViewModel(
-            enteredSearchTextPublisher: headerViewModel.enteredSearchTextPublisher,
-            coordinator: self
-        )
         let bottomSheetVisibilityPublisher = bottomSheetVisibility
             .isShown
             .share(replay: 1)
 
         bottomSheetVisibilityPublisher
-            .map { $0 ? headerViewModel : nil }
+            .map { [weak self] isShown in
+                return isShown ? self?.__headerViewModel : nil
+            }
             .assign(to: \.headerViewModel, on: self, ownership: .weak)
             .store(in: &bag)
 
         bottomSheetVisibilityPublisher
-            .map { $0 ? contentViewModel : nil }
+            .map { [weak self] isShown in
+                return isShown ? self?.__contentViewModel : nil
+            }
             .assign(to: \.contentViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
