@@ -24,7 +24,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
-    case failedSupportedSingleCurrencyWallet(description: String)
+    case failedSupportedSingleCurrencyWallet
     case failedSupportedBlockchainByWallets
 }
 
@@ -106,9 +106,7 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
-        case .failedSupportedSingleCurrencyWallet(let description):
-            return description
-        case .failedSupportedBlockchainByWallets:
+        case .failedSupportedBlockchainByWallets, .failedSupportedSingleCurrencyWallet:
             return nil
         }
     }
