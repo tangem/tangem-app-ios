@@ -48,7 +48,7 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
         return !singleCurrencyUserWalletModels.isEmpty
     }
 
-    /// Return flag if find single currency wallet does supported coinId
+    /// Return flag if find single currency wallet does NOT supported coinId
     public func isExistSingleCurrencyWalletDoesNotSupportedCoinId() -> Bool {
         let singleCurrencyUserWalletModels = userWalletRepository.models.filter { userWalletModel in
             guard !userWalletModel.isMultiWallet else { return false }
@@ -60,7 +60,7 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
 
     // MARK: - Private Implementation
 
-    /// Full Available list of wallets for selection
+    /// Full available list of wallets for selection
     private func userWalletModels(for coinId: String?) -> [UserWalletModel] {
         userWalletRepository.models.filter { userWalletModel in
             let walletCondition = userWalletModel.isMultiWallet && !userWalletModel.isUserWalletLocked
@@ -73,7 +73,7 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
         }
     }
 
-    /// Return of first selected wallet for diplay
+    /// Return of first selected wallet for display
     private func selectedUserWalletModel() -> UserWalletModel? {
         userWalletModels.first { userWalletModel in
             userWalletModel.userWalletId == userWalletRepository.selectedUserModelModel?.userWalletId
