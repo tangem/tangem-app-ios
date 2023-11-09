@@ -119,7 +119,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             return
         }
 
-        if networkDataSource.isSelectedNonMultiUserWalletModelForCoinId() {
+        if networkDataSource.isExistSingleCurrencyWalletSupportedCoinId() {
             // Display flow notifications if use only single currency wallets
             displayWarningNotification(
                 for: .failedSupportedSingleCurrencyWallet(
