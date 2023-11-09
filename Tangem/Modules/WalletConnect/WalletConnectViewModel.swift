@@ -93,6 +93,7 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     private func openSession(with uri: WalletConnectRequestURI) {
+        Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.attemptingToOpenSession(url: uri.debugString))
         walletConnectService.openSession(with: uri)
     }
 
