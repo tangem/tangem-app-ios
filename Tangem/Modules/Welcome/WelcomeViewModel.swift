@@ -15,7 +15,9 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
-    @Published var decimalValue: DecimalNumberTextField.DecimalValue? = nil
+    @Published private var decimalValue: DecimalNumberTextField.DecimalValue? = nil
+    @Published var toggle: Bool = false
+    var sendAmountContainerViewModel: SendAmountContainerViewModel!
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -32,6 +34,13 @@ class WelcomeViewModel: ObservableObject {
     init(shouldScanOnAppear: Bool, coordinator: WelcomeRoutable) {
         self.shouldScanOnAppear = shouldScanOnAppear
         self.coordinator = coordinator
+
+        sendAmountContainerViewModel = .init(decimalValue: .init(get: {
+            self.decimalValue
+        }, set: { newValue in
+            self.decimalValue = newValue
+        }))
+
         storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
