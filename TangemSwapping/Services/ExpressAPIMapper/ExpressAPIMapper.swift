@@ -10,17 +10,17 @@ import Foundation
 
 struct ExpressAPIMapper {
     // MARK: - Map to DTO
-    
+
     func mapToDTOCurrency(currency: ExpressCurrency) -> ExpressDTO.Currency {
         ExpressDTO.Currency(contractAddress: currency.contractAddress, network: currency.network)
     }
-    
+
     // MARK: - Map to domain
-    
+
     func mapToExpressCurrency(currency: ExpressDTO.Currency) -> ExpressCurrency {
         ExpressCurrency(contractAddress: currency.contractAddress, network: currency.network)
     }
-    
+
     func mapToExpressAsset(currency: ExpressDTO.Assets.Response) -> ExpressAsset {
         ExpressAsset(
             currency: .init(contractAddress: currency.contractAddress, network: currency.network),
@@ -33,7 +33,7 @@ struct ExpressAPIMapper {
             offrampAvailable: currency.offrampAvailable
         )
     }
-    
+
     func mapToExpressPair(response: ExpressDTO.Pairs.Response) -> ExpressPair {
         ExpressPair(
             source: mapToExpressCurrency(currency: response.from),
@@ -41,7 +41,7 @@ struct ExpressAPIMapper {
             providers: response.providers.map { $0.providerId }
         )
     }
-    
+
     func mapToExpressProvider(provider: ExpressDTO.Providers.Response) -> ExpressProvider {
         ExpressProvider(
             id: provider.id,
@@ -50,7 +50,7 @@ struct ExpressAPIMapper {
             type: provider.type
         )
     }
-    
+
     func mapToExpressQuote(response: ExpressDTO.ExchangeQuote.Response) -> ExpressQuote {
         ExpressQuote(
             expectAmount: response.toAmount,
@@ -58,7 +58,7 @@ struct ExpressAPIMapper {
             allowanceContract: response.allowanceContract
         )
     }
-    
+
     func mapToExpressTransactionData(response: ExpressDTO.ExchangeData.Response) -> ExpressTransactionData {
         ExpressTransactionData(
             expressTransactionId: response.txId,
@@ -71,7 +71,7 @@ struct ExpressAPIMapper {
             externalTxUrl: response.externalTxUrl
         )
     }
-    
+
     func mapToExpressTransaction(response: ExpressDTO.ExchangeResult.Response) -> ExpressTransaction {
         ExpressTransaction(
             status: response.status,
