@@ -13,14 +13,14 @@ struct SendWalletSummaryView: View {
 
     var body: some View {
         GroupedSection(viewModel) { viewModel in
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(TangemRichTextFormatter().format(Localization.sendFromWallet(viewModel.walletName), fontSize: UIFonts.Regular.caption1.pointSize))
                     .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
                 Text(viewModel.totalBalance)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 14)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .backgroundColor(Colors.Button.disabled)
