@@ -19,11 +19,11 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
 
     // MARK: - Private Implementation
 
-    private let coinId: String
+    private let coinId: String?
 
     // MARK: - Init
 
-    init(coinId: String) {
+    init(coinId: String?) {
         self.coinId = coinId
     }
 
