@@ -95,54 +95,54 @@ struct SendSuggestedDestinationView: View {
             .separatorStyle(.none)
             .horizontalPadding(14)
         }
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    }
 
-        @ViewBuilder
-        private func headerView(for title: String) -> some View {
-            Text(title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                .padding(.vertical, 12)
+    @ViewBuilder
+    private func headerView(for title: String) -> some View {
+        Text(title)
+            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .padding(.vertical, 12)
+    }
+
+    @ViewBuilder
+    private func walletView(for wallet: SendSuggestedDestinationWallet) -> some View {
+        HStack(spacing: cellHorizontalSpacing) {
+            addressIcon(for: wallet.address)
+
+            VStack(alignment: .leading, spacing: cellVerticalSpacing) {
+                addressView(for: wallet.address)
+
+                Text(wallet.name)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+            }
         }
+        .padding(.vertical, cellVerticalPadding)
+    }
 
-        @ViewBuilder
-        private func walletView(for wallet: SendSuggestedDestinationWallet) -> some View {
-            HStack(spacing: cellHorizontalSpacing) {
-                addressIcon(for: wallet.address)
+    @ViewBuilder
+    private func transactionView(for transaction: SendSuggestedDestinationTransactionRecord) -> some View {
+        HStack(spacing: cellHorizontalSpacing) {
+            addressIcon(for: transaction.address)
 
-                VStack(alignment: .leading, spacing: cellVerticalSpacing) {
-                    addressView(for: wallet.address)
+            VStack(alignment: .leading, spacing: cellVerticalSpacing) {
+                addressView(for: transaction.address)
 
-                    Text(wallet.name)
+                HStack(spacing: 6) {
+                    directionArrow(isOutgoing: transaction.isOutgoing)
+                        .frame(size: CGSize(bothDimensions: 16))
+                        .background(Colors.Background.tertiary)
+                        .clipShape(Circle())
+
+                    Text(transaction.description)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .truncationMode(.middle)
                         .lineLimit(1)
                 }
             }
-            .padding(.vertical, cellVerticalPadding)
         }
-
-        @ViewBuilder
-        private func transactionView(for transaction: SendSuggestedDestinationTransactionRecord) -> some View {
-            HStack(spacing: cellHorizontalSpacing) {
-                addressIcon(for: transaction.address)
-
-                VStack(alignment: .leading, spacing: cellVerticalSpacing) {
-                    addressView(for: transaction.address)
-
-                    HStack(spacing: 6) {
-                        directionArrow(isOutgoing: transaction.isOutgoing)
-                            .frame(size: CGSize(bothDimensions: 16))
-                            .background(Colors.Background.tertiary)
-                            .clipShape(Circle())
-
-                        Text(transaction.description)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                            .truncationMode(.middle)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            .padding(.vertical, cellVerticalPadding)
-        }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .padding(.vertical, cellVerticalPadding)
     }
 
     @ViewBuilder
