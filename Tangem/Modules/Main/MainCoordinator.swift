@@ -136,7 +136,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
         organizeTokensViewModel = OrganizeTokensViewModel(
             coordinator: self,
-            walletModelsManager: userWalletModel.walletModelsManager,
+            userWalletModel: userWalletModel,
             tokenSectionsAdapter: tokenSectionsAdapter,
             optionsProviding: optionsManager,
             optionsEditing: optionsManager
