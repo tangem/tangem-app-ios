@@ -43,7 +43,7 @@ struct SendAmountSummaryView: View {
                     Spacer(minLength: 0)
                 }
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 12)
         }
         .horizontalPadding(14)
         .separatorStyle(.single)

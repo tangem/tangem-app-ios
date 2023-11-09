@@ -58,7 +58,7 @@ struct SendDestinationSummaryView: View {
 
     @ViewBuilder
     private func additionalFieldView(type: SendAdditionalFields, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(type.name)
                 .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
 
