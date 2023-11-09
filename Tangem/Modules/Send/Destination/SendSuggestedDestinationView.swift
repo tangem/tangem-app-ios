@@ -15,12 +15,12 @@ class SendSuggestedDestinationViewModel: Identifiable {
         var cellViewModels: [SendSuggestedDestinationViewCellModel] = []
 
         if !wallets.isEmpty {
-            cellViewModels.append(.init(type: .header(title: "My wallets")))
+            cellViewModels.append(.init(type: .header(title: Localization.sendRecipientWalletsTitle)))
             cellViewModels.append(contentsOf: wallets.map { .init(type: .wallet(wallet: $0)) })
         }
 
         if !recentTransactions.isEmpty {
-            cellViewModels.append(.init(type: .header(title: "Recent")))
+            cellViewModels.append(.init(type: .header(title: Localization.sendRecentTransactions)))
             cellViewModels.append(contentsOf: recentTransactions.map { .init(type: .recentTransaction(record: $0)) })
         }
 
