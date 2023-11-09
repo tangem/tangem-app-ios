@@ -237,6 +237,7 @@
 "manage_tokens_title" = "Рыночная капитализация";
 "manage_tokens_unavailable_description" = "Выбранный токен не доступен в кошельке на данный момент. Но не переживайте, вы можете выразить свой интерес проголосовав за его добавление.";
 "manage_tokens_unavailable_vote" = "Голосовать";
+"manage_tokens_wallet_does_not_supported_blockchain" = "Кошелек не поддерживает выбранную монету";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
 "manage_tokens_wallet_support_only_one_network_description" = "%1$@ %2$@ only";
 "manage_tokens_wallet_support_only_one_network_title" = "Кошелёк не поддерживает более одной сети";
