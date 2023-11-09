@@ -10,7 +10,7 @@ import Foundation
 
 struct ExpressTokenItemViewModel: Identifiable {
     var id: String { tokenId }
-    
+
     let tokenId: String
     let tokenIconItem: TokenIconItemViewModel
     let name: String
