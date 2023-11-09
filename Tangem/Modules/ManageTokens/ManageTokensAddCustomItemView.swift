@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct AddCustomTokenManageTokensItemView: View {
+struct ManageTokensAddCustomItemView: View {
     let didTapGenerate: () -> Void
 
     var body: some View {
