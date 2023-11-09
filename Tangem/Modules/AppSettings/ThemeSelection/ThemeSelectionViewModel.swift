@@ -65,7 +65,7 @@ enum ThemeOption: String, CaseIterable, Identifiable, Hashable {
     case light
     case dark
 
-    var id: String { "\(self)" }
+    var id: String { rawValue }
 
     var title: String {
         switch self {
