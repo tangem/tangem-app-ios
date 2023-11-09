@@ -25,6 +25,8 @@
 "app_settings_theme_mode_dark" = "Dark";
 "app_settings_theme_mode_light" = "Light";
 "app_settings_theme_mode_system" = "System default";
+"app_settings_theme_selection_footer" = "If system is selected, the app will auto-adjust based on your device's system settings.";
+"app_settings_theme_selection_system_short" = "System";
 "app_settings_theme_selector_title" = "Theme";
 "app_settings_title" = "APP設置";
 "app_settings_warning_subtitle" = "轉到設置以在 Tangem 應用程序中啟用生物識別身份驗證";
