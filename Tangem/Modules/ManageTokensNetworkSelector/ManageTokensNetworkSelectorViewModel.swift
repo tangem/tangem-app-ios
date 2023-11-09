@@ -269,7 +269,7 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
-            throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
+            throw AvailableTokenError.failedSupportedBlockchainByCard
         }
 
         guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
@@ -391,7 +391,7 @@ private extension ManageTokensNetworkSelectorViewModel {
     enum AvailableTokenError: Error, LocalizedError {
         case failedSupportedLongHahesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(TokenItem)
-        case failedSupportedBlockchainByCard(TokenItem)
+        case failedSupportedBlockchainByCard
 
         var errorDescription: String? {
             switch self {
@@ -400,7 +400,7 @@ private extension ManageTokensNetworkSelectorViewModel {
             case .failedSupportedCurve(let tokenItem):
                 return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
             case .failedSupportedBlockchainByCard:
-                return "Wallet Incompatible with Selected Coin"
+                return Localization.manageTokensWalletDoesNotSupportedBlockchain
             }
         }
 
