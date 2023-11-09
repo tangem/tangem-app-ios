@@ -9,11 +9,11 @@
 import SwiftUI
 
 struct SendSuggestedDestinationView: View {
+    let viewModel: SendSuggestedDestinationViewModel
+
     private let cellVerticalSpacing: Double = 4
     private let cellHorizontalSpacing: Double = 12
     private let cellVerticalPadding: Double = 14
-
-    let viewModel: SendSuggestedDestinationViewModel
 
     var body: some View {
         GroupedScrollView {
