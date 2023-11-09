@@ -130,7 +130,7 @@ struct TransactionsListView: View {
         } else {
             LazyVStack(spacing: 0) {
                 ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, sectionItem in
-                    VStack {
+                    VStack(spacing: 0) {
                         if sectionIndex == 0 {
                             header
                         }
@@ -139,10 +139,10 @@ struct TransactionsListView: View {
                             makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
                         } else {
                             Spacer(minLength: 0)
-                            
+
                             // Remove vertical padding from iOS 14 header to make it fit into fixed-height cell
                             makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: false)
-                            
+
                             Spacer(minLength: 0)
                         }
                     }
