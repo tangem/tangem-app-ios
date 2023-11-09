@@ -15,6 +15,8 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
+    @Published var decimalValue: DecimalNumberTextField.DecimalValue? = nil
+
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
@@ -25,6 +27,8 @@ class WelcomeViewModel: ObservableObject {
 
     private unowned let coordinator: WelcomeRoutable
 
+    var bag: Set<AnyCancellable> = []
+
     init(shouldScanOnAppear: Bool, coordinator: WelcomeRoutable) {
         self.shouldScanOnAppear = shouldScanOnAppear
         self.coordinator = coordinator
@@ -33,6 +37,16 @@ class WelcomeViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] in
                 self?.objectWillChange.send()
             })
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.decimalValue = .external(3)
+        }
+
+        $decimalValue
+            .sink { v in
+                print(v)
+            }
+            .store(in: &bag)
     }
 
     func scanCardTapped() {
