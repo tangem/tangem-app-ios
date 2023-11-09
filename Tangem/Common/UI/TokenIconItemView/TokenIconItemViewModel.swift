@@ -8,9 +8,7 @@
 
 import Foundation
 
-struct TokenIconItemViewModel: Hashable, Identifiable {
-    var id: Int { hashValue }
-
+struct TokenIconItemViewModel {
     let imageURL: URL
     let networkURL: URL?
 }
