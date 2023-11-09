@@ -15,10 +15,10 @@ struct SendFeeSummaryView: View {
         GroupedSection([viewModel]) { viewModel in
             VStack(alignment: .leading, spacing: 6) {
                 Text(Localization.sendNetworkFeeTitle)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
                 Text(viewModel.fee)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 14)

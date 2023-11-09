@@ -42,7 +42,7 @@ struct SendDestinationSummaryView: View {
     private func addressView(address: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(Localization.sendRecipient)
-                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             HStack(spacing: 12) {
                 AddressIconView(viewModel: AddressIconViewModel(address: address))
@@ -60,10 +60,10 @@ struct SendDestinationSummaryView: View {
     private func additionalFieldView(type: SendAdditionalFields, value: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(type.name)
-                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             Text(value)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
         }
         .padding(.vertical, 14)
     }
