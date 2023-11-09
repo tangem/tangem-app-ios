@@ -72,7 +72,7 @@ struct ExpressTokenItemView: View {
 struct ExpressTokenItemView_Previews: PreviewProvider {
     static let viewModels = [
         ExpressTokenItemViewModel(
-            tokenId: "Bitcoin",
+            id: "Bitcoin",
             tokenIconItem: TokenIconItemViewModel(
                 imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
                 networkURL: nil
@@ -84,7 +84,7 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             isDisable: false,
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
-            tokenId: "Ethereum",
+            id: "Ethereum",
             tokenIconItem: TokenIconItemViewModel(
                 imageURL: TokenIconURLBuilder().iconURL(id: "tether", size: .large),
                 networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small)
@@ -96,13 +96,13 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             isDisable: false,
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
-            tokenId: "Ethereum",
+            id: "Tether",
             tokenIconItem: TokenIconItemViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: "tether", size: .large),
+                imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
                 networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small)
             ),
-            name: "Ethereum",
-            symbol: "ETH",
+            name: "Dai",
+            symbol: "DAI",
             balance: CurrencyAmount(value: 3.543, currency: .mock),
             fiatBalance: 3.543 * 1341,
             isDisable: true,
