@@ -69,7 +69,7 @@ extension WarningEvent: NotificationEvent {
         case .failedSupportedSingleCurrencyWallet:
             return Localization.manageTokensWalletSupportOnlyOneNetworkTitle
         case .failedSupportedBlockchainByWallets:
-            return "Wallet Incompatible with Selected Coin"
+            return Localization.manageTokensWalletDoesNotSupportedBlockchain
         }
     }
 
