@@ -119,17 +119,24 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             return
         }
 
+        // Do not display flow notifications if use only single currency wallets supported current coinId
         if networkDataSource.isExistSingleCurrencyWalletSupportedCoinId() {
-            // Display flow notifications if use only single currency wallets
+            return
+        }
+
+        if networkDataSource.isExistSingleCurrencyWalletDoesNotSupportedCoinId() {
+            // Display flow notifications if use only single currency wallets does not supported current coinId
             displayWarningNotification(
                 for: .failedSupportedSingleCurrencyWallet(
                     description: Localization.manageTokensWalletSupportOnlyOneNetworkDescription(coinModel.name, coinModel.symbol)
                 )
             )
-        } else {
-            // Display flow notifications if list of wallets not supported current coinId
-            displayWarningNotification(for: .failedSupportedBlockchainByWallets)
+
+            return
         }
+
+        // Display flow notifications if list of wallets does not supported current coinId
+        displayWarningNotification(for: .failedSupportedBlockchainByWallets)
     }
 
     private func fillSelectorItemsFromTokenItems() {
