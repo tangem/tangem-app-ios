@@ -11,7 +11,7 @@ import Foundation
 class CommonExpressAPIProvider {
     let expressAPIService: ExpressAPIService
     let expressAPIMapper: ExpressAPIMapper
-    
+
     init(expressAPIService: ExpressAPIService, expressAPIMapper: ExpressAPIMapper) {
         self.expressAPIService = expressAPIService
         self.expressAPIMapper = expressAPIMapper
@@ -28,7 +28,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let assets = response.map(expressAPIMapper.mapToExpressAsset(currency:))
         return assets
     }
-    
+
     func pairs(from: [ExpressCurrency], to: [ExpressCurrency]) async throws -> [ExpressPair] {
         let from = from.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let to = to.map(expressAPIMapper.mapToDTOCurrency(currency:))
@@ -37,13 +37,13 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let pairs = response.map(expressAPIMapper.mapToExpressPair(response:))
         return pairs
     }
-    
+
     func providers() async throws -> [ExpressProvider] {
         let response = try await expressAPIService.providers()
         let providers = response.map(expressAPIMapper.mapToExpressProvider(provider:))
         return providers
     }
-    
+
     func exchangeQuote(item: ExpressSwappableItem) async throws -> ExpressQuote {
         let request = ExpressDTO.ExchangeQuote.Request(
             fromContractAddress: item.source.contractAddress,
@@ -54,12 +54,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.provider.id,
             rateType: .float
         )
-        
+
         let response = try await expressAPIService.exchangeQuote(request: request)
         let quote = expressAPIMapper.mapToExpressQuote(response: response)
         return quote
     }
-    
+
     func exchangeData(item: ExpressSwappableItem, destinationAddress: String) async throws -> ExpressTransactionData {
         let request = ExpressDTO.ExchangeData.Request(
             fromContractAddress: item.source.contractAddress,
@@ -71,12 +71,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             rateType: .float,
             toAddress: destinationAddress
         )
-        
+
         let response = try await expressAPIService.exchangeData(request: request)
         let data = expressAPIMapper.mapToExpressTransactionData(response: response)
         return data
     }
-    
+
     func exchangeResult(transactionId: String) async throws -> ExpressTransaction {
         let request = ExpressDTO.ExchangeResult.Request(txId: transactionId)
         let response = try await expressAPIService.exchangeResult(request: request)
