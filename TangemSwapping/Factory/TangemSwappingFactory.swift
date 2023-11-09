@@ -33,18 +33,7 @@ public struct TangemSwappingFactory {
             amount: amount
         )
     }
-    
-    public func makeExpressManager(
-        expressAPIProvider: ExpressAPIProvider,
-        configuration: URLSessionConfiguration,
-        logger: SwappingLogger? = nil
-    ) -> ExpressManager {
-        return CommonExpressManager(
-            expressAPIProvider: expressAPIProvider,
-            logger: logger ?? CommonSwappingLogger()
-        )
-    }
-    
+
     public func makeExpressAPIProvider(
         credential: ExpressAPICredential,
         configuration: URLSessionConfiguration,
