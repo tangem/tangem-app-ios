@@ -38,8 +38,8 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
 
     // MARK: - Implementation
 
-    /// Return flag if find sing currency wallet supported coinId
-    public func isSelectedNonMultiUserWalletModelForCoinId() -> Bool {
+    /// Return flag if find single currency wallet supported coinId
+    public func isExistSingleCurrencyWalletSupportedCoinId() -> Bool {
         let singleCurrencyUserWalletModels = userWalletRepository.models.filter { userWalletModel in
             guard !userWalletModel.isMultiWallet else { return false }
             return userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId == coinId })
