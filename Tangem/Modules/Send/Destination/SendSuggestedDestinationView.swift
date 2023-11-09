@@ -8,53 +8,6 @@
 
 import SwiftUI
 
-class SendSuggestedDestinationViewModel: Identifiable {
-    let cellViewModels: [SendSuggestedDestinationViewCellModel]
-
-    init(wallets: [SendSuggestedDestinationWallet], recentTransactions: [SendSuggestedDestinationTransactionRecord]) {
-        var cellViewModels: [SendSuggestedDestinationViewCellModel] = []
-
-        if !wallets.isEmpty {
-            cellViewModels.append(.init(type: .header(title: Localization.sendRecipientWalletsTitle)))
-            cellViewModels.append(contentsOf: wallets.map { .init(type: .wallet(wallet: $0)) })
-        }
-
-        if !recentTransactions.isEmpty {
-            cellViewModels.append(.init(type: .header(title: Localization.sendRecentTransactions)))
-            cellViewModels.append(contentsOf: recentTransactions.map { .init(type: .recentTransaction(record: $0)) })
-        }
-
-        self.cellViewModels = cellViewModels
-    }
-}
-
-class SendSuggestedDestinationViewCellModel: Identifiable {
-    let type: `Type`
-
-    init(type: Type) {
-        self.type = type
-    }
-}
-
-extension SendSuggestedDestinationViewCellModel {
-    enum `Type` {
-        case header(title: String)
-        case wallet(wallet: SendSuggestedDestinationWallet)
-        case recentTransaction(record: SendSuggestedDestinationTransactionRecord)
-    }
-}
-
-struct SendSuggestedDestinationWallet {
-    let name: String
-    let address: String
-}
-
-struct SendSuggestedDestinationTransactionRecord {
-    let address: String
-    let isOutgoing: Bool
-    let description: String
-}
-
 struct SendSuggestedDestinationView: View {
     private let cellVerticalSpacing: Double = 4
     private let cellHorizontalSpacing: Double = 12
