@@ -859,11 +859,6 @@
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
 		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
-		EF04C52E2AFA80B700D8853B /* ExpressTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */; };
-		EF04C5302AFA80D500D8853B /* ExpressTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */; };
-		EF04C5332AFA82D700D8853B /* TokenIconItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */; };
-		EF04C5352AFA82EB00D8853B /* TokenIconItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */; };
-		EF04C5372AFAA37900D8853B /* ExpressTokensListRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */; };
 		EF04C53B2AFBBF4000D8853B /* SwappingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5232A03F2A200899812 /* SwappingInteractor.swift */; };
 		EF04C5432AFBEEA000D8853B /* ExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */; };
 		EF04C5452AFBEEB000D8853B /* ExpressTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */; };
@@ -976,6 +971,9 @@
 		EF46623E2924F21600346B6C /* SendCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46623D2924F21600346B6C /* SendCurrencyView.swift */; };
 		EF46624029250F6000346B6C /* ReceiveCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46623F29250F6000346B6C /* ReceiveCurrencyView.swift */; };
 		EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EF48288D28D1C99D002809C6 /* Localizable.stringsdict */; };
+		EF48E6982AFCF49B00FE0072 /* ExpressInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6952AFCF49B00FE0072 /* ExpressInteraction.swift */; };
+		EF48E6992AFCF49B00FE0072 /* CommonExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6962AFCF49B00FE0072 /* CommonExpressManager.swift */; };
+		EF48E69A2AFCF49B00FE0072 /* ExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6972AFCF49B00FE0072 /* ExpressManager.swift */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
 		EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */; };
@@ -2162,11 +2160,6 @@
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
 		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
-		EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemView.swift; sourceTree = "<group>"; };
-		EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemViewModel.swift; sourceTree = "<group>"; };
-		EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemView.swift; sourceTree = "<group>"; };
-		EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemViewModel.swift; sourceTree = "<group>"; };
-		EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutableMock.swift; sourceTree = "<group>"; };
 		EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIProvider.swift; sourceTree = "<group>"; };
 		EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransaction.swift; sourceTree = "<group>"; };
 		EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionData.swift; sourceTree = "<group>"; };
@@ -2287,6 +2280,9 @@
 		EF48289128D1C9A3002809C6 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289228D1C9A5002809C6 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = it; path = it.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289328D1C9A6002809C6 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		EF48E6952AFCF49B00FE0072 /* ExpressInteraction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressInteraction.swift; sourceTree = "<group>"; };
+		EF48E6962AFCF49B00FE0072 /* CommonExpressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressManager.swift; sourceTree = "<group>"; };
+		EF48E6972AFCF49B00FE0072 /* ExpressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManager.swift; sourceTree = "<group>"; };
 		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokenListManager.swift; sourceTree = "<group>"; };
@@ -5315,24 +5311,6 @@
 			path = DefaultSelectableRowView;
 			sourceTree = "<group>";
 		};
-		EF04C52C2AFA80A700D8853B /* ExpressTokenItem */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */,
-				EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */,
-			);
-			path = ExpressTokenItem;
-			sourceTree = "<group>";
-		};
-		EF04C5312AFA82CF00D8853B /* TokenIconItemView */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */,
-				EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */,
-			);
-			path = TokenIconItemView;
-			sourceTree = "<group>";
-		};
 		EF04C5412AFBEE9A00D8853B /* ExpressAPIProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -5608,6 +5586,9 @@
 		EF46620E2924CE2A00346B6C /* Manager */ = {
 			isa = PBXGroup;
 			children = (
+				EF48E6962AFCF49B00FE0072 /* CommonExpressManager.swift */,
+				EF48E6952AFCF49B00FE0072 /* ExpressInteraction.swift */,
+				EF48E6972AFCF49B00FE0072 /* ExpressManager.swift */,
 				E9C17C5C2919507D00FDE4BC /* SwappingManager.swift */,
 				EF29BEE8292FBCE400D7C782 /* CommonSwappingManager.swift */,
 			);
@@ -8059,6 +8040,7 @@
 				EF5812092AF42ACF00A65AA3 /* ExpressProvider.swift in Sources */,
 				EF04C54F2AFBEEEF00D8853B /* ExpressCurrency.swift in Sources */,
 				B6C358672A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
+				EF48E6982AFCF49B00FE0072 /* ExpressInteraction.swift in Sources */,
 				EF04C5532AFC0F8800D8853B /* ExpressTransactionStatus.swift in Sources */,
 				EF4662052924CC6E00346B6C /* HealthCheckTarget.swift in Sources */,
 				EF4662082924CC6E00346B6C /* SwappingParameters.swift in Sources */,
@@ -8071,6 +8053,7 @@
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF5F1BC229D6CEC80093307B /* SwappingData.swift in Sources */,
 				EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */,
+				EF48E6992AFCF49B00FE0072 /* CommonExpressManager.swift in Sources */,
 				EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */,
 				EF4661C02923B42A00346B6C /* OneInchSwappingProvider.swift in Sources */,
 				EF5F1BD129D6D0510093307B /* SwappingToken.swift in Sources */,
@@ -8093,6 +8076,7 @@
 				EF4662092924CC6E00346B6C /* TokensList.swift in Sources */,
 				EF4662072924CC6E00346B6C /* OneInchAPIServicing.swift in Sources */,
 				DCC91C6B2A55B1E200CB7C81 /* FiatRatesProviding.swift in Sources */,
+				EF48E69A2AFCF49B00FE0072 /* ExpressManager.swift in Sources */,
 				EF4661F12924CC6E00346B6C /* InfoTarget.swift in Sources */,
 				EF4661FE2924CC6E00346B6C /* SwappingProviderError.swift in Sources */,
 				EF4662042924CC6E00346B6C /* PresetsConfiguration.swift in Sources */,
