@@ -9,15 +9,15 @@
 import Foundation
 
 public struct SwappingParameters: Encodable {
-    public var fromTokenAddress: String
-    public var toTokenAddress: String
+    public var src: String
+    public var dst: String
     public var amount: String
-    public var fromAddress: String
+    public var from: String
     public var slippage: Int
     public var disableEstimate: Bool?
     public var protocols: String?
-    public var destReceiver: String?
-    public var referrerAddress: String?
+    public var receiver: String?
+    public var referrer: String?
     public var fee: String?
     public var burnChi: Bool?
     public var allowPartialFill: Bool?
@@ -29,15 +29,15 @@ public struct SwappingParameters: Encodable {
     public var gasPrice: String?
 
     public init(
-        fromTokenAddress: String,
-        toTokenAddress: String,
+        src: String,
+        dst: String,
         amount: String,
-        fromAddress: String,
+        from: String,
         slippage: Int,
         disableEstimate: Bool? = nil,
         protocols: String? = nil,
-        destReceiver: String? = nil,
-        referrerAddress: String? = nil,
+        receiver: String? = nil,
+        referrer: String? = nil,
         fee: String? = nil,
         burnChi: Bool? = nil,
         allowPartialFill: Bool? = nil,
@@ -48,15 +48,15 @@ public struct SwappingParameters: Encodable {
         gasLimit: String? = nil,
         gasPrice: String? = nil
     ) {
-        self.fromTokenAddress = fromTokenAddress
-        self.toTokenAddress = toTokenAddress
+        self.src = src
+        self.dst = dst
         self.amount = amount
-        self.fromAddress = fromAddress
+        self.from = from
         self.slippage = slippage
         self.disableEstimate = disableEstimate
         self.protocols = protocols
-        self.destReceiver = destReceiver
-        self.referrerAddress = referrerAddress
+        self.receiver = receiver
+        self.referrer = referrer
         self.fee = fee
         self.burnChi = burnChi
         self.allowPartialFill = allowPartialFill
