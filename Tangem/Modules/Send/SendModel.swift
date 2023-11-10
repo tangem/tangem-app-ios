@@ -109,4 +109,24 @@ class SendModel {
     }
 }
 
-extension SendModel: SendAmountViewModelInput, SendDestinationViewModelInput, SendFeeViewModelInput, SendSummaryViewModelInput {}
+// MARK: - Subview model inputs
+
+extension SendModel: SendAmountViewModelInput {
+    var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
+    var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
+}
+
+extension SendModel: SendDestinationViewModelInput {
+    var destinationTextBinding: Binding<String> { Binding(get: { self._destinationText }, set: { self.setDestination($0) }) }
+    var destinationAdditionalFieldTextBinding: Binding<String> { Binding(get: { self._destinationAdditionalFieldText }, set: { self.setDestinationAdditionalField($0) }) }
+    var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
+    var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
+}
+
+extension SendModel: SendFeeViewModelInput {
+    var feeTextBinding: Binding<String> { Binding(get: { self._feeText }, set: { self.setFee($0) }) }
+}
+
+extension SendModel: SendSummaryViewModelInput {
+    // Covered by other protocols
+}
