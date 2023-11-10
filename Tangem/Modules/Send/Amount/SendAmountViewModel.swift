@@ -30,17 +30,20 @@ class SendAmountViewModel: ObservableObject {
 
     init(input: SendAmountViewModelInput, delegate: SendAmountViewModelDelegate?) {
         amountText = input.amountTextBinding
-
         self.delegate = delegate
 
+        bind(from: input)
+    }
+
+    func didTapMaxAmount() {
+        delegate?.didTapMaxAmount()
+    }
+
+    private func bind(from input: SendAmountViewModelInput) {
         input
             .amountError
             .map { $0?.localizedDescription }
             .assign(to: \.amountError, on: self, ownership: .weak)
             .store(in: &bag)
-    }
-
-    func didTapMaxAmount() {
-        delegate?.didTapMaxAmount()
     }
 }
