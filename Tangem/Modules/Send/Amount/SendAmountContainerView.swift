@@ -36,8 +36,11 @@ struct SendAmountContainerView: View {
                 )
                 .padding(.top, 34)
 
-                DecimalNumberTextField(decimalValue: viewModel.decimalValue, decimalNumberFormatter: .init(maximumFractionDigits: viewModel.amountFractionDigits))
-                    .padding(.top, 16)
+                DecimalNumberTextField(
+                    decimalValue: viewModel.decimalValue,
+                    decimalNumberFormatter: .init(maximumFractionDigits: viewModel.amountFractionDigits)
+                )
+                .padding(.top, 16)
 
                 Text(viewModel.amountAlternative)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
