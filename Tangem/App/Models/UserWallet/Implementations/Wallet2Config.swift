@@ -134,8 +134,11 @@ extension Wallet2Config: UserWalletConfig {
 
     var tangemSigner: TangemSigner {
         let shouldSkipCardId = card.backupStatus?.isActive ?? false
-        let cardId = shouldSkipCardId ? nil : card.cardId
-        return .init(with: cardId, sdk: makeTangemSdk())
+        if shouldSkipCardId, let userWalletId = UserWalletIdFactory().userWalletId(config: self)?.value {
+            return .init(with: userWalletId, sdk: makeTangemSdk())
+        }
+
+        return .init(with: card.cardId, sdk: makeTangemSdk())
     }
 
     var userWalletIdSeed: Data? {
