@@ -26,9 +26,7 @@ struct WelcomeView: View {
 //            )
 //        GroupedScrollView {
         SendAmountContainerView(
-            viewModel: viewModel.sendAmountContainerViewModel,
-//            decimalValue: $viewModel.decimalValue,
-            toggle: $viewModel.toggle
+            viewModel: viewModel.sendAmountContainerViewModel
         )
 //        }
 //        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
