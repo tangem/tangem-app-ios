@@ -35,6 +35,7 @@ class ThemeSelectionViewModel: ObservableObject {
 
     private func bind() {
         themeUpdateSubscription = $currentThemeOption
+            .removeDuplicates()
             .dropFirst()
             .withWeakCaptureOf(self)
             .sink(receiveValue: { viewModel, newOption in
@@ -43,10 +44,6 @@ class ThemeSelectionViewModel: ObservableObject {
     }
 
     private func updateTheme(to newOption: ThemeOption) {
-        if AppSettings.shared.appTheme == newOption {
-            return
-        }
-
         AppSettings.shared.appTheme = newOption
         Analytics.log(.appSettingsAppThemeSwitched, params: [.state: newOption.analyticsParamValue])
 
