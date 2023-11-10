@@ -38,13 +38,13 @@ struct SendView: View {
     private var currentPage: some View {
         switch viewModel.step {
         case .amount:
-            SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: viewModel.sendModel, delegate: viewModel))
+            SendAmountView(namespace: namespace, viewModel: viewModel.sendAmountViewModel)
         case .destination:
-            SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: viewModel.sendModel))
+            SendDestinationView(namespace: namespace, viewModel: viewModel.sendDestinationViewModel)
         case .fee:
-            SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: viewModel.sendModel))
+            SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel)
         case .summary:
-            SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: viewModel.sendModel, router: viewModel))
+            SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel)
         }
     }
 
