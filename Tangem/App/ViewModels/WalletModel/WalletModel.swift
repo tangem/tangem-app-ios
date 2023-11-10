@@ -77,7 +77,7 @@ class WalletModel {
     }
 
     var balance: String {
-        guard let balanceValue else { return "" }
+        guard let balanceValue else { return BalanceFormatter.defaultEmptyBalanceString }
 
         return formatter.formatCryptoBalance(balanceValue, currencyCode: tokenItem.currencySymbol)
     }
@@ -100,7 +100,9 @@ class WalletModel {
     }
 
     var rateFormatted: String {
-        guard let rate else { return "" }
+        guard let rate = quote?.price else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
 
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
     }
@@ -234,14 +236,6 @@ class WalletModel {
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
 
-    private var rate: Decimal? {
-        guard let currencyId = tokenItem.currencyId else {
-            return nil
-        }
-
-        return quotesRepository.quotes[currencyId]?.price
-    }
-
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
 
@@ -264,21 +258,6 @@ class WalletModel {
     }
 
     func bind() {
-        AppSettings.shared
-            .$selectedCurrencyCode
-            .delay(for: 0.3, scheduler: DispatchQueue.main)
-            .dropFirst()
-            .receive(on: updateQueue)
-            .flatMap { [weak self] _ in
-                guard let self else {
-                    return Just(()).eraseToAnyPublisher()
-                }
-
-                return loadQuotes()
-            }
-            .sink(receiveValue: {})
-            .store(in: &bag)
-
         walletManager.statePublisher
             .filter { !$0.isInitialState }
             .receive(on: updateQueue)
