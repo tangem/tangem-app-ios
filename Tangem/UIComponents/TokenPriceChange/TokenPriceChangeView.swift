@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TokenPriceChangeView: View {
     let state: State
-    var isWithLoader: Bool = true
+    var showSkeletonWhenLoading: Bool = true
 
     private let loaderSize = CGSize(width: 40, height: 12)
 
@@ -22,17 +22,14 @@ struct TokenPriceChangeView: View {
         case .noData:
             styledDashText
         case .loading:
-            if isWithLoader {
-                ZStack {
-                    styledDashText
-                        .opacity(0.01)
+            ZStack {
+                styledDashText
+                    .opacity(0.01)
+                if showSkeletonWhenLoading {
                     SkeletonView()
                         .frame(size: loaderSize)
                         .cornerRadiusContinuous(3)
                 }
-            } else {
-                styledDashText
-                    .opacity(0.01)
             }
         case .loaded(let signType, let text):
             HStack(spacing: 4) {
