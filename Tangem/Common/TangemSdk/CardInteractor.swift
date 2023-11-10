@@ -37,7 +37,7 @@ extension CardInteractor: CardResettable {
 
         tangemSdk.startSession(
             with: task,
-            cardId: input.mandatoryCardId,
+            sessionFilter: input.mandatoryFilter,
             initialMessage: initialMessage
         ) { result in
             switch result {
@@ -68,7 +68,7 @@ extension CardInteractor: CardDerivable {
 
         tangemSdk.startSession(
             with: task,
-            cardId: input.optionalCardId
+            sessionFilter: input.optionalFilter
         ) { result in
             switch result {
             case .success(let response):
@@ -98,23 +98,26 @@ private extension CardInteractor {
             }
         }
 
-        var optionalCardId: String? {
+        var optionalFilter: SessionFilter? {
             switch self {
             case .cardInfo(let cardInfo):
                 let shouldSkipCardId = cardInfo.card.backupStatus?.isActive ?? false
-                let cardId = shouldSkipCardId ? nil : cardInfo.card.cardId
-                return cardId
+                if shouldSkipCardId, let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo)?.value {
+                    return .cardKitId(userWalletId)
+                }
+
+                return .cardId(cardInfo.card.cardId)
             case .cardId(let cardId):
-                return cardId
+                return .cardId(cardId)
             }
         }
 
-        var mandatoryCardId: String {
+        var mandatoryFilter: SessionFilter {
             switch self {
             case .cardInfo(let cardInfo):
-                return cardInfo.card.cardId
+                return .cardId(cardInfo.card.cardId)
             case .cardId(let cardId):
-                return cardId
+                return .cardId(cardId)
             }
         }
 
