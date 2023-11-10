@@ -9,15 +9,17 @@
 import Foundation
 import Combine
 
-class MultiWalletNotificationManager {
+final class MultiWalletNotificationManager {
+    private let analyticsService = NotificationsAnalyticsService()
     private let walletModelsManager: WalletModelsManager
 
-    private let eventsSubject: CurrentValueSubject<[TokenNotificationEvent], Never> = .init([])
+    private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var updateSubscription: AnyCancellable?
 
     init(walletModelsManager: WalletModelsManager) {
         self.walletModelsManager = walletModelsManager
 
+        analyticsService.setup(with: self)
         bind()
     }
 
@@ -43,30 +45,45 @@ class MultiWalletNotificationManager {
     }
 
     private func removeSomeNetworksUnreachable() {
-        eventsSubject.value.removeAll(where: { $0 == .someNetworksUnreachable })
+        notificationInputsSubject.value.removeAll {
+            guard let event = $0.settings.event as? TokenNotificationEvent else {
+                return false
+            }
+
+            return event == .someNetworksUnreachable
+        }
     }
 
     private func setupSomeNetworksUnreachable() {
-        if eventsSubject.value.contains(.someNetworksUnreachable) {
+        let containsNotification = notificationInputsSubject.value.contains {
+            guard let event = $0.settings.event as? TokenNotificationEvent else {
+                return false
+            }
+
+            return event == .someNetworksUnreachable
+        }
+
+        if containsNotification {
             return
         }
 
-        eventsSubject.value.append(.someNetworksUnreachable)
+        let factory = NotificationsFactory()
+        notificationInputsSubject.value.append(factory.buildNotificationInput(for: .someNetworksUnreachable))
     }
 }
 
 extension MultiWalletNotificationManager: NotificationManager {
-    var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
-        eventsSubject
-            .map { events in
-                let factory = NotificationsFactory()
-
-                return events.map { factory.buildNotificationInput(for: $0) }
-            }
-            .eraseToAnyPublisher()
+    var notificationInputs: [NotificationViewInput] {
+        notificationInputsSubject.value
     }
 
+    var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
+        notificationInputsSubject.eraseToAnyPublisher()
+    }
+
+    func setupManager(with delegate: NotificationTapDelegate?) {}
+
     func dismissNotification(with id: NotificationViewId) {
-        eventsSubject.value.removeAll(where: { $0.hashValue == id })
+        notificationInputsSubject.value.removeAll(where: { $0.id == id })
     }
 }
