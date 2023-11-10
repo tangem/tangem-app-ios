@@ -9,15 +9,22 @@
 import Foundation
 
 public protocol ExpressWallet {
-    func getBalance() async throws -> Decimal
-    func getFee(destination: String, value: Decimal, hexData: String?) async throws -> [SwappingGasPricePolicy: Decimal]
-
     var currency: ExpressCurrency { get }
     var address: String { get }
     var decimalCount: Int { get }
+    
+    func getBalance() async throws -> Decimal
 }
 
 public extension ExpressWallet {
+    var contactAddress: String {
+        currency.contractAddress
+    }
+    
+    var isToken: Bool {
+        contactAddress != ExpressConstants.coinContractAddress
+    }
+    
     func convertToWEI(value: Decimal) -> Decimal {
         let decimalValue = pow(10, decimalCount)
         return value * decimalValue
