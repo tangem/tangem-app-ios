@@ -88,10 +88,10 @@ extension TokenNotificationEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .noAccount:
-            return .gray
+            return .secondary
         // One white notification will be added later
         case .notEnoughtFeeForTokenTx:
-            return .white
+            return .primary
         }
     }
 
@@ -112,6 +112,19 @@ extension TokenNotificationEvent: NotificationEvent {
             return true
         case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughtFeeForTokenTx, .noAccount:
             return false
+        }
+    }
+
+    var analyticsEvent: Analytics.Event? {
+        switch self {
+        case .networkUnreachable: return .tokenNoticeNetworkUnreachable
+        case .someNetworksUnreachable: return .mainNoticeNetworksUnreachable
+        case .rentFee: return nil
+        case .noAccount: return nil
+        case .existentialDepositWarning: return nil
+        case .longTransaction: return nil
+        case .hasPendingTransactions: return nil
+        case .notEnoughtFeeForTokenTx: return .tokenNoticeNotEnoughtFee
         }
     }
 }
