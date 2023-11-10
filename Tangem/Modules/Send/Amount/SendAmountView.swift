@@ -37,6 +37,6 @@ struct SendAmountView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), delegate: nil))
+        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock()))
     }
 }
