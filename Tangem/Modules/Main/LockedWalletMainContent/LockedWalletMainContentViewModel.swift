@@ -58,10 +58,12 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
+
+        Analytics.log(.mainNoticeWalletUnlock)
     }
 
     private func onLockedWalletNotificationTap() {
-        Analytics.log(.mainNoticeWalletLocked)
+        Analytics.log(.mainNoticeWalletUnlockTapped)
         openUnlockSheet()
     }
 
