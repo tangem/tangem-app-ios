@@ -50,10 +50,7 @@
 "card_settings_security_mode_footer" = "Selected application protection method";
 "card_settings_title" = "Card Settings";
 "chat_button_title" = "Support";
-"chat_user_action_rate_user" = "Rate agent";
 "chat_user_action_send_log" = "Send logs";
-"chat_user_actions_title" = "Please select an action";
-"chat_user_rate_agent_title" = "Please, rate the work of the agent";
 "common_accept" = "Akzeptieren";
 "common_access_denied" = "Access denied";
 "common_apply" = "Apply";
