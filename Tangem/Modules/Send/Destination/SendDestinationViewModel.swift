@@ -31,6 +31,10 @@ class SendDestinationViewModel: ObservableObject {
         destination = input.destinationTextBinding
         additionalField = input.destinationAdditionalFieldTextBinding
 
+        bind(from: input)
+    }
+
+    private func bind(from input: SendDestinationViewModelInput) {
         input
             .destinationError
             .map {
