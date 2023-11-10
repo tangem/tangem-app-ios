@@ -12,25 +12,18 @@ struct WelcomeView: View {
     @ObservedObject var viewModel: WelcomeViewModel
 
     var body: some View {
-//        storiesView
-//            .alert(item: $viewModel.error, content: { $0.alert })
-//            .onAppear(perform: viewModel.onAppear)
-//            .onDidAppear(viewModel.onDidAppear)
-//            .onDisappear(perform: viewModel.onDisappear)
-//            .background(
-//                ScanTroubleshootingView(
-//                    isPresented: $viewModel.showTroubleshootingView,
-//                    tryAgainAction: viewModel.tryAgain,
-//                    requestSupportAction: viewModel.requestSupport
-//                )
-//            )
-//        GroupedScrollView {
-        SendAmountContainerView(
-            viewModel: viewModel.sendAmountContainerViewModel
-        )
-//        }
-//        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-//        DecimalNumberTextField(decimalValue: $viewModel.decimalValue, decimalNumberFormatter: .init(maximumFractionDigits: 3))
+        storiesView
+            .alert(item: $viewModel.error, content: { $0.alert })
+            .onAppear(perform: viewModel.onAppear)
+            .onDidAppear(viewModel.onDidAppear)
+            .onDisappear(perform: viewModel.onDisappear)
+            .background(
+                ScanTroubleshootingView(
+                    isPresented: $viewModel.showTroubleshootingView,
+                    tryAgainAction: viewModel.tryAgain,
+                    requestSupportAction: viewModel.requestSupport
+                )
+            )
     }
 
     var storiesView: some View {
