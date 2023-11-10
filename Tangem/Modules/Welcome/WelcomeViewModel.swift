@@ -31,15 +31,26 @@ class WelcomeViewModel: ObservableObject {
 
     var bag: Set<AnyCancellable> = []
 
+    var c = CurrentValueSubject<Error?, Never>(nil)
+
     init(shouldScanOnAppear: Bool, coordinator: WelcomeRoutable) {
         self.shouldScanOnAppear = shouldScanOnAppear
         self.coordinator = coordinator
 
-        sendAmountContainerViewModel = .init(decimalValue: .init(get: {
-            self.decimalValue
-        }, set: { newValue in
-            self.decimalValue = newValue
-        }))
+        sendAmountContainerViewModel = .init(
+            decimalValue: .init(get: {
+                self.decimalValue
+            }, set: { newValue in
+                self.decimalValue = newValue
+
+                if let newValue, newValue.value > 1000 {
+                    self.c.send("Error!")
+                } else {
+                    self.c.send(nil)
+                }
+            }),
+            errorPublisher: c.eraseToAnyPublisher() // .just(output: nil)
+        )
 
         storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
