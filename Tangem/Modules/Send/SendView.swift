@@ -11,11 +11,7 @@ import SwiftUI
 struct SendView: View {
     @Namespace var namespace
 
-    @ObservedObject private var viewModel: SendViewModel
-
-    init(viewModel: SendViewModel) {
-        self.viewModel = viewModel
-    }
+    @ObservedObject var viewModel: SendViewModel
 
     var body: some View {
         VStack {
