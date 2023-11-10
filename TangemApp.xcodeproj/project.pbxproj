@@ -870,6 +870,25 @@
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
 		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
+		EF04C52E2AFA80B700D8853B /* ExpressTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */; };
+		EF04C5302AFA80D500D8853B /* ExpressTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */; };
+		EF04C5332AFA82D700D8853B /* TokenIconItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */; };
+		EF04C5352AFA82EB00D8853B /* TokenIconItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */; };
+		EF04C5372AFAA37900D8853B /* ExpressTokensListRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */; };
+		EF04C53B2AFBBF4000D8853B /* SwappingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5232A03F2A200899812 /* SwappingInteractor.swift */; };
+		EF04C5432AFBEEA000D8853B /* ExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */; };
+		EF04C5452AFBEEB000D8853B /* ExpressTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */; };
+		EF04C5472AFBEEBD00D8853B /* ExpressTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */; };
+		EF04C5492AFBEED600D8853B /* ExpressQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5482AFBEED600D8853B /* ExpressQuote.swift */; };
+		EF04C54B2AFBEEDE00D8853B /* ExpressSwappableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C54A2AFBEEDE00D8853B /* ExpressSwappableItem.swift */; };
+		EF04C54D2AFBEEE600D8853B /* ExpressPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C54C2AFBEEE600D8853B /* ExpressPair.swift */; };
+		EF04C54F2AFBEEEF00D8853B /* ExpressCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C54E2AFBEEEF00D8853B /* ExpressCurrency.swift */; };
+		EF04C5512AFBEF4E00D8853B /* CommonExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5502AFBEF4E00D8853B /* CommonExpressAPIProvider.swift */; };
+		EF04C5532AFC0F8800D8853B /* ExpressTransactionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5522AFC0F8800D8853B /* ExpressTransactionStatus.swift */; };
+		EF04C5552AFC12C300D8853B /* ExpressProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5542AFC12C300D8853B /* ExpressProviderType.swift */; };
+		EF04C5572AFC184800D8853B /* ExpressTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5562AFC184800D8853B /* ExpressTransactionType.swift */; };
+		EF04C5592AFC1A9000D8853B /* ExpressAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5582AFC1A9000D8853B /* ExpressAsset.swift */; };
+		EF04C55C2AFC1AD300D8853B /* ExpressAPIMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C55B2AFC1AD300D8853B /* ExpressAPIMapper.swift */; };
 		EF053DF12938D4BC006FD13A /* UserWalletListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */; };
 		EF053DF22938D4BC006FD13A /* UserWalletListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */; };
 		EF053DF32938D4BC006FD13A /* UserWalletListOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */; };
@@ -1142,7 +1161,6 @@
 		EFD39C982A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */; };
 		EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */; };
 		EFD39C9D2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */; };
-		EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5232A03F2A200899812 /* SwappingInteractor.swift */; };
 		EFDDE5262A04379300899812 /* SwappingApprovePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5252A04379300899812 /* SwappingApprovePolicy.swift */; };
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
 		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
@@ -2165,6 +2183,24 @@
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
 		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
+		EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemView.swift; sourceTree = "<group>"; };
+		EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemViewModel.swift; sourceTree = "<group>"; };
+		EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemView.swift; sourceTree = "<group>"; };
+		EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemViewModel.swift; sourceTree = "<group>"; };
+		EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutableMock.swift; sourceTree = "<group>"; };
+		EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIProvider.swift; sourceTree = "<group>"; };
+		EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransaction.swift; sourceTree = "<group>"; };
+		EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionData.swift; sourceTree = "<group>"; };
+		EF04C5482AFBEED600D8853B /* ExpressQuote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressQuote.swift; sourceTree = "<group>"; };
+		EF04C54A2AFBEEDE00D8853B /* ExpressSwappableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSwappableItem.swift; sourceTree = "<group>"; };
+		EF04C54C2AFBEEE600D8853B /* ExpressPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPair.swift; sourceTree = "<group>"; };
+		EF04C54E2AFBEEEF00D8853B /* ExpressCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrency.swift; sourceTree = "<group>"; };
+		EF04C5502AFBEF4E00D8853B /* CommonExpressAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIProvider.swift; sourceTree = "<group>"; };
+		EF04C5522AFC0F8800D8853B /* ExpressTransactionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionStatus.swift; sourceTree = "<group>"; };
+		EF04C5542AFC12C300D8853B /* ExpressProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderType.swift; sourceTree = "<group>"; };
+		EF04C5562AFC184800D8853B /* ExpressTransactionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionType.swift; sourceTree = "<group>"; };
+		EF04C5582AFC1A9000D8853B /* ExpressAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAsset.swift; sourceTree = "<group>"; };
+		EF04C55B2AFC1AD300D8853B /* ExpressAPIMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIMapper.swift; sourceTree = "<group>"; };
 		EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinatorView.swift; sourceTree = "<group>"; };
 		EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinator.swift; sourceTree = "<group>"; };
 		EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListOutput.swift; sourceTree = "<group>"; };
@@ -5336,6 +5372,41 @@
 			path = DefaultSelectableRowView;
 			sourceTree = "<group>";
 		};
+		EF04C52C2AFA80A700D8853B /* ExpressTokenItem */ = {
+			isa = PBXGroup;
+			children = (
+				EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */,
+				EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */,
+			);
+			path = ExpressTokenItem;
+			sourceTree = "<group>";
+		};
+		EF04C5312AFA82CF00D8853B /* TokenIconItemView */ = {
+			isa = PBXGroup;
+			children = (
+				EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */,
+				EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */,
+			);
+			path = TokenIconItemView;
+			sourceTree = "<group>";
+		};
+		EF04C5412AFBEE9A00D8853B /* ExpressAPIProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */,
+				EF04C5502AFBEF4E00D8853B /* CommonExpressAPIProvider.swift */,
+			);
+			path = ExpressAPIProvider;
+			sourceTree = "<group>";
+		};
+		EF04C55A2AFC1ACA00D8853B /* ExpressAPIMapper */ = {
+			isa = PBXGroup;
+			children = (
+				EF04C55B2AFC1AD300D8853B /* ExpressAPIMapper.swift */,
+			);
+			path = ExpressAPIMapper;
+			sourceTree = "<group>";
+		};
 		EF07082D2A1647560072AA0E /* SwappingFeeFormatter */ = {
 			isa = PBXGroup;
 			children = (
@@ -5516,6 +5587,8 @@
 		EF4661B82923B00100346B6C /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EF04C55A2AFC1ACA00D8853B /* ExpressAPIMapper */,
+				EF04C5412AFBEE9A00D8853B /* ExpressAPIProvider */,
 				EF729B662AF15D3D00D80205 /* SwappingLogger */,
 				EF729B582AF14A7700D80205 /* ExpressAPIService */,
 				EF29BEDB292E5CF900D7C782 /* OneInchSwappingProvider */,
@@ -5555,6 +5628,16 @@
 				EFF5BA8129B32A5C0070694A /* EthereumGasDataModel.swift */,
 				EF29BEE0292E5D9B00D7C782 /* OneInchDTO */,
 				EF5812082AF42ACF00A65AA3 /* ExpressProvider.swift */,
+				EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */,
+				EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */,
+				EF04C5482AFBEED600D8853B /* ExpressQuote.swift */,
+				EF04C54A2AFBEEDE00D8853B /* ExpressSwappableItem.swift */,
+				EF04C54C2AFBEEE600D8853B /* ExpressPair.swift */,
+				EF04C54E2AFBEEEF00D8853B /* ExpressCurrency.swift */,
+				EF04C5522AFC0F8800D8853B /* ExpressTransactionStatus.swift */,
+				EF04C5542AFC12C300D8853B /* ExpressProviderType.swift */,
+				EF04C5562AFC184800D8853B /* ExpressTransactionType.swift */,
+				EF04C5582AFC1A9000D8853B /* ExpressAsset.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -7462,7 +7545,6 @@
 				B03ACAC92567CFFF00F5D269 /* LegacyCardView.swift in Sources */,
 				B63B72892AF5F23B004B80BF /* TokenSectionsSourcePublisherFactory.swift in Sources */,
 				EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */,
-				EFDDE5242A03F2A200899812 /* SwappingInteractor.swift in Sources */,
 				B6DF7E792AA95DBB007C92BD /* ListFooterOverlayShadowView.swift in Sources */,
 				B05A13A329FB975400FB511A /* LoadableTextView.swift in Sources */,
 				DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */,
@@ -7726,6 +7808,7 @@
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
 				DC7D39FF29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift in Sources */,
+				EF04C53B2AFBBF4000D8853B /* SwappingInteractor.swift in Sources */,
 				B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				EF92E2BA29963E7400DD9B06 /* SwapReferrerAccount.swift in Sources */,
@@ -8007,8 +8090,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF4661C52923B42A00346B6C /* SwappingApprovedDataModel.swift in Sources */,
+				EF04C5512AFBEF4E00D8853B /* CommonExpressAPIProvider.swift in Sources */,
 				EFA9854B294775B500D1FCB3 /* SwappingPreviewData.swift in Sources */,
 				EF5F1BCE29D6D0360093307B /* LiquidityProtocol.swift in Sources */,
+				EF04C55C2AFC1AD300D8853B /* ExpressAPIMapper.swift in Sources */,
 				EF5F1BBF29D6CDA90093307B /* ApproveAllowanceParameters.swift in Sources */,
 				EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */,
 				EF4662002924CC6E00346B6C /* ApproveTransactionParameters.swift in Sources */,
@@ -8029,19 +8114,24 @@
 				EF92E2B029952BB800DD9B06 /* SwappingReferrerAccount.swift in Sources */,
 				B6C358652A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */,
 				EF29BEE4292E5DC400D7C782 /* OneInchSwappingProviderErrors.swift in Sources */,
+				EF04C5492AFBEED600D8853B /* ExpressQuote.swift in Sources */,
 				EF78433B29431903007E57D1 /* SwappingManagerError.swift in Sources */,
 				EFD164502948A13B000E56C7 /* SwappingQuoteDataModel.swift in Sources */,
 				EF4661D42923E5BB00346B6C /* SwappingItems.swift in Sources */,
 				EF4661F82924CC6E00346B6C /* QuoteParameters.swift in Sources */,
 				EF4661BF2923B41F00346B6C /* SwappingManager.swift in Sources */,
 				EF5812092AF42ACF00A65AA3 /* ExpressProvider.swift in Sources */,
+				EF04C54F2AFBEEEF00D8853B /* ExpressCurrency.swift in Sources */,
 				B6C358672A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
+				EF04C5532AFC0F8800D8853B /* ExpressTransactionStatus.swift in Sources */,
 				EF4662052924CC6E00346B6C /* HealthCheckTarget.swift in Sources */,
 				EF4662082924CC6E00346B6C /* SwappingParameters.swift in Sources */,
 				EF4661F72924CC6E00346B6C /* QuoteData.swift in Sources */,
 				EF29BEDA292E5CAE00D7C782 /* OneInchAPIService.swift in Sources */,
 				EF5F1BBD29D6CD900093307B /* ApprovedAllowance.swift in Sources */,
 				EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */,
+				EF04C54B2AFBEEDE00D8853B /* ExpressSwappableItem.swift in Sources */,
+				EF04C5592AFC1A9000D8853B /* ExpressAsset.swift in Sources */,
 				EF4661F22924CC6E00346B6C /* LiquiditySourcesList.swift in Sources */,
 				EF5F1BC229D6CEC80093307B /* SwappingData.swift in Sources */,
 				EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */,
@@ -8054,10 +8144,14 @@
 				EF4661D02923CD4C00346B6C /* SwappingWalletDataProvider.swift in Sources */,
 				EF4661962923AFC400346B6C /* TangemSwapping.docc in Sources */,
 				EF92E2BC29964CFE00DD9B06 /* SwappingManagerRefreshType.swift in Sources */,
+				EF04C5572AFC184800D8853B /* ExpressTransactionType.swift in Sources */,
+				EF04C5472AFBEEBD00D8853B /* ExpressTransactionData.swift in Sources */,
 				EF4662032924CC6E00346B6C /* OneInchBaseTarget.swift in Sources */,
 				EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* SwappingBlockchain.swift in Sources */,
+				EF04C5552AFC12C300D8853B /* ExpressProviderType.swift in Sources */,
+				EF04C54D2AFBEEE600D8853B /* ExpressPair.swift in Sources */,
 				EF5F1BC829D6CF090093307B /* ProtocolInfo.swift in Sources */,
 				EF29BEE9292FBCE400D7C782 /* CommonSwappingManager.swift in Sources */,
 				EF4662092924CC6E00346B6C /* TokensList.swift in Sources */,
@@ -8070,11 +8164,13 @@
 				DCAB5806295F45AA005D0F4A /* SwappingLogger.swift in Sources */,
 				EF5F1BCB29D6CFB50093307B /* PresetsGas.swift in Sources */,
 				EF29BEE2292E5DB400D7C782 /* SwappingTransactionData.swift in Sources */,
+				EF04C5432AFBEEA000D8853B /* ExpressAPIProvider.swift in Sources */,
 				EF4661F52924CC6E00346B6C /* TransactionData.swift in Sources */,
 				EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */,
 				EF5F1BC629D6CEFA0093307B /* TokenInfo.swift in Sources */,
 				EF4661C82923B42A00346B6C /* SwappingDataModel.swift in Sources */,
 				B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */,
+				EF04C5452AFBEEB000D8853B /* ExpressTransaction.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
