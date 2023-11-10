@@ -97,7 +97,7 @@ extension CommonTangemApiService: TangemApiService {
 
                 return coinModels.compactMap { coinModel in
                     let items = coinModel.items.filter { item in
-                        item.contractAddress?.caseInsensitiveCompare(contractAddress) == .orderedSame
+                        item.token?.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
                     }
 
                     guard !items.isEmpty else {
