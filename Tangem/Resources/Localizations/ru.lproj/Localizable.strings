@@ -50,10 +50,7 @@
 "card_settings_security_mode_footer" = "Выбранный способ защиты приложения";
 "card_settings_title" = "Настройки карты";
 "chat_button_title" = "Чат";
-"chat_user_action_rate_user" = "Оценить агента";
 "chat_user_action_send_log" = "Отправить логи";
-"chat_user_actions_title" = "Пожалуйста, выберите действие";
-"chat_user_rate_agent_title" = "Пожалуйста, оцените работу агента";
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_apply" = "Применить";
