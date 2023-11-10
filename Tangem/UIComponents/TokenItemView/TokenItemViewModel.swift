@@ -148,8 +148,8 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     private func updatePriceChange() {
         guard let quote = infoProvider.quote else {
-            priceChangeState = .noData
-            tokenPrice = .loaded(text: "")
+            tokenPrice = .noData
+            priceChangeState = .empty
             return
         }
 
