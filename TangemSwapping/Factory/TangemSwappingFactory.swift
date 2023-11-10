@@ -33,6 +33,19 @@ public struct TangemSwappingFactory {
             amount: amount
         )
     }
+    
+    public func makeExpressManager(
+        walletDataProvider: SwappingWalletDataProvider,
+        referrer: SwappingReferrerAccount? = nil,
+        source: Currency,
+        destination: Currency?,
+        amount: Decimal? = nil,
+        logger: SwappingLogger? = nil
+    ) -> SwappingManager {
+
+        return CommonExpressManager(
+        )
+    }
 
     public func makeExpressAPIProvider(
         credential: ExpressAPICredential,
