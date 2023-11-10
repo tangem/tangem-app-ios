@@ -11,19 +11,6 @@ import SwiftUI
 import Combine
 
 class SendModel {
-    // MARK: - Bindings
-
-    var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
-    var destinationTextBinding: Binding<String> { Binding(get: { self._destinationText }, set: { self.setDestination($0) }) }
-    var destinationAdditionalFieldTextBinding: Binding<String> { Binding(get: { self._destinationAdditionalFieldText }, set: { self.setDestinationAdditionalField($0) }) }
-    var feeTextBinding: Binding<String> { Binding(get: { self._feeText }, set: { self.setFee($0) }) }
-
-    // MARK: - Errors
-
-    var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
-    var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
-    var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
-
     // MARK: - Data
 
     private var amount: Decimal?
