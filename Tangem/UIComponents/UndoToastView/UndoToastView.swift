@@ -17,10 +17,13 @@ struct UndoToastView: View {
         HStack(spacing: 0) {
             titleView
                 .padding(.horizontal, 8)
-            
-            Rectangle()
-                .frame(width: 0.5, height: 12)
-                .foregroundColor(Colors.Stroke.secondary)
+
+            Separator(
+                height: .minimal,
+                color: Colors.Stroke.secondary,
+                axis: .vertical
+            )
+            .frame(height: 12)
 
             Button(action: undoAction) {
                 Text(Localization.toastUndo)
