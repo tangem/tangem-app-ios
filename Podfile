@@ -47,11 +47,6 @@ target 'Tangem' do
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
   pod 'CombineExt', '~> 1.8.0'
   
-  # ⚠️ deprecated
-  # support chat
-  pod 'ZendeskSupportSDK', '~> 5.5.0'
-  pod 'ZendeskChatSDK', '~> 2.12.0'
-  
   # support chat
   pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2-tangem1'
   
