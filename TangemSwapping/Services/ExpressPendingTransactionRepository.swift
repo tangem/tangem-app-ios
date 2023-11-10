@@ -11,6 +11,6 @@ import Foundation
 public protocol ExpressPendingTransactionRepository {
     func didSendApproveTransaction(swappingTxData: SwappingTransactionData)
     func didSendSwapTransaction(swappingTxData: SwappingTransactionData)
-    
+
     func hasPending(for network: String) -> Bool
 }
