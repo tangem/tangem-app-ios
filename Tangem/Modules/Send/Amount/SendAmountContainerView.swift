@@ -16,6 +16,8 @@ import SwiftUI
 //    }
 // }
 
+import Combine
+
 class SendAmountContainerViewModel: ObservableObject, Identifiable {
     let walletName: String = "Family Wallet"
     let balance: String = "2 130,88 USDT (2 129,92 $)"
@@ -34,10 +36,17 @@ class SendAmountContainerViewModel: ObservableObject, Identifiable {
 
     let amountAlternative: String = "0,00 $"
 
-    var error: String? = "Insufficient funds for transfer"
+    @Published var error: String?
 
-    init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>) {
+    private var bag: Set<AnyCancellable> = []
+
+    init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>, errorPublisher: AnyPublisher<Error?, Never>) {
         self.decimalValue = decimalValue
+
+        errorPublisher
+            .map { $0?.localizedDescription }
+            .assign(to: \.error, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     deinit {
@@ -99,7 +108,12 @@ struct SendAmountContainerView: View {
 
 #Preview("Figma") {
     GroupedScrollView {
-//        SendAmountContainerView(viewModel: SendAmountContainerViewModel(decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(1))))
+        SendAmountContainerView(
+            viewModel: SendAmountContainerViewModel(
+                decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(1)),
+                errorPublisher: .just(output: nil)
+            )
+        )
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
