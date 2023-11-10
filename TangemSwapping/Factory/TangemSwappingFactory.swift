@@ -33,7 +33,7 @@ public struct TangemSwappingFactory {
             amount: amount
         )
     }
-    
+
     public func makeExpressManager(
         walletDataProvider: SwappingWalletDataProvider,
         referrer: SwappingReferrerAccount? = nil,
@@ -42,7 +42,6 @@ public struct TangemSwappingFactory {
         amount: Decimal? = nil,
         logger: SwappingLogger? = nil
     ) -> SwappingManager {
-
         return CommonExpressManager(
         )
     }
