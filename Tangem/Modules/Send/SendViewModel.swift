@@ -24,11 +24,11 @@ final class SendViewModel: ObservableObject {
     }
 
     var showBackButton: Bool {
-        step.previousStep != nil
+        previousStep != nil
     }
 
     var showNextButton: Bool {
-        step.nextStep != nil
+        nextStep != nil
     }
 
     let sendAmountViewModel: SendAmountViewModel
@@ -38,7 +38,31 @@ final class SendViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    let sendModel: SendModel
+    private var nextStep: SendStep? {
+        guard
+            let currentStepIndex = steps.firstIndex(of: step),
+            (currentStepIndex + 1) < steps.count
+        else {
+            return nil
+        }
+
+        return steps[currentStepIndex + 1]
+    }
+
+    private var previousStep: SendStep? {
+        guard
+            let currentStepIndex = steps.firstIndex(of: step),
+            (currentStepIndex - 1) >= 0
+        else {
+            return nil
+        }
+
+        return steps[currentStepIndex - 1]
+    }
+
+    private let sendModel: SendModel
+    private let sendType: SendType
+    private let steps: [SendStep]
 
     private unowned let coordinator: SendRoutable
 
@@ -71,10 +95,17 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(coordinator: SendRoutable) {
+    init(sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
         sendModel = SendModel()
-        step = .amount
+        self.sendType = sendType
+
+        let steps = sendType.steps
+        guard let firstStep = steps.first else {
+            fatalError("No steps provided for the send type")
+        }
+        self.steps = steps
+        step = firstStep
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
@@ -88,15 +119,21 @@ final class SendViewModel: ObservableObject {
     }
 
     func next() {
-        if let nextStep = step.nextStep {
-            step = nextStep
+        guard let nextStep else {
+            assertionFailure("Invalid step logic -- next")
+            return
         }
+
+        step = nextStep
     }
 
     func back() {
-        if let previousStep = step.previousStep {
-            step = previousStep
+        guard let previousStep else {
+            assertionFailure("Invalid step logic -- back")
+            return
         }
+
+        step = previousStep
     }
 
     private func bind() {
