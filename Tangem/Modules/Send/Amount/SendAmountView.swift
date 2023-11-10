@@ -20,6 +20,10 @@ struct SendAmountView: View {
                 .border(Color.green, width: 5)
                 .matchedGeometryEffect(id: "amount", in: namespace)
 
+            Button(action: viewModel.didTapMaxAmount) {
+                Text("Max amount")
+            }
+
             Text(viewModel.amountError ?? " ")
                 .foregroundColor(.red)
 
@@ -33,6 +37,6 @@ struct SendAmountView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock()))
+        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), delegate: nil))
     }
 }
