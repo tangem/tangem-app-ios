@@ -30,7 +30,7 @@ class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SendViewModel(coordinator: self)
+        rootViewModel = SendViewModel(sendType: .send, coordinator: self)
     }
 }
 
