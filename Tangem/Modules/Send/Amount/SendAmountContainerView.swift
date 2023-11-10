@@ -47,17 +47,9 @@ class SendAmountContainerViewModel: ObservableObject, Identifiable {
 
 struct SendAmountContainerView: View {
     @ObservedObject var viewModel: SendAmountContainerViewModel
-//    [REDACTED_USERNAME] var decimalValue: DecimalNumberTextField.DecimalValue?
-    @Binding var toggle: Bool
 
-    init(
-        viewModel: SendAmountContainerViewModel,
-//        decimalValue: Binding<DecimalNumberTextField.DecimalValue?>,
-        toggle: Binding<Bool>
-    ) {
+    init(viewModel: SendAmountContainerViewModel) {
         self.viewModel = viewModel
-        _toggle = toggle
-//        _decimalValue = decimalValue
     }
 
     private let iconSize = CGSize(bothDimensions: 36)
@@ -87,8 +79,6 @@ struct SendAmountContainerView: View {
 
                 DecimalNumberTextField(decimalValue: viewModel.decimalValue, decimalNumberFormatter: .init(maximumFractionDigits: viewModel.amountFractionDigits))
                     .padding(.top, 16)
-
-                Toggle("", isOn: $toggle)
 
                 Text(viewModel.amountAlternative)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
