@@ -21,6 +21,8 @@ struct TokenPriceChangeView: View {
                 .opacity(0.01)
         case .noData:
             styledDashText
+        case .empty:
+            Text("")
         case .loading:
             ZStack {
                 styledDashText
@@ -60,6 +62,7 @@ extension TokenPriceChangeView {
     enum State: Hashable {
         case initialized
         case noData
+        case empty
         case loading
         case loaded(signType: ChangeSignType, text: String)
     }
