@@ -115,6 +115,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), router: SendSummaryRoutableMock()))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock()))
     }
 }
