@@ -18,8 +18,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published var isLoadingTokenList: Bool = true
     @Published var sections: [Section] = []
-    @Published var missingDerivationNotificationSettings: NotificationView.Settings? = nil
-    @Published var missingBackupNotificationSettings: NotificationView.Settings? = nil
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var tokensNotificationInputs: [NotificationViewInput] = []
 
@@ -103,7 +101,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func deriveEntriesWithoutDerivation() {
-        Analytics.log(.noticeScanYourCardTapped)
+        Analytics.log(.mainNoticeScanYourCardTapped)
         isScannerBusy = true
         userWalletModel.userTokensManager.deriveIfNeeded { [weak self] _ in
             DispatchQueue.main.async {
@@ -116,7 +114,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         if let cardViewModel = userWalletModel as? CardViewModel,
            let input = cardViewModel.backupInput {
-            Analytics.log(.noticeBackupYourWalletTapped)
+            Analytics.log(.mainNoticeBackupWalletTapped)
             coordinator.openOnboardingModal(with: input)
         }
     }
@@ -127,46 +125,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func setup() {
-        updateBackupStatus()
         subscribeToTokenListUpdatesIfNeeded()
         bind()
     }
 
     private func bind() {
-        userWalletModel.userTokensManager.derivationManager?
-            .pendingDerivationsCount
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .sink(receiveValue: { [weak self] pendingDerivationsCount in
-                self?.updateMissingDerivationNotification(for: pendingDerivationsCount)
-            })
-            .store(in: &bag)
-
-        // The contents of the coins and tokens collection for the user wallet
-        let walletModelsPublisher = userWalletModel
-            .walletModelsManager
-            .walletModelsPublisher
-            .share(replay: 1)
-            .eraseToAnyPublisher()
-
-        // Fiat/balance changes for the coins and tokens for the user wallet
-        let walletModelsDidChangePublisher = walletModelsPublisher
-            .flatMap { walletModels in
-                return walletModels
-                    .map(\.walletDidChangePublisher)
-                    .merge()
-            }
-            .debounce(for: Constants.tokensDeliveryDelay, scheduler: DispatchQueue.main)
-            .withLatestFrom(walletModelsPublisher)
-            .eraseToAnyPublisher()
-
-        let aggregatedWalletModelsPublisher = [
-            walletModelsPublisher,
-            walletModelsDidChangePublisher,
-        ].merge()
+        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
+        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
-            .organizedSections(from: aggregatedWalletModelsPublisher, on: mappingQueue)
+            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
             .share(replay: 1)
 
         organizedTokensSectionsPublisher
@@ -182,12 +150,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, sections in
                 viewModel.removeOldCachedTokenViewModels(sections)
-            }
-            .store(in: &bag)
-
-        userWalletModel.updatePublisher
-            .sink { [weak self] in
-                self?.updateBackupStatus()
             }
             .store(in: &bag)
 
@@ -265,10 +227,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         var tokenSyncSubscription: AnyCancellable?
         tokenSyncSubscription = userWalletModel.userTokenListManager.initializedPublisher
             .filter { $0 }
-            // We need this delay, because subscription to list items has debounce.
-            // If we didn't add this delay loader view will disappear immedeatly after loading list from backend,
-            // display empty list and after debounce interval display loaded list of items.
-            .delay(for: Constants.tokensDeliveryDelay, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.isLoadingTokenList = false
                 withExtendedLifetime(tokenSyncSubscription) {}
@@ -281,26 +239,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-    }
-
-    private func updateMissingDerivationNotification(for pendingDerivationsCount: Int) {
-        guard pendingDerivationsCount > 0 else {
-            missingDerivationNotificationSettings = nil
-            return
-        }
-
-        let factory = NotificationsFactory()
-        missingDerivationNotificationSettings = factory.buildMissingDerivationNotificationSettings(for: pendingDerivationsCount)
-    }
-
-    private func updateBackupStatus() {
-        guard userWalletModel.config.hasFeature(.backup) else {
-            missingBackupNotificationSettings = nil
-            return
-        }
-
-        let factory = NotificationsFactory()
-        missingBackupNotificationSettings = factory.missingBackupNotificationSettings()
     }
 }
 
@@ -353,9 +291,16 @@ private extension MultiWalletMainContentViewModel {
     }
 
     func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
-        // [REDACTED_TODO_COMMENT]
         let derivation = blockchainNetwork.derivationPath
         userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
+
+        Analytics.log(
+            event: .buttonRemoveToken,
+            params: [
+                Analytics.ParameterKey.token: tokenItem.currencySymbol,
+                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
+            ]
+        )
     }
 }
 
@@ -536,11 +481,5 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .hide:
             return
         }
-    }
-}
-
-private extension MultiWalletMainContentViewModel {
-    enum Constants {
-        static let tokensDeliveryDelay: DispatchQueue.SchedulerTimeType.Stride = 0.3
     }
 }
