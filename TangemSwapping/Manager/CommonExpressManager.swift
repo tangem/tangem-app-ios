@@ -9,26 +9,6 @@
 import Foundation
 import Combine
 
-public protocol ExpressWallet {
-    func getBalance() async throws -> Decimal
-
-    var currency: ExpressCurrency { get }
-    var address: String { get }
-    var decimalCount: Int { get }
-}
-
-public extension ExpressWallet {
-    func convertToWEI(value: Decimal) -> Decimal {
-        let decimalValue = pow(10, decimalCount)
-        return value * decimalValue
-    }
-
-    func convertFromWEI(value: Decimal) -> Decimal {
-        let decimalValue = pow(10, decimalCount)
-        return value / decimalValue
-    }
-}
-
 class CommonExpressManager {
     // MARK: - Dependencies
 
@@ -100,5 +80,7 @@ extension CommonExpressManager: ExpressManager {
 // MARK: - Requests
 
 private extension CommonExpressManager {
-    func refreshValues() async -> SwappingAvailabilityState {}
+    func refreshValues() async -> SwappingAvailabilityState {
+        
+    }
 }
