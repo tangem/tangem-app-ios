@@ -20,6 +20,7 @@ class AppSettingsViewModel: ObservableObject {
     @Published var savingAccessCodesViewModel: DefaultToggleRowViewModel?
     @Published var currencySelectionViewModel: DefaultRowViewModel?
     @Published var sensitiveTextAvailabilityViewModel: DefaultToggleRowViewModel?
+    @Published var themeSettingsViewModel: DefaultRowViewModel?
     @Published var isSavingWallet: Bool {
         didSet { AppSettings.shared.saveUserWallets = isSavingWallet }
     }
@@ -42,6 +43,10 @@ class AppSettingsViewModel: ObservableObject {
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var selectedCurrencyCode: String = "USD"
+
+    private var showingBiometryWarning: Bool {
+        warningViewModel != nil
+    }
 
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
@@ -69,6 +74,26 @@ private extension AppSettingsViewModel {
             .dropFirst()
             .sink { [weak self] _ in
                 self?.setupView()
+            }
+            .store(in: &bag)
+
+        AppSettings.shared.$appTheme
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                viewModel.setupView()
+            }
+            .store(in: &bag)
+
+        $warningViewModel
+            .map {
+                $0 != nil
+            }
+            .removeDuplicates()
+            .sink { showingBiometryWarning in
+                // Can't do this in onAppear, the view could be updated and the warning displayed after biometry disabled in the settings
+                if showingBiometryWarning {
+                    Analytics.log(.settingsNoticeEnableBiometrics)
+                }
             }
             .store(in: &bag)
     }
@@ -150,6 +175,12 @@ private extension AppSettingsViewModel {
             title: Localization.detailsRowTitleFlipToHide,
             isOn: isSensitiveTextAvailability()
         )
+
+        themeSettingsViewModel = DefaultRowViewModel(
+            title: Localization.appSettingsThemeSelectorTitle,
+            detailsType: .text(AppSettings.shared.appTheme.titleForDetails),
+            action: coordinator.openThemeSelection
+        )
     }
 
     func isSavingWalletBinding() -> BindingValue<Bool> {
@@ -179,7 +210,10 @@ private extension AppSettingsViewModel {
     func isSensitiveTextAvailability() -> BindingValue<Bool> {
         BindingValue<Bool>(
             get: { AppSettings.shared.isHidingSensitiveAvailable },
-            set: { AppSettings.shared.isHidingSensitiveAvailable = $0 }
+            set: { enabled in
+                Analytics.log(.hideBalanceChanged, params: [.state: Analytics.ParameterValue.toggleState(for: enabled)])
+                AppSettings.shared.isHidingSensitiveAvailable = enabled
+            }
         )
     }
 
