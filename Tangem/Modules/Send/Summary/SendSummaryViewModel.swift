@@ -9,10 +9,12 @@
 import Foundation
 import SwiftUI
 
-protocol SendSummaryViewModelInput {
+protocol SendSummaryViewModelInput: AnyObject {
     var amountTextBinding: Binding<String> { get }
     var destinationTextBinding: Binding<String> { get }
     var feeTextBinding: Binding<String> { get }
+
+    func send()
 }
 
 class SendSummaryViewModel {
@@ -20,21 +22,23 @@ class SendSummaryViewModel {
     let destinationText: String
     let feeText: String
 
-    private let router: SendSummaryRoutable
+    weak var router: SendSummaryRoutable?
 
-    init(input: SendSummaryViewModelInput, router: SendSummaryRoutable) {
+    private weak var input: SendSummaryViewModelInput?
+
+    init(input: SendSummaryViewModelInput) {
         amountText = input.amountTextBinding.wrappedValue
         destinationText = input.destinationTextBinding.wrappedValue
         feeText = input.feeTextBinding.wrappedValue
 
-        self.router = router
+        self.input = input
     }
 
     func didTapSummary(for step: SendStep) {
-        router.openStep(step)
+        router?.openStep(step)
     }
 
     func send() {
-        router.send()
+        input?.send()
     }
 }
