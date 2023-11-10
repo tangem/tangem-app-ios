@@ -39,11 +39,12 @@ final class ManageTokensViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
-        updateAlreadyExistTokenUserList()
     }
 
     func onAppear() {
         Analytics.log(.manageTokensScreenOpened)
+
+        updateAlreadyExistTokenUserList()
         loader.reset("")
     }
 
