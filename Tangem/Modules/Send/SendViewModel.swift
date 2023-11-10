@@ -110,9 +110,7 @@ final class SendViewModel: ObservableObject {
 
 extension SendViewModel: SendSummaryRoutable {
     func openStep(_ step: SendStep) {
-        withAnimation(.easeOut(duration: 0.3)) {
-            self.step = step
-        }
+        self.step = step
     }
 
     func send() {
