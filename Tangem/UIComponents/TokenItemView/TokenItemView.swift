@@ -57,8 +57,8 @@ struct TokenItemView: View {
                     }
                 }
 
-                HStack(alignment: .center, spacing: 0) {
-                    if !viewModel.hasError {
+                if !viewModel.hasError {
+                    HStack(alignment: .center, spacing: 0) {
                         HStack(spacing: 6, content: {
                             LoadableTextView(
                                 state: viewModel.tokenPrice,
@@ -91,8 +91,7 @@ struct TokenItemView: View {
             }
             .readGeometry(\.size, bindTo: $textBlockSize)
         }
-        .padding(14.0)
-        .frame(minHeight: 68)
+        .padding(14)
         .background(Colors.Background.primary)
         .onTapGesture(perform: viewModel.tapAction)
         .highlightable(color: Colors.Button.primary.opacity(0.03))
@@ -153,9 +152,13 @@ struct TokenItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             VStack(spacing: 0) {
+                TokenSectionView(title: "Ethereum network")
+
                 ForEach(infoProvider.viewModels, id: \.id) { model in
                     TokenItemView(viewModel: model)
                 }
+
+                Spacer()
             }
             .background(Colors.Background.primary)
             .cornerRadiusContinuous(14)
