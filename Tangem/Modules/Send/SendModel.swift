@@ -51,6 +51,10 @@ class SendModel {
         validateDestinationAdditionalField()
     }
 
+    func useMaxAmount() {
+        setAmount("1000")
+    }
+
     func send() {
         print("SEND")
     }
