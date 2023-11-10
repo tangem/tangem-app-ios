@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import CryptoKit
+import TangemSdk
 
 struct UserWalletId: Hashable {
     let value: Data
@@ -17,11 +17,6 @@ struct UserWalletId: Hashable {
 
 extension UserWalletId {
     init(with walletPublicKey: Data) {
-        let keyHash = walletPublicKey.sha256()
-        let key = SymmetricKey(data: keyHash)
-        let message = AppConstants.messageForWalletID.data(using: .utf8)!
-        let authenticationCode = HMAC<SHA256>.authenticationCode(for: message, using: key)
-
-        value = Data(authenticationCode)
+        value = PublicKeyId(walletPublicKey: walletPublicKey).value
     }
 }
