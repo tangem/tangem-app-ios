@@ -25,8 +25,8 @@
 "app_settings_theme_mode_dark" = "Тёмная";
 "app_settings_theme_mode_light" = "Светлая";
 "app_settings_theme_mode_system" = "Как в системе";
-"app_settings_theme_selection_footer" = "If system is selected, the app will auto-adjust based on your device's system settings.";
-"app_settings_theme_selection_system_short" = "System";
+"app_settings_theme_selection_footer" = "При выборе настройки как в системе приложение будет использовать тему в соответствии с настройками вашего устройства";
+"app_settings_theme_selection_system_short" = "Системная";
 "app_settings_theme_selector_title" = "Тема";
 "app_settings_title" = "Настройки приложения";
 "app_settings_warning_subtitle" = "Перейдите в настройки, чтобы включить биометрическую аутентификацию в приложении Tangem";
