@@ -15,6 +15,10 @@ protocol SendAmountViewModelInput {
     var amountError: AnyPublisher<Error?, Never> { get }
 }
 
+protocol SendAmountViewModelDelegate: AnyObject {
+    func didTapMaxAmount()
+}
+
 class SendAmountViewModel: ObservableObject {
     var amountText: Binding<String>
 
@@ -22,13 +26,21 @@ class SendAmountViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(input: SendAmountViewModelInput) {
+    private weak var delegate: SendAmountViewModelDelegate?
+
+    init(input: SendAmountViewModelInput, delegate: SendAmountViewModelDelegate?) {
         amountText = input.amountTextBinding
+
+        self.delegate = delegate
 
         input
             .amountError
             .map { $0?.localizedDescription }
             .assign(to: \.amountError, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    func didTapMaxAmount() {
+        delegate?.didTapMaxAmount()
     }
 }
