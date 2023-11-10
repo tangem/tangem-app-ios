@@ -10,7 +10,6 @@ import UIKit
 
 enum UIFonts {
     enum Regular {
-        /// weight: regular, size: 17
-        static let body: UIFont = .systemFont(ofSize: 17, weight: .regular)
+        static let body: UIFont = FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .body) : .systemFont(ofSize: 17, weight: .regular)
     }
 }
