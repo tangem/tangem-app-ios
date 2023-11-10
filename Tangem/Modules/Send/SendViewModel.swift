@@ -31,10 +31,10 @@ final class SendViewModel: ObservableObject {
         step.nextStep != nil
     }
 
-    private(set) var sendAmountViewModel: SendAmountViewModel!
-    private(set) var sendDestinationViewModel: SendDestinationViewModel!
-    private(set) var sendFeeViewModel: SendFeeViewModel!
-    private(set) var sendSummaryViewModel: SendSummaryViewModel!
+    let sendAmountViewModel: SendAmountViewModel
+    let sendDestinationViewModel: SendDestinationViewModel
+    let sendFeeViewModel: SendFeeViewModel
+    let sendSummaryViewModel: SendSummaryViewModel
 
     // MARK: - Dependencies
 
@@ -76,7 +76,14 @@ final class SendViewModel: ObservableObject {
         sendModel = SendModel()
         step = .amount
 
-        initStepViewModels()
+        sendAmountViewModel = SendAmountViewModel(input: sendModel)
+        sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel)
+        sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
+
+        sendAmountViewModel.delegate = self
+        sendSummaryViewModel.router = self
+
         bind()
     }
 
@@ -90,13 +97,6 @@ final class SendViewModel: ObservableObject {
         if let previousStep = step.previousStep {
             step = previousStep
         }
-    }
-
-    private func initStepViewModels() {
-        sendAmountViewModel = SendAmountViewModel(input: sendModel, delegate: self)
-        sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, router: self)
     }
 
     private func bind() {

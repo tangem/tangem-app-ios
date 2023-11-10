@@ -24,13 +24,12 @@ class SendAmountViewModel: ObservableObject {
 
     @Published var amountError: String?
 
+    weak var delegate: SendAmountViewModelDelegate?
+
     private var bag: Set<AnyCancellable> = []
 
-    private weak var delegate: SendAmountViewModelDelegate?
-
-    init(input: SendAmountViewModelInput, delegate: SendAmountViewModelDelegate?) {
+    init(input: SendAmountViewModelInput) {
         amountText = input.amountTextBinding
-        self.delegate = delegate
 
         bind(from: input)
     }
