@@ -31,6 +31,7 @@ class WelcomeViewModel: ObservableObject {
 
     var bag: Set<AnyCancellable> = []
 
+    var alter = CurrentValueSubject<String, Never>("0,00")
     var c = CurrentValueSubject<Error?, Never>(nil)
 
     init(shouldScanOnAppear: Bool, coordinator: WelcomeRoutable) {
@@ -38,10 +39,23 @@ class WelcomeViewModel: ObservableObject {
         self.coordinator = coordinator
 
         sendAmountContainerViewModel = .init(
+            walletName: "Family Wallet",
+            balance: "2 130,88 USDT (2 129,92 $)",
+            tokenIconName: "tether",
+            tokenIconURL: TokenIconURLBuilder().iconURL(id: "tether"),
+            tokenIconCustomTokenColor: nil,
+            tokenIconBlockchainIconName: "ethereum.fill",
+            isCustomToken: false,
+            amountFractionDigits: 2,
+            amountAlternativePublisher: alter.eraseToAnyPublisher(),
             decimalValue: .init(get: {
                 self.decimalValue
             }, set: { newValue in
                 self.decimalValue = newValue
+
+                let v = newValue?.value ?? 0
+                let alternative = "\(v * 10) $"
+                self.alter.send(alternative)
 
                 if let newValue, newValue.value > 1000 {
                     self.c.send("Error!")
