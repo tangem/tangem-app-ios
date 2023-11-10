@@ -20,9 +20,13 @@ class DefaultTokenItemInfoProvider {
 extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var id: Int { walletModel.id }
 
+    var tokenItemState: TokenItemViewState {
+        TokenItemViewState(walletModelState: walletModel.state)
+    }
+
     var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> {
         walletModel.walletDidChangePublisher
-            .map { TokenItemViewState(walletModelState: $0) }
+            .map(TokenItemViewState.init)
             .eraseToAnyPublisher()
     }
 
