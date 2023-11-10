@@ -54,11 +54,6 @@ extension ScanCardSettingsViewModel {
 
         let userWalletId = UserWalletId(with: userWalletIdSeed)
 
-        guard userWalletId.value == expectedUserWalletId else {
-            showErrorAlert(error: AppError.wrongCardWasTapped)
-            return
-        }
-
         var cardInfo = cardInfo
 
         // [REDACTED_TODO_COMMENT]
@@ -80,7 +75,7 @@ extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
         isLoading = true
         let task = AppScanTask(shouldAskForAccessCode: true)
-        sdk.startSession(with: task) { [weak self] result in
+        sdk.startSession(with: task, sessionFilter: .cardKitId(expectedUserWalletId)) { [weak self] result in
             self?.isLoading = false
 
             switch result {
