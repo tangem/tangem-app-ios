@@ -17,20 +17,24 @@ struct TangemSigner: TransactionSigner {
 
     private var _signPublisher: PassthroughSubject<Card, Never> = .init()
     private var initialMessage: Message { .init(header: nil, body: Localization.initialMessageSignBody) }
-    private let cardId: String?
+    private let filter: SessionFilter?
     private let twinKey: TwinKey?
     private let sdk: TangemSdk
 
-    init(with cardId: String?, sdk: TangemSdk) {
-        self.init(cardId: cardId, twinKey: nil, sdk: sdk)
+    init(with cardId: String, sdk: TangemSdk) {
+        self.init(filter: .cardId(cardId), twinKey: nil, sdk: sdk)
+    }
+
+    init(with userWalletId: Data, sdk: TangemSdk) {
+        self.init(filter: .cardKitId(userWalletId), twinKey: nil, sdk: sdk)
     }
 
     init(with twinKey: TwinKey, sdk: TangemSdk) {
-        self.init(cardId: nil, twinKey: twinKey, sdk: sdk)
+        self.init(filter: nil, twinKey: twinKey, sdk: sdk)
     }
 
-    private init(cardId: String?, twinKey: TwinKey?, sdk: TangemSdk) {
-        self.cardId = cardId
+    private init(filter: SessionFilter?, twinKey: TwinKey?, sdk: TangemSdk) {
+        self.filter = filter
         self.twinKey = twinKey
         self.sdk = sdk
     }
@@ -44,7 +48,7 @@ struct TangemSigner: TransactionSigner {
                 derivationPath: walletPublicKey.derivationPath
             )
 
-            sdk.startSession(with: signCommand, cardId: cardId, initialMessage: initialMessage) { signResult in
+            sdk.startSession(with: signCommand, sessionFilter: filter, initialMessage: initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
                     _signPublisher.send(response.card)
