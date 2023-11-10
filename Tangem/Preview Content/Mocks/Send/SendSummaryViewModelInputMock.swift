@@ -13,4 +13,6 @@ class SendSummaryViewModelInputMock: SendSummaryViewModelInput {
     var amountTextBinding: Binding<String> { .constant("100,00") }
     var destinationTextBinding: Binding<String> { .constant("0x0123123") }
     var feeTextBinding: Binding<String> { .constant("Fee") }
+
+    func send() {}
 }
