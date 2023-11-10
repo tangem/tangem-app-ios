@@ -106,9 +106,9 @@ extension WarningEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
-            return .white
+            return .primary
         default:
-            return .gray
+            return .secondary
         }
     }
 
@@ -136,12 +136,52 @@ extension WarningEvent: NotificationEvent {
         }
     }
 
-    var hasAction: Bool {
+    var analyticsEvent: Analytics.Event? {
+        switch self {
+        case .numberOfSignedHashesIncorrect: return .mainNoticeCardSignedTransactions
+        case .rateApp: return nil
+        case .failedToVerifyCard: return .mainNoticeProductSampleCard
+        case .testnetCard: return .mainNoticeTestnetCard
+        case .demoCard: return .mainNoticeDemoCard
+        case .oldDeviceOldCard: return .mainNoticeOldCard
+        case .oldCard: return .mainNoticeOldCard
+        case .devCard: return .mainNoticeDevelopmentCard
+        case .lowSignatures: return nil
+        case .legacyDerivation: return nil
+        case .systemDeprecationTemporary: return nil
+        case .systemDeprecationPermanent: return nil
+        case .missingDerivation: return .mainNoticeMissingAddress
+        case .walletLocked: return .mainNoticeWalletUnlock
+        case .missingBackup: return .mainNoticeBackupYourWallet
+        }
+    }
+
+    func style(tapAction: NotificationView.NotificationAction? = nil, buttonAction: NotificationView.NotificationButtonTapAction? = nil) -> NotificationView.Style {
         switch self {
         case .walletLocked:
-            return true
-        default:
-            return false
+            guard let tapAction else {
+                break
+            }
+
+            return .tappable(action: tapAction)
+        case .missingBackup:
+            guard let buttonAction else {
+                break
+            }
+
+            return .withButtons([
+                NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
+            ])
+        case .missingDerivation:
+            guard let buttonAction else {
+                break
+            }
+
+            return .withButtons([
+                .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
+            ])
+        default: break
         }
+        return .plain
     }
 }
