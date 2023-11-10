@@ -8,7 +8,6 @@
 
 import Foundation
 
-protocol SendSummaryRoutable {
+protocol SendSummaryRoutable: AnyObject {
     func openStep(_ step: SendStep)
-    func send()
 }
