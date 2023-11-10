@@ -106,3 +106,9 @@ extension SendViewModel: SendSummaryRoutable {
         sendModel.send()
     }
 }
+
+extension SendViewModel: SendAmountViewModelDelegate {
+    func didTapMaxAmount() {
+        sendModel.useMaxAmount()
+    }
+}
