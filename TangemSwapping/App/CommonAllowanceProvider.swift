@@ -19,4 +19,3 @@ extension CommonAllowanceProvider {
         case pending(destination: String)
     }
 }
-
