@@ -8,58 +8,8 @@
 
 import SwiftUI
 
-// class SendViewModel {
-//    [REDACTED_USERNAME] var sendAmountContainerViewModel: SendAmountContainerViewModel!
-//    [REDACTED_USERNAME] var decimalValue: BindingValue<DecimalNumberTextField.DecimalValue?>
-//
-//    func bind() {
-//    }
-// }
-
-import Combine
-
-class SendAmountContainerViewModel: ObservableObject, Identifiable {
-    let walletName: String = "Family Wallet"
-    let balance: String = "2 130,88 USDT (2 129,92 $)"
-
-    let tokenIconName: String = "tether"
-    let tokenIconURL: URL? = TokenIconURLBuilder().iconURL(id: "tether")
-    let tokenIconCustomTokenColor: Color? = nil
-    let tokenIconBlockchainIconName: String? = "ethereum.fill"
-    let isCustomToken: Bool = false
-
-    var decimalValue: Binding<DecimalNumberTextField.DecimalValue?>
-    var amountInput: Binding<String> = .constant("0,00")
-    let amountPlaceholder: String = "0,00"
-
-    let amountFractionDigits = 2
-
-    let amountAlternative: String = "0,00 $"
-
-    @Published var error: String?
-
-    private var bag: Set<AnyCancellable> = []
-
-    init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>, errorPublisher: AnyPublisher<Error?, Never>) {
-        self.decimalValue = decimalValue
-
-        errorPublisher
-            .map { $0?.localizedDescription }
-            .assign(to: \.error, on: self, ownership: .weak)
-            .store(in: &bag)
-    }
-
-    deinit {
-        print("deinit SendAmountContainerViewModel")
-    }
-}
-
 struct SendAmountContainerView: View {
     @ObservedObject var viewModel: SendAmountContainerViewModel
-
-    init(viewModel: SendAmountContainerViewModel) {
-        self.viewModel = viewModel
-    }
 
     private let iconSize = CGSize(bothDimensions: 36)
 
@@ -110,8 +60,38 @@ struct SendAmountContainerView: View {
     GroupedScrollView {
         SendAmountContainerView(
             viewModel: SendAmountContainerViewModel(
-                decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(1)),
-                errorPublisher: .just(output: nil)
+                walletName: "Family Wallet",
+                balance: "2 130,88 USDT (2 129,92 $)",
+                tokenIconName: "tether",
+                tokenIconURL: TokenIconURLBuilder().iconURL(id: "tether"),
+                tokenIconCustomTokenColor: nil,
+                tokenIconBlockchainIconName: "ethereum.fill",
+                isCustomToken: false,
+                amountFractionDigits: 2,
+                amountAlternativePublisher: .just(output: "1 000 010,99 USDT"),
+                decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(0)),
+                errorPublisher: .just(output: "Insufficient funds for transfer")
+            )
+        )
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+}
+
+#Preview("Edge cases") {
+    GroupedScrollView {
+        SendAmountContainerView(
+            viewModel: SendAmountContainerViewModel(
+                walletName: "Family Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet",
+                balance: "2 130 130 130 130 130 130 130 130 130,88 USDT (2 129 129 129 129 129 129 129 129 129 129 129,92 $)",
+                tokenIconName: "tether",
+                tokenIconURL: TokenIconURLBuilder().iconURL(id: "tether"),
+                tokenIconCustomTokenColor: nil,
+                tokenIconBlockchainIconName: "ethereum.fill",
+                isCustomToken: false,
+                amountFractionDigits: 2,
+                amountAlternativePublisher: .just(output: "1 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000,00 $"),
+                decimalValue: .constant(DecimalNumberTextField.DecimalValue.internal(9999999999)),
+                errorPublisher: .just(output: "Insufficient funds for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer for transfer")
             )
         )
     }
