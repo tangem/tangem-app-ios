@@ -14,6 +14,4 @@ public enum SwappingManagerError: Error {
     case amountNotFound
     case gasModelNotFound
     case contractAddressNotFound
-    case availablePairNotFound
-    case selectedProviderNotFound
 }
