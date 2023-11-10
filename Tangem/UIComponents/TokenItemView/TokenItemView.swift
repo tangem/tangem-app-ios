@@ -69,7 +69,7 @@ struct TokenItemView: View {
 
                             TokenPriceChangeView(
                                 state: viewModel.priceChangeState,
-                                isWithLoader: false
+                                showSkeletonWhenLoading: false
                             )
                             .layoutPriority(1)
                         })
