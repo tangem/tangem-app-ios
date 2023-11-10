@@ -790,7 +790,6 @@
 		DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF4285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift */; };
 		DC66BBF8285A211F00CDF765 /* LegacyMainRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF7285A211F00CDF765 /* LegacyMainRoutable.swift */; };
 		DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF9285A389000CDF765 /* PopoverModifier.swift */; };
-		DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFA285A389000CDF765 /* SheetModifier.swift */; };
 		DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFB285A389000CDF765 /* View+Navigation.swift */; };
 		DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFF285B3FD900CDF765 /* OnboardingTopupRoutable.swift */; };
 		DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */; };
@@ -2090,7 +2089,6 @@
 		DC66BBF4285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewLifecycleListener.swift; sourceTree = "<group>"; };
 		DC66BBF7285A211F00CDF765 /* LegacyMainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMainRoutable.swift; sourceTree = "<group>"; };
 		DC66BBF9285A389000CDF765 /* PopoverModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverModifier.swift; sourceTree = "<group>"; };
-		DC66BBFA285A389000CDF765 /* SheetModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetModifier.swift; sourceTree = "<group>"; };
 		DC66BBFB285A389000CDF765 /* View+Navigation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+Navigation.swift"; sourceTree = "<group>"; };
 		DC66BBFF285B3FD900CDF765 /* OnboardingTopupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupRoutable.swift; sourceTree = "<group>"; };
 		DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletOnboardingRoutable.swift; sourceTree = "<group>"; };
@@ -5253,7 +5251,6 @@
 			isa = PBXGroup;
 			children = (
 				DC66BBF9285A389000CDF765 /* PopoverModifier.swift */,
-				DC66BBFA285A389000CDF765 /* SheetModifier.swift */,
 				DC66BBFB285A389000CDF765 /* View+Navigation.swift */,
 				DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */,
 				DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */,
@@ -7263,7 +7260,6 @@
 				B6ACD0122AD6A888005A6CA3 /* OrganizeTokensDragAndDropGestureContextProvider.swift in Sources */,
 				B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
-				DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */,
 				B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */,
 				B074BAC126779B28005D641B /* PushTxView.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
