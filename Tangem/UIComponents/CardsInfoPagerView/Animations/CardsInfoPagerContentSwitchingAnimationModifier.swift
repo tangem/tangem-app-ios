@@ -1,5 +1,5 @@
 //
-//  CardsInfoPagerContentSwitchingModifier.swift
+//  CardsInfoPagerContentSwitchingAnimationModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 
 /// This animator is responsible for changing the `content` part of the pager view based
 /// on the active animation direction and progress.
-struct CardsInfoPagerContentSwitchingModifier: AnimatableModifier {
+struct CardsInfoPagerContentSwitchingAnimationModifier: AnimatableModifier {
     enum PreferenceKey: SwiftUI.PreferenceKey {
         static var defaultValue: Int { .zero }
 
