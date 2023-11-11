@@ -175,7 +175,7 @@ struct CardsInfoPagerView<
             .ignoresSafeArea(edges: .bottom)
         }
         .modifier(
-            CardsInfoPagerContentSwitchingModifier(
+            CardsInfoPagerContentSwitchingAnimationModifier(
                 progress: pageSwitchProgress,
                 finalPageSwitchProgress: finalPageSwitchProgress,
                 initialSelectedIndex: previouslySelectedIndex,
@@ -191,7 +191,7 @@ struct CardsInfoPagerView<
             // and `contentSelectedIndex` properties will be in sync.
             synchronizeContentSelectedIndexIfNeeded()
         }
-        .onPreferenceChange(CardsInfoPagerContentSwitchingModifier.PreferenceKey.self) { newValue in
+        .onPreferenceChange(CardsInfoPagerContentSwitchingAnimationModifier.PreferenceKey.self) { newValue in
             scheduleContentSelectedIndexUpdateIfNeeded(toNewValue: newValue)
         }
         .onChange(of: selectedIndex) { newValue in
