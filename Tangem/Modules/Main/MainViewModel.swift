@@ -26,11 +26,14 @@ final class MainViewModel: ObservableObject {
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
 
+    let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
+
     var isMainBottomSheetEnabled: Bool { FeatureProvider.isAvailable(.mainScreenBottomSheet) }
 
     // MARK: - Dependencies
 
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+    private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
     private weak var coordinator: MainRoutable?
 
     // MARK: - Internal state
@@ -43,9 +46,11 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
+        swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.coordinator = coordinator
+        self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -60,9 +65,14 @@ final class MainViewModel: ObservableObject {
     convenience init(
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
+        swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
-        self.init(coordinator: coordinator, mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory)
+        self.init(
+            coordinator: coordinator,
+            swipeDiscoveryHelper: swipeDiscoveryHelper,
+            mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory
+        )
 
         if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
             selectedCardIndex = selectedIndex
@@ -86,6 +96,7 @@ final class MainViewModel: ObservableObject {
         Analytics.log(.mainScreenOpened)
 
         bottomSheetVisibility.show()
+        swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
 
         if isPageSwitchAnimationDisabled {
             // A small delay to turn on animations back after closing the Details screen
@@ -97,6 +108,7 @@ final class MainViewModel: ObservableObject {
 
     func onViewDisappear() {
         bottomSheetVisibility.hide()
+        swipeDiscoveryHelper.cancelScheduledSwipeDiscovery()
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
@@ -123,6 +135,10 @@ final class MainViewModel: ObservableObject {
         guard reason == .byGesture else { return }
 
         Analytics.log(.mainScreenWalletChangedBySwipe)
+
+        if !AppSettings.shared.userDidSwipeWalletsOnMainScreen {
+            AppSettings.shared.userDidSwipeWalletsOnMainScreen = true
+        }
     }
 
     func updateIsBackupAllowed() {
@@ -331,5 +347,21 @@ extension MainViewModel: MultiWalletContentDelegate {
 extension MainViewModel: MainViewDelegate {
     func present(actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
+    }
+}
+
+// MARK: - WalletSwipeDiscoveryHelperDelegate protocol conformance
+
+extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
+    func numberOfWallets(_ discoveryHelper: WalletSwipeDiscoveryHelper) -> Int {
+        return pages.count
+    }
+
+    func userDidSwipeWallets(_ discoveryHelper: WalletSwipeDiscoveryHelper) -> Bool {
+        return AppSettings.shared.userDidSwipeWalletsOnMainScreen
+    }
+
+    func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
+        swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
     }
 }
