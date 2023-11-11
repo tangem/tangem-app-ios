@@ -308,7 +308,7 @@ struct CardsInfoPagerView<
                     .id(collapsedHeaderScrollTargetIdentifier)
 
                 if let element = data[safe: clampedContentSelectedIndex] {
-                    contentFactory(data[clampedContentSelectedIndex])
+                    contentFactory(element)
                         .modifier(contentAnimationModifier)
                 }
             }
@@ -511,7 +511,7 @@ struct CardsInfoPagerView<
 
     // MARK: - Vertical auto scrolling support (collapsible/expandable header)
 
-    func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
+    private func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
         let yOffset = scrollState.rawContentOffset.y - Constants.headerVerticalPadding
 
         guard 0.0 <= yOffset, yOffset < headerHeight else { return }
