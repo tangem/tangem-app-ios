@@ -482,6 +482,7 @@
 		B63127D42A2F52E2007C124C /* OrganizeTokensListSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */; };
 		B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */; };
 		B63140F32A808B45009CAB12 /* OrganizeTokensRoutableStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */; };
+		B63442612AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63442602AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift */; };
 		B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */; };
 		B635EE452A607422008B5F87 /* ThreadSafeContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B635EE442A607422008B5F87 /* ThreadSafeContainerTests.swift */; };
 		B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */; };
@@ -1776,6 +1777,7 @@
 		B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSection.swift; sourceTree = "<group>"; };
 		B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemViewModel.swift; sourceTree = "<group>"; };
 		B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensRoutableStub.swift; sourceTree = "<group>"; };
+		B63442602AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift; sourceTree = "<group>"; };
 		B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadGeometry.swift"; sourceTree = "<group>"; };
 		B635EE442A607422008B5F87 /* ThreadSafeContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainerTests.swift; sourceTree = "<group>"; };
 		B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyMainFooterView.swift; sourceTree = "<group>"; };
@@ -4375,6 +4377,7 @@
 				B65D3FCA2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift */,
 				B65D3FCC2A6712BB00FEEFE8 /* CardsInfoPagerContentSwitchingAnimationModifier.swift */,
 				B691A8BF2AFE43CE0059D182 /* CardsInfoPagerSwipeDiscoveryAnimationModifier.swift */,
+				B63442602AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift */,
 				B654B6412A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift */,
 			);
 			path = Animations;
@@ -7912,6 +7915,7 @@
 				EFA6B04729533C860090A92F /* ResetToFactoryViewRoutable.swift in Sources */,
 				B0F319002A739477009F131E /* FakeWalletManager.swift in Sources */,
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
+				B63442612AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift in Sources */,
 				EF9448E22ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift in Sources */,
 				B04EADEC2A80D659009B5768 /* SingleTokenBaseViewModel.swift in Sources */,
 				B0E1564B26B941A4005B33E4 /* SingleCardOnboardingView.swift in Sources */,
