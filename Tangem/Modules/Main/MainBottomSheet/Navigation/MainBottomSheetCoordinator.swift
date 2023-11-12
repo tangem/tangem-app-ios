@@ -35,6 +35,15 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         coordinator: self
     )
 
+    @Published private(set) var overlayViewModel: GenerateAddressesViewModel? = nil
+    private var __overlayViewModel: GenerateAddressesViewModel? {
+        didSet {
+            if bottomSheetVisibility.isShown {
+                overlayViewModel = __overlayViewModel
+            }
+        }
+    }
+
     // MARK: - Private Properties
 
     private var bag: Set<AnyCancellable> = []
@@ -55,7 +64,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     private func bind() {
         let bottomSheetVisibilityPublisher = bottomSheetVisibility
-            .isShown
+            .isShownPublisher
             .share(replay: 1)
 
         bottomSheetVisibilityPublisher
@@ -71,6 +80,13 @@ class MainBottomSheetCoordinator: CoordinatorObject {
             }
             .assign(to: \.contentViewModel, on: self, ownership: .weak)
             .store(in: &bag)
+
+        bottomSheetVisibilityPublisher
+            .map { [weak self] isShown in
+                return isShown ? self?.__overlayViewModel : nil
+            }
+            .assign(to: \.overlayViewModel, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
 
@@ -83,5 +99,23 @@ extension MainBottomSheetCoordinator: MainBottomSheetContentRoutable {
         let coordinator = ManageTokensNetworkSelectorCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(coinId: coinId, tokenItems: tokenItems))
         networkSelectorCoordinator = coordinator
+    }
+
+    func showGenerateAddressesWarning(
+        numberOfNetworks: Int,
+        currentWalletNumber: Int,
+        totalWalletNumber: Int,
+        action: @escaping () -> Void
+    ) {
+        __overlayViewModel = GenerateAddressesViewModel(
+            numberOfNetworks: numberOfNetworks,
+            currentWalletNumber: currentWalletNumber,
+            totalWalletNumber: totalWalletNumber,
+            didTapGenerate: action
+        )
+    }
+
+    func hideGenerateAddressesWarning() {
+        __overlayViewModel = nil
     }
 }
