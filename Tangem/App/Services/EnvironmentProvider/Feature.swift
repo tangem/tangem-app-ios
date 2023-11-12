@@ -15,7 +15,7 @@ enum Feature: String, Hashable, CaseIterable {
     case enableBlockchainSdkEvents
     case mainV2
     case sendV2
-    case manageTokens
+    case manageTokens // [REDACTED_TODO_COMMENT]
     case mainScreenBottomSheet
     case sprinklr
     case dynamicFonts
