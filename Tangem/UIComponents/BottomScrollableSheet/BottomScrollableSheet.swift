@@ -8,9 +8,10 @@
 
 import SwiftUI
 
-struct BottomScrollableSheet<Header: View, Content: View>: View {
+struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     @ViewBuilder private let header: () -> Header
     @ViewBuilder private let content: () -> Content
+    @ViewBuilder private let overlay: () -> Overlay
 
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
@@ -27,11 +28,13 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     init(
         stateObject: BottomScrollableSheetStateObject,
         @ViewBuilder header: @escaping () -> Header,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: @escaping () -> Content,
+        @ViewBuilder overlay: @escaping () -> Overlay
     ) {
         self.stateObject = stateObject
         self.header = header
         self.content = content
+        self.overlay = overlay
     }
 
     var body: some View {
@@ -85,6 +88,7 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             .ios15AndBelowScrollDisabledCompat(stateObject.scrollViewIsDragging)
         }
         .ios16AndAboveScrollDisabledCompat(stateObject.scrollViewIsDragging)
+        .overlay(overlay())
         .coordinateSpace(name: coordinateSpaceName)
     }
 
