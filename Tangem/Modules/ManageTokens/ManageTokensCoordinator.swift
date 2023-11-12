@@ -44,4 +44,17 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
         coordinator.start(with: .init(coinId: coinId, tokenItems: tokenItems))
         networkSelectorCoordinator = coordinator
     }
+
+    func showGenerateAddressesWarning(
+        numberOfNetworks: Int,
+        currentWalletNumber: Int,
+        totalWalletNumber: Int,
+        action: @escaping () -> Void
+    ) {
+        fatalError("\(#function) not implemented yet!")
+    }
+
+    func hideGenerateAddressesWarning() {
+        fatalError("\(#function) not implemented yet!")
+    }
 }
