@@ -18,7 +18,12 @@ struct GenerateAddressesViewModel: Identifiable {
     let totalWalletNumber: Int
     let didTapGenerate: () -> Void
 
-    init(numberOfNetworks: Int, currentWalletNumber: Int, totalWalletNumber: Int, didTapGenerate: @escaping () -> Void) {
+    init(
+        numberOfNetworks: Int,
+        currentWalletNumber: Int,
+        totalWalletNumber: Int,
+        didTapGenerate: @escaping () -> Void
+    ) {
         self.numberOfNetworks = numberOfNetworks
         self.currentWalletNumber = currentWalletNumber
         self.totalWalletNumber = totalWalletNumber
