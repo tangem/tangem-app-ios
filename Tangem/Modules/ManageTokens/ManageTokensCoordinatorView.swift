@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 struct ManageTokensCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ManageTokensCoordinator
 
