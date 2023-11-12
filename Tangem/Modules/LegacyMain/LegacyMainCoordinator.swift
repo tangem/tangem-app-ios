@@ -249,6 +249,7 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
             self?.manageTokensCoordinator = nil
         }
 
+        // [REDACTED_TODO_COMMENT]
         if FeatureProvider.isAvailable(.manageTokens) {
             let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
             let options = ManageTokensCoordinator.Options()
