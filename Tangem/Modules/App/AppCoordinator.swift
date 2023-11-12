@@ -150,7 +150,7 @@ class AppCoordinator: CoordinatorObject {
             .store(in: &bag)
 
         bottomSheetVisibility
-            .isShown
+            .isShownPublisher
             .assign(to: \.isMainBottomSheetShown, on: self, ownership: .weak)
             .store(in: &bag)
     }
