@@ -15,13 +15,9 @@ struct ManageTokensView: View {
     @ObservedObject var viewModel: ManageTokensViewModel
 
     var body: some View {
-        ZStack {
-            list
-
-            overlay
-        }
-        .scrollDismissesKeyboardCompat(true)
-        .alert(item: $viewModel.alert, content: { $0.alert })
+        list
+            .scrollDismissesKeyboardCompat(true)
+            .alert(item: $viewModel.alert, content: { $0.alert })
     }
 
     private var header: some View {
@@ -62,15 +58,5 @@ struct ManageTokensView: View {
     @ViewBuilder private var titleView: some View {
         Text(Localization.addTokensTitle)
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-    }
-
-    @ViewBuilder private var overlay: some View {
-        if let generateAddressViewModel = viewModel.generateAddressesViewModel {
-            VStack {
-                Spacer()
-
-                GenerateAddressesView(viewModel: generateAddressViewModel)
-            }
-        }
     }
 }
