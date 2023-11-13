@@ -262,7 +262,7 @@ private extension CommonExpressManager {
         }
 
         guard let bestExpectedQuote = sortedQuotes.first else {
-            throw SwappingManagerError.quotesNotFound
+            throw ExpressManagerError.quotesNotFound
         }
 
         return bestExpectedQuote
