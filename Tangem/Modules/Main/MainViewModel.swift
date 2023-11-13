@@ -20,7 +20,6 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var isPageSwitchAnimationDisabled = false
     @Published var showAddressCopiedToast = false
     @Published var actionSheet: ActionSheetBinder?
 
@@ -97,13 +96,6 @@ final class MainViewModel: ObservableObject {
 
         bottomSheetVisibility.show()
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
-
-        if isPageSwitchAnimationDisabled {
-            // A small delay to turn on animations back after closing the Details screen
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.isPageSwitchAnimationDisabled = false
-            }
-        }
     }
 
     func onViewDisappear() {
@@ -270,7 +262,7 @@ final class MainViewModel: ObservableObject {
                     // [REDACTED_TODO_COMMENT]
                     break
                 case .inserted:
-                    isPageSwitchAnimationDisabled = true
+                    break
                 case .updated(let userWalletModel):
                     addNewPage(for: userWalletModel)
                 case .deleted(let userWalletIds):
