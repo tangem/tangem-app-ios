@@ -12,10 +12,11 @@ import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
-    var amount: Binding<DecimalNumberTextField.DecimalValue?>
     let fractionDigits: Int
-    @Published var amountAlternative: String?
     let footer: String
+
+    var amount: Binding<DecimalNumberTextField.DecimalValue?>
+    @Published var amountAlternative: String?
 
     private var bag: Set<AnyCancellable> = []
 
