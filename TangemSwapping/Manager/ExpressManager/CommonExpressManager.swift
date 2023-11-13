@@ -302,7 +302,12 @@ private extension CommonExpressManager {
 
 private extension CommonExpressManager {
     func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpectedQuote) async throws -> ExpressManagerRestriction? {
-        // 1. Check Permission
+        // 1. Check minimal amount
+        if let minAmount = quote.quote?.minAmount, request.amount < minAmount {
+            return .tooMinimalAmount(minAmount)
+        }
+        
+        // 2. Check Permission
 
         if let spender = quote.quote?.allowanceContract {
             let isPermissionRequired = try await isPermissionRequired(request: request, for: spender)
@@ -312,7 +317,7 @@ private extension CommonExpressManager {
             }
         }
 
-        // 2. Check Pending
+        // 3. Check Pending
 
         let hasPendingTransaction = expressPendingTransactionRepository.hasPending(for: request.pair.source.currency.network)
 
@@ -320,7 +325,7 @@ private extension CommonExpressManager {
             return .hasPendingTransaction
         }
 
-        // 3. Check Balance
+        // 4. Check Balance
 
         let sourceBalance = try await request.pair.source.getBalance()
         let isNotEnoughAmountForSwapping = request.amount > sourceBalance
