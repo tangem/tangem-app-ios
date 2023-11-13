@@ -34,10 +34,7 @@ struct ManageTokensView: View {
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 .lineLimit(1)
         }
-        .frame(
-            maxWidth: .infinity,
-            alignment: .topLeading
-        )
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
     }
