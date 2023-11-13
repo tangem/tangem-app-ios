@@ -7,22 +7,28 @@
 //
 
 import SwiftUI
+import Combine
 
 class SendCustomFeeInputFieldModel: Identifiable {
-    internal init(title: String, footer: String, amount: Binding<DecimalNumberTextField.DecimalValue?>, fractionDigits: Int, amountAlternative: String? = nil) {
-        self.title = title
-        self.footer = footer
-        self.amount = amount
-        self.fractionDigits = fractionDigits
-        self.amountAlternative = amountAlternative
-    }
-
     let title: String
     let footer: String
     var amount: Binding<DecimalNumberTextField.DecimalValue?>
     let fractionDigits: Int
 
     @Published var amountAlternative: String?
+
+    private var bag: Set<AnyCancellable> = []
+
+    init(title: String, footer: String, amount: Binding<DecimalNumberTextField.DecimalValue?>, fractionDigits: Int, amountAlternativePublisher: AnyPublisher<String?, Never>) {
+        self.title = title
+        self.footer = footer
+        self.amount = amount
+        self.fractionDigits = fractionDigits
+
+        amountAlternativePublisher
+            .assign(to: \.amountAlternative, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
 }
 
 struct SendCustomFeeInputField: View {
@@ -44,6 +50,7 @@ struct SendCustomFeeInputField: View {
                     if let amountAlternative = viewModel.amountAlternative {
                         Text(amountAlternative)
                             .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                            .lineLimit(1)
                     }
                 }
             }
@@ -63,7 +70,7 @@ struct SendCustomFeeInputField: View {
                 footer: "Maximum commission amount",
                 amount: .constant(.internal(1234)),
                 fractionDigits: 2,
-                amountAlternative: "0.41 $"
+                amountAlternativePublisher: .just(output: "0.41 $")
             )
         )
 
@@ -73,7 +80,7 @@ struct SendCustomFeeInputField: View {
                 footer: "Maximum commission amount",
                 amount: .constant(.internal(1234)),
                 fractionDigits: 2,
-                amountAlternative: nil
+                amountAlternativePublisher: .just(output: nil)
             )
         )
     }
