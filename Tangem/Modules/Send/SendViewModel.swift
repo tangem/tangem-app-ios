@@ -66,6 +66,8 @@ final class SendViewModel: ObservableObject {
 
     private unowned let coordinator: SendRoutable
 
+    private var bag: Set<AnyCancellable> = []
+
     private var currentStepValid: AnyPublisher<Bool, Never> {
         $step
             .flatMap { [weak self] step -> AnyPublisher<Bool, Never> in
@@ -133,7 +135,8 @@ final class SendViewModel: ObservableObject {
             .map {
                 !$0
             }
-            .assign(to: &$currentStepInvalid)
+            .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
 
