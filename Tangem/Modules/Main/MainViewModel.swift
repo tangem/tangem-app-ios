@@ -39,11 +39,11 @@ final class MainViewModel: ObservableObject {
 
     private var pendingUserWalletModelIdsToUpdate: Set<Data> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
-    private var shouldRecreatePagesAfterAddingWalletModels = false
+    private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
     private var isLoggingOut = false
 
-    private var bag = Set<AnyCancellable>()
+    private var bag: Set<AnyCancellable> = []
 
     // MARK: - Initializers
 
@@ -191,7 +191,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - User wallets pages management
 
-    /// Marks given user wallet as 'dirty' (needs to be updated).
+    /// Marks the given user wallet as 'dirty' (needs to be updated).
     private func setNeedsUpdateUserWallet(_ userWallet: UserWallet) {
         pendingUserWalletModelIdsToUpdate.insert(userWallet.userWalletId)
     }
@@ -232,8 +232,8 @@ final class MainViewModel: ObservableObject {
                 }
                 pendingUserWalletModelIdsToUpdate.subtract(processedUserWalletIds)
 
-                if shouldRecreatePagesAfterAddingWalletModels {
-                    shouldRecreatePagesAfterAddingWalletModels = false
+                if shouldRecreatePagesAfterAddingPendingWalletModels {
+                    shouldRecreatePagesAfterAddingPendingWalletModels = false
                     recreatePages()
                 }
             }
@@ -285,7 +285,7 @@ final class MainViewModel: ObservableObject {
     /// Otherwise, re-creates pages immediately.
     private func recreatePagesIfNeeded(for userWallet: UserWallet) {
         if userWalletAwaitsPendingUpdate(userWallet) {
-            shouldRecreatePagesAfterAddingWalletModels = true
+            shouldRecreatePagesAfterAddingPendingWalletModels = true
         } else {
             recreatePages()
         }
