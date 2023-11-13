@@ -37,7 +37,8 @@ struct SendCustomFeeInputField: View {
                 HStack {
                     DecimalNumberTextField(
                         decimalValue: viewModel.amount,
-                        decimalNumberFormatter: .init(maximumFractionDigits: viewModel.fractionDigits)
+                        decimalNumberFormatter: .init(maximumFractionDigits: viewModel.fractionDigits),
+                        font: Fonts.Regular.subheadline
                     )
 
                     if let amountAlternative = viewModel.amountAlternative {
