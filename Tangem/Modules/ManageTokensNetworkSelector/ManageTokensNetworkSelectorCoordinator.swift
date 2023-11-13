@@ -42,13 +42,13 @@ extension ManageTokensNetworkSelectorCoordinator {
 }
 
 extension ManageTokensNetworkSelectorCoordinator: ManageTokensNetworkSelectorRoutable {
-    func openAddCustomTokenModule() {}
+    func openAddCustomToken() {}
 
-    func openWalletSelectorModule(with dataSource: WalletSelectorDataSource) {
+    func openWalletSelector(with dataSource: WalletSelectorDataSource) {
         walletSelectorViewModel = WalletSelectorViewModel(dataSource: dataSource)
     }
 
-    func closeModule() {
+    func close() {
         dismiss()
     }
 }

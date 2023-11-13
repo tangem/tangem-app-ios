@@ -201,7 +201,7 @@ private extension ManageTokensViewModel {
         generateAddressesViewModel = GenerateAddressesViewModel(
             numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
-            totalWalletNumber: userWalletRepository.userWallets.count,
+            totalWalletNumber: userWalletModels.count,
             didTapGenerate: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
         )
     }
