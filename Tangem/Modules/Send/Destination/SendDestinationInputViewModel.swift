@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class SendDestinationInputViewModel: Identifiable {
     let name: String
@@ -28,12 +29,12 @@ class SendDestinationInputViewModel: Identifiable {
         self.description = description
         self.didPasteAddress = didPasteAddress
 
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(updatePasteButton),
-            name: UIPasteboard.changedNotification,
-            object: nil
-        )
+        NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)
+            .sink { [weak self] _ in
+                self?.updatePasteButton()
+            }
+            .store(in: &bag)
+
         updatePasteButton()
     }
 
@@ -49,11 +50,6 @@ class SendDestinationInputViewModel: Identifiable {
         updatePasteButton()
     }
 
-    @objc
-    func updatePasteButton() {
-        hasTextInClipboard = UIPasteboard.general.hasStrings
-    }
-
     func didTapLegacyPasteButton() {
         guard let input = UIPasteboard.general.string else {
             return
@@ -64,5 +60,9 @@ class SendDestinationInputViewModel: Identifiable {
 
     func clearInput() {
         input.wrappedValue = ""
+    }
+
+    private func updatePasteButton() {
+        hasTextInClipboard = UIPasteboard.general.hasStrings
     }
 }
