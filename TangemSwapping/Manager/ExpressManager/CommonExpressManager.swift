@@ -23,22 +23,20 @@ class CommonExpressManager {
 
     // MARK: - State
 
-    // 1.
+    // 1. Here we start. External values and triggers for update
     private var _pair: ExpressManagerSwappingPair?
     private var _amount: Decimal?
 
-    // 2.
+    // 2. All provider in the express
     private var _providers: CurrentValueSubject<[ExpressProvider], Never> = .init([])
-    // 3. Here ids from `/pair`
+    // 3. Here ids from `/pair` for each pair. Will see, maybe the cache will be deleted
     private var _availableProviders: CurrentValueSubject<[ExpressManagerSwappingPair: [Int]], Never> = .init([:])
-    // 4. Here from all `_providers` with filled the quote from `/quote`
+    // 4. Here from all `_providers` with filled the quote from `/quote`.
+    // Will see, maybe the cache will be deleted
     private var _availableQuotes: CurrentValueSubject<[ExpressManagerSwappingPair: [ExpectedQuote]], Never> = .init([:])
     // 5. Here the provider with his quote which was selected from user or autoselected as the best rate
+    // Will see, maybe the cache will be deleted
     private var _selectedQuote: CurrentValueSubject<[ExpressManagerSwappingPair: ExpectedQuote], Never> = .init([:])
-
-    // MARK: - Internal
-
-    private var bag: Set<AnyCancellable> = []
 
     init(
         expressAPIProvider: ExpressAPIProvider,
@@ -53,7 +51,7 @@ class CommonExpressManager {
     }
 }
 
-// MARK: - SwappingManager
+// MARK: - ExpressManager
 
 extension CommonExpressManager: ExpressManager {
     func getPair() -> ExpressManagerSwappingPair? {
@@ -74,16 +72,14 @@ extension CommonExpressManager: ExpressManager {
         _providers.eraseToAnyPublisher()
     }
 
-    /// Use it for shows all providers with their state
     var availableQuotesPublisher: AnyPublisher<[ExpectedQuote], Never> {
         _availableQuotes
-            .withWeakCaptureOf(self)
-            .map { manager, quotes in
-                if let pair = manager._pair {
+            .map { [weak self] quotes in
+                if let pair = self?._pair {
                     return quotes[pair] ?? []
                 }
 
-                manager.logger.debug("Pair not found")
+                self?.logger.debug("Pair not found")
                 return []
             }
             .eraseToAnyPublisher()
@@ -91,13 +87,12 @@ extension CommonExpressManager: ExpressManager {
 
     var selectedQuotePublisher: AnyPublisher<ExpectedQuote?, Never> {
         _selectedQuote
-            .withWeakCaptureOf(self)
-            .map { manager, quotes in
-                if let pair = manager._pair {
+            .map { [weak self] quotes in
+                if let pair = self?._pair {
                     return quotes[pair]
                 }
 
-                manager.logger.debug("Pair not found")
+                self?.logger.debug("Pair not found")
                 return nil
             }
             .eraseToAnyPublisher()
@@ -138,14 +133,15 @@ extension CommonExpressManager: ExpressManager {
 // MARK: - Private
 
 private extension CommonExpressManager {
-    /// Return the state which depends of all properties
+    /// Return the state which checking the all properties
     func getState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
             logger.debug("ExpressManagerSwappingPair not found")
             return .idle
         }
 
-        let availableProviders = try await getAvailableProviders(pair: pair)
+        // Just update availableProviders for this pair
+        try await getAvailableProviders(pair: pair)
 
         try Task.checkCancellation()
 
@@ -156,7 +152,7 @@ private extension CommonExpressManager {
 
         let request = ExpressManagerSwappingPairRequest(pair: pair, amount: amount)
         let quotes = try await getQuotes(request: request)
-        let selectedQuote = try await getSelectedQuote(request: request)
+        let selectedQuote = try await getSelectedQuote(request: request, quotes: quotes)
 
         try Task.checkCancellation()
 
@@ -186,6 +182,7 @@ private extension CommonExpressManager {
         return providers
     }
 
+    @discardableResult
     func getAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
         if let providers = _availableProviders.value[pair] {
             return providers
@@ -222,12 +219,13 @@ private extension CommonExpressManager {
         return quotes
     }
 
-    func getSelectedQuote(request: ExpressManagerSwappingPairRequest) async throws -> ExpectedQuote {
+    func getSelectedQuote(
+        request: ExpressManagerSwappingPairRequest,
+        quotes: [ExpectedQuote]
+    ) async throws -> ExpectedQuote {
         if let quote = _selectedQuote.value[request.pair] {
             return quote
         }
-
-        let quotes = try await getQuotes(request: request)
 
         let best = try bestQuote(from: quotes)
         _selectedQuote.value[request.pair] = best
