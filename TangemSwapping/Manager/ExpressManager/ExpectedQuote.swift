@@ -9,10 +9,10 @@
 import Foundation
 
 public struct ExpectedQuote: Hashable {
-    let provider: ExpressProvider
-    let state: State
+    public let provider: ExpressProvider
+    public let state: State
 
-    var quote: ExpressQuote? {
+    public var quote: ExpressQuote? {
         switch state {
         case .quote(let expressQuote):
             return expressQuote
@@ -21,7 +21,7 @@ public struct ExpectedQuote: Hashable {
         }
     }
 
-    enum State: Hashable {
+    public enum State: Hashable {
         case quote(ExpressQuote)
         case error(String)
         case notAvailable
