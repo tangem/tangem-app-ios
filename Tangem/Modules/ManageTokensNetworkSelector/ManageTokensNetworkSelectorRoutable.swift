@@ -9,6 +9,6 @@
 import Foundation
 
 protocol ManageTokensNetworkSelectorRoutable: AnyObject {
-    func closeModule()
-    func openAddCustomTokenModule()
+    func close()
+    func openAddCustomToken()
 }
