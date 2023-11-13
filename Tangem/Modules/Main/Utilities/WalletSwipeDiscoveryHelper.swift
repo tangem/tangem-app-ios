@@ -49,8 +49,8 @@ final class WalletSwipeDiscoveryHelper {
 
         defer { lastNumberOfWallets = numberOfWallets }
 
-        // The discovery is triggered only if there is more than one wallet and
-        // the number of wallets has changed since the last triggering attempt
+        // The discovery is triggered only if there is more than one wallet and the number
+        // of wallets is increased since the last attempt to trigger swipe discovery
         guard
             numberOfWallets > 1,
             numberOfWallets > lastNumberOfWallets
