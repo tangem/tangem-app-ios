@@ -52,8 +52,8 @@ final class ManageTokensViewModel: ObservableObject {
         loader.fetch(searchText)
     }
 
-    func batch() {
-        loader.batch()
+    func fetchMore() {
+        loader.fetchMore()
     }
 }
 
