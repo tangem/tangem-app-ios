@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 class MainCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -24,6 +26,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var legacySendCoordinator: LegacySendCoordinator?
+    @Published var sendCoordinator: SendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator?
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var manageTokensCoordinator: ManageTokensCoordinator? = nil
@@ -34,11 +37,11 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel?
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
-    // MARK: - Other state
+    // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -223,7 +226,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        assertionFailure("[REDACTED_TODO_COMMENT]")
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
+        let options = SendCoordinator.Options()
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
     }
 
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
