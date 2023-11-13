@@ -28,13 +28,13 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         // Should be pass from manager or something
         providers = [
             ExpressProvider(
-                id: "ChangeNOW",
+                id: 1,
                 name: "ChangeNOW",
                 url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png")!,
                 type: .cex
             ),
             ExpressProvider(
-                id: "1inch",
+                id: 2,
                 name: "1inch",
                 url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/1inch_512.png")!,
                 type: .dex
