@@ -16,6 +16,7 @@ struct SendCustomFeeInputField: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.title)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .lineLimit(1)
 
                 HStack {
                     DecimalNumberTextField(
