@@ -343,8 +343,8 @@ struct CardsInfoPagerView<
     }
 
     private func makeSwipeDiscoveryAnimationModifier(with geometryProxy: GeometryProxy) -> some AnimatableModifier {
-        // When there is more than one page and the last page is selected, it's animated in a manner
-        // to show the previous page. Otherwise, pages are animated in a manner to show the next page
+        // When there is more than one page and the last page is selected, it's animated in a 'reverse' manner
+        // to show the previous page. Otherwise, pages are animated in a 'forward' manner to show the next page
         let offsetSign = (data.count > 1 && clampedContentSelectedIndex == selectedIndexUpperBound) ? 1.0 : -1.0
         let offset = geometryProxy.size.width * Constants.swipeDiscoveryOffsetToScreenWidthRatio
 
