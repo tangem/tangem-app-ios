@@ -309,6 +309,7 @@ final class MainViewModel: ObservableObject {
                         return
                     }
                     removePages(with: userWalletIds)
+                    swipeDiscoveryHelper.reset()
                 case .selected:
                     // [REDACTED_TODO_COMMENT]
                     break
