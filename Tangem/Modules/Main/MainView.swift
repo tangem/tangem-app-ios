@@ -45,7 +45,6 @@ struct MainView: View {
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
-        .pageSwitchAnimationDuration(viewModel.isPageSwitchAnimationDisabled ? .zero : nil)
         .onPageChange(viewModel.onPageChange(dueTo:))
         .onAppear(perform: viewModel.onViewAppear)
         .onDisappear(perform: viewModel.onViewDisappear)
