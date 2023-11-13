@@ -7,32 +7,9 @@
 //
 
 import SwiftUI
-import Combine
-
-class SendCustomFeeInputFieldModel: Identifiable {
-    let title: String
-    let footer: String
-    var amount: Binding<DecimalNumberTextField.DecimalValue?>
-    let fractionDigits: Int
-
-    @Published var amountAlternative: String?
-
-    private var bag: Set<AnyCancellable> = []
-
-    init(title: String, footer: String, amount: Binding<DecimalNumberTextField.DecimalValue?>, fractionDigits: Int, amountAlternativePublisher: AnyPublisher<String?, Never>) {
-        self.title = title
-        self.footer = footer
-        self.amount = amount
-        self.fractionDigits = fractionDigits
-
-        amountAlternativePublisher
-            .assign(to: \.amountAlternative, on: self, ownership: .weak)
-            .store(in: &bag)
-    }
-}
 
 struct SendCustomFeeInputField: View {
-    let viewModel: SendCustomFeeInputFieldModel
+    @ObservedObject var viewModel: SendCustomFeeInputFieldModel
 
     var body: some View {
         GroupedSection(viewModel) { viewModel in
@@ -67,20 +44,20 @@ struct SendCustomFeeInputField: View {
         SendCustomFeeInputField(
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
-                footer: "Maximum commission amount",
                 amount: .constant(.internal(1234)),
                 fractionDigits: 2,
-                amountAlternativePublisher: .just(output: "0.41 $")
+                amountAlternativePublisher: .just(output: "0.41 $"),
+                footer: "Maximum commission amount"
             )
         )
 
         SendCustomFeeInputField(
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
-                footer: "Maximum commission amount",
                 amount: .constant(.internal(1234)),
                 fractionDigits: 2,
-                amountAlternativePublisher: .just(output: nil)
+                amountAlternativePublisher: .just(output: nil),
+                footer: "Maximum commission amount"
             )
         )
     }
