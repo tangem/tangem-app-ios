@@ -14,7 +14,7 @@ struct MainBottomSheetContentView: View {
     var body: some View {
         if let manageTokensViewModel = viewModel.manageTokensViewModel {
             ManageTokensView(viewModel: manageTokensViewModel)
-                .onAppear { manageTokensViewModel.onAppear() }
+                .onAppear(perform: manageTokensViewModel.onAppear)
         }
     }
 }

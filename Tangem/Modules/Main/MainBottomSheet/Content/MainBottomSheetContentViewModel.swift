@@ -22,20 +22,20 @@ final class MainBottomSheetContentViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        enteredSearchTextPublisher: some Publisher<String, Never>,
+        searchTextPublisher: some Publisher<String, Never>,
         coordinator: MainBottomSheetContentRoutable
     ) {
         self.coordinator = coordinator
 
         manageTokensViewModel = .init(coordinator: coordinator)
 
-        bind(enteredSearchTextPublisher: enteredSearchTextPublisher)
+        bind(searchTextPublisher: searchTextPublisher)
     }
 
     // MARK: - Private Implementation
 
-    private func bind(enteredSearchTextPublisher: some Publisher<String, Never>) {
-        enteredSearchTextPublisher
+    private func bind(searchTextPublisher: some Publisher<String, Never>) {
+        searchTextPublisher
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
