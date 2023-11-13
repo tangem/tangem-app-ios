@@ -48,12 +48,21 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                     return
                 }
 
-                let loadedTokenItems = models
+                let preparedSwapStates: [TokenItem: Bool] = models
                     .flatMap { $0.items }
-                    .map { ($0.tokenItem, $0.exchangeable) }
+                    .reduce(into: [:]) {
+                        guard SwappingBlockchain(networkId: $1.blockchain.networkId) != nil else {
+                            return
+                        }
 
-                let preparedSwapStates = Dictionary(uniqueKeysWithValues: loadedTokenItems)
-                loadedSwapableTokenItems.value.merge(preparedSwapStates, uniquingKeysWith: { $1 })
+                        $0[$1.tokenItem] = $1.exchangeable
+                    }
+
+                var items = loadedSwapableTokenItems.value
+                preparedSwapStates.forEach { key, value in
+                    items.updateValue(value, forKey: key)
+                }
+                loadedSwapableTokenItems.value = items
             })
     }
 
