@@ -193,7 +193,7 @@ private extension SwappingApproveViewModel {
             title: Localization.swappingPermissionRowsAmount(tokenSymbol),
             actions: [
                 SwappingApprovePolicy.unlimited,
-                SwappingApprovePolicy.specified(amount: transactionData.sourceAmount),
+                SwappingApprovePolicy.specified,
             ]
         )
 
