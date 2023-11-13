@@ -37,7 +37,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
     private let coinModel: CoinModel
-    private var selectedUserWalletModel: UserWalletModel?
+
+    private var selectedUserWalletModel: UserWalletModel? {
+        networkDataSource.selectedUserWalletModelPublisher.value
+    }
 
     private var settings: ManageTokensSettings? {
         guard let userWalletModel = selectedUserWalletModel else {
@@ -89,7 +92,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
-        coordinator.openWalletSelectorModule(with: networkDataSource)
+        coordinator.openWalletSelector(with: networkDataSource)
     }
 
     func displayNonNativeNetworkAlert() {
@@ -255,7 +258,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd = []
         pendingRemove = []
 
-        selectedUserWalletModel = userWalletModel
         currentWalletName = userWalletModel?.config.cardName ?? ""
 
         fillSelectorItemsFromTokenItems()
