@@ -9,6 +9,6 @@
 import Foundation
 
 public struct ExpressManagerSwappingPairRequest {
-    let pair: ExpressManagerSwappingPair
-    let amount: Decimal
+    public let pair: ExpressManagerSwappingPair
+    public let amount: Decimal
 }
