@@ -75,19 +75,11 @@ final class SendViewModel: ObservableObject {
 
                 switch step {
                 case .amount:
-                    return sendModel.amountError
-                        .map {
-                            $0 == nil
-                        }
-                        .eraseToAnyPublisher()
+                    return sendModel.amountValid
                 case .destination:
-                    return Publishers.CombineLatest(sendModel.destinationError, sendModel.destinationAdditionalFieldError)
-                        .map {
-                            $0 == nil && $1 == nil
-                        }
-                        .eraseToAnyPublisher()
+                    return sendModel.destinationValid
                 case .fee:
-                    return .just(output: true)
+                    return sendModel.feeValid
                 case .summary:
                     return .just(output: true)
                 }
