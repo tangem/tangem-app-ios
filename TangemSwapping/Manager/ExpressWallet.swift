@@ -11,7 +11,7 @@ import Foundation
 public protocol ExpressWallet {
     var currency: ExpressCurrency { get }
     var address: String { get }
-    
+
     // Maybe will be deleted. We still deciding, How it will work
     var decimalCount: Int { get }
 
@@ -22,7 +22,7 @@ public extension ExpressWallet {
     var contractAddress: String {
         currency.contractAddress
     }
-    
+
     var network: String {
         currency.network
     }
