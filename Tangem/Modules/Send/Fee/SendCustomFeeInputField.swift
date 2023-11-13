@@ -9,14 +9,20 @@
 import SwiftUI
 
 class SendCustomFeeInputFieldModel: Identifiable {
-    let title = "Fee up to"
-    let footer = "Maximum commission amount"
+    internal init(title: String, footer: String, amount: Binding<DecimalNumberTextField.DecimalValue?>, fractionDigits: Int, amountAlternative: String? = nil) {
+        self.title = title
+        self.footer = footer
+        self.amount = amount
+        self.fractionDigits = fractionDigits
+        self.amountAlternative = amountAlternative
+    }
 
-    var amount: Binding<DecimalNumberTextField.DecimalValue?> = .constant(.internal(1234))
+    let title: String
+    let footer: String
+    var amount: Binding<DecimalNumberTextField.DecimalValue?>
+    let fractionDigits: Int
 
-    let fractionDigits: Int = 2
-
-    @Published var amountAlternative: String? = "0.41 $"
+    @Published var amountAlternative: String?
 }
 
 struct SendCustomFeeInputField: View {
@@ -50,7 +56,25 @@ struct SendCustomFeeInputField: View {
 
 #Preview {
     GroupedScrollView {
-        SendCustomFeeInputField(viewModel: SendCustomFeeInputFieldModel())
+        SendCustomFeeInputField(
+            viewModel: SendCustomFeeInputFieldModel(
+                title: "Fee up to",
+                footer: "Maximum commission amount",
+                amount: .constant(.internal(1234)),
+                fractionDigits: 2,
+                amountAlternative: "0.41 $"
+            )
+        )
+
+        SendCustomFeeInputField(
+            viewModel: SendCustomFeeInputFieldModel(
+                title: "Fee up to",
+                footer: "Maximum commission amount",
+                amount: .constant(.internal(1234)),
+                fractionDigits: 2,
+                amountAlternative: nil
+            )
+        )
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
