@@ -49,6 +49,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+            .sheet(item: $coordinator.expressCoordinator) {
+                ExpressCoordinatorView(coordinator: $0)
+            }
 
         NavHolder()
             .bottomSheet(
