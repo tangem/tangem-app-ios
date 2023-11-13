@@ -21,7 +21,16 @@ class SendDestinationInputViewModel: Identifiable {
     var hasTextInClipboard = false
     var errorText: String?
 
-    init(name: String, input: Binding<String>, showAddressIcon: Bool, placeholder: String, description: String, didPasteAddress: @escaping ([String]) -> Void) {
+    private var bag: Set<AnyCancellable> = []
+
+    init(
+        name: String,
+        input: Binding<String>,
+        showAddressIcon: Bool,
+        placeholder: String,
+        description: String,
+        didPasteAddress: @escaping ([String]) -> Void
+    ) {
         self.name = name
         self.input = input
         self.showAddressIcon = showAddressIcon
