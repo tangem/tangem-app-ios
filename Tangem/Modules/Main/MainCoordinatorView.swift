@@ -43,6 +43,9 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.legacySendCoordinator) {
                 LegacySendCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
@@ -81,7 +84,10 @@ struct MainCoordinatorView: CoordinatorView {
                 ReceiveBottomSheetView(viewModel: $0)
             }
             // It's works on all nested views because the bottom sheet works with UIViewController
-            .bottomSheet(item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel) {
+            .bottomSheet(
+                item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
+                settings: .init(backgroundColor: Colors.Background.primary)
+            ) {
                 InformationHiddenBalancesView(viewModel: $0)
             }
     }
