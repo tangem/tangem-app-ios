@@ -993,7 +993,6 @@
 		EF48E6B22AFE98F700FE0072 /* ExpressManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6B12AFE98F700FE0072 /* ExpressManagerError.swift */; };
 		EF48E6B42AFE991D00FE0072 /* ExpressConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6B32AFE991D00FE0072 /* ExpressConstants.swift */; };
 		EF48E6B62AFE993000FE0072 /* ExpressPendingTransactionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6B52AFE993000FE0072 /* ExpressPendingTransactionRepository.swift */; };
-		EF48E6B82AFE994700FE0072 /* Publisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6B72AFE994700FE0072 /* Publisher+.swift */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
 		EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */; };
@@ -2322,7 +2321,6 @@
 		EF48E6B12AFE98F700FE0072 /* ExpressManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressManagerError.swift; sourceTree = "<group>"; };
 		EF48E6B32AFE991D00FE0072 /* ExpressConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressConstants.swift; sourceTree = "<group>"; };
 		EF48E6B52AFE993000FE0072 /* ExpressPendingTransactionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPendingTransactionRepository.swift; sourceTree = "<group>"; };
-		EF48E6B72AFE994700FE0072 /* Publisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+.swift"; sourceTree = "<group>"; };
 		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokenListManager.swift; sourceTree = "<group>"; };
@@ -5518,7 +5516,6 @@
 				EF29BEF129349C2900D7C782 /* Data+.swift */,
 				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
 				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
-				EF48E6B72AFE994700FE0072 /* Publisher+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -8156,7 +8153,6 @@
 				EF48E6B42AFE991D00FE0072 /* ExpressConstants.swift in Sources */,
 				EF04C5532AFC0F8800D8853B /* ExpressTransactionStatus.swift in Sources */,
 				EF4662052924CC6E00346B6C /* HealthCheckTarget.swift in Sources */,
-				EF48E6B82AFE994700FE0072 /* Publisher+.swift in Sources */,
 				EF48E6B02AFE98E400FE0072 /* ExpressManagerState.swift in Sources */,
 				EF4662082924CC6E00346B6C /* SwappingParameters.swift in Sources */,
 				EF4661F72924CC6E00346B6C /* QuoteData.swift in Sources */,
