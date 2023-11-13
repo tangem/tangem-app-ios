@@ -37,6 +37,9 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
+    private var userWalletIdsWithInsertedUserWalletModels: Set<Data> = []
+    private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
+
     private var isLoggingOut = false
 
     private var bag = Set<AnyCancellable>()
@@ -95,7 +98,10 @@ final class MainViewModel: ObservableObject {
         Analytics.log(.mainScreenOpened)
 
         bottomSheetVisibility.show()
-        swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
+
+        addPendingUserWalletModelsIfNeeded { [weak self] in
+            self?.swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
+        }
     }
 
     func onViewDisappear() {
@@ -182,6 +188,37 @@ final class MainViewModel: ObservableObject {
         userWalletRepository.delete(userWalletModel.userWalletId, logoutIfNeeded: true)
     }
 
+    // [REDACTED_TODO_COMMENT]
+    private func processUpdatedUserWalletModel(_ userWalletModel: UserWalletModel) {
+        if userWalletIdsWithInsertedUserWalletModels.contains(userWalletModel.userWallet.userWalletId) {
+            pendingUserWalletModelsToAdd.append(userWalletModel)
+        } else {
+            addNewPage(for: userWalletModel)
+        }
+    }
+
+    private func addPendingUserWalletModelsIfNeeded(completion: @escaping () -> Void) {
+        if pendingUserWalletModelsToAdd.isEmpty {
+            completion()
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.addPendingUserWalletModelsDelay) { [weak self] in
+                defer { completion() }
+
+                guard let self = self else { return }
+
+                let userWalletModels = pendingUserWalletModelsToAdd
+                pendingUserWalletModelsToAdd.removeAll()
+
+                var processedUserWalletIds: Set<Data> = []
+                for userWalletModel in userWalletModels {
+                    processedUserWalletIds.insert(userWalletModel.userWallet.userWalletId)
+                    addNewPage(for: userWalletModel)
+                }
+                userWalletIdsWithInsertedUserWalletModels.subtract(processedUserWalletIds)
+            }
+        }
+    }
+
     private func addNewPage(for userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
         // We need this check to prevent adding new pages after each
@@ -261,10 +298,10 @@ final class MainViewModel: ObservableObject {
                 case .scan:
                     // [REDACTED_TODO_COMMENT]
                     break
-                case .inserted:
-                    break
+                case .inserted(let userWallet):
+                    userWalletIdsWithInsertedUserWalletModels.insert(userWallet.userWalletId)
                 case .updated(let userWalletModel):
-                    addNewPage(for: userWalletModel)
+                    processUpdatedUserWalletModel(userWalletModel)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
@@ -272,10 +309,9 @@ final class MainViewModel: ObservableObject {
                         return
                     }
                     removePages(with: userWalletIds)
-                case .selected(_, let reason):
-                    if reason == .inserted {
-                        recreatePages()
-                    }
+                case .selected:
+                    // [REDACTED_TODO_COMMENT]
+                    break
                 case .replaced:
                     recreatePages()
                 }
@@ -355,5 +391,14 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
     func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
         swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
+    }
+}
+
+// MARK: - Constants
+
+private extension MainViewModel {
+    private enum Constants {
+        /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
+        static let addPendingUserWalletModelsDelay = 1.0
     }
 }
