@@ -20,8 +20,6 @@
 		2D5EBAA82ADD15EA00A25AC4 /* ManageTokensNetworkSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5EBAA32ADD15EA00A25AC4 /* ManageTokensNetworkSelectorView.swift */; };
 		2D5EBAA92ADD15EA00A25AC4 /* ManageTokensNetworkSelectorCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5EBAA42ADD15EA00A25AC4 /* ManageTokensNetworkSelectorCoordinatorView.swift */; };
 		2D727E9A2AB8280D00CD121A /* ManageTokensRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D727E952AB8280D00CD121A /* ManageTokensRoutable.swift */; };
-		2D727E9B2AB8280D00CD121A /* ManageTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D727E962AB8280D00CD121A /* ManageTokensCoordinator.swift */; };
-		2D727E9C2AB8280D00CD121A /* ManageTokensCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D727E972AB8280D00CD121A /* ManageTokensCoordinatorView.swift */; };
 		2D727E9D2AB8280D00CD121A /* ManageTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D727E982AB8280D00CD121A /* ManageTokensView.swift */; };
 		2D727E9E2AB8280D00CD121A /* ManageTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D727E992AB8280D00CD121A /* ManageTokensViewModel.swift */; };
 		2D788E852ADD657000E0884B /* WalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D788E7F2ADD657000E0884B /* WalletSelectorViewModel.swift */; };
@@ -875,11 +873,6 @@
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
 		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
-		EF04C52E2AFA80B700D8853B /* ExpressTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */; };
-		EF04C5302AFA80D500D8853B /* ExpressTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */; };
-		EF04C5332AFA82D700D8853B /* TokenIconItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */; };
-		EF04C5352AFA82EB00D8853B /* TokenIconItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */; };
-		EF04C5372AFAA37900D8853B /* ExpressTokensListRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */; };
 		EF04C53B2AFBBF4000D8853B /* SwappingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5232A03F2A200899812 /* SwappingInteractor.swift */; };
 		EF04C5432AFBEEA000D8853B /* ExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */; };
 		EF04C5452AFBEEB000D8853B /* ExpressTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */; };
@@ -1054,7 +1047,6 @@
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
-		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */; };
 		EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */; };
 		EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */; };
@@ -1285,8 +1277,6 @@
 		2D5EBAA32ADD15EA00A25AC4 /* ManageTokensNetworkSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorView.swift; sourceTree = "<group>"; };
 		2D5EBAA42ADD15EA00A25AC4 /* ManageTokensNetworkSelectorCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorCoordinatorView.swift; sourceTree = "<group>"; };
 		2D727E952AB8280D00CD121A /* ManageTokensRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensRoutable.swift; sourceTree = "<group>"; };
-		2D727E962AB8280D00CD121A /* ManageTokensCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensCoordinator.swift; sourceTree = "<group>"; };
-		2D727E972AB8280D00CD121A /* ManageTokensCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensCoordinatorView.swift; sourceTree = "<group>"; };
 		2D727E982AB8280D00CD121A /* ManageTokensView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensView.swift; sourceTree = "<group>"; };
 		2D727E992AB8280D00CD121A /* ManageTokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensViewModel.swift; sourceTree = "<group>"; };
 		2D788E7F2ADD657000E0884B /* WalletSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorViewModel.swift; sourceTree = "<group>"; };
@@ -2194,11 +2184,6 @@
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
 		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
-		EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemView.swift; sourceTree = "<group>"; };
-		EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemViewModel.swift; sourceTree = "<group>"; };
-		EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemView.swift; sourceTree = "<group>"; };
-		EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemViewModel.swift; sourceTree = "<group>"; };
-		EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutableMock.swift; sourceTree = "<group>"; };
 		EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIProvider.swift; sourceTree = "<group>"; };
 		EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransaction.swift; sourceTree = "<group>"; };
 		EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionData.swift; sourceTree = "<group>"; };
@@ -2387,7 +2372,6 @@
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
-		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
 		EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIService.swift; sourceTree = "<group>"; };
 		EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
 		EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPITarget.swift; sourceTree = "<group>"; };
@@ -4869,8 +4853,6 @@
 			isa = PBXGroup;
 			children = (
 				2DD754D52AE166000009CA64 /* GenerateAddressesView */,
-				2D727E962AB8280D00CD121A /* ManageTokensCoordinator.swift */,
-				2D727E972AB8280D00CD121A /* ManageTokensCoordinatorView.swift */,
 				2D727E952AB8280D00CD121A /* ManageTokensRoutable.swift */,
 				2D727E982AB8280D00CD121A /* ManageTokensView.swift */,
 				2D727E992AB8280D00CD121A /* ManageTokensViewModel.swift */,
@@ -5420,24 +5402,6 @@
 				EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */,
 			);
 			path = DefaultSelectableRowView;
-			sourceTree = "<group>";
-		};
-		EF04C52C2AFA80A700D8853B /* ExpressTokenItem */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */,
-				EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */,
-			);
-			path = ExpressTokenItem;
-			sourceTree = "<group>";
-		};
-		EF04C5312AFA82CF00D8853B /* TokenIconItemView */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */,
-				EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */,
-			);
-			path = TokenIconItemView;
 			sourceTree = "<group>";
 		};
 		EF04C5412AFBEE9A00D8853B /* ExpressAPIProvider */ = {
@@ -7289,7 +7253,6 @@
 				DC261CAA292CF56600875E64 /* AuthView.swift in Sources */,
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
 				EF92413B2935F24A00C28551 /* SwappingTokenIconViewModel.swift in Sources */,
-				2D727E9B2AB8280D00CD121A /* ManageTokensCoordinator.swift in Sources */,
 				B0DC10CD2927505300BBE854 /* SwiftConcurrency+.swift in Sources */,
 				B09BB863259A075600B92000 /* NavigationConfigurator.swift in Sources */,
 				EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */,
@@ -7845,7 +7808,6 @@
 				DA4055262ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift in Sources */,
 				DA4371A72A7D1937006215CA /* LegacyCoinItemView.swift in Sources */,
 				2D0E4F532A8D114E00001D8E /* GenericWalletManagerFactory.swift in Sources */,
-				2D727E9C2AB8280D00CD121A /* ManageTokensCoordinatorView.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */,
 				B0A0911026D3636F00F46DF5 /* AnimationProgressObserverModifier.swift in Sources */,
