@@ -146,6 +146,8 @@ class LegacySendViewModel: ObservableObject {
     @Published private var validatedDestination: String? = nil
     @Published private var validatedAmount: Amount? = nil
 
+    private var destinationResolutionRequest: Task<Void, Error>?
+
     let amountToSend: Amount
 
     private(set) var isSellingCrypto: Bool
@@ -505,6 +507,7 @@ class LegacySendViewModel: ObservableObject {
     }
 
     func validateDestination(_ destination: String) {
+        destinationResolutionRequest?.cancel()
         validatedDestination = nil
         destinationHint = nil
         isAdditionalInputEnabled = false
@@ -525,14 +528,13 @@ class LegacySendViewModel: ObservableObject {
         let isAddressValid = validateAddress(destination)
 
         if isAddressValid {
-            validatedDestination = destination
-            setAdditionalInputVisibility(for: destination)
+            if let addressResolver = walletModel.addressResolver {
+                resolveDestination(destination, using: addressResolver)
+            } else {
+                handleSuccessfulValidation(of: destination)
+            }
         } else {
-            destinationHint = TextHint(
-                isError: true,
-                message: Localization.sendValidationInvalidAddress
-            )
-            setAdditionalInputVisibility(for: nil)
+            handleFailedValidation()
         }
 
         if let lastDestinationAddressSource { // ignore typing
@@ -586,29 +588,42 @@ class LegacySendViewModel: ObservableObject {
         error = AlertBinder(alert: alert)
     }
 
-    // MARK: Validation end -
+    // MARK: - Address resolution
 
-    func pasteClipboardTapped() {
-        Analytics.log(.buttonPaste)
-        if let validatedClipboard = validatedClipboard {
-            lastDestinationAddressSource = .pasteButton
-            destination = validatedClipboard
+    private func resolveDestination(_ destination: String, using addressResolver: AddressResolver) {
+        destinationResolutionRequest = runTask(in: self) { viewModel in
+            do {
+                let resolvedDestination = try await addressResolver.resolve(destination)
+
+                guard !Task.isCancelled else { return }
+
+                viewModel.handleSuccessfulValidation(of: resolvedDestination)
+            } catch {
+                guard !Task.isCancelled else { return }
+
+                viewModel.handleFailedValidation()
+            }
         }
     }
 
-    func pasteClipboardTapped(_ strings: [String]) {
-        Analytics.log(.buttonPaste)
+    // MARK: - Handling verification and resolution result
 
-        if let string = strings.first {
-            lastDestinationAddressSource = .pasteButton
-            destination = string
-        } else {
-            let notificationGenerator = UINotificationFeedbackGenerator()
-            notificationGenerator.notificationOccurred(.error)
-        }
+    @MainActor
+    private func handleSuccessfulValidation(of destination: String) {
+        validatedDestination = destination
+        setAdditionalInputVisibility(for: destination)
     }
 
-    func setAdditionalInputVisibility(for address: String?) {
+    @MainActor
+    private func handleFailedValidation() {
+        destinationHint = TextHint(
+            isError: true,
+            message: Localization.sendValidationInvalidAddress
+        )
+        setAdditionalInputVisibility(for: nil)
+    }
+
+    private func setAdditionalInputVisibility(for address: String?) {
         let isInputEnabled: Bool
         defer {
             withAnimation {
@@ -629,6 +644,28 @@ class LegacySendViewModel: ObservableObject {
             isInputEnabled = true
         default:
             isInputEnabled = false
+        }
+    }
+
+    // MARK: Clipboard
+
+    func pasteClipboardTapped() {
+        Analytics.log(.buttonPaste)
+        if let validatedClipboard = validatedClipboard {
+            lastDestinationAddressSource = .pasteButton
+            destination = validatedClipboard
+        }
+    }
+
+    func pasteClipboardTapped(_ strings: [String]) {
+        Analytics.log(.buttonPaste)
+
+        if let string = strings.first {
+            lastDestinationAddressSource = .pasteButton
+            destination = string
+        } else {
+            let notificationGenerator = UINotificationFeedbackGenerator()
+            notificationGenerator.notificationOccurred(.error)
         }
     }
 
