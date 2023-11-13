@@ -9,6 +9,7 @@
 import TangemSwapping
 
 protocol SwappingModulesFactory {
+    func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel
     func makeSwappingTokenListViewModel(coordinator: SwappingTokenListRoutable) -> SwappingTokenListViewModel
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel
