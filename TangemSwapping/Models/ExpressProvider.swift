@@ -9,22 +9,15 @@
 import Foundation
 
 public struct ExpressProvider: Hashable {
-    public let id: String
+    public let id: Int
     public let name: String
-    public let url: URL
-    public let type: ProviderType
+    public let url: URL?
+    public let type: ExpressProviderType
 
-    public init(id: String, name: String, url: URL, type: ExpressProvider.ProviderType) {
+    public init(id: Int, name: String, url: URL?, type: ExpressProviderType) {
         self.id = id
         self.name = name
         self.url = url
         self.type = type
-    }
-}
-
-public extension ExpressProvider {
-    enum ProviderType: String, Hashable {
-        case dex
-        case cex
     }
 }
