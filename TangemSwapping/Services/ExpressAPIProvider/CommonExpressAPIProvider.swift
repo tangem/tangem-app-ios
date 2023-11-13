@@ -46,12 +46,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func exchangeQuote(item: ExpressSwappableItem) async throws -> ExpressQuote {
         let request = ExpressDTO.ExchangeQuote.Request(
-            fromContractAddress: item.source.contractAddress,
-            fromNetwork: item.source.network,
-            toContractAddress: item.destination.contractAddress,
-            toNetwork: item.destination.network,
+            fromContractAddress: item.source.currency.contractAddress,
+            fromNetwork: item.source.currency.network,
+            toContractAddress: item.destination.currency.contractAddress,
+            toNetwork: item.destination.currency.network,
             fromAmount: item.amount,
-            providerId: item.provider.id,
+            providerId: item.providerId,
             rateType: .float
         )
 
@@ -62,12 +62,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func exchangeData(item: ExpressSwappableItem, destinationAddress: String) async throws -> ExpressTransactionData {
         let request = ExpressDTO.ExchangeData.Request(
-            fromContractAddress: item.source.contractAddress,
-            fromNetwork: item.source.network,
-            toContractAddress: item.destination.contractAddress,
-            toNetwork: item.destination.network,
+            fromContractAddress: item.source.currency.contractAddress,
+            fromNetwork: item.source.currency.network,
+            toContractAddress: item.destination.currency.contractAddress,
+            toNetwork: item.destination.currency.network,
             fromAmount: item.amount,
-            providerId: item.provider.id,
+            providerId: item.providerId,
             rateType: .float,
             toAddress: destinationAddress
         )
