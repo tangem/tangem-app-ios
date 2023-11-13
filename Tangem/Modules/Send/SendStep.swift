@@ -20,13 +20,13 @@ extension SendStep {
     var name: String {
         switch self {
         case .amount:
-            "Send"
+            return "Send"
         case .destination:
-            "Recipient"
+            return "Recipient"
         case .fee:
-            "Speed and Fee"
+            return "Speed and Fee"
         case .summary:
-            "Send"
+            return "Send"
         }
     }
 
