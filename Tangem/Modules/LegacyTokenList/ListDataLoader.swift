@@ -76,7 +76,7 @@ class ListDataLoader {
             }
     }
 
-    func batch() {
+    func fetchMore() {
         fetch(lastSearchText)
     }
 }
