@@ -13,29 +13,27 @@ struct SendDestinationInputView: View {
 
     var body: some View {
         GroupedSection(viewModel) { _ in
-            Group {
-                if viewModel.showAddressIcon {
-                    VStack(alignment: .leading, spacing: 14) {
-                        fieldName
+            if viewModel.showAddressIcon {
+                VStack(alignment: .leading, spacing: 14) {
+                    fieldName
 
-                        HStack(spacing: 12) {
-                            addressIconView
-                            input
-                            pasteButton
-                        }
-                    }
-                    .padding(.vertical, 12)
-                } else {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            fieldName
-                            input
-                        }
-
+                    HStack(spacing: 12) {
+                        addressIconView
+                        input
                         pasteButton
                     }
-                    .padding(.vertical, 12)
                 }
+                .padding(.vertical, 12)
+            } else {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        fieldName
+                        input
+                    }
+
+                    pasteButton
+                }
+                .padding(.vertical, 12)
             }
         } footer: {
             Text(viewModel.description)
