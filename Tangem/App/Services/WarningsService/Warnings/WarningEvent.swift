@@ -24,8 +24,8 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
-    case failedSupportedSingleCurrencyWallet
-    case failedSupportedBlockchainByWallets
+    case supportedOnlySingleCurrencyWallet
+    case walletsNotSupportedBlockchain
 }
 
 // For Notifications
@@ -66,9 +66,9 @@ extension WarningEvent: NotificationEvent {
             return Localization.commonAccessDenied
         case .missingBackup:
             return Localization.warningNoBackupTitle
-        case .failedSupportedSingleCurrencyWallet:
+        case .supportedOnlySingleCurrencyWallet:
             return Localization.manageTokensWalletSupportOnlyOneNetworkTitle
-        case .failedSupportedBlockchainByWallets:
+        case .walletsNotSupportedBlockchain:
             return Localization.manageTokensWalletDoesNotSupportedBlockchain
         }
     }
@@ -106,7 +106,7 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
-        case .failedSupportedBlockchainByWallets, .failedSupportedSingleCurrencyWallet:
+        case .supportedOnlySingleCurrencyWallet, .walletsNotSupportedBlockchain:
             return nil
         }
     }
@@ -124,7 +124,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .devCard:
             return .init(image: Assets.redCircleWarning.image)
-        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .failedSupportedSingleCurrencyWallet, .failedSupportedBlockchainByWallets:
+        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .supportedOnlySingleCurrencyWallet, .walletsNotSupportedBlockchain:
             return .init(image: Assets.attention.image)
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(image: Assets.blueCircleWarning.image)
@@ -137,7 +137,7 @@ extension WarningEvent: NotificationEvent {
 
     var isDismissable: Bool {
         switch self {
-        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .failedSupportedSingleCurrencyWallet, .failedSupportedBlockchainByWallets:
+        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet, .walletsNotSupportedBlockchain:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
@@ -161,8 +161,8 @@ extension WarningEvent: NotificationEvent {
         case .missingDerivation: return .mainNoticeMissingAddress
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
-        case .failedSupportedSingleCurrencyWallet: return nil
-        case .failedSupportedBlockchainByWallets: return nil
+        case .supportedOnlySingleCurrencyWallet: return nil
+        case .walletsNotSupportedBlockchain: return nil
         }
     }
 
