@@ -11,11 +11,31 @@ import SwiftUI
 import Combine
 
 class SendModel {
+    var amountValid: AnyPublisher<Bool, Never> {
+        amount
+            .map {
+                $0 != nil
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var destinationValid: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest(destination, destinationAdditionalFieldError)
+            .map {
+                $0 != nil && $1 == nil
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var feeValid: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
     // MARK: - Data
 
-    private var amount: Decimal?
-    private var destination: String?
-    private var destinationAdditionalField: String?
+    private var amount = CurrentValueSubject<Decimal?, Never>(nil)
+    private var destination = CurrentValueSubject<String?, Never>(nil)
+    private var destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
 
     // MARK: - Raw data
 
@@ -61,7 +81,7 @@ class SendModel {
         amount = Decimal(string: _amountText, locale: Locale.current) ?? 0
         error = nil
 
-        self.amount = amount
+        self.amount.send(amount)
         _amountError.send(error)
     }
 
@@ -80,7 +100,7 @@ class SendModel {
         destination = _destinationText
         error = nil
 
-        self.destination = destination
+        self.destination.send(destination)
         _destinationError.send(error)
     }
 
@@ -97,7 +117,7 @@ class SendModel {
         destinationAdditionalField = _destinationAdditionalFieldText
         error = nil
 
-        self.destinationAdditionalField = destinationAdditionalField
+        self.destinationAdditionalField.send(destinationAdditionalField)
         _destinationAdditionalFieldError.send(error)
     }
 
