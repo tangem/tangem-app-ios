@@ -37,7 +37,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    private var pendingUserWalletModelIdsToUpdate: Set<Data> = []
+    private var pendingUserWalletIdsToUpdate: Set<Data> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
@@ -193,12 +193,12 @@ final class MainViewModel: ObservableObject {
 
     /// Marks the given user wallet as 'dirty' (needs to be updated).
     private func setNeedsUpdateUserWallet(_ userWallet: UserWallet) {
-        pendingUserWalletModelIdsToUpdate.insert(userWallet.userWalletId)
+        pendingUserWalletIdsToUpdate.insert(userWallet.userWalletId)
     }
 
     /// Checks if the given user wallet is 'dirty' (needs to be updated).
     private func userWalletAwaitsPendingUpdate(_ userWallet: UserWallet) -> Bool {
-        return pendingUserWalletModelIdsToUpdate.contains(userWallet.userWalletId)
+        return pendingUserWalletIdsToUpdate.contains(userWallet.userWalletId)
     }
 
     /// Postpones the creation of a new page for a given user wallet model if its
@@ -230,7 +230,7 @@ final class MainViewModel: ObservableObject {
                     processedUserWalletIds.insert(userWalletModel.userWallet.userWalletId)
                     addNewPage(for: userWalletModel)
                 }
-                pendingUserWalletModelIdsToUpdate.subtract(processedUserWalletIds)
+                pendingUserWalletIdsToUpdate.subtract(processedUserWalletIds)
 
                 if shouldRecreatePagesAfterAddingPendingWalletModels {
                     shouldRecreatePagesAfterAddingPendingWalletModels = false
