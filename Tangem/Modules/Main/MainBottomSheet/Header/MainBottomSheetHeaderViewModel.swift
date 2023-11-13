@@ -9,10 +9,10 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
 final class MainBottomSheetHeaderViewModel: ObservableObject {
-    var enteredSearchTextPublisher: some Publisher<String, Never> { return $enteredSearchText }
+    var enteredSearchTextPublisher: AnyPublisher<String, Never> {
+        return $enteredSearchText.eraseToAnyPublisher()
+    }
 
     @Published var enteredSearchText: String = ""
 }
