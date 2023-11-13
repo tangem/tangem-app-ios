@@ -31,7 +31,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     @Published private(set) var contentViewModel: MainBottomSheetContentViewModel? = nil
     private lazy var __contentViewModel = MainBottomSheetContentViewModel(
-        enteredSearchTextPublisher: __headerViewModel.enteredSearchTextPublisher,
+        searchTextPublisher: __headerViewModel.enteredSearchTextPublisher,
         coordinator: self
     )
 
