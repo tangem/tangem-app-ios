@@ -300,7 +300,7 @@ private extension CommonExpressManager {
     func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpectedQuote) async throws -> ExpressManagerRestriction? {
         // 1. Check minimal amount
         if let minAmount = quote.quote?.minAmount, request.amount < minAmount {
-            return .tooMinimalAmount(minAmount)
+            return .notEnoughAmountForSwapping(minAmount)
         }
 
         // 2. Check Permission
@@ -327,7 +327,7 @@ private extension CommonExpressManager {
         let isNotEnoughAmountForSwapping = request.amount > sourceBalance
 
         if isNotEnoughAmountForSwapping {
-            return .notEnoughAmountForSwapping
+            return .notEnoughBalanceForSwapping
         }
 
         // No Restrictions
