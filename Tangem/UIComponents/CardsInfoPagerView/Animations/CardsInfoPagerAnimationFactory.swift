@@ -28,8 +28,8 @@ struct CardsInfoPagerAnimationFactory {
 
     func makeSwipeDicoveryAnimation() -> Animation {
         return .interpolatingSpring(
-            stiffness: 17.85,
-            damping: 5.9
+            stiffness: 17.82,
+            damping: 6.06
         )
     }
 
