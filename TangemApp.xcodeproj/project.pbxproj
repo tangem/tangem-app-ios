@@ -654,6 +654,7 @@
 		DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
+		DAA372E62B025796004F5DCE /* SendCustomFeeInputFieldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA372E52B025796004F5DCE /* SendCustomFeeInputFieldModel.swift */; };
 		DAA5E30028D21369003C0E80 /* UserWalletStorageAgreementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */; };
 		DAA5E30128D21369003C0E80 /* UserWalletStorageAgreementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FD28D21368003C0E80 /* UserWalletStorageAgreementViewModel.swift */; };
 		DAA5E30228D21369003C0E80 /* UserWalletStorageAgreementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FE28D21368003C0E80 /* UserWalletStorageAgreementView.swift */; };
@@ -1962,6 +1963,7 @@
 		DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchGradientViews.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
+		DAA372E52B025796004F5DCE /* SendCustomFeeInputFieldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCustomFeeInputFieldModel.swift; sourceTree = "<group>"; };
 		DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementRoutable.swift; sourceTree = "<group>"; };
 		DAA5E2FD28D21368003C0E80 /* UserWalletStorageAgreementViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementViewModel.swift; sourceTree = "<group>"; };
 		DAA5E2FE28D21368003C0E80 /* UserWalletStorageAgreementView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementView.swift; sourceTree = "<group>"; };
@@ -4701,6 +4703,7 @@
 			isa = PBXGroup;
 			children = (
 				DA6DDDAF2B0223B0009BB01C /* SendCustomFeeInputField.swift */,
+				DAA372E52B025796004F5DCE /* SendCustomFeeInputFieldModel.swift */,
 			);
 			path = Fee;
 			sourceTree = "<group>";
@@ -7910,6 +7913,7 @@
 				DC66BBEF2859B6C700CDF765 /* ShopCoordinatorView.swift in Sources */,
 				B091D7482AA0DBA000ACB6E2 /* AppUtils.swift in Sources */,
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
+				DAA372E62B025796004F5DCE /* SendCustomFeeInputFieldModel.swift in Sources */,
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
 				B6E9A8C72A9A35B5005CF137 /* MainFooterViewModel.swift in Sources */,
