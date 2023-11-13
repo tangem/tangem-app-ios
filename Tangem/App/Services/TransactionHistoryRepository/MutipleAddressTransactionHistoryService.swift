@@ -161,7 +161,7 @@ private extension MutipleAddressTransactionHistoryService {
                     tokenTransfers: oldRecord.tokenTransfers
                 )
 
-                AppLog.shared.debug("TransactionRecord with hash: \(record.hash) in \(String(describing: self)) was zipped")
+                AppLog.shared.debug("TransactionRecord with hash: \(record.hash) was zipped")
             } else {
                 records.append(record)
             }
