@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 class MainCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -35,11 +37,11 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel?
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
-    // MARK: - Other state
+    // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -137,7 +139,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
         organizeTokensViewModel = OrganizeTokensViewModel(
             coordinator: self,
-            walletModelsManager: userWalletModel.walletModelsManager,
+            userWalletModel: userWalletModel,
             tokenSectionsAdapter: tokenSectionsAdapter,
             optionsProviding: optionsManager,
             optionsEditing: optionsManager
