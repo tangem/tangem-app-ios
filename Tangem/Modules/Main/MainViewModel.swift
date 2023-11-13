@@ -37,8 +37,9 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    private var userWalletIdsWithInsertedUserWalletModels: Set<Data> = []
+    private var pendingUserWalletModelIdsToUpdate: Set<Data> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
+    private var shouldRecreatePagesAfterAddingWalletModels = false
 
     private var isLoggingOut = false
 
@@ -188,15 +189,30 @@ final class MainViewModel: ObservableObject {
         userWalletRepository.delete(userWalletModel.userWalletId, logoutIfNeeded: true)
     }
 
-    // [REDACTED_TODO_COMMENT]
+    // MARK: - User wallets pages management
+
+    /// Marks given user wallet as 'dirty' (needs to be updated).
+    private func setNeedsUpdateUserWallet(_ userWallet: UserWallet) {
+        pendingUserWalletModelIdsToUpdate.insert(userWallet.userWalletId)
+    }
+
+    /// Checks if the given user wallet is 'dirty' (needs to be updated).
+    private func userWalletAwaitsPendingUpdate(_ userWallet: UserWallet) -> Bool {
+        return pendingUserWalletModelIdsToUpdate.contains(userWallet.userWalletId)
+    }
+
+    /// Postpones the creation of a new page for a given user wallet model if its
+    /// user wallet is marked for update. Otherwise, the new page is added immediately.
     private func processUpdatedUserWalletModel(_ userWalletModel: UserWalletModel) {
-        if userWalletIdsWithInsertedUserWalletModels.contains(userWalletModel.userWallet.userWalletId) {
+        if userWalletAwaitsPendingUpdate(userWalletModel.userWallet) {
             pendingUserWalletModelsToAdd.append(userWalletModel)
         } else {
             addNewPage(for: userWalletModel)
         }
     }
 
+    /// Adds new pages for pending user wallet models and performs the required clean-up
+    /// of 'dirty' (need to be updated) user wallets.
     private func addPendingUserWalletModelsIfNeeded(completion: @escaping () -> Void) {
         if pendingUserWalletModelsToAdd.isEmpty {
             completion()
@@ -214,7 +230,12 @@ final class MainViewModel: ObservableObject {
                     processedUserWalletIds.insert(userWalletModel.userWallet.userWalletId)
                     addNewPage(for: userWalletModel)
                 }
-                userWalletIdsWithInsertedUserWalletModels.subtract(processedUserWalletIds)
+                pendingUserWalletModelIdsToUpdate.subtract(processedUserWalletIds)
+
+                if shouldRecreatePagesAfterAddingWalletModels {
+                    shouldRecreatePagesAfterAddingWalletModels = false
+                    recreatePages()
+                }
             }
         }
     }
@@ -260,6 +281,16 @@ final class MainViewModel: ObservableObject {
         selectedCardIndex = index
     }
 
+    /// Postpones pages re-creation if a given user wallet is marked for update.
+    /// Otherwise, re-creates pages immediately.
+    private func recreatePagesIfNeeded(for userWallet: UserWallet) {
+        if userWalletAwaitsPendingUpdate(userWallet) {
+            shouldRecreatePagesAfterAddingWalletModels = true
+        } else {
+            recreatePages()
+        }
+    }
+
     private func recreatePages() {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
@@ -299,7 +330,7 @@ final class MainViewModel: ObservableObject {
                     // [REDACTED_TODO_COMMENT]
                     break
                 case .inserted(let userWallet):
-                    userWalletIdsWithInsertedUserWalletModels.insert(userWallet.userWalletId)
+                    setNeedsUpdateUserWallet(userWallet)
                 case .updated(let userWalletModel):
                     processUpdatedUserWalletModel(userWalletModel)
                 case .deleted(let userWalletIds):
@@ -310,11 +341,12 @@ final class MainViewModel: ObservableObject {
                     }
                     removePages(with: userWalletIds)
                     swipeDiscoveryHelper.reset()
-                case .selected:
-                    // [REDACTED_TODO_COMMENT]
-                    break
-                case .replaced:
-                    recreatePages()
+                case .selected(let userWallet, let reason):
+                    if reason == .inserted {
+                        recreatePagesIfNeeded(for: userWallet)
+                    }
+                case .replaced(let userWallet):
+                    recreatePagesIfNeeded(for: userWallet)
                 }
             }
             .store(in: &bag)
