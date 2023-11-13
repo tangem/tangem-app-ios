@@ -129,13 +129,13 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
         if networkDataSource.isExistSingleCurrencyWalletDoesNotSupportedCoinId() {
             // Display flow notifications if use only single currency wallets does not supported current coinId
-            displayWarningNotification(for: .failedSupportedSingleCurrencyWallet)
+            displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
 
             return
         }
 
         // Display flow notifications if list of wallets does not supported current coinId
-        displayWarningNotification(for: .failedSupportedBlockchainByWallets)
+        displayWarningNotification(for: .walletsNotSupportedBlockchain)
     }
 
     private func fillSelectorItemsFromTokenItems() {
