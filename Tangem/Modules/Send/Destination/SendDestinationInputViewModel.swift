@@ -12,12 +12,12 @@ import Combine
 
 class SendDestinationInputViewModel: Identifiable {
     let name: String
-    var input: Binding<String>
     let showAddressIcon: Bool
     let placeholder: String
     let description: String
     let didPasteAddress: ([String]) -> Void
 
+    var input: Binding<String>
     var hasTextInClipboard = false
     var errorText: String?
 
