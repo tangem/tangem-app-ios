@@ -55,6 +55,10 @@ struct TransactionViewModel: Hashable, Identifiable {
     }
 
     var localizeDestination: String {
+        if status == .failed {
+            return Localization.commonTransactionFailed
+        }
+
         switch interactionAddress {
         case .user(let address):
             if isOutgoing {
