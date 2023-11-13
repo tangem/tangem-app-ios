@@ -169,7 +169,6 @@
 		65B4DEDA28835C82001524CF /* LegacyBottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DED928835C82001524CF /* LegacyBottomSheetModifier.swift */; };
 		65B4DEE02885334F001524CF /* View+LegacyBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEDF2885334F001524CF /* View+LegacyBottomSheet.swift */; };
 		65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */; };
-		65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */; };
 		65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAD28644F9D00FDE63E /* DetailsView.swift */; };
 		65C9FCB12864507600FDE63E /* LegacyMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAF2864507600FDE63E /* LegacyMainViewModel.swift */; };
 		65C9FCB22864507600FDE63E /* LegacyMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB02864507600FDE63E /* LegacyMainView.swift */; };
@@ -792,7 +791,6 @@
 		DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF4285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift */; };
 		DC66BBF8285A211F00CDF765 /* LegacyMainRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF7285A211F00CDF765 /* LegacyMainRoutable.swift */; };
 		DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF9285A389000CDF765 /* PopoverModifier.swift */; };
-		DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFA285A389000CDF765 /* SheetModifier.swift */; };
 		DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFB285A389000CDF765 /* View+Navigation.swift */; };
 		DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFF285B3FD900CDF765 /* OnboardingTopupRoutable.swift */; };
 		DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */; };
@@ -871,11 +869,6 @@
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
 		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
-		EF04C52E2AFA80B700D8853B /* ExpressTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */; };
-		EF04C5302AFA80D500D8853B /* ExpressTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */; };
-		EF04C5332AFA82D700D8853B /* TokenIconItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */; };
-		EF04C5352AFA82EB00D8853B /* TokenIconItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */; };
-		EF04C5372AFAA37900D8853B /* ExpressTokensListRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */; };
 		EF04C53B2AFBBF4000D8853B /* SwappingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5232A03F2A200899812 /* SwappingInteractor.swift */; };
 		EF04C5432AFBEEA000D8853B /* ExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */; };
 		EF04C5452AFBEEB000D8853B /* ExpressTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */; };
@@ -1050,7 +1043,6 @@
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
-		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */; };
 		EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */; };
 		EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */; };
@@ -1109,8 +1101,6 @@
 		EF9F907D299CFCBE006F638F /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907C299CFCBE006F638F /* WebViewContainer.swift */; };
 		EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */; };
 		EF9F9081299CFCE9006F638F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F9080299CFCE9006F638F /* WebView.swift */; };
-		EF9F908C299FA254006F638F /* ZendeskSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908B299FA254006F638F /* ZendeskSupportChatViewModel.swift */; };
-		EF9F908E299FA31A006F638F /* ZendeskSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908D299FA31A006F638F /* ZendeskSupportChatView.swift */; };
 		EF9F9090299FAE84006F638F /* SupportChatInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */; };
 		EFA05AB0B2EB2B664A08F051 /* Pods_Tangem_TangemUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4E67C3833548EA7FAF75825 /* Pods_Tangem_TangemUITests.framework */; };
 		EFA3B2212AC43C350037C48D /* MutipleAddressTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA3B2202AC43C350037C48D /* MutipleAddressTransactionHistoryService.swift */; };
@@ -1452,7 +1442,6 @@
 		65B4DED928835C82001524CF /* LegacyBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyBottomSheetModifier.swift; sourceTree = "<group>"; };
 		65B4DEDF2885334F001524CF /* View+LegacyBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+LegacyBottomSheet.swift"; sourceTree = "<group>"; };
 		65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetWrappedView.swift; sourceTree = "<group>"; };
-		65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskConfig.swift; sourceTree = "<group>"; };
 		65C9FCAD28644F9D00FDE63E /* DetailsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
 		65C9FCAF2864507600FDE63E /* LegacyMainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyMainViewModel.swift; sourceTree = "<group>"; };
 		65C9FCB02864507600FDE63E /* LegacyMainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyMainView.swift; sourceTree = "<group>"; };
@@ -2102,7 +2091,6 @@
 		DC66BBF4285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewLifecycleListener.swift; sourceTree = "<group>"; };
 		DC66BBF7285A211F00CDF765 /* LegacyMainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMainRoutable.swift; sourceTree = "<group>"; };
 		DC66BBF9285A389000CDF765 /* PopoverModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverModifier.swift; sourceTree = "<group>"; };
-		DC66BBFA285A389000CDF765 /* SheetModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetModifier.swift; sourceTree = "<group>"; };
 		DC66BBFB285A389000CDF765 /* View+Navigation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+Navigation.swift"; sourceTree = "<group>"; };
 		DC66BBFF285B3FD900CDF765 /* OnboardingTopupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupRoutable.swift; sourceTree = "<group>"; };
 		DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletOnboardingRoutable.swift; sourceTree = "<group>"; };
@@ -2186,11 +2174,6 @@
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
 		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
-		EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemView.swift; sourceTree = "<group>"; };
-		EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemViewModel.swift; sourceTree = "<group>"; };
-		EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemView.swift; sourceTree = "<group>"; };
-		EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconItemViewModel.swift; sourceTree = "<group>"; };
-		EF04C5362AFAA37900D8853B /* ExpressTokensListRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutableMock.swift; sourceTree = "<group>"; };
 		EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIProvider.swift; sourceTree = "<group>"; };
 		EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransaction.swift; sourceTree = "<group>"; };
 		EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionData.swift; sourceTree = "<group>"; };
@@ -2379,7 +2362,6 @@
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
-		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
 		EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIService.swift; sourceTree = "<group>"; };
 		EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
 		EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPITarget.swift; sourceTree = "<group>"; };
@@ -2439,8 +2421,6 @@
 		EF9F907C299CFCBE006F638F /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
 		EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainerViewModel.swift; sourceTree = "<group>"; };
 		EF9F9080299CFCE9006F638F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
-		EF9F908B299FA254006F638F /* ZendeskSupportChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskSupportChatViewModel.swift; sourceTree = "<group>"; };
-		EF9F908D299FA31A006F638F /* ZendeskSupportChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskSupportChatView.swift; sourceTree = "<group>"; };
 		EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatInputModel.swift; sourceTree = "<group>"; };
 		EFA3B2202AC43C350037C48D /* MutipleAddressTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutipleAddressTransactionHistoryService.swift; sourceTree = "<group>"; };
 		EFA580602893E4E200110DB0 /* LanguageCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
@@ -3162,7 +3142,6 @@
 				65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */,
 				EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */,
 				DA070DDF2ADD4F0F00F7C0E4 /* Sprinklr */,
-				EF9F9089299FA23E006F638F /* Zendesk */,
 			);
 			path = SupportChat;
 			sourceTree = "<group>";
@@ -5014,7 +4993,6 @@
 				B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */,
 				DC0A5807282501CA0031BECC /* MoonPayKeys.swift */,
 				DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */,
-				65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */,
 				EF92E2B929963E7400DD9B06 /* SwapReferrerAccount.swift */,
 				B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */,
 			);
@@ -5276,7 +5254,6 @@
 			isa = PBXGroup;
 			children = (
 				DC66BBF9285A389000CDF765 /* PopoverModifier.swift */,
-				DC66BBFA285A389000CDF765 /* SheetModifier.swift */,
 				DC66BBFB285A389000CDF765 /* View+Navigation.swift */,
 				DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */,
 				DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */,
@@ -5375,24 +5352,6 @@
 				EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */,
 			);
 			path = DefaultSelectableRowView;
-			sourceTree = "<group>";
-		};
-		EF04C52C2AFA80A700D8853B /* ExpressTokenItem */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C52D2AFA80B700D8853B /* ExpressTokenItemView.swift */,
-				EF04C52F2AFA80D500D8853B /* ExpressTokenItemViewModel.swift */,
-			);
-			path = ExpressTokenItem;
-			sourceTree = "<group>";
-		};
-		EF04C5312AFA82CF00D8853B /* TokenIconItemView */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C5322AFA82D700D8853B /* TokenIconItemView.swift */,
-				EF04C5342AFA82EB00D8853B /* TokenIconItemViewModel.swift */,
-			);
-			path = TokenIconItemView;
 			sourceTree = "<group>";
 		};
 		EF04C5412AFBEE9A00D8853B /* ExpressAPIProvider */ = {
@@ -6210,15 +6169,6 @@
 				EF9F9080299CFCE9006F638F /* WebView.swift */,
 			);
 			path = WebViewContainer;
-			sourceTree = "<group>";
-		};
-		EF9F9089299FA23E006F638F /* Zendesk */ = {
-			isa = PBXGroup;
-			children = (
-				EF9F908B299FA254006F638F /* ZendeskSupportChatViewModel.swift */,
-				EF9F908D299FA31A006F638F /* ZendeskSupportChatView.swift */,
-			);
-			path = Zendesk;
 			sourceTree = "<group>";
 		};
 		EFA580642893F89000110DB0 /* ResetToFactory */ = {
@@ -7313,7 +7263,6 @@
 				B6ACD0122AD6A888005A6CA3 /* OrganizeTokensDragAndDropGestureContextProvider.swift in Sources */,
 				B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
-				DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */,
 				B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */,
 				B074BAC126779B28005D641B /* PushTxView.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
@@ -7573,7 +7522,6 @@
 				DA7046132AAA17E500808FA8 /* ManageTokensItemViewModel.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
 				DC7D39F729E00635007BCD23 /* TwinOnboardingStepsBulder.swift in Sources */,
-				EF9F908E299FA31A006F638F /* ZendeskSupportChatView.swift in Sources */,
 				B0541DC026FB300F0043893E /* WalletOnboardingStep.swift in Sources */,
 				EFA3B2212AC43C350037C48D /* MutipleAddressTransactionHistoryService.swift in Sources */,
 				B0468CE52954146900F2E728 /* WalletConnectV2Service.swift in Sources */,
@@ -7866,7 +7814,6 @@
 				DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */,
 				EF94A86E298A557D008F2C3F /* ExplorerURLService.swift in Sources */,
 				B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */,
-				65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */,
 				B644EC272ACBF217007D9F4B /* UIPanGestureRecognizer+Value.swift in Sources */,
 				B00371C02A8A5ECE00D77A4B /* FakeTangemApiService.swift in Sources */,
 				EFD39C932A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift in Sources */,
@@ -7938,7 +7885,6 @@
 				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				DA4371A82A7D1937006215CA /* LegacyCoinViewModel.swift in Sources */,
 				EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */,
-				EF9F908C299FA254006F638F /* ZendeskSupportChatViewModel.swift in Sources */,
 				EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */,
 				B0CAE5AB2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift in Sources */,
 				B0F319022A7394AA009F131E /* FakeUserWalletRepository.swift in Sources */,
