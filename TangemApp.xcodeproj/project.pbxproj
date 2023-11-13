@@ -640,6 +640,7 @@
 		DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */; };
 		DA6C7528292613D00070EEFD /* UserWalletIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */; };
 		DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */; };
+		DA6DDDB02B0223B0009BB01C /* SendCustomFeeInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6DDDAF2B0223B0009BB01C /* SendCustomFeeInputField.swift */; };
 		DA7046132AAA17E500808FA8 /* ManageTokensItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7046112AAA17E500808FA8 /* ManageTokensItemViewModel.swift */; };
 		DA7046142AAA17E500808FA8 /* ManageTokensItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7046122AAA17E500808FA8 /* ManageTokensItemView.swift */; };
 		DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7046162AAA180900808FA8 /* LineChartView.swift */; };
@@ -1941,6 +1942,7 @@
 		DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimizedAppTimer.swift; sourceTree = "<group>"; };
 		DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletIdFactory.swift; sourceTree = "<group>"; };
 		DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryUtil.swift; sourceTree = "<group>"; };
+		DA6DDDAF2B0223B0009BB01C /* SendCustomFeeInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCustomFeeInputField.swift; sourceTree = "<group>"; };
 		DA7046112AAA17E500808FA8 /* ManageTokensItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensItemViewModel.swift; sourceTree = "<group>"; };
 		DA7046122AAA17E500808FA8 /* ManageTokensItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensItemView.swift; sourceTree = "<group>"; };
 		DA7046162AAA180900808FA8 /* LineChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
@@ -4683,6 +4685,14 @@
 			path = AddressIconView;
 			sourceTree = "<group>";
 		};
+		DA6DDDAE2B02237D009BB01C /* Fee */ = {
+			isa = PBXGroup;
+			children = (
+				DA6DDDAF2B0223B0009BB01C /* SendCustomFeeInputField.swift */,
+			);
+			path = Fee;
+			sourceTree = "<group>";
+		};
 		DA7046152AAA180900808FA8 /* Charts */ = {
 			isa = PBXGroup;
 			children = (
@@ -4828,6 +4838,7 @@
 		DAFC3E002AA8A50000D1013F /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				DA6DDDAE2B02237D009BB01C /* Fee */,
 				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
 				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
 				DCAB57FD295ECA55005D0F4A /* SendError.swift */,
@@ -7238,6 +7249,7 @@
 				B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
+				DA6DDDB02B0223B0009BB01C /* SendCustomFeeInputField.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
 				B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */,
 				2D805ECA29ADE17100C030F7 /* ExchangeButtonStateType.swift in Sources */,
