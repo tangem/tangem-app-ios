@@ -14,50 +14,33 @@ import enum TangemSdk.TangemSdkError
 final class ExpressViewModel: ObservableObject {
     // MARK: - ViewState
 
+    // Main bubbles
     @Published var sendCurrencyViewModel: SendCurrencyViewModel?
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var swapButtonIsLoading: Bool = false
 
     @Published var sendDecimalValue: DecimalNumberTextField.DecimalValue?
+    @Published var expressFeeRowViewModel: ExpressFeeRowViewModel?
+
+    // Warnings
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
+    @Published var feeWarningRowViewModel: DefaultWarningRowViewModel?
 
+    // Main button
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
     @Published var errorAlert: AlertBinder?
 
-    var informationSectionViewModels: [InformationSectionViewModel] {
-        var viewModels: [InformationSectionViewModel] = []
-
-        if let swappingFeeRowViewModel = swappingFeeRowViewModel {
-            viewModels.append(.fee(swappingFeeRowViewModel))
-        }
-
-        if isShowingDisclaimer {
-            feeOptionsViewModels.forEach {
-                viewModels.append(.feePolicy($0))
-            }
-
-            if let feeWarningRowViewModel = feeWarningRowViewModel {
-                viewModels.append(.warning(feeWarningRowViewModel))
-            }
-
-            if let feeInfoRowViewModel = feeInfoRowViewModel {
-                viewModels.append(.warning(feeInfoRowViewModel))
-            }
-        } else if let feeWarningRowViewModel = feeWarningRowViewModel {
-            viewModels.append(.warning(feeWarningRowViewModel))
-        }
-
-        return viewModels
+    var informationSectionViewModels: [DefaultWarningRowViewModel] {
+        [
+            refreshWarningRowViewModel,
+            highPriceImpactWarningRowViewModel,
+            permissionInfoRowViewModel,
+            feeWarningRowViewModel,
+        ].compactMap { $0 }
     }
-
-    @Published private var swappingFeeRowViewModel: SwappingFeeRowViewModel?
-    @Published private var feeWarningRowViewModel: DefaultWarningRowViewModel?
-    @Published private var feeOptionsViewModels: [SelectableSwappingFeeRowViewModel] = []
-    @Published private var feeInfoRowViewModel: DefaultWarningRowViewModel?
-    @Published private var isShowingDisclaimer: Bool = false
 
     // MARK: - Dependencies
 
@@ -432,16 +415,13 @@ private extension ExpressViewModel {
     func updateFeeValue(state: SwappingAvailabilityState) {
         switch state {
         case .idle, .requiredRefresh, .preview:
-            swappingFeeRowViewModel?.update(state: .idle)
-            feeOptionsViewModels.removeAll()
+            expressFeeRowViewModel = nil
         case .loading(let type):
             if type == .full {
-                swappingFeeRowViewModel?.update(state: .loading)
-                feeOptionsViewModels.removeAll()
+                expressFeeRowViewModel = nil
             }
         case .available(let model):
             updateFeeRowViewModel(transactionData: model.transactionData)
-            updateFeeOptionsViewModels(data: model.transactionData, options: model.gasOptions)
         }
     }
 
@@ -533,69 +513,23 @@ private extension ExpressViewModel {
     func setupView() {
         updateState(state: .idle)
         updateView(swappingItems: swappingInteractor.getSwappingItems())
-        swappingFeeRowViewModel = SwappingFeeRowViewModel(
-            state: .idle,
-            isShowingDisclaimer: .init(
-                get: { [weak self] in self?.isShowingDisclaimer ?? false },
-                set: { [weak self] isOpen in
-                    UIApplication.shared.endEditing()
-                    self?.isShowingDisclaimer = isOpen
-                }
-            )
-        )
-
-        feeInfoRowViewModel = makeDefaultWarningRowViewModel()
-    }
-
-    func makeDefaultWarningRowViewModel() -> DefaultWarningRowViewModel {
-        let percentFee = swappingInteractor.getReferrerAccountFee() ?? 0
-        let formattedFee = "\(percentFee.groupedFormatted())%"
-        return DefaultWarningRowViewModel(
-            subtitle: Localization.swappingTangemFeeDisclaimer(formattedFee),
-            leftView: .icon(Assets.swapHeart)
-        )
     }
 
     func updateFeeRowViewModel(transactionData: SwappingTransactionData) {
-        runTask(in: self) { root in
-            let fiatFee = try await root.fiatRatesProvider.getFiat(
-                for: transactionData.sourceBlockchain,
-                amount: transactionData.fee
-            )
+        let currencySymbol = transactionData.sourceBlockchain.symbol
+        let currencyId = transactionData.sourceBlockchain.currencyID
 
-            try Task.checkCancellation()
-            let currencyCode = await AppSettings.shared.selectedCurrencyCode
+        let formattedFee = swappingFeeFormatter.format(
+            fee: transactionData.fee,
+            currencySymbol: currencySymbol,
+            currencyId: currencyId
+        )
 
-            await runOnMain {
-                root.swappingFeeRowViewModel?.update(
-                    state: .policy(
-                        title: transactionData.gas.policy.title,
-                        fiat: fiatFee.currencyFormatted(code: currencyCode)
-                    )
-                )
-            }
-        }
-    }
-
-    func updateFeeOptionsViewModels(data: SwappingTransactionData, options: [EthereumGasDataModel]) {
-        feeOptionsViewModels = options.map { gasModel in
-            let subtitle = try? swappingFeeFormatter.format(
-                fee: gasModel.fee,
-                blockchain: gasModel.blockchain
-            )
-
-            return SelectableSwappingFeeRowViewModel(
-                title: gasModel.policy.title,
-                subtitle: subtitle ?? Localization.commonNoData,
-                isSelected: .init(
-                    get: { data.gas.policy == gasModel.policy },
-                    set: { [weak self] isSelected in
-                        if isSelected {
-                            self?.swappingInteractor.update(gasPricePolicy: gasModel.policy)
-                        }
-                    }
-                )
-            )
+        expressFeeRowViewModel = ExpressFeeRowViewModel(
+            title: Localization.sendFeeLabel,
+            subtitle: formattedFee
+        ) { [weak self] in
+            self?.coordinator.presentFeeSelectorView()
         }
     }
 
@@ -783,14 +717,6 @@ private extension ExpressViewModel {
 }
 
 extension ExpressViewModel {
-    enum InformationSectionViewModel: Hashable, Identifiable {
-        var id: Int { hashValue }
-
-        case fee(SwappingFeeRowViewModel)
-        case warning(DefaultWarningRowViewModel)
-        case feePolicy(SelectableSwappingFeeRowViewModel)
-    }
-
     enum MainButtonState: Hashable, Identifiable {
         var id: Int { hashValue }
 
