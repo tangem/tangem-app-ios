@@ -9,11 +9,7 @@
 import Foundation
 import Combine
 
-class CommonExpressManager {
-    // MARK: - Public
-
-    public let state = CurrentValueSubject<ExpressManagerState, Never>(.idle)
-
+actor CommonExpressManager {
     // MARK: - Dependencies
 
     private let expressAPIProvider: ExpressAPIProvider
@@ -28,15 +24,15 @@ class CommonExpressManager {
     private var _amount: Decimal?
 
     // 2. All provider in the express
-    private var _providers: CurrentValueSubject<[ExpressProvider], Never> = .init([])
+    private let providers: CurrentValueSubject<[ExpressProvider], Never> = .init([])
     // 3. Here ids from `/pair` for each pair. Will see, maybe the cache will be deleted
-    private var _availableProviders: CurrentValueSubject<[ExpressManagerSwappingPair: [Int]], Never> = .init([:])
+    private let availableProviders: CurrentValueSubject<[ExpressManagerSwappingPair: [Int]], Never> = .init([:])
     // 4. Here from all `_providers` with filled the quote from `/quote`.
     // Will see, maybe the cache will be deleted
-    private var _availableQuotes: CurrentValueSubject<[ExpressManagerSwappingPair: [ExpectedQuote]], Never> = .init([:])
+    private let availableQuotes: CurrentValueSubject<[ExpressManagerSwappingPair: [ExpectedQuote]], Never> = .init([:])
     // 5. Here the provider with his quote which was selected from user or autoselected as the best rate
     // Will see, maybe the cache will be deleted
-    private var _selectedQuote: CurrentValueSubject<[ExpressManagerSwappingPair: ExpectedQuote], Never> = .init([:])
+    private let selectedQuote: CurrentValueSubject<[ExpressManagerSwappingPair: ExpectedQuote], Never> = .init([:])
 
     init(
         expressAPIProvider: ExpressAPIProvider,
@@ -65,17 +61,17 @@ extension CommonExpressManager: ExpressManager {
     func getSelectedProvider() -> ExpressProvider? {
         guard let pair = _pair else { return nil }
 
-        return _selectedQuote.value[pair]?.provider
+        return selectedQuote.value[pair]?.provider
     }
 
-    var providersPublisher: AnyPublisher<[ExpressProvider], Never> {
-        _providers.eraseToAnyPublisher()
+    nonisolated var providersPublisher: AnyPublisher<[ExpressProvider], Never> {
+        providers.eraseToAnyPublisher()
     }
 
-    var availableQuotesPublisher: AnyPublisher<[ExpectedQuote], Never> {
-        _availableQuotes
-            .map { [weak self] quotes in
-                if let pair = self?._pair {
+    nonisolated var availableQuotesPublisher: AnyPublisher<[ExpectedQuote], Never> {
+        availableQuotes
+            .asyncMap { [weak self] quotes in
+                if let pair = await self?._pair {
                     return quotes[pair] ?? []
                 }
 
@@ -85,10 +81,10 @@ extension CommonExpressManager: ExpressManager {
             .eraseToAnyPublisher()
     }
 
-    var selectedQuotePublisher: AnyPublisher<ExpectedQuote?, Never> {
-        _selectedQuote
-            .map { [weak self] quotes in
-                if let pair = self?._pair {
+    nonisolated var selectedQuotePublisher: AnyPublisher<ExpectedQuote?, Never> {
+        selectedQuote
+            .asyncMap { [weak self] quotes in
+                if let pair = await self?._pair {
                     return quotes[pair]
                 }
 
@@ -116,11 +112,11 @@ extension CommonExpressManager: ExpressManager {
             throw ExpressManagerError.pairNotFound
         }
 
-        guard let quote = _availableQuotes.value[pair]?.first(where: { $0.provider == provider }) else {
+        guard let quote = availableQuotes.value[pair]?.first(where: { $0.provider == provider }) else {
             throw ExpressManagerError.availableQuotesForProviderNotFound
         }
 
-        _selectedQuote.value[pair] = quote
+        selectedQuote.value[pair] = quote
 
         return try await update()
     }
@@ -172,24 +168,24 @@ private extension CommonExpressManager {
 
 private extension CommonExpressManager {
     func getProviders() async throws -> [ExpressProvider] {
-        guard _providers.value.isEmpty else {
-            return _providers.value
+        guard providers.value.isEmpty else {
+            return providers.value
         }
 
         let providers = try await expressAPIProvider.providers()
-        _providers.send(providers)
+        self.providers.send(providers)
 
         return providers
     }
 
     @discardableResult
     func getAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
-        if let providers = _availableProviders.value[pair] {
+        if let providers = availableProviders.value[pair] {
             return providers
         }
 
         let providers = try await loadAvailableProviders(pair: pair)
-        _availableProviders.value[pair] = providers
+        availableProviders.value[pair] = providers
 
         return providers
     }
@@ -214,7 +210,7 @@ private extension CommonExpressManager {
     /// This method will always send the request without cache
     func getQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
         let quotes = try await loadQuotes(request: request)
-        _availableQuotes.value[request.pair] = quotes
+        availableQuotes.value[request.pair] = quotes
 
         return quotes
     }
@@ -223,12 +219,12 @@ private extension CommonExpressManager {
         request: ExpressManagerSwappingPairRequest,
         quotes: [ExpectedQuote]
     ) async throws -> ExpectedQuote {
-        if let quote = _selectedQuote.value[request.pair] {
+        if let quote = selectedQuote.value[request.pair] {
             return quote
         }
 
         let best = try bestQuote(from: quotes)
-        _selectedQuote.value[request.pair] = best
+        selectedQuote.value[request.pair] = best
 
         return best
     }
@@ -239,7 +235,7 @@ private extension CommonExpressManager {
 
         try Task.checkCancellation()
 
-        let quotes = try await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
+        let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
         let allQuotes: [ExpectedQuote] = allProviders.map { provider in
             if let loadedQuote = quotes[provider.id] {
                 return ExpectedQuote(provider: provider, state: loadedQuote)
@@ -266,7 +262,7 @@ private extension CommonExpressManager {
         return bestExpectedQuote
     }
 
-    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async throws -> [Int: ExpectedQuote.State] {
+    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: ExpectedQuote.State] {
         typealias TaskValue = (id: Int, quote: ExpectedQuote.State)
 
         let quotes: [Int: ExpectedQuote.State] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
@@ -279,7 +275,7 @@ private extension CommonExpressManager {
                     }
 
                     do {
-                        let item = makeExpressSwappableItem(request: request, providerId: providerId)
+                        let item = await makeExpressSwappableItem(request: request, providerId: providerId)
                         let quote = try await expressAPIProvider.exchangeQuote(item: item)
                         return (providerId, .quote(quote))
                     } catch {
@@ -306,7 +302,7 @@ private extension CommonExpressManager {
         if let minAmount = quote.quote?.minAmount, request.amount < minAmount {
             return .tooMinimalAmount(minAmount)
         }
-        
+
         // 2. Check Permission
 
         if let spender = quote.quote?.allowanceContract {
