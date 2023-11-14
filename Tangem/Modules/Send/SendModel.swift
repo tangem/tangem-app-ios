@@ -35,13 +35,13 @@ class SendModel {
 
     // MARK: - Data
 
-    private var amount = CurrentValueSubject<Decimal?, Never>(nil)
+    private var amount = CurrentValueSubject<DecimalNumberTextField.DecimalValue?, Never>(nil)
     private var destination = CurrentValueSubject<String?, Never>(nil)
     private var destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
 
     // MARK: - Raw data
 
-    private var _amountText: String = ""
+    private var _amount: DecimalNumberTextField.DecimalValue?
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
     private var _feeText: String = ""
@@ -76,17 +76,17 @@ class SendModel {
 
     // MARK: - Amount
 
-    private func setAmount(_ amountText: String) {
-        _amountText = amountText
+    private func setAmount(_ amount: DecimalNumberTextField.DecimalValue?) {
+        _amount = amount
         validateAmount()
     }
 
     private func validateAmount() {
-        let amount: Decimal?
+        let amount: DecimalNumberTextField.DecimalValue?
         let error: Error?
 
         #warning("validate")
-        amount = Decimal(string: _amountText, locale: Locale.current) ?? 0
+        amount = _amount
         error = nil
 
         self.amount.send(amount)
@@ -185,9 +185,8 @@ extension SendModel: SendAmountViewModelInput {
         .just(output: "1 000 010,99 USDT")
     }
 
-    #warning("TODO")
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?> {
-        .constant(DecimalNumberTextField.DecimalValue.internal(0))
+        Binding { self._amount } set: { self.setAmount($0) }
     }
 
     #warning("TODO")
