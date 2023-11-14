@@ -36,22 +36,20 @@ protocol SendAmountViewModelDelegate: AnyObject {
 class SendAmountViewModel: ObservableObject, Identifiable {
     let walletName: String
     let balance: String
-
     let tokenIconName: String
     let tokenIconURL: URL?
     let tokenIconCustomTokenColor: Color?
     let tokenIconBlockchainIconName: String?
     let isCustomToken: Bool
+    let cryptoCurrencyCode: String
+    let fiatCurrencyCode: String
+    let amountFractionDigits: Int
 
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?>
-    let amountFractionDigits: Int
 
     @Published var currencyOption: CurrencyOption
     @Published var amountAlternative: String = ""
     @Published var error: String?
-
-    let cryptoCurrencyCode: String
-    let fiatCurrencyCode: String
 
     weak var delegate: SendAmountViewModelDelegate?
 
