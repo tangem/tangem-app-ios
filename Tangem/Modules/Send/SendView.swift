@@ -79,7 +79,6 @@ struct SendView: View {
                     isDisabled: viewModel.currentStepInvalid,
                     action: viewModel.next
                 )
-                .frame(maxWidth: .infinity)
             }
         }
         .padding(.horizontal)
