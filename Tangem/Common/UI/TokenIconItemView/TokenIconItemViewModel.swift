@@ -17,7 +17,7 @@ struct TokenIconItemViewModel {
         self.networkURL = networkURL
     }
 
-    init?(tokenItem: TokenItem) {
+    init(tokenItem: TokenItem) {
         let builder = TokenIconURLBuilder()
 
         if let id = tokenItem.id {
