@@ -52,7 +52,13 @@ public struct TangemSwappingFactory {
 }
 
 public struct ExpressAPICredential {
-    let apiKey: String
-    let userId: String
-    let sessionId: String
+    public let apiKey: String
+    public let userId: String
+    public let sessionId: String
+
+    public init(apiKey: String, userId: String, sessionId: String) {
+        self.apiKey = apiKey
+        self.userId = userId
+        self.sessionId = sessionId
+    }
 }
