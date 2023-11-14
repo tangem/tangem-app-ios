@@ -15,10 +15,10 @@ struct SendView: View {
 
     private let backButtonStyle: MainButton.Style = .secondary
     private let backButtonsize: MainButton.Size = .default
-    
+
     var body: some View {
         VStack {
-            title
+            header
 
             currentPage
 
@@ -28,14 +28,21 @@ struct SendView: View {
 
             Color.clear.frame(height: 1)
         }
+        .background(Colors.Background.tertiary.ignoresSafeArea())
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
     }
 
     @ViewBuilder
-    private var title: some View {
-        Text(viewModel.title)
-            .font(.title2)
-            .animation(nil)
+    private var header: some View {
+        VStack {
+            SheetDragHandler()
+                .padding(.bottom, 4)
+
+            Text(viewModel.title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .animation(nil)
+                .padding(.vertical, 8)
+        }
     }
 
     @ViewBuilder
