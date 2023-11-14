@@ -330,9 +330,9 @@ private extension CommonExpressManager {
         // 4. Check Balance
 
         let sourceBalance = try await request.pair.source.getBalance()
-        let isNotEnoughAmountForSwapping = request.amount > sourceBalance
+        let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
-        if isNotEnoughAmountForSwapping {
+        if isNotEnoughBalanceForSwapping {
             return .notEnoughBalanceForSwapping
         }
 
