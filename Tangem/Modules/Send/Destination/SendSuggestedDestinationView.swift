@@ -30,7 +30,7 @@ struct SendSuggestedDestinationView: View {
     }
 
     @ViewBuilder
-    private func cellView(for type: SendSuggestedDestinationViewCellModel.`Type`) -> some View {
+    private func cellView(for type: SendSuggestedDestinationViewModel.CellModel.`Type`) -> some View {
         switch type {
         case .header(let title):
             headerView(for: title)
