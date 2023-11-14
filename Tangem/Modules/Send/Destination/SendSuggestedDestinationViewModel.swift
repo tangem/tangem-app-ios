@@ -11,7 +11,7 @@ import Foundation
 // MARK: - View model
 
 class SendSuggestedDestinationViewModel {
-    private(set) var cellViewModels: [SendSuggestedDestinationViewCellModel] = []
+    private(set) var cellViewModels: [CellModel] = []
 
     private let tapAction: (SendSuggestedDestination) -> Void
 
@@ -22,13 +22,13 @@ class SendSuggestedDestinationViewModel {
     ) {
         self.tapAction = tapAction
 
-        var cellViewModels: [SendSuggestedDestinationViewCellModel] = []
+        var cellViewModels: [CellModel] = []
 
         if !wallets.isEmpty {
-            cellViewModels.append(SendSuggestedDestinationViewCellModel(type: .header(title: Localization.sendRecipientWalletsTitle), tapAction: nil))
+            cellViewModels.append(CellModel(type: .header(title: Localization.sendRecipientWalletsTitle), tapAction: nil))
             cellViewModels.append(
                 contentsOf: wallets.map { [weak self] wallet in
-                    SendSuggestedDestinationViewCellModel(
+                    CellModel(
                         type: .wallet(wallet: wallet),
                         tapAction: {
                             self?.tapAction(SendSuggestedDestination(address: wallet.address, additionalField: nil))
@@ -39,10 +39,10 @@ class SendSuggestedDestinationViewModel {
         }
 
         if !recentTransactions.isEmpty {
-            cellViewModels.append(SendSuggestedDestinationViewCellModel(type: .header(title: Localization.sendRecentTransactions), tapAction: nil))
+            cellViewModels.append(CellModel(type: .header(title: Localization.sendRecentTransactions), tapAction: nil))
             cellViewModels.append(
                 contentsOf: recentTransactions.map { [weak self] record in
-                    SendSuggestedDestinationViewCellModel(
+                    CellModel(
                         type: .recentTransaction(record: record),
                         tapAction: {
                             self?.tapAction(SendSuggestedDestination(address: record.address, additionalField: record.additionalField))
@@ -58,21 +58,18 @@ class SendSuggestedDestinationViewModel {
 
 // MARK: - Cell model
 
-struct SendSuggestedDestinationViewCellModel: Identifiable {
-    let id = UUID()
+extension SendSuggestedDestinationViewModel {
+    struct CellModel: Identifiable {
+        let id = UUID()
 
-    let type: `Type`
-    let tapAction: (() -> Void)?
-
-    init(type: Type, tapAction: (() -> Void)?) {
-        self.type = type
-        self.tapAction = tapAction
+        let type: `Type`
+        let tapAction: (() -> Void)?
     }
 }
 
 // MARK: - Helper types
 
-extension SendSuggestedDestinationViewCellModel {
+extension SendSuggestedDestinationViewModel.CellModel {
     enum `Type` {
         case header(title: String)
         case wallet(wallet: SendSuggestedDestinationWallet)
