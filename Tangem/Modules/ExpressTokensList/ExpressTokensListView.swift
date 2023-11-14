@@ -85,12 +85,14 @@ struct ExpressTokensListView: View {
     }
 }
 
-struct ExpressTokensListView_Preview: PreviewProvider {
-    static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
+/*
+ struct ExpressTokensListView_Preview: PreviewProvider {
+     static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
 
-    static var previews: some View {
-        NavigationView {
-            ExpressTokensListView(viewModel: viewModel)
-        }
-    }
-}
+     static var previews: some View {
+         NavigationView {
+             ExpressTokensListView(viewModel: viewModel)
+         }
+     }
+ }
+ */
