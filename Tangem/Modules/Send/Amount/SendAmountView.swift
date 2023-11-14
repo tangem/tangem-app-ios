@@ -62,12 +62,17 @@ struct SendAmountView: View {
 
             HStack {
                 Picker("", selection: $viewModel.currencyOption) {
-                    Text("CRYPTO").tag(SendAmountViewModel.CurrencyOption.crypto)
-                    Text("FIAT").tag(SendAmountViewModel.CurrencyOption.fiat)
+                    Text(viewModel.cryptoCurrencyCode)
+                        .tag(SendAmountViewModel.CurrencyOption.crypto)
+
+                    Text(viewModel.fiatCurrencyCode)
+                        .tag(SendAmountViewModel.CurrencyOption.fiat)
                 }
                 .pickerStyle(.segmented)
 
-                MainButton(title: Localization.sendMaxAmount, style: .secondary) {}
+                MainButton(title: Localization.sendMaxAmount, style: .secondary) {
+                    viewModel.didTapMaxAmount()
+                }
             }
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))

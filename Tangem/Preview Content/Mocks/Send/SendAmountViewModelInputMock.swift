@@ -61,4 +61,16 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
     var amountError: AnyPublisher<Error?, Never> {
         Just(nil).eraseToAnyPublisher()
     }
+
+    var isFiatCalculation: Bool {
+        true
+    }
+
+    var cryptoCurrencyCode: String {
+        "USDT"
+    }
+
+    var fiatCurrencyCode: String {
+        "USD"
+    }
 }
