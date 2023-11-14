@@ -21,9 +21,6 @@ protocol SendAmountViewModelInput {
     var amountFractionDigits: Int { get }
     var amountAlternativePublisher: AnyPublisher<String, Never> { get }
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?> { get }
-    var errorPublisher: AnyPublisher<Error?, Never> { get }
-
-    var amountTextBinding: Binding<String> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
     var isFiatCalculation: Bool { get }
@@ -53,10 +50,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var amountAlternative: String = ""
     @Published var error: String?
 
-    var amountText: Binding<String> // remove
-
-    @Published var amountError: String?
-
     let cryptoCurrencyCode: String
     let fiatCurrencyCode: String
 
@@ -66,7 +59,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     init(input: SendAmountViewModelInput) {
         walletName = input.walletName
-        amountText = input.amountTextBinding
         balance = input.balance
         tokenIconName = input.tokenIconName
         tokenIconURL = input.tokenIconURL
@@ -92,7 +84,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         input
             .amountError
             .map { $0?.localizedDescription }
-            .assign(to: \.amountError, on: self, ownership: .weak)
+            .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
 
         $currencyOption
