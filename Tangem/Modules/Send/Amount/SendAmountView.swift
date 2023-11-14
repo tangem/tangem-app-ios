@@ -72,9 +72,7 @@ struct SendAmountView: View {
                 }
                 .pickerStyle(.segmented)
 
-                MainButton(title: Localization.sendMaxAmount, style: .secondary) {
-                    viewModel.didTapMaxAmount()
-                }
+                MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
             }
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
