@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 protocol SendSummaryViewModelInput: AnyObject {
-    var amountTextBinding: Binding<String> { get }
+    var amountText: String { get }
     var destinationTextBinding: Binding<String> { get }
     var feeTextBinding: Binding<String> { get }
 
@@ -27,7 +27,7 @@ class SendSummaryViewModel {
     private weak var input: SendSummaryViewModelInput?
 
     init(input: SendSummaryViewModelInput) {
-        amountText = input.amountTextBinding.wrappedValue
+        amountText = input.amountText
         destinationText = input.destinationTextBinding.wrappedValue
         feeText = input.feeTextBinding.wrappedValue
 
