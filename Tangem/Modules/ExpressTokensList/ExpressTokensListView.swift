@@ -20,13 +20,15 @@ struct ExpressTokensListView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .center) {
-            Colors.Background.secondary.ignoresSafeArea(.all)
+        NavigationView {
+            ZStack(alignment: .center) {
+                Colors.Background.secondary.ignoresSafeArea(.all)
 
-            content
+                content
+            }
+            .navigationTitle(Localization.swappingTokenListTitle)
+            .searchableCompat(text: $viewModel.searchText)
         }
-        .navigationTitle(Localization.swappingTokenListTitle)
-        .searchableCompat(text: $viewModel.searchText)
     }
 
     @ViewBuilder
@@ -90,9 +92,7 @@ struct ExpressTokensListView: View {
      static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
 
      static var previews: some View {
-         NavigationView {
-             ExpressTokensListView(viewModel: viewModel)
-         }
+          ExpressTokensListView(viewModel: viewModel)
      }
  }
  */

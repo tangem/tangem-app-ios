@@ -18,7 +18,7 @@ enum ExpressDTO {
 
     struct Provider: Codable {
         let providerId: Int
-        let rateType: RateType
+        let rateTypes: [RateType]
 
         enum RateType: String, Codable {
             case float
