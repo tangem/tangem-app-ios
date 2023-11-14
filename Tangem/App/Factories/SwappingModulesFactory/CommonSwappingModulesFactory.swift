@@ -55,7 +55,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         ExpressViewModel(
             initialWallet: walletModel,
-            swappingInteractor: expressInteractor, // [REDACTED_TODO_COMMENT]
+            swappingInteractor: expressInteractor,
             swappingDestinationService: swappingDestinationService,
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
