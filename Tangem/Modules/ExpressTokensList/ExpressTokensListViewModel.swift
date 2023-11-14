@@ -8,8 +8,9 @@
 
 import Combine
 import SwiftUI
+import TangemSwapping
 
-final class ExpressTokensListViewModel: ObservableObject {
+final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var searchText: String = ""
@@ -17,131 +18,154 @@ final class ExpressTokensListViewModel: ObservableObject {
     @Published var unavailableTokens: [ExpressTokenItemViewModel] = []
 
     var unavailableSectionHeader: String {
-        Localization.exchangeTokensUnavailableTokensHeader("Bitcoin")
+        Localization.exchangeTokensUnavailableTokensHeader(initialWalletType.name)
     }
 
     // MARK: - Dependencies
 
+    private let initialWalletType: InitialWalletType
+    private let walletModels: [WalletModel]
+    private let expressAPIProvider: ExpressAPIProvider
+    private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressTokensListRoutable
+
+    // MARK: - Internal
+
+    private var availableWalletModels: [WalletModel] = []
+    private var unavailableWalletModels: [WalletModel] = []
     private var bag: Set<AnyCancellable> = []
 
-    init(coordinator: ExpressTokensListRoutable) {
+    init(
+        initialWalletType: InitialWalletType,
+        walletModels: [WalletModel],
+        expressAPIProvider: ExpressAPIProvider,
+        expressInteractor: ExpressInteractor,
+        coordinator: ExpressTokensListRoutable
+    ) {
+        self.initialWalletType = initialWalletType
+        self.walletModels = walletModels
+        self.expressAPIProvider = expressAPIProvider
+        self.expressInteractor = expressInteractor
         self.coordinator = coordinator
-        setupView()
+
         bind()
+        loadView()
     }
 }
 
 // MARK: - Private
 
 private extension ExpressTokensListViewModel {
+    func loadView() {
+        runTask(in: self) { viewModel in
+            let availablePairs = try await viewModel.loadAvailablePairs()
+            viewModel.updateWalletModels(availableCurrencies: availablePairs)
+        }
+    }
+
+    func loadAvailablePairs() async throws -> [ExpressCurrency] {
+        let currencies = walletModels.map { $0.currency }
+
+        switch initialWalletType {
+        case .source(let wallet):
+            let pairs = try await expressAPIProvider.pairs(from: [wallet.currency], to: currencies)
+            return pairs.map { $0.source }
+        case .destination(let wallet):
+            let pairs = try await expressAPIProvider.pairs(from: currencies, to: [wallet.currency])
+            return pairs.map { $0.destination }
+        }
+    }
+
+    func updateWalletModels(availableCurrencies: [ExpressCurrency]) {
+        availableWalletModels = walletModels.filter { walletModel in
+            availableCurrencies.contains { walletModel.currency == $0 }
+        }
+
+        unavailableWalletModels = walletModels.filter { walletModel in
+            !availableCurrencies.contains { walletModel.currency == $0 }
+        }
+
+        updateView()
+    }
+
     func bind() {
         $searchText
-            .withWeakCaptureOf(self)
-            .sink { viewModel, searchText in
-                if searchText.isEmpty {
-                    viewModel.availableTokens = viewModel.getAvailableTokens()
-                    viewModel.unavailableTokens = viewModel.getUnavailableTokens()
-                } else {
-                    viewModel.availableTokens = viewModel.getAvailableTokens().filter { $0.name.contains(searchText) }
-                    viewModel.unavailableTokens = viewModel.getUnavailableTokens().filter { $0.name.contains(searchText) }
-                }
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
+            .sink { [weak self] searchText in
+                self?.updateView(searchText: searchText)
             }
             .store(in: &bag)
     }
 
-    // Temporary. Will be replaced
-    func getAvailableTokens() -> [ExpressTokenItemViewModel] {
-        [
-            ExpressTokenItemViewModel(
-                id: "Polygon",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Polygon",
-                symbol: "MATIC",
-                balance: CurrencyAmount(value: 120, currency: .mock),
-                fiatBalance: 60.30,
-                isDisable: false,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Cardano",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Cardano",
-                symbol: "ADA",
-                balance: CurrencyAmount(value: 12.097, currency: .mock),
-                fiatBalance: 4.3,
-                isDisable: false,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Binance",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
-                    networkURL: nil
-                ),
-                name: "Binance",
-                symbol: "BNB",
-                balance: CurrencyAmount(value: 1.6, currency: .mock),
-                fiatBalance: 383.3,
-                isDisable: false,
-                itemDidTap: {}
-            ),
-        ]
+    func updateView(searchText: String = "") {
+        if searchText.isEmpty {
+            availableTokens = availableWalletModels.map { walletModel in
+                mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
+            }
+
+            unavailableTokens = availableWalletModels.map { walletModel in
+                mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
+            }
+        } else {
+            availableTokens = availableWalletModels
+                .filter { $0.name.contains(searchText) }
+                .map { walletModel in
+                    mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
+                }
+
+            unavailableTokens = availableWalletModels
+                .filter { $0.name.contains(searchText) }
+                .map { walletModel in
+                    mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
+                }
+        }
     }
 
-    // Temporary. Will be replaced
-    func getUnavailableTokens() -> [ExpressTokenItemViewModel] {
-        [
-            ExpressTokenItemViewModel(
-                id: "Polygon",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Polygon",
-                symbol: "MATIC",
-                balance: CurrencyAmount(value: 120, currency: .mock),
-                fiatBalance: 60.30,
-                isDisable: true,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Cardano",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Cardano",
-                symbol: "ADA",
-                balance: CurrencyAmount(value: 12.097, currency: .mock),
-                fiatBalance: 4.3,
-                isDisable: true,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Binance",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
-                    networkURL: nil
-                ),
-                name: "Binance",
-                symbol: "BNB",
-                balance: CurrencyAmount(value: 1.6, currency: .mock),
-                fiatBalance: 383.3,
-                isDisable: true,
-                itemDidTap: {}
-            ),
-        ]
+    func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
+        ExpressTokenItemViewModel(
+            id: walletModel.id,
+            tokenIconItem: TokenIconItemViewModel(tokenItem: walletModel.tokenItem),
+            name: walletModel.tokenItem.name,
+            symbol: walletModel.tokenItem.currencySymbol,
+            balance: walletModel.balance,
+            fiatBalance: walletModel.fiatBalance,
+            isDisable: isDisable,
+            itemDidTap: { [weak self] in
+                self?.userDidTap(on: walletModel)
+            }
+        )
     }
 
-    func setupView() {
-        availableTokens = getAvailableTokens()
-        unavailableTokens = getUnavailableTokens()
+    func userDidTap(on walletModel: WalletModel) {
+        switch initialWalletType {
+        case .source:
+            // [REDACTED_TODO_COMMENT]
+            // expressInteractor.update(destination: walletModel)
+            break
+        case .destination:
+            // [REDACTED_TODO_COMMENT]
+            // expressInteractor.update(source: walletModel)
+            break
+        }
+
+        coordinator.closeExpressTokensList()
+    }
+}
+
+extension ExpressTokensListViewModel {
+    enum InitialWalletType {
+        case source(WalletModel)
+        case destination(WalletModel)
+
+        var name: String {
+            switch self {
+            case .source(let walletModel):
+                return walletModel.name
+            case .destination(let walletModel):
+                return walletModel.name
+            }
+        }
     }
 }
