@@ -25,6 +25,7 @@ class CommonSwappingModulesFactory {
     // MARK: - Internal
 
     private var _swappingInteractor: SwappingInteractor?
+    private var _expressInteractor: ExpressInteractor?
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
@@ -43,6 +44,19 @@ class CommonSwappingModulesFactory {
 // MARK: - SwappingModulesFactory
 
 extension CommonSwappingModulesFactory: SwappingModulesFactory {
+    func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
+        ExpressViewModel(
+            initialSourceCurrency: source,
+            swappingInteractor: nil, // [REDACTED_TODO_COMMENT]
+            swappingDestinationService: swappingDestinationService,
+            tokenIconURLBuilder: tokenIconURLBuilder,
+            transactionSender: transactionSender,
+            fiatRatesProvider: fiatRatesProvider,
+            swappingFeeFormatter: swappingFeeFormatter,
+            coordinator: coordinator
+        )
+    }
+
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             initialSourceCurrency: source,
