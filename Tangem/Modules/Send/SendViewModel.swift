@@ -151,6 +151,10 @@ extension SendViewModel: SendSummaryRoutable {
 }
 
 extension SendViewModel: SendAmountViewModelDelegate {
+    func didSelectCurrencyOption(isFiat: Bool) {
+        sendModel.setIsFiatCalculation(isFiat)
+    }
+
     func didTapMaxAmount() {
         sendModel.useMaxAmount()
     }
