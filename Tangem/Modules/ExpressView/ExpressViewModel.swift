@@ -44,7 +44,7 @@ final class ExpressViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let initialSourceCurrency: Currency
+    private let initialWallet: WalletModel
     // [REDACTED_TODO_COMMENT]
     private unowned let swappingInteractor: ExpressInteractor!
     private let swappingDestinationService: SwappingDestinationServicing
@@ -61,7 +61,7 @@ final class ExpressViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        initialSourceCurrency: Currency,
+        initialWallet: WalletModel,
         swappingInteractor: ExpressInteractor?,
         swappingDestinationService: SwappingDestinationServicing,
         tokenIconURLBuilder: TokenIconURLBuilding,
@@ -70,7 +70,7 @@ final class ExpressViewModel: ObservableObject {
         swappingFeeFormatter: SwappingFeeFormatter,
         coordinator: ExpressRoutable
     ) {
-        self.initialSourceCurrency = initialSourceCurrency
+        self.initialWallet = initialWallet
         self.swappingInteractor = swappingInteractor
         self.swappingDestinationService = swappingDestinationService
         self.tokenIconURLBuilder = tokenIconURLBuilder
@@ -79,7 +79,7 @@ final class ExpressViewModel: ObservableObject {
         self.swappingFeeFormatter = swappingFeeFormatter
         self.coordinator = coordinator
 
-        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialSourceCurrency.symbol])
+        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialWallet.tokenItem.currencySymbol])
         setupView()
         bind()
         loadDestinationIfNeeded()
@@ -90,20 +90,6 @@ final class ExpressViewModel: ObservableObject {
         sendDecimalValue = .external(sourceBalance)
         updateSendFiatValue(amount: sourceBalance)
         swappingInteractor.update(amount: sourceBalance)
-    }
-
-    func userDidRequestChangeDestination(to currency: Currency) {
-        var items = swappingInteractor.getSwappingItems()
-
-        if items.source == initialSourceCurrency {
-            items.destination = currency
-        } else if items.destination == initialSourceCurrency {
-            items.source = currency
-        }
-
-        runTask(in: self) { root in
-            await root.update(swappingItems: items, shouldRefresh: true)
-        }
     }
 
     func userDidTapSwapSwappingItemsButton() {
@@ -176,7 +162,8 @@ final class ExpressViewModel: ObservableObject {
 
 private extension ExpressViewModel {
     func openTokenListView() {
-        coordinator.presentSwappingTokenList(sourceCurrency: initialSourceCurrency)
+        // [REDACTED_TODO_COMMENT]
+        coordinator.presentSwappingTokenList(walletType: .source(initialWallet))
     }
 
     func openSuccessView(transactionData: SwappingTransactionData, transactionID: String) {
@@ -237,7 +224,8 @@ private extension ExpressViewModel {
             balance: .loaded(swappingItems.sourceBalance),
             fiatValue: .loading,
             maximumFractionDigits: source.decimalCount,
-            canChangeCurrency: source != initialSourceCurrency,
+            // [REDACTED_TODO_COMMENT]
+            canChangeCurrency: source.id != (initialWallet.tokenItem.id ?? ""),
             tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
         )
 
@@ -291,7 +279,8 @@ private extension ExpressViewModel {
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             balance: swappingItems.destinationBalance,
-            canChangeCurrency: destination != initialSourceCurrency,
+            // [REDACTED_TODO_COMMENT]
+            canChangeCurrency: destination?.id != initialWallet.tokenItem.id,
             cryptoAmountState: cryptoAmountState,
             fiatAmountState: fiatAmountState,
             tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
