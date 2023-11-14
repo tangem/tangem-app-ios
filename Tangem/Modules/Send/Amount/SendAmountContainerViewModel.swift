@@ -21,6 +21,8 @@ class SendAmountContainerViewModel: ObservableObject, Identifiable {
 
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?>
     let amountFractionDigits: Int
+
+    @Published var currencyOption: CurrencyOption = .crypto
     @Published var amountAlternative: String = ""
     @Published var error: String?
 
@@ -58,5 +60,14 @@ class SendAmountContainerViewModel: ObservableObject, Identifiable {
             .map { $0?.localizedDescription }
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+}
+
+extension SendAmountContainerViewModel {
+    enum CurrencyOption: String, CaseIterable, Identifiable {
+        case crypto
+        case fiat
+
+        var id: Self { self }
     }
 }
