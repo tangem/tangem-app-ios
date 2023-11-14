@@ -46,16 +46,8 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
         .constant(DecimalNumberTextField.DecimalValue.internal(0))
     }
 
-    var errorPublisher: AnyPublisher<Error?, Never> {
-        .just(output: "Insufficient funds for transfer")
-    }
-
     var walletName: String {
         "Family Wallet"
-    }
-
-    var amountTextBinding: Binding<String> {
-        .constant("100,00")
     }
 
     var amountError: AnyPublisher<Error?, Never> {
