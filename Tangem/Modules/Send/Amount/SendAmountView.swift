@@ -10,9 +10,10 @@ import SwiftUI
 
 struct SendAmountView: View {
     let namespace: Namespace.ID
-    private let iconSize = CGSize(bothDimensions: 36)
 
     @ObservedObject var viewModel: SendAmountViewModel
+
+    private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
         GroupedScrollView {
