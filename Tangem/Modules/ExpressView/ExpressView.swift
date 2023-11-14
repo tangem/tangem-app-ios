@@ -153,26 +153,28 @@ struct ExpressView: View {
     }
 }
 
-struct ExpressView_Preview: PreviewProvider {
-    static let viewModel = ExpressViewModel(
-        initialSourceCurrency: .mock,
-        swappingInteractor: .init(
-            swappingManager: SwappingManagerMock(),
-            userTokensManager: UserTokensManagerMock(),
-            currencyMapper: CurrencyMapper(),
-            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-        ),
-        swappingDestinationService: SwappingDestinationServiceMock(),
-        tokenIconURLBuilder: TokenIconURLBuilder(),
-        transactionSender: TransactionSenderMock(),
-        fiatRatesProvider: FiatRatesProviderMock(),
-        swappingFeeFormatter: SwappingFeeFormatterMock(),
-        coordinator: ExpressCoordinator()
-    )
+/*
+ struct ExpressView_Preview: PreviewProvider {
+     static let viewModel = ExpressViewModel(
+         initialWallet: .mock,
+         swappingInteractor: .init(
+             swappingManager: SwappingManagerMock(),
+             userTokensManager: UserTokensManagerMock(),
+             currencyMapper: CurrencyMapper(),
+             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+         ),
+         swappingDestinationService: SwappingDestinationServiceMock(),
+         tokenIconURLBuilder: TokenIconURLBuilder(),
+         transactionSender: TransactionSenderMock(),
+         fiatRatesProvider: FiatRatesProviderMock(),
+         swappingFeeFormatter: SwappingFeeFormatterMock(),
+         coordinator: ExpressCoordinator()
+     )
 
-    static var previews: some View {
-        NavigationView {
-            ExpressView(viewModel: viewModel)
-        }
-    }
-}
+     static var previews: some View {
+         NavigationView {
+             ExpressView(viewModel: viewModel)
+         }
+     }
+ }
+ */
