@@ -25,9 +25,14 @@ protocol SendAmountViewModelInput {
 
     var amountTextBinding: Binding<String> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
+
+    var isFiatCalculation: Bool { get }
+    var cryptoCurrencyCode: String { get }
+    var fiatCurrencyCode: String { get }
 }
 
 protocol SendAmountViewModelDelegate: AnyObject {
+    func didSelectCurrencyOption(isFiat: Bool)
     func didTapMaxAmount()
 }
 
@@ -44,13 +49,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?>
     let amountFractionDigits: Int
 
-    @Published var currencyOption: CurrencyOption = .crypto
+    @Published var currencyOption: CurrencyOption
     @Published var amountAlternative: String = ""
     @Published var error: String?
 
     var amountText: Binding<String> // remove
 
     @Published var amountError: String?
+
+    let cryptoCurrencyCode: String
+    let fiatCurrencyCode: String
 
     weak var delegate: SendAmountViewModelDelegate?
 
@@ -69,6 +77,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         amountFractionDigits = input.amountFractionDigits
         decimalValue = input.decimalValue
 
+        currencyOption = input.isFiatCalculation ? .fiat : .crypto
+        cryptoCurrencyCode = input.cryptoCurrencyCode
+        fiatCurrencyCode = input.fiatCurrencyCode
+
         bind(from: input)
     }
 
@@ -81,6 +93,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .amountError
             .map { $0?.localizedDescription }
             .assign(to: \.amountError, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        $currencyOption
+            .sink { [weak self] option in
+                let isFiat = (option == .fiat)
+                self?.delegate?.didSelectCurrencyOption(isFiat: isFiat)
+            }
             .store(in: &bag)
     }
 }
