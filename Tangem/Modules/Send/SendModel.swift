@@ -132,6 +132,61 @@ class SendModel {
 // MARK: - Subview model inputs
 
 extension SendModel: SendAmountViewModelInput {
+    #warning("TODO")
+    var walletName: String {
+        "My Wallet (TODO)"
+    }
+
+    #warning("TODO")
+    var balance: String {
+        "2 130,88 USDT (2 129,92 $)"
+    }
+
+    #warning("TODO")
+    var tokenIconName: String {
+        "tether"
+    }
+
+    #warning("TODO")
+    var tokenIconURL: URL? {
+        TokenIconURLBuilder().iconURL(id: "tether")
+    }
+
+    #warning("TODO")
+    var tokenIconCustomTokenColor: Color? {
+        nil
+    }
+
+    #warning("TODO")
+    var tokenIconBlockchainIconName: String? {
+        "ethereum.fill"
+    }
+
+    #warning("TODO")
+    var isCustomToken: Bool {
+        false
+    }
+
+    #warning("TODO")
+    var amountFractionDigits: Int {
+        2
+    }
+
+    #warning("TODO")
+    var amountAlternativePublisher: AnyPublisher<String, Never> {
+        .just(output: "1 000 010,99 USDT")
+    }
+
+    #warning("TODO")
+    var decimalValue: Binding<DecimalNumberTextField.DecimalValue?> {
+        .constant(DecimalNumberTextField.DecimalValue.internal(0))
+    }
+
+    #warning("TODO")
+    var errorPublisher: AnyPublisher<Error?, Never> {
+        _amountError.eraseToAnyPublisher()
+    }
+
     var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
 }
