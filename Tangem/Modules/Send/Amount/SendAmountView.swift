@@ -39,9 +39,9 @@ struct SendAmountView: View {
                     )
                     .padding(.top, 34)
 
-                    DecimalNumberTextField(
+                    SendDecimalNumberTextField(
                         decimalValue: viewModel.decimalValue,
-                        decimalNumberFormatter: .init(maximumFractionDigits: viewModel.amountFractionDigits),
+                        maximumFractionDigits: viewModel.amountFractionDigits,
                         font: Fonts.Regular.title1
                     )
                     .padding(.top, 16)
