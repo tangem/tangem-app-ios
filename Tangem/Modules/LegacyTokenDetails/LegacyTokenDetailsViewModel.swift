@@ -519,7 +519,8 @@ extension LegacyTokenDetailsViewModel {
             referrer: referrer,
             source: source,
             walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork),
-            walletModelsManager: card.walletModelsManager
+            walletModelsManager: card.walletModelsManager,
+            userWalletId: card.userWalletId.stringValue
         )
 
         coordinator.openSwapping(input: input)
