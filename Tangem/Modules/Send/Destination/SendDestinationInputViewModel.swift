@@ -47,10 +47,6 @@ class SendDestinationInputViewModel: Identifiable {
         updatePasteButton()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     func onAppear() {
         updatePasteButton()
     }
