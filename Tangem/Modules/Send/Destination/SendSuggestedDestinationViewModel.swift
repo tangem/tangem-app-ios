@@ -58,7 +58,9 @@ class SendSuggestedDestinationViewModel {
 
 // MARK: - Cell model
 
-class SendSuggestedDestinationViewCellModel: Identifiable {
+struct SendSuggestedDestinationViewCellModel: Identifiable {
+    let id = UUID()
+
     let type: `Type`
     let tapAction: (() -> Void)?
 
