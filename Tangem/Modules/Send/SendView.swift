@@ -13,6 +13,9 @@ struct SendView: View {
 
     @ObservedObject var viewModel: SendViewModel
 
+    private let backButtonStyle: MainButton.Style = .secondary
+    private let backButtonsize: MainButton.Size = .default
+    
     var body: some View {
         VStack {
             title
@@ -53,30 +56,51 @@ struct SendView: View {
     private var navigationButtons: some View {
         HStack {
             if viewModel.showBackButton {
-                Button(action: viewModel.back, label: {
-                    Text("Back")
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.black)
-                        .cornerRadius(10)
-                })
+                SendViewBackButton(
+                    backgroundColor: backButtonStyle.background(isDisabled: false),
+                    cornerRadius: backButtonStyle.cornerRadius(for: backButtonsize),
+                    height: backButtonsize.height,
+                    action: viewModel.back
+                )
             }
 
             if viewModel.showNextButton {
-                Button(action: viewModel.next) {
-                    Text("Next")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(viewModel.currentStepInvalid ? Color.gray : Color.black)
-                        .cornerRadius(10)
-                }
-                .disabled(viewModel.currentStepInvalid)
+                MainButton(
+                    title: Localization.commonNext,
+                    style: .primary,
+                    size: .default,
+                    isDisabled: viewModel.currentStepInvalid,
+                    action: viewModel.next
+                )
+                .frame(maxWidth: .infinity)
             }
         }
         .padding(.horizontal)
     }
 }
+
+// MARK: - Back button
+
+private struct SendViewBackButton: View {
+    let backgroundColor: Color
+    let cornerRadius: CGFloat
+    let height: CGFloat
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            backgroundColor
+                .cornerRadiusContinuous(cornerRadius)
+                .overlay(
+                    Assets.arrowLeftMini
+                        .image
+                )
+                .frame(size: CGSize(bothDimensions: height))
+        }
+    }
+}
+
+// MARK: - Preview
 
 struct SendView_Preview: PreviewProvider {
     static let viewModel = SendViewModel(sendType: .send, coordinator: SendRoutableMock())
