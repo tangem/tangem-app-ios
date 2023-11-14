@@ -923,6 +923,8 @@
 		EF0DD7A12B02B3230099527D /* ExpressFeeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A02B02B3230099527D /* ExpressFeeRow.swift */; };
 		EF0DD7A32B02B5C00099527D /* ExpressFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A22B02B5C00099527D /* ExpressFeeRowViewModel.swift */; };
 		EF0DD7A52B03893D0099527D /* WalletModel+ExpressWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A42B03893D0099527D /* WalletModel+ExpressWallet.swift */; };
+		EF0DD7A72B0393C40099527D /* ExpressWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A62B0393C40099527D /* ExpressWallet.swift */; };
+		EF0DD7A92B0393DD0099527D /* ExpressConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A82B0393DD0099527D /* ExpressConstants.swift */; };
 		EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */; };
 		EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A6289028F8008B01DF /* AppSettingsCoordinatorView.swift */; };
 		EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */; };
@@ -2266,6 +2268,8 @@
 		EF0DD7A02B02B3230099527D /* ExpressFeeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeRow.swift; sourceTree = "<group>"; };
 		EF0DD7A22B02B5C00099527D /* ExpressFeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF0DD7A42B03893D0099527D /* WalletModel+ExpressWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "WalletModel+ExpressWallet.swift"; sourceTree = "<group>"; };
+		EF0DD7A62B0393C40099527D /* ExpressWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressWallet.swift; sourceTree = "<group>"; };
+		EF0DD7A82B0393DD0099527D /* ExpressConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressConstants.swift; sourceTree = "<group>"; };
 		EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF0F99A6289028F8008B01DF /* AppSettingsCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinatorView.swift; sourceTree = "<group>"; };
 		EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -5681,6 +5685,7 @@
 		EF4661932923AFC400346B6C /* TangemSwapping */ = {
 			isa = PBXGroup;
 			children = (
+				EF0DD7A82B0393DD0099527D /* ExpressConstants.swift */,
 				E9C17C62291A687D00FDE4BC /* Factory */,
 				EF4661B92923B00800346B6C /* Interfaces */,
 				EF46620E2924CE2A00346B6C /* Manager */,
@@ -5721,6 +5726,7 @@
 				EF46618B2923AFA200346B6C /* SwappingWalletDataProvider.swift */,
 				E9C17C6A291AACFD00FDE4BC /* SwappingProvider.swift */,
 				EFBFD5702979991100B20C2E /* FiatRatesProviding.swift */,
+				EF0DD7A62B0393C40099527D /* ExpressWallet.swift */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";
@@ -8281,6 +8287,7 @@
 				EF04C5512AFBEF4E00D8853B /* CommonExpressAPIProvider.swift in Sources */,
 				EFA9854B294775B500D1FCB3 /* SwappingPreviewData.swift in Sources */,
 				EF5F1BCE29D6D0360093307B /* LiquidityProtocol.swift in Sources */,
+				EF0DD7A92B0393DD0099527D /* ExpressConstants.swift in Sources */,
 				EF04C55C2AFC1AD300D8853B /* ExpressAPIMapper.swift in Sources */,
 				EF5F1BBF29D6CDA90093307B /* ApproveAllowanceParameters.swift in Sources */,
 				EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */,
@@ -8338,6 +8345,7 @@
 				EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */,
 				EF4662062924CC6E00346B6C /* ApproveTarget.swift in Sources */,
 				EF4661FF2924CC6E00346B6C /* SwappingBlockchain.swift in Sources */,
+				EF0DD7A72B0393C40099527D /* ExpressWallet.swift in Sources */,
 				EF04C5552AFC12C300D8853B /* ExpressProviderType.swift in Sources */,
 				EF04C54D2AFBEEE600D8853B /* ExpressPair.swift in Sources */,
 				EF5F1BC829D6CF090093307B /* ProtocolInfo.swift in Sources */,
