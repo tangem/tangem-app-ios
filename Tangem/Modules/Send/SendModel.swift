@@ -31,6 +31,8 @@ class SendModel {
         .just(output: true)
     }
 
+    private(set) var isFiatCalculation: Bool = false
+
     // MARK: - Data
 
     private var amount = CurrentValueSubject<Decimal?, Never>(nil)
@@ -58,8 +60,14 @@ class SendModel {
         validateDestinationAdditionalField()
     }
 
+    func setIsFiatCalculation(_ isFiatCalculation: Bool) {
+        self.isFiatCalculation = isFiatCalculation
+
+        #warning("TODO")
+    }
+
     func useMaxAmount() {
-        setAmount("1000")
+        #warning("TODO")
     }
 
     func send() {
@@ -189,6 +197,16 @@ extension SendModel: SendAmountViewModelInput {
 
     var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
+
+    #warning("TODO")
+    var cryptoCurrencyCode: String {
+        "USDT"
+    }
+
+    #warning("TODO")
+    var fiatCurrencyCode: String {
+        "USD"
+    }
 }
 
 extension SendModel: SendDestinationViewModelInput {
