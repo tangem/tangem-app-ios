@@ -13,7 +13,7 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
     var walletName: String {
         "Family Wallet"
     }
-    
+
     var balance: String {
         "2 130,88 USDT (2 129,92 $)"
     }
