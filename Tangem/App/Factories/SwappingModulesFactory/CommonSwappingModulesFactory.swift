@@ -11,6 +11,8 @@ import TangemSwapping
 import BlockchainSdk
 
 class CommonSwappingModulesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     private let userTokensManager: UserTokensManager
     private let walletModel: WalletModel
     private let signer: TransactionSigner
@@ -21,14 +23,16 @@ class CommonSwappingModulesFactory {
     private let source: Currency
     private let walletModelTokens: [Token]
     private let walletModelsManager: WalletModelsManager
+    private let userWalletId: String
 
     // MARK: - Internal
 
     private var _swappingInteractor: SwappingInteractor?
-    private var _expressInteractor: ExpressInteractor?
 
-    private lazy var expressAPIProvider: ExpressAPIProvider = makeExpressAPIProvider()
-    private let swappingFactory = TangemSwappingFactory()
+    private lazy var expressInteractor = makeExpressInteractor()
+    private lazy var expressAPICredential = makeExpressAPICredential()
+    private lazy var expressAPIProvider = makeExpressAPIProvider()
+    private lazy var swappingFactory = TangemSwappingFactory()
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
@@ -41,6 +45,7 @@ class CommonSwappingModulesFactory {
         source = inputModel.source
         walletModelTokens = inputModel.walletModelTokens
         walletModelsManager = inputModel.walletModelsManager
+        userWalletId = inputModel.userWalletId
     }
 }
 
@@ -209,11 +214,9 @@ private extension CommonSwappingModulesFactory {
         return interactor
     }
 
-    var expressInteractor: ExpressInteractor {
-        if let interactor = _expressInteractor {
-            return interactor
-        }
+    // MARK: - Methods
 
+    func makeExpressInteractor() -> ExpressInteractor {
         let swappingManager = swappingFactory.makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
@@ -229,16 +232,22 @@ private extension CommonSwappingModulesFactory {
             blockchainNetwork: walletModel.blockchainNetwork
         )
 
-        _expressInteractor = interactor
         return interactor
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         swappingFactory.makeExpressAPIProvider(
-            // [REDACTED_TODO_COMMENT]
-            credential: .init(apiKey: UUID().uuidString, userId: UUID().uuidString, sessionId: UUID().uuidString),
+            credential: expressAPICredential,
             configuration: .defaultConfiguration,
             logger: logger
+        )
+    }
+
+    func makeExpressAPICredential() -> ExpressAPICredential {
+        ExpressAPICredential(
+            apiKey: keysManager.tangemExpressApiKey,
+            userId: userWalletId,
+            sessionId: UUID().uuidString
         )
     }
 }
@@ -255,29 +264,6 @@ extension CommonSwappingModulesFactory {
         let source: Currency
         let walletModelTokens: [Token]
         let walletModelsManager: WalletModelsManager
-
-        init(
-            userTokensManager: UserTokensManager,
-            walletModel: WalletModel,
-            signer: TransactionSigner,
-            ethereumNetworkProvider: EthereumNetworkProvider,
-            ethereumTransactionProcessor: EthereumTransactionProcessor,
-            logger: SwappingLogger,
-            referrer: SwappingReferrerAccount?,
-            source: Currency,
-            walletModelTokens: [Token],
-            walletModelsManager: WalletModelsManager
-        ) {
-            self.userTokensManager = userTokensManager
-            self.walletModel = walletModel
-            self.signer = signer
-            self.ethereumNetworkProvider = ethereumNetworkProvider
-            self.ethereumTransactionProcessor = ethereumTransactionProcessor
-            self.logger = logger
-            self.referrer = referrer
-            self.source = source
-            self.walletModelTokens = walletModelTokens
-            self.walletModelsManager = walletModelsManager
-        }
+        let userWalletId: String
     }
 }

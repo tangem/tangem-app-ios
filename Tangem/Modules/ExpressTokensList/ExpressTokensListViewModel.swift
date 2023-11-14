@@ -43,7 +43,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         coordinator: ExpressTokensListRoutable
     ) {
         self.initialWalletType = initialWalletType
-        self.walletModels = walletModels
+        self.walletModels = walletModels.filter { $0 != initialWalletType.wallet }
         self.expressAPIProvider = expressAPIProvider
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
@@ -64,25 +64,29 @@ private extension ExpressTokensListViewModel {
     }
 
     func loadAvailablePairs() async throws -> [ExpressCurrency] {
-        let currencies = walletModels.map { $0.currency }
+        var currencies = walletModels.map { $0.currency }
 
         switch initialWalletType {
         case .source(let wallet):
             let pairs = try await expressAPIProvider.pairs(from: [wallet.currency], to: currencies)
-            return pairs.map { $0.source }
+            return pairs.map { $0.destination }
         case .destination(let wallet):
             let pairs = try await expressAPIProvider.pairs(from: currencies, to: [wallet.currency])
-            return pairs.map { $0.destination }
+            return pairs.map { $0.source }
         }
     }
 
     func updateWalletModels(availableCurrencies: [ExpressCurrency]) {
-        availableWalletModels = walletModels.filter { walletModel in
-            availableCurrencies.contains { walletModel.currency == $0 }
-        }
+        availableWalletModels.removeAll()
+        unavailableWalletModels.removeAll()
 
-        unavailableWalletModels = walletModels.filter { walletModel in
-            !availableCurrencies.contains { walletModel.currency == $0 }
+        walletModels.forEach { walletModel in
+            let isAvailable = availableCurrencies.contains { walletModel.currency == $0 }
+            if isAvailable {
+                availableWalletModels.append(walletModel)
+            } else {
+                unavailableWalletModels.append(walletModel)
+            }
         }
 
         updateView()
@@ -105,7 +109,7 @@ private extension ExpressTokensListViewModel {
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
             }
 
-            unavailableTokens = availableWalletModels.map { walletModel in
+            unavailableTokens = unavailableWalletModels.map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
             }
         } else {
@@ -115,7 +119,7 @@ private extension ExpressTokensListViewModel {
                     mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
                 }
 
-            unavailableTokens = availableWalletModels
+            unavailableTokens = unavailableWalletModels
                 .filter { $0.name.contains(searchText) }
                 .map { walletModel in
                     mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
@@ -127,7 +131,7 @@ private extension ExpressTokensListViewModel {
         ExpressTokenItemViewModel(
             id: walletModel.id,
             tokenIconItem: TokenIconItemViewModel(tokenItem: walletModel.tokenItem),
-            name: walletModel.tokenItem.name,
+            name: walletModel.name,
             symbol: walletModel.tokenItem.currencySymbol,
             balance: walletModel.balance,
             fiatBalance: walletModel.fiatBalance,
@@ -165,6 +169,15 @@ extension ExpressTokensListViewModel {
                 return walletModel.name
             case .destination(let walletModel):
                 return walletModel.name
+            }
+        }
+
+        var wallet: WalletModel {
+            switch self {
+            case .source(let walletModel):
+                return walletModel
+            case .destination(let walletModel):
+                return walletModel
             }
         }
     }
