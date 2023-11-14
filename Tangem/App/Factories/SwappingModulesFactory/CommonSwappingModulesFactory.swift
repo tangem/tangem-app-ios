@@ -20,12 +20,15 @@ class CommonSwappingModulesFactory {
     private let referrer: SwappingReferrerAccount?
     private let source: Currency
     private let walletModelTokens: [Token]
-    private let destination: Currency?
+    private let walletModelsManager: WalletModelsManager
 
     // MARK: - Internal
 
     private var _swappingInteractor: SwappingInteractor?
     private var _expressInteractor: ExpressInteractor?
+
+    private lazy var expressAPIProvider: ExpressAPIProvider = makeExpressAPIProvider()
+    private let swappingFactory = TangemSwappingFactory()
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
@@ -37,7 +40,7 @@ class CommonSwappingModulesFactory {
         referrer = inputModel.referrer
         source = inputModel.source
         walletModelTokens = inputModel.walletModelTokens
-        destination = inputModel.destination
+        walletModelsManager = inputModel.walletModelsManager
     }
 }
 
@@ -79,6 +82,19 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             currencyMapper: currencyMapper,
             walletDataProvider: walletDataProvider,
             fiatRatesProvider: fiatRatesProvider,
+            coordinator: coordinator
+        )
+    }
+
+    func makeExpressTokensListViewModel(
+        walletType: ExpressTokensListViewModel.InitialWalletType,
+        coordinator: ExpressTokensListRoutable
+    ) -> ExpressTokensListViewModel {
+        ExpressTokensListViewModel(
+            initialWalletType: walletType,
+            walletModels: walletModelsManager.walletModels,
+            expressAPIProvider: expressAPIProvider,
+            expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -178,7 +194,7 @@ private extension CommonSwappingModulesFactory {
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
-            destination: destination,
+            destination: nil,
             logger: logger
         )
 
@@ -198,11 +214,11 @@ private extension CommonSwappingModulesFactory {
             return interactor
         }
 
-        let swappingManager = TangemSwappingFactory().makeSwappingManager(
+        let swappingManager = swappingFactory.makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
-            destination: destination,
+            destination: nil,
             logger: logger
         )
 
@@ -215,6 +231,15 @@ private extension CommonSwappingModulesFactory {
 
         _expressInteractor = interactor
         return interactor
+    }
+
+    func makeExpressAPIProvider() -> ExpressAPIProvider {
+        swappingFactory.makeExpressAPIProvider(
+            // [REDACTED_TODO_COMMENT]
+            credential: .init(apiKey: UUID().uuidString, userId: UUID().uuidString, sessionId: UUID().uuidString),
+            configuration: .defaultConfiguration,
+            logger: logger
+        )
     }
 }
 
@@ -229,7 +254,7 @@ extension CommonSwappingModulesFactory {
         let referrer: SwappingReferrerAccount?
         let source: Currency
         let walletModelTokens: [Token]
-        let destination: Currency?
+        let walletModelsManager: WalletModelsManager
 
         init(
             userTokensManager: UserTokensManager,
@@ -241,7 +266,7 @@ extension CommonSwappingModulesFactory {
             referrer: SwappingReferrerAccount?,
             source: Currency,
             walletModelTokens: [Token],
-            destination: Currency? = nil
+            walletModelsManager: WalletModelsManager
         ) {
             self.userTokensManager = userTokensManager
             self.walletModel = walletModel
@@ -252,7 +277,7 @@ extension CommonSwappingModulesFactory {
             self.referrer = referrer
             self.source = source
             self.walletModelTokens = walletModelTokens
-            self.destination = destination
+            self.walletModelsManager = walletModelsManager
         }
     }
 }
