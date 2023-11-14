@@ -70,6 +70,8 @@ extension CommonExpressManager: ExpressManager {
 
     nonisolated var availableQuotesPublisher: AnyPublisher<[ExpectedQuote], Never> {
         availableQuotes
+            // Should setFailureType for asyncMap works
+            .setFailureType(to: Error.self)
             .asyncMap { [weak self] quotes in
                 if let pair = await self?._pair {
                     return quotes[pair] ?? []
@@ -78,11 +80,14 @@ extension CommonExpressManager: ExpressManager {
                 self?.logger.debug("Pair not found")
                 return []
             }
+            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
 
     nonisolated var selectedQuotePublisher: AnyPublisher<ExpectedQuote?, Never> {
         selectedQuote
+            // Should setFailureType for asyncMap works
+            .setFailureType(to: Error.self)
             .asyncMap { [weak self] quotes in
                 if let pair = await self?._pair {
                     return quotes[pair]
@@ -91,6 +96,7 @@ extension CommonExpressManager: ExpressManager {
                 self?.logger.debug("Pair not found")
                 return nil
             }
+            .replaceError(with: nil)
             .eraseToAnyPublisher()
     }
 
