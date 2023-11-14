@@ -9,6 +9,11 @@
 import Foundation
 
 public struct ExpressCurrency: Hashable {
-    let contractAddress: String
-    let network: String
+    public let contractAddress: String
+    public let network: String
+
+    public init(contractAddress: String, network: String) {
+        self.contractAddress = contractAddress
+        self.network = network
+    }
 }
