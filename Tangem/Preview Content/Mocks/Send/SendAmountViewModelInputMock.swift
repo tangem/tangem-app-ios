@@ -10,6 +10,10 @@ import SwiftUI
 import Combine
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
+    var walletName: String {
+        "Family Wallet"
+    }
+    
     var balance: String {
         "2 130,88 USDT (2 129,92 $)"
     }
@@ -44,10 +48,6 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
 
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?> {
         .constant(DecimalNumberTextField.DecimalValue.internal(0))
-    }
-
-    var walletName: String {
-        "Family Wallet"
     }
 
     var amountError: AnyPublisher<Error?, Never> {
