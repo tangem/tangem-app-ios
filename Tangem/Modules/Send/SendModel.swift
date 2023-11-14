@@ -195,7 +195,6 @@ extension SendModel: SendAmountViewModelInput {
         _amountError.eraseToAnyPublisher()
     }
 
-    var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
 
     #warning("TODO")
@@ -221,5 +220,10 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
+    #warning("TODO")
+    var amountText: String {
+        "100"
+    }
+
     // Covered by other protocols
 }
