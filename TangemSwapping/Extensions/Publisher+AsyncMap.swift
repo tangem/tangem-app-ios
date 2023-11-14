@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 public extension Publishers {
-    struct AsyncMap<Upstream, Output>: Publisher where Upstream: Publisher, Upstream.Failure == Never {
+    struct AsyncMap<Upstream, Output>: Publisher where Upstream: Publisher, Upstream.Failure == Error {
         public typealias Failure = Upstream.Failure
 
         public let upstream: Upstream
@@ -29,9 +29,13 @@ public extension Publishers {
                     let subject = PassthroughSubject<Output, Failure>()
 
                     let task = Task(priority: priority) {
-                        let mapped = try await transform(output)
-                        subject.send(mapped)
-                        subject.send(completion: .finished)
+                        do {
+                            let mapped = try await transform(output)
+                            subject.send(mapped)
+                            subject.send(completion: .finished)
+                        } catch {
+                            subject.send(completion: .failure(error))
+                        }
                     }
 
                     return subject
@@ -43,11 +47,8 @@ public extension Publishers {
     }
 }
 
-public extension Publisher where Failure == Never {
-    func asyncMap<T>(
-        priority: TaskPriority? = .none,
-        _ transform: @escaping (Self.Output) async throws -> T
-    ) -> Publishers.AsyncMap<Self, T> {
+public extension Publisher where Failure == Error {
+    func asyncMap<T>(priority: TaskPriority? = .none, _ transform: @escaping (Output) async throws -> T) -> Publishers.AsyncMap<Self, T> {
         .init(upstream: self, priority: priority, transform: transform)
     }
 }
