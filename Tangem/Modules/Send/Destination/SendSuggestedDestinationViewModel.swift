@@ -15,7 +15,11 @@ class SendSuggestedDestinationViewModel {
 
     private let tapAction: (SendSuggestedDestination) -> Void
 
-    init(wallets: [SendSuggestedDestinationWallet], recentTransactions: [SendSuggestedDestinationTransactionRecord], tapAction: @escaping (SendSuggestedDestination) -> Void) {
+    init(
+        wallets: [SendSuggestedDestinationWallet],
+        recentTransactions: [SendSuggestedDestinationTransactionRecord],
+        tapAction: @escaping (SendSuggestedDestination) -> Void
+    ) {
         self.tapAction = tapAction
 
         var cellViewModels: [SendSuggestedDestinationViewCellModel] = []
