@@ -10,26 +10,67 @@ import SwiftUI
 
 struct SendAmountView: View {
     let namespace: Namespace.ID
+    private let iconSize = CGSize(bothDimensions: 36)
 
     @ObservedObject var viewModel: SendAmountViewModel
 
     var body: some View {
-        VStack {
-            TextField("0", text: viewModel.amountText)
-                .padding()
-                .border(Color.green, width: 5)
-                .matchedGeometryEffect(id: "amount", in: namespace)
+        GroupedScrollView {
+            GroupedSection(viewModel) { viewModel in
+                VStack(spacing: 0) {
+                    Text(viewModel.walletName)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                        .padding(.top, 18)
 
-            Button(action: viewModel.didTapMaxAmount) {
-                Text("Max amount")
+                    Text(viewModel.balance)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                        .padding(.top, 4)
+
+                    TokenIcon(
+                        name: viewModel.tokenIconName,
+                        imageURL: viewModel.tokenIconURL,
+                        customTokenColor: viewModel.tokenIconCustomTokenColor,
+                        blockchainIconName: viewModel.tokenIconBlockchainIconName,
+                        isCustom: viewModel.isCustomToken,
+                        size: iconSize
+                    )
+                    .padding(.top, 34)
+
+                    DecimalNumberTextField(
+                        decimalValue: viewModel.decimalValue,
+                        decimalNumberFormatter: .init(maximumFractionDigits: viewModel.amountFractionDigits),
+                        font: Fonts.Regular.title1
+                    )
+                    .padding(.top, 16)
+
+                    Text(viewModel.amountAlternative)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                        .padding(.top, 6)
+
+                    // Keep empty text so that the view maintains its place in the layout
+                    Text(viewModel.error ?? " ")
+                        .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                        .lineLimit(1)
+                        .padding(.top, 6)
+                        .padding(.bottom, 12)
+                }
             }
+            .contentAlignment(.center)
 
-            Text(viewModel.amountError ?? " ")
-                .foregroundColor(.red)
+            HStack {
+                Picker("", selection: $viewModel.currencyOption) {
+                    Text("CRYPTO").tag(SendAmountViewModel.CurrencyOption.crypto)
+                    Text("FIAT").tag(SendAmountViewModel.CurrencyOption.fiat)
+                }
+                .pickerStyle(.segmented)
 
-            Spacer()
+                MainButton(title: Localization.sendMaxAmount, style: .secondary) {}
+            }
         }
-        .padding(.horizontal)
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 }
 
