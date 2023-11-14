@@ -98,7 +98,8 @@ class SingleTokenRouter: SingleTokenRoutable {
             logger: AppLog.shared,
             referrer: referrer,
             source: sourceCurrency,
-            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
+            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork),
+            walletModelsManager: userWalletModel.walletModelsManager
         )
 
         coordinator.openSwapping(input: input)
