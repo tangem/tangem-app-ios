@@ -57,12 +57,13 @@ private extension CommonExpressAPIService {
         do {
             response = try await provider.asyncRequest(target)
         } catch {
-            logError(target: target, error: error)
+            log(target: target, error: error)
             throw ExpressAPIServiceError.requestError(error)
         }
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
+            log(target: target, response: response)
         } catch {
             try handleError(target: target, response: response)
         }
@@ -70,7 +71,7 @@ private extension CommonExpressAPIService {
         do {
             return try decoder.decode(T.self, from: response.data)
         } catch {
-            logError(target: target, response: response, error: error)
+            log(target: target, response: response, error: error)
             throw ExpressAPIServiceError.decodingError(error)
         }
     }
@@ -80,15 +81,15 @@ private extension CommonExpressAPIService {
 
         do {
             let error = try decoder.decode(ExpressDTO.APIError.self, from: response.data)
-            logError(target: target, response: response, error: error)
+            log(target: target, response: response, error: error)
             throw ExpressAPIServiceError.apiError(error)
         } catch {
-            logError(target: target, response: response, error: error)
+            log(target: target, response: response, error: error)
             throw ExpressAPIServiceError.decodingError(error)
         }
     }
 
-    func logError(target: TargetType, response: Response? = nil, error: Any) {
+    func log(target: TargetType, response: Response? = nil, error: Error? = nil) {
         var info = ""
         if let response {
             info = String(data: response.data, encoding: .utf8)!
@@ -96,9 +97,10 @@ private extension CommonExpressAPIService {
 
         logger.debug(
             """
-            Error when request to target \(target.path)
-            with info \(info)
-            \(error)
+            [ExpressAPIService]
+            Request to target: \(target.path)
+            eded with response: \(info)
+            Error: \(String(describing: error))
             """
         )
     }
