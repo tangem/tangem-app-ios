@@ -16,20 +16,17 @@ struct SendSuggestedDestinationView: View {
     private let cellVerticalPadding: Double = 14
 
     var body: some View {
-        GroupedScrollView {
-            GroupedSection(viewModel.cellViewModels) { cellViewModel in
-                if let tapAction = cellViewModel.tapAction {
-                    Button(action: tapAction) {
-                        cellView(for: cellViewModel.type)
-                    }
-                } else {
+        GroupedSection(viewModel.cellViewModels) { cellViewModel in
+            if let tapAction = cellViewModel.tapAction {
+                Button(action: tapAction) {
                     cellView(for: cellViewModel.type)
                 }
+            } else {
+                cellView(for: cellViewModel.type)
             }
-            .separatorStyle(.none)
-            .horizontalPadding(14)
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .separatorStyle(.none)
+        .horizontalPadding(14)
     }
 
     @ViewBuilder
@@ -133,16 +130,19 @@ struct SendSuggestedDestinationView: View {
 }
 
 #Preview("Figma") {
-    SendSuggestedDestinationView(
-        viewModel: SendSuggestedDestinationViewModel(
-            wallets: [
-                .init(name: "Main Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
-            ],
-            recentTransactions: [
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: true, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
-            ],
-            tapAction: { _ in }
+    GroupedScrollView {
+        SendSuggestedDestinationView(
+            viewModel: SendSuggestedDestinationViewModel(
+                wallets: [
+                    .init(name: "Main Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+                ],
+                recentTransactions: [
+                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: true, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
+                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
+                ],
+                tapAction: { _ in }
+            )
         )
-    )
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
