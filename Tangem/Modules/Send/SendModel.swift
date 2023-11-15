@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class SendModel {
     var amountValid: AnyPublisher<Bool, Never> {
@@ -36,13 +37,15 @@ class SendModel {
     private var amount = CurrentValueSubject<Decimal?, Never>(nil)
     private var destination = CurrentValueSubject<String?, Never>(nil)
     private var destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
+    private var fee = CurrentValueSubject<Fee?, Never>(nil)
 
     // MARK: - Raw data
 
     private var _amountText: String = ""
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
-    private var _feeText: String = ""
+    private var _selectedFeeOption: FeeOption = .market
+    private var _feeValuesFormatted = CurrentValueSubject<[FeeOption: LoadingValue<String>], Never>([:])
 
     // MARK: - Errors (raw implementation)
 
@@ -56,6 +59,11 @@ class SendModel {
         validateAmount()
         validateDestination()
         validateDestinationAdditionalField()
+
+    }
+
+    func setFeeOption(_ feeOption: FeeOption) {
+        _selectedFeeOption = feeOption
     }
 
     func useMaxAmount() {
@@ -123,9 +131,11 @@ class SendModel {
 
     // MARK: - Fees
 
-    private func setFee(_ feeText: String) {
-        #warning("set and validate")
-        _feeText = feeText
+    private func formatFee(_ amount: Amount) -> String {
+        #warning("TODO")
+//        CommonSwappingFeeFormatter(fiatRatesProvider: )
+
+        return amount.value.description
     }
 }
 
@@ -144,9 +154,23 @@ extension SendModel: SendDestinationViewModelInput {
 }
 
 extension SendModel: SendFeeViewModelInput {
-    var feeTextBinding: Binding<String> { Binding(get: { self._feeText }, set: { self.setFee($0) }) }
+    var selectedFeeOption: FeeOption {
+        _selectedFeeOption
+    }
+
+    #warning("TODO")
+    var feeOptions: [FeeOption] {
+        [.slow, .market, .fast]
+    }
+
+    var feeValues: AnyPublisher<[FeeOption: LoadingValue<String>], Never> {
+        _feeValuesFormatted.eraseToAnyPublisher()
+    }
 }
 
 extension SendModel: SendSummaryViewModelInput {
-    // Covered by other protocols
+    #warning("TODO")
+    var feeText: String {
+        fee.value?.description ?? "--"
+    }
 }
