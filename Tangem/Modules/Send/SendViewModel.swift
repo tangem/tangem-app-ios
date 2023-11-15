@@ -107,6 +107,7 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
 
         sendAmountViewModel.delegate = self
+        sendFeeViewModel.delegate = self
         sendSummaryViewModel.router = self
 
         bind()
@@ -147,6 +148,12 @@ extension SendViewModel: SendSummaryRoutable {
 
     func send() {
         sendModel.send()
+    }
+}
+
+extension SendViewModel: SendFeeViewModelDelegate {
+    func didSelectFeeOption(_ feeOption: FeeOption) {
+        sendModel.setFeeOption(feeOption)
     }
 }
 
