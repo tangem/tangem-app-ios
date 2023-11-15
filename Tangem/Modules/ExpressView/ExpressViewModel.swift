@@ -20,7 +20,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var swapButtonIsLoading: Bool = false
 
     @Published var sendDecimalValue: DecimalNumberTextField.DecimalValue?
-    @Published var expressFeeRowViewModel: ExpressFeeRowViewModel?
+    @Published var expressFeeRowViewModel: ExpressFeeRowData?
 
     // Warnings
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
@@ -525,7 +525,7 @@ private extension ExpressViewModel {
             currencyId: currencyId
         )
 
-        expressFeeRowViewModel = ExpressFeeRowViewModel(
+        expressFeeRowViewModel = ExpressFeeRowData(
             title: Localization.sendFeeLabel,
             subtitle: formattedFee
         ) { [weak self] in
