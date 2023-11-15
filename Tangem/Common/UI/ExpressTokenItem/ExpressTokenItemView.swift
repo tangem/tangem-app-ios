@@ -28,6 +28,7 @@ struct ExpressTokenItemView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(viewModel.isDisable)
     }
 
     private var infoView: some View {
