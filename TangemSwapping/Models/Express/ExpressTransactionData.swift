@@ -9,6 +9,9 @@
 import Foundation
 
 public struct ExpressTransactionData {
+    public let fromAmount: Decimal
+    public let toAmount: Decimal
+
     /// The Internal `tangem-express` transaction id
     public let expressTransactionId: String
     public let transactionType: ExpressTransactionType
