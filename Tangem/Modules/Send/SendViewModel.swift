@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import BlockchainSdk
 
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
@@ -89,10 +90,10 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(walletModel: WalletModel, sendType: SendType, coordinator: SendRoutable) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
-        sendModel = SendModel(walletModel: walletModel, sendType: sendType)
+        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
