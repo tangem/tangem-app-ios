@@ -102,14 +102,11 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var sendButton: some View {
-        Button(action: viewModel.send) {
-            Text("Send")
-                .frame(maxWidth: .infinity)
-                .padding()
-                .foregroundColor(.white)
-                .background(Color.black)
-                .cornerRadius(10)
-        }
+        MainButton(
+            title: Localization.commonSend,
+            icon: .leading(Assets.arrowRightMini),
+            action: viewModel.send
+        )
     }
 }
 
