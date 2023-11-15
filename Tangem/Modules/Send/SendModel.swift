@@ -54,10 +54,11 @@ class SendModel {
     private var _destinationError = CurrentValueSubject<Error?, Never>(nil)
     private var _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
 
-    // MARK: - Dependencies
+    // MARK: - Private stuff
 
     private let walletModel: WalletModel
     private let sendType: SendType
+    private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
 
@@ -77,6 +78,7 @@ class SendModel {
         validateAmount()
         validateDestination()
         validateDestinationAdditionalField()
+        bind()
     }
 
     func useMaxAmount() {
@@ -85,6 +87,59 @@ class SendModel {
 
     func send() {
         print("SEND")
+    }
+
+    private func bind() {
+        #warning("[REDACTED_TODO_COMMENT]")
+        Publishers.CombineLatest(amount, destination)
+            .flatMap { [unowned self] amount, destination -> AnyPublisher<[Fee], Never> in
+                guard let amount, let destination else {
+                    return .just(output: [])
+                }
+
+                #warning("[REDACTED_TODO_COMMENT]")
+                return walletModel
+                    .getFee(amount: amount, destination: destination)
+                    .receive(on: DispatchQueue.main)
+                    .catch { [unowned self] error in
+                        #warning("[REDACTED_TODO_COMMENT]")
+                        return Just([Fee]())
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+            .sink { [unowned self] fees in
+                #warning("[REDACTED_TODO_COMMENT]")
+                fee.send(fees.first)
+
+                print("fetched fees:", fees)
+            }
+            .store(in: &bag)
+
+        Publishers.CombineLatest4(amount, destination, destinationAdditionalField, fee)
+            .map { [weak self] amount, destination, destinationAdditionalField, fee -> BlockchainSdk.Transaction? in
+
+                guard
+                    let self,
+                    let amount,
+                    let destination,
+                    let fee
+                else {
+                    return nil
+                }
+
+                return try? walletModel.createTransaction(
+                    amountToSend: amount,
+                    fee: fee,
+                    destinationAddress: destination
+                )
+            }
+            .sink { transaction in
+                self.transaction.send(transaction)
+                print("TX built", transaction != nil)
+            }
+            .store(in: &bag)
     }
 
     // MARK: - Amount
