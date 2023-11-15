@@ -648,10 +648,8 @@
 		DA559C4E2B02622600F59584 /* SendAmountViewModelInputMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C482B02622600F59584 /* SendAmountViewModelInputMock.swift */; };
 		DA559C4F2B02622600F59584 /* SendSummaryRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C492B02622600F59584 /* SendSummaryRoutableMock.swift */; };
 		DA559C5E2B026D9C00F59584 /* SendWalletSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C582B026D9C00F59584 /* SendWalletSummaryViewModel.swift */; };
-		DA559C5F2B026D9C00F59584 /* SendFeeSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C592B026D9C00F59584 /* SendFeeSummaryView.swift */; };
 		DA559C602B026D9C00F59584 /* SendDestinationSummaryViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewType.swift */; };
 		DA559C612B026D9C00F59584 /* SendDestinationSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */; };
-		DA559C622B026D9C00F59584 /* SendFeeSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5C2B026D9C00F59584 /* SendFeeSummaryViewModel.swift */; };
 		DA559C632B026D9C00F59584 /* SendWalletSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */; };
 		DA559C672B026DCD00F59584 /* AmountSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C652B026DCD00F59584 /* AmountSummaryView.swift */; };
 		DA559C682B026DCD00F59584 /* AmountSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C662B026DCD00F59584 /* AmountSummaryViewModel.swift */; };
@@ -705,6 +703,8 @@
 		DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */; };
 		DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435527BFC41700718AC6 /* StoriesBottomButtons.swift */; };
 		DAC37FBA2A2DFB730068F3ED /* PromotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC37FB92A2DFB730068F3ED /* PromotionView.swift */; };
+		DAC3D5762B04BEC000C55B4C /* DefaultTextWithTitleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC3D5752B04BEC000C55B4C /* DefaultTextWithTitleRowView.swift */; };
+		DAC3D5782B04C27200C55B4C /* DefaultTextWithTitleRowViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC3D5772B04C27200C55B4C /* DefaultTextWithTitleRowViewData.swift */; };
 		DAC4F9F02AC314E100BEBCF8 /* MainViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC4F9EF2AC314E100BEBCF8 /* MainViewDelegate.swift */; };
 		DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CEB27BE63830027147D /* StoriesProgressView.swift */; };
 		DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CEC27BE63830027147D /* StoriesTangemLogo.swift */; };
@@ -1989,10 +1989,8 @@
 		DA559C482B02622600F59584 /* SendAmountViewModelInputMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAmountViewModelInputMock.swift; sourceTree = "<group>"; };
 		DA559C492B02622600F59584 /* SendSummaryRoutableMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSummaryRoutableMock.swift; sourceTree = "<group>"; };
 		DA559C582B026D9C00F59584 /* SendWalletSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletSummaryViewModel.swift; sourceTree = "<group>"; };
-		DA559C592B026D9C00F59584 /* SendFeeSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryView.swift; sourceTree = "<group>"; };
 		DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryViewType.swift; sourceTree = "<group>"; };
 		DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryView.swift; sourceTree = "<group>"; };
-		DA559C5C2B026D9C00F59584 /* SendFeeSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryViewModel.swift; sourceTree = "<group>"; };
 		DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletSummaryView.swift; sourceTree = "<group>"; };
 		DA559C652B026DCD00F59584 /* AmountSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountSummaryView.swift; sourceTree = "<group>"; };
 		DA559C662B026DCD00F59584 /* AmountSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountSummaryViewModel.swift; sourceTree = "<group>"; };
@@ -2051,6 +2049,8 @@
 		DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStoryPage.swift; sourceTree = "<group>"; };
 		DABA435527BFC41700718AC6 /* StoriesBottomButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesBottomButtons.swift; sourceTree = "<group>"; };
 		DAC37FB92A2DFB730068F3ED /* PromotionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionView.swift; sourceTree = "<group>"; };
+		DAC3D5752B04BEC000C55B4C /* DefaultTextWithTitleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTextWithTitleRowView.swift; sourceTree = "<group>"; };
+		DAC3D5772B04C27200C55B4C /* DefaultTextWithTitleRowViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTextWithTitleRowViewData.swift; sourceTree = "<group>"; };
 		DAC4F9EF2AC314E100BEBCF8 /* MainViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewDelegate.swift; sourceTree = "<group>"; };
 		DAC53CEB27BE63830027147D /* StoriesProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesProgressView.swift; sourceTree = "<group>"; };
 		DAC53CEC27BE63830027147D /* StoriesTangemLogo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesTangemLogo.swift; sourceTree = "<group>"; };
@@ -4784,8 +4784,6 @@
 				DA559C2A2B0261F400F59584 /* SendSummaryRoutable.swift */,
 				DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */,
 				DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewType.swift */,
-				DA559C592B026D9C00F59584 /* SendFeeSummaryView.swift */,
-				DA559C5C2B026D9C00F59584 /* SendFeeSummaryViewModel.swift */,
 				DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */,
 				DA559C582B026D9C00F59584 /* SendWalletSummaryViewModel.swift */,
 			);
@@ -4923,6 +4921,15 @@
 				DAB5E332297E8CBF00A4E9CF /* AmountRoundingType.swift */,
 			);
 			path = Rounding;
+			sourceTree = "<group>";
+		};
+		DAC3D5742B04BEB000C55B4C /* DefaultTextWithTitle */ = {
+			isa = PBXGroup;
+			children = (
+				DAC3D5752B04BEC000C55B4C /* DefaultTextWithTitleRowView.swift */,
+				DAC3D5772B04C27200C55B4C /* DefaultTextWithTitleRowViewData.swift */,
+			);
+			path = DefaultTextWithTitle;
 			sourceTree = "<group>";
 		};
 		DAC53CE927BE63830027147D /* Stories */ = {
@@ -5813,6 +5820,7 @@
 				EF032C4D2955C59E006C1FF3 /* DefaultSelectableRowView */,
 				EF4662152924DEEE00346B6C /* DefaultWarningRow */,
 				EF4662182924DEEE00346B6C /* DefaultToggleRowView */,
+				DAC3D5742B04BEB000C55B4C /* DefaultTextWithTitle */,
 			);
 			path = DefaultListViews;
 			sourceTree = "<group>";
@@ -7224,6 +7232,7 @@
 				B0DCD02929DFF04B00C36C84 /* AccessCodeRecoverySettingsProviderMock.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
 				DAF1EB9B2A9F83EF00467490 /* KingfisherImageProcessors.swift in Sources */,
+				DAC3D5762B04BEC000C55B4C /* DefaultTextWithTitleRowView.swift in Sources */,
 				DC295B422861C444006CB7B6 /* LegacyTokenDetailsCoordinatorView.swift in Sources */,
 				B0ADFD40298A70FF00EF2869 /* WalletConnectV2SignTransactionHandler.swift in Sources */,
 				B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */,
@@ -7364,6 +7373,7 @@
 				DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				B605224B2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift in Sources */,
+				DAC3D5782B04C27200C55B4C /* DefaultTextWithTitleRowViewData.swift in Sources */,
 				EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */,
 				B06C083D2A73E0E900D982BC /* MainHeaderSubtitleInfo.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
@@ -7943,7 +7953,6 @@
 				DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				B62E42512A79328A0045AB31 /* Collection+.swift in Sources */,
-				DA559C622B026D9C00F59584 /* SendFeeSummaryViewModel.swift in Sources */,
 				EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */,
 				DAF59CC32ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorView.swift in Sources */,
 				EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */,
@@ -8115,7 +8124,6 @@
 				5D51036927C534A60025EA55 /* JSON.swift in Sources */,
 				DCBAF69D2A4AF0500029480A /* SimpleWalletManagerFactory.swift in Sources */,
 				DC4665A929895BA100EF97A5 /* WalletConnectURLParser.swift in Sources */,
-				DA559C5F2B026D9C00F59584 /* SendFeeSummaryView.swift in Sources */,
 				DC66BBEF2859B6C700CDF765 /* ShopCoordinatorView.swift in Sources */,
 				B091D7482AA0DBA000ACB6E2 /* AppUtils.swift in Sources */,
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
