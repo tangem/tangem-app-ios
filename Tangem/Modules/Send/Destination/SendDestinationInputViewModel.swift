@@ -38,13 +38,22 @@ class SendDestinationInputViewModel: Identifiable {
         self.description = description
         self.didPasteAddress = didPasteAddress
 
-        NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)
-            .sink { [weak self] _ in
-                self?.updatePasteButton()
-            }
-            .store(in: &bag)
+        if #unavailable(iOS 16.0) {
+            NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)
+                .sink { [weak self] _ in
+                    self?.updatePasteButton()
+                }
+                .store(in: &bag)
 
-        updatePasteButton()
+            NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    self?.updatePasteButton()
+                }
+                .store(in: &bag)
+
+            updatePasteButton()
+        }
     }
 
     func onAppear() {
@@ -68,6 +77,8 @@ class SendDestinationInputViewModel: Identifiable {
     }
 
     private func updatePasteButton() {
-        hasTextInClipboard = UIPasteboard.general.hasStrings
+        if #unavailable(iOS 16.0) {
+            hasTextInClipboard = UIPasteboard.general.hasStrings
+        }
     }
 }
