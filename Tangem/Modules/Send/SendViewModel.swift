@@ -89,10 +89,10 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(sendType: SendType, coordinator: SendRoutable) {
+    init(walletModel: WalletModel, sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
-        sendModel = SendModel()
         self.sendType = sendType
+        sendModel = SendModel(walletModel: walletModel, amount: sendType.predefinedAmount, destination: sendType.predefinedDestination)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
