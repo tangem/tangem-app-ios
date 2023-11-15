@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ExpressFeeRowView: View {
-    let viewModel: ExpressFeeRowViewModel
+    let viewModel: ExpressFeeRowData
 
     var body: some View {
         Button(action: viewModel.action) {
@@ -37,7 +37,7 @@ struct ExpressFeeRowView: View {
 }
 
 #Preview("ExpressFeeRowView") {
-    GroupedSection([ExpressFeeRowViewModel(
+    GroupedSection([ExpressFeeRowData(
         title: "Fee",
         subtitle: "0.117 MATIC (0.14 $)",
         action: {}
