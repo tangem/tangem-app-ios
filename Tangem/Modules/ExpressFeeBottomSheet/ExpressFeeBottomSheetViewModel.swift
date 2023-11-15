@@ -34,7 +34,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
         FeeRowViewModel(
             option: option,
             // [REDACTED_TODO_COMMENT]
-            subtitle: "0.159817 MATIC (0.22 $)",
+            subtitle: .loaded("0.159817 MATIC (0.22 $)"),
             isSelected: .init(root: self, default: false, get: { root in
                 root.selectedFeeOption == option
             }, set: { root, newValue in
