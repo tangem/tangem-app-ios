@@ -104,7 +104,7 @@ struct SendSummaryView: View {
     private var sendButton: some View {
         MainButton(
             title: Localization.commonSend,
-            icon: .leading(Assets.arrowRightMini),
+            icon: .trailing(Assets.tangemIcon),
             action: viewModel.send
         )
     }
