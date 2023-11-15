@@ -649,7 +649,7 @@
 		DA559C4F2B02622600F59584 /* SendSummaryRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C492B02622600F59584 /* SendSummaryRoutableMock.swift */; };
 		DA559C5E2B026D9C00F59584 /* SendWalletSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C582B026D9C00F59584 /* SendWalletSummaryViewModel.swift */; };
 		DA559C5F2B026D9C00F59584 /* SendFeeSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C592B026D9C00F59584 /* SendFeeSummaryView.swift */; };
-		DA559C602B026D9C00F59584 /* SendDestinationSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewModel.swift */; };
+		DA559C602B026D9C00F59584 /* SendDestinationSummaryViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewData.swift */; };
 		DA559C612B026D9C00F59584 /* SendDestinationSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */; };
 		DA559C622B026D9C00F59584 /* SendFeeSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5C2B026D9C00F59584 /* SendFeeSummaryViewModel.swift */; };
 		DA559C632B026D9C00F59584 /* SendWalletSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */; };
@@ -1990,7 +1990,7 @@
 		DA559C492B02622600F59584 /* SendSummaryRoutableMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSummaryRoutableMock.swift; sourceTree = "<group>"; };
 		DA559C582B026D9C00F59584 /* SendWalletSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletSummaryViewModel.swift; sourceTree = "<group>"; };
 		DA559C592B026D9C00F59584 /* SendFeeSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryView.swift; sourceTree = "<group>"; };
-		DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryViewModel.swift; sourceTree = "<group>"; };
+		DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryViewData.swift; sourceTree = "<group>"; };
 		DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryView.swift; sourceTree = "<group>"; };
 		DA559C5C2B026D9C00F59584 /* SendFeeSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryViewModel.swift; sourceTree = "<group>"; };
 		DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletSummaryView.swift; sourceTree = "<group>"; };
@@ -4783,7 +4783,7 @@
 				DA559C282B0261F400F59584 /* SendSummaryViewModel.swift */,
 				DA559C2A2B0261F400F59584 /* SendSummaryRoutable.swift */,
 				DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */,
-				DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewModel.swift */,
+				DA559C5A2B026D9C00F59584 /* SendDestinationSummaryViewData.swift */,
 				DA559C592B026D9C00F59584 /* SendFeeSummaryView.swift */,
 				DA559C5C2B026D9C00F59584 /* SendFeeSummaryViewModel.swift */,
 				DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */,
@@ -8004,7 +8004,7 @@
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* LegacyMainCoordinator.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
-				DA559C602B026D9C00F59584 /* SendDestinationSummaryViewModel.swift in Sources */,
+				DA559C602B026D9C00F59584 /* SendDestinationSummaryViewData.swift in Sources */,
 				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
 				DC7D39FF29E02BC6007BCD23 /* AccessCodeRequestPolicyFactory.swift in Sources */,
 				EF04C53B2AFBBF4000D8853B /* SwappingInteractor.swift in Sources */,
