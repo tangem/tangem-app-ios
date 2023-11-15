@@ -14,7 +14,7 @@ struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
 
     private let backButtonStyle: MainButton.Style = .secondary
-    private let backButtonsize: MainButton.Size = .default
+    private let backButtonSize: MainButton.Size = .default
 
     var body: some View {
         VStack {
@@ -65,8 +65,8 @@ struct SendView: View {
             if viewModel.showBackButton {
                 SendViewBackButton(
                     backgroundColor: backButtonStyle.background(isDisabled: false),
-                    cornerRadius: backButtonStyle.cornerRadius(for: backButtonsize),
-                    height: backButtonsize.height,
+                    cornerRadius: backButtonStyle.cornerRadius(for: backButtonSize),
+                    height: backButtonSize.height,
                     action: viewModel.back
                 )
             }
