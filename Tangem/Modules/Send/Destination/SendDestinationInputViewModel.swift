@@ -48,7 +48,7 @@ class SendDestinationInputViewModel: Identifiable {
             NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] _ in
-                    self?.updatePasteButton()
+                    self?.onBecomingActive()
                 }
                 .store(in: &bag)
 
