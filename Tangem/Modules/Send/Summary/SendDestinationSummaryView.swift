@@ -15,17 +15,20 @@ struct SendDestinationSummaryView: View {
         GroupedSection(types) { type in
             switch type {
             case .address(let address):
-                addressView(address: address)
+                SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
-                additionalFieldView(type: type, value: value)
+                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
             }
         }
         .horizontalPadding(14)
         .separatorStyle(.minimum)
     }
+}
 
-    @ViewBuilder
-    private func addressView(address: String) -> some View {
+private struct SendDestinationAddressSummaryView: View {
+    let address: String
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(Localization.sendRecipient)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
@@ -40,18 +43,6 @@ struct SendDestinationSummaryView: View {
             }
         }
         .padding(.vertical, 12)
-    }
-
-    @ViewBuilder
-    private func additionalFieldView(type: SendAdditionalFields, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(type.name)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-
-            Text(value)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-        }
-        .padding(.vertical, 14)
     }
 }
 
