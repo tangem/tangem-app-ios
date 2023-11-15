@@ -647,6 +647,8 @@
 		DA559C4D2B02622600F59584 /* SendDestinationViewModelInputMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C472B02622600F59584 /* SendDestinationViewModelInputMock.swift */; };
 		DA559C4E2B02622600F59584 /* SendAmountViewModelInputMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C482B02622600F59584 /* SendAmountViewModelInputMock.swift */; };
 		DA559C4F2B02622600F59584 /* SendSummaryRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C492B02622600F59584 /* SendSummaryRoutableMock.swift */; };
+		DA559C522B0265E700F59584 /* SendDestinationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C502B0265E700F59584 /* SendDestinationInputView.swift */; };
+		DA559C532B0265E700F59584 /* SendDestinationInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C512B0265E700F59584 /* SendDestinationInputViewModel.swift */; };
 		DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */; };
 		DA5BB72E2AF3FA97004CB8D0 /* AddressIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5BB72D2AF3FA97004CB8D0 /* AddressIconViewModel.swift */; };
 		DA5CD0972A25F4F2008FD876 /* PromotionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */; };
@@ -1982,6 +1984,8 @@
 		DA559C472B02622600F59584 /* SendDestinationViewModelInputMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationViewModelInputMock.swift; sourceTree = "<group>"; };
 		DA559C482B02622600F59584 /* SendAmountViewModelInputMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAmountViewModelInputMock.swift; sourceTree = "<group>"; };
 		DA559C492B02622600F59584 /* SendSummaryRoutableMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSummaryRoutableMock.swift; sourceTree = "<group>"; };
+		DA559C502B0265E700F59584 /* SendDestinationInputView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationInputView.swift; sourceTree = "<group>"; };
+		DA559C512B0265E700F59584 /* SendDestinationInputViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationInputViewModel.swift; sourceTree = "<group>"; };
 		DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemApiTarget.swift; sourceTree = "<group>"; };
 		DA5BB72D2AF3FA97004CB8D0 /* AddressIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressIconViewModel.swift; sourceTree = "<group>"; };
 		DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionRoutable.swift; sourceTree = "<group>"; };
@@ -4788,6 +4792,8 @@
 			children = (
 				DA559C2F2B0261F400F59584 /* SendDestinationView.swift */,
 				DA559C302B0261F400F59584 /* SendDestinationViewModel.swift */,
+				DA559C502B0265E700F59584 /* SendDestinationInputView.swift */,
+				DA559C512B0265E700F59584 /* SendDestinationInputViewModel.swift */,
 			);
 			path = Destination;
 			sourceTree = "<group>";
@@ -7269,6 +7275,7 @@
 				B06C9B862A3AE65A00875852 /* ExchangeCryptoUtility.swift in Sources */,
 				DC3DCAED2A49C6D900F72554 /* WalletManagersRepository.swift in Sources */,
 				B09BD0022ACEE4F800CAB754 /* NotificationTransitionModifier.swift in Sources */,
+				DA559C532B0265E700F59584 /* SendDestinationInputViewModel.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
 				B6B055262AF4352100B63BAF /* MainBottomSheetVisibility.swift in Sources */,
 				B0D9FDCA2A9336920047A1C0 /* IconViewSizeSettings.swift in Sources */,
@@ -7656,6 +7663,7 @@
 				EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */,
 				EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */,
 				2D788E892ADD657000E0884B /* WalletSelectorDelegate.swift in Sources */,
+				DA559C522B0265E700F59584 /* SendDestinationInputView.swift in Sources */,
 				B0CB73B72A82324200D530BA /* TokenWithoutDerivationInfoProvider.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* FileLogger.swift in Sources */,
 				B058D2372A79668D008E79D2 /* TokenQuotesRepositoryMock.swift in Sources */,
