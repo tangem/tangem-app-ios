@@ -57,13 +57,15 @@ class SendModel {
     // MARK: - Private stuff
 
     private let walletModel: WalletModel
+    private let transactionSigner: TransactionSigner
     private let sendType: SendType
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType) {
         self.walletModel = walletModel
+        self.transactionSigner = transactionSigner
         self.sendType = sendType
 
         if let amount = sendType.predefinedAmount {
