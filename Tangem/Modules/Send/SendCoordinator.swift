@@ -30,14 +30,21 @@ class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SendViewModel(sendType: .send, coordinator: self)
+        rootViewModel = SendViewModel(
+            walletModel: options.walletModel,
+            sendType: options.type,
+            coordinator: self
+        )
     }
 }
 
 // MARK: - Options
 
 extension SendCoordinator {
-    struct Options {}
+    struct Options {
+        let walletModel: WalletModel
+        let type: SendType
+    }
 }
 
 // MARK: - SendRoutable
