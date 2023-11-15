@@ -21,6 +21,10 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         Localization.exchangeTokensUnavailableTokensHeader(initialWalletType.name)
     }
 
+    var isEmptyView: Bool {
+        searchText.isEmpty && availableTokens.isEmpty && unavailableTokens.isEmpty
+    }
+
     // MARK: - Dependencies
 
     private let initialWalletType: InitialWalletType
@@ -96,7 +100,16 @@ private extension ExpressTokensListViewModel {
         $searchText
             .dropFirst()
             .removeDuplicates()
-            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
+            .flatMapLatest { searchText in
+                // We don't add debounce for the empty text
+                if searchText.isEmpty {
+                    return Just(searchText).eraseToAnyPublisher()
+                }
+
+                return Just(searchText)
+                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                    .eraseToAnyPublisher()
+            }
             .sink { [weak self] searchText in
                 self?.updateView(searchText: searchText)
             }
@@ -114,13 +127,13 @@ private extension ExpressTokensListViewModel {
             }
         } else {
             availableTokens = availableWalletModels
-                .filter { $0.name.contains(searchText) }
+                .filter { $0.name.lowercased().contains(searchText.lowercased()) }
                 .map { walletModel in
                     mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
                 }
 
             unavailableTokens = unavailableWalletModels
-                .filter { $0.name.contains(searchText) }
+                .filter { $0.name.lowercased().contains(searchText.lowercased()) }
                 .map { walletModel in
                     mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
                 }
