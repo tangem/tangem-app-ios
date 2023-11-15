@@ -92,7 +92,7 @@ final class SendViewModel: ObservableObject {
     init(walletModel: WalletModel, sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
-        sendModel = SendModel(walletModel: walletModel, amount: sendType.predefinedAmount, destination: sendType.predefinedDestination)
+        sendModel = SendModel(walletModel: walletModel, sendType: sendType)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
