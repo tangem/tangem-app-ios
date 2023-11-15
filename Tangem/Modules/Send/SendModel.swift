@@ -88,7 +88,22 @@ class SendModel {
     }
 
     func send() {
-        print("SEND")
+        guard var transaction = transaction.value else {
+            return
+        }
+
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+
+        walletModel.send(transaction, signer: transactionSigner)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                print("SEND FINISH ", completion)
+                #warning("[REDACTED_TODO_COMMENT]")
+            } receiveValue: { _ in
+            }
+            .store(in: &bag)
     }
 
     private func bind() {
