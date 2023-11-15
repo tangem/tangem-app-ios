@@ -53,17 +53,20 @@ class SendModel {
     // MARK: - Dependencies
 
     private let walletModel: WalletModel
+    private let sendType: SendType
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, amount: Decimal?, destination: String?) {
+    init(walletModel: WalletModel, sendType: SendType) {
         self.walletModel = walletModel
+        self.sendType = sendType
 
-        if let amount {
+        if let amount = sendType.predefinedAmount {
+            #warning("TODO")
             _amountText = "\(amount)"
         }
 
-        if let destination {
+        if let destination = sendType.predefinedDestination {
             _destinationText = destination
         }
 
@@ -162,5 +165,11 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
-    // Covered by other protocols
+    var canEditAmount: Bool {
+        sendType.predefinedAmount == nil
+    }
+
+    var canEditDestination: Bool {
+        sendType.predefinedDestination == nil
+    }
 }
