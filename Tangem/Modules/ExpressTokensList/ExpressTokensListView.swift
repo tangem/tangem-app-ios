@@ -15,10 +15,6 @@ struct ExpressTokensListView: View {
         self.viewModel = viewModel
     }
 
-    private var isEmpty: Bool {
-        viewModel.availableTokens.isEmpty && viewModel.unavailableTokens.isEmpty
-    }
-
     var body: some View {
         NavigationView {
             ZStack(alignment: .center) {
@@ -33,7 +29,7 @@ struct ExpressTokensListView: View {
 
     @ViewBuilder
     private var content: some View {
-        if isEmpty {
+        if viewModel.isEmptyView {
             emptyContent
         } else {
             listContent
