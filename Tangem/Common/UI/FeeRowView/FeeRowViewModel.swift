@@ -8,16 +8,16 @@
 
 import Foundation
 
-struct FeeRowViewModel: Hashable, Identifiable {
-    var id: Int { hashValue }
+struct FeeRowViewModel: Identifiable {
+    let id = UUID()
 
     let option: FeeOption
-    let subtitle: String
+    let subtitle: LoadingValue<String>
     let isSelected: BindingValue<Bool>
 
     init(
         option: FeeOption,
-        subtitle: String,
+        subtitle: LoadingValue<String>,
         isSelected: BindingValue<Bool>
     ) {
         self.option = option
