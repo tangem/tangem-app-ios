@@ -50,9 +50,23 @@ class SendModel {
     private var _destinationError = CurrentValueSubject<Error?, Never>(nil)
     private var _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
 
+    // MARK: - Dependencies
+
+    private let walletModel: WalletModel
+
     // MARK: - Public interface
 
-    init() {
+    init(walletModel: WalletModel, amount: Decimal?, destination: String?) {
+        self.walletModel = walletModel
+
+        if let amount {
+            _amountText = "\(amount)"
+        }
+
+        if let destination {
+            _destinationText = destination
+        }
+
         validateAmount()
         validateDestination()
         validateDestinationAdditionalField()
