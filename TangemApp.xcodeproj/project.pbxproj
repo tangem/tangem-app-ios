@@ -652,7 +652,7 @@
 		DA559C612B026D9C00F59584 /* SendDestinationSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */; };
 		DA559C632B026D9C00F59584 /* SendWalletSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */; };
 		DA559C672B026DCD00F59584 /* AmountSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C652B026DCD00F59584 /* AmountSummaryView.swift */; };
-		DA559C682B026DCD00F59584 /* AmountSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C662B026DCD00F59584 /* AmountSummaryViewModel.swift */; };
+		DA559C682B026DCD00F59584 /* AmountSummaryViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA559C662B026DCD00F59584 /* AmountSummaryViewData.swift */; };
 		DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */; };
 		DA5BB72E2AF3FA97004CB8D0 /* AddressIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5BB72D2AF3FA97004CB8D0 /* AddressIconViewModel.swift */; };
 		DA5CD0972A25F4F2008FD876 /* PromotionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */; };
@@ -1993,7 +1993,7 @@
 		DA559C5B2B026D9C00F59584 /* SendDestinationSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDestinationSummaryView.swift; sourceTree = "<group>"; };
 		DA559C5D2B026D9C00F59584 /* SendWalletSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletSummaryView.swift; sourceTree = "<group>"; };
 		DA559C652B026DCD00F59584 /* AmountSummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountSummaryView.swift; sourceTree = "<group>"; };
-		DA559C662B026DCD00F59584 /* AmountSummaryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountSummaryViewModel.swift; sourceTree = "<group>"; };
+		DA559C662B026DCD00F59584 /* AmountSummaryViewData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountSummaryViewData.swift; sourceTree = "<group>"; };
 		DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemApiTarget.swift; sourceTree = "<group>"; };
 		DA5BB72D2AF3FA97004CB8D0 /* AddressIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressIconViewModel.swift; sourceTree = "<group>"; };
 		DA5CD0922A25F4F2008FD876 /* PromotionRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionRoutable.swift; sourceTree = "<group>"; };
@@ -4825,7 +4825,7 @@
 			isa = PBXGroup;
 			children = (
 				DA559C652B026DCD00F59584 /* AmountSummaryView.swift */,
-				DA559C662B026DCD00F59584 /* AmountSummaryViewModel.swift */,
+				DA559C662B026DCD00F59584 /* AmountSummaryViewData.swift */,
 			);
 			path = AmountSummary;
 			sourceTree = "<group>";
@@ -8157,7 +8157,7 @@
 				EFC684722A0FAB1300660690 /* SelectableSwappingFeeRowViewModel.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				EFEBCE2B29265CF300B0C886 /* TokenIconInfo.swift in Sources */,
-				DA559C682B026DCD00F59584 /* AmountSummaryViewModel.swift in Sources */,
+				DA559C682B026DCD00F59584 /* AmountSummaryViewData.swift in Sources */,
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
 				EFA6B04729533C860090A92F /* ResetToFactoryViewRoutable.swift in Sources */,
 				B0F319002A739477009F131E /* FakeWalletManager.swift in Sources */,
