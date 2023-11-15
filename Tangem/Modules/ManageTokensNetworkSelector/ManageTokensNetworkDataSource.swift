@@ -25,16 +25,14 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
 
     init(coinId: String?) {
         self.coinId = coinId
-    }
 
-    // MARK: - Public Implementation
-
-    func prepare() {
         userWalletModels = userWalletModels(for: coinId)
 
         let selectedUserWalletModel = selectedUserWalletModel()
         selectedUserWalletModelPublisher.send(selectedUserWalletModel)
     }
+
+    // MARK: - Public Implementation
 
     // MARK: - Implementation
 
