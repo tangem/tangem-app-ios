@@ -10,5 +10,19 @@ import SwiftUI
 import Combine
 
 class SendFeeViewModelInputMock: SendFeeViewModelInput {
-    var feeTextBinding: Binding<String> { .constant("Fee") }
+    var selectedFeeOption: FeeOption {
+        .market
+    }
+
+    var feeOptions: [FeeOption] {
+        [.slow, .market, .fast]
+    }
+
+    var feeValues: AnyPublisher<[FeeOption: LoadingValue<String>], Never> {
+        .just(output: [
+            .slow: .loading,
+            .market: .loading,
+            .fast: .loading,
+        ])
+    }
 }
