@@ -43,10 +43,6 @@ struct SendDestinationInputView: View {
         .onAppear {
             viewModel.onAppear()
         }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
-            .receive(on: DispatchQueue.main)) { _ in
-                viewModel.onBecomingActive()
-        }
     }
 
     @ViewBuilder
