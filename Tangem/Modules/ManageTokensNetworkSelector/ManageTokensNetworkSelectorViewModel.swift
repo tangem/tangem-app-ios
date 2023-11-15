@@ -76,12 +76,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     ) {
         self.coinModel = coinModel
         self.coordinator = coordinator
+
         networkDataSource = ManageTokensNetworkDataSource(coinId: coinModel.id)
 
         bind()
-
-        // Need use after binding for selectedUserWalletModelPublisher property
-        networkDataSource.prepare()
     }
 
     // MARK: - Implementation
