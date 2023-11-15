@@ -9,32 +9,32 @@
 import SwiftUI
 
 struct AmountSummaryView: View {
-    let viewModel: AmountSummaryViewModel
+    let data: AmountSummaryViewData
 
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        GroupedSection([viewModel]) { viewModel in
+        GroupedSection([data]) { data in
             VStack(alignment: .leading, spacing: 12) {
                 Text(Localization.sendAmountLabel)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
                 HStack(spacing: 0) {
                     TokenIcon(
-                        name: viewModel.tokenIconName,
-                        imageURL: viewModel.tokenIconURL,
-                        customTokenColor: viewModel.tokenIconCustomTokenColor,
-                        blockchainIconName: viewModel.tokenIconBlockchainIconName,
-                        isCustom: viewModel.isCustomToken,
+                        name: data.tokenIconName,
+                        imageURL: data.tokenIconURL,
+                        customTokenColor: data.tokenIconCustomTokenColor,
+                        blockchainIconName: data.tokenIconBlockchainIconName,
+                        isCustom: data.isCustomToken,
                         size: iconSize
                     )
                     .padding(.trailing, 12)
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(viewModel.amount)
+                        Text(data.amount)
                             .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
-                        Text(viewModel.amountFiat)
+                        Text(data.amountFiat)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                     .truncationMode(.middle)
@@ -52,7 +52,7 @@ struct AmountSummaryView: View {
 #Preview {
     GroupedScrollView {
         AmountSummaryView(
-            viewModel: AmountSummaryViewModel(
+            data: AmountSummaryViewData(
                 amount: "100.00 USDT",
                 amountFiat: "99.98$",
                 tokenIconName: "tether",
@@ -64,7 +64,7 @@ struct AmountSummaryView: View {
         )
 
         AmountSummaryView(
-            viewModel: AmountSummaryViewModel(
+            data: AmountSummaryViewData(
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
                 tokenIconName: "optimism",
