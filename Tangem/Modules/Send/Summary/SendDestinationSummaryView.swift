@@ -9,25 +9,11 @@
 import SwiftUI
 
 struct SendDestinationSummaryView: View {
-    private let dataList: [SendDestinationSummaryViewData]
-
-    init(address: String, additionalFieldType: SendAdditionalFields, additionalFieldValue: String?) {
-        var dataList = [
-            SendDestinationSummaryViewData(type: .address(address: address)),
-        ]
-
-        if let additionalFieldValue, additionalFieldType != .none {
-            dataList.append(
-                SendDestinationSummaryViewData(type: .additionalField(type: additionalFieldType, value: additionalFieldValue))
-            )
-        }
-
-        self.dataList = dataList
-    }
+    let types: [SendDestinationSummaryViewType]
 
     var body: some View {
-        GroupedSection(dataList) { data in
-            switch data.type {
+        GroupedSection(types) { type in
+            switch type {
             case .address(let address):
                 addressView(address: address)
             case .additionalField(let type, let value):
@@ -72,27 +58,29 @@ struct SendDestinationSummaryView: View {
 #Preview {
     GroupedScrollView {
         SendDestinationSummaryView(
-            address: "1230123",
-            additionalFieldType: .none,
-            additionalFieldValue: ""
+            types: [
+                .address(address: "1230123"),
+            ]
         )
 
         SendDestinationSummaryView(
-            address: "0x391316d97a07027a0702c8A002c8A0C25d8470",
-            additionalFieldType: .none,
-            additionalFieldValue: ""
+            types: [
+                .address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+            ]
         )
 
         SendDestinationSummaryView(
-            address: "0x391316d97a07027a0702c8A002c8A0C25d8470",
-            additionalFieldType: .memo,
-            additionalFieldValue: "123456789"
+            types: [
+                .address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+                .additionalField(type: .memo, value: "123456789"),
+            ]
         )
 
         SendDestinationSummaryView(
-            address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470",
-            additionalFieldType: .destinationTag,
-            additionalFieldValue: "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789"
+            types: [
+                .address(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470"),
+                .additionalField(type: .destinationTag, value: "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789"),
+            ]
         )
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
