@@ -160,6 +160,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         }
         let options = SendCoordinator.Options(
             walletModel: walletModel,
+            transactionSigner: cardViewModel.signer,
             type: .send
         )
         coordinator.start(with: options)
@@ -187,6 +188,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         }
         let options = SendCoordinator.Options(
             walletModel: walletModel,
+            transactionSigner: cardViewModel.signer,
             type: .sell(amount: amountToSend.value, destination: destination)
         )
         coordinator.start(with: options)
