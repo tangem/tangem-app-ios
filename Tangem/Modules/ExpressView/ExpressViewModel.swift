@@ -45,8 +45,7 @@ final class ExpressViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let initialWallet: WalletModel
-    // [REDACTED_TODO_COMMENT]
-    private unowned let swappingInteractor: ExpressInteractor!
+    private unowned let swappingInteractor: ExpressInteractor
     private let swappingDestinationService: SwappingDestinationServicing
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
@@ -62,7 +61,7 @@ final class ExpressViewModel: ObservableObject {
 
     init(
         initialWallet: WalletModel,
-        swappingInteractor: ExpressInteractor?,
+        swappingInteractor: ExpressInteractor,
         swappingDestinationService: SwappingDestinationServicing,
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: SwappingTransactionSender,
