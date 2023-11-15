@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class SendModel {
     var amountValid: AnyPublisher<Bool, Never> {
@@ -33,9 +34,12 @@ class SendModel {
 
     // MARK: - Data
 
-    private var amount = CurrentValueSubject<Decimal?, Never>(nil)
+    private var amount = CurrentValueSubject<Amount?, Never>(nil)
     private var destination = CurrentValueSubject<String?, Never>(nil)
     private var destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
+    private var fee = CurrentValueSubject<Fee?, Never>(nil)
+
+    private var transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
     // MARK: - Raw data
 
@@ -91,11 +95,15 @@ class SendModel {
     }
 
     private func validateAmount() {
-        let amount: Decimal?
+        let amount: Amount?
         let error: Error?
 
         #warning("validate")
-        amount = Decimal(string: _amountText, locale: Locale.current) ?? 0
+        let blockchain = walletModel.blockchainNetwork.blockchain
+        let amountType = walletModel.amountType
+
+        let value = Decimal(string: _amountText, locale: Locale.current) ?? 0
+        amount = Amount(with: blockchain, type: amountType, value: value)
         error = nil
 
         self.amount.send(amount)
