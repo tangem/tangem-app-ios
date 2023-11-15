@@ -9,25 +9,25 @@
 import SwiftUI
 
 struct SendDestinationSummaryView: View {
-    private let viewModels: [SendDestinationSummaryViewModel]
+    private let dataList: [SendDestinationSummaryViewData]
 
     init(address: String, additionalFieldType: SendAdditionalFields, additionalFieldValue: String?) {
-        var viewModels = [
-            SendDestinationSummaryViewModel(type: .address(address: address)),
+        var dataList = [
+            SendDestinationSummaryViewData(type: .address(address: address)),
         ]
 
         if let additionalFieldValue, additionalFieldType != .none {
-            viewModels.append(
-                SendDestinationSummaryViewModel(type: .additionalField(type: additionalFieldType, value: additionalFieldValue))
+            dataList.append(
+                SendDestinationSummaryViewData(type: .additionalField(type: additionalFieldType, value: additionalFieldValue))
             )
         }
 
-        self.viewModels = viewModels
+        self.dataList = dataList
     }
 
     var body: some View {
-        GroupedSection(viewModels) { viewModel in
-            switch viewModel.type {
+        GroupedSection(dataList) { data in
+            switch data.type {
             case .address(let address):
                 addressView(address: address)
             case .additionalField(let type, let value):
