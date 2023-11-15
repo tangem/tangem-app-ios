@@ -1,5 +1,5 @@
 //
-//  SendDestinationSummaryViewModel.swift
+//  SendDestinationSummaryViewData.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,12 @@
 
 import Foundation
 
-class SendDestinationSummaryViewModel: Identifiable {
+struct SendDestinationSummaryViewData: Identifiable {
+    let id = UUID()
     let type: Type
-
-    init(type: Type) {
-        self.type = type
-    }
 }
 
-extension SendDestinationSummaryViewModel {
+extension SendDestinationSummaryViewData {
     enum `Type` {
         case address(address: String)
         case additionalField(type: SendAdditionalFields, value: String)
