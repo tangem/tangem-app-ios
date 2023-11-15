@@ -49,6 +49,7 @@ struct SendSummaryView: View {
                 .matchedGeometryEffect(id: "amount", in: namespace)
         }
         .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+        .disabled(!viewModel.canEditAmount)
     }
 
     @ViewBuilder
@@ -73,6 +74,7 @@ struct SendSummaryView: View {
                 .matchedGeometryEffect(id: "dest", in: namespace)
         }
         .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+        .disabled(!viewModel.canEditDestination)
     }
 
     @ViewBuilder
