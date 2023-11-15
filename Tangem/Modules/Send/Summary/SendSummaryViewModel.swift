@@ -12,7 +12,7 @@ import SwiftUI
 protocol SendSummaryViewModelInput: AnyObject {
     var amountTextBinding: Binding<String> { get }
     var destinationTextBinding: Binding<String> { get }
-    var feeTextBinding: Binding<String> { get }
+    var feeText: String { get }
 
     func send()
 }
@@ -29,7 +29,7 @@ class SendSummaryViewModel {
     init(input: SendSummaryViewModelInput) {
         amountText = input.amountTextBinding.wrappedValue
         destinationText = input.destinationTextBinding.wrappedValue
-        feeText = input.feeTextBinding.wrappedValue
+        feeText = input.feeText
 
         self.input = input
     }
