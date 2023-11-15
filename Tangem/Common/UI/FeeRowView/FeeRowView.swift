@@ -25,8 +25,10 @@ struct FeeRowView: View {
 
                 Spacer()
 
-                Text(viewModel.subtitle)
+                Text(viewModel.subtitle.value ?? "—")
                     .style(font, color: Colors.Text.primary1)
+                    .frame(minWidth: viewModel.subtitle.isLoading ? 70 : 0)
+                    .skeletonable(isShown: viewModel.subtitle.isLoading)
             }
             .padding(.vertical, 14)
         }
@@ -48,11 +50,11 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
         private var viewModels: [FeeRowViewModel] {
             [FeeRowViewModel(
                 option: .market,
-                subtitle: "0.159817 MATIC (0.22 $)",
+                subtitle: .loaded("0.159817 MATIC (0.22 $)"),
                 isSelected: .init(get: { option == .market }, set: { _ in option = .market })
             ), FeeRowViewModel(
                 option: .fast,
-                subtitle: "0.159817 MATIC (0.22 $)",
+                subtitle: .loaded("0.159817 MATIC (0.22 $)"),
                 isSelected: .init(get: { option == .fast }, set: { _ in option = .fast })
             )]
         }
