@@ -51,6 +51,19 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
             coordinator: self
         )
     }
+
+    func showGenerateAddressesWarning(
+        numberOfNetworks: Int,
+        currentWalletNumber: Int,
+        totalWalletNumber: Int,
+        action: @escaping () -> Void
+    ) {
+        fatalError("\(#function) not implemented yet!")
+    }
+
+    func hideGenerateAddressesWarning() {
+        fatalError("\(#function) not implemented yet!")
+    }
 }
 
 extension ManageTokensCoordinator: ManageTokensNetworkSelectorRoutable {
@@ -65,18 +78,5 @@ extension ManageTokensCoordinator: ManageTokensNetworkSelectorRoutable {
         )
 
         walletSelectorViewModel?.delegate = delegate
-    }
-
-    func showGenerateAddressesWarning(
-        numberOfNetworks: Int,
-        currentWalletNumber: Int,
-        totalWalletNumber: Int,
-        action: @escaping () -> Void
-    ) {
-        fatalError("\(#function) not implemented yet!")
-    }
-
-    func hideGenerateAddressesWarning() {
-        fatalError("\(#function) not implemented yet!")
     }
 }
