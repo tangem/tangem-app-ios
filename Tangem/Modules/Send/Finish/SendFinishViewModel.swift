@@ -28,7 +28,7 @@ class SendFinishViewModel: ObservableObject {
     let amountText: String
     let destinationText: String
     let feeText: String
-    
+
     @Published var transactionTime: String?
 
     weak var router: SendFinishRoutable?
@@ -62,7 +62,7 @@ class SendFinishViewModel: ObservableObject {
         input.transactionURL
             .assign(to: \.transactionURL, on: self, ownership: .weak)
             .store(in: &bag)
-        
+
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .short
