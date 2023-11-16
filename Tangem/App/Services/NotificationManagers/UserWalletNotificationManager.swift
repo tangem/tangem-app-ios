@@ -32,8 +32,6 @@ final class UserWalletNotificationManager {
     init(userWalletModel: UserWalletModel, signatureCountValidator: SignatureCountValidator?) {
         self.userWalletModel = userWalletModel
         self.signatureCountValidator = signatureCountValidator
-
-        analyticsService.setup(with: self)
     }
 
     private func createNotifications() {
@@ -208,6 +206,8 @@ extension UserWalletNotificationManager: NotificationManager {
 
         createNotifications()
         bind()
+
+        analyticsService.setup(with: self)
     }
 
     func dismissNotification(with id: NotificationViewId) {
