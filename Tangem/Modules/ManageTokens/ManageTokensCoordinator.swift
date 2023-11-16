@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 class ManageTokensCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
@@ -31,12 +32,14 @@ class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Implmentation
 
     func start(with options: ManageTokensCoordinator.Options) {
-        manageTokensViewModel = .init(coordinator: self)
+        manageTokensViewModel = .init(searchTextPublisher: options.searchTextPublisher, coordinator: self)
     }
 }
 
 extension ManageTokensCoordinator {
-    struct Options {}
+    struct Options {
+        let searchTextPublisher: AnyPublisher<String, Never>?
+    }
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
