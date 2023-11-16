@@ -23,8 +23,13 @@ class NotificationsAnalyticsService {
     }
 
     private func bind() {
+        guard subscription == nil else {
+            return
+        }
+
         subscription = notificationManager?.notificationPublisher
-            .receive(on: DispatchQueue.global())
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: weakify(self, forFunction: NotificationsAnalyticsService.sendEventsIfNeeded(for:)))
     }
 
@@ -37,6 +42,8 @@ class NotificationsAnalyticsService {
             return
         }
 
+        let notificationParams = notification.settings.event.analyticsParams
+
         switch notification.settings.event {
         case is WarningEvent:
             if alreadyTrackedEvents.contains(analyticsEvent) {
@@ -44,9 +51,9 @@ class NotificationsAnalyticsService {
             }
 
             alreadyTrackedEvents.insert(analyticsEvent)
-            Analytics.log(analyticsEvent)
+            Analytics.log(event: analyticsEvent, params: notificationParams)
         case is TokenNotificationEvent:
-            Analytics.log(analyticsEvent)
+            Analytics.log(event: analyticsEvent, params: notificationParams)
         default:
             return
         }
