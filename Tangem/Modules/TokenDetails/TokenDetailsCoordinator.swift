@@ -23,6 +23,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator? = nil
+    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     // MARK: - Child view models
@@ -208,6 +209,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
+        if FeatureProvider.isAvailable(.express) {
+            openExpress(input: input)
+            return
+        }
+
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.swappingCoordinator = nil
         }
@@ -222,6 +228,23 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         coordinator.start(with: .default)
 
         swappingCoordinator = coordinator
+    }
+
+    func openExpress(input: CommonSwappingModulesFactory.InputModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.expressCoordinator = nil
+        }
+
+        let factory = CommonSwappingModulesFactory(inputModel: input)
+        let coordinator = ExpressCoordinator(
+            factory: factory,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .default)
+
+        expressCoordinator = coordinator
     }
 
     func openExplorer(at url: URL, blockchainDisplayName: String) {
