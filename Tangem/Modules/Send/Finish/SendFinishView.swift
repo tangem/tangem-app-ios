@@ -92,11 +92,13 @@ struct SendFinishView: View {
             HStack(spacing: 8) {
                 MainButton(
                     title: Localization.sendExplore,
+                    icon: .leading(Assets.globe),
                     style: .secondary,
                     action: viewModel.explore
                 )
                 MainButton(
                     title: Localization.commonShare,
+                    icon: .leading(Assets.share),
                     style: .secondary,
                     action: viewModel.share
                 )
