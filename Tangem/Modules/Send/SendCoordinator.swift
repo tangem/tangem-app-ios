@@ -56,7 +56,7 @@ extension SendCoordinator {
 
 extension SendCoordinator: SendRoutable {
     func explore(url: URL) {
-        modalWebViewModel = WebViewContainerViewModel(url: url, title: "")
+        modalWebViewModel = WebViewContainerViewModel(url: url, title: Localization.commonExplorer, withCloseButton: true)
     }
 
     func share(url: URL) {
