@@ -32,6 +32,15 @@ class SendModel {
         .just(output: true)
     }
 
+    var transactionFinished: AnyPublisher<Bool, Never> {
+        _transactionTime
+            .map {
+                $0 != nil
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -49,6 +58,7 @@ class SendModel {
     private var _feeText: String = ""
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
+    private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -61,6 +71,7 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let sendType: SendType
+    private var transactionHash: String?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -108,7 +119,9 @@ class SendModel {
 
                 print("SEND FINISH ", completion)
                 #warning("[REDACTED_TODO_COMMENT]")
-            } receiveValue: { _ in
+            } receiveValue: { [weak self] result in
+                self?.transactionHash = result.hash
+                self?._transactionTime.send(Date())
             }
             .store(in: &bag)
     }
@@ -271,4 +284,11 @@ extension SendModel: SendSummaryViewModelInput {
     }
 }
 
-extension SendModel: SendFinishViewModelInput {}
+extension SendModel: SendFinishViewModelInput {
+    var transactionURL: URL? {
+        guard let transactionHash else { return nil }
+        let factory = ExternalLinkProviderFactory()
+        let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
+        return provider.url(transaction: transactionHash)
+    }
+}
