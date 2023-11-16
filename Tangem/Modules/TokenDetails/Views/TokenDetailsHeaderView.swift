@@ -41,6 +41,7 @@ struct TokenDetailsHeaderView: View {
 
             TokenIcon(
                 tokenIconInfo: .init(
+                    name: "",
                     blockchainIconName: nil,
                     imageURL: viewModel.imageURL,
                     isCustom: false,
