@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct ExpressTokenItemViewModel: Identifiable {
-    let id: String
-    let tokenIconItem: TokenIconItemViewModel
+    let id: Int
+    let tokenIconInfo: TokenIconInfo
     let name: String
     let symbol: String
     let isDisable: Bool
@@ -29,8 +30,8 @@ struct ExpressTokenItemViewModel: Identifiable {
     private let fiatBalance: Decimal?
 
     init(
-        id: String,
-        tokenIconItem: TokenIconItemViewModel,
+        id: Int,
+        tokenIconInfo: TokenIconInfo,
         name: String,
         symbol: String,
         balance: CurrencyAmount?,
@@ -39,7 +40,7 @@ struct ExpressTokenItemViewModel: Identifiable {
         itemDidTap: @escaping () -> Void
     ) {
         self.id = id
-        self.tokenIconItem = tokenIconItem
+        self.tokenIconInfo = tokenIconInfo
         self.name = name
         self.symbol = symbol
         self.balance = balance
