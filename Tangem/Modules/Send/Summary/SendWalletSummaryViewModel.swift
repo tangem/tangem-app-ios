@@ -8,14 +8,23 @@
 
 import Foundation
 import UIKit
+import Combine
 
-class SendWalletSummaryViewModel: Identifiable {
+class SendWalletSummaryViewModel: ObservableObject, Identifiable {
     let walletName: String
     let totalBalance: String
+
+    private var bag: Set<AnyCancellable> = []
 
     init(walletName: String, totalBalance: String) {
         self.walletName = walletName
         self.totalBalance = totalBalance
+
+        NotificationCenter.default.publisher(for: UIContentSizeCategory.didChangeNotification)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
 
     func walletNameTitle(font: UIFont) -> NSAttributedString {
