@@ -9,5 +9,5 @@
 import Foundation
 
 protocol AnalyticsContextDataProvider: AnyObject {
-    func getContextData() -> AnalyticsContextData?
+    func getAnalyticsContextData() -> AnalyticsContextData?
 }
