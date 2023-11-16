@@ -198,8 +198,8 @@ private extension CommonExpressManager {
 
     func loadAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
         let pairs = try await expressAPIProvider.pairs(
-            from: [pair.source.currency],
-            to: [pair.destination.currency]
+            from: [pair.source.expressCurrency],
+            to: [pair.destination.expressCurrency]
         )
 
         guard let pair = pairs.first else {
@@ -321,7 +321,7 @@ private extension CommonExpressManager {
 
         // 3. Check Pending
 
-        let hasPendingTransaction = expressPendingTransactionRepository.hasPending(for: request.pair.source.currency.network)
+        let hasPendingTransaction = expressPendingTransactionRepository.hasPending(for: request.pair.source.expressCurrency.network)
 
         if hasPendingTransaction {
             return .hasPendingTransaction
@@ -343,12 +343,12 @@ private extension CommonExpressManager {
     // MARK: Permission
 
     func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
-        let contractAddress = request.pair.source.currency.contractAddress
+        let contractAddress = request.pair.source.expressCurrency.contractAddress
 
         assert(contractAddress != ExpressConstants.coinContractAddress)
 
         let allowance = try await allowanceProvider.getAllowance(
-            owner: request.pair.source.address,
+            owner: request.pair.source.defaultAddress,
             to: spender,
             contract: contractAddress
         )
@@ -362,7 +362,7 @@ private extension CommonExpressManager {
 private extension CommonExpressManager {
     func loadSwappingData(request: ExpressManagerSwappingPairRequest, providerId: Int) async throws -> ExpressTransactionData {
         let item = makeExpressSwappableItem(request: request, providerId: providerId)
-        let data = try await expressAPIProvider.exchangeData(item: item, destinationAddress: item.destination.address)
+        let data = try await expressAPIProvider.exchangeData(item: item, destinationAddress: item.destination.defaultAddress)
         return data
     }
 }
