@@ -17,16 +17,10 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     var userWalletModels: [UserWalletModel] = []
     var selectedUserWalletModelPublisher: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
-    // MARK: - Private Implementation
-
-    private let coinId: String?
-
     // MARK: - Init
 
-    init(coinId: String?) {
-        self.coinId = coinId
-
-        userWalletModels = userWalletModels(for: coinId)
+    init(tokenItems: [TokenItem]) {
+        userWalletModels = userWalletModels(for: tokenItems)
 
         let selectedUserWalletModel = selectedUserWalletModel()
         selectedUserWalletModelPublisher.send(selectedUserWalletModel)
@@ -35,14 +29,16 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     // MARK: - Private Implementation
 
     /// Full available list of wallets for selection
-    private func userWalletModels(for coinId: String?) -> [UserWalletModel] {
+    private func userWalletModels(for tokenItems: [TokenItem]) -> [UserWalletModel] {
         userWalletRepository.models.filter { userWalletModel in
             let walletCondition = userWalletModel.isMultiWallet && !userWalletModel.isUserWalletLocked
 
-            if let coinId {
-                return walletCondition && userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId == coinId })
-            } else {
+            if tokenItems.isEmpty {
                 return walletCondition
+            } else {
+                return walletCondition && !userWalletModel.config.supportedBlockchains.filter { blockchain in
+                    tokenItems.map { $0.blockchain }.contains(blockchain)
+                }.isEmpty
             }
         }
     }
