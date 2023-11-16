@@ -23,8 +23,13 @@ class NotificationsAnalyticsService {
     }
 
     private func bind() {
+        guard subscription == nil else {
+            return
+        }
+
         subscription = notificationManager?.notificationPublisher
-            .receive(on: DispatchQueue.global())
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: weakify(self, forFunction: NotificationsAnalyticsService.sendEventsIfNeeded(for:)))
     }
 
