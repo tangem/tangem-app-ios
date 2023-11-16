@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SendWalletSummaryView: View {
-    let viewModel: SendWalletSummaryViewModel
+    @ObservedObject var viewModel: SendWalletSummaryViewModel
 
     var body: some View {
         GroupedSection(viewModel) { viewModel in
