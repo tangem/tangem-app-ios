@@ -13,11 +13,12 @@ enum SendStep {
     case destination
     case fee
     case summary
+    case finish
 }
 
 extension SendStep {
     #warning("L10n")
-    var name: String {
+    var name: String? {
         switch self {
         case .amount:
             return "Send"
@@ -27,6 +28,8 @@ extension SendStep {
             return "Speed and Fee"
         case .summary:
             return "Send"
+        case .finish:
+            return nil
         }
     }
 
@@ -34,7 +37,7 @@ extension SendStep {
         switch self {
         case .amount, .destination, .fee:
             return true
-        case .summary:
+        case .summary, .finish:
             return false
         }
     }
