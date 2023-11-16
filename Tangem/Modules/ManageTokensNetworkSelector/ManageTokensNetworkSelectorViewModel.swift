@@ -68,7 +68,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinModel = coinModel
         self.coordinator = coordinator
 
-        networkDataSource = ManageTokensNetworkDataSource(coinId: coinModel.id)
+        networkDataSource = ManageTokensNetworkDataSource(tokenItems: coinModel.items.map { $0.tokenItem })
         notificationViewModel = .init(coinId: coinModel.id)
 
         bind()
