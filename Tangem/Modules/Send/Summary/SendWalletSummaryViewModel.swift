@@ -18,8 +18,8 @@ class SendWalletSummaryViewModel: Identifiable {
         self.totalBalance = totalBalance
     }
 
-    func walletNameTitle(fontSize: CGFloat) -> NSAttributedString {
-        return TangemRichTextFormatter().format(Localization.sendFromWallet(walletName), fontSize: fontSize)
+    func walletNameTitle(boldFont: UIFont) -> NSAttributedString {
+        return TangemRichTextFormatter().format(Localization.sendFromWallet(walletName), boldFont: boldFont)
     }
 }
 
@@ -28,7 +28,7 @@ class SendWalletSummaryViewModel: Identifiable {
 private struct TangemRichTextFormatter {
     // Formatting rich text as NSAttributedString
     // Supported formats: **bold**
-    func format(_ string: String, fontSize: CGFloat) -> NSAttributedString {
+    func format(_ string: String, boldFont: UIFont) -> NSAttributedString {
         var originalString = string
 
         let regex = try! NSRegularExpression(pattern: "\\*{2}.+?\\*{2}")
@@ -46,9 +46,6 @@ private struct TangemRichTextFormatter {
 
             originalString = originalString.replacingOccurrences(of: boldTextFormatted, with: boldText)
             attributedString.setAttributedString(NSAttributedString(string: originalString))
-
-            // UIKit's .semibold corresponds SwiftUI bold font
-            let boldFont = UIFont.systemFont(ofSize: fontSize, weight: .semibold)
             let boldTextRange = NSRange(location: match.range.location, length: match.range.length - 2 * formatterTagLength)
             attributedString.addAttribute(.font, value: boldFont, range: boldTextRange)
         }
