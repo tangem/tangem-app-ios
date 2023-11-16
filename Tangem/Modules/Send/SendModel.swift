@@ -34,12 +34,12 @@ class SendModel {
 
     // MARK: - Data
 
-    private var amount = CurrentValueSubject<Amount?, Never>(nil)
-    private var destination = CurrentValueSubject<String?, Never>(nil)
-    private var destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
-    private var fee = CurrentValueSubject<Fee?, Never>(nil)
+    private let amount = CurrentValueSubject<Amount?, Never>(nil)
+    private let destination = CurrentValueSubject<String?, Never>(nil)
+    private let destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
+    private let fee = CurrentValueSubject<Fee?, Never>(nil)
 
-    private var transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
+    private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
     // MARK: - Raw data
 
@@ -48,13 +48,13 @@ class SendModel {
     private var _destinationAdditionalFieldText: String = ""
     private var _feeText: String = ""
 
-    private var _isSending = CurrentValueSubject<Bool, Never>(false)
+    private let _isSending = CurrentValueSubject<Bool, Never>(false)
 
     // MARK: - Errors (raw implementation)
 
-    private var _amountError = CurrentValueSubject<Error?, Never>(nil)
-    private var _destinationError = CurrentValueSubject<Error?, Never>(nil)
-    private var _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
+    private let _amountError = CurrentValueSubject<Error?, Never>(nil)
+    private let _destinationError = CurrentValueSubject<Error?, Never>(nil)
+    private let _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
 
     // MARK: - Private stuff
 
