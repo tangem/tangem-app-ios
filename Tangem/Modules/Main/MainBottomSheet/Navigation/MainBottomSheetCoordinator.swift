@@ -22,18 +22,13 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var networkSelectorCoordinator: ManageTokensNetworkSelectorCoordinator? = nil
+    @Published var manageTokensCoordinator: ManageTokensCoordinator?
+    private lazy var __manageTokensCoordinator = ManageTokensCoordinator()
 
     // MARK: - Child view models
 
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel? = nil
     private lazy var __headerViewModel = MainBottomSheetHeaderViewModel()
-
-    @Published private(set) var contentViewModel: MainBottomSheetContentViewModel? = nil
-    private lazy var __contentViewModel = MainBottomSheetContentViewModel(
-        searchTextPublisher: __headerViewModel.enteredSearchTextPublisher,
-        coordinator: self
-    )
 
     // MARK: - Private Properties
 
@@ -51,7 +46,9 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         bind()
     }
 
-    func start(with options: Options = .init()) {}
+    func start(with options: Options = .init()) {
+        __manageTokensCoordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
+    }
 
     private func bind() {
         let bottomSheetVisibilityPublisher = bottomSheetVisibility
@@ -67,21 +64,13 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
         bottomSheetVisibilityPublisher
             .map { [weak self] isShown in
-                return isShown ? self?.__contentViewModel : nil
+                return isShown ? self?.__manageTokensCoordinator : nil
             }
-            .assign(to: \.contentViewModel, on: self, ownership: .weak)
+            .assign(to: \.manageTokensCoordinator, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
 
 extension MainBottomSheetCoordinator {
     struct Options {}
-}
-
-extension MainBottomSheetCoordinator: MainBottomSheetContentRoutable {
-    func openTokenSelector(coinId: String, with tokenItems: [TokenItem]) {
-        let coordinator = ManageTokensNetworkSelectorCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(coinId: coinId, tokenItems: tokenItems))
-        networkSelectorCoordinator = coordinator
-    }
 }
