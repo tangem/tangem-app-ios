@@ -88,10 +88,25 @@ struct SendFinishView: View {
 
     @ViewBuilder
     private var bottomButtons: some View {
-        MainButton(
-            title: Localization.commonClose,
-            action: viewModel.close
-        )
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                MainButton(
+                    title: Localization.sendExplore,
+                    style: .secondary,
+                    action: viewModel.explore
+                )
+                MainButton(
+                    title: Localization.commonShare,
+                    style: .secondary,
+                    action: viewModel.share
+                )
+            }
+
+            MainButton(
+                title: Localization.commonClose,
+                action: viewModel.close
+            )
+        }
     }
 }
 
