@@ -11,7 +11,9 @@ import UIKit
 enum UIFonts {
     enum Regular {
         static let body: UIFont = FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .body) : .systemFont(ofSize: 17, weight: .regular)
+    }
 
-        static let caption1: UIFont = FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .caption1) : .systemFont(ofSize: 12, weight: .regular)
+    enum Bold {
+        static let footnote: UIFont = FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .footnote) : .systemFont(ofSize: 13, weight: .semibold)
     }
 }
