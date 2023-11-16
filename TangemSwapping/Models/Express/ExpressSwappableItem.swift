@@ -26,7 +26,7 @@ public struct ExpressSwappableItem {
         self.providerId = providerId
     }
 
-    func amountWEI() -> String {
+    func sourceAmountWEI() -> String {
         let wei = source.convertToWEI(value: amount) as NSDecimalNumber
         return wei.stringValue
     }
