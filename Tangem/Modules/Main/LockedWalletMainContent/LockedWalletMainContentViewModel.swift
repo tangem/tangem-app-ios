@@ -61,7 +61,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
 
-        contextData = AnalyticsContextDataFactory().buildContextData(for: userWalletModel)
+        contextData = userWalletModel.getAnalyticsContextData()
         Analytics.log(event: .mainNoticeWalletUnlock, params: contextData?.analyticsParams ?? [:])
     }
 
