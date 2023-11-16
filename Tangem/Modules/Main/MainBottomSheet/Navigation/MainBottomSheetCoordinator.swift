@@ -23,17 +23,12 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
+    private lazy var __manageTokensCoordinator = ManageTokensCoordinator()
 
     // MARK: - Child view models
 
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel? = nil
     private lazy var __headerViewModel = MainBottomSheetHeaderViewModel()
-
-    @Published private(set) var contentViewModel: MainBottomSheetContentViewModel? = nil
-    private lazy var __contentViewModel = MainBottomSheetContentViewModel(
-        manageTokensViewModel: manageTokensCoordinator?.manageTokensViewModel,
-        searchTextPublisher: __headerViewModel.enteredSearchTextPublisher
-    )
 
     // MARK: - Private Properties
 
@@ -48,14 +43,11 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
 
-        start()
-
         bind()
     }
 
     func start(with options: Options = .init()) {
-        manageTokensCoordinator = .init(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        manageTokensCoordinator?.start(with: .init())
+        __manageTokensCoordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
     }
 
     private func bind() {
@@ -72,9 +64,9 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
         bottomSheetVisibilityPublisher
             .map { [weak self] isShown in
-                return isShown ? self?.__contentViewModel : nil
+                return isShown ? self?.__manageTokensCoordinator : nil
             }
-            .assign(to: \.contentViewModel, on: self, ownership: .weak)
+            .assign(to: \.manageTokensCoordinator, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
