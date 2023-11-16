@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
 class ManageTokensCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
