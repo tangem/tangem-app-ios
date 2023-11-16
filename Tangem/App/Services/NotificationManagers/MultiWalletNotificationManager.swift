@@ -55,20 +55,8 @@ final class MultiWalletNotificationManager {
     }
 
     private func setupSomeNetworksUnreachable() {
-        let containsNotification = notificationInputsSubject.value.contains {
-            guard let event = $0.settings.event as? TokenNotificationEvent else {
-                return false
-            }
-
-            return event == .someNetworksUnreachable
-        }
-
-        if containsNotification {
-            return
-        }
-
         let factory = NotificationsFactory()
-        notificationInputsSubject.value.append(factory.buildNotificationInput(for: .someNetworksUnreachable))
+        notificationInputsSubject.send([factory.buildNotificationInput(for: .someNetworksUnreachable)])
     }
 }
 
