@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
@@ -17,10 +18,12 @@ protocol SendSummaryViewModelInput: AnyObject {
     var destinationTextBinding: Binding<String> { get }
     var feeTextBinding: Binding<String> { get }
 
+    var isSending: AnyPublisher<Bool, Never> { get }
+
     func send()
 }
 
-class SendSummaryViewModel {
+class SendSummaryViewModel: ObservableObject {
     let canEditAmount: Bool
     let canEditDestination: Bool
 
@@ -28,8 +31,11 @@ class SendSummaryViewModel {
     let destinationText: String
     let feeText: String
 
+    @Published var isSending = false
+
     weak var router: SendSummaryRoutable?
 
+    private var bag: Set<AnyCancellable> = []
     private weak var input: SendSummaryViewModelInput?
 
     init(input: SendSummaryViewModelInput) {
@@ -41,6 +47,8 @@ class SendSummaryViewModel {
         feeText = input.feeTextBinding.wrappedValue
 
         self.input = input
+
+        bind(from: input)
     }
 
     func didTapSummary(for step: SendStep) {
@@ -49,5 +57,12 @@ class SendSummaryViewModel {
 
     func send() {
         input?.send()
+    }
+
+    private func bind(from input: SendSummaryViewModelInput) {
+        input
+            .isSending
+            .assign(to: \.isSending, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
