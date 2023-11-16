@@ -14,7 +14,7 @@ protocol SendFinishViewModelInput: AnyObject {
     var amountTextBinding: Binding<String> { get }
     var destinationTextBinding: Binding<String> { get }
     var feeTextBinding: Binding<String> { get }
-    var transactionURL: URL? { get }
+    var transactionURL: AnyPublisher<URL?, Never> { get }
 }
 
 protocol SendFinishRoutable: AnyObject {
@@ -31,15 +31,14 @@ class SendFinishViewModel: ObservableObject {
     weak var router: SendFinishRoutable?
 
     private var bag: Set<AnyCancellable> = []
-
-    private let transactionURL: URL?
+    private var transactionURL: URL?
 
     init(input: SendFinishViewModelInput) {
         amountText = input.amountTextBinding.wrappedValue
         destinationText = input.destinationTextBinding.wrappedValue
         feeText = input.feeTextBinding.wrappedValue
 
-        transactionURL = input.transactionURL
+        bind(from: input)
     }
 
     func explore() {
@@ -54,5 +53,11 @@ class SendFinishViewModel: ObservableObject {
 
     func close() {
         router?.close()
+    }
+
+    private func bind(from input: SendFinishViewModelInput) {
+        input.transactionURL
+            .assign(to: \.transactionURL, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
