@@ -15,4 +15,5 @@ protocol NotificationEvent: Hashable {
     var icon: NotificationView.MessageIcon { get }
     var isDismissable: Bool { get }
     var analyticsEvent: Analytics.Event? { get }
+    var analyticsParams: [Analytics.ParameterKey: String] { get }
 }
