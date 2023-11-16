@@ -15,12 +15,10 @@ struct ManageTokensCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            NavigationView {
-                if let model = coordinator.manageTokensViewModel {
-                    ManageTokensView(viewModel: model)
-                }
+            if let model = coordinator.manageTokensViewModel {
+                ManageTokensView(viewModel: model)
+                    .onAppear(perform: model.onAppear)
             }
-            .navigationViewStyle(.stack)
 
             sheets
         }
@@ -29,8 +27,23 @@ struct ManageTokensCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.networkSelectorCoordinator) {
-                ManageTokensNetworkSelectorCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.networkSelectorViewModel) { viewModel in
+                NavigationView {
+                    ZStack {
+                        ManageTokensNetworkSelectorView(viewModel: viewModel)
+
+                        links
+                    }
+                }
+                .navigationViewStyle(.stack)
+            }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.walletSelectorViewModel) {
+                WalletSelectorView(viewModel: $0)
             }
     }
 }
