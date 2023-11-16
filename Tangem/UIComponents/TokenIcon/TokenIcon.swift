@@ -10,12 +10,13 @@ import SwiftUI
 import Kingfisher
 
 struct TokenIcon: View {
-    let name: String
-    let imageURL: URL?
-    let customTokenColor: Color?
-    let blockchainIconName: String?
-    let isCustom: Bool
+    let tokenIconInfo: TokenIconInfo
     let size: CGSize
+
+    private var imageURL: URL? { tokenIconInfo.imageURL }
+    private var customTokenColor: Color? { tokenIconInfo.customTokenColor }
+    private var blockchainIconName: String? { tokenIconInfo.blockchainIconName }
+    private var isCustom: Bool { tokenIconInfo.isCustom }
 
     private let networkIconSize = CGSize(width: 14, height: 14)
     private let networkIconBorderWidth: Double = 2
@@ -112,10 +113,12 @@ struct TokenIcon_Preview: PreviewProvider {
             VStack {
                 ForEach(coins, id: \.id) { coin in
                     TokenIcon(
-                        name: coin.id, imageURL: TokenIconURLBuilder().iconURL(id: coin.id, size: .large),
-                        customTokenColor: nil,
-                        blockchainIconName: coin.iconName,
-                        isCustom: true,
+                        tokenIconInfo: .init(
+                            blockchainIconName: coin.iconName,
+                            imageURL: TokenIconURLBuilder().iconURL(id: coin.id, size: .large),
+                            isCustom: true,
+                            customTokenColor: nil
+                        ),
                         size: CGSize(width: 40, height: 40)
                     )
                 }
