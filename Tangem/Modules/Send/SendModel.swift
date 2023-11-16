@@ -70,11 +70,11 @@ class SendModel {
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
-            _amountText = "\(amount)"
+            setAmount("\(amount)")
         }
 
         if let destination = sendType.predefinedDestination {
-            _destinationText = destination
+            setDestination(destination)
         }
 
         validateAmount()
@@ -136,7 +136,6 @@ class SendModel {
 
         Publishers.CombineLatest4(amount, destination, destinationAdditionalField, fee)
             .map { [weak self] amount, destination, destinationAdditionalField, fee -> BlockchainSdk.Transaction? in
-
                 guard
                     let self,
                     let amount,
