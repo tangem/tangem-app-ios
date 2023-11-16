@@ -38,6 +38,8 @@ class NotificationsAnalyticsService {
             return
         }
 
+        let notificationParams = notification.settings.event.analyticsParams
+
         switch notification.settings.event {
         case is WarningEvent:
             if alreadyTrackedEvents.contains(analyticsEvent) {
@@ -45,9 +47,9 @@ class NotificationsAnalyticsService {
             }
 
             alreadyTrackedEvents.insert(analyticsEvent)
-            Analytics.log(analyticsEvent)
+            Analytics.log(event: analyticsEvent, params: notificationParams)
         case is TokenNotificationEvent:
-            Analytics.log(analyticsEvent)
+            Analytics.log(event: analyticsEvent, params: notificationParams)
         default:
             return
         }
