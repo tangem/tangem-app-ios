@@ -7,14 +7,13 @@
 //
 
 import SwiftUI
-import Kingfisher
 
 struct SwappingTokenIconView: View {
-    private let viewModel: SwappingTokenIconViewModel
+    private let state: State
     private var action: (() -> Void)?
 
-    init(viewModel: SwappingTokenIconViewModel) {
-        self.viewModel = viewModel
+    init(state: State) {
+        self.state = state
     }
 
     private let imageSize = CGSize(width: 36, height: 36)
@@ -49,7 +48,7 @@ struct SwappingTokenIconView: View {
 
     @ViewBuilder
     private var mainContent: some View {
-        switch viewModel.state {
+        switch state {
         case .loading:
             VStack(spacing: 4) {
                 SkeletonView()
@@ -63,6 +62,14 @@ struct SwappingTokenIconView: View {
         case .loaded(let imageURL, let networkURL, let symbol):
             VStack(spacing: 4) {
                 image(imageURL: imageURL, networkURL: networkURL)
+
+                Text(symbol)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+            }
+
+        case .icon(let tokenIconInfo, let symbol):
+            VStack(spacing: 4) {
+                TokenIcon(tokenIconInfo: tokenIconInfo, size: imageSize)
 
                 Text(symbol)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
@@ -97,31 +104,35 @@ extension SwappingTokenIconView: Setupable {
 struct SwappingTokenIcon_Previews: PreviewProvider {
     static var previews: some View {
         HStack {
-            SwappingTokenIconView(viewModel: SwappingTokenIconViewModel(state: .loading))
+            SwappingTokenIconView(state: .loading)
 
-            SwappingTokenIconView(viewModel: SwappingTokenIconViewModel(state: .loading))
+            SwappingTokenIconView(state: .loading)
                 .onTap {}
 
             SwappingTokenIconView(
-                viewModel: SwappingTokenIconViewModel(
-                    state: .loaded(
-                        imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
-                        networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
-                        symbol: "MATIC"
-                    )
+                state: .loaded(
+                    imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
+                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
+                    symbol: "MATIC"
                 )
             )
             .onTap {}
 
             SwappingTokenIconView(
-                viewModel: SwappingTokenIconViewModel(
-                    state: .loaded(
-                        imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
-                        networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
-                        symbol: "MATIC"
-                    )
+                state: .loaded(
+                    imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
+                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
+                    symbol: "MATIC"
                 )
             )
         }
+    }
+}
+
+extension SwappingTokenIconView {
+    enum State: Hashable {
+        case loading
+        case loaded(imageURL: URL, networkURL: URL? = nil, symbol: String)
+        case icon(TokenIconInfo, symbol: String)
     }
 }
