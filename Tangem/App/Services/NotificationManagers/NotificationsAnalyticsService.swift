@@ -38,24 +38,21 @@ class NotificationsAnalyticsService {
     }
 
     private func sendEventIfNeeded(for notification: NotificationViewInput) {
-        guard let analyticsEvent = notification.settings.event.analyticsEvent else {
+        let event = notification.settings.event
+        guard let analyticsEvent = event.analyticsEvent else {
             return
         }
 
         let notificationParams = notification.settings.event.analyticsParams
 
-        switch notification.settings.event {
-        case is WarningEvent:
-            if alreadyTrackedEvents.contains(analyticsEvent) {
-                return
-            }
-
-            alreadyTrackedEvents.insert(analyticsEvent)
-            Analytics.log(event: analyticsEvent, params: notificationParams)
-        case is TokenNotificationEvent:
-            Analytics.log(event: analyticsEvent, params: notificationParams)
-        default:
+        if event.isOneShotAnalyticsEvent, alreadyTrackedEvents.contains(analyticsEvent) {
             return
+        }
+
+        Analytics.log(event: analyticsEvent, params: notificationParams)
+
+        if event.isOneShotAnalyticsEvent {
+            alreadyTrackedEvents.insert(analyticsEvent)
         }
     }
 }
