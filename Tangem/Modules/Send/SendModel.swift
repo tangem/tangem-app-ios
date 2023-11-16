@@ -109,8 +109,12 @@ class SendModel {
     private func bind() {
         #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest(amount, destination)
-            .flatMap { [unowned self] amount, destination -> AnyPublisher<[Fee], Never> in
-                guard let amount, let destination else {
+            .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Never> in
+                guard
+                    let self,
+                    let amount,
+                    let destination
+                else {
                     return .just(output: [])
                 }
 
@@ -118,7 +122,7 @@ class SendModel {
                 return walletModel
                     .getFee(amount: amount, destination: destination)
                     .receive(on: DispatchQueue.main)
-                    .catch { [unowned self] error in
+                    .catch { [weak self] error in
                         #warning("[REDACTED_TODO_COMMENT]")
                         return Just([Fee]())
                     }
@@ -126,7 +130,9 @@ class SendModel {
             }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
-            .sink { [unowned self] fees in
+            .sink { [weak self] fees in
+                guard let self else { return }
+
                 #warning("[REDACTED_TODO_COMMENT]")
                 fee.send(fees.first)
 
