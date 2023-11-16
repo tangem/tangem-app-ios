@@ -30,9 +30,11 @@ struct SendView: View {
 
     @ViewBuilder
     private var title: some View {
-        Text(viewModel.title)
-            .font(.title2)
-            .animation(nil)
+        if let title = viewModel.title {
+            Text(title)
+                .font(.title2)
+                .animation(nil)
+        }
     }
 
     @ViewBuilder
@@ -46,6 +48,8 @@ struct SendView: View {
             SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel)
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel)
+        case .finish:
+            SendFinishView(namespace: namespace, viewModel: viewModel.sendFinishViewModel)
         }
     }
 
