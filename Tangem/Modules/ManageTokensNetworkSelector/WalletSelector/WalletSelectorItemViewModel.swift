@@ -53,7 +53,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         }
 
         cardImageProvider.loadImage(
-            cardId: userWalletModel.config.cardId,
+            cardId: userWalletModel.userWallet.card.cardId,
             cardPublicKey: userWalletModel.userWallet.card.cardPublicKey,
             artwork: artwork
         )

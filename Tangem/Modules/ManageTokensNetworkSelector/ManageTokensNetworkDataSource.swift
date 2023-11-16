@@ -32,30 +32,6 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
         selectedUserWalletModelPublisher.send(selectedUserWalletModel)
     }
 
-    // MARK: - Public Implementation
-
-    // MARK: - Implementation
-
-    /// Return flag if find single currency wallet supported coinId
-    public func isExistSingleCurrencyWalletSupportedCoinId() -> Bool {
-        let singleCurrencyUserWalletModels = userWalletRepository.models.filter { userWalletModel in
-            guard !userWalletModel.isMultiWallet else { return false }
-            return userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId == coinId })
-        }
-
-        return !singleCurrencyUserWalletModels.isEmpty
-    }
-
-    /// Return flag if find single currency wallet does NOT supported coinId
-    public func isExistSingleCurrencyWalletDoesNotSupportedCoinId() -> Bool {
-        let singleCurrencyUserWalletModels = userWalletRepository.models.filter { userWalletModel in
-            guard !userWalletModel.isMultiWallet else { return false }
-            return userWalletModel.config.supportedBlockchains.contains(where: { $0.coinId != coinId })
-        }
-
-        return !singleCurrencyUserWalletModels.isEmpty
-    }
-
     // MARK: - Private Implementation
 
     /// Full available list of wallets for selection
