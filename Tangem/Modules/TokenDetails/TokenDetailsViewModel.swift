@@ -64,7 +64,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             tokenRouter: tokenRouter
         )
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
-        notificationManager.setupManager(with: self)
 
         prepareSelf()
     }
