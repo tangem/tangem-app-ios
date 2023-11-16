@@ -34,10 +34,10 @@ struct SendSuggestedDestinationView: View {
         switch type {
         case .header(let title):
             headerView(for: title)
-        case .wallet(let wallet):
-            walletView(for: wallet)
-        case .recentTransaction(let record):
-            transactionView(for: record)
+        case .wallet(let wallet, let addressIconViewModel):
+            walletView(for: wallet, addressIconViewModel: addressIconViewModel)
+        case .recentTransaction(let record, let addressIconViewModel):
+            transactionView(for: record, addressIconViewModel: addressIconViewModel)
         }
     }
 
@@ -49,9 +49,9 @@ struct SendSuggestedDestinationView: View {
     }
 
     @ViewBuilder
-    private func walletView(for wallet: SendSuggestedDestinationWallet) -> some View {
+    private func walletView(for wallet: SendSuggestedDestinationWallet, addressIconViewModel: AddressIconViewModel) -> some View {
         HStack(spacing: cellHorizontalSpacing) {
-            addressIcon(for: wallet.address)
+            addressIcon(with: addressIconViewModel)
 
             VStack(alignment: .leading, spacing: cellVerticalSpacing) {
                 addressView(for: wallet.address)
@@ -65,9 +65,9 @@ struct SendSuggestedDestinationView: View {
     }
 
     @ViewBuilder
-    private func transactionView(for transaction: SendSuggestedDestinationTransactionRecord) -> some View {
+    private func transactionView(for transaction: SendSuggestedDestinationTransactionRecord, addressIconViewModel: AddressIconViewModel) -> some View {
         HStack(spacing: cellHorizontalSpacing) {
-            addressIcon(for: transaction.address)
+            addressIcon(with: addressIconViewModel)
 
             VStack(alignment: .leading, spacing: cellVerticalSpacing) {
                 addressView(for: transaction.address)
@@ -97,8 +97,8 @@ struct SendSuggestedDestinationView: View {
         }
     }
 
-    private func addressIcon(for address: String) -> some View {
-        AddressIconView(viewModel: AddressIconViewModel(address: address))
+    private func addressIcon(with viewModel: AddressIconViewModel) -> some View {
+        AddressIconView(viewModel: viewModel)
             .frame(size: CGSize(bothDimensions: 36))
     }
 
