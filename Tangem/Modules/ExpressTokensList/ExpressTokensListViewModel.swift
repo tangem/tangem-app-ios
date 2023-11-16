@@ -47,7 +47,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         coordinator: ExpressTokensListRoutable
     ) {
         self.swapDirection = swapDirection
-        self.walletModels = walletModels.filter { $0 != swapDirection.wallet }
+        self.walletModels = walletModels
         self.expressAPIProvider = expressAPIProvider
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
@@ -71,7 +71,7 @@ private extension ExpressTokensListViewModel {
     }
 
     func loadAvailablePairs() async throws -> [ExpressCurrency] {
-        var currencies = walletModels.map { $0.expressCurrency }
+        let currencies = walletModels.map { $0.expressCurrency }
 
         switch swapDirection {
         case .fromSource(let wallet):
@@ -89,14 +89,17 @@ private extension ExpressTokensListViewModel {
         unavailableWalletModels.removeAll()
 
         let currenciesSet = availableCurrencies.toSet()
-        walletModels.forEach { walletModel in
-            let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
-            if isAvailable {
-                availableWalletModels.append(walletModel)
-            } else {
-                unavailableWalletModels.append(walletModel)
+
+        walletModels
+            .filter { $0 != swapDirection.wallet }
+            .forEach { walletModel in
+                let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
+                if isAvailable {
+                    availableWalletModels.append(walletModel)
+                } else {
+                    unavailableWalletModels.append(walletModel)
+                }
             }
-        }
 
         updateView()
     }
