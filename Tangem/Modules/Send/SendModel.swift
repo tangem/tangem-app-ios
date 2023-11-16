@@ -158,6 +158,7 @@ class SendModel {
                     return nil
                 }
 
+                #warning("[REDACTED_TODO_COMMENT]")
                 return try? walletModel.createTransaction(
                     amountToSend: amount,
                     fee: fee,
