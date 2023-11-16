@@ -11,7 +11,7 @@ import TangemSwapping
 
 protocol ExpressRoutable: AnyObject {
     func presentFeeSelectorView()
-    func presentSwappingTokenList(walletType: ExpressTokensListViewModel.InitialWalletType)
+    func presentSwappingTokenList(walletType: ExpressTokensListViewModel.SwapDirection)
     func presentSuccessView(inputModel: SwappingSuccessInputModel)
     func presentApproveView()
 }
