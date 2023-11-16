@@ -1106,6 +1106,7 @@
 		EF729B772AF3E95F00D80205 /* ProviderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B762AF3E95F00D80205 /* ProviderRowView.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
+		EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */; };
 		EF78433B29431903007E57D1 /* SwappingManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF78433A29431903007E57D1 /* SwappingManagerError.swift */; };
 		EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */; };
 		EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */; };
@@ -2479,6 +2480,7 @@
 		EF729B762AF3E95F00D80205 /* ProviderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderRowView.swift; sourceTree = "<group>"; };
 		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
+		EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokenItem+ExpressCurrency.swift"; sourceTree = "<group>"; };
 		EF78433A29431903007E57D1 /* SwappingManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingManagerError.swift; sourceTree = "<group>"; };
 		EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsView.swift; sourceTree = "<group>"; };
 		EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -2806,6 +2808,7 @@
 		5D39515725597D89002CC452 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				EF75A3D02B06418D0023A60A /* TokenItem */,
 				EFD39C8C2A6A87DD0055D215 /* Config */,
 				DC13D03729DEC0F30003895C /* CardDTO */,
 				DC3B49F22893E4F300C207EA /* UserWallet */,
@@ -2816,7 +2819,6 @@
 				DAA153BA2876CBE2002254D1 /* Geo */,
 				5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */,
 				5D4B8BC227EDD601002CE87C /* CardInfo.swift */,
-				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
 				2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */,
 				DAE0F0592A404CCC006074FF /* AwardToken.swift */,
 				EFAD02412A7D5E9100E9B959 /* LegacyTransactionRecord.swift */,
@@ -6236,6 +6238,15 @@
 			path = ProviderRowView;
 			sourceTree = "<group>";
 		};
+		EF75A3D02B06418D0023A60A /* TokenItem */ = {
+			isa = PBXGroup;
+			children = (
+				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
+				EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */,
+			);
+			path = TokenItem;
+			sourceTree = "<group>";
+		};
 		EF763E902A7935B400D12644 /* MainBottomSheet */ = {
 			isa = PBXGroup;
 			children = (
@@ -8204,6 +8215,7 @@
 				EF130EB428E1C47C00D37EFC /* LegacySingleWalletContentViewModel.swift in Sources */,
 				EF729B492AF1091900D80205 /* ExpressFeeBottomSheetView.swift in Sources */,
 				DAF59CC42ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift in Sources */,
+				EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */,
 				EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */,
 				B06243082AA9B77C00F7B9B2 /* SingleTokenRouter.swift in Sources */,
 				B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */,

@@ -92,11 +92,11 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeExpressTokensListViewModel(
-        walletType: ExpressTokensListViewModel.InitialWalletType,
+        walletType: ExpressTokensListViewModel.SwapDirection,
         coordinator: ExpressTokensListRoutable
     ) -> ExpressTokensListViewModel {
         ExpressTokensListViewModel(
-            initialWalletType: walletType,
+            swapDirection: walletType,
             walletModels: walletModelsManager.walletModels,
             expressAPIProvider: expressAPIProvider,
             expressInteractor: expressInteractor,
