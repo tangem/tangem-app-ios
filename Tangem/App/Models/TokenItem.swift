@@ -36,6 +36,10 @@ enum TokenItem: Hashable {
         }
     }
 
+    var networkId: String {
+        return blockchain.networkId
+    }
+
     var blockchain: Blockchain {
         switch self {
         case .token(_, let blockchain):
@@ -96,5 +100,14 @@ enum TokenItem: Hashable {
 
     var networkName: String {
         blockchain.displayName
+    }
+
+    var decimalCount: Int {
+        switch self {
+        case .token(let token, _):
+            return token.decimalCount
+        case .blockchain(let blockchain):
+            return blockchain.decimalCount
+        }
     }
 }
