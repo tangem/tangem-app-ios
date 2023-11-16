@@ -59,7 +59,7 @@ extension ExpressCoordinator {
 // MARK: - ExpressRoutable
 
 extension ExpressCoordinator: ExpressRoutable {
-    func presentSwappingTokenList(walletType: ExpressTokensListViewModel.InitialWalletType) {
+    func presentSwappingTokenList(walletType: ExpressTokensListViewModel.SwapDirection) {
         UIApplication.shared.endEditing()
         Analytics.log(.swapChooseTokenScreenOpened)
         expressTokensListViewModel = factory.makeExpressTokensListViewModel(walletType: walletType, coordinator: self)
