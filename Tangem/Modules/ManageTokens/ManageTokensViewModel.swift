@@ -46,6 +46,8 @@ final class ManageTokensViewModel: ObservableObject {
 
         updateAlreadyExistTokenUserList()
         loader.reset("")
+
+        fetch()
     }
 
     func fetch(with searchText: String = "") {
