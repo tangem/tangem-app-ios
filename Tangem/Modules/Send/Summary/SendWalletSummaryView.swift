@@ -14,11 +14,11 @@ struct SendWalletSummaryView: View {
     var body: some View {
         GroupedSection(viewModel) { viewModel in
             VStack(alignment: .leading, spacing: 8) {
-                Text(viewModel.walletNameTitle(fontSize: UIFonts.Regular.caption1.pointSize))
-                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                Text(viewModel.walletNameTitle(boldFont: UIFonts.Bold.footnote))
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
                 Text(viewModel.totalBalance)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
             }
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity, alignment: .leading)
