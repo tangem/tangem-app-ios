@@ -33,6 +33,9 @@ struct SendCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.modalWebViewModel) {
+                WebViewContainer(viewModel: $0)
+            }
     }
 }
