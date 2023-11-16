@@ -14,19 +14,10 @@ struct MainBottomSheetContentCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainBottomSheetCoordinator
 
     var body: some View {
-        if let viewModel = coordinator.contentViewModel {
-            ZStack {
-                MainBottomSheetContentView(viewModel: viewModel)
-
-                sheets
+        ZStack {
+            if let manageTokensCoordinator = coordinator.manageTokensCoordinator {
+                ManageTokensCoordinatorView(coordinator: manageTokensCoordinator)
             }
         }
-    }
-
-    @ViewBuilder private var sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.networkSelectorCoordinator) {
-                ManageTokensNetworkSelectorCoordinatorView(coordinator: $0)
-            }
     }
 }
