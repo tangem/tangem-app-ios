@@ -167,6 +167,7 @@ extension WarningEvent: NotificationEvent {
 }
 
 // MARK: Analytics info
+
 extension WarningEvent {
     var analyticsEvent: Analytics.Event? {
         switch self {
