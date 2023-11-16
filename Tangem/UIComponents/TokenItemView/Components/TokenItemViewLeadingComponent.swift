@@ -20,6 +20,7 @@ struct TokenItemViewLeadingComponent: View {
     var body: some View {
         TokenIcon(
             tokenIconInfo: .init(
+                name: name,
                 blockchainIconName: blockchainIconName,
                 imageURL: imageURL,
                 isCustom: isCustom,
