@@ -33,6 +33,7 @@ struct ReceiveBottomSheetView: View {
         VStack(spacing: 56) {
             TokenIcon(
                 tokenIconInfo: .init(
+                    name: "",
                     blockchainIconName: nil,
                     imageURL: viewModel.iconURL,
                     isCustom: false,
