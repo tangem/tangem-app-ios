@@ -60,7 +60,6 @@ extension SendCoordinator: SendRoutable {
     }
 
     func share(url: URL) {
-        let shareActivityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        AppPresenter.shared.show(shareActivityVC)
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 }
