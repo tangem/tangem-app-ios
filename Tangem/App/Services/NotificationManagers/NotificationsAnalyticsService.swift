@@ -24,7 +24,6 @@ class NotificationsAnalyticsService {
 
     private func bind() {
         subscription = notificationManager?.notificationPublisher
-            .removeDuplicates()
             .receive(on: DispatchQueue.global())
             .sink(receiveValue: weakify(self, forFunction: NotificationsAnalyticsService.sendEventsIfNeeded(for:)))
     }
