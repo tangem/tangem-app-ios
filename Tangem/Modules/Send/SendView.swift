@@ -79,7 +79,12 @@ struct SendView: View {
 }
 
 struct SendView_Preview: PreviewProvider {
-    static let viewModel = SendViewModel(sendType: .send, coordinator: SendRoutableMock())
+    static let viewModel = SendViewModel(
+        walletModel: WalletModelsManagerMock().walletModels.first!,
+        transactionSigner: TransactionSignerMock(),
+        sendType: .send,
+        coordinator: SendRoutableMock()
+    )
 
     static var previews: some View {
         SendView(viewModel: viewModel)
