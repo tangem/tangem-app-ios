@@ -25,9 +25,3 @@ protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, MultiWa
     var twinInput: OnboardingInput? { get }
     func updateWalletName(_ name: String)
 }
-
-extension UserWalletModel {
-    func getContextData() -> AnalyticsContextData? {
-        AnalyticsContextDataFactory().buildContextData(for: self)
-    }
-}
