@@ -56,8 +56,11 @@ private extension ExpressTokensListViewModel {
             ExpressTokenItemViewModel(
                 id: "Polygon".hashValue,
                 tokenIconInfo: TokenIconInfo(
+                    name: "",
                     blockchainIconName: "bitcoin",
-                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large)
+                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Polygon",
                 symbol: "MATIC",
@@ -69,8 +72,11 @@ private extension ExpressTokensListViewModel {
             ExpressTokenItemViewModel(
                 id: "Cardano".hashValue,
                 tokenIconInfo: TokenIconInfo(
+                    name: "",
                     blockchainIconName: "bitcoin",
-                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large)
+                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Cardano",
                 symbol: "ADA",
@@ -82,7 +88,11 @@ private extension ExpressTokensListViewModel {
             ExpressTokenItemViewModel(
                 id: "Binance".hashValue,
                 tokenIconInfo: TokenIconInfo(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large)
+                    name: "",
+                    blockchainIconName: nil,
+                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Binance",
                 symbol: "BNB",
@@ -100,8 +110,11 @@ private extension ExpressTokensListViewModel {
             ExpressTokenItemViewModel(
                 id: "Polygon".hashValue,
                 tokenIconInfo: TokenIconInfo(
+                    name: "",
                     blockchainIconName: "bitcoin",
-                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large)
+                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Polygon",
                 symbol: "MATIC",
@@ -113,8 +126,11 @@ private extension ExpressTokensListViewModel {
             ExpressTokenItemViewModel(
                 id: "Cardano".hashValue,
                 tokenIconInfo: TokenIconInfo(
+                    name: "",
                     blockchainIconName: "bitcoin",
-                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large)
+                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Cardano",
                 symbol: "ADA",
@@ -126,7 +142,11 @@ private extension ExpressTokensListViewModel {
             ExpressTokenItemViewModel(
                 id: "Binance".hashValue,
                 tokenIconInfo: TokenIconInfo(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large)
+                    name: "",
+                    blockchainIconName: nil,
+                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Binance",
                 symbol: "BNB",
