@@ -16,7 +16,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Published Properties
 
     @Published var currentWalletName: String = ""
-    @Published var notificationInput: NotificationViewInput?
+    @Published var notificationViewModel: ManageTokensNetworkSelectorNotificationViewModel?
 
     @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
     @Published var nonNativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
@@ -47,18 +47,9 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             return nil
         }
 
-        var supportedBlockchains = userWalletModel.config.supportedBlockchains
-        supportedBlockchains.remove(.ducatus)
-        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
-
         let settings = ManageTokensSettings(
-            supportedBlockchains: supportedBlockchains,
-            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
-            derivationStyle: userWalletModel.config.derivationStyle,
-            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: userWalletModel.config.walletCurves,
-            isAvailableTokenSelection: true
+            existingCurves: userWalletModel.config.walletCurves
         )
 
         return settings
@@ -78,6 +69,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coordinator = coordinator
 
         networkDataSource = ManageTokensNetworkDataSource(coinId: coinModel.id)
+        notificationViewModel = .init(coinId: coinModel.id)
 
         bind()
     }
@@ -108,32 +100,9 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private func bind() {
         networkDataSource.selectedUserWalletModelPublisher
             .sink { [weak self] userWalletModel in
-                self?.didSelect(userWalletModel)
+                self?.setNeedSelectWallet(userWalletModel)
             }
             .store(in: &bag)
-    }
-
-    private func setNeedDisplayNotifications() {
-        notificationInput = nil
-
-        guard networkDataSource.userWalletModels.isEmpty else {
-            return
-        }
-
-        // Do not display flow notifications if use only single currency wallets supported current coinId
-        if networkDataSource.isExistSingleCurrencyWalletSupportedCoinId() {
-            return
-        }
-
-        if networkDataSource.isExistSingleCurrencyWalletDoesNotSupportedCoinId() {
-            // Display flow notifications if use only single currency wallets does not supported current coinId
-            displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
-
-            return
-        }
-
-        // Display flow notifications if list of wallets does not supported current coinId
-        displayWarningNotification(for: .walletsNotSupportedBlockchain)
     }
 
     private func fillSelectorItemsFromTokenItems() {
@@ -152,7 +121,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: nil,
                     isSelected: bindSelection($0),
-                    isAvailable: settings?.isAvailableTokenSelection ?? false
+                    isAvailable: isAvailableTokenSelection()
                 )
             }
 
@@ -169,7 +138,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
                     isSelected: bindSelection($0),
-                    isAvailable: settings?.isAvailableTokenSelection ?? false
+                    isAvailable: isAvailableTokenSelection()
                 )
             }
     }
@@ -184,6 +153,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             itemsToAdd: pendingAdd,
             derivationPath: nil
         )
+    }
+
+    private func isAvailableTokenSelection() -> Bool {
+        !networkDataSource.userWalletModels.isEmpty
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
@@ -245,7 +218,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         ])
     }
 
-    private func didSelect(_ userWalletModel: UserWalletModel?) {
+    private func setNeedSelectWallet(_ userWalletModel: UserWalletModel?) {
         if selectedUserWalletModel?.userWalletId != userWalletModel?.userWalletId {
             Analytics.log(
                 event: .manageTokensWalletSelected,
@@ -259,7 +232,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         currentWalletName = userWalletModel?.config.cardName ?? ""
 
         fillSelectorItemsFromTokenItems()
-        setNeedDisplayNotifications()
     }
 }
 
@@ -271,12 +243,8 @@ private extension ManageTokensNetworkSelectorViewModel {
             return
         }
 
-        guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
-            throw AvailableTokenError.failedSupportedBlockchainByCard
-        }
-
         guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw AvailableTokenError.failedSupportedCurve(tokenItem)
+            throw AvailableTokenError.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
@@ -375,17 +343,6 @@ private extension ManageTokensNetworkSelectorViewModel {
             )
         }
     }
-
-    func displayWarningNotification(for event: WarningEvent) {
-        let notificationsFactory = NotificationsFactory()
-
-        notificationInput = notificationsFactory.buildNotificationInput(
-            for: event,
-            action: { _ in },
-            buttonAction: { _, _ in },
-            dismissAction: { _ in }
-        )
-    }
 }
 
 // MARK: - Errors
@@ -393,17 +350,14 @@ private extension ManageTokensNetworkSelectorViewModel {
 private extension ManageTokensNetworkSelectorViewModel {
     enum AvailableTokenError: Error, LocalizedError {
         case failedSupportedLongHahesTokens(blockchainDisplayName: String)
-        case failedSupportedCurve(TokenItem)
-        case failedSupportedBlockchainByCard
+        case failedSupportedCurve(blockchainDisplayName: String)
 
         var errorDescription: String? {
             switch self {
             case .failedSupportedLongHahesTokens(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
-            case .failedSupportedCurve(let tokenItem):
-                return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
-            case .failedSupportedBlockchainByCard:
-                return Localization.manageTokensWalletDoesNotSupportedBlockchain
+            case .failedSupportedCurve(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             }
         }
 
