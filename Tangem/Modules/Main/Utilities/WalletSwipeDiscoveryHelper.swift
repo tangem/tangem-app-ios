@@ -17,8 +17,8 @@ protocol WalletSwipeDiscoveryHelperDelegate: AnyObject {
 final class WalletSwipeDiscoveryHelper {
     weak var delegate: WalletSwipeDiscoveryHelperDelegate?
 
-    private var scheduledSwipeDiscovery: DispatchWorkItem?
-    private var lastNumberOfWallets = Constants.lastNumberOfWallets
+    private var scheduledSwipeDiscoveryWorkItem: DispatchWorkItem?
+    private var lastNumberOfWallets: Int?
 
     func scheduleSwipeDiscoveryIfNeeded() {
         cancelScheduledSwipeDiscovery()
@@ -34,12 +34,12 @@ final class WalletSwipeDiscoveryHelper {
             delegate?.helperDidTriggerSwipeDiscoveryAnimation(self)
         }
 
-        scheduledSwipeDiscovery = workItem
+        scheduledSwipeDiscoveryWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.discoveryAnimationDelay, execute: workItem)
     }
 
     func cancelScheduledSwipeDiscovery() {
-        scheduledSwipeDiscovery?.cancel()
+        scheduledSwipeDiscoveryWorkItem?.cancel()
     }
 
     private func canTriggerSwipeDiscovery() -> Bool {
@@ -48,6 +48,8 @@ final class WalletSwipeDiscoveryHelper {
         let numberOfWallets = delegate.numberOfWallets(self)
 
         defer { lastNumberOfWallets = numberOfWallets }
+
+        let lastNumberOfWallets = lastNumberOfWallets ?? 0
 
         // The discovery is triggered only if there is more than one wallet and the number
         // of wallets is increased since the last attempt to trigger swipe discovery
@@ -62,7 +64,7 @@ final class WalletSwipeDiscoveryHelper {
     }
 
     func reset() {
-        lastNumberOfWallets = delegate?.numberOfWallets(self) ?? Constants.lastNumberOfWallets
+        lastNumberOfWallets = delegate?.numberOfWallets(self)
     }
 }
 
@@ -71,6 +73,5 @@ final class WalletSwipeDiscoveryHelper {
 private extension WalletSwipeDiscoveryHelper {
     enum Constants {
         static let discoveryAnimationDelay = 1.0
-        static let lastNumberOfWallets = 0
     }
 }
