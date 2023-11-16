@@ -270,3 +270,5 @@ extension SendModel: SendSummaryViewModelInput {
         _isSending.eraseToAnyPublisher()
     }
 }
+
+extension SendModel: SendFinishViewModelInput {}
