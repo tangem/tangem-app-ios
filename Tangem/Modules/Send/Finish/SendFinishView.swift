@@ -16,6 +16,8 @@ struct SendFinishView: View {
 
     var body: some View {
         VStack(spacing: 20) {
+            header
+            
             amountSummary
 
             destinationSummary
@@ -28,6 +30,23 @@ struct SendFinishView: View {
         .padding(.horizontal)
     }
 
+    @ViewBuilder
+    private var header: some View {
+        VStack(spacing: 0) {
+            Assets.inProgress
+                .image
+            
+            Text(Localization.sentTransactionSentTitle)
+                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .padding(.top, 18)
+            
+            Text(viewModel.transactionTime ?? "")
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .lineLimit(1)
+                .padding(.top, 6)
+        }
+    }
+    
     @ViewBuilder
     private var amountSummary: some View {
         Color.clear
