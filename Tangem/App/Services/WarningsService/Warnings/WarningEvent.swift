@@ -192,4 +192,11 @@ extension WarningEvent {
     var analyticsParams: [Analytics.ParameterKey: String] {
         [:]
     }
+
+    var isOneShotAnalyticsEvent: Bool {
+        switch self {
+        case .missingDerivation: return false
+        default: return true
+        }
+    }
 }

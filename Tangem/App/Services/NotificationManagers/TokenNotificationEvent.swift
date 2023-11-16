@@ -142,4 +142,6 @@ extension TokenNotificationEvent {
             return [:]
         }
     }
+
+    var isOneShotAnalyticsEvent: Bool { false }
 }
