@@ -18,12 +18,6 @@ protocol SendFinishViewModelInput: AnyObject {
     var transactionTime: AnyPublisher<Date?, Never> { get }
 }
 
-protocol SendFinishRoutable: AnyObject {
-    func explore(url: URL)
-    func share(url: URL)
-    func close()
-}
-
 class SendFinishViewModel: ObservableObject {
     let amountText: String
     let destinationText: String
