@@ -59,6 +59,7 @@ class SendModel {
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
     private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
+    private let _transactionURL = CurrentValueSubject<URL?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -71,7 +72,6 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let sendType: SendType
-    private var transactionHash: String?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -120,8 +120,10 @@ class SendModel {
                 print("SEND FINISH ", completion)
                 #warning("[REDACTED_TODO_COMMENT]")
             } receiveValue: { [weak self] result in
-                self?.transactionHash = result.hash
-                self?._transactionTime.send(Date())
+                guard let self else { return }
+
+                _transactionURL.send(explorerUrl(from: result.hash))
+                _transactionTime.send(Date())
             }
             .store(in: &bag)
     }
@@ -183,6 +185,12 @@ class SendModel {
                 print("TX built", transaction != nil)
             }
             .store(in: &bag)
+    }
+
+    private func explorerUrl(from hash: String) -> URL {
+        let factory = ExternalLinkProviderFactory()
+        let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
+        return provider.url(transaction: hash)
     }
 
     // MARK: - Amount
@@ -285,10 +293,7 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
-    var transactionURL: URL? {
-        guard let transactionHash else { return nil }
-        let factory = ExternalLinkProviderFactory()
-        let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
-        return provider.url(transaction: transactionHash)
+    var transactionURL: AnyPublisher<URL?, Never> {
+        _transactionURL.eraseToAnyPublisher()
     }
 }
