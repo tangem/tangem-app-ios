@@ -18,7 +18,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     @Published var unavailableTokens: [ExpressTokenItemViewModel] = []
 
     var unavailableSectionHeader: String {
-        Localization.exchangeTokensUnavailableTokensHeader(initialWalletType.name)
+        Localization.exchangeTokensUnavailableTokensHeader(swapDirection.name)
     }
 
     var isEmptyView: Bool {
@@ -27,7 +27,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    private let initialWalletType: InitialWalletType
+    private let swapDirection: SwapDirection
     private let walletModels: [WalletModel]
     private let expressAPIProvider: ExpressAPIProvider
     private unowned let expressInteractor: ExpressInteractor
@@ -40,52 +40,57 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        initialWalletType: InitialWalletType,
+        swapDirection: SwapDirection,
         walletModels: [WalletModel],
         expressAPIProvider: ExpressAPIProvider,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressTokensListRoutable
     ) {
-        self.initialWalletType = initialWalletType
-        self.walletModels = walletModels.filter { $0 != initialWalletType.wallet }
+        self.swapDirection = swapDirection
+        self.walletModels = walletModels.filter { $0 != swapDirection.wallet }
         self.expressAPIProvider = expressAPIProvider
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
         bind()
-        loadView()
+    }
+
+    func onAppear() {
+        initialSetup()
     }
 }
 
 // MARK: - Private
 
 private extension ExpressTokensListViewModel {
-    func loadView() {
+    func initialSetup() {
         runTask(in: self) { viewModel in
             let availablePairs = try await viewModel.loadAvailablePairs()
-            viewModel.updateWalletModels(availableCurrencies: availablePairs)
+            await viewModel.updateWalletModels(availableCurrencies: availablePairs)
         }
     }
 
     func loadAvailablePairs() async throws -> [ExpressCurrency] {
-        var currencies = walletModels.map { $0.currency }
+        var currencies = walletModels.map { $0.expressCurrency }
 
-        switch initialWalletType {
-        case .source(let wallet):
-            let pairs = try await expressAPIProvider.pairs(from: [wallet.currency], to: currencies)
+        switch swapDirection {
+        case .fromSource(let wallet):
+            let pairs = try await expressAPIProvider.pairs(from: [wallet.expressCurrency], to: currencies)
             return pairs.map { $0.destination }
-        case .destination(let wallet):
-            let pairs = try await expressAPIProvider.pairs(from: currencies, to: [wallet.currency])
+        case .toDestination(let wallet):
+            let pairs = try await expressAPIProvider.pairs(from: currencies, to: [wallet.expressCurrency])
             return pairs.map { $0.source }
         }
     }
 
+    @MainActor
     func updateWalletModels(availableCurrencies: [ExpressCurrency]) {
         availableWalletModels.removeAll()
         unavailableWalletModels.removeAll()
 
+        let currenciesSet = availableCurrencies.toSet()
         walletModels.forEach { walletModel in
-            let isAvailable = availableCurrencies.contains { walletModel.currency == $0 }
+            let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
             if isAvailable {
                 availableWalletModels.append(walletModel)
             } else {
@@ -98,8 +103,8 @@ private extension ExpressTokensListViewModel {
 
     func bind() {
         $searchText
-            .dropFirst()
             .removeDuplicates()
+            .dropFirst()
             .flatMapLatest { searchText in
                 // We don't add debounce for the empty text
                 if searchText.isEmpty {
@@ -117,27 +122,17 @@ private extension ExpressTokensListViewModel {
     }
 
     func updateView(searchText: String = "") {
-        if searchText.isEmpty {
-            availableTokens = availableWalletModels.map { walletModel in
+        availableTokens = availableWalletModels
+            .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
+            .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
             }
 
-            unavailableTokens = unavailableWalletModels.map { walletModel in
+        unavailableTokens = unavailableWalletModels
+            .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
+            .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
             }
-        } else {
-            availableTokens = availableWalletModels
-                .filter { $0.name.lowercased().contains(searchText.lowercased()) }
-                .map { walletModel in
-                    mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
-                }
-
-            unavailableTokens = unavailableWalletModels
-                .filter { $0.name.lowercased().contains(searchText.lowercased()) }
-                .map { walletModel in
-                    mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
-                }
-        }
     }
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
@@ -156,12 +151,12 @@ private extension ExpressTokensListViewModel {
     }
 
     func userDidTap(on walletModel: WalletModel) {
-        switch initialWalletType {
-        case .source:
+        switch swapDirection {
+        case .fromSource:
             // [REDACTED_TODO_COMMENT]
             // expressInteractor.update(destination: walletModel)
             break
-        case .destination:
+        case .toDestination:
             // [REDACTED_TODO_COMMENT]
             // expressInteractor.update(source: walletModel)
             break
@@ -172,24 +167,24 @@ private extension ExpressTokensListViewModel {
 }
 
 extension ExpressTokensListViewModel {
-    enum InitialWalletType {
-        case source(WalletModel)
-        case destination(WalletModel)
+    enum SwapDirection {
+        case fromSource(WalletModel)
+        case toDestination(WalletModel)
 
         var name: String {
             switch self {
-            case .source(let walletModel):
+            case .fromSource(let walletModel):
                 return walletModel.name
-            case .destination(let walletModel):
+            case .toDestination(let walletModel):
                 return walletModel.name
             }
         }
 
         var wallet: WalletModel {
             switch self {
-            case .source(let walletModel):
+            case .fromSource(let walletModel):
                 return walletModel
-            case .destination(let walletModel):
+            case .toDestination(let walletModel):
                 return walletModel
             }
         }
