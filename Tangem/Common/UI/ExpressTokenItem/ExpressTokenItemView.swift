@@ -76,8 +76,11 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
         ExpressTokenItemViewModel(
             id: "Bitcoin".hashValue,
             tokenIconInfo: TokenIconInfo(
+                name: "",
                 blockchainIconName: "bitcoin",
-                imageURL: TokenIconURLBuilder().iconURL(id: "", size: .large)
+                imageURL: TokenIconURLBuilder().iconURL(id: "", size: .large),
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Bitcoin",
             symbol: "BTC",
@@ -88,8 +91,11 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
         ), ExpressTokenItemViewModel(
             id: "Ethereum".hashValue,
             tokenIconInfo: TokenIconInfo(
+                name: "",
                 blockchainIconName: "ethereum",
-                imageURL: TokenIconURLBuilder().iconURL(id: "tether", size: .large)
+                imageURL: TokenIconURLBuilder().iconURL(id: "tether", size: .large),
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Ethereum",
             symbol: "ETH",
@@ -100,7 +106,11 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
         ), ExpressTokenItemViewModel(
             id: "Tether".hashValue,
             tokenIconInfo: TokenIconInfo(
-                blockchainIconName: "ethereum", imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large)
+                name: "",
+                blockchainIconName: "ethereum",
+                imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Dai",
             symbol: "DAI",
