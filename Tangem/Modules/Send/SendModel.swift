@@ -296,4 +296,8 @@ extension SendModel: SendFinishViewModelInput {
     var transactionURL: AnyPublisher<URL?, Never> {
         _transactionURL.eraseToAnyPublisher()
     }
+    
+    var transactionTime: AnyPublisher<Date?, Never> {
+        _transactionTime.eraseToAnyPublisher()
+    }
 }
