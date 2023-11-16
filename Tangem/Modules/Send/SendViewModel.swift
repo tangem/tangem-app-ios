@@ -16,7 +16,7 @@ final class SendViewModel: ObservableObject {
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
 
-    var title: String {
+    var title: String? {
         step.name
     }
 
@@ -36,6 +36,7 @@ final class SendViewModel: ObservableObject {
     let sendDestinationViewModel: SendDestinationViewModel
     let sendFeeViewModel: SendFeeViewModel
     let sendSummaryViewModel: SendSummaryViewModel
+    let sendFinishViewModel: SendFinishViewModel
 
     // MARK: - Dependencies
 
@@ -83,7 +84,7 @@ final class SendViewModel: ObservableObject {
                     return sendModel.destinationValid
                 case .fee:
                     return sendModel.feeValid
-                case .summary:
+                case .summary, .finish:
                     return .just(output: true)
                 }
             }
@@ -106,9 +107,11 @@ final class SendViewModel: ObservableObject {
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
+        sendFinishViewModel = SendFinishViewModel(input: sendModel)
 
         sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
+        sendFinishViewModel.router = self
 
         bind()
     }
