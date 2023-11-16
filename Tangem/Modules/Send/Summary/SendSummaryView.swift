@@ -12,7 +12,7 @@ struct SendSummaryView: View {
     let height = 150.0
     let namespace: Namespace.ID
 
-    let viewModel: SendSummaryViewModel
+    @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -105,6 +105,7 @@ struct SendSummaryView: View {
         MainButton(
             title: Localization.commonSend,
             icon: .trailing(Assets.tangemIcon),
+            isLoading: viewModel.isSending,
             action: viewModel.send
         )
     }
