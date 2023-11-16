@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 // [REDACTED_TODO_COMMENT]
 class ManageTokensCoordinator: CoordinatorObject {
@@ -19,7 +20,8 @@ class ManageTokensCoordinator: CoordinatorObject {
 
     // MARK: - Child ViewModels
 
-    @Published var networkSelectorCoordinator: ManageTokensNetworkSelectorCoordinator? = nil
+    @Published var networkSelectorViewModel: ManageTokensNetworkSelectorViewModel? = nil
+    @Published var walletSelectorViewModel: WalletSelectorViewModel? = nil
 
     // MARK: - Init
 
@@ -31,19 +33,38 @@ class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Implmentation
 
     func start(with options: ManageTokensCoordinator.Options) {
-        manageTokensViewModel = .init(coordinator: self)
+        manageTokensViewModel = .init(searchTextPublisher: options.searchTextPublisher, coordinator: self)
     }
 }
 
 extension ManageTokensCoordinator {
-    struct Options {}
+    struct Options {
+        let searchTextPublisher: AnyPublisher<String, Never>?
+    }
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
     func openTokenSelector(coinId: String, with tokenItems: [TokenItem]) {
-        let coordinator = ManageTokensNetworkSelectorCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(coinId: coinId, tokenItems: tokenItems))
-        networkSelectorCoordinator = coordinator
+        networkSelectorViewModel = ManageTokensNetworkSelectorViewModel(
+            coinId: coinId,
+            tokenItems: tokenItems,
+            coordinator: self
+        )
+    }
+}
+
+extension ManageTokensCoordinator: ManageTokensNetworkSelectorRoutable {
+    func openWalletSelector(
+        userWallets: [UserWallet],
+        currentUserWalletId: Data?,
+        delegate: WalletSelectorDelegate?
+    ) {
+        walletSelectorViewModel = .init(
+            userWallets: userWallets,
+            currentUserWalletId: currentUserWalletId
+        )
+
+        walletSelectorViewModel?.delegate = delegate
     }
 
     func showGenerateAddressesWarning(

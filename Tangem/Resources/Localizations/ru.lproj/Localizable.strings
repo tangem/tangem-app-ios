@@ -50,10 +50,7 @@
 "card_settings_security_mode_footer" = "Выбранный способ защиты приложения";
 "card_settings_title" = "Настройки карты";
 "chat_button_title" = "Чат";
-"chat_user_action_rate_user" = "Оценить агента";
 "chat_user_action_send_log" = "Отправить логи";
-"chat_user_actions_title" = "Пожалуйста, выберите действие";
-"chat_user_rate_agent_title" = "Пожалуйста, оцените работу агента";
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_apply" = "Применить";
@@ -225,6 +222,8 @@
 "main_tokens" = "Токены";
 "manage_tokens_add" = "Добавить";
 "manage_tokens_edit" = "Изменить";
+"manage_tokens_list_header_subtitle" = "Couldn’t find this token, you can add it manually";
+"manage_tokens_list_header_title" = "Coin market cap";
 "manage_tokens_network_selector_native_subtitle" = "Blockchain the cryptocurrency was initially created";
 "manage_tokens_network_selector_native_title" = "Основная сеть";
 "manage_tokens_network_selector_non_native_info" = "Using non-native networks for tokens enables cross-blockchain interoperability, allowing assets to be utilized in diverse decentralized applications and smart contracts across platforms. However, this often involves a custodian or smart contract to hold the original asset securely, introducing centralization and counterparty risk.";
