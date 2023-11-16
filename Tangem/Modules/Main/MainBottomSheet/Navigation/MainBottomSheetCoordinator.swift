@@ -68,42 +68,9 @@ class MainBottomSheetCoordinator: CoordinatorObject {
             }
             .assign(to: \.manageTokensCoordinator, on: self, ownership: .weak)
             .store(in: &bag)
-
-        bottomSheetVisibilityPublisher
-            .map { [weak self] isShown in
-                return isShown ? self?.__overlayViewModel : nil
-            }
-            .assign(to: \.overlayViewModel, on: self, ownership: .weak)
-            .store(in: &bag)
     }
 }
 
 extension MainBottomSheetCoordinator {
     struct Options {}
-}
-
-extension MainBottomSheetCoordinator: MainBottomSheetContentRoutable {
-    func openTokenSelector(coinId: String, with tokenItems: [TokenItem]) {
-        let coordinator = ManageTokensNetworkSelectorCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(coinId: coinId, tokenItems: tokenItems))
-        networkSelectorCoordinator = coordinator
-    }
-
-    func showGenerateAddressesWarning(
-        numberOfNetworks: Int,
-        currentWalletNumber: Int,
-        totalWalletNumber: Int,
-        action: @escaping () -> Void
-    ) {
-        __overlayViewModel = GenerateAddressesViewModel(
-            numberOfNetworks: numberOfNetworks,
-            currentWalletNumber: currentWalletNumber,
-            totalWalletNumber: totalWalletNumber,
-            didTapGenerate: action
-        )
-    }
-
-    func hideGenerateAddressesWarning() {
-        __overlayViewModel = nil
-    }
 }
