@@ -114,6 +114,7 @@ struct TokenIcon_Preview: PreviewProvider {
                 ForEach(coins, id: \.id) { coin in
                     TokenIcon(
                         tokenIconInfo: .init(
+                            name: "",
                             blockchainIconName: coin.iconName,
                             imageURL: TokenIconURLBuilder().iconURL(id: coin.id, size: .large),
                             isCustom: true,
