@@ -14,7 +14,7 @@ struct SendWalletSummaryView: View {
     var body: some View {
         GroupedSection(viewModel) { viewModel in
             VStack(alignment: .leading, spacing: 8) {
-                Text(viewModel.walletNameTitle(boldFont: UIFonts.Bold.footnote))
+                Text(viewModel.walletNameTitle(font: UIFonts.Regular.footnote))
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
                 Text(viewModel.totalBalance)
