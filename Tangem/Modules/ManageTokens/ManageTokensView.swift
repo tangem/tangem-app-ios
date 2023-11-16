@@ -22,18 +22,15 @@ struct ManageTokensView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Coin market cap")
+            Text(Localization.manageTokensListHeaderTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            Text("Couldn’t find this token, you can add it manually")
+            Text(Localization.manageTokensListHeaderSubtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 .lineLimit(1)
         }
-        .frame(
-            maxWidth: .infinity,
-            alignment: .topLeading
-        )
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
     }
@@ -49,7 +46,7 @@ struct ManageTokensView: View {
             if viewModel.hasNextPage {
                 HStack(alignment: .center) {
                     ActivityIndicatorView(color: .gray)
-                        .onAppear(perform: viewModel.batch)
+                        .onAppear(perform: viewModel.fetchMore)
                 }
             }
         }
