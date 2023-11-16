@@ -216,26 +216,27 @@ final class MainViewModel: ObservableObject {
     private func addPendingUserWalletModelsIfNeeded(completion: @escaping () -> Void) {
         if pendingUserWalletModelsToAdd.isEmpty {
             completion()
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.addPendingUserWalletModelsDelay) { [weak self] in
-                defer { completion() }
+            return
+        }
 
-                guard let self = self else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pendingWalletsInsertionDelay) { [weak self] in
+            defer { completion() }
 
-                let userWalletModels = pendingUserWalletModelsToAdd
-                pendingUserWalletModelsToAdd.removeAll()
+            guard let self = self else { return }
 
-                var processedUserWalletIds: Set<Data> = []
-                for userWalletModel in userWalletModels {
-                    processedUserWalletIds.insert(userWalletModel.userWallet.userWalletId)
-                    addNewPage(for: userWalletModel)
-                }
-                pendingUserWalletIdsToUpdate.subtract(processedUserWalletIds)
+            let userWalletModels = pendingUserWalletModelsToAdd
+            pendingUserWalletModelsToAdd.removeAll()
 
-                if shouldRecreatePagesAfterAddingPendingWalletModels {
-                    shouldRecreatePagesAfterAddingPendingWalletModels = false
-                    recreatePages()
-                }
+            var processedUserWalletIds: Set<Data> = []
+            for userWalletModel in userWalletModels {
+                processedUserWalletIds.insert(userWalletModel.userWallet.userWalletId)
+                addNewPage(for: userWalletModel)
+            }
+            pendingUserWalletIdsToUpdate.subtract(processedUserWalletIds)
+
+            if shouldRecreatePagesAfterAddingPendingWalletModels {
+                shouldRecreatePagesAfterAddingPendingWalletModels = false
+                recreatePages()
             }
         }
     }
@@ -432,6 +433,6 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 private extension MainViewModel {
     private enum Constants {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
-        static let addPendingUserWalletModelsDelay = 1.0
+        static let pendingWalletsInsertionDelay = 1.0
     }
 }
