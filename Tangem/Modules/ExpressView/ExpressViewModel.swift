@@ -162,7 +162,7 @@ final class ExpressViewModel: ObservableObject {
 private extension ExpressViewModel {
     func openTokenListView() {
         // [REDACTED_TODO_COMMENT]
-        coordinator.presentSwappingTokenList(walletType: .source(initialWallet))
+        coordinator.presentSwappingTokenList(walletType: .fromSource(initialWallet))
     }
 
     func openSuccessView(transactionData: SwappingTransactionData, transactionID: String) {

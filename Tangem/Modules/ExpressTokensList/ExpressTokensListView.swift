@@ -25,6 +25,7 @@ struct ExpressTokensListView: View {
             .navigationTitle(Localization.swappingTokenListTitle)
             .searchableCompat(text: $viewModel.searchText)
         }
+        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
