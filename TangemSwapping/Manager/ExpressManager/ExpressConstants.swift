@@ -1,5 +1,5 @@
 //
-//  ExpressCurrency.swift
+//  ExpressConstants.swift
 //  TangemSwapping
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,6 @@
 
 import Foundation
 
-public struct ExpressCurrency: Hashable {
-    let contractAddress: String
-    let network: String
+public enum ExpressConstants {
+    public static let coinContractAddress = "0"
 }
