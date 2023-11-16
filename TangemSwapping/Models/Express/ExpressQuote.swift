@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExpressQuote {
+public struct ExpressQuote: Hashable {
     public let expectAmount: Decimal
     public let minAmount: Decimal
     public let allowanceContract: String?
