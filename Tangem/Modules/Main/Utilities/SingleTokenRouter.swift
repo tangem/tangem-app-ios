@@ -70,7 +70,8 @@ class SingleTokenRouter: SingleTokenRoutable {
         coordinator.openSend(
             amountToSend: amountToSend,
             blockchainNetwork: walletModel.blockchainNetwork,
-            cardViewModel: cardViewModel
+            cardViewModel: cardViewModel,
+            walletModel: walletModel
         )
     }
 
@@ -131,7 +132,8 @@ class SingleTokenRouter: SingleTokenRoutable {
             amountToSend: amount,
             destination: request.targetAddress,
             blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
+            cardViewModel: cardViewModel,
+            walletModel: walletModel
         )
     }
 
