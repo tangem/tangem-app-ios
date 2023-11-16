@@ -10,4 +10,8 @@ import Foundation
 
 class SendRoutableMock: SendRoutable {
     init() {}
+
+    func explore(url: URL) {}
+    func share(url: URL) {}
+    func dismiss() {}
 }
