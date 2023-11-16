@@ -83,6 +83,10 @@ private extension ManageTokensViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] value in
+                if !value.isEmpty {
+                    Analytics.log(.manageTokensSearched)
+                }
+
                 self?.fetch(with: value)
             }
             .store(in: &bag)
