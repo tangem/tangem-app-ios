@@ -16,18 +16,15 @@ final class MainBottomSheetContentViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let coordinator: MainBottomSheetContentRoutable
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
     init(
-        searchTextPublisher: some Publisher<String, Never>,
-        coordinator: MainBottomSheetContentRoutable
+        manageTokensViewModel: ManageTokensViewModel?,
+        searchTextPublisher: some Publisher<String, Never>
     ) {
-        self.coordinator = coordinator
-
-        manageTokensViewModel = .init(coordinator: coordinator)
+        self.manageTokensViewModel = manageTokensViewModel
 
         bind(searchTextPublisher: searchTextPublisher)
     }
