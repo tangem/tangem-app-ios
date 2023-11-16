@@ -40,14 +40,14 @@ class ListDataLoader {
 
     private var cached: [CoinModel] = []
     private var cachedSearch: [String: [CoinModel]] = [:]
-    private var lastSearchText = ""
+    private var lastSearchText: String?
 
     init(supportedBlockchains: Set<Blockchain>, exchangeable: Bool? = nil) {
         self.supportedBlockchains = supportedBlockchains
         self.exchangeable = exchangeable
     }
 
-    func reset(_ searchText: String) {
+    func reset(_ searchText: String?) {
         canFetchMore = true
         items = []
         currentPage = 0
@@ -77,7 +77,9 @@ class ListDataLoader {
     }
 
     func fetchMore() {
-        fetch(lastSearchText)
+        if let lastSearchText {
+            fetch(lastSearchText)
+        }
     }
 }
 
