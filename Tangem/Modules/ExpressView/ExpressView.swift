@@ -19,8 +19,6 @@ struct ExpressView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            logo1inch
-
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
@@ -30,11 +28,13 @@ struct ExpressView: View {
 
                 informationSection
 
-                mainButton
+                feeSection
             }
             .scrollDismissesKeyboardCompat(true)
             // For animate button below informationSection
             .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
+
+            mainButton
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
@@ -119,36 +119,34 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var informationSection: some View {
-        GroupedSection(viewModel.informationSectionViewModels) { item in
-            switch item {
-            case .fee(let viewModel):
-                SwappingFeeRowView(viewModel: viewModel)
-            case .warning(let viewModel):
-                DefaultWarningRow(viewModel: viewModel)
-            case .feePolicy(let viewModel):
-                SelectableSwappingFeeRowView(viewModel: viewModel)
-            }
+        GroupedSection(viewModel.informationSectionViewModels) {
+            DefaultWarningRow(viewModel: $0)
         }
         .verticalPadding(0)
     }
 
     @ViewBuilder
-    private var mainButton: some View {
-        MainButton(
-            title: viewModel.mainButtonState.title,
-            icon: viewModel.mainButtonState.icon,
-            isDisabled: !viewModel.mainButtonIsEnabled,
-            action: viewModel.didTapMainButton
-        )
+    private var feeSection: some View {
+        GroupedSection(viewModel.expressFeeRowViewModel) {
+            ExpressFeeRowView(viewModel: $0)
+        }
+        .interSectionPadding(12)
+        .verticalPadding(0)
     }
 
     @ViewBuilder
-    private var logo1inch: some View {
+    private var mainButton: some View {
         VStack(spacing: 0) {
             Spacer()
 
-            Assets.logo1inch.image
+            MainButton(
+                title: viewModel.mainButtonState.title,
+                icon: viewModel.mainButtonState.icon,
+                isDisabled: !viewModel.mainButtonIsEnabled,
+                action: viewModel.didTapMainButton
+            )
         }
+        .padding(.horizontal, 14)
         .padding(.bottom, UIApplication.safeAreaInsets.bottom + 10)
         .edgesIgnoringSafeArea(.bottom)
         .ignoresSafeArea(.keyboard)
