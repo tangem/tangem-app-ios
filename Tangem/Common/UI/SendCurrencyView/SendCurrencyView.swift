@@ -55,7 +55,7 @@ struct SendCurrencyView: View {
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits)
+            SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits, font: Fonts.Regular.title1)
                 .maximumFractionDigits(viewModel.maximumFractionDigits)
                 .didTapMaxAmount { didTapMaxAmountAction?() }
                 .simultaneousGesture(TapGesture().onEnded {

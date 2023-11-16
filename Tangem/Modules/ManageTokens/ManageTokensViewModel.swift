@@ -34,10 +34,14 @@ final class ManageTokensViewModel: ObservableObject {
     private var cacheExistListCoinId: [String] = []
     private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
-    init(coordinator: ManageTokensRoutable) {
+    init(
+        searchTextPublisher: (some Publisher<String, Never>)?,
+        coordinator: ManageTokensRoutable
+    ) {
         self.coordinator = coordinator
 
-        bind()
+        searchBind(searchTextPublisher: searchTextPublisher)
+        derivationBind()
     }
 
     func onAppear() {
@@ -47,18 +51,18 @@ final class ManageTokensViewModel: ObservableObject {
         loader.reset("")
     }
 
-    func fetch(with searchText: String = "") {
-        loader.fetch(searchText)
-    }
-
-    func batch() {
-        loader.batch()
+    func fetchMore() {
+        loader.fetchMore()
     }
 }
 
 // MARK: - Private Implementation
 
 private extension ManageTokensViewModel {
+    func fetch(with searchText: String = "") {
+        loader.fetch(searchText)
+    }
+
     /// Obtain supported token list from UserWalletModels to determine the cell action type
     /// Should be reset after updating the list of tokens
     func updateAlreadyExistTokenUserList() {
@@ -72,7 +76,22 @@ private extension ManageTokensViewModel {
         cacheExistListCoinId = existEntriesList
     }
 
-    func bind() {
+    func searchBind(searchTextPublisher: (some Publisher<String, Never>)?) {
+        searchTextPublisher?
+            .dropFirst()
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] value in
+                if !value.isEmpty {
+                    Analytics.log(.manageTokensSearched)
+                }
+
+                self?.fetch(with: value)
+            }
+            .store(in: &bag)
+    }
+
+    func derivationBind() {
         // Used for update state generateAddressesViewModel property
         let pendingDerivationsCountPublishers = userWalletRepository.models
             .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
