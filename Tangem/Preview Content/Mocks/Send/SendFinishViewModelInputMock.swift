@@ -15,4 +15,5 @@ class SendFinishViewModelInputMock: SendFinishViewModelInput {
     var destinationTextBinding: Binding<String> { .constant("0x0123123") }
     var feeTextBinding: Binding<String> { .constant("Fee") }
     var transactionURL: AnyPublisher<URL?, Never> { .just(output: nil) }
+    var transactionTime: AnyPublisher<Date?, Never> { .just(output: Date())}
 }
