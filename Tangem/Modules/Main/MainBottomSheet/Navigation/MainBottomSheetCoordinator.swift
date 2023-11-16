@@ -22,7 +22,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var networkSelectorCoordinator: ManageTokensNetworkSelectorCoordinator? = nil
+    @Published var manageTokensCoordinator: ManageTokensCoordinator?
 
     // MARK: - Child view models
 
@@ -31,8 +31,8 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     @Published private(set) var contentViewModel: MainBottomSheetContentViewModel? = nil
     private lazy var __contentViewModel = MainBottomSheetContentViewModel(
-        searchTextPublisher: __headerViewModel.enteredSearchTextPublisher,
-        coordinator: self
+        manageTokensViewModel: manageTokensCoordinator?.manageTokensViewModel,
+        searchTextPublisher: __headerViewModel.enteredSearchTextPublisher
     )
 
     // MARK: - Private Properties
@@ -48,10 +48,15 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
 
+        start()
+
         bind()
     }
 
-    func start(with options: Options = .init()) {}
+    func start(with options: Options = .init()) {
+        manageTokensCoordinator = .init(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        manageTokensCoordinator?.start(with: .init())
+    }
 
     private func bind() {
         let bottomSheetVisibilityPublisher = bottomSheetVisibility
@@ -76,12 +81,4 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
 extension MainBottomSheetCoordinator {
     struct Options {}
-}
-
-extension MainBottomSheetCoordinator: MainBottomSheetContentRoutable {
-    func openTokenSelector(coinId: String, with tokenItems: [TokenItem]) {
-        let coordinator = ManageTokensNetworkSelectorCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(coinId: coinId, tokenItems: tokenItems))
-        networkSelectorCoordinator = coordinator
-    }
 }
