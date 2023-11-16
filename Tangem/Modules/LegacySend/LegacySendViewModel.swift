@@ -228,14 +228,14 @@ class LegacySendViewModel: ObservableObject {
 
         cardViewModel
             .objectWillChange
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
 
         $destination // destination validation
-            .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
+            .debounce(for: 1.0, scheduler: DispatchQueue.main, options: nil)
             .removeDuplicates()
             .sink { [unowned self] newText in
                 validateDestination(newText)
@@ -326,7 +326,7 @@ class LegacySendViewModel: ObservableObject {
                     }
                     .eraseToAnyPublisher()
             }
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
             .sink(receiveValue: { [unowned self] fees in
                 isFeeLoading = false
