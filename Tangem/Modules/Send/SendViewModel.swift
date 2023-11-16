@@ -141,6 +141,15 @@ final class SendViewModel: ObservableObject {
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
             .store(in: &bag)
+
+        sendModel
+            .transactionFinished
+            .sink { [weak self] transactionFinished in
+                if transactionFinished {
+                    self?.openStep(.finish)
+                }
+            }
+            .store(in: &bag)
     }
 }
 
@@ -157,5 +166,19 @@ extension SendViewModel: SendSummaryRoutable {
 extension SendViewModel: SendAmountViewModelDelegate {
     func didTapMaxAmount() {
         sendModel.useMaxAmount()
+    }
+}
+
+extension SendViewModel: SendFinishRoutable {
+    func explore(url: URL) {
+        coordinator.explore(url: url)
+    }
+
+    func share(url: URL) {
+        coordinator.share(url: url)
+    }
+
+    func close() {
+        coordinator.dismiss()
     }
 }

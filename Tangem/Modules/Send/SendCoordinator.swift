@@ -22,6 +22,8 @@ class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var modalWebViewModel: WebViewContainerViewModel?
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -52,4 +54,13 @@ extension SendCoordinator {
 
 // MARK: - SendRoutable
 
-extension SendCoordinator: SendRoutable {}
+extension SendCoordinator: SendRoutable {
+    func explore(url: URL) {
+        modalWebViewModel = WebViewContainerViewModel(url: url, title: "")
+    }
+
+    func share(url: URL) {
+        let shareActivityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        AppPresenter.shared.show(shareActivityVC)
+    }
+}
