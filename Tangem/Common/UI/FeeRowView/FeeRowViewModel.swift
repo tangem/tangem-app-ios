@@ -12,8 +12,24 @@ struct FeeRowViewModel: Identifiable {
     let id = UUID()
 
     let option: FeeOption
-    let subtitle: LoadingValue<String>
     let isSelected: BindingValue<Bool>
+
+    var subtitleText: String {
+        switch subtitle {
+        case .loading:
+            return ""
+        case .loaded(let value):
+            return value
+        case .failedToLoad(let error):
+            return "—"
+        }
+    }
+
+    var isLoading: Bool {
+        subtitle.isLoading
+    }
+
+    private let subtitle: LoadingValue<String>
 
     init(
         option: FeeOption,
