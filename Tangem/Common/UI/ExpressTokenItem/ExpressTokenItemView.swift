@@ -12,6 +12,8 @@ import SwiftUI
 struct ExpressTokenItemView: View {
     private let viewModel: ExpressTokenItemViewModel
 
+    private let iconSize = CGSize(width: 36, height: 36)
+
     init(viewModel: ExpressTokenItemViewModel) {
         self.viewModel = viewModel
     }
@@ -19,7 +21,7 @@ struct ExpressTokenItemView: View {
     var body: some View {
         Button(action: viewModel.itemDidTap) {
             HStack(spacing: 12) {
-                TokenIconItemView(viewModel: viewModel.tokenIconItem)
+                TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: iconSize)
                     .saturation(viewModel.isDisable ? 0 : 1)
 
                 infoView
@@ -70,9 +72,12 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
     static let viewModels = [
         ExpressTokenItemViewModel(
             id: "Bitcoin".hashValue,
-            tokenIconItem: TokenIconItemViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                networkURL: nil
+            tokenIconInfo: TokenIconInfo(
+                name: "",
+                blockchainIconName: "bitcoin",
+                imageURL: TokenIconURLBuilder().iconURL(id: "", size: .large),
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Bitcoin",
             symbol: "BTC",
@@ -82,9 +87,12 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
             id: "Ethereum".hashValue,
-            tokenIconItem: TokenIconItemViewModel(
+            tokenIconInfo: TokenIconInfo(
+                name: "",
+                blockchainIconName: "ethereum",
                 imageURL: TokenIconURLBuilder().iconURL(id: "tether", size: .large),
-                networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small)
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Ethereum",
             symbol: "ETH",
@@ -94,9 +102,12 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
             id: "Tether".hashValue,
-            tokenIconItem: TokenIconItemViewModel(
+            tokenIconInfo: TokenIconInfo(
+                name: "",
+                blockchainIconName: "ethereum",
                 imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
-                networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small)
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Dai",
             symbol: "DAI",
