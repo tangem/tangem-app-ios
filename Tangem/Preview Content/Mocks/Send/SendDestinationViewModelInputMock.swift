@@ -29,4 +29,8 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
     var networkName: String {
         "Ethereum"
     }
+
+    var additionalField: SendAdditionalFields? {
+        .memo
+    }
 }
