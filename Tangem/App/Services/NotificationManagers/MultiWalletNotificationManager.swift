@@ -16,10 +16,10 @@ final class MultiWalletNotificationManager {
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var updateSubscription: AnyCancellable?
 
-    init(walletModelsManager: WalletModelsManager) {
+    init(walletModelsManager: WalletModelsManager, contextDataProvider: AnalyticsContextDataProvider?) {
         self.walletModelsManager = walletModelsManager
 
-        analyticsService.setup(with: self)
+        analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
         bind()
     }
 
