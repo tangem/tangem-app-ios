@@ -192,4 +192,15 @@ extension WarningEvent {
     var analyticsParams: [Analytics.ParameterKey: String] {
         [:]
     }
+
+    /// Determine if analytics event should be sent only once and tracked by service
+    var isOneShotAnalyticsEvent: Bool {
+        switch self {
+            /// Missing derivation notification can be tracked multiple times because if user make changes for
+            /// one card on different devices the `Missing derivation` notification will be updated
+            /// and we need to track this update after PTR
+        case .missingDerivation: return false
+        default: return true
+        }
+    }
 }
