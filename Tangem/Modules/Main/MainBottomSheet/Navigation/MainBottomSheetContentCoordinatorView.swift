@@ -15,10 +15,8 @@ struct MainBottomSheetContentCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainBottomSheetCoordinator
 
     var body: some View {
-        ZStack {
-            if let manageTokensCoordinator = coordinator.manageTokensCoordinator {
-                ManageTokensCoordinatorView(coordinator: manageTokensCoordinator)
-            }
+        if let manageTokensCoordinator = coordinator.manageTokensCoordinator {
+            ManageTokensCoordinatorView(coordinator: manageTokensCoordinator)
         }
     }
 }
