@@ -11,14 +11,17 @@ import Combine
 
 class NotificationsAnalyticsService {
     private weak var notificationManager: NotificationManager?
+    private weak var contextDataProvider: AnalyticsContextDataProvider?
 
     private var subscription: AnyCancellable?
     private var alreadyTrackedEvents: Set<Analytics.Event> = []
 
     init() {}
 
-    func setup(with notificationManager: NotificationManager) {
+    func setup(with notificationManager: NotificationManager, contextDataProvider: AnalyticsContextDataProvider?) {
         self.notificationManager = notificationManager
+        self.contextDataProvider = contextDataProvider
+
         bind()
     }
 
@@ -43,7 +46,10 @@ class NotificationsAnalyticsService {
             return
         }
 
-        let notificationParams = notification.settings.event.analyticsParams
+        var notificationParams = notification.settings.event.analyticsParams
+        if let contextData = contextDataProvider?.getAnalyticsContextData() {
+            notificationParams.merge(contextData.analyticsParams, uniquingKeysWith: { old, new in old })
+        }
 
         if event.isOneShotAnalyticsEvent, alreadyTrackedEvents.contains(analyticsEvent) {
             return
