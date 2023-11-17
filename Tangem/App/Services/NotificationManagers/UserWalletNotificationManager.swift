@@ -29,11 +29,15 @@ final class UserWalletNotificationManager {
     private var bag = Set<AnyCancellable>()
     private var numberOfPendingDerivations: Int = 0
 
-    init(userWalletModel: UserWalletModel, signatureCountValidator: SignatureCountValidator?) {
+    init(
+        userWalletModel: UserWalletModel,
+        signatureCountValidator: SignatureCountValidator?,
+        contextDataProvider: AnalyticsContextDataProvider?
+    ) {
         self.userWalletModel = userWalletModel
         self.signatureCountValidator = signatureCountValidator
 
-        analyticsService.setup(with: self)
+        analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
 
     private func createNotifications() {
