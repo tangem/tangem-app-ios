@@ -20,6 +20,9 @@ protocol SendDestinationViewModelInput {
     var networkName: String { get }
 
     var additionalField: SendAdditionalFields? { get }
+
+    var suggestedWallets: [SendSuggestedDestinationWallet] { get }
+    var recentTransactions: [SendSuggestedDestinationTransactionRecord] { get }
 }
 
 protocol SendDestinationViewDelegate: AnyObject {
@@ -34,6 +37,7 @@ class SendDestinationViewModel: ObservableObject {
 
     var addressViewModel: SendDestinationInputViewModel?
     var additionalFieldViewModel: SendDestinationInputViewModel?
+    var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
@@ -71,6 +75,13 @@ class SendDestinationViewModel: ObservableObject {
                     self?.delegate?.didSelectAdditionalField(additionalField)
                 }
             )
+        }
+
+        if !input.suggestedWallets.isEmpty, !input.recentTransactions.isEmpty {
+            suggestedDestinationViewModel = SendSuggestedDestinationViewModel(wallets: input.suggestedWallets, recentTransactions: input.recentTransactions) {
+                [weak self] destination in
+                self?.delegate?.didSelectDestination(destination)
+            }
         }
 
         bind(from: input)
