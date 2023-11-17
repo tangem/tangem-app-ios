@@ -20,7 +20,7 @@ struct FeeRowViewModel: Identifiable {
             return ""
         case .loaded(let value):
             return value
-        case .failedToLoad(let error):
+        case .failedToLoad:
             return "—"
         }
     }
