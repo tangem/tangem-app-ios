@@ -10,8 +10,12 @@ import Foundation
 import Combine
 
 class ManageTokensCoordinator: CoordinatorObject {
-    var dismissAction: Action<Void>
-    var popToRootAction: Action<PopToRootOptions>
+    // MARK: - Dependencies
+
+    let dismissAction: Action<Void>
+    let popToRootAction: Action<PopToRootOptions>
+
+    weak var delegate: ManageTokensCoordinatorDelegate?
 
     // MARK: - Root Published
 
@@ -32,6 +36,7 @@ class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Implmentation
 
     func start(with options: ManageTokensCoordinator.Options) {
+        assert(delegate != nil)
         manageTokensViewModel = .init(searchTextPublisher: options.searchTextPublisher, coordinator: self)
     }
 }
@@ -57,11 +62,16 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
         totalWalletNumber: Int,
         action: @escaping () -> Void
     ) {
-        fatalError("\(#function) not implemented yet!")
+        delegate?.showGenerateAddressesWarning(
+            numberOfNetworks: numberOfNetworks,
+            currentWalletNumber: currentWalletNumber,
+            totalWalletNumber: totalWalletNumber,
+            action: action
+        )
     }
 
     func hideGenerateAddressesWarning() {
-        fatalError("\(#function) not implemented yet!")
+        delegate?.hideGenerateAddressesWarning()
     }
 }
 
