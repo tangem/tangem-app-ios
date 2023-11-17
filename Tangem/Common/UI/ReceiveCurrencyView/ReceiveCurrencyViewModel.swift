@@ -15,7 +15,7 @@ struct ReceiveCurrencyViewModel: Identifiable {
     private(set) var cryptoAmountState: State
     private(set) var fiatAmountState: State
 
-    let tokenIcon: SwappingTokenIconViewModel
+    let tokenIconState: SwappingTokenIconView.State
 
     var balanceString: String {
         (balance ?? 0).groupedFormatted()
@@ -36,13 +36,13 @@ struct ReceiveCurrencyViewModel: Identifiable {
         canChangeCurrency: Bool,
         cryptoAmountState: State,
         fiatAmountState: State,
-        tokenIcon: SwappingTokenIconViewModel
+        tokenIconState: SwappingTokenIconView.State
     ) {
         self.balance = balance
         self.canChangeCurrency = canChangeCurrency
         self.cryptoAmountState = cryptoAmountState
         self.fiatAmountState = fiatAmountState
-        self.tokenIcon = tokenIcon
+        self.tokenIconState = tokenIconState
     }
 
     mutating func update(cryptoAmountState: State) {
@@ -78,6 +78,6 @@ extension ReceiveCurrencyViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(cryptoAmountState)
         hasher.combine(fiatAmountState)
-        hasher.combine(tokenIcon)
+        hasher.combine(tokenIconState)
     }
 }

@@ -13,7 +13,7 @@ extension WalletModel {
     enum SendBlockedReason {
         case cantSignLongTransactions
         case hasPendingCoinTx(symbol: String)
-        case notEnoughtFeeForTokenTx(tokenName: String, networkName: String, coinSymbol: String, networkIconName: String)
+        case notEnoughFeeForTokenTx(tokenName: String, networkName: String, coinSymbol: String, networkIconName: String)
 
         var description: String {
             switch self {
@@ -21,7 +21,7 @@ extension WalletModel {
                 return Localization.warningLongTransactionMessage
             case .hasPendingCoinTx(let symbol):
                 return Localization.warningSendBlockedPendingTransactionsMessage(symbol)
-            case .notEnoughtFeeForTokenTx(let tokenName, let networkName, let coinSymbol, _):
+            case .notEnoughFeeForTokenTx(let tokenName, let networkName, let coinSymbol, _):
                 return Localization.warningSendBlockedFundsForFeeMessage(tokenName, networkName, tokenName, networkName, coinSymbol)
             }
         }
