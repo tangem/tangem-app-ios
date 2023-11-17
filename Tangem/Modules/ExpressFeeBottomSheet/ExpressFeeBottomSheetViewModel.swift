@@ -84,6 +84,15 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
                 if newValue {
                     root.selectedFeeOption = option
                     root.coordinator.closeExpressFeeBottomSheet()
+
+                    switch option {
+                    case .market:
+                        root.expressInteractor.update(gasPricePolicy: .normal)
+                    case .fast:
+                        root.expressInteractor.update(gasPricePolicy: .priority)
+                    default:
+                        break
+                    }
                 }
             })
         )
