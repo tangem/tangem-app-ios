@@ -14,7 +14,6 @@ actor CommonExpressManager {
 
     private let expressAPIProvider: ExpressAPIProvider
     private let allowanceProvider: AllowanceProvider
-    private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let logger: SwappingLogger
 
     // MARK: - State
@@ -24,25 +23,21 @@ actor CommonExpressManager {
     private var _amount: Decimal?
 
     // 2. All provider in the express
-    private let providers: CurrentValueSubject<[ExpressProvider], Never> = .init([])
-    // 3. Here ids from `/pair` for each pair. Will see, maybe the cache will be deleted
-    private let availableProviders: CurrentValueSubject<[ExpressManagerSwappingPair: [Int]], Never> = .init([:])
-    // 4. Here from all `_providers` with filled the quote from `/quote`.
-    // Will see, maybe the cache will be deleted
-    private let availableQuotes: CurrentValueSubject<[ExpressManagerSwappingPair: [ExpectedQuote]], Never> = .init([:])
-    // 5. Here the provider with his quote which was selected from user or autoselected as the best rate
-    // Will see, maybe the cache will be deleted
-    private let selectedQuote: CurrentValueSubject<[ExpressManagerSwappingPair: ExpectedQuote], Never> = .init([:])
+    private var providers: [ExpressProvider] = []
+    // 3. Here ids from `/pair` for each pair
+    private var availableProviders: [Int] = []
+    // 4. Here from all `providers` with filled the quote from `/quote`.
+    private var availableQuotes: [ExpectedQuote] = []
+    // 5. Here the provider with his quote which was selected from user
+    private var selectedQuote: ExpectedQuote?
 
     init(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
-        expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         logger: SwappingLogger
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.allowanceProvider = allowanceProvider
-        self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.logger = logger
     }
 }
@@ -58,49 +53,16 @@ extension CommonExpressManager: ExpressManager {
         _amount
     }
 
+    func getSelectedQuote() -> ExpectedQuote? {
+        return selectedQuote
+    }
+
     func getSelectedProvider() -> ExpressProvider? {
-        guard let pair = _pair else { return nil }
-
-        return selectedQuote.value[pair]?.provider
-    }
-
-    nonisolated var providersPublisher: AnyPublisher<[ExpressProvider], Never> {
-        providers.eraseToAnyPublisher()
-    }
-
-    nonisolated var availableQuotesPublisher: AnyPublisher<[ExpectedQuote], Never> {
-        availableQuotes
-            // Should setFailureType for asyncMap works
-            .setFailureType(to: Error.self)
-            .asyncMap { [weak self] quotes in
-                if let pair = await self?._pair {
-                    return quotes[pair] ?? []
-                }
-
-                self?.logger.debug("Pair not found")
-                return []
-            }
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
-    }
-
-    nonisolated var selectedQuotePublisher: AnyPublisher<ExpectedQuote?, Never> {
-        selectedQuote
-            // Should setFailureType for asyncMap works
-            .setFailureType(to: Error.self)
-            .asyncMap { [weak self] quotes in
-                if let pair = await self?._pair {
-                    return quotes[pair]
-                }
-
-                self?.logger.debug("Pair not found")
-                return nil
-            }
-            .replaceError(with: nil)
-            .eraseToAnyPublisher()
+        return getSelectedQuote()?.provider
     }
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
+        assert(pair.source.expressCurrency != pair.destination.expressCurrency, "Pair has equal currencies")
         _pair = pair
 
         return try await update()
@@ -113,22 +75,17 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func updateSelectedProvider(provider: ExpressProvider) async throws -> ExpressManagerState {
-        guard let pair = _pair else {
-            logger.debug("ExpressManagerSwappingPair not found")
-            throw ExpressManagerError.pairNotFound
-        }
-
-        guard let quote = availableQuotes.value[pair]?.first(where: { $0.provider == provider }) else {
+        guard let quote = availableQuotes.first(where: { $0.provider == provider }) else {
             throw ExpressManagerError.availableQuotesForProviderNotFound
         }
 
-        selectedQuote.value[pair] = quote
+        selectedQuote = quote
 
         return try await update()
     }
 
     func update() async throws -> ExpressManagerState {
-        try await getState()
+        try await updateState()
     }
 }
 
@@ -136,7 +93,7 @@ extension CommonExpressManager: ExpressManager {
 
 private extension CommonExpressManager {
     /// Return the state which checking the all properties
-    func getState() async throws -> ExpressManagerState {
+    func updateState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
             logger.debug("ExpressManagerSwappingPair not found")
             return .idle
@@ -174,32 +131,28 @@ private extension CommonExpressManager {
 
 private extension CommonExpressManager {
     func getProviders() async throws -> [ExpressProvider] {
-        guard providers.value.isEmpty else {
-            return providers.value
+        guard providers.isEmpty else {
+            return providers
         }
 
         let providers = try await expressAPIProvider.providers()
-        self.providers.send(providers)
+        self.providers = providers
 
         return providers
     }
 
     @discardableResult
     func getAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
-        if let providers = availableProviders.value[pair] {
-            return providers
-        }
-
         let providers = try await loadAvailableProviders(pair: pair)
-        availableProviders.value[pair] = providers
+        availableProviders = providers
 
         return providers
     }
 
     func loadAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
         let pairs = try await expressAPIProvider.pairs(
-            from: [pair.source.currency],
-            to: [pair.destination.currency]
+            from: [pair.source.expressCurrency],
+            to: [pair.destination.expressCurrency]
         )
 
         guard let pair = pairs.first else {
@@ -216,7 +169,7 @@ private extension CommonExpressManager {
     /// This method will always send the request without cache
     func getQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
         let quotes = try await loadQuotes(request: request)
-        availableQuotes.value[request.pair] = quotes
+        availableQuotes = quotes
 
         return quotes
     }
@@ -225,13 +178,12 @@ private extension CommonExpressManager {
         request: ExpressManagerSwappingPairRequest,
         quotes: [ExpectedQuote]
     ) async throws -> ExpectedQuote {
-        if let quote = selectedQuote.value[request.pair] {
+        if let quote = selectedQuote {
             return quote
         }
 
         let best = try bestQuote(from: quotes)
-        selectedQuote.value[request.pair] = best
-
+        selectedQuote = best
         return best
     }
 
@@ -254,6 +206,10 @@ private extension CommonExpressManager {
     }
 
     func bestQuote(from quotes: [ExpectedQuote]) throws -> ExpectedQuote {
+        guard !quotes.isEmpty else {
+            throw ExpressManagerError.quotesNotFound
+        }
+
         let sortedQuotes = quotes.sorted { lhs, rhs in
             let lhsAmount = lhs.quote?.expectAmount ?? 0
             let rhsAmount = rhs.quote?.expectAmount ?? 0
@@ -319,15 +275,7 @@ private extension CommonExpressManager {
             }
         }
 
-        // 3. Check Pending
-
-        let hasPendingTransaction = expressPendingTransactionRepository.hasPending(for: request.pair.source.currency.network)
-
-        if hasPendingTransaction {
-            return .hasPendingTransaction
-        }
-
-        // 4. Check Balance
+        // 3. Check Balance
 
         let sourceBalance = try await request.pair.source.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
@@ -343,16 +291,21 @@ private extension CommonExpressManager {
     // MARK: Permission
 
     func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
-        let contractAddress = request.pair.source.currency.contractAddress
+        let contractAddress = request.pair.source.expressCurrency.contractAddress
+
+        if contractAddress == ExpressConstants.coinContractAddress {
+            return false
+        }
 
         assert(contractAddress != ExpressConstants.coinContractAddress)
 
-        let allowance = try await allowanceProvider.getAllowance(
-            owner: request.pair.source.address,
+        let allowanceWEI = try await allowanceProvider.getAllowance(
+            owner: request.pair.source.defaultAddress,
             to: spender,
             contract: contractAddress
         )
 
+        let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
         return allowance < request.amount
     }
 }
@@ -362,7 +315,7 @@ private extension CommonExpressManager {
 private extension CommonExpressManager {
     func loadSwappingData(request: ExpressManagerSwappingPairRequest, providerId: Int) async throws -> ExpressTransactionData {
         let item = makeExpressSwappableItem(request: request, providerId: providerId)
-        let data = try await expressAPIProvider.exchangeData(item: item, destinationAddress: item.destination.address)
+        let data = try await expressAPIProvider.exchangeData(item: item)
         return data
     }
 }
