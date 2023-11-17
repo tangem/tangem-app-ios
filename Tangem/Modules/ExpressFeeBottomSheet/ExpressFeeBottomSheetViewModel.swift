@@ -82,9 +82,6 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
                 root.selectedFeeOption == option
             }, set: { root, newValue in
                 if newValue {
-                    root.selectedFeeOption = option
-                    root.coordinator.closeExpressFeeBottomSheet()
-
                     switch option {
                     case .market:
                         root.expressInteractor.update(gasPricePolicy: .normal)
@@ -93,6 +90,9 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
                     default:
                         break
                     }
+
+                    root.selectedFeeOption = option
+                    root.coordinator.closeExpressFeeBottomSheet()
                 }
             })
         )
