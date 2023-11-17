@@ -23,11 +23,6 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
-    private lazy var __manageTokensCoordinator: ManageTokensCoordinator = {
-        let coordinator = ManageTokensCoordinator()
-        coordinator.delegate = self
-        return coordinator
-    }()
 
     // MARK: - Child view models
 
@@ -53,27 +48,31 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     }
 
     func start(with options: Void = ()) {
-        __manageTokensCoordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
+        setupManageTokens()
     }
 
     private func bind() {
-        let bottomSheetVisibilityPublisher = bottomSheetVisibility
+        bottomSheetVisibility
             .isShownPublisher
-            .share(replay: 1)
-
-        bottomSheetVisibilityPublisher
             .map { [weak self] isShown in
                 return isShown ? self?.__headerViewModel : nil
             }
             .assign(to: \.headerViewModel, on: self, ownership: .weak)
             .store(in: &bag)
+    }
 
-        bottomSheetVisibilityPublisher
-            .map { [weak self] isShown in
-                return isShown ? self?.__manageTokensCoordinator : nil
-            }
-            .assign(to: \.manageTokensCoordinator, on: self, ownership: .weak)
-            .store(in: &bag)
+    private func setupManageTokens() {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.manageTokensCoordinator = nil
+        }
+
+        let coordinator = ManageTokensCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.delegate = self
+        coordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
+        manageTokensCoordinator = coordinator
     }
 }
 
