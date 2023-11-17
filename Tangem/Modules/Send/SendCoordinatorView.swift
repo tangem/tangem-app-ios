@@ -1,0 +1,38 @@
+//
+//  SendCoordinatorView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+
+struct SendCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: SendCoordinator
+
+    init(coordinator: SendCoordinator) {
+        self.coordinator = coordinator
+    }
+
+    var body: some View {
+        ZStack {
+            if let rootViewModel = coordinator.rootViewModel {
+                SendView(viewModel: rootViewModel)
+                    .navigationLinks(links)
+            }
+
+            sheets
+        }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        EmptyView()
+    }
+
+    @ViewBuilder
+    private var sheets: some View {
+        EmptyView()
+    }
+}

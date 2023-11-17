@@ -25,6 +25,7 @@ class CommonSwappingModulesFactory {
     // MARK: - Internal
 
     private var _swappingInteractor: SwappingInteractor?
+    private var _expressInteractor: ExpressInteractor?
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
@@ -43,6 +44,19 @@ class CommonSwappingModulesFactory {
 // MARK: - SwappingModulesFactory
 
 extension CommonSwappingModulesFactory: SwappingModulesFactory {
+    func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
+        ExpressViewModel(
+            initialSourceCurrency: source,
+            swappingInteractor: expressInteractor, // [REDACTED_TODO_COMMENT]
+            swappingDestinationService: swappingDestinationService,
+            tokenIconURLBuilder: tokenIconURLBuilder,
+            transactionSender: transactionSender,
+            fiatRatesProvider: fiatRatesProvider,
+            swappingFeeFormatter: swappingFeeFormatter,
+            coordinator: coordinator
+        )
+    }
+
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             initialSourceCurrency: source,
@@ -65,6 +79,14 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             currencyMapper: currencyMapper,
             walletDataProvider: walletDataProvider,
             fiatRatesProvider: fiatRatesProvider,
+            coordinator: coordinator
+        )
+    }
+
+    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel {
+        ExpressFeeBottomSheetViewModel(
+            swappingFeeFormatter: swappingFeeFormatter,
+            expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -127,7 +149,11 @@ private extension CommonSwappingModulesFactory {
     }
 
     var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(fiatRatesProvider: fiatRatesProvider)
+        CommonSwappingFeeFormatter(
+            balanceFormatter: .init(),
+            balanceConverter: .init(),
+            fiatRatesProvider: fiatRatesProvider
+        )
     }
 
     var explorerURLService: ExplorerURLService {
@@ -164,6 +190,30 @@ private extension CommonSwappingModulesFactory {
         )
 
         _swappingInteractor = interactor
+        return interactor
+    }
+
+    var expressInteractor: ExpressInteractor {
+        if let interactor = _expressInteractor {
+            return interactor
+        }
+
+        let swappingManager = TangemSwappingFactory().makeSwappingManager(
+            walletDataProvider: walletDataProvider,
+            referrer: referrer,
+            source: source,
+            destination: destination,
+            logger: logger
+        )
+
+        let interactor = ExpressInteractor(
+            swappingManager: swappingManager,
+            userTokensManager: userTokensManager,
+            currencyMapper: currencyMapper,
+            blockchainNetwork: walletModel.blockchainNetwork
+        )
+
+        _expressInteractor = interactor
         return interactor
     }
 }
