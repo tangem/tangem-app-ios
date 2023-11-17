@@ -30,7 +30,7 @@ struct FeeRowView: View {
                     .frame(minWidth: viewModel.subtitle.isLoading ? 70 : 0)
                     .skeletonable(isShown: viewModel.subtitle.isLoading)
             }
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
         }
     }
 
