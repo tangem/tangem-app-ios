@@ -46,7 +46,7 @@ class SendModel {
     private var _amountText: String = ""
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
-    private var _selectedFeeOption: FeeOption = .market
+    private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValuesFormatted = CurrentValueSubject<[FeeOption: LoadingValue<String>], Never>([:])
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
@@ -95,7 +95,7 @@ class SendModel {
     }
 
     func setFeeOption(_ feeOption: FeeOption) {
-        _selectedFeeOption = feeOption
+        _selectedFeeOption.send(feeOption)
     }
 
     func useMaxAmount() {
@@ -297,7 +297,7 @@ extension SendModel: SendDestinationViewModelInput {
 
 extension SendModel: SendFeeViewModelInput {
     var selectedFeeOption: FeeOption {
-        _selectedFeeOption
+        _selectedFeeOption.value
     }
 
     #warning("TODO")
@@ -315,9 +315,12 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
-    #warning("TODO")
-    var feeText: String {
-        fee.value?.description ?? "--"
+    var feeText: AnyPublisher<String?, Never> {
+        Publishers.CombineLatest(_selectedFeeOption, _feeValuesFormatted)
+            .map { selectedFeeOption, feeValuesFormatted in
+                feeValuesFormatted[selectedFeeOption]?.value
+            }
+            .eraseToAnyPublisher()
     }
 
     var canEditAmount: Bool {
