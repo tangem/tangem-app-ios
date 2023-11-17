@@ -77,7 +77,7 @@ class SendDestinationViewModel: ObservableObject {
             )
         }
 
-        if !input.suggestedWallets.isEmpty, !input.recentTransactions.isEmpty {
+        if !input.suggestedWallets.isEmpty || !input.recentTransactions.isEmpty {
             suggestedDestinationViewModel = SendSuggestedDestinationViewModel(wallets: input.suggestedWallets, recentTransactions: input.recentTransactions) {
                 [weak self] destination in
                 self?.delegate?.didSelectDestination(destination)
