@@ -32,6 +32,9 @@ class SendModel {
         .just(output: true)
     }
 
+    let suggestedWallets: [SendSuggestedDestinationWallet]
+    let recentTransactions: [SendSuggestedDestinationTransactionRecord]
+
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -69,6 +72,9 @@ class SendModel {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
+
+        suggestedWallets = []
+        recentTransactions = []
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
