@@ -139,9 +139,10 @@ private extension ExpressTokensListViewModel {
     }
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
-        ExpressTokenItemViewModel(
+        let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+        return ExpressTokenItemViewModel(
             id: walletModel.id,
-            tokenIconItem: TokenIconItemViewModel(tokenItem: walletModel.tokenItem),
+            tokenIconInfo: tokenIconInfo,
             name: walletModel.name,
             symbol: walletModel.tokenItem.currencySymbol,
             balance: walletModel.balance,
