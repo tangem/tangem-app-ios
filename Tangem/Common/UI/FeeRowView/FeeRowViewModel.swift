@@ -9,7 +9,9 @@
 import Foundation
 
 struct FeeRowViewModel: Identifiable {
-    let id = UUID()
+    var id: Int {
+        hashValue
+    }
 
     let option: FeeOption
     let isSelected: BindingValue<Bool>
@@ -39,5 +41,17 @@ struct FeeRowViewModel: Identifiable {
         self.option = option
         self.subtitle = subtitle
         self.isSelected = isSelected
+    }
+}
+
+extension FeeRowViewModel: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(option)
+        hasher.combine(subtitle.value)
+        hasher.combine(isSelected)
+    }
+
+    static func == (lhs: FeeRowViewModel, rhs: FeeRowViewModel) -> Bool {
+        lhs.hashValue == rhs.hashValue
     }
 }
