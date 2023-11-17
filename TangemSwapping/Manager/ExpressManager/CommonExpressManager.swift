@@ -63,11 +63,17 @@ extension CommonExpressManager: ExpressManager {
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
         _pair = pair
 
+        // Clear for reselected the best quote
+        selectedQuote = nil
+
         return try await update()
     }
 
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState {
         _amount = amount
+
+        // Clear for reselected the best quote
+        selectedQuote = nil
 
         return try await update()
     }
@@ -181,6 +187,8 @@ private extension CommonExpressManager {
         }
 
         let best = try bestQuote(from: quotes)
+
+        selectedQuote = best
         return best
     }
 
@@ -206,7 +214,7 @@ private extension CommonExpressManager {
         guard !quotes.isEmpty else {
             throw ExpressManagerError.quotesNotFound
         }
-        
+
         let sortedQuotes = quotes.sorted { lhs, rhs in
             let lhsAmount = lhs.quote?.expectAmount ?? 0
             let rhsAmount = rhs.quote?.expectAmount ?? 0
@@ -297,9 +305,9 @@ private extension CommonExpressManager {
 
     func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
         let contractAddress = request.pair.source.currency.contractAddress
-        
+
         if contractAddress == ExpressConstants.coinContractAddress {
-           return true
+            return false
         }
 
         assert(contractAddress != ExpressConstants.coinContractAddress)
