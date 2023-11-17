@@ -40,7 +40,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         let requestItem = convertToRequestItem(filteredItemsToRequest)
         var loadSubscription: AnyCancellable?
         loadSubscription = tangemApiService
-            .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.currencyIds))
+            .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.ids))
             .sink(receiveCompletion: { _ in
                 withExtendedLifetime(loadSubscription) {}
             }, receiveValue: { [weak self] models in
@@ -72,23 +72,23 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
 
     private func convertToRequestItem(_ items: [TokenItem]) -> RequestItem {
         var blockchains = Set<Blockchain>()
-        var currencyIds = [String]()
+        var ids = [String]()
 
         items.forEach { item in
             blockchains.insert(item.blockchain)
-            guard let currencyId = item.currencyId else {
+            guard let id = item.id else {
                 return
             }
 
-            currencyIds.append(currencyId)
+            ids.append(id)
         }
-        return .init(blockchains: blockchains, currencyIds: currencyIds)
+        return .init(blockchains: blockchains, ids: ids)
     }
 }
 
 private extension CommonSwapAvailabilityManager {
     struct RequestItem: Hashable {
         let blockchains: Set<Blockchain>
-        let currencyIds: [String]
+        let ids: [String]
     }
 }
