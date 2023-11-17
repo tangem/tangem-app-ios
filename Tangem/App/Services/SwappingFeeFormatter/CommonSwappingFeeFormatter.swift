@@ -10,9 +10,18 @@ import Foundation
 import TangemSwapping
 
 struct CommonSwappingFeeFormatter {
-    private let fiatRatesProvider: FiatRatesProviding
+    private let balanceFormatter: BalanceFormatter
+    private let balanceConverter: BalanceConverter
 
-    init(fiatRatesProvider: FiatRatesProviding) {
+    private let fiatRatesProvider: FiatRatesProviding // Will be deleted
+
+    init(
+        balanceFormatter: BalanceFormatter,
+        balanceConverter: BalanceConverter,
+        fiatRatesProvider: FiatRatesProviding
+    ) {
+        self.balanceFormatter = balanceFormatter
+        self.balanceConverter = balanceConverter
         self.fiatRatesProvider = fiatRatesProvider
     }
 }
@@ -31,6 +40,17 @@ extension CommonSwappingFeeFormatter: SwappingFeeFormatter {
         }
 
         return format(fee: fee, symbol: blockchain.symbol, fiatFee: fiatFee)
+    }
+
+    func format(fee: Decimal, currencySymbol: String, currencyId: String) -> String {
+        let feeFormatted = balanceFormatter.formatCryptoBalance(fee, currencyCode: currencySymbol)
+
+        guard let fiatFee = balanceConverter.convertToFiat(value: fee, from: currencyId) else {
+            return feeFormatted
+        }
+
+        let fiatFeeFormatted = balanceFormatter.formatFiatBalance(fiatFee)
+        return "\(feeFormatted) (\(fiatFeeFormatted))"
     }
 }
 
