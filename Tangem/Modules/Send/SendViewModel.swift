@@ -108,6 +108,7 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
 
         sendAmountViewModel.delegate = self
+        sendDestinationViewModel.delegate = self
         sendSummaryViewModel.router = self
 
         bind()
@@ -154,5 +155,22 @@ extension SendViewModel: SendSummaryRoutable {
 extension SendViewModel: SendAmountViewModelDelegate {
     func didTapMaxAmount() {
         sendModel.useMaxAmount()
+    }
+}
+
+extension SendViewModel: SendDestinationViewDelegate {
+    func didSelectAddress(_ address: String) {
+        sendModel.setDestination(address)
+    }
+
+    func didSelectAdditionalField(_ additionalField: String) {
+        sendModel.setDestinationAdditionalField(additionalField)
+    }
+
+    func didSelectDestination(_ destination: SendSuggestedDestination) {
+        sendModel.setDestination(destination.address)
+        if let additionalField = destination.additionalField {
+            sendModel.setDestinationAdditionalField(additionalField)
+        }
     }
 }
