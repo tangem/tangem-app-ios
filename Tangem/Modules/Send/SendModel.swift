@@ -253,6 +253,16 @@ extension SendModel: SendDestinationViewModelInput {
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
 
     var networkName: String { walletModel.blockchainNetwork.blockchain.displayName }
+
+    var additionalField: SendAdditionalFields? {
+        let field = SendAdditionalFields.fields(for: walletModel.blockchainNetwork.blockchain)
+        switch field {
+        case .destinationTag, .memo:
+            return field
+        case .none:
+            return nil
+        }
+    }
 }
 
 extension SendModel: SendFeeViewModelInput {
