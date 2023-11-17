@@ -10,4 +10,5 @@ import Foundation
 
 class ExpressTokensListRoutableMock: ExpressTokensListRoutable {
     init() {}
+    func closeExpressTokensList() {}
 }

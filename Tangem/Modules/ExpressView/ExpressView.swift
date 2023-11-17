@@ -22,10 +22,6 @@ struct ExpressView: View {
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
-                permissionInfoSection
-
-                warningSections
-
                 informationSection
 
                 feeSection
@@ -54,7 +50,7 @@ struct ExpressView: View {
                     )
                     .didTapMaxAmount(viewModel.userDidTapMaxAmount)
                     .didTapChangeCurrency {
-                        viewModel.userDidTapChangeCurrencyButton()
+                        viewModel.userDidTapChangeSourceButton()
                     }
                 }
 
@@ -97,27 +93,6 @@ struct ExpressView: View {
     }
 
     @ViewBuilder
-    private var permissionInfoSection: some View {
-        GroupedSection(viewModel.permissionInfoRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-    }
-
-    @ViewBuilder
-    private var warningSections: some View {
-        GroupedSection(viewModel.highPriceImpactWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-
-        GroupedSection(viewModel.refreshWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-    }
-
-    @ViewBuilder
     private var informationSection: some View {
         GroupedSection(viewModel.informationSectionViewModels) {
             DefaultWarningRow(viewModel: $0)
@@ -153,26 +128,28 @@ struct ExpressView: View {
     }
 }
 
-struct ExpressView_Preview: PreviewProvider {
-    static let viewModel = ExpressViewModel(
-        initialSourceCurrency: .mock,
-        swappingInteractor: .init(
-            swappingManager: SwappingManagerMock(),
-            userTokensManager: UserTokensManagerMock(),
-            currencyMapper: CurrencyMapper(),
-            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-        ),
-        swappingDestinationService: SwappingDestinationServiceMock(),
-        tokenIconURLBuilder: TokenIconURLBuilder(),
-        transactionSender: TransactionSenderMock(),
-        fiatRatesProvider: FiatRatesProviderMock(),
-        swappingFeeFormatter: SwappingFeeFormatterMock(),
-        coordinator: ExpressCoordinator()
-    )
+/*
+ struct ExpressView_Preview: PreviewProvider {
+     static let viewModel = ExpressViewModel(
+         initialWallet: .mock,
+         swappingInteractor: .init(
+             swappingManager: SwappingManagerMock(),
+             userTokensManager: UserTokensManagerMock(),
+             currencyMapper: CurrencyMapper(),
+             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+         ),
+         swappingDestinationService: SwappingDestinationServiceMock(),
+         tokenIconURLBuilder: TokenIconURLBuilder(),
+         transactionSender: TransactionSenderMock(),
+         fiatRatesProvider: FiatRatesProviderMock(),
+         swappingFeeFormatter: SwappingFeeFormatterMock(),
+         coordinator: ExpressCoordinator()
+     )
 
-    static var previews: some View {
-        NavigationView {
-            ExpressView(viewModel: viewModel)
-        }
-    }
-}
+     static var previews: some View {
+         NavigationView {
+             ExpressView(viewModel: viewModel)
+         }
+     }
+ }
+ */
