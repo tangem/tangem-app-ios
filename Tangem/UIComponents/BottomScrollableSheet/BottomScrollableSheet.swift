@@ -25,7 +25,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     /// The tap gesture is completely disabled when the sheet is expanded.
     private var headerTapGestureMask: GestureMask { stateObject.state.isBottom ? .all : .none }
 
-    private var scrollViewBottomContentInset: CGFloat { max(overlayHeight, UIApplication.safeAreaInsets.bottom) }
+    private var scrollViewBottomContentInset: CGFloat { max(overlayHeight, UIApplication.safeAreaInsets.bottom, 6.0) }
 
     private let coordinateSpaceName = UUID()
 
