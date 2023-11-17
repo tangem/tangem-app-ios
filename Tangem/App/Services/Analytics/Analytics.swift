@@ -194,7 +194,7 @@ class Analytics {
         var params = params
 
         if let contextualParams = analyticsContext.contextData?.analyticsParams.firebaseParams {
-            params.merge(contextualParams, uniquingKeysWith: { _, new in new })
+            params.merge(contextualParams, uniquingKeysWith: { old, _ in old })
         }
 
         for system in analyticsSystems {
