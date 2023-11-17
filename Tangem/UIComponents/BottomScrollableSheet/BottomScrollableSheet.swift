@@ -15,6 +15,8 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
 
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
+    @State private var overlayHeight: CGFloat = .zero
+
     @State private var isHidden = true
     private var isHiddenWhenCollapsed = false
 
@@ -22,6 +24,8 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
 
     /// The tap gesture is completely disabled when the sheet is expanded.
     private var headerTapGestureMask: GestureMask { stateObject.state.isBottom ? .all : .none }
+
+    private var scrollViewBottomContentInset: CGFloat { max(overlayHeight, UIApplication.safeAreaInsets.bottom) }
 
     private let coordinateSpaceName = UUID()
 
@@ -78,17 +82,26 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
                     onEnded: stateObject.scrollViewContentDragGesture(onEnded:)
                 )
 
-                content()
-                    .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
-                    .readContentOffset(
-                        inCoordinateSpace: .named(coordinateSpaceName),
-                        bindTo: stateObject.contentOffsetSubject.asWriteOnlyBinding(.zero)
-                    )
+                VStack(spacing: 0.0) {
+                    content()
+                        .readContentOffset(
+                            inCoordinateSpace: .named(coordinateSpaceName),
+                            bindTo: stateObject.contentOffsetSubject.asWriteOnlyBinding(.zero)
+                        )
+
+                    FixedSpacer(height: scrollViewBottomContentInset, length: scrollViewBottomContentInset)
+                        .fixedSize()
+                }
+                .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
             }
             .ios15AndBelowScrollDisabledCompat(stateObject.scrollViewIsDragging)
         }
         .ios16AndAboveScrollDisabledCompat(stateObject.scrollViewIsDragging)
-        .overlay(overlay())
+        .overlay(
+            overlay()
+                .readGeometry(\.size.height, bindTo: $overlayHeight)
+                .infinityFrame(alignment: .bottom)
+        )
         .coordinateSpace(name: coordinateSpaceName)
     }
 
