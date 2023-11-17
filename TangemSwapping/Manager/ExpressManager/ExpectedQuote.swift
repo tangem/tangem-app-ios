@@ -21,7 +21,14 @@ public struct ExpectedQuote: Hashable {
         }
     }
 
-    public enum State: Hashable {
+    init(provider: ExpressProvider, state: State) {
+        self.provider = provider
+        self.state = state
+    }
+}
+
+public extension ExpectedQuote {
+    enum State: Hashable {
         case quote(ExpressQuote)
         case error(String)
         case notAvailable

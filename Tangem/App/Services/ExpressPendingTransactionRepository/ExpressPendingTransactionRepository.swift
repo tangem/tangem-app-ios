@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSwapping
 
 public protocol ExpressPendingTransactionRepository {
     func didSendApproveTransaction(swappingTxData: SwappingTransactionData)
