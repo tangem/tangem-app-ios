@@ -94,7 +94,7 @@ class SendModel {
         bind()
     }
 
-    func setFeeOption(_ feeOption: FeeOption) {
+    func setSelectedFeeOption(_ feeOption: FeeOption) {
         _selectedFeeOption.send(feeOption)
     }
 
