@@ -80,7 +80,7 @@ struct SendCurrencyView: View {
 
             Spacer()
 
-            SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+            SwappingTokenIconView(state: viewModel.tokenIconState)
                 .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
         }
     }
@@ -107,11 +107,9 @@ struct SendCurrencyView_Preview: PreviewProvider {
             fiatValue: .loading,
             maximumFractionDigits: 8,
             canChangeCurrency: true,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                    symbol: "BTC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
+                symbol: "BTC"
             )
         ),
         SendCurrencyViewModel(
@@ -119,11 +117,9 @@ struct SendCurrencyView_Preview: PreviewProvider {
             fiatValue: .loaded(1000.71),
             maximumFractionDigits: 8,
             canChangeCurrency: true,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                    symbol: "BTC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
+                symbol: "BTC"
             )
         ),
     ]
