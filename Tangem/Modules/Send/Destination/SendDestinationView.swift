@@ -17,6 +17,10 @@ struct SendDestinationView: View {
             if let addressViewModel = viewModel.addressViewModel {
                 SendDestinationInputView(viewModel: addressViewModel)
             }
+
+            if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
+                SendDestinationInputView(viewModel: additionalFieldViewModel)
+            }
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
