@@ -32,8 +32,8 @@ class SendModel {
         .just(output: true)
     }
 
-    let suggestedWallets: [SendSuggestedDestinationWallet]
-    let recentTransactions: [SendSuggestedDestinationTransactionRecord]
+    private(set) var suggestedWallets: [SendSuggestedDestinationWallet] = []
+    private(set) var recentTransactions: [SendSuggestedDestinationTransactionRecord]
 
     // MARK: - Data
 
@@ -66,6 +66,10 @@ class SendModel {
     private let sendType: SendType
     private var bag: Set<AnyCancellable> = []
 
+    // MARK: - Dependencies
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     // MARK: - Public interface
 
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType) {
@@ -73,8 +77,18 @@ class SendModel {
         self.transactionSigner = transactionSigner
         self.sendType = sendType
 
-        suggestedWallets = []
         recentTransactions = []
+
+        suggestedWallets = userWalletRepository.models.compactMap { userWalletModel in
+            let walletModels = userWalletModel.walletModelsManager.walletModels
+            let walletModel = walletModels.first { walletModel in
+                walletModel.blockchainNetwork == self.walletModel.blockchainNetwork &&
+                    walletModel.wallet.publicKey != self.walletModel.wallet.publicKey
+            }
+            guard let walletModel else { return nil }
+
+            return SendSuggestedDestinationWallet(name: userWalletModel.userWallet.name, address: walletModel.defaultAddress)
+        }
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
