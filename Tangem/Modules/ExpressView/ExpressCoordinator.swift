@@ -26,6 +26,7 @@ class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
+    @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
     @Published var swappingApproveViewModel: SwappingApproveViewModel?
 
     // MARK: - Properties
@@ -64,6 +65,10 @@ extension ExpressCoordinator: ExpressRoutable {
         swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
     }
 
+    func presentFeeSelectorView() {
+        expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
+    }
+
     func presentApproveView() {
         UIApplication.shared.endEditing()
         swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
@@ -97,6 +102,14 @@ extension ExpressCoordinator: SwappingTokenListRoutable {
     func userDidTap(currency: Currency) {
         swappingTokenListViewModel = nil
         rootViewModel?.userDidRequestChangeDestination(to: currency)
+    }
+}
+
+// MARK: - ExpressRoutable
+
+extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
+    func closeExpressFeeBottomSheet() {
+        expressFeeSelectorViewModel = nil
     }
 }
 
