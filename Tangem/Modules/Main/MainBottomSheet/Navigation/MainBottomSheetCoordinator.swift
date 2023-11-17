@@ -23,12 +23,18 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
-    private lazy var __manageTokensCoordinator = ManageTokensCoordinator()
+    private lazy var __manageTokensCoordinator: ManageTokensCoordinator = {
+        let coordinator = ManageTokensCoordinator()
+        coordinator.delegate = self
+        return coordinator
+    }()
 
     // MARK: - Child view models
 
-    @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel? = nil
+    @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel?
     private lazy var __headerViewModel = MainBottomSheetHeaderViewModel()
+
+    @Published private(set) var overlayViewModel: MainBottomSheetOverlayViewModel?
 
     // MARK: - Private Properties
 
@@ -68,5 +74,29 @@ class MainBottomSheetCoordinator: CoordinatorObject {
             }
             .assign(to: \.manageTokensCoordinator, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+}
+
+// MARK: - ManageTokensCoordinatorDelegate protocol conformance
+
+extension MainBottomSheetCoordinator: ManageTokensCoordinatorDelegate {
+    func showGenerateAddressesWarning(
+        numberOfNetworks: Int,
+        currentWalletNumber: Int,
+        totalWalletNumber: Int,
+        action: @escaping () -> Void
+    ) {
+        overlayViewModel = .generateAddresses(
+            viewModel: GenerateAddressesViewModel(
+                numberOfNetworks: numberOfNetworks,
+                currentWalletNumber: currentWalletNumber,
+                totalWalletNumber: totalWalletNumber,
+                didTapGenerate: action
+            )
+        )
+    }
+
+    func hideGenerateAddressesWarning() {
+        overlayViewModel = nil
     }
 }
