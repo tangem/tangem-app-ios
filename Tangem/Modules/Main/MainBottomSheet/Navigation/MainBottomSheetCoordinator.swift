@@ -46,7 +46,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         bind()
     }
 
-    func start(with options: Options = .init()) {
+    func start(with options: Void = ()) {
         __manageTokensCoordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
     }
 
@@ -69,8 +69,4 @@ class MainBottomSheetCoordinator: CoordinatorObject {
             .assign(to: \.manageTokensCoordinator, on: self, ownership: .weak)
             .store(in: &bag)
     }
-}
-
-extension MainBottomSheetCoordinator {
-    struct Options {}
 }
