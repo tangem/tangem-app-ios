@@ -154,7 +154,7 @@ extension SendViewModel: SendSummaryRoutable {
 
 extension SendViewModel: SendFeeViewModelDelegate {
     func didSelectFeeOption(_ feeOption: FeeOption) {
-        sendModel.setFeeOption(feeOption)
+        sendModel.setSelectedFeeOption(feeOption)
     }
 }
 
