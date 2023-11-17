@@ -41,12 +41,18 @@ struct SendCurrencyView: View {
             Spacer()
 
             switch viewModel.balance {
+            case .idle:
+                EmptyView()
             case .loading:
                 SkeletonView()
                     .frame(width: 100, height: 13)
                     .cornerRadius(6)
             case .loaded:
                 SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            case .formatted(let value):
+                SensitiveText(builder: Localization.commonBalance, sensitive: value)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -63,12 +69,17 @@ struct SendCurrencyView: View {
                 })
 
             switch viewModel.fiatValue {
+            case .idle:
+                EmptyView()
             case .loading:
                 SkeletonView()
                     .frame(width: 50, height: 13)
                     .cornerRadius(6)
             case .loaded:
                 Text(viewModel.fiatValueString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            case .formatted(let value):
+                Text(value)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
         }

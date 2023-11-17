@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ExpressManagerError: Error {
+public enum ExpressManagerError: String, LocalizedError {
     case amountNotFound
     case contractAddressNotFound
     case availablePairNotFound
@@ -16,4 +16,8 @@ public enum ExpressManagerError: Error {
     case selectedProviderNotFound
     case quotesNotFound
     case availableQuotesForProviderNotFound
+
+    public var errorDescription: String? {
+        rawValue
+    }
 }

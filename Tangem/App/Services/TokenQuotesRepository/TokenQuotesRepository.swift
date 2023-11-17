@@ -34,6 +34,14 @@ extension TokenQuotesRepository {
 
         return quotes[id]
     }
+
+    func quote(for item: TokenItem) async throws -> TokenQuote? {
+        guard let currencyId = item.currencyId else {
+            return nil
+        }
+
+        return try await quote(for: currencyId)
+    }
 }
 
 private struct TokenQuotesRepositoryKey: InjectionKey {
