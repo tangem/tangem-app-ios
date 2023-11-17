@@ -37,6 +37,9 @@ struct ExpressCoordinatorView: CoordinatorView {
             .bottomSheet(item: $coordinator.swappingApproveViewModel) {
                 SwappingApproveView(viewModel: $0)
             }
+            .bottomSheet(item: $coordinator.expressFeeSelectorViewModel) {
+                ExpressFeeBottomSheetView(viewModel: $0)
+            }
 
         NavHolder()
             .sheet(item: $coordinator.swappingSuccessCoordinator) {
