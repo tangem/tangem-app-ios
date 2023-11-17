@@ -49,7 +49,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             .onAppear(perform: stateObject.onAppear)
             .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
         }
-        .ignoresSafeArea(.keyboard)
+        .ignoresSafeArea(edges: .bottom)
     }
 
     private var headerDragGesture: some Gesture {
@@ -104,7 +104,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             }
             .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
         }
-        .frame(height: stateObject.visibleHeight)
+        .frame(height: proxy.size.height - stateObject.topInset)
         .bottomScrollableSheetCornerRadius()
         .bottomScrollableSheetShadow()
         .hidden(isHiddenWhenCollapsed ? isHidden : false)
@@ -119,6 +119,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             }
         }
         .overlay(headerGestureOverlayView(proxy: proxy), alignment: .top) // Mustn't be hidden (by the 'isHidden' flag)
+        .offset(y: proxy.size.height - stateObject.visibleHeight - stateObject.topInset)
     }
 
     @ViewBuilder
