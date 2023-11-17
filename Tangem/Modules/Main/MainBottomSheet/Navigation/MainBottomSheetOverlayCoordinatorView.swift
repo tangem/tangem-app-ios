@@ -14,6 +14,8 @@ struct MainBottomSheetOverlayCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainBottomSheetCoordinator
 
     var body: some View {
-        EmptyView() // [REDACTED_TODO_COMMENT]
+        if let viewModel = coordinator.overlayViewModel {
+            MainBottomSheetOverlayView(viewModel: viewModel)
+        }
     }
 }
