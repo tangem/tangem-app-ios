@@ -193,6 +193,7 @@ extension WarningEvent {
         [:]
     }
 
+    /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool {
         switch self {
         case .missingDerivation: return false
