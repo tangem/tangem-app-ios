@@ -25,4 +25,8 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> {
         Just(nil).eraseToAnyPublisher()
     }
+
+    var networkName: String {
+        "Ethereum"
+    }
 }
