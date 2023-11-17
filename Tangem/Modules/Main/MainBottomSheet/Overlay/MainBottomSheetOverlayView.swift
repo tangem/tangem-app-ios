@@ -12,12 +12,9 @@ struct MainBottomSheetOverlayView: View {
     let viewModel: MainBottomSheetOverlayViewModel
 
     var body: some View {
-        Group {
-            switch viewModel {
-            case .generateAddresses(let viewModel):
-                GenerateAddressesView(viewModel: viewModel)
-            }
+        switch viewModel {
+        case .generateAddresses(let viewModel):
+            GenerateAddressesView(viewModel: viewModel)
         }
-        .infinityFrame(alignment: .bottom)
     }
 }
