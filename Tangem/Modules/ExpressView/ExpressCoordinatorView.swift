@@ -29,11 +29,9 @@ struct ExpressCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.swappingTokenListViewModel) {
-                SwappingTokenListView(viewModel: $0)
+            .sheet(item: $coordinator.expressTokensListViewModel) {
+                ExpressTokensListView(viewModel: $0)
             }
-
-        NavHolder()
             .bottomSheet(item: $coordinator.swappingApproveViewModel) {
                 SwappingApproveView(viewModel: $0)
             }
