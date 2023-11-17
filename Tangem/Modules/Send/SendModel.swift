@@ -89,6 +89,16 @@ class SendModel {
         setAmount("1000")
     }
 
+    func setDestination(_ destinationText: String) {
+        _destinationText = destinationText
+        validateDestination()
+    }
+
+    func setDestinationAdditionalField(_ destinationAdditionalFieldText: String) {
+        _destinationAdditionalFieldText = destinationAdditionalFieldText
+        validateDestinationAdditionalField()
+    }
+
     func send() {
         guard var transaction = transaction.value else {
             return
@@ -197,11 +207,6 @@ class SendModel {
 
     // MARK: - Destination and memo
 
-    private func setDestination(_ destinationText: String) {
-        _destinationText = destinationText
-        validateDestination()
-    }
-
     private func validateDestination() {
         let destination: String?
         let error: Error?
@@ -212,11 +217,6 @@ class SendModel {
 
         self.destination.send(destination)
         _destinationError.send(error)
-    }
-
-    private func setDestinationAdditionalField(_ destinationAdditionalFieldText: String) {
-        _destinationAdditionalFieldText = destinationAdditionalFieldText
-        validateDestinationAdditionalField()
     }
 
     private func validateDestinationAdditionalField() {
@@ -251,6 +251,8 @@ extension SendModel: SendDestinationViewModelInput {
     var destinationAdditionalFieldTextBinding: Binding<String> { Binding(get: { self._destinationAdditionalFieldText }, set: { self.setDestinationAdditionalField($0) }) }
     var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
+
+    var networkName: String { walletModel.blockchainNetwork.blockchain.displayName }
 }
 
 extension SendModel: SendFeeViewModelInput {

@@ -13,29 +13,12 @@ struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
 
     var body: some View {
-        VStack {
-            VStack {
-                TextField("Enter address", text: viewModel.destination)
+        GroupedScrollView {
+            if let addressViewModel = viewModel.addressViewModel {
+                SendDestinationInputView(viewModel: addressViewModel)
             }
-            .padding()
-            .border(Color.purple, width: 5)
-            .matchedGeometryEffect(id: "dest", in: namespace)
-
-            Text(viewModel.destinationErrorText ?? " ")
-                .foregroundColor(.red)
-
-            VStack {
-                TextField("Enter memo", text: viewModel.additionalField)
-            }
-            .padding()
-            .border(Color.purple, width: 5)
-
-            Text(viewModel.destinationAdditionalFieldErrorText ?? " ")
-                .foregroundColor(.red)
-
-            Spacer()
         }
-        .padding(.horizontal)
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 }
 
