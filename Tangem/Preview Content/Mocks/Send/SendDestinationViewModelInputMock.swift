@@ -33,4 +33,12 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
     var additionalField: SendAdditionalFields? {
         .memo
     }
+
+    var suggestedWallets: [SendSuggestedDestinationWallet] {
+        []
+    }
+
+    var recentTransactions: [SendSuggestedDestinationTransactionRecord] {
+        []
+    }
 }
