@@ -64,6 +64,14 @@ class SendModel {
     private let sendType: SendType
     private var bag: Set<AnyCancellable> = []
 
+    private var feeFormatter: SwappingFeeFormatter {
+        CommonSwappingFeeFormatter(
+            balanceFormatter: BalanceFormatter(),
+            balanceConverter: BalanceConverter(),
+            fiatRatesProvider: SwappingRatesProvider()
+        )
+    }
+
     // MARK: - Public interface
 
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType) {
@@ -145,10 +153,13 @@ class SendModel {
             .sink { [weak self] fees in
                 guard let self else { return }
 
-                #warning("[REDACTED_TODO_COMMENT]")
-                fee.send(fees.first)
+                let feeOptions = feeOptions(fees)
+                let formattedFees = formatFees(feeOptions)
+                _feeValuesFormatted.send(formattedFees)
 
-                print("fetched fees:", fees)
+                if let marketFee = feeOptions[.market] {
+                    fee.send(marketFee)
+                }
             }
             .store(in: &bag)
 
@@ -238,11 +249,35 @@ class SendModel {
 
     // MARK: - Fees
 
-    private func formatFee(_ amount: Amount) -> String {
-        #warning("TODO")
-//        CommonSwappingFeeFormatter(fiatRatesProvider: )
+    private func feeOptions(_ fees: [Fee]) -> [FeeOption: Fee] {
+        switch fees.count {
+        case 1:
+            return [
+                .market: fees[0],
+            ]
+        case 3:
+            return [
+                .slow: fees[0],
+                .market: fees[1],
+                .fast: fees[2],
+            ]
+        default:
+            return [:]
+        }
+    }
 
-        return amount.value.description
+    private func formatFees(_ fees: [FeeOption: Fee]) -> [FeeOption: LoadingValue<String>] {
+        let blockchainNetwork = walletModel.blockchainNetwork
+        let blockchain = blockchainNetwork.blockchain
+
+        return fees.mapValues { fee in
+            let formattedValue = self.feeFormatter.format(
+                fee: fee.amount.value,
+                currencySymbol: fee.amount.currencySymbol,
+                currencyId: blockchain.currencyId
+            )
+            return .loaded(formattedValue)
+        }
     }
 }
 
@@ -267,7 +302,11 @@ extension SendModel: SendFeeViewModelInput {
 
     #warning("TODO")
     var feeOptions: [FeeOption] {
-        [.slow, .market, .fast]
+        if walletModel.shoudShowFeeSelector {
+            return [.slow, .market, .fast]
+        } else {
+            return [.market]
+        }
     }
 
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<String>], Never> {
