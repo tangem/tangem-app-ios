@@ -16,7 +16,7 @@ struct MainBottomSheetHeaderCoordinatorView: CoordinatorView {
 
     var body: some View {
         if let viewModel = coordinator.headerViewModel {
-            MainBottomSheetHeaderContainerView(viewModel: viewModel)
+            MainBottomSheetHeaderView(viewModel: viewModel)
         }
     }
 }
