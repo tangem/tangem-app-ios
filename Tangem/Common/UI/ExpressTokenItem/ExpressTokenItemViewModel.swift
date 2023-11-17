@@ -10,7 +10,7 @@ import Foundation
 
 struct ExpressTokenItemViewModel: Identifiable {
     let id: Int
-    let tokenIconItem: TokenIconItemViewModel
+    let tokenIconInfo: TokenIconInfo
     let name: String
     let symbol: String
     let balance: String
@@ -20,7 +20,7 @@ struct ExpressTokenItemViewModel: Identifiable {
 
     init(
         id: Int,
-        tokenIconItem: TokenIconItemViewModel,
+        tokenIconInfo: TokenIconInfo,
         name: String,
         symbol: String,
         balance: String,
@@ -29,7 +29,7 @@ struct ExpressTokenItemViewModel: Identifiable {
         itemDidTap: @escaping () -> Void
     ) {
         self.id = id
-        self.tokenIconItem = tokenIconItem
+        self.tokenIconInfo = tokenIconInfo
         self.name = name
         self.symbol = symbol
         self.balance = balance
