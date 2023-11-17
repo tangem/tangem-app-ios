@@ -18,6 +18,7 @@ enum Feature: String, Hashable, CaseIterable {
     case manageTokens
     case mainScreenBottomSheet
     case dynamicFonts
+    case express
 
     var name: String {
         switch self {
@@ -30,6 +31,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .manageTokens: return "Manage tokens screen [TokenList 2.0]"
         case .mainScreenBottomSheet: return "Bottom sheet on Main screen 2.0"
         case .dynamicFonts: return "Dynamic fonts"
+        case .express: return "Tangem express"
         }
     }
 
@@ -44,6 +46,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .manageTokens: return .unspecified
         case .mainScreenBottomSheet: return .unspecified
         case .dynamicFonts: return .unspecified
+        case .express: return .unspecified
         }
     }
 }
