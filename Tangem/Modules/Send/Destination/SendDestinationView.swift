@@ -21,6 +21,10 @@ struct SendDestinationView: View {
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
                 SendDestinationInputView(viewModel: additionalFieldViewModel)
             }
+
+            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
+                SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
+            }
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
