@@ -223,9 +223,8 @@ private extension ExpressViewModel {
             balance: .loaded(swappingItems.sourceBalance),
             fiatValue: .loading,
             maximumFractionDigits: source.decimalCount,
-            // [REDACTED_TODO_COMMENT]
-            canChangeCurrency: source.id != (initialWallet.tokenItem.id ?? ""),
-            tokenIcon: mapToSwappingTokenIconViewModel(currency: source)
+            canChangeCurrency: source != initialSourceCurrency,
+            tokenIconState: mapToSwappingTokenIconViewModel(currency: source)
         )
 
         updateSendFiatValue(amount: sendDecimalValue?.value)
@@ -282,7 +281,7 @@ private extension ExpressViewModel {
             canChangeCurrency: destination?.id != initialWallet.tokenItem.id,
             cryptoAmountState: cryptoAmountState,
             fiatAmountState: fiatAmountState,
-            tokenIcon: mapToSwappingTokenIconViewModel(currency: destination)
+            tokenIconState: mapToSwappingTokenIconViewModel(currency: destination)
         )
     }
 
@@ -553,26 +552,22 @@ private extension ExpressViewModel {
             .store(in: &bag)
     }
 
-    func mapToSwappingTokenIconViewModel(currency: Currency?) -> SwappingTokenIconViewModel {
+    func mapToSwappingTokenIconViewModel(currency: Currency?) -> SwappingTokenIconView.State {
         guard let currency = currency else {
-            return SwappingTokenIconViewModel(state: .loading)
+            return .loading
         }
 
         switch currency.currencyType {
         case .coin:
-            return SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .large),
-                    symbol: currency.symbol
-                )
+            return .loaded(
+                imageURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .large),
+                symbol: currency.symbol
             )
         case .token:
-            return SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
-                    networkURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .small),
-                    symbol: currency.symbol
-                )
+            return .loaded(
+                imageURL: tokenIconURLBuilder.iconURL(id: currency.id, size: .large),
+                networkURL: tokenIconURLBuilder.iconURL(id: currency.blockchain.id, size: .small),
+                symbol: currency.symbol
             )
         }
     }
