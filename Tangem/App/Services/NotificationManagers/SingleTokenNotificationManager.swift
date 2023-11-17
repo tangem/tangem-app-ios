@@ -21,10 +21,10 @@ final class SingleTokenNotificationManager {
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
 
-    init(walletModel: WalletModel) {
+    init(walletModel: WalletModel, contextDataProvider: AnalyticsContextDataProvider?) {
         self.walletModel = walletModel
 
-        analyticsService.setup(with: self)
+        analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
 
     private func bind() {
