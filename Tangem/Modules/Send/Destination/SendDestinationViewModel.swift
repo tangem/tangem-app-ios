@@ -16,20 +16,44 @@ protocol SendDestinationViewModelInput {
 
     var destinationError: AnyPublisher<Error?, Never> { get }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { get }
+
+    var networkName: String { get }
+}
+
+protocol SendDestinationViewDelegate: AnyObject {
+    func didSelectAddress(_ address: String)
+    func didSelectAdditionalField(_ additionalField: String)
+    func didSelectDestination(_ destination: SendSuggestedDestination)
 }
 
 class SendDestinationViewModel: ObservableObject {
     var destination: Binding<String>
     var additionalField: Binding<String>
 
+    var addressViewModel: SendDestinationInputViewModel?
+
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
+
+    weak var delegate: SendDestinationViewDelegate?
 
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendDestinationViewModelInput) {
         destination = input.destinationTextBinding
         additionalField = input.destinationAdditionalFieldTextBinding
+
+        addressViewModel = SendDestinationInputViewModel(
+            name: Localization.sendRecipient,
+            input: input.destinationTextBinding,
+            showAddressIcon: true,
+            placeholder: Localization.sendEnterAddressField,
+            description: Localization.sendRecipientAddressFooter(input.networkName),
+            didPasteAddress: { [weak self] strings in
+                guard let address = strings.first else { return }
+                self?.delegate?.didSelectAddress(address)
+            }
+        )
 
         bind(from: input)
     }
