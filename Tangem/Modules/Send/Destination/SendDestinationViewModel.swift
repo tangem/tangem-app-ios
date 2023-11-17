@@ -18,6 +18,8 @@ protocol SendDestinationViewModelInput {
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { get }
 
     var networkName: String { get }
+
+    var additionalField: SendAdditionalFields? { get }
 }
 
 protocol SendDestinationViewDelegate: AnyObject {
@@ -31,6 +33,7 @@ class SendDestinationViewModel: ObservableObject {
     var additionalField: Binding<String>
 
     var addressViewModel: SendDestinationInputViewModel?
+    var additionalFieldViewModel: SendDestinationInputViewModel?
 
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
@@ -55,6 +58,21 @@ class SendDestinationViewModel: ObservableObject {
             }
         )
 
+        if let additionalField = input.additionalField,
+           let name = additionalField.name {
+            additionalFieldViewModel = SendDestinationInputViewModel(
+                name: name,
+                input: input.destinationAdditionalFieldTextBinding,
+                showAddressIcon: false,
+                placeholder: Localization.sendOptionalField,
+                description: Localization.sendRecipientMemoFooter,
+                didPasteAddress: { [weak self] strings in
+                    guard let additionalField = strings.first else { return }
+                    self?.delegate?.didSelectAdditionalField(additionalField)
+                }
+            )
+        }
+
         bind(from: input)
     }
 
@@ -74,5 +92,18 @@ class SendDestinationViewModel: ObservableObject {
             }
             .assign(to: \.destinationAdditionalFieldErrorText, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+}
+
+extension SendAdditionalFields {
+    var name: String? {
+        switch self {
+        case .memo:
+            return Localization.sendExtrasHintMemo
+        case .destinationTag:
+            return Localization.sendDestinationTagField
+        case .none:
+            return nil
+        }
     }
 }
