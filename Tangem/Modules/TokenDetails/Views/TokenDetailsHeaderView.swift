@@ -40,11 +40,13 @@ struct TokenDetailsHeaderView: View {
             Spacer()
 
             TokenIcon(
-                name: "",
-                imageURL: viewModel.imageURL,
-                customTokenColor: viewModel.customTokenColor,
-                blockchainIconName: nil,
-                isCustom: false,
+                tokenIconInfo: .init(
+                    name: "",
+                    blockchainIconName: nil,
+                    imageURL: viewModel.imageURL,
+                    isCustom: false,
+                    customTokenColor: viewModel.customTokenColor
+                ),
                 size: IconViewSizeSettings.tokenDetails.iconSize
             )
         }
