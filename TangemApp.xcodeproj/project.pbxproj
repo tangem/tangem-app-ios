@@ -2690,10 +2690,10 @@
 			isa = PBXGroup;
 			children = (
 				2D788E7E2ADD657000E0884B /* WalletSelector */,
-				2D788E842ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift */,
 				2D5EBAA12ADD15EA00A25AC4 /* ManageTokensNetworkSelectorRoutable.swift */,
-				2D5EBAA22ADD15EA00A25AC4 /* ManageTokensNetworkSelectorViewModel.swift */,
+				2D788E842ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift */,
 				2D5EBAA32ADD15EA00A25AC4 /* ManageTokensNetworkSelectorView.swift */,
+				2D5EBAA22ADD15EA00A25AC4 /* ManageTokensNetworkSelectorViewModel.swift */,
 				2D1146A42ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift */,
 				2D1146A52ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift */,
 			);
@@ -2706,8 +2706,8 @@
 			children = (
 				2D788E7F2ADD657000E0884B /* WalletSelectorViewModel.swift */,
 				2D788E802ADD657000E0884B /* WalletSelectorItemViewModel.swift */,
-				2D788E812ADD657000E0884B /* WalletSelectorItemView.swift */,
 				2D788E822ADD657000E0884B /* WalletSelectorView.swift */,
+				2D788E812ADD657000E0884B /* WalletSelectorItemView.swift */,
 				2D788E832ADD657000E0884B /* WalletSelectorDelegate.swift */,
 			);
 			path = WalletSelector;
@@ -4641,6 +4641,28 @@
 			path = MainBottomSheet;
 			sourceTree = "<group>";
 		};
+		B6E5A0672B0A60F90067F8F0 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				2D727E952AB8280D00CD121A /* ManageTokensRoutable.swift */,
+				2D01EC0D2B061ABC00DEF1CC /* ManageTokensCoordinator.swift */,
+				2D01EC0C2B061ABC00DEF1CC /* ManageTokensCoordinatorView.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		B6E5A0682B0A611A0067F8F0 /* TokenList */ = {
+			isa = PBXGroup;
+			children = (
+				2D727E982AB8280D00CD121A /* ManageTokensView.swift */,
+				2D727E992AB8280D00CD121A /* ManageTokensViewModel.swift */,
+				DA7046122AAA17E500808FA8 /* ManageTokensItemView.swift */,
+				DA7046112AAA17E500808FA8 /* ManageTokensItemViewModel.swift */,
+				2DAA9BCF2AE9A4D200549886 /* ManageTokensSettings.swift */,
+			);
+			path = TokenList;
+			sourceTree = "<group>";
+		};
 		B6E9721C2AA0262D00D2B1D1 /* TokenSectionView */ = {
 			isa = PBXGroup;
 			children = (
@@ -4996,15 +5018,9 @@
 		DAD98A752AB2E3240051CFBE /* ManageTokens */ = {
 			isa = PBXGroup;
 			children = (
+				B6E5A0672B0A60F90067F8F0 /* Navigation */,
+				B6E5A0682B0A611A0067F8F0 /* TokenList */,
 				2DD754D52AE166000009CA64 /* GenerateAddressesView */,
-				2D727E952AB8280D00CD121A /* ManageTokensRoutable.swift */,
-				2D727E982AB8280D00CD121A /* ManageTokensView.swift */,
-				2D727E992AB8280D00CD121A /* ManageTokensViewModel.swift */,
-				DA7046112AAA17E500808FA8 /* ManageTokensItemViewModel.swift */,
-				DA7046122AAA17E500808FA8 /* ManageTokensItemView.swift */,
-				2DAA9BCF2AE9A4D200549886 /* ManageTokensSettings.swift */,
-				2D01EC0D2B061ABC00DEF1CC /* ManageTokensCoordinator.swift */,
-				2D01EC0C2B061ABC00DEF1CC /* ManageTokensCoordinatorView.swift */,
 			);
 			path = ManageTokens;
 			sourceTree = "<group>";
