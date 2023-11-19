@@ -61,6 +61,7 @@ struct ManageTokensView: View {
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
+    // [REDACTED_TODO_COMMENT]
     @ViewBuilder private var overlay: some View {
         if let generateAddressViewModel = viewModel.generateAddressesViewModel {
             VStack {
