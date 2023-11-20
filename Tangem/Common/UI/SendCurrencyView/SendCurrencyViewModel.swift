@@ -17,7 +17,7 @@ struct SendCurrencyViewModel: Identifiable {
     private(set) var balance: State
     private(set) var fiatValue: State
 
-    let tokenIcon: SwappingTokenIconViewModel
+    let tokenIconState: SwappingTokenIconView.State
 
     var balanceString: String {
         let balance = balance.value ?? 0
@@ -34,13 +34,13 @@ struct SendCurrencyViewModel: Identifiable {
         fiatValue: State,
         maximumFractionDigits: Int,
         canChangeCurrency: Bool,
-        tokenIcon: SwappingTokenIconViewModel
+        tokenIconState: SwappingTokenIconView.State
     ) {
         self.balance = balance
         self.fiatValue = fiatValue
         self.maximumFractionDigits = maximumFractionDigits
         self.canChangeCurrency = canChangeCurrency
-        self.tokenIcon = tokenIcon
+        self.tokenIconState = tokenIconState
     }
 
     func textFieldDidTapped() {
@@ -82,6 +82,6 @@ extension SendCurrencyViewModel: Hashable {
         hasher.combine(fiatValue)
         hasher.combine(maximumFractionDigits)
         hasher.combine(canChangeCurrency)
-        hasher.combine(tokenIcon)
+        hasher.combine(tokenIconState)
     }
 }
