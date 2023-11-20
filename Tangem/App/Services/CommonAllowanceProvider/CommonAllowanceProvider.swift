@@ -40,9 +40,3 @@ extension CommonAllowanceProvider: AllowanceProvider {
         ethereumTransactionProcessor.buildForApprove(spender: spender, amount: amount)
     }
 }
-
-extension CommonAllowanceProvider {
-    enum PendingTransactionState: Hashable {
-        case pending(destination: String)
-    }
-}
