@@ -15,8 +15,7 @@ class SendDestinationInputViewModel: ObservableObject, Identifiable {
     let showAddressIcon: Bool
     let placeholder: String
     let description: String
-    let didChangeAddress: (String) -> Void
-    let didPasteAddress: ([String]) -> Void
+    let didEnterDestination: (String) -> Void
 
     @Published var input: String = ""
     @Published var errorText: String?
@@ -32,15 +31,13 @@ class SendDestinationInputViewModel: ObservableObject, Identifiable {
         placeholder: String,
         description: String,
         errorText: AnyPublisher<Error?, Never>,
-        didChangeAddress: @escaping (String) -> Void,
-        didPasteAddress: @escaping ([String]) -> Void
+        didEnterDestination: @escaping (String) -> Void
     ) {
         self.name = name
         self.showAddressIcon = showAddressIcon
         self.placeholder = placeholder
         self.description = description
-        self.didChangeAddress = didChangeAddress
-        self.didPasteAddress = didPasteAddress
+        self.didEnterDestination = didEnterDestination
 
         bind(input: input, errorText: errorText)
     }
@@ -53,7 +50,7 @@ class SendDestinationInputViewModel: ObservableObject, Identifiable {
         self.$input
             .removeDuplicates()
             .sink { [weak self] in
-                self?.didChangeAddress($0)
+                self?.didEnterDestination($0)
             }
             .store(in: &bag)
 
@@ -95,11 +92,11 @@ class SendDestinationInputViewModel: ObservableObject, Identifiable {
             return
         }
 
-        didPasteAddress([input])
+        didEnterDestination(input)
     }
 
     func clearInput() {
-        didChangeAddress("")
+        didEnterDestination("")
     }
 
     private func updatePasteButton() {
