@@ -381,7 +381,7 @@ private extension ExpressViewModel {
 
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
-        case .readyToSwap(let data, let quote):
+        case .readyToSwap(_, let quote):
             swapButtonIsLoading = false
             update(restriction: .none)
             restartTimer()
