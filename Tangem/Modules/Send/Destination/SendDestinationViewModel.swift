@@ -22,7 +22,7 @@ protocol SendDestinationViewModelInput {
     var additionalField: SendAdditionalFields? { get }
 
     var suggestedWallets: [SendSuggestedDestinationWallet] { get }
-    var recentTransactions: [SendSuggestedDestinationTransactionRecord] { get }
+    var recentTransactions: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
 }
 
 protocol SendDestinationViewDelegate: AnyObject {
@@ -77,13 +77,6 @@ class SendDestinationViewModel: ObservableObject {
             )
         }
 
-        if !input.suggestedWallets.isEmpty || !input.recentTransactions.isEmpty {
-            suggestedDestinationViewModel = SendSuggestedDestinationViewModel(wallets: input.suggestedWallets, recentTransactions: input.recentTransactions) {
-                [weak self] destination in
-                self?.delegate?.didSelectDestination(destination)
-            }
-        }
-
         bind(from: input)
     }
 
@@ -102,6 +95,23 @@ class SendDestinationViewModel: ObservableObject {
                 $0?.localizedDescription
             }
             .assign(to: \.destinationAdditionalFieldErrorText, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input
+            .recentTransactions
+            .sink { [weak self] recentTransactions in
+                if input.suggestedWallets.isEmpty, recentTransactions.isEmpty {
+                    self?.suggestedDestinationViewModel = nil
+                    return
+                }
+
+                self?.suggestedDestinationViewModel = SendSuggestedDestinationViewModel(
+                    wallets: input.suggestedWallets,
+                    recentTransactions: recentTransactions
+                ) { [weak self] destination in
+                    self?.delegate?.didSelectDestination(destination)
+                }
+            }
             .store(in: &bag)
     }
 }
