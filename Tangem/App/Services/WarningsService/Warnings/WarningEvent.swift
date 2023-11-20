@@ -144,28 +144,6 @@ extension WarningEvent: NotificationEvent {
         }
     }
 
-    var analyticsEvent: Analytics.Event? {
-        switch self {
-        case .numberOfSignedHashesIncorrect: return .mainNoticeCardSignedTransactions
-        case .rateApp: return nil
-        case .failedToVerifyCard: return .mainNoticeProductSampleCard
-        case .testnetCard: return .mainNoticeTestnetCard
-        case .demoCard: return .mainNoticeDemoCard
-        case .oldDeviceOldCard: return .mainNoticeOldCard
-        case .oldCard: return .mainNoticeOldCard
-        case .devCard: return .mainNoticeDevelopmentCard
-        case .lowSignatures: return nil
-        case .legacyDerivation: return nil
-        case .systemDeprecationTemporary: return nil
-        case .systemDeprecationPermanent: return nil
-        case .missingDerivation: return .mainNoticeMissingAddress
-        case .walletLocked: return .mainNoticeWalletUnlock
-        case .missingBackup: return .mainNoticeBackupYourWallet
-        case .supportedOnlySingleCurrencyWallet: return nil
-        case .walletsNotSupportedBlockchain: return nil
-        }
-    }
-
     func style(tapAction: NotificationView.NotificationAction? = nil, buttonAction: NotificationView.NotificationButtonTapAction? = nil) -> NotificationView.Style {
         switch self {
         case .walletLocked:
@@ -193,5 +171,44 @@ extension WarningEvent: NotificationEvent {
         default: break
         }
         return .plain
+    }
+}
+
+// MARK: Analytics info
+
+extension WarningEvent {
+    var analyticsEvent: Analytics.Event? {
+        switch self {
+        case .numberOfSignedHashesIncorrect: return .mainNoticeCardSignedTransactions
+        case .rateApp: return nil
+        case .failedToVerifyCard: return .mainNoticeProductSampleCard
+        case .testnetCard: return .mainNoticeTestnetCard
+        case .demoCard: return .mainNoticeDemoCard
+        case .oldDeviceOldCard: return .mainNoticeOldCard
+        case .oldCard: return .mainNoticeOldCard
+        case .devCard: return .mainNoticeDevelopmentCard
+        case .lowSignatures: return nil
+        case .legacyDerivation: return nil
+        case .systemDeprecationTemporary: return nil
+        case .systemDeprecationPermanent: return nil
+        case .missingDerivation: return .mainNoticeMissingAddress
+        case .walletLocked: return .mainNoticeWalletUnlock
+        case .missingBackup: return .mainNoticeBackupYourWallet
+        }
+    }
+
+    var analyticsParams: [Analytics.ParameterKey: String] {
+        [:]
+    }
+
+    /// Determine if analytics event should be sent only once and tracked by service
+    var isOneShotAnalyticsEvent: Bool {
+        switch self {
+        /// Missing derivation notification can be tracked multiple times because if user make changes for
+        /// one card on different devices the `Missing derivation` notification will be updated
+        /// and we need to track this update after PTR
+        case .missingDerivation: return false
+        default: return true
+        }
     }
 }
