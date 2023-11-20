@@ -80,9 +80,9 @@ private extension CommonExpressAPIService {
         let decoder = JSONDecoder()
 
         do {
-            let error = try decoder.decode(ExpressDTO.APIError.self, from: response.data)
-            log(target: target, response: response, error: error)
-            throw ExpressAPIServiceError.apiError(error)
+            let error = try decoder.decode(ExpressDTO.APIError.Response.self, from: response.data)
+            log(target: target, response: response, error: error.error)
+            throw ExpressAPIServiceError.apiError(error.error)
         } catch {
             log(target: target, response: response, error: error)
             throw ExpressAPIServiceError.decodingError(error)
@@ -99,6 +99,8 @@ private extension CommonExpressAPIService {
             """
             [ExpressAPIService]
             Request to target: \(target.path)
+            plugins: \(provider.plugins))
+            task: \(target.task)
             eded with response: \(info)
             Error: \(String(describing: error))
             """
