@@ -82,8 +82,10 @@ struct SendDestinationInputView: View {
         if viewModel.input.isEmpty {
             if #available(iOS 16.0, *) {
                 PasteButton(payloadType: String.self) { strings in
+                    guard let string = strings.first else { return }
+
                     DispatchQueue.main.async {
-                        viewModel.didPasteAddress(strings)
+                        viewModel.didEnterDestination(string)
                     }
                 }
                 .tint(Color.black)
@@ -106,13 +108,13 @@ struct SendDestinationInputView: View {
 
 #Preview {
     GroupedScrollView {
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .just(output: ""), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didChangeAddress: { _ in }, didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .just(output: ""), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didChangeAddress: { _ in }, didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .just(output: ""), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didChangeAddress: { _ in }, didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .just(output: ""), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .just(output: "123456789"), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didChangeAddress: { _ in }, didPasteAddress: { _ in }))
+        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .just(output: "123456789"), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
