@@ -9,6 +9,7 @@
 import Foundation
 import TangemSwapping
 
+// [REDACTED_TODO_COMMENT]
 class CommonExpressPendingTransactionRepository {}
 
 extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRepository {
@@ -16,7 +17,33 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
         false
     }
 
-    func didSendSwapTransaction(swappingTxData: SwappingTransactionData) {}
+    func didSendSwapTransaction() {
+        /*
+         Analytics.log(event: .transactionSent, params: [
+             .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+              .token: swappingTxData.sourceCurrency.symbol,
+              .blockchain: swappingTxData.sourceBlockchain.name,
+              .feeType: getAnalyticsFeeType()?.rawValue ?? .unknown,
+         ])
+          */
+    }
 
-    func didSendApproveTransaction(swappingTxData: SwappingTransactionData) {}
+    func didSendApproveTransaction() {
+        /*
+         let permissionType: Analytics.ParameterValue = {
+             switch getApprovePolicy() {
+             case .specified: return .oneTransactionApprove
+             case .unlimited: return .unlimitedApprove
+             }
+         }()
+
+         Analytics.log(event: .transactionSent, params: [
+             .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+             .feeType: getAnalyticsFeeType()?.rawValue ?? .unknown,
+             .token: swappingTxData.sourceCurrency.symbol,
+             .blockchain: swappingTxData.sourceBlockchain.name,
+             .permissionType: permissionType.rawValue,
+         ])
+          */
+    }
 }
