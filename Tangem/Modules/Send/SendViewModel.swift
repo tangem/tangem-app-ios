@@ -172,7 +172,7 @@ extension SendViewModel: SendDestinationViewDelegate {
         if let additionalField = destination.additionalField {
             sendModel.setDestinationAdditionalField(additionalField)
         }
-        
+
         #warning("[REDACTED_TODO_COMMENT]")
     }
 }

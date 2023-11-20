@@ -79,16 +79,7 @@ class SendModel {
 
         recentTransactions = []
 
-        suggestedWallets = userWalletRepository.models.compactMap { userWalletModel in
-            let walletModels = userWalletModel.walletModelsManager.walletModels
-            let walletModel = walletModels.first { walletModel in
-                walletModel.blockchainNetwork == self.walletModel.blockchainNetwork &&
-                    walletModel.wallet.publicKey != self.walletModel.wallet.publicKey
-            }
-            guard let walletModel else { return nil }
-
-            return SendSuggestedDestinationWallet(name: userWalletModel.userWallet.name, address: walletModel.defaultAddress)
-        }
+        suggestedWallets = otherUserWalletDestinations()
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -249,6 +240,19 @@ class SendModel {
 
         self.destinationAdditionalField.send(destinationAdditionalField)
         _destinationAdditionalFieldError.send(error)
+    }
+
+    private func otherUserWalletDestinations() -> [SendSuggestedDestinationWallet] {
+        userWalletRepository.models.compactMap { userWalletModel in
+            let walletModels = userWalletModel.walletModelsManager.walletModels
+            let walletModel = walletModels.first { walletModel in
+                walletModel.blockchainNetwork == self.walletModel.blockchainNetwork &&
+                    walletModel.wallet.publicKey != self.walletModel.wallet.publicKey
+            }
+            guard let walletModel else { return nil }
+
+            return SendSuggestedDestinationWallet(name: userWalletModel.userWallet.name, address: walletModel.defaultAddress)
+        }
     }
 
     // MARK: - Fees
