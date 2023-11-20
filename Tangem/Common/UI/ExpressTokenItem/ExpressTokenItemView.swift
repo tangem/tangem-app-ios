@@ -12,6 +12,8 @@ import SwiftUI
 struct ExpressTokenItemView: View {
     private let viewModel: ExpressTokenItemViewModel
 
+    private let iconSize = CGSize(width: 36, height: 36)
+
     init(viewModel: ExpressTokenItemViewModel) {
         self.viewModel = viewModel
     }
@@ -19,7 +21,7 @@ struct ExpressTokenItemView: View {
     var body: some View {
         Button(action: viewModel.itemDidTap) {
             HStack(spacing: 12) {
-                TokenIconItemView(viewModel: viewModel.tokenIconItem)
+                TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: iconSize)
                     .saturation(viewModel.isDisable ? 0 : 1)
 
                 infoView
@@ -28,6 +30,7 @@ struct ExpressTokenItemView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(viewModel.isDisable)
     }
 
     private var infoView: some View {
@@ -41,13 +44,11 @@ struct ExpressTokenItemView: View {
 
                 Spacer(minLength: 4)
 
-                if let fiatBalanceFormatted = viewModel.fiatBalanceFormatted {
-                    SensitiveText(fiatBalanceFormatted)
-                        .style(
-                            Fonts.Regular.subheadline,
-                            color: viewModel.isDisable ? Colors.Text.tertiary : Colors.Text.primary1
-                        )
-                }
+                SensitiveText(viewModel.fiatBalance)
+                    .style(
+                        Fonts.Regular.subheadline,
+                        color: viewModel.isDisable ? Colors.Text.tertiary : Colors.Text.primary1
+                    )
             }
 
             HStack(spacing: .zero) {
@@ -56,13 +57,11 @@ struct ExpressTokenItemView: View {
 
                 Spacer(minLength: 4)
 
-                if let balanceFormatted = viewModel.balanceFormatted {
-                    SensitiveText(balanceFormatted)
-                        .style(
-                            Fonts.Regular.footnote,
-                            color: viewModel.isDisable ? Colors.Text.disabled : Colors.Text.tertiary
-                        )
-                }
+                SensitiveText(viewModel.balance)
+                    .style(
+                        Fonts.Regular.footnote,
+                        color: viewModel.isDisable ? Colors.Text.disabled : Colors.Text.tertiary
+                    )
             }
         }
         .lineLimit(1)
@@ -72,39 +71,48 @@ struct ExpressTokenItemView: View {
 struct ExpressTokenItemView_Previews: PreviewProvider {
     static let viewModels = [
         ExpressTokenItemViewModel(
-            id: "Bitcoin",
-            tokenIconItem: TokenIconItemViewModel(
-                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                networkURL: nil
+            id: "Bitcoin".hashValue,
+            tokenIconInfo: TokenIconInfo(
+                name: "",
+                blockchainIconName: "bitcoin",
+                imageURL: TokenIconURLBuilder().iconURL(id: "", size: .large),
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Bitcoin",
             symbol: "BTC",
-            balance: CurrencyAmount(value: 3.543, currency: .mock),
-            fiatBalance: 1.23415 * 16345,
+            balance: "3.543 BTC",
+            fiatBalance: "$3.543",
             isDisable: false,
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
-            id: "Ethereum",
-            tokenIconItem: TokenIconItemViewModel(
+            id: "Ethereum".hashValue,
+            tokenIconInfo: TokenIconInfo(
+                name: "",
+                blockchainIconName: "ethereum",
                 imageURL: TokenIconURLBuilder().iconURL(id: "tether", size: .large),
-                networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small)
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Ethereum",
             symbol: "ETH",
-            balance: CurrencyAmount(value: 3.543, currency: .mock),
-            fiatBalance: 3.543 * 1341,
+            balance: "3.543 ETH",
+            fiatBalance: "$3.543",
             isDisable: false,
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
-            id: "Tether",
-            tokenIconItem: TokenIconItemViewModel(
+            id: "Tether".hashValue,
+            tokenIconInfo: TokenIconInfo(
+                name: "",
+                blockchainIconName: "ethereum",
                 imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
-                networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small)
+                isCustom: false,
+                customTokenColor: Color.red
             ),
             name: "Dai",
             symbol: "DAI",
-            balance: CurrencyAmount(value: 3.543, currency: .mock),
-            fiatBalance: 3.543 * 1341,
+            balance: "3.543 DAI",
+            fiatBalance: "$3.543",
             isDisable: true,
             itemDidTap: {}
         ),
