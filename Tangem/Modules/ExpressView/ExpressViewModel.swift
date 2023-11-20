@@ -564,10 +564,9 @@ private extension ExpressViewModel {
     func mapToProviderRowViewModel(expectedQuote: ExpectedQuote) -> ProviderRowViewModel {
         let subtitle = expressProviderFormatter.mapToRateSubtitle(
             quote: expectedQuote,
-            option: .rate(
-                senderCurrencyCode: swappingInteractor.getSender().tokenItem.currencySymbol,
-                destinationCurrencyCode: swappingInteractor.getDestination()?.tokenItem.currencySymbol
-            )
+            senderCurrencyCode: swappingInteractor.getSender().tokenItem.currencySymbol,
+            destinationCurrencyCode: swappingInteractor.getDestination()?.tokenItem.currencySymbol,
+            option: .rate
         )
 
         return ProviderRowViewModel(
