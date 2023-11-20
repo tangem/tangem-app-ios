@@ -65,6 +65,8 @@ public struct TangemSwappingFactory {
     }
 }
 
+// MARK: - Credential
+
 public struct ExpressAPICredential {
     public let apiKey: String
     public let userId: String
