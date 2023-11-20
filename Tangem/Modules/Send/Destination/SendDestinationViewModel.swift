@@ -11,8 +11,8 @@ import SwiftUI
 import Combine
 
 protocol SendDestinationViewModelInput {
-    var destinationTextBinding: Binding<String> { get }
-    var destinationAdditionalFieldTextBinding: Binding<String> { get }
+    var destinationTextPublisher: AnyPublisher<String, Never> { get }
+    var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { get }
 
     var destinationError: AnyPublisher<Error?, Never> { get }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { get }
@@ -26,15 +26,14 @@ protocol SendDestinationViewModelInput {
 }
 
 protocol SendDestinationViewDelegate: AnyObject {
+    func didChangeAddress(_ address: String)
+
     func didSelectAddress(_ address: String)
     func didSelectAdditionalField(_ additionalField: String)
     func didSelectDestination(_ destination: SendSuggestedDestination)
 }
 
 class SendDestinationViewModel: ObservableObject {
-    var destination: Binding<String>
-    var additionalField: Binding<String>
-
     var addressViewModel: SendDestinationInputViewModel?
     var additionalFieldViewModel: SendDestinationInputViewModel?
     var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
@@ -47,34 +46,35 @@ class SendDestinationViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendDestinationViewModelInput) {
-        destination = input.destinationTextBinding
-        additionalField = input.destinationAdditionalFieldTextBinding
-
         addressViewModel = SendDestinationInputViewModel(
             name: Localization.sendRecipient,
-            input: input.destinationTextBinding,
+            input: input.destinationTextPublisher,
             showAddressIcon: true,
             placeholder: Localization.sendEnterAddressField,
             description: Localization.sendRecipientAddressFooter(input.networkName),
-            didPasteAddress: { [weak self] strings in
-                guard let address = strings.first else { return }
-                self?.delegate?.didSelectAddress(address)
-            }
-        )
+            errorText: input.destinationError
+        ) { [weak self] in
+            self?.delegate?.didChangeAddress($0)
+        } didPasteAddress: { [weak self] strings in
+            guard let address = strings.first else { return }
+            self?.delegate?.didSelectAddress(address)
+        }
 
         if let additionalField = input.additionalField,
            let name = additionalField.name {
             additionalFieldViewModel = SendDestinationInputViewModel(
                 name: name,
-                input: input.destinationAdditionalFieldTextBinding,
+                input: input.destinationAdditionalFieldTextPublisher,
                 showAddressIcon: false,
                 placeholder: Localization.sendOptionalField,
                 description: Localization.sendRecipientMemoFooter,
-                didPasteAddress: { [weak self] strings in
-                    guard let additionalField = strings.first else { return }
-                    self?.delegate?.didSelectAdditionalField(additionalField)
-                }
-            )
+                errorText: input.destinationAdditionalFieldError
+            ) { [weak self] in
+                self?.delegate?.didSelectAdditionalField($0)
+            } didPasteAddress: { [weak self] strings in
+                guard let additionalField = strings.first else { return }
+                self?.delegate?.didSelectAdditionalField(additionalField)
+            }
         }
 
         bind(from: input)

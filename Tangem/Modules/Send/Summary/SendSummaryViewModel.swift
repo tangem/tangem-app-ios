@@ -15,7 +15,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditDestination: Bool { get }
 
     var amountTextBinding: Binding<String> { get }
-    var destinationTextBinding: Binding<String> { get }
+//    var destinationTextBinding: Binding<String> { get }
     var feeTextBinding: Binding<String> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
@@ -43,7 +43,8 @@ class SendSummaryViewModel: ObservableObject {
         canEditDestination = input.canEditDestination
 
         amountText = input.amountTextBinding.wrappedValue
-        destinationText = input.destinationTextBinding.wrappedValue
+        destinationText = ""
+//        destinationText = input.destinationTextBinding.wrappedValue
         feeText = input.feeTextBinding.wrappedValue
 
         self.input = input
