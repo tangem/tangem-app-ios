@@ -26,6 +26,7 @@ struct SendView: View {
             Color.clear.frame(height: 1)
         }
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     @ViewBuilder
