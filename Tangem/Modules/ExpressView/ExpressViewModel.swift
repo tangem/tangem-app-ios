@@ -55,6 +55,8 @@ final class ExpressViewModel: ObservableObject {
     private let swappingFeeFormatter: SwappingFeeFormatter
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
+    private let expressProviderFormatter: ExpressProviderFormatter
+
     private unowned let swappingInteractor: ExpressInteractor
     private unowned let coordinator: ExpressRoutable
 
@@ -69,6 +71,7 @@ final class ExpressViewModel: ObservableObject {
         swappingFeeFormatter: SwappingFeeFormatter,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
+        expressProviderFormatter: ExpressProviderFormatter,
         swappingInteractor: ExpressInteractor,
         coordinator: ExpressRoutable
     ) {
@@ -76,6 +79,7 @@ final class ExpressViewModel: ObservableObject {
         self.swappingFeeFormatter = swappingFeeFormatter
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
+        self.expressProviderFormatter = expressProviderFormatter
         self.swappingInteractor = swappingInteractor
         self.coordinator = coordinator
 
@@ -345,6 +349,7 @@ private extension ExpressViewModel {
 
     func updateState(state: ExpressInteractor.ExpressInteractorState) {
         updateFeeValue(state: state)
+        updateProviderView(state: state)
 
         // The HighPriceImpact warning can't be a restriction
         // because it can be visible even on readyToSwap state
@@ -387,6 +392,27 @@ private extension ExpressViewModel {
             restartTimer()
 
             updateReceiveCurrencyValue(expectAmount: quote.quote?.expectAmount)
+        }
+    }
+
+    func updateProviderView(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .idle:
+            providerState = .none
+        case .loading(let type):
+            if type == .full {
+                providerState = .loading
+            }
+        case .restriction(_, let quote):
+            if let quote {
+                let data = mapToProviderRowViewModel(expectedQuote: quote)
+                providerState = .loaded(data: data)
+            } else {
+                providerState = .none
+            }
+
+        case .readyToSwap(_, let quote):
+            providerState = .loaded(data: mapToProviderRowViewModel(expectedQuote: quote))
         }
     }
 
@@ -533,6 +559,26 @@ private extension ExpressViewModel {
             TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom),
             symbol: wallet.tokenItem.currencySymbol
         )
+    }
+
+    func mapToProviderRowViewModel(expectedQuote: ExpectedQuote) -> ProviderRowViewModel {
+        let subtitle = expressProviderFormatter.mapToRateSubtitle(
+            quote: expectedQuote,
+            option: .rate(
+                senderCurrencyCode: swappingInteractor.getSender().tokenItem.currencySymbol,
+                destinationCurrencyCode: swappingInteractor.getDestination()?.tokenItem.currencySymbol
+            )
+        )
+
+        return ProviderRowViewModel(
+            provider: expressProviderFormatter.mapToProvider(provider: expectedQuote.provider),
+            isDisabled: false,
+            badge: .none, // [REDACTED_TODO_COMMENT]
+            subtitles: [subtitle],
+            detailsType: .chevron
+        ) { [weak self] in
+            self?.presentProviderSelectorView()
+        }
     }
 }
 
