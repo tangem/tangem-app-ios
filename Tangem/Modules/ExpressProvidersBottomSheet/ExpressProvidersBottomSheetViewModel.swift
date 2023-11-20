@@ -18,7 +18,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     // MARK: - Dependencies
 
     private var selectedProviderId: Int?
-    private let quotes: [ExpressAvailabilityQuoteState]
+    private let quotes: [ExpectedQuote]
 
     private let balanceFormatter: BalanceFormatter
     private unowned let expressInteractor: ExpressInteractor
@@ -46,13 +46,13 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         updateView(quotes: quotes)
     }
 
-    func updateView(quotes: [ExpressAvailabilityQuoteState]) {
+    func updateView(quotes: [ExpectedQuote]) {
         providerViewModels = quotes.map { quote in
             mapToProviderRowViewModel(quote: quote)
         }
     }
 
-    func mapToProviderRowViewModel(quote: ExpressAvailabilityQuoteState) -> ProviderRowViewModel {
+    func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
         let provider = quote.provider
         let detailsType: ProviderRowViewModel.DetailsType? = selectedProviderId == provider.id ? .selected : .none
 
@@ -105,6 +105,6 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 extension ExpressProvidersBottomSheetViewModel {
     struct InputModel {
         let selectedProviderId: Int?
-        let quotes: [ExpressAvailabilityQuoteState]
+        let quotes: [ExpectedQuote]
     }
 }
