@@ -14,7 +14,7 @@ struct AmountSummaryView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        GroupedSection([data]) { data in
+//        GroupedSection([data]) { data in
             VStack(alignment: .leading, spacing: 12) {
                 Text(Localization.sendAmountLabel)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
@@ -46,8 +46,8 @@ struct AmountSummaryView: View {
                 }
             }
             .padding(.vertical, 12)
-        }
-        .horizontalPadding(14)
+//        }
+//        .horizontalPadding(14)
     }
 }
 
