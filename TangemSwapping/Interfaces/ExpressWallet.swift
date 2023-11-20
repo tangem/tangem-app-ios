@@ -30,6 +30,14 @@ public extension ExpressWallet {
         contractAddress != ExpressConstants.coinContractAddress
     }
 
+    func getBalanceInWEI() async throws -> Decimal {
+        try await convertToWEI(value: getBalance())
+    }
+
+    func getCoinBalanceInWEI() async throws -> Decimal {
+        try await convertToWEI(value: getCoinBalance())
+    }
+
     // Maybe will be deleted. We still deciding, How it will work
     func convertToWEI(value: Decimal) -> Decimal {
         let decimalValue = pow(10, decimalCount)
