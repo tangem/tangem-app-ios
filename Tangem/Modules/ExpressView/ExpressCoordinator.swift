@@ -27,6 +27,7 @@ class ExpressCoordinator: CoordinatorObject {
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
     @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
+    @Published var expressProvidersBottomSheetViewModel: ExpressProvidersBottomSheetViewModel?
     @Published var swappingApproveViewModel: SwappingApproveViewModel?
 
     // MARK: - Properties
@@ -59,10 +60,10 @@ extension ExpressCoordinator {
 // MARK: - ExpressRoutable
 
 extension ExpressCoordinator: ExpressRoutable {
-    func presentSwappingTokenList(walletType: ExpressTokensListViewModel.SwapDirection) {
+    func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection) {
         UIApplication.shared.endEditing()
         Analytics.log(.swapChooseTokenScreenOpened)
-        expressTokensListViewModel = factory.makeExpressTokensListViewModel(walletType: walletType, coordinator: self)
+        expressTokensListViewModel = factory.makeExpressTokensListViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
     func presentFeeSelectorView() {
@@ -94,9 +95,13 @@ extension ExpressCoordinator: ExpressRoutable {
 
         swappingSuccessCoordinator = coordinator
     }
+
+    func presentProviderSelectorView(input: ExpressProvidersBottomSheetViewModel.InputModel) {
+        expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(input: input, coordinator: self)
+    }
 }
 
-// MARK: -  ExpressTokensListRoutable
+// MARK: - ExpressTokensListRoutable
 
 extension ExpressCoordinator: ExpressTokensListRoutable {
     func closeExpressTokensList() {
@@ -112,7 +117,7 @@ extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
     }
 }
 
-// MARK: -  SwappingApproveRoutable
+// MARK: - SwappingApproveRoutable
 
 extension ExpressCoordinator: SwappingApproveRoutable {
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
@@ -122,5 +127,13 @@ extension ExpressCoordinator: SwappingApproveRoutable {
     func userDidCancel() {
         swappingApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
+    }
+}
+
+// MARK: - ExpressProvidersBottomSheetRoutable
+
+extension ExpressCoordinator: ExpressProvidersBottomSheetRoutable {
+    func closeExpressProvidersBottomSheet() {
+        expressProvidersBottomSheetViewModel = nil
     }
 }
