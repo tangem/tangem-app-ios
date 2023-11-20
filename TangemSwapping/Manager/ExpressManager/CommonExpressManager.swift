@@ -46,15 +46,19 @@ actor CommonExpressManager {
 
 extension CommonExpressManager: ExpressManager {
     func getPair() -> ExpressManagerSwappingPair? {
-        _pair
+        return _pair
     }
 
     func getAmount() -> Decimal? {
-        _amount
+        return _amount
     }
 
     func getSelectedQuote() -> ExpectedQuote? {
         return selectedQuote
+    }
+
+    func getAllQuotes() async -> [ExpressAvailabilityQuoteState] {
+        return availableQuotes
     }
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
@@ -243,6 +247,14 @@ private extension CommonExpressManager {
                         let quote = try await expressAPIProvider.exchangeQuote(item: item)
                         return (providerId, .quote(quote))
                     } catch {
+                        if let apiError = error as? ExpressDTO.ExpressAPIError,
+                           apiError.code == .exchangeTooSmallAmountError,
+                           let value = apiError.value,
+                           let minAmount = Decimal(string: value.minAmount) {
+                            let minAmount = minAmount / pow(10, value.decimals)
+                            return (providerId, .tooSmallAmount(minAmount: minAmount))
+                        }
+
                         return (providerId, .error(error.localizedDescription))
                     }
                 }
@@ -295,6 +307,12 @@ private extension CommonExpressManager {
     func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
         let contractAddress = request.pair.source.expressCurrency.contractAddress
 
+        if contractAddress == ExpressConstants.coinContractAddress {
+            return false
+        }
+
+        #warning("express shouldn't send spender for coin")
+        // Remove checking
         if contractAddress == ExpressConstants.coinContractAddress {
             return false
         }

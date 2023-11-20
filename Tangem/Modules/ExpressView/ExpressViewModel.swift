@@ -27,6 +27,9 @@ final class ExpressViewModel: ObservableObject {
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
     @Published var feeWarningRowViewModel: DefaultWarningRowViewModel?
 
+    // Provider
+    @Published var providerState: ProviderState?
+
     // Fee
     @Published var expressFeeRowViewModel: ExpressFeeRowData?
 
@@ -109,11 +112,11 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapChangeSourceButton() {
-        coordinator.presentSwappingTokenList(walletType: .toDestination(initialWallet))
+        coordinator.presentSwappingTokenList(swapDirection: .toDestination(initialWallet))
     }
 
     func userDidTapChangeDestinationButton() {
-        coordinator.presentSwappingTokenList(walletType: .fromSource(initialWallet))
+        coordinator.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
     func didTapMainButton() {
@@ -162,6 +165,22 @@ private extension ExpressViewModel {
 
         stopTimer()
         coordinator.presentApproveView()
+    }
+
+    func presentProviderSelectorView() {
+        runTask(in: self) { viewModel in
+            async let quotes = viewModel.swappingInteractor.getAllQuotes()
+            async let provider = viewModel.swappingInteractor.getSelectedProvider()
+
+            let input = await ExpressProvidersBottomSheetViewModel.InputModel(
+                selectedProviderId: provider?.id,
+                quotes: quotes
+            )
+
+            await runOnMain {
+                viewModel.coordinator.presentProviderSelectorView(input: input)
+            }
+        }
     }
 }
 
@@ -368,12 +387,6 @@ private extension ExpressViewModel {
             restartTimer()
 
             updateReceiveCurrencyValue(expectAmount: quote.quote?.expectAmount)
-            runTask(in: self) { viewModel in
-                try await viewModel.checkForHighPriceImpact(
-                    sourceAmount: data.data.fromAmount,
-                    destinationAmount: data.data.toAmount
-                )
-            }
         }
     }
 
@@ -695,6 +708,20 @@ private extension ExpressViewModel {
 }
 
 extension ExpressViewModel {
+    enum ProviderState: Identifiable {
+        var id: Int {
+            switch self {
+            case .loading:
+                return "loading".hashValue
+            case .loaded(let data):
+                return data.id
+            }
+        }
+
+        case loading
+        case loaded(data: ProviderRowViewModel)
+    }
+
     enum MainButtonState: Hashable, Identifiable {
         var id: Int { hashValue }
 

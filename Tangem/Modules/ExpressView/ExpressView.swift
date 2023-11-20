@@ -22,12 +22,16 @@ struct ExpressView: View {
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
+                providerSection
+
                 informationSection
 
                 feeSection
             }
             .scrollDismissesKeyboardCompat(true)
             // For animate button below informationSection
+            .animation(.easeInOut, value: viewModel.providerState?.id)
+            .animation(.easeInOut, value: viewModel.expressFeeRowViewModel == nil)
             .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
 
             mainButton
@@ -104,6 +108,20 @@ struct ExpressView: View {
     private var feeSection: some View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
+        }
+        .interSectionPadding(12)
+        .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var providerSection: some View {
+        GroupedSection(viewModel.providerState) { state in
+            switch state {
+            case .loading:
+                LoadingProvidersRow()
+            case .loaded(let data):
+                ProviderRowView(viewModel: data)
+            }
         }
         .interSectionPadding(12)
         .verticalPadding(0)
