@@ -108,16 +108,3 @@ class SendDestinationViewModel: ObservableObject {
             .store(in: &bag)
     }
 }
-
-extension SendAdditionalFields {
-    var name: String? {
-        switch self {
-        case .memo:
-            return Localization.sendExtrasHintMemo
-        case .destinationTag:
-            return Localization.sendDestinationTagField
-        case .none:
-            return nil
-        }
-    }
-}
