@@ -531,6 +531,12 @@ enum ExpressInteractorError: String, LocalizedError {
     case coinBalanceNotFound
     case quoteNotFound
     case transactionDataNotFound
+    case destinationNotFound
+
+    var errorDescription: String? {
+        #warning("Add Localization")
+        return rawValue
+    }
 }
 
 extension ExpressInteractor {
