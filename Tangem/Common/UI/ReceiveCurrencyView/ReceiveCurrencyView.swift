@@ -49,7 +49,7 @@ struct ReceiveCurrencyView: View {
 
             Spacer()
 
-            SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+            SwappingTokenIconView(state: viewModel.tokenIconState)
                 .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
         }
     }
@@ -102,11 +102,9 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loading,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
         ReceiveCurrencyViewModel(
@@ -114,11 +112,9 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loading,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
         ReceiveCurrencyViewModel(
@@ -126,11 +122,9 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loaded(1100.46),
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
         ReceiveCurrencyViewModel(
@@ -138,11 +132,9 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loaded(1100.46),
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
     ]
