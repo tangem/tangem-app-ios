@@ -12,11 +12,16 @@ import TangemSwapping
 struct ExpressProviderFormatter {
     let balanceFormatter: BalanceFormatter
 
-    func mapToRateSubtitle(quote: ExpectedQuote, option: RateSubtitleFormattingOption) -> ProviderRowViewModel.Subtitle {
+    func mapToRateSubtitle(
+        quote: ExpectedQuote,
+        senderCurrencyCode: String?,
+        destinationCurrencyCode: String?,
+        option: RateSubtitleFormattingOption
+    ) -> ProviderRowViewModel.Subtitle {
         switch quote.state {
         case .quote(let expressQuote):
             switch option {
-            case .rate(let senderCurrencyCode, let destinationCurrencyCode):
+            case .rate:
                 guard let senderCurrencyCode, let destinationCurrencyCode else {
                     return .text(CommonError.noData.localizedDescription)
                 }
@@ -27,7 +32,7 @@ struct ExpressProviderFormatter {
                 let formattedDestinationAmount = balanceFormatter.formatCryptoBalance(rate, currencyCode: destinationCurrencyCode)
 
                 return .text("\(formattedSourceAmount) ≈ \(formattedDestinationAmount)")
-            case .destination(let destinationCurrencyCode):
+            case .destination:
                 guard let destinationCurrencyCode else {
                     return .text(CommonError.noData.localizedDescription)
                 }
@@ -39,11 +44,14 @@ struct ExpressProviderFormatter {
         case .error(let string):
             return .text(string)
         case .notAvailable:
-            #warning("Localization.notAvailable")
-            return .text("notAvailable")
+            return .text(Localization.expressProviderNotAvailable)
         case .tooSmallAmount(let minAmount):
-            #warning("Localization.tooSmallAmount")
-            return .text("minAmount \(minAmount)")
+            guard let senderCurrencyCode else {
+                return .text(CommonError.noData.localizedDescription)
+            }
+
+            let formatted = balanceFormatter.formatCryptoBalance(minAmount, currencyCode: senderCurrencyCode)
+            return .text(Localization.expressProviderMinAmount(formatted))
         }
     }
 
@@ -59,9 +67,9 @@ struct ExpressProviderFormatter {
 extension ExpressProviderFormatter {
     enum RateSubtitleFormattingOption {
         // How many destination's tokens user will get for the 1 token of source
-        case rate(senderCurrencyCode: String?, destinationCurrencyCode: String?)
+        case rate
 
         // How many destination's tokens user will get at the end of swap
-        case destination(destinationCurrencyCode: String?)
+        case destination
     }
 }
