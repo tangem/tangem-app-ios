@@ -160,6 +160,10 @@ extension SendViewModel: SendAmountViewModelDelegate {
 }
 
 extension SendViewModel: SendDestinationViewDelegate {
+    func didChangeAddress(_ address: String) {
+        sendModel.setDestination(address)
+    }
+
     func didSelectAddress(_ address: String) {
         sendModel.setDestination(address)
     }
