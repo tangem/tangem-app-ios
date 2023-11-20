@@ -13,62 +13,98 @@ import TangemSwapping
 final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
-    @Published var selectedProvider: ExpressProvider?
     @Published var providerViewModels: [ProviderRowViewModel] = []
 
     // MARK: - Dependencies
 
-    private let providers: [ExpressProvider]
+    private var selectedProviderId: Int?
+    private let quotes: [ExpressAvailabilityQuoteState]
+
+    private let balanceFormatter: BalanceFormatter
+    private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressProvidersBottomSheetRoutable
+
     private var bag: Set<AnyCancellable> = []
 
-    init(coordinator: ExpressProvidersBottomSheetRoutable) {
+    init(
+        input: InputModel,
+        balanceFormatter: BalanceFormatter = .init(),
+        expressInteractor: ExpressInteractor,
+        coordinator: ExpressProvidersBottomSheetRoutable
+    ) {
+        selectedProviderId = input.selectedProviderId
+        quotes = input.quotes
+
+        self.balanceFormatter = balanceFormatter
+        self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        // Should be pass from manager or something
-        providers = [
-            ExpressProvider(
-                id: 1,
-                name: "ChangeNOW",
-                url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png")!,
-                type: .cex
-            ),
-            ExpressProvider(
-                id: 2,
-                name: "1inch",
-                url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/1inch_512.png")!,
-                type: .dex
-            ),
-        ]
-
-        selectedProvider = providers.first
         setupView()
     }
 
     func setupView() {
-        providerViewModels = providers.map { provider in
-            mapToProviderRowViewModel(provider: provider)
+        updateView(quotes: quotes)
+    }
+
+    func updateView(quotes: [ExpressAvailabilityQuoteState]) {
+        providerViewModels = quotes.map { quote in
+            mapToProviderRowViewModel(quote: quote)
         }
     }
 
-    func mapToProviderRowViewModel(provider: ExpressProvider) -> ProviderRowViewModel {
-        let detailsType: ProviderRowViewModel.DetailsType? = selectedProvider == provider ? .selected : .none
+    func mapToProviderRowViewModel(quote: ExpressAvailabilityQuoteState) -> ProviderRowViewModel {
+        let provider = quote.provider
+        let detailsType: ProviderRowViewModel.DetailsType? = selectedProviderId == provider.id ? .selected : .none
+
+        let viewProvider = ProviderRowViewModel.Provider(
+            iconURL: provider.url,
+            name: provider.name,
+            type: provider.type.rawValue.uppercased()
+        )
+
+        let subtitles: [ProviderRowViewModel.Subtitle] = {
+            switch quote.state {
+            case .quote(let expressQuote):
+                if let destination = expressInteractor.getDestination() {
+                    let currencyCode = destination.tokenItem.currencySymbol
+                    let formatted = balanceFormatter.formatCryptoBalance(expressQuote.expectAmount, currencyCode: currencyCode)
+                    return [.text(formatted)]
+                }
+
+                return [.text(ExpressInteractorError.destinationNotFound.localizedDescription)]
+
+            case .tooSmallAmount(let minAmount):
+                let sender = expressInteractor.getSender()
+                let currencyCode = sender.tokenItem.currencySymbol
+                let formatted = balanceFormatter.formatCryptoBalance(minAmount, currencyCode: currencyCode)
+
+                return [.text("Min amount: \(formatted)")]
+
+            case .error(let string):
+                return [.text("Error: \(string)")]
+            case .notAvailable:
+                return [.text("Not available for this pair")]
+            }
+        }()
 
         return ProviderRowViewModel(
-            provider: .init(
-                iconURL: provider.url,
-                name: provider.name,
-                type: provider.type.rawValue.uppercased()
-            ),
-            isDisabled: false,
+            provider: viewProvider,
+            isDisabled: !quote.isAvailable,
             badge: provider.type == .dex ? .permissionNeeded : .none,
-            subtitles: [.text("1 132,46 MATIC")],
+            subtitles: subtitles,
             detailsType: detailsType,
-            // Should be replaced on id
             tapAction: { [weak self] in
-                self?.selectedProvider = provider
-                self?.setupView()
+                self?.selectedProviderId = provider.id
+                self?.expressInteractor.updateProvider(provider: provider)
+                self?.coordinator.closeExpressProvidersBottomSheet()
             }
         )
+    }
+}
+
+extension ExpressProvidersBottomSheetViewModel {
+    struct InputModel {
+        let selectedProviderId: Int?
+        let quotes: [ExpressAvailabilityQuoteState]
     }
 }
