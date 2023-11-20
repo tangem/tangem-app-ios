@@ -1,5 +1,5 @@
 //
-//  ExpressAvailabilityQuoteState.swift
+//  ExpectedQuote.swift
 //  TangemSwapping
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExpressAvailabilityQuoteState: Hashable {
+public struct ExpectedQuote: Hashable {
     public let provider: ExpressProvider
     public let state: State
 
@@ -27,7 +27,7 @@ public struct ExpressAvailabilityQuoteState: Hashable {
     }
 }
 
-public extension ExpressAvailabilityQuoteState {
+public extension ExpectedQuote {
     enum State: Hashable {
         case quote(ExpressQuote)
         case error(String)

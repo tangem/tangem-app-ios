@@ -27,9 +27,9 @@ actor CommonExpressManager {
     // 3. Here ids from `/pair` for each pair
     private var availableProviders: [Int] = []
     // 4. Here from all `providers` with filled the quote from `/quote`.
-    private var availableQuotes: [ExpressAvailabilityQuoteState] = []
+    private var availableQuotes: [ExpectedQuote] = []
     // 5. Here the provider with his quote which was selected from user
-    private var selectedQuote: ExpressAvailabilityQuoteState?
+    private var selectedQuote: ExpectedQuote?
 
     init(
         expressAPIProvider: ExpressAPIProvider,
@@ -53,7 +53,7 @@ extension CommonExpressManager: ExpressManager {
         _amount
     }
 
-    func getSelectedQuote() -> ExpressAvailabilityQuoteState? {
+    func getSelectedQuote() -> ExpectedQuote? {
         return selectedQuote
     }
 
@@ -169,7 +169,7 @@ private extension CommonExpressManager {
 
 private extension CommonExpressManager {
     /// This method will always send the request without cache
-    func getQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpressAvailabilityQuoteState] {
+    func getQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
         let quotes = try await loadQuotes(request: request)
         availableQuotes = quotes
 
@@ -178,8 +178,8 @@ private extension CommonExpressManager {
 
     func getSelectedQuote(
         request: ExpressManagerSwappingPairRequest,
-        quotes: [ExpressAvailabilityQuoteState]
-    ) async throws -> ExpressAvailabilityQuoteState {
+        quotes: [ExpectedQuote]
+    ) async throws -> ExpectedQuote {
         if let quote = selectedQuote {
             return quote
         }
@@ -189,25 +189,25 @@ private extension CommonExpressManager {
         return best
     }
 
-    func loadQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpressAvailabilityQuoteState] {
+    func loadQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
         let allProviders = try await getProviders()
         let availableProvidersIds = try await getAvailableProviders(pair: request.pair)
 
         try Task.checkCancellation()
 
         let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
-        let allQuotes: [ExpressAvailabilityQuoteState] = allProviders.map { provider in
+        let allQuotes: [ExpectedQuote] = allProviders.map { provider in
             if let loadedQuote = quotes[provider.id] {
-                return ExpressAvailabilityQuoteState(provider: provider, state: loadedQuote)
+                return ExpectedQuote(provider: provider, state: loadedQuote)
             }
 
-            return ExpressAvailabilityQuoteState(provider: provider, state: .notAvailable)
+            return ExpectedQuote(provider: provider, state: .notAvailable)
         }
 
         return allQuotes
     }
 
-    func bestQuote(from quotes: [ExpressAvailabilityQuoteState]) throws -> ExpressAvailabilityQuoteState {
+    func bestQuote(from quotes: [ExpectedQuote]) throws -> ExpectedQuote {
         guard !quotes.isEmpty else {
             throw ExpressManagerError.quotesNotFound
         }
@@ -226,10 +226,10 @@ private extension CommonExpressManager {
         return bestExpectedQuote
     }
 
-    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: ExpressAvailabilityQuoteState.State] {
-        typealias TaskValue = (id: Int, quote: ExpressAvailabilityQuoteState.State)
+    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: ExpectedQuote.State] {
+        typealias TaskValue = (id: Int, quote: ExpectedQuote.State)
 
-        let quotes: [Int: ExpressAvailabilityQuoteState.State] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
+        let quotes: [Int: ExpectedQuote.State] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
             providerIds.forEach { providerId in
 
                 // Run a parallel asynchronous task and collect it into the group
@@ -261,7 +261,7 @@ private extension CommonExpressManager {
 // MARK: - Restrictions
 
 private extension CommonExpressManager {
-    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressAvailabilityQuoteState) async throws -> ExpressManagerRestriction? {
+    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpectedQuote) async throws -> ExpressManagerRestriction? {
         // 1. Check minimal amount
         if let minAmount = quote.quote?.minAmount, request.amount < minAmount {
             return .notEnoughAmountForSwapping(minAmount)
