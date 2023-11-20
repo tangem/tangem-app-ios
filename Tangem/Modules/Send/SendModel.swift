@@ -46,8 +46,8 @@ class SendModel {
     // MARK: - Raw data
 
     private var _amountText: String = ""
-    private var _destinationText: String = ""
-    private var _destinationAdditionalFieldText: String = ""
+    private var _destinationText = CurrentValueSubject<String, Never>("")
+    private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _feeText: String = ""
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
@@ -103,12 +103,12 @@ class SendModel {
     }
 
     func setDestination(_ destinationText: String) {
-        _destinationText = destinationText
+        _destinationText.send(destinationText)
         validateDestination()
     }
 
     func setDestinationAdditionalField(_ destinationAdditionalFieldText: String) {
-        _destinationAdditionalFieldText = destinationAdditionalFieldText
+        _destinationAdditionalFieldText.send(destinationAdditionalFieldText)
         validateDestinationAdditionalField()
     }
 
@@ -225,7 +225,7 @@ class SendModel {
         let error: Error?
 
         #warning("validate")
-        destination = _destinationText
+        destination = _destinationText.value
         error = nil
 
         self.destination.send(destination)
@@ -237,7 +237,7 @@ class SendModel {
         let error: Error?
 
         #warning("validate")
-        destinationAdditionalField = _destinationAdditionalFieldText
+        destinationAdditionalField = _destinationAdditionalFieldText.value
         error = nil
 
         self.destinationAdditionalField.send(destinationAdditionalField)
@@ -273,8 +273,8 @@ extension SendModel: SendAmountViewModelInput {
 }
 
 extension SendModel: SendDestinationViewModelInput {
-    var destinationTextBinding: Binding<String> { Binding(get: { self._destinationText }, set: { self.setDestination($0) }) }
-    var destinationAdditionalFieldTextBinding: Binding<String> { Binding(get: { self._destinationAdditionalFieldText }, set: { self.setDestinationAdditionalField($0) }) }
+    var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
+    var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
     var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
 
