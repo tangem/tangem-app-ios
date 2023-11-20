@@ -16,8 +16,17 @@ public struct ExpectedQuote: Hashable {
         switch state {
         case .quote(let expressQuote):
             return expressQuote
-        case .error, .notAvailable:
+        case .error, .notAvailable, .tooSmallAmount:
             return nil
+        }
+    }
+
+    public var isAvailable: Bool {
+        switch state {
+        case .quote:
+            return true
+        case .error, .notAvailable, .tooSmallAmount:
+            return false
         }
     }
 
@@ -32,5 +41,6 @@ public extension ExpectedQuote {
         case quote(ExpressQuote)
         case error(String)
         case notAvailable
+        case tooSmallAmount(minAmount: Decimal)
     }
 }
