@@ -189,7 +189,11 @@
 "exchange_tokens_unavailable_tokens_header" = "Unavailable for swap from %@";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token exchanges";
 "express_choose_providers_title" = "Choose Provider";
+"express_fetch_best_rates" = "Fetching best rates...";
+"express_provider" = "Provider";
 "express_provider_best_rate" = "Best Rate";
+"express_provider_min_amount" = "Available from %@";
+"express_provider_not_available" = "Not available";
 "express_provider_permission_needed" = "Permission Needed";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
