@@ -91,8 +91,9 @@ private extension ExpressTokensListViewModel {
         let currenciesSet = availableCurrencies.toSet()
 
         walletModels
-            .filter { $0 != swapDirection.wallet }
             .forEach { walletModel in
+                guard walletModel != swapDirection.wallet else { return }
+
                 let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
                 if isAvailable {
                     availableWalletModels.append(walletModel)
