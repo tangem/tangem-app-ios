@@ -58,6 +58,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             swappingFeeFormatter: swappingFeeFormatter,
             balanceConverter: .init(),
             balanceFormatter: .init(),
+            expressProviderFormatter: expressProviderFormatter,
             swappingInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -125,6 +126,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     ) -> ExpressProvidersBottomSheetViewModel {
         ExpressProvidersBottomSheetViewModel(
             input: input,
+            expressProviderFormatter: expressProviderFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -184,6 +186,10 @@ private extension CommonSwappingModulesFactory {
             balanceConverter: .init(),
             fiatRatesProvider: fiatRatesProvider
         )
+    }
+
+    var expressProviderFormatter: ExpressProviderFormatter {
+        ExpressProviderFormatter(balanceFormatter: .init())
     }
 
     var explorerURLService: ExplorerURLService {
