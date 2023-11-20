@@ -69,8 +69,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromAmount: item.sourceAmountWEI(),
             providerId: item.providerId,
             rateType: .float,
-            refundAddress: item.source.address,
-            toAddress: item.destination.address
+            refundAddress: item.source.defaultAddress,
+            toAddress: item.destination.defaultAddress
         )
 
         let response = try await expressAPIService.exchangeData(request: request)
