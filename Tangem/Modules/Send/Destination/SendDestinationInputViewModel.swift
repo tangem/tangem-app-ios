@@ -10,33 +10,59 @@ import Foundation
 import SwiftUI
 import Combine
 
-class SendDestinationInputViewModel: Identifiable {
+class SendDestinationInputViewModel: ObservableObject, Identifiable {
     let name: String
     let showAddressIcon: Bool
     let placeholder: String
     let description: String
+    let didChangeAddress: (String) -> Void
     let didPasteAddress: ([String]) -> Void
 
-    var input: Binding<String>
+    @Published var input: String = ""
+    @Published var errorText: String?
+
     var hasTextInClipboard = false
-    var errorText: String?
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         name: String,
-        input: Binding<String>,
+        input: AnyPublisher<String, Never>,
         showAddressIcon: Bool,
         placeholder: String,
         description: String,
+        errorText: AnyPublisher<Error?, Never>,
+        didChangeAddress: @escaping (String) -> Void,
         didPasteAddress: @escaping ([String]) -> Void
     ) {
         self.name = name
-        self.input = input
         self.showAddressIcon = showAddressIcon
         self.placeholder = placeholder
         self.description = description
+        self.didChangeAddress = didChangeAddress
         self.didPasteAddress = didPasteAddress
+
+        bind(input: input, errorText: errorText)
+    }
+
+    private func bind(input: AnyPublisher<String, Never>, errorText: AnyPublisher<Error?, Never>) {
+        input
+            .assign(to: \.input, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        self.$input
+            .removeDuplicates()
+            .sink { [weak self] in
+                self?.didChangeAddress($0)
+            }
+            .store(in: &bag)
+
+        errorText
+            .map {
+                $0?.localizedDescription
+            }
+            .assign(to: \.errorText, on: self, ownership: .weak)
+            .store(in: &bag)
 
         if #unavailable(iOS 16.0) {
             NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)
@@ -73,7 +99,7 @@ class SendDestinationInputViewModel: Identifiable {
     }
 
     func clearInput() {
-        input.wrappedValue = ""
+        didChangeAddress("")
     }
 
     private func updatePasteButton() {
