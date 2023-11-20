@@ -10,15 +10,13 @@ import Foundation
 import Combine
 
 public protocol ExpressManager {
-    func getSelectedQuote() async -> ExpectedQuote?
-
     func getPair() async -> ExpressManagerSwappingPair?
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState
 
     func getAmount() async -> Decimal?
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState
 
-    func getSelectedProvider() async -> ExpressProvider?
+    func getSelectedQuote() async -> ExpressAvailabilityQuoteState?
     func updateSelectedProvider(provider: ExpressProvider) async throws -> ExpressManagerState
 
     func update() async throws -> ExpressManagerState
