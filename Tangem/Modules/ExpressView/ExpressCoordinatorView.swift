@@ -38,6 +38,9 @@ struct ExpressCoordinatorView: CoordinatorView {
             .bottomSheet(item: $coordinator.expressFeeSelectorViewModel) {
                 ExpressFeeBottomSheetView(viewModel: $0)
             }
+            .bottomSheet(item: $coordinator.expressProvidersBottomSheetViewModel) {
+                ExpressProvidersBottomSheetView(viewModel: $0)
+            }
 
         NavHolder()
             .sheet(item: $coordinator.swappingSuccessCoordinator) {
