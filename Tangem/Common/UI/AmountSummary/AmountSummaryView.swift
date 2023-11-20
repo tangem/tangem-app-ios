@@ -21,11 +21,13 @@ struct AmountSummaryView: View {
 
                 HStack(spacing: 0) {
                     TokenIcon(
-                        name: data.tokenIconName,
-                        imageURL: data.tokenIconURL,
-                        customTokenColor: data.tokenIconCustomTokenColor,
-                        blockchainIconName: data.tokenIconBlockchainIconName,
-                        isCustom: data.isCustomToken,
+                        tokenIconInfo: TokenIconInfo(
+                            name: data.tokenIconName,
+                            blockchainIconName: data.tokenIconBlockchainIconName,
+                            imageURL: data.tokenIconURL,
+                            isCustom: data.isCustomToken,
+                            customTokenColor: data.tokenIconCustomTokenColor
+                        ),
                         size: iconSize
                     )
                     .padding(.trailing, 12)
