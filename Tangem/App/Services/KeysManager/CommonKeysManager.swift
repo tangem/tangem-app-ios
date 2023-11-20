@@ -86,6 +86,10 @@ extension CommonKeysManager: KeysManager {
     var walletConnectProjectId: String {
         keys.walletConnectProjectId
     }
+
+    var tangemExpressApiKey: String {
+        keys.tangemExpressApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -115,5 +119,6 @@ extension CommonKeysManager {
         let swapReferrerAccount: SwapReferrerAccount?
         let walletConnectProjectId: String
         let sprinklr: SprinklrConfig
+        let tangemExpressApiKey: String
     }
 }
