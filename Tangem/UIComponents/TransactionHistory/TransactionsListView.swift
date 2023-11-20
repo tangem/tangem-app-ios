@@ -71,10 +71,9 @@ struct TransactionsListView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 36)
 
-            FixedSizeButtonWithLeadingIcon(
-                title: Localization.commonExploreTransactionHistory,
-                icon: Assets.arrowRightUpMini.image,
-                action: exploreAction
+            makeExploreTransactionHistoryButton(
+                withTitle: Localization.exploreTransactionHistoryDefault,
+                hasFixedSize: true
             )
         }
         .padding(.vertical, 28)
@@ -96,12 +95,17 @@ struct TransactionsListView: View {
     @ViewBuilder
     private var noTransactionsContent: some View {
         VStack(spacing: 22) {
-            Assets.emptyHistory.image
+            Assets.emptyHistory2.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryEmptyTransactions)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
+            makeExploreTransactionHistoryButton(
+                withTitle: Localization.exploreTransactionHistoryBrief,
+                hasFixedSize: true
+            )
         }
         .padding(.vertical, 28)
     }
@@ -118,7 +122,15 @@ struct TransactionsListView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 36)
 
-            buttonWithLoader(title: Localization.commonReload, action: reloadButtonAction, isLoading: isReloadButtonBusy)
+            HStack(spacing: 8.0) {
+                makeReloadTransactionHistoryButton()
+
+                makeExploreTransactionHistoryButton(
+                    withTitle: Localization.exploreTransactionHistoryCompact,
+                    hasFixedSize: false
+                )
+            }
+            .padding(.horizontal, 16.0)
         }
         .padding(.vertical, 28)
     }
@@ -175,37 +187,11 @@ struct TransactionsListView: View {
     }
 
     @ViewBuilder
-    private func simpleButton(with title: String, and action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-        }
-        .background(Colors.Button.secondary)
-        .cornerRadiusContinuous(10)
-    }
-
-    @ViewBuilder
-    private func buttonWithLoader(title: String, action: @escaping () -> Void, isLoading: Bool) -> some View {
-        Button(action: action) {
-            Text(title)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .style(Fonts.Bold.subheadline, color: isLoading ? Color.clear : Colors.Text.primary1)
-                .overlay(
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
-                        .hidden(!isLoading)
-                        .disabled(!isLoading)
-                )
-        }
-        .background(Colors.Button.secondary)
-        .cornerRadiusContinuous(10)
-    }
-
-    @ViewBuilder
-    private func makeSectionHeader(for item: TransactionListItem, atIndex sectionIndex: Int, withVerticalPadding useVerticalPadding: Bool) -> some View {
+    private func makeSectionHeader(
+        for item: TransactionListItem,
+        atIndex sectionIndex: Int,
+        withVerticalPadding useVerticalPadding: Bool
+    ) -> some View {
         HStack {
             Text(item.header)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -214,6 +200,48 @@ struct TransactionsListView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, useVerticalPadding ? 14 : 0)
+    }
+
+    @ViewBuilder
+    private func makeExploreTransactionHistoryButton(withTitle title: String, hasFixedSize: Bool) -> some View {
+        Group {
+            if hasFixedSize {
+                FixedSizeButtonWithLeadingIcon(
+                    title: title,
+                    icon: Assets.arrowRightUpMini.image,
+                    action: exploreAction
+                )
+            } else {
+                FlexySizeButtonWithLeadingIcon(
+                    title: title,
+                    icon: Assets.arrowRightUpMini.image,
+                    action: exploreAction
+                )
+                .overrideBackgroundColor(Constants.buttonBackgroundColor)
+            }
+        }
+        .frame(height: Constants.buttonHeight)
+    }
+
+    @ViewBuilder
+    private func makeReloadTransactionHistoryButton() -> some View {
+        FlexySizeButtonWithLeadingIcon(
+            title: Localization.commonReload,
+            icon: Assets.reload.image,
+            action: reloadButtonAction
+        )
+        .overrideBackgroundColor(Constants.buttonBackgroundColor)
+        .overlay(
+            ZStack {
+                Constants.buttonBackgroundColor
+                    .cornerRadiusContinuous(10.0)
+
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
+            }
+            .hidden(!isReloadButtonBusy)
+        )
+        .frame(height: Constants.buttonHeight)
     }
 }
 
@@ -236,10 +264,14 @@ extension TransactionsListView {
     }
 }
 
+// MARK: - Constants
+
 extension TransactionsListView {
     enum Constants {
         @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
         static let ios14ListItemHeight = 56.0
+        static let buttonHeight = 34.0
+        static let buttonBackgroundColor = Colors.Button.secondary
     }
 }
 
