@@ -483,7 +483,7 @@ private extension ExpressViewModel {
         }
 
         let sourceFiatAmount = try await balanceConverter.convertToFiat(value: sourceAmount, from: senderCurrencyId)
-        let destinationFiatAmount = try await balanceConverter.convertToFiat(value: 0, from: destinationCurrencyId)
+        let destinationFiatAmount = try await balanceConverter.convertToFiat(value: destinationAmount, from: destinationCurrencyId)
 
         let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount) * 100
 
