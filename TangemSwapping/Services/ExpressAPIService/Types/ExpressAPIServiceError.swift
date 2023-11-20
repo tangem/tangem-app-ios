@@ -10,7 +10,7 @@ import Foundation
 
 enum ExpressAPIServiceError: LocalizedError {
     case requestError(Error)
-    case apiError(ExpressDTO.APIError)
+    case apiError(ExpressDTO.ExpressAPIError)
     case decodingError(Error)
 
     public var errorDescription: String? {
