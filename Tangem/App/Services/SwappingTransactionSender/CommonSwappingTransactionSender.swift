@@ -97,15 +97,16 @@ extension WalletModel {
         var transaction = BlockchainSdk.Transaction(
             amount: amount,
             fee: fee,
-            sourceAddress: data.sourceAddress,
+            sourceAddress: data.sourceAddress ?? defaultAddress,
             destinationAddress: data.destinationAddress,
-            changeAddress: data.sourceAddress,
+            changeAddress: data.sourceAddress ?? defaultAddress,
             contractAddress: data.destinationAddress
         )
 
         // In EVM-like blockchains we should add the txData to the transaction
         if let ethereumNetworkProvider = ethereumNetworkProvider {
-            let nonce = try await ethereumNetworkProvider.getTxCount(data.sourceAddress).async()
+            let source = data.sourceAddress ?? defaultAddress
+            let nonce = try await ethereumNetworkProvider.getTxCount(source).async()
             transaction.params = EthereumTransactionParams(
                 data: data.txData.map { Data(hexString: $0) },
                 nonce: nonce
