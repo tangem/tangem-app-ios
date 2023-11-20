@@ -90,21 +90,14 @@ private extension CommonTokenQuotesRepository {
                     .loadAndSaveQuotes(currencyIds: ids)
                     .map { items }
             }
-            .sink(receiveCompletion: { completion in
-                guard case .failure(let error) = completion else {
-                    return
-                }
-
-                AppLog.shared.debug("Loading quotes catch error")
-                AppLog.shared.error(error: error, params: [:])
-            }, receiveValue: { items in
+            .sink(receiveValue: { items in
                 // Send the event that quotes for currencyIds have been loaded
                 items.forEach { $0.didLoadPublisher.send(()) }
             })
             .store(in: &bag)
     }
 
-    func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<Void, Error> {
+    func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<Void, Never> {
         AppLog.shared.debug("Start loading quotes for ids: \(currencyIds)")
 
         let currencyCode = AppSettings.shared.selectedCurrencyCode
@@ -117,6 +110,11 @@ private extension CommonTokenQuotesRepository {
                 AppLog.shared.debug("Finish loading quotes for ids: \(currencyIds)")
                 self?.saveQuotes(quotes, currencyCode: currencyCode)
                 return ()
+            }
+            .catch { error in
+                AppLog.shared.debug("Loading quotes catch error")
+                AppLog.shared.error(error: error, params: [:])
+                return Just(())
             }
             .eraseToAnyPublisher()
     }
