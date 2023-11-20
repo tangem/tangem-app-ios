@@ -38,7 +38,7 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         []
     }
 
-    var recentTransactions: [SendSuggestedDestinationTransactionRecord] {
-        []
+    var recentTransactions: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> {
+        .just(output: [])
     }
 }
