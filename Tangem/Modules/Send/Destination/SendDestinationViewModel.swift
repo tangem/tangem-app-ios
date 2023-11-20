@@ -26,11 +26,10 @@ protocol SendDestinationViewModelInput {
 }
 
 protocol SendDestinationViewDelegate: AnyObject {
-    func didChangeAddress(_ address: String)
+    func didEnterAddress(_ address: String)
+    func didEnterAdditionalField(_ additionalField: String)
 
-    func didSelectAddress(_ address: String)
-    func didSelectAdditionalField(_ additionalField: String)
-    func didSelectDestination(_ destination: SendSuggestedDestination)
+    func didSelectSuggestedDestination(_ destination: SendSuggestedDestination)
 }
 
 class SendDestinationViewModel: ObservableObject {
@@ -54,10 +53,7 @@ class SendDestinationViewModel: ObservableObject {
             description: Localization.sendRecipientAddressFooter(input.networkName),
             errorText: input.destinationError
         ) { [weak self] in
-            self?.delegate?.didChangeAddress($0)
-        } didPasteAddress: { [weak self] strings in
-            guard let address = strings.first else { return }
-            self?.delegate?.didSelectAddress(address)
+            self?.delegate?.didEnterAddress($0)
         }
 
         if let additionalField = input.additionalField,
@@ -70,10 +66,7 @@ class SendDestinationViewModel: ObservableObject {
                 description: Localization.sendRecipientMemoFooter,
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
-                self?.delegate?.didSelectAdditionalField($0)
-            } didPasteAddress: { [weak self] strings in
-                guard let additionalField = strings.first else { return }
-                self?.delegate?.didSelectAdditionalField(additionalField)
+                self?.delegate?.didEnterAdditionalField($0)
             }
         }
 
@@ -109,7 +102,7 @@ class SendDestinationViewModel: ObservableObject {
                     wallets: input.suggestedWallets,
                     recentTransactions: recentTransactions
                 ) { [weak self] destination in
-                    self?.delegate?.didSelectDestination(destination)
+                    self?.delegate?.didSelectSuggestedDestination(destination)
                 }
             }
             .store(in: &bag)
