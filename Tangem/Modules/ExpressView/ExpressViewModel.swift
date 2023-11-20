@@ -93,6 +93,7 @@ final class ExpressViewModel: ObservableObject {
 
     func userDidTapSwapSwappingItemsButton() {
         Analytics.log(.swapButtonSwipe)
+        update(restriction: .none)
         swappingInteractor.swapPair()
 
         // If we have amount then we should round and update it with new decimalCount
@@ -325,6 +326,10 @@ private extension ExpressViewModel {
 
     func updateState(state: ExpressInteractor.ExpressInteractorState) {
         updateFeeValue(state: state)
+
+        // The HighPriceImpact warning can't be a restriction
+        // because it can be visible even on readyToSwap state
+        updateHighPriceImpact(state: state)
         updateMainButton(state: state)
 
         switch state {
@@ -357,12 +362,18 @@ private extension ExpressViewModel {
 
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
-        case .readyToSwap(_, let quote):
+        case .readyToSwap(let data, let quote):
             swapButtonIsLoading = false
             update(restriction: .none)
             restartTimer()
 
             updateReceiveCurrencyValue(expectAmount: quote.quote?.expectAmount)
+            runTask(in: self) { viewModel in
+                try await viewModel.checkForHighPriceImpact(
+                    sourceAmount: data.data.fromAmount,
+                    destinationAmount: data.data.toAmount
+                )
+            }
         }
     }
 
@@ -423,15 +434,56 @@ private extension ExpressViewModel {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func checkForHighPriceImpact(sourceFiatAmount: Decimal, destinationFiatAmount: Decimal) async throws {
-        if sourceFiatAmount.isZero {
+    func updateHighPriceImpact(state: ExpressInteractor.ExpressInteractorState) {
+        runTask(in: self) { viewModel in
+            switch state {
+            case .idle:
+                await runOnMain {
+                    viewModel.highPriceImpactWarningRowViewModel = nil
+                }
+            case .loading(let type):
+                if type == .full {
+                    await runOnMain {
+                        viewModel.highPriceImpactWarningRowViewModel = nil
+                    }
+                }
+            case .restriction(_, let quote):
+                if let quote = quote?.quote {
+                    try await viewModel.checkForHighPriceImpact(
+                        sourceAmount: quote.fromAmount,
+                        destinationAmount: quote.expectAmount
+                    )
+                } else {
+                    await runOnMain {
+                        viewModel.highPriceImpactWarningRowViewModel = nil
+                    }
+                }
+
+            case .readyToSwap(let data, _):
+                try await viewModel.checkForHighPriceImpact(
+                    sourceAmount: data.data.fromAmount,
+                    destinationAmount: data.data.toAmount
+                )
+            }
+        }
+    }
+
+    func checkForHighPriceImpact(sourceAmount: Decimal, destinationAmount: Decimal) async throws {
+        if sourceAmount.isZero {
             // No need to calculate price impact with zero input
             await runOnMain {
                 highPriceImpactWarningRowViewModel = nil
             }
             return
         }
+
+        guard let senderCurrencyId = swappingInteractor.getSender().tokenItem.currencyId,
+              let destinationCurrencyId = swappingInteractor.getDestination()?.tokenItem.currencyId else {
+            throw CommonError.noData
+        }
+
+        let sourceFiatAmount = try await balanceConverter.convertToFiat(value: sourceAmount, from: senderCurrencyId)
+        let destinationFiatAmount = try await balanceConverter.convertToFiat(value: 0, from: destinationCurrencyId)
 
         let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount) * 100
 
@@ -446,7 +498,7 @@ private extension ExpressViewModel {
 
 private extension ExpressViewModel {
     func mapToMessage(error: Error) -> String {
-        AppLog.shared.debug("DefaultSwappingManager catch error: ")
+        AppLog.shared.debug("ExpressViewModel catch error: ")
         AppLog.shared.error(error)
 
         switch error {
@@ -507,7 +559,7 @@ private extension ExpressViewModel {
             updateRefreshWarningRowViewModel(message: .none)
             updateHighPriceImpact(isHighPriceImpact: false)
 
-        case .notEnoughAmountForSwapping(let minAmount):
+        case .notEnoughAmountForSwapping:
             updateRequiredPermission(isPermissionRequired: false)
             updatePendingApprovingTransaction(hasPendingTransaction: false)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
@@ -633,12 +685,12 @@ private extension ExpressViewModel {
 
     func startTimer() {
         AppLog.shared.debug("[Swap] Start timer")
-//        refreshDataTimerBag = refreshDataTimer
-//            .autoconnect()
-//            .sink { [weak self] date in
-//                AppLog.shared.debug("[Swap] Timer call autoupdate")
-//                self?.swappingInteractor.refresh(type: .refreshRates)
-//            }
+        refreshDataTimerBag = refreshDataTimer
+            .autoconnect()
+            .sink { [weak self] date in
+                AppLog.shared.debug("[Swap] Timer call autoupdate")
+                self?.swappingInteractor.refresh(type: .refreshRates)
+            }
     }
 }
 
