@@ -57,19 +57,21 @@ extension CommonExpressManager: ExpressManager {
         return selectedQuote
     }
 
-    func getSelectedProvider() -> ExpressProvider? {
-        return getSelectedQuote()?.provider
-    }
-
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
         assert(pair.source.expressCurrency != pair.destination.expressCurrency, "Pair has equal currencies")
         _pair = pair
+
+        // Clear for reselected the best quote
+        selectedQuote = nil
 
         return try await update()
     }
 
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState {
         _amount = amount
+
+        // Clear for reselected the best quote
+        selectedQuote = nil
 
         return try await update()
     }
