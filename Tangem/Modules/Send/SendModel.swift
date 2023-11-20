@@ -275,6 +275,7 @@ extension SendModel: SendAmountViewModelInput {
 extension SendModel: SendDestinationViewModelInput {
     var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
+
     var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
 
