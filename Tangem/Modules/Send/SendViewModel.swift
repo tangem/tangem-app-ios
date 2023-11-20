@@ -160,19 +160,15 @@ extension SendViewModel: SendAmountViewModelDelegate {
 }
 
 extension SendViewModel: SendDestinationViewDelegate {
-    func didChangeAddress(_ address: String) {
+    func didEnterAddress(_ address: String) {
         sendModel.setDestination(address)
     }
 
-    func didSelectAddress(_ address: String) {
-        sendModel.setDestination(address)
-    }
-
-    func didSelectAdditionalField(_ additionalField: String) {
+    func didEnterAdditionalField(_ additionalField: String) {
         sendModel.setDestinationAdditionalField(additionalField)
     }
 
-    func didSelectDestination(_ destination: SendSuggestedDestination) {
+    func didSelectSuggestedDestination(_ destination: SendSuggestedDestination) {
         sendModel.setDestination(destination.address)
         if let additionalField = destination.additionalField {
             sendModel.setDestinationAdditionalField(additionalField)
