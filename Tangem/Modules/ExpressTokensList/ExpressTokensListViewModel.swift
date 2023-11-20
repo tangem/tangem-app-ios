@@ -54,10 +54,13 @@ private extension ExpressTokensListViewModel {
     func getAvailableTokens() -> [ExpressTokenItemViewModel] {
         [
             ExpressTokenItemViewModel(
-                id: "Polygon",
-                tokenIconItem: TokenIconItemViewModel(
+                id: "Polygon".hashValue,
+                tokenIconInfo: TokenIconInfo(
+                    name: "",
+                    blockchainIconName: "bitcoin",
                     imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Polygon",
                 symbol: "MATIC",
@@ -67,10 +70,13 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                id: "Cardano",
-                tokenIconItem: TokenIconItemViewModel(
+                id: "Cardano".hashValue,
+                tokenIconInfo: TokenIconInfo(
+                    name: "",
+                    blockchainIconName: "bitcoin",
                     imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Cardano",
                 symbol: "ADA",
@@ -80,10 +86,13 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                id: "Binance",
-                tokenIconItem: TokenIconItemViewModel(
+                id: "Binance".hashValue,
+                tokenIconInfo: TokenIconInfo(
+                    name: "",
+                    blockchainIconName: nil,
                     imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
-                    networkURL: nil
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Binance",
                 symbol: "BNB",
@@ -99,10 +108,13 @@ private extension ExpressTokensListViewModel {
     func getUnavailableTokens() -> [ExpressTokenItemViewModel] {
         [
             ExpressTokenItemViewModel(
-                id: "Polygon",
-                tokenIconItem: TokenIconItemViewModel(
+                id: "Polygon".hashValue,
+                tokenIconInfo: TokenIconInfo(
+                    name: "",
+                    blockchainIconName: "bitcoin",
                     imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Polygon",
                 symbol: "MATIC",
@@ -112,10 +124,13 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                id: "Cardano",
-                tokenIconItem: TokenIconItemViewModel(
+                id: "Cardano".hashValue,
+                tokenIconInfo: TokenIconInfo(
+                    name: "",
+                    blockchainIconName: "bitcoin",
                     imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Cardano",
                 symbol: "ADA",
@@ -125,10 +140,13 @@ private extension ExpressTokensListViewModel {
                 itemDidTap: {}
             ),
             ExpressTokenItemViewModel(
-                id: "Binance",
-                tokenIconItem: TokenIconItemViewModel(
+                id: "Binance".hashValue,
+                tokenIconInfo: TokenIconInfo(
+                    name: "",
+                    blockchainIconName: nil,
                     imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
-                    networkURL: nil
+                    isCustom: false,
+                    customTokenColor: Color.red
                 ),
                 name: "Binance",
                 symbol: "BNB",
