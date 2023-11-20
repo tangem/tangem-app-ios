@@ -53,10 +53,13 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
+        let senderCurrencyCode = expressInteractor.getSender().tokenItem.currencySymbol
         let destinationCurrencyCode = expressInteractor.getDestination()?.tokenItem.currencySymbol
         let subtitle = expressProviderFormatter.mapToRateSubtitle(
             quote: quote,
-            option: .destination(destinationCurrencyCode: destinationCurrencyCode)
+            senderCurrencyCode: senderCurrencyCode,
+            destinationCurrencyCode: destinationCurrencyCode,
+            option: .destination
         )
 
         let provider = quote.provider
