@@ -53,12 +53,12 @@ extension CommonExpressManager: ExpressManager {
         return _amount
     }
 
-    func getSelectedQuote() -> ExpectedQuote? {
-        return selectedQuote
+    func getAllQuotes() async -> [ExpectedQuote] {
+        return availableQuotes
     }
 
-    func getAllQuotes() async -> [ExpressAvailabilityQuoteState] {
-        return availableQuotes
+    func getSelectedQuote() -> ExpectedQuote? {
+        return selectedQuote
     }
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
