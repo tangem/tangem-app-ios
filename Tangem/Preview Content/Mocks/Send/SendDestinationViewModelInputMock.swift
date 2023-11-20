@@ -10,12 +10,12 @@ import SwiftUI
 import Combine
 
 class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
-    var destinationTextBinding: Binding<String> {
-        .constant("0x123123")
+    var destinationTextPublisher: AnyPublisher<String, Never> {
+        .just(output: "0x123123")
     }
 
-    var destinationAdditionalFieldTextBinding: Binding<String> {
-        .constant("Memo")
+    var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> {
+        .just(output: "Memo")
     }
 
     var destinationError: AnyPublisher<Error?, Never> {
