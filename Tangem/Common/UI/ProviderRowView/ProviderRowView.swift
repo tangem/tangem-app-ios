@@ -15,6 +15,7 @@ struct ProviderRowView: View {
         Button(action: viewModel.tapAction) {
             content
         }
+        .disabled(viewModel.isDisabled)
     }
 
     private var content: some View {
@@ -58,9 +59,11 @@ struct ProviderRowView: View {
                 case .text(let text):
                     Text(text)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .multilineTextAlignment(.leading)
                 case .percent(let text, let signType):
                     Text(text)
                         .style(Fonts.Regular.footnote, color: signType.textColor)
+                        .multilineTextAlignment(.leading)
                 }
             }
         }

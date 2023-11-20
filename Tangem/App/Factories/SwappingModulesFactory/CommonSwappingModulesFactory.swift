@@ -90,11 +90,11 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeExpressTokensListViewModel(
-        walletType: ExpressTokensListViewModel.SwapDirection,
+        swapDirection: ExpressTokensListViewModel.SwapDirection,
         coordinator: ExpressTokensListRoutable
     ) -> ExpressTokensListViewModel {
         ExpressTokensListViewModel(
-            swapDirection: walletType,
+            swapDirection: swapDirection,
             walletModels: walletModelsManager.walletModels,
             expressAPIProvider: expressAPIProvider,
             expressInteractor: expressInteractor,
@@ -115,6 +115,17 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             transactionSender: transactionSender,
             swappingInteractor: swappingInteractor,
             fiatRatesProvider: fiatRatesProvider,
+            coordinator: coordinator
+        )
+    }
+
+    func makeExpressProvidersBottomSheetViewModel(
+        input: ExpressProvidersBottomSheetViewModel.InputModel,
+        coordinator: ExpressProvidersBottomSheetRoutable
+    ) -> ExpressProvidersBottomSheetViewModel {
+        ExpressProvidersBottomSheetViewModel(
+            input: input,
+            expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
