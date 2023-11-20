@@ -539,10 +539,10 @@ extension ExpressInteractor {
 
         // After change swappingItems
         case loading(type: SwappingManagerRefreshType)
-        case restriction(_ type: RestrictionType, quote: ExpectedQuote?)
-        case readyToSwap(state: ReadyToSwapViewState, quote: ExpectedQuote)
+        case restriction(_ type: RestrictionType, quote: ExpressAvailabilityQuoteState?)
+        case readyToSwap(state: ReadyToSwapViewState, quote: ExpressAvailabilityQuoteState)
 
-        var quote: ExpectedQuote? {
+        var quote: ExpressAvailabilityQuoteState? {
             switch self {
             case .idle, .loading:
                 return nil
