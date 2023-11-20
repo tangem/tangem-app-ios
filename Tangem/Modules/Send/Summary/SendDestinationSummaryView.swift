@@ -17,7 +17,9 @@ struct SendDestinationSummaryView: View {
             case .address(let address):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
-                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+                if let name = type.name {
+                    DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                }
             }
         }
         .horizontalPadding(14)
