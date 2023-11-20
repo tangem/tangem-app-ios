@@ -20,7 +20,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     private var selectedProviderId: Int?
     private let quotes: [ExpectedQuote]
 
-    private let balanceFormatter: BalanceFormatter
+    private let expressProviderFormatter: ExpressProviderFormatter
     private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressProvidersBottomSheetRoutable
 
@@ -28,14 +28,14 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     init(
         input: InputModel,
-        balanceFormatter: BalanceFormatter = .init(),
+        expressProviderFormatter: ExpressProviderFormatter,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressProvidersBottomSheetRoutable
     ) {
         selectedProviderId = input.selectedProviderId
         quotes = input.quotes
 
-        self.balanceFormatter = balanceFormatter
+        self.expressProviderFormatter = expressProviderFormatter
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
@@ -53,46 +53,20 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
-        let provider = quote.provider
-        let detailsType: ProviderRowViewModel.DetailsType? = selectedProviderId == provider.id ? .selected : .none
-
-        let viewProvider = ProviderRowViewModel.Provider(
-            iconURL: provider.url,
-            name: provider.name,
-            type: provider.type.rawValue.uppercased()
+        let destinationCurrencyCode = expressInteractor.getDestination()?.tokenItem.currencySymbol
+        let subtitle = expressProviderFormatter.mapToRateSubtitle(
+            quote: quote,
+            option: .destination(destinationCurrencyCode: destinationCurrencyCode)
         )
 
-        let subtitles: [ProviderRowViewModel.Subtitle] = {
-            switch quote.state {
-            case .quote(let expressQuote):
-                if let destination = expressInteractor.getDestination() {
-                    let currencyCode = destination.tokenItem.currencySymbol
-                    let formatted = balanceFormatter.formatCryptoBalance(expressQuote.expectAmount, currencyCode: currencyCode)
-                    return [.text(formatted)]
-                }
-
-                return [.text(ExpressInteractorError.destinationNotFound.localizedDescription)]
-
-            case .tooSmallAmount(let minAmount):
-                let sender = expressInteractor.getSender()
-                let currencyCode = sender.tokenItem.currencySymbol
-                let formatted = balanceFormatter.formatCryptoBalance(minAmount, currencyCode: currencyCode)
-
-                return [.text("Min amount: \(formatted)")]
-
-            case .error(let string):
-                return [.text("Error: \(string)")]
-            case .notAvailable:
-                return [.text("Not available for this pair")]
-            }
-        }()
+        let provider = quote.provider
 
         return ProviderRowViewModel(
-            provider: viewProvider,
+            provider: expressProviderFormatter.mapToProvider(provider: provider),
             isDisabled: !quote.isAvailable,
             badge: provider.type == .dex ? .permissionNeeded : .none,
-            subtitles: subtitles,
-            detailsType: detailsType,
+            subtitles: [subtitle],
+            detailsType: selectedProviderId == provider.id ? .selected : .none,
             tapAction: { [weak self] in
                 self?.selectedProviderId = provider.id
                 self?.expressInteractor.updateProvider(provider: provider)
