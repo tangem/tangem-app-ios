@@ -83,6 +83,14 @@ extension ExpressInteractor {
     func getApprovePolicy() -> SwappingApprovePolicy {
         approvePolicy.read()
     }
+
+    func getAllQuotes() async -> [ExpectedQuote] {
+        await expressManager.getAllQuotes()
+    }
+
+    func getSelectedProvider() async -> ExpressProvider? {
+        await expressManager.getSelectedQuote()?.provider
+    }
 }
 
 // MARK: - Updates
