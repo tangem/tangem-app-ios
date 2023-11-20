@@ -50,7 +50,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
-            fromAmount: item.amountWEI(),
+            fromAmount: item.sourceAmountWEI(),
             providerId: item.providerId,
             rateType: .float
         )
@@ -66,7 +66,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
-            fromAmount: item.amountWEI(),
+            fromAmount: item.sourceAmountWEI(),
             providerId: item.providerId,
             rateType: .float,
             refundAddress: item.source.defaultAddress,
