@@ -10,10 +10,6 @@ import Foundation
 import Combine
 
 public protocol ExpressManager {
-    nonisolated var providersPublisher: AnyPublisher<[ExpressProvider], Never> { get }
-    nonisolated var availableQuotesPublisher: AnyPublisher<[ExpectedQuote], Never> { get }
-    nonisolated var selectedQuotePublisher: AnyPublisher<ExpectedQuote?, Never> { get }
-
     func getPair() async -> ExpressManagerSwappingPair?
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState
 
