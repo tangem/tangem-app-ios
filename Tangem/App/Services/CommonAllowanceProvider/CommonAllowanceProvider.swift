@@ -21,17 +21,17 @@ class CommonAllowanceProvider {
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.ethereumTransactionProcessor = ethereumTransactionProcessor
     }
-
-    private let allowanceLimit: ThreadSafeContainer<[ExpressCurrency: Decimal]> = [:]
-    // Cached addresses for check approving transactions
-    private let pendingTransactions: ThreadSafeContainer<[ExpressCurrency: PendingTransactionState]> = [:]
 }
 
 // MARK: - AllowanceProvider
 
 extension CommonAllowanceProvider: AllowanceProvider {
     func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
-        let allowance = try await ethereumNetworkProvider.getAllowance(owner: owner, spender: spender, contractAddress: contract).async()
+        let allowance = try await ethereumNetworkProvider.getAllowance(
+            owner: owner,
+            spender: spender,
+            contractAddress: contract
+        ).async()
 
         return allowance
     }
