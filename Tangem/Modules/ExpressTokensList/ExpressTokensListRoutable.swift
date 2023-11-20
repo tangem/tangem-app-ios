@@ -8,4 +8,6 @@
 
 import Foundation
 
-protocol ExpressTokensListRoutable: AnyObject {}
+protocol ExpressTokensListRoutable: AnyObject {
+    func closeExpressTokensList()
+}
