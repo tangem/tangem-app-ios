@@ -15,6 +15,7 @@ final class SendViewModel: ObservableObject {
 
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
+    @Published var alert: AlertBinder?
 
     var title: String {
         step.name
@@ -174,5 +175,6 @@ extension SendViewModel: SendDestinationViewDelegate {
         }
 
         #warning("[REDACTED_TODO_COMMENT]")
+        alert = AlertBuilder.makeSuccessAlert(message: "Address copied")
     }
 }
