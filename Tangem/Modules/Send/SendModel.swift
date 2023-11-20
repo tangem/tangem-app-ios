@@ -33,7 +33,6 @@ class SendModel {
     }
 
     private(set) var suggestedWallets: [SendSuggestedDestinationWallet] = []
-    private(set) var recentTransactions: [SendSuggestedDestinationTransactionRecord]
 
     // MARK: - Data
 
@@ -66,6 +65,11 @@ class SendModel {
     private let sendType: SendType
     private var bag: Set<AnyCancellable> = []
 
+    private lazy var transactionHistoryMapper = TransactionHistoryMapper(
+        currencySymbol: walletModel.tokenItem.currencySymbol,
+        addresses: walletModel.wallet.addresses.map { $0.value }
+    )
+
     // MARK: - Dependencies
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -76,8 +80,6 @@ class SendModel {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
-
-        recentTransactions = []
 
         suggestedWallets = otherUserWalletDestinations()
 
@@ -286,6 +288,24 @@ extension SendModel: SendDestinationViewModelInput {
         case .none:
             return nil
         }
+    }
+
+    var recentTransactions: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> {
+        walletModel
+            .transactionHistoryPublisher
+            .compactMap { [weak self] state -> [SendSuggestedDestinationTransactionRecord]? in
+                guard
+                    let self,
+                    case .loaded(let records) = state
+                else {
+                    return nil
+                }
+
+                return records.compactMap { record in
+                    self.transactionHistoryMapper.mapSuggestedRecord(record)
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }
 
