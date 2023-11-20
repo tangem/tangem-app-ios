@@ -362,7 +362,7 @@ private extension CommonExpressManager {
 private extension CommonExpressManager {
     func loadSwappingData(request: ExpressManagerSwappingPairRequest, providerId: Int) async throws -> ExpressTransactionData {
         let item = makeExpressSwappableItem(request: request, providerId: providerId)
-        let data = try await expressAPIProvider.exchangeData(item: item, destinationAddress: item.destination.defaultAddress)
+        let data = try await expressAPIProvider.exchangeData(item: item)
         return data
     }
 }
