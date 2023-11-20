@@ -11,13 +11,13 @@ import SwiftUI
 struct LoadingProvidersRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Provider")
+            Text(Localization.expressProvider)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             HStack(spacing: 4) {
                 progressView
 
-                Text("Fetching best rates...")
+                Text(Localization.expressFetchBestRates)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
             }
         }
