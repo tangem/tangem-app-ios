@@ -52,7 +52,7 @@ final class ExpressViewModel: ObservableObject {
     private let swappingFeeFormatter: SwappingFeeFormatter
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
-    private unowned let swappingInteractor: ExpressInteractor
+    private unowned let interactor: ExpressInteractor
     private unowned let coordinator: ExpressRoutable
 
     // MARK: - Private
@@ -66,14 +66,14 @@ final class ExpressViewModel: ObservableObject {
         swappingFeeFormatter: SwappingFeeFormatter,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
-        swappingInteractor: ExpressInteractor,
+        interactor: ExpressInteractor,
         coordinator: ExpressRoutable
     ) {
         self.initialWallet = initialWallet
         self.swappingFeeFormatter = swappingFeeFormatter
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
-        self.swappingInteractor = swappingInteractor
+        self.interactor = interactor
         self.coordinator = coordinator
 
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialWallet.tokenItem.currencySymbol])
@@ -82,30 +82,30 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        guard let sourceBalance = swappingInteractor.getSender().balanceValue else {
+        guard let sourceBalance = interactor.getSender().balanceValue else {
             return
         }
 
         sendDecimalValue = .external(sourceBalance)
         updateSendFiatValue(amount: sourceBalance)
-        swappingInteractor.update(amount: sourceBalance)
+        interactor.update(amount: sourceBalance)
     }
 
     func userDidTapSwapSwappingItemsButton() {
         Analytics.log(.swapButtonSwipe)
         update(restriction: .none)
-        swappingInteractor.swapPair()
+        interactor.swapPair()
 
         // If we have amount then we should round and update it with new decimalCount
         guard let amount = sendDecimalValue?.value else {
             return
         }
 
-        let source = swappingInteractor.getSender()
+        let source = interactor.getSender()
         let roundedAmount = amount.rounded(scale: source.decimalCount, roundingMode: .down)
         sendDecimalValue = .external(roundedAmount)
         updateSendFiatValue(amount: roundedAmount)
-        swappingInteractor.update(amount: roundedAmount)
+        interactor.update(amount: roundedAmount)
     }
 
     func userDidTapChangeSourceButton() {
@@ -136,7 +136,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func didTapWaringRefresh() {
-        swappingInteractor.refresh(type: .full)
+        interactor.refresh(type: .full)
     }
 
     // Workaround iOS 17 a sheet memory leak
@@ -155,7 +155,7 @@ private extension ExpressViewModel {
     }
 
     func openApproveView() {
-        guard case .restriction(let type, _) = swappingInteractor.getState(),
+        guard case .restriction(let type, _) = interactor.getState(),
               case .permissionRequired = type else {
             return
         }
@@ -172,18 +172,18 @@ private extension ExpressViewModel {
         updateState(state: .idle)
 
         sendCurrencyViewModel = SendCurrencyViewModel(
-            maximumFractionDigits: swappingInteractor.getSender().decimalCount,
-            canChangeCurrency: swappingInteractor.getSender().id != initialWallet.id,
+            maximumFractionDigits: interactor.getSender().decimalCount,
+            canChangeCurrency: interactor.getSender().id != initialWallet.id,
             tokenIconState: .loading
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            canChangeCurrency: swappingInteractor.getDestination()?.id != initialWallet.id,
+            canChangeCurrency: interactor.getDestination()?.id != initialWallet.id,
             tokenIconState: .loading
         )
 
-        updateSendView(wallet: swappingInteractor.getSender())
-        updateReceiveView(wallet: swappingInteractor.getDestination())
+        updateSendView(wallet: interactor.getSender())
+        updateReceiveView(wallet: interactor.getDestination())
     }
 
     func bind() {
@@ -194,7 +194,7 @@ private extension ExpressViewModel {
             // If value == nil then continue chain to reset states to idle
             .filter { $0?.isInternal ?? true }
             .handleEvents(receiveOutput: { [weak self] amount in
-                self?.swappingInteractor.cancelRefresh()
+                self?.interactor.cancelRefresh()
                 self?.updateSendFiatValue(amount: amount?.value)
                 self?.stopTimer()
             })
@@ -202,7 +202,7 @@ private extension ExpressViewModel {
             .sink { [weak self] amount in
                 // Remove refresh warning if user start typing
                 self?.updateRefreshWarningRowViewModel(message: .none)
-                self?.swappingInteractor.update(amount: amount?.value)
+                self?.interactor.update(amount: amount?.value)
 
                 if let amount, amount.value > 0 {
                     self?.startTimer()
@@ -210,7 +210,7 @@ private extension ExpressViewModel {
             }
             .store(in: &bag)
 
-        swappingInteractor.state
+        interactor.state
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
@@ -218,7 +218,7 @@ private extension ExpressViewModel {
             }
             .store(in: &bag)
 
-        swappingInteractor.swappingPair
+        interactor.swappingPair
             .receive(on: DispatchQueue.main)
             .sink { [weak self] pair in
                 self?.updateSendView(wallet: pair.sender)
@@ -227,10 +227,10 @@ private extension ExpressViewModel {
             .store(in: &bag)
     }
 
-    // MARK: - Update main bubbles
+    // MARK: - Send view bubble
 
     func updateSendView(wallet: WalletModel) {
-        sendCurrencyViewModel?.balance = .formatted(wallet.balance)
+        updateSendCurrencyBalance(wallet: wallet)
         sendCurrencyViewModel?.maximumFractionDigits = wallet.decimalCount
         sendCurrencyViewModel?.canChangeCurrency = wallet.id != initialWallet.id
         sendCurrencyViewModel?.tokenIconState = mapToSwappingTokenIconViewModelState(wallet: wallet)
@@ -245,10 +245,10 @@ private extension ExpressViewModel {
             return
         }
 
-        let tokenItem = swappingInteractor.getSender().tokenItem
+        let tokenItem = interactor.getSender().tokenItem
 
         guard let currencyId = tokenItem.currencyId else {
-            sendCurrencyViewModel?.update(fiatValue: .formatted("-"))
+            sendCurrencyViewModel?.update(fiatValue: .formatted(BalanceFormatter.defaultEmptyBalanceString))
             return
         }
 
@@ -271,12 +271,38 @@ private extension ExpressViewModel {
         }
     }
 
+    func updateSendCurrencyBalance(wallet: WalletModel) {
+        switch wallet.balanceValue {
+        case .none:
+            runTask(in: self) { viewModel in
+                await runOnMain {
+                    viewModel.sendCurrencyViewModel?.balance = .loading
+                }
+
+                _ = try await wallet.getBalance()
+                await runOnMain {
+                    viewModel.sendCurrencyViewModel?.balance = .formatted(wallet.balance)
+                }
+            }
+        case .some:
+            sendCurrencyViewModel?.balance = .formatted(wallet.balance)
+        }
+    }
+
+    // MARK: - Receive view bubble
+
     func updateReceiveView(wallet: WalletModel?) {
-        receiveCurrencyViewModel?.balance = wallet?.balance ?? ""
-        receiveCurrencyViewModel?.canChangeCurrency = wallet?.id != initialWallet.id
+        guard let wallet = wallet else {
+            receiveCurrencyViewModel?.canChangeCurrency = false
+            receiveCurrencyViewModel?.tokenIconState = .loading
+            return
+        }
+
+        updateReceiveCurrencyBalance(wallet: wallet)
+        receiveCurrencyViewModel?.canChangeCurrency = wallet.id != initialWallet.id
         receiveCurrencyViewModel?.tokenIconState = mapToSwappingTokenIconViewModelState(wallet: wallet)
 
-        let state = swappingInteractor.getState()
+        let state = interactor.getState()
         switch state {
         case .loading:
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
@@ -286,20 +312,41 @@ private extension ExpressViewModel {
         }
     }
 
+    func updateReceiveCurrencyBalance(wallet: WalletModel) {
+        switch wallet.balanceValue {
+        case .none:
+            runTask(in: self) { viewModel in
+                await runOnMain {
+                    viewModel.receiveCurrencyViewModel?.balance = .loading
+                }
+
+                _ = try await wallet.getBalance()
+                await runOnMain {
+                    viewModel.receiveCurrencyViewModel?.balance = .formatted(wallet.balance)
+                }
+            }
+        case .some:
+            receiveCurrencyViewModel?.balance = .formatted(wallet.balance)
+        }
+    }
+
     func updateReceiveCurrencyValue(expectAmount: Decimal?) {
         guard let expectAmount else {
-            receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(0))
+            receiveCurrencyViewModel?.update(cryptoAmountState: .formatted("0"))
             let formatted = balanceFormatter.formatFiatBalance(0)
 
             receiveCurrencyViewModel?.update(fiatAmountState: .formatted(formatted))
             return
         }
 
-        receiveCurrencyViewModel?.update(cryptoAmountState: .loaded(expectAmount))
+        let tokenItem = interactor.getDestination()?.tokenItem
+        let decimals = tokenItem?.decimalCount ?? 8
+        let formatter = DecimalNumberFormatter(maximumFractionDigits: decimals)
+        let formatted = formatter.format(value: expectAmount)
+        receiveCurrencyViewModel?.update(cryptoAmountState: .formatted(formatted))
 
-        let tokenItem = swappingInteractor.getDestination()?.tokenItem
         guard let currencyId = tokenItem?.currencyId else {
-            receiveCurrencyViewModel?.update(fiatAmountState: .formatted("-"))
+            receiveCurrencyViewModel?.update(fiatAmountState: .formatted(BalanceFormatter.defaultEmptyBalanceString))
             return
         }
 
@@ -386,12 +433,12 @@ private extension ExpressViewModel {
                 expressFeeRowViewModel = nil
             }
         case .readyToSwap(let state, _):
-            guard let fee = state.fees[swappingInteractor.getFeeOption()]?.amount.value else {
+            guard let fee = state.fees[interactor.getFeeOption()]?.amount.value else {
                 expressFeeRowViewModel = nil
                 return
             }
 
-            let tokenItem = swappingInteractor.getSender().tokenItem
+            let tokenItem = interactor.getSender().tokenItem
             let formattedFee = swappingFeeFormatter.format(
                 fee: fee,
                 currencySymbol: tokenItem.currencySymbol,
@@ -477,8 +524,8 @@ private extension ExpressViewModel {
             return
         }
 
-        guard let senderCurrencyId = swappingInteractor.getSender().tokenItem.currencyId,
-              let destinationCurrencyId = swappingInteractor.getDestination()?.tokenItem.currencyId else {
+        guard let senderCurrencyId = interactor.getSender().tokenItem.currencyId,
+              let destinationCurrencyId = interactor.getDestination()?.tokenItem.currencyId else {
             throw CommonError.noData
         }
 
@@ -530,7 +577,7 @@ private extension ExpressViewModel {
         stopTimer()
         runTask(in: self) { root in
             do {
-                let resultState = try await root.swappingInteractor.send()
+                let resultState = try await root.interactor.send()
 
                 try Task.checkCancellation()
 
@@ -605,7 +652,7 @@ private extension ExpressViewModel {
 
     func updateRequiredPermission(isPermissionRequired: Bool) {
         if isPermissionRequired {
-            let symbol = swappingInteractor.getSender().tokenItem.blockchain.currencySymbol
+            let symbol = interactor.getSender().tokenItem.blockchain.currencySymbol
             permissionInfoRowViewModel = DefaultWarningRowViewModel(
                 title: Localization.swappingGivePermission,
                 subtitle: Localization.swappingPermissionSubheader(symbol),
@@ -630,7 +677,7 @@ private extension ExpressViewModel {
 
     func updateEnoughAmountForFee(isNotEnoughAmountForFee: Bool) {
         if isNotEnoughAmountForFee {
-            let symbol = swappingInteractor.getSender().tokenItem.blockchain.currencySymbol
+            let symbol = interactor.getSender().tokenItem.blockchain.currencySymbol
             feeWarningRowViewModel = DefaultWarningRowViewModel(
                 subtitle: Localization.swappingNotEnoughFundsForFee(symbol, symbol),
                 leftView: .icon(Assets.attention)
@@ -689,7 +736,7 @@ private extension ExpressViewModel {
             .autoconnect()
             .sink { [weak self] date in
                 AppLog.shared.debug("[Swap] Timer call autoupdate")
-                self?.swappingInteractor.refresh(type: .refreshRates)
+                self?.interactor.refresh(type: .refreshRates)
             }
     }
 }
