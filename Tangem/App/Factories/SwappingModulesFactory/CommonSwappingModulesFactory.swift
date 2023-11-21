@@ -58,7 +58,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             swappingFeeFormatter: swappingFeeFormatter,
             balanceConverter: .init(),
             balanceFormatter: .init(),
-            swappingInteractor: expressInteractor,
+            interactor: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -203,6 +203,10 @@ private extension CommonSwappingModulesFactory {
         CommonExpressDestinationService(walletModelsManager: walletModelsManager)
     }
 
+    var expressTransactionBuilder: ExpressTransactionBuilder {
+        CommonExpressTransactionBuilder()
+    }
+
     var swappingInteractor: SwappingInteractor {
         if let interactor = _swappingInteractor {
             return interactor
@@ -242,6 +246,7 @@ private extension CommonSwappingModulesFactory {
             allowanceProvider: allowanceProvider,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
+            expressTransactionBuilder: expressTransactionBuilder,
             signer: signer,
             logger: logger
         )
