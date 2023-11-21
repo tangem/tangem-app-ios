@@ -200,12 +200,42 @@ private extension CommonExpressManager {
         try Task.checkCancellation()
 
         let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
+
+        // Find the best quote
+        var best: ExpressQuote?
+        quotes.forEach { _, value in
+            do {
+                let quote = try value.get()
+                if let bestAmount = best?.expectAmount, quote.expectAmount > bestAmount {
+                    best = quote
+                } else if best == nil {
+                    best = quote
+                }
+            } catch {
+                // Do nothing
+            }
+        }
+
         let allQuotes: [ExpectedQuote] = allProviders.map { provider in
-            if let loadedQuote = quotes[provider.id] {
-                return ExpectedQuote(provider: provider, state: loadedQuote)
+            if let loadedQuoteResult = quotes[provider.id] {
+                switch loadedQuoteResult {
+                case .success(let quote):
+                    let isBest = best == quote
+                    return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
+                case .failure(let error):
+                    if let apiError = error as? ExpressDTO.ExpressAPIError,
+                       apiError.code == .exchangeTooSmallAmountError,
+                       let value = apiError.value,
+                       let minAmount = Decimal(string: value.minAmount) {
+                        let minAmount = minAmount / pow(10, value.decimals)
+                        return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
+                    }
+
+                    return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+                }
             }
 
-            return ExpectedQuote(provider: provider, state: .notAvailable)
+            return ExpectedQuote(provider: provider, state: .notAvailable, isBest: false)
         }
 
         return allQuotes
@@ -216,12 +246,7 @@ private extension CommonExpressManager {
             throw ExpressManagerError.quotesNotFound
         }
 
-        let sortedQuotes = quotes.sorted { lhs, rhs in
-            let lhsAmount = lhs.quote?.expectAmount ?? 0
-            let rhsAmount = rhs.quote?.expectAmount ?? 0
-
-            return lhsAmount > rhsAmount
-        }
+        let sortedQuotes = quotes.sorted { $0.rate > $1.rate }
 
         guard let bestExpectedQuote = sortedQuotes.first else {
             throw ExpressManagerError.quotesNotFound
@@ -230,32 +255,24 @@ private extension CommonExpressManager {
         return bestExpectedQuote
     }
 
-    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: ExpectedQuote.State] {
-        typealias TaskValue = (id: Int, quote: ExpectedQuote.State)
+    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: Result<ExpressQuote, Error>] {
+        typealias TaskValue = (id: Int, result: Result<ExpressQuote, Error>)
 
-        let quotes: [Int: ExpectedQuote.State] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
+        let quotes: [Int: Result<ExpressQuote, Error>] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
             providerIds.forEach { providerId in
 
                 // Run a parallel asynchronous task and collect it into the group
                 _ = taskGroup.addTaskUnlessCancelled { [weak self] in
                     guard let self else {
-                        return (providerId, .error("CommonError.objectReleased"))
+                        return (providerId, .failure(ExpressManagerError.objectReleased))
                     }
 
                     do {
                         let item = await makeExpressSwappableItem(request: request, providerId: providerId)
                         let quote = try await expressAPIProvider.exchangeQuote(item: item)
-                        return (providerId, .quote(quote))
+                        return (providerId, .success(quote))
                     } catch {
-                        if let apiError = error as? ExpressDTO.ExpressAPIError,
-                           apiError.code == .exchangeTooSmallAmountError,
-                           let value = apiError.value,
-                           let minAmount = Decimal(string: value.minAmount) {
-                            let minAmount = minAmount / pow(10, value.decimals)
-                            return (providerId, .tooSmallAmount(minAmount: minAmount))
-                        }
-
-                        return (providerId, .error(error.localizedDescription))
+                        return (providerId, .failure(error))
                     }
                 }
             }
