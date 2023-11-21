@@ -60,7 +60,9 @@ class SendModel {
 
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
+    private let addressService: SendAddressService
     private let sendType: SendType
+    private var destinationResolutionRequest: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -69,6 +71,7 @@ class SendModel {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
+        addressService = SendAddressServiceFactory(walletModel: walletModel).build()
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -203,15 +206,29 @@ class SendModel {
     }
 
     private func validateDestination() {
-        let destination: String?
-        let error: Error?
+        destinationResolutionRequest?.cancel()
 
-        #warning("validate")
-        destination = _destinationText
-        error = nil
+        destination.send(nil)
+        destinationResolutionRequest = runTask(in: self) { `self` in
+            let destination: String?
+            let error: Error?
+            do {
+                destination = try await self.addressService.validate(address: self._destinationText)
 
-        self.destination.send(destination)
-        _destinationError.send(error)
+                guard !Task.isCancelled else { return }
+
+                error = nil
+
+            } catch let addressError {
+                guard !Task.isCancelled else { return }
+
+                destination = nil
+                error = addressError
+            }
+
+            self.destination.send(destination)
+            self._destinationError.send(error)
+        }
     }
 
     private func setDestinationAdditionalField(_ destinationAdditionalFieldText: String) {
