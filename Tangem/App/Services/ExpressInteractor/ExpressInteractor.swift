@@ -241,8 +241,6 @@ private extension ExpressInteractor {
             return
         }
 
-        refresh(type: .full)
-
         updateTask { interactor in
             // If we have a amount to we will start the full update
             if let amount = await interactor.expressManager.getAmount(), amount > 0 {
