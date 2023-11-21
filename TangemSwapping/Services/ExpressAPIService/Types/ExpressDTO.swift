@@ -168,24 +168,15 @@ enum ExpressDTO {
         let description: String?
         let value: MinAmountValue?
 
-        enum CodingKeys: CodingKey {
-            case code
-            case description
-            case value
-        }
-
-        init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            code = try container.decodeIfPresent(Code.self, forKey: .code)
-            description = try container.decodeIfPresent(String.self, forKey: .description)
-            value = try container.decodeIfPresent(MinAmountValue.self, forKey: .value)
-        }
-
         struct MinAmountValue: Decodable {
             let minAmount: String
             let decimals: Int
+            
+            var amount: Decimal? {
+                Decimal(string: minAmount).map { $0 / pow(10, decimals) }
+            }
         }
-
+        
         var errorDescription: String? {
             description
         }
