@@ -1071,6 +1071,8 @@
 		EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5AD228D86094002544AC /* CardImageProvider.swift */; };
 		EF5A5AD628D86094002544AC /* CardImageProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5AD328D86094002544AC /* CardImageProviding.swift */; };
 		EF5A5AD728D86094002544AC /* CardArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5AD428D86094002544AC /* CardArtwork.swift */; };
+		EF5D83E42B0CADEE00516B5F /* ExpressTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83E32B0CADEE00516B5F /* ExpressTransactionBuilder.swift */; };
+		EF5D83E62B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */; };
 		EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */; };
 		EF5F1BB429D5A19E0093307B /* SelectableGropedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */; };
 		EF5F1BB729D6C6510093307B /* UserCurrenciesProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808433293F38CE000D91EA /* UserCurrenciesProviding.swift */; };
@@ -2457,6 +2459,8 @@
 		EF5A5AD228D86094002544AC /* CardImageProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardImageProvider.swift; sourceTree = "<group>"; };
 		EF5A5AD328D86094002544AC /* CardImageProviding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardImageProviding.swift; sourceTree = "<group>"; };
 		EF5A5AD428D86094002544AC /* CardArtwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardArtwork.swift; sourceTree = "<group>"; };
+		EF5D83E32B0CADEE00516B5F /* ExpressTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionBuilder.swift; sourceTree = "<group>"; };
+		EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressTransactionBuilder.swift; sourceTree = "<group>"; };
 		EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderMock.swift; sourceTree = "<group>"; };
 		EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableGropedSection.swift; sourceTree = "<group>"; };
 		EF5F1BBA29D6CD770093307B /* ApproveSpender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveSpender.swift; sourceTree = "<group>"; };
@@ -5132,6 +5136,8 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EF5D83E22B0CADE600516B5F /* ExpressTransactionBuilder */,
+				EF5D83E12B0CAD2E00516B5F /* ExpressInteractor */,
 				EF0DD7992B026D9E0099527D /* ExpressPendingTransactionRepository */,
 				EF0DD7962B026B500099527D /* CommonAllowanceProvider */,
 				EF0DD7932B026B200099527D /* ExpressDestinationService */,
@@ -6051,7 +6057,6 @@
 		EF48E6CC2B023EC900FE0072 /* ExpressView */ = {
 			isa = PBXGroup;
 			children = (
-				EF0DD7912B026A9E0099527D /* ExpressInteractor.swift */,
 				EF48E6DB2B02408500FE0072 /* ExpressCoordinator.swift */,
 				EF48E6D92B02408500FE0072 /* ExpressCoordinatorView.swift */,
 				EF48E6DA2B02408500FE0072 /* ExpressRoutable.swift */,
@@ -6135,6 +6140,23 @@
 				B00FC6A82949A6460007ACCA /* CardImageResult.swift */,
 			);
 			path = CardImageProvider;
+			sourceTree = "<group>";
+		};
+		EF5D83E12B0CAD2E00516B5F /* ExpressInteractor */ = {
+			isa = PBXGroup;
+			children = (
+				EF0DD7912B026A9E0099527D /* ExpressInteractor.swift */,
+			);
+			path = ExpressInteractor;
+			sourceTree = "<group>";
+		};
+		EF5D83E22B0CADE600516B5F /* ExpressTransactionBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				EF5D83E32B0CADEE00516B5F /* ExpressTransactionBuilder.swift */,
+				EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */,
+			);
+			path = ExpressTransactionBuilder;
 			sourceTree = "<group>";
 		};
 		EF5F1BB629D6C6410093307B /* UserCurrenciesProvider */ = {
@@ -7444,6 +7466,7 @@
 				B6B055262AF4352100B63BAF /* MainBottomSheetVisibility.swift in Sources */,
 				B0D9FDCA2A9336920047A1C0 /* IconViewSizeSettings.swift in Sources */,
 				EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */,
+				EF5D83E62B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift in Sources */,
 				DC7D3A0929E065E3007BCD23 /* BackupHelper.swift in Sources */,
 				DC72548C2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift in Sources */,
 				B03156A82A86369B001D9646 /* DefaultTokenItemInfoProvider.swift in Sources */,
@@ -7944,6 +7967,7 @@
 				B06C084D2A73FB4D00D982BC /* MainCoordinatorView.swift in Sources */,
 				EF0F99AE289028F8008B01DF /* AppSettingsRoutable.swift in Sources */,
 				B6AA13742A2A378A00B53937 /* CardInfoPageWarningIconAndTitleCellPreviewViewModel.swift in Sources */,
+				EF5D83E42B0CADEE00516B5F /* ExpressTransactionBuilder.swift in Sources */,
 				DC0A57E82822AC410031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5D62446127A7CAB60069DEC2 /* Bool+.swift in Sources */,
 				EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */,
