@@ -246,13 +246,17 @@ private extension CommonExpressManager {
             throw ExpressManagerError.quotesNotFound
         }
 
-        let sortedQuotes = quotes.sorted { $0.rate > $1.rate }
+        let availableQuotes = quotes.filter { $0.isAvailable }
 
-        guard let bestExpectedQuote = sortedQuotes.first else {
-            throw ExpressManagerError.quotesNotFound
+        if availableQuotes.isEmpty, let firstError = quotes.first(where: { $0.isError }) {
+            return firstError
         }
 
-        return bestExpectedQuote
+        if let bestAvailable = quotes.sorted(by: { $0.rate > $1.rate }).first {
+            return bestAvailable
+        }
+
+        throw ExpressManagerError.quotesNotFound
     }
 
     func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: Result<ExpressQuote, Error>] {
@@ -293,6 +297,10 @@ private extension CommonExpressManager {
     func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpectedQuote) async throws -> ExpressManagerRestriction? {
         // 1. Check minimal amount
         if let minAmount = quote.quote?.minAmount, request.amount < minAmount {
+            return .notEnoughAmountForSwapping(minAmount)
+        }
+
+        if case .tooSmallAmount(let minAmount) = quote.state {
             return .notEnoughAmountForSwapping(minAmount)
         }
 
