@@ -78,7 +78,7 @@ extension SendCurrencyViewModel {
         case loading
         case formatted(_ value: String)
 
-        @available(*, deprecated, renamed: "formatted", message: "Have to format outside")
+        @available(*, deprecated, renamed: "formatted", message: "Have to be formatted outside")
         case loaded(_ value: Decimal)
     }
 }
