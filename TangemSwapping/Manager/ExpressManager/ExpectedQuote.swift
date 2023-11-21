@@ -11,6 +11,7 @@ import Foundation
 public struct ExpectedQuote: Hashable {
     public let provider: ExpressProvider
     public let state: State
+    public let isBest: Bool
 
     public var quote: ExpressQuote? {
         switch state {
@@ -30,8 +31,17 @@ public struct ExpectedQuote: Hashable {
         }
     }
 
-    init(provider: ExpressProvider, state: State) {
+    public var rate: Decimal {
+        if let quote {
+            return quote.expectAmount / quote.fromAmount
+        }
+
+        return 0
+    }
+
+    init(provider: ExpressProvider, state: State, isBest: Bool) {
         self.provider = provider
+        self.isBest = isBest
         self.state = state
     }
 }
@@ -42,5 +52,14 @@ public extension ExpectedQuote {
         case error(String)
         case notAvailable
         case tooSmallAmount(minAmount: Decimal)
+
+        public var quote: ExpressQuote? {
+            switch self {
+            case .quote(let expressQuote):
+                return expressQuote
+            case .error, .notAvailable, .tooSmallAmount:
+                return nil
+            }
+        }
     }
 }
