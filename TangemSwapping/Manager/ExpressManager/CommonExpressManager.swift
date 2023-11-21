@@ -204,38 +204,35 @@ private extension CommonExpressManager {
         // Find the best quote
         var best: ExpressQuote?
         quotes.forEach { _, value in
-            do {
-                let quote = try value.get()
-                if let bestAmount = best?.expectAmount, quote.expectAmount > bestAmount {
-                    best = quote
-                } else if best == nil {
-                    best = quote
-                }
-            } catch {
-                // Do nothing
+            guard let quote = try? value.get() else {
+                return
+            }
+            
+            if let bestAmount = best?.expectAmount, quote.expectAmount > bestAmount {
+                best = quote
+            } else if best == nil {
+                best = quote
             }
         }
 
         let allQuotes: [ExpectedQuote] = allProviders.map { provider in
-            if let loadedQuoteResult = quotes[provider.id] {
-                switch loadedQuoteResult {
-                case .success(let quote):
-                    let isBest = best == quote
-                    return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
-                case .failure(let error):
-                    if let apiError = error as? ExpressDTO.ExpressAPIError,
-                       apiError.code == .exchangeTooSmallAmountError,
-                       let value = apiError.value,
-                       let minAmount = Decimal(string: value.minAmount) {
-                        let minAmount = minAmount / pow(10, value.decimals)
-                        return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
-                    }
-
-                    return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
-                }
+            guard let loadedQuoteResult = quotes[provider.id] else {
+                return ExpectedQuote(provider: provider, state: .notAvailable, isBest: false)
             }
-
-            return ExpectedQuote(provider: provider, state: .notAvailable, isBest: false)
+            
+            switch loadedQuoteResult {
+            case .success(let quote):
+                let isBest = best == quote
+                return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
+            case .failure(let error as ExpressDTO.ExpressAPIError):
+                if error.code == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
+                    return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
+                }
+                
+                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+            case .failure(let error):
+                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+            }
         }
 
         return allQuotes
@@ -248,8 +245,8 @@ private extension CommonExpressManager {
 
         let availableQuotes = quotes.filter { $0.isAvailable }
 
-        if availableQuotes.isEmpty, let firstError = quotes.first(where: { $0.isError }) {
-            return firstError
+        if availableQuotes.isEmpty, let firstWithError = quotes.first(where: { $0.isError }) {
+            return firstWithError
         }
 
         if let bestAvailable = quotes.sorted(by: { $0.rate > $1.rate }).first {
@@ -332,12 +329,6 @@ private extension CommonExpressManager {
     func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
         let contractAddress = request.pair.source.expressCurrency.contractAddress
 
-        if contractAddress == ExpressConstants.coinContractAddress {
-            return false
-        }
-
-        #warning("express shouldn't send spender for coin")
-        // Remove checking
         if contractAddress == ExpressConstants.coinContractAddress {
             return false
         }
