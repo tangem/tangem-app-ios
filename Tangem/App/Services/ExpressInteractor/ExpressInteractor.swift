@@ -240,7 +240,7 @@ private extension ExpressInteractor {
             log("The destination not found")
             return
         }
-        
+
         refresh(type: .full)
 
         updateTask { interactor in
@@ -559,6 +559,20 @@ extension ExpressInteractor {
                 return quote
             case .readyToSwap(_, let quote):
                 return quote
+            }
+        }
+
+        var isAvailableToSendTransaction: Bool {
+            switch self {
+            case .idle, .loading:
+                return false
+            case .restriction(let type, _):
+                if case .permissionRequired = type {
+                    return true
+                }
+                return false
+            case .readyToSwap:
+                return true
             }
         }
     }

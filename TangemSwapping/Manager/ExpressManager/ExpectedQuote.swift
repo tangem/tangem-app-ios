@@ -31,6 +31,15 @@ public struct ExpectedQuote: Hashable {
         }
     }
 
+    public var isError: Bool {
+        switch state {
+        case .error, .tooSmallAmount:
+            return true
+        case .quote, .notAvailable:
+            return false
+        }
+    }
+
     public var rate: Decimal {
         if let quote {
             return quote.expectAmount / quote.fromAmount
