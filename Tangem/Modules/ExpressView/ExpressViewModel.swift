@@ -170,10 +170,19 @@ private extension ExpressViewModel {
         coordinator.presentApproveView()
     }
 
+    func openFeeSelectorView() {
+        guard interactor.getState().isAvailableToSendTransaction else {
+            return
+        }
+
+        stopTimer()
+        coordinator.presentFeeSelectorView()
+    }
+
     func presentProviderSelectorView() {
         runTask(in: self) { viewModel in
-            async let quotes = viewModel.swappingInteractor.getAllQuotes()
-            async let provider = viewModel.swappingInteractor.getSelectedProvider()
+            async let quotes = viewModel.interactor.getAllQuotes()
+            async let provider = viewModel.interactor.getSelectedProvider()
 
             let input = await ExpressProvidersBottomSheetViewModel.InputModel(
                 selectedProviderId: provider?.id,
@@ -484,7 +493,7 @@ private extension ExpressViewModel {
             )
 
             expressFeeRowViewModel = ExpressFeeRowData(title: Localization.sendFeeLabel, subtitle: formattedFee) { [weak self] in
-                self?.coordinator.presentFeeSelectorView()
+                self?.openFeeSelectorView()
             }
         }
     }
@@ -504,11 +513,11 @@ private extension ExpressViewModel {
                 mainButtonState = .givePermission
                 mainButtonIsEnabled = true
 
-            case .hasPendingTransaction, .requiredRefresh:
+            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
-            case .notEnoughAmountForFee, .notEnoughAmountForSwapping, .notEnoughBalanceForSwapping:
+            case .notEnoughAmountForFee, .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
                 mainButtonIsEnabled = false
             }
@@ -603,8 +612,8 @@ private extension ExpressViewModel {
     func mapToProviderRowViewModel(expectedQuote: ExpectedQuote) -> ProviderRowViewModel {
         let subtitle = expressProviderFormatter.mapToRateSubtitle(
             quote: expectedQuote,
-            senderCurrencyCode: swappingInteractor.getSender().tokenItem.currencySymbol,
-            destinationCurrencyCode: swappingInteractor.getDestination()?.tokenItem.currencySymbol,
+            senderCurrencyCode: interactor.getSender().tokenItem.currencySymbol,
+            destinationCurrencyCode: interactor.getDestination()?.tokenItem.currencySymbol,
             option: .rate
         )
 
@@ -624,6 +633,10 @@ private extension ExpressViewModel {
 
 private extension ExpressViewModel {
     func sendTransaction() {
+        guard interactor.getState().isAvailableToSendTransaction else {
+            return
+        }
+
         stopTimer()
         runTask(in: self) { root in
             do {
