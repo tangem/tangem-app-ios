@@ -28,13 +28,13 @@ struct ExpressSuccessSentView: View {
                     }
                     .interSectionPadding(12)
                     .verticalPadding(0)
-                    
+
                     GroupedSection(viewModel.destinationData) {
                         AmountSummaryView(data: $0)
                     }
                     .interSectionPadding(12)
                     .verticalPadding(0)
-                    
+
                     GroupedSection(viewModel.provider) {
                         ProviderRowView(viewModel: $0)
                     }
