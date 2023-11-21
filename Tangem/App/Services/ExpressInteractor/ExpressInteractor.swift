@@ -1,6 +1,6 @@
 //
 //  ExpressInteractor.swift
-//  TangemSwapping
+//  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -17,7 +17,7 @@ class ExpressInteractor {
     public var state: AnyPublisher<ExpressInteractorState, Never> {
         _state.eraseToAnyPublisher()
     }
-
+    "-"
     public var swappingPair: AnyPublisher<SwappingPair, Never> {
         _swappingPair.eraseToAnyPublisher()
     }
@@ -28,6 +28,7 @@ class ExpressInteractor {
     private let allowanceProvider: AllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
+    private let expressTransactionBuilder: ExpressTransactionBuilder
     private let signer: TransactionSigner
     private let logger: SwappingLogger
 
@@ -46,6 +47,7 @@ class ExpressInteractor {
         allowanceProvider: AllowanceProvider,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
+        expressTransactionBuilder: ExpressTransactionBuilder,
         signer: TransactionSigner,
         logger: SwappingLogger
     ) {
@@ -54,6 +56,7 @@ class ExpressInteractor {
         self.allowanceProvider = allowanceProvider
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
+        self.expressTransactionBuilder = expressTransactionBuilder
         self.signer = signer
         self.logger = logger
 
@@ -94,8 +97,8 @@ extension ExpressInteractor {
             return
         }
 
-        _swappingPair.value.destination = _swappingPair.value.sender
-        _swappingPair.value.sender = destination
+        let newPair = SwappingPair(sender: _swappingPair.value.sender, destination: destination)
+        _swappingPair.value = newPair
 
         swappingPairDidChange()
     }
@@ -117,7 +120,7 @@ extension ExpressInteractor {
     func update(amount: Decimal?) {
         log("Will update amount to \(amount as Any)")
 
-        updateViewState(.loading(type: .full))
+        updateState(.loading(type: .full))
         throwableUpdateTask { interactor in
             let state = try await interactor.expressManager.updateAmount(amount: amount)
             try await interactor.updateViewForExpressManagerState(state)
@@ -127,7 +130,7 @@ extension ExpressInteractor {
     func updateProvider(provider: ExpressProvider) {
         log("Will update provider to \(provider)")
 
-        updateViewState(.loading(type: .full))
+        updateState(.loading(type: .full))
         throwableUpdateTask { interactor in
             let state = try await interactor.expressManager.updateSelectedProvider(provider: provider)
             try await interactor.updateViewForExpressManagerState(state)
@@ -147,7 +150,7 @@ extension ExpressInteractor {
 
         throwableUpdateTask { interactor in
             let state = try await interactor.feeOptionDidChange()
-            interactor.updateViewState(state)
+            interactor.updateState(state)
         }
     }
 }
@@ -160,21 +163,24 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
+        guard let destination = getDestination()?.tokenItem else {
+            throw ExpressInteractorError.destinationNotFound
+        }
+
         let sender = getSender()
-        let destination = getDestination()?.tokenItem
 
         Analytics.log(
             event: .swapButtonSwap,
             params: [
                 .sendToken: sender.tokenItem.currencySymbol,
-                .receiveToken: destination?.currencySymbol ?? "",
+                .receiveToken: destination.currencySymbol,
             ]
         )
 
-        let transaction = try await sender.makeTransaction(data: state.data, fee: fee)
+        let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: state.data, fee: fee)
         let result = try await sender.send(transaction, signer: signer).async()
 
-        updateViewState(.idle)
+        updateState(.idle)
         expressPendingTransactionRepository.didSendSwapTransaction()
 
         return TransactionSendResultState(data: state.data, hash: result.hash)
@@ -196,12 +202,12 @@ extension ExpressInteractor {
 
         throwableUpdateTask { interactor in
             guard let amount = await interactor.expressManager.getAmount(), amount > 0 else {
-                interactor.updateViewState(.idle)
+                interactor.updateState(.idle)
                 return
             }
 
             interactor.log("Start refreshing task")
-            interactor.updateViewState(.loading(type: type))
+            interactor.updateState(.loading(type: type))
 
             let state = try await interactor.expressManager.update()
             try await interactor.updateViewForExpressManagerState(state)
@@ -229,9 +235,14 @@ private extension ExpressInteractor {
             return
         }
 
-        updateViewState(.loading(type: .full))
-        let pair = ExpressManagerSwappingPair(source: getSender(), destination: destination)
-        throwableUpdateTask { interactor in
+        let sender = getSender()
+        throwableUpdateTask { [sender] interactor in
+            guard let amount = await interactor.expressManager.getAmount(), amount > 0 else {
+                interactor.updateState(.idle)
+                return
+            }
+
+            let pair = ExpressManagerSwappingPair(source: sender, destination: destination)
             let state = try await interactor.expressManager.updatePair(pair: pair)
             try await interactor.updateViewForExpressManagerState(state)
         }
@@ -245,7 +256,7 @@ private extension ExpressInteractor {
         log("Receive the express manager state - \(state)")
 
         let state = try await mapState(state: state)
-        updateViewState(state)
+        updateState(state)
     }
 
     func mapState(state: ExpressManagerState) async throws -> ExpressInteractorState {
@@ -280,7 +291,7 @@ private extension ExpressInteractor {
         }
     }
 
-    func updateViewState(_ state: ExpressInteractorState) {
+    func updateState(_ state: ExpressInteractorState) {
         log("Update state to express interactor state \(state)")
 
         _state.send(state)
@@ -318,7 +329,7 @@ private extension ExpressInteractor {
 
         if sender.isToken {
             let coinBalance = try await sender.getCoinBalance()
-            return fee < coinBalance
+            return fee <= coinBalance
         }
 
         guard let amount = await expressManager.getAmount() else {
@@ -326,7 +337,7 @@ private extension ExpressInteractor {
         }
 
         let balance = try await sender.getBalance()
-        return fee + amount < balance
+        return fee + amount <= balance
     }
 
     func hasPendingTransaction() -> Bool {
@@ -346,7 +357,7 @@ private extension ExpressInteractor {
         }
 
         let newState = try await getPermissionRequiredViewState(spender: state.spender)
-        updateViewState(.restriction(.permissionRequired(state: newState), quote: quote))
+        updateState(.restriction(.permissionRequired(state: newState), quote: quote))
     }
 
     func getPermissionRequiredViewState(spender: String) async throws -> PermissionRequiredViewState {
@@ -379,10 +390,10 @@ private extension ExpressInteractor {
 // MARK: - Swap
 
 private extension ExpressInteractor {
-    func getReadyToSwapViewState(data: ExpressTransactionData) async throws -> ReadyToSwapViewState {
+    func getReadyToSwapViewState(data: ExpressTransactionData) async throws -> ExpressSwapData {
         let fees = try await getFee(destination: data.destinationAddress, value: data.value, hexData: data.txData)
 
-        return ReadyToSwapViewState(data: data, fees: fees)
+        return ExpressSwapData(data: data, fees: fees)
     }
 }
 
@@ -451,7 +462,7 @@ private extension ExpressInteractor {
             do {
                 try await block(self)
             } catch {
-                updateViewState(.restriction(.requiredRefresh(occurredError: error), quote: .none))
+                updateState(.restriction(.requiredRefresh(occurredError: error), quote: .none))
             }
         }
     }
@@ -466,14 +477,6 @@ private extension ExpressInteractor {
             throw ExpressManagerError.amountNotFound
         case .unlimited:
             return .greatestFiniteMagnitude
-        }
-    }
-
-    func getAnalyticsFeeType() -> Analytics.ParameterValue? {
-        switch getFeeOption() {
-        case .market: return .transactionFeeNormal
-        case .fast: return .transactionFeeMax
-        default: return nil
         }
     }
 
@@ -526,7 +529,7 @@ extension ExpressInteractor {
         // After change swappingItems
         case loading(type: SwappingManagerRefreshType)
         case restriction(_ type: RestrictionType, quote: ExpectedQuote?)
-        case readyToSwap(state: ReadyToSwapViewState, quote: ExpectedQuote)
+        case readyToSwap(state: ExpressSwapData, quote: ExpectedQuote)
 
         var quote: ExpectedQuote? {
             switch self {
@@ -561,7 +564,7 @@ extension ExpressInteractor {
         let fees: [FeeOption: Fee]
     }
 
-    struct ReadyToSwapViewState {
+    struct ExpressSwapData {
         let data: ExpressTransactionData
         let fees: [FeeOption: Fee]
     }
