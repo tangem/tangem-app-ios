@@ -114,7 +114,7 @@ extension ReceiveCurrencyView: Setupable {
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         ReceiveCurrencyViewModel(
-            balanceValue: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loading,
@@ -124,7 +124,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             )
         ),
         ReceiveCurrencyViewModel(
-            balanceValue: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loading,
@@ -134,7 +134,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             )
         ),
         ReceiveCurrencyViewModel(
-            balanceValue: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loaded(1100.46),
@@ -144,7 +144,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             )
         ),
         ReceiveCurrencyViewModel(
-            balanceValue: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loaded(1100.46),
