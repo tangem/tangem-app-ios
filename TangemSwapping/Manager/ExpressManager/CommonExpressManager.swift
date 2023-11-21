@@ -14,7 +14,6 @@ actor CommonExpressManager {
 
     private let expressAPIProvider: ExpressAPIProvider
     private let allowanceProvider: AllowanceProvider
-    private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let logger: SwappingLogger
 
     // MARK: - State
@@ -35,12 +34,10 @@ actor CommonExpressManager {
     init(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
-        expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         logger: SwappingLogger
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.allowanceProvider = allowanceProvider
-        self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.logger = logger
     }
 }
@@ -56,11 +53,12 @@ extension CommonExpressManager: ExpressManager {
         _amount
     }
 
-    func getSelectedProvider() -> ExpressProvider? {
-        selectedQuote?.provider
+    func getSelectedQuote() -> ExpectedQuote? {
+        return selectedQuote
     }
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
+        assert(pair.source.expressCurrency != pair.destination.expressCurrency, "Pair has equal currencies")
         _pair = pair
 
         // Clear for reselected the best quote
@@ -89,7 +87,7 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update() async throws -> ExpressManagerState {
-        try await getState()
+        try await updateState()
     }
 }
 
@@ -97,7 +95,7 @@ extension CommonExpressManager: ExpressManager {
 
 private extension CommonExpressManager {
     /// Return the state which checking the all properties
-    func getState() async throws -> ExpressManagerState {
+    func updateState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
             logger.debug("ExpressManagerSwappingPair not found")
             return .idle
@@ -187,7 +185,6 @@ private extension CommonExpressManager {
         }
 
         let best = try bestQuote(from: quotes)
-
         selectedQuote = best
         return best
     }
@@ -280,15 +277,7 @@ private extension CommonExpressManager {
             }
         }
 
-        // 3. Check Pending
-
-        let hasPendingTransaction = expressPendingTransactionRepository.hasPending(for: request.pair.source.expressCurrency.network)
-
-        if hasPendingTransaction {
-            return .hasPendingTransaction
-        }
-
-        // 4. Check Balance
+        // 3. Check Balance
 
         let sourceBalance = try await request.pair.source.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
@@ -312,12 +301,13 @@ private extension CommonExpressManager {
 
         assert(contractAddress != ExpressConstants.coinContractAddress)
 
-        let allowance = try await allowanceProvider.getAllowance(
+        let allowanceWEI = try await allowanceProvider.getAllowance(
             owner: request.pair.source.defaultAddress,
             to: spender,
             contract: contractAddress
         )
 
+        let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
         return allowance < request.amount
     }
 }
