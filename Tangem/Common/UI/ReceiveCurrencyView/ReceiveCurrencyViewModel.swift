@@ -10,17 +10,22 @@ import Foundation
 
 class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
     @Published var canChangeCurrency: Bool
-    @Published var balance: String
+    @Published var balance: State
     @Published var cryptoAmountState: State
     @Published var fiatAmountState: State
     @Published var tokenIconState: SwappingTokenIconView.State
 
     var balanceString: String {
-        if FeatureProvider.isAvailable(.express) {
-            return balance
+        switch cryptoAmountState {
+        case .idle:
+            return ""
+        case .loading:
+            return "0"
+        case .loaded(let value):
+            return value.groupedFormatted()
+        case .formatted(let value):
+            return value
         }
-
-        return (balanceValue ?? 0).groupedFormatted()
     }
 
     var cryptoAmountFormatted: String {
@@ -30,7 +35,8 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
         case .loading:
             return "0"
         case .loaded(let value):
-            return value.groupedFormatted()
+            let formatter = DecimalNumberFormatter(maximumFractionDigits: 8)
+            return formatter.format(value: value)
         case .formatted(let value):
             return value
         }
@@ -49,17 +55,13 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private let balanceValue: Decimal?
-
     init(
-        balanceValue: Decimal? = nil,
-        balance: String = "",
+        balance: State = .idle,
         canChangeCurrency: Bool,
         cryptoAmountState: State = .idle,
         fiatAmountState: State = .idle,
         tokenIconState: SwappingTokenIconView.State
     ) {
-        self.balanceValue = balanceValue
         self.balance = balance
         self.canChangeCurrency = canChangeCurrency
         self.cryptoAmountState = cryptoAmountState
@@ -81,6 +83,8 @@ extension ReceiveCurrencyViewModel {
         case idle
         case loading
         case formatted(_ value: String)
+
+        @available(*, deprecated, renamed: "formatted", message: "Have to be formatted outside")
         case loaded(_ value: Decimal)
     }
 }
