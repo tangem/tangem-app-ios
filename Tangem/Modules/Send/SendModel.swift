@@ -36,8 +36,9 @@ class SendModel {
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
     private let destination = CurrentValueSubject<String?, Never>(nil)
-    private let destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
+
+    private var transactionParameters: TransactionParams?
 
     private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
@@ -61,6 +62,7 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let sendType: SendType
+    private let additionalFieldService: SendAdditionalFieldService
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -69,6 +71,7 @@ class SendModel {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
+        additionalFieldService = CommonSendAdditionalFieldService(blockchain: walletModel.blockchainNetwork.blockchain)
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -96,7 +99,8 @@ class SendModel {
 
         #warning("[REDACTED_TODO_COMMENT]")
         #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
+
+        transaction.params = transactionParameters
 
         _isSending.send(true)
         walletModel.send(transaction, signer: transactionSigner)
@@ -147,8 +151,8 @@ class SendModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest4(amount, destination, destinationAdditionalField, fee)
-            .map { [weak self] amount, destination, destinationAdditionalField, fee -> BlockchainSdk.Transaction? in
+        Publishers.CombineLatest3(amount, destination, fee)
+            .map { [weak self] amount, destination, fee -> BlockchainSdk.Transaction? in
                 guard
                     let self,
                     let amount,
@@ -220,14 +224,17 @@ class SendModel {
     }
 
     private func validateDestinationAdditionalField() {
-        let destinationAdditionalField: String?
         let error: Error?
+        let transactionParameters: TransactionParams?
+        do {
+            transactionParameters = try additionalFieldService.transactionParameters(from: _destinationAdditionalFieldText)
+            error = nil
+        } catch let transactionParameterError {
+            transactionParameters = nil
+            error = transactionParameterError
+        }
 
-        #warning("validate")
-        destinationAdditionalField = _destinationAdditionalFieldText
-        error = nil
-
-        self.destinationAdditionalField.send(destinationAdditionalField)
+        self.transactionParameters = transactionParameters
         _destinationAdditionalFieldError.send(error)
     }
 
