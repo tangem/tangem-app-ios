@@ -17,7 +17,7 @@ class ExpressInteractor {
     public var state: AnyPublisher<ExpressInteractorState, Never> {
         _state.eraseToAnyPublisher()
     }
-    "-"
+
     public var swappingPair: AnyPublisher<SwappingPair, Never> {
         _swappingPair.eraseToAnyPublisher()
     }
@@ -97,7 +97,7 @@ extension ExpressInteractor {
             return
         }
 
-        let newPair = SwappingPair(sender: _swappingPair.value.sender, destination: destination)
+        let newPair = SwappingPair(sender: destination, destination: _swappingPair.value.sender)
         _swappingPair.value = newPair
 
         swappingPairDidChange()
@@ -121,9 +121,9 @@ extension ExpressInteractor {
         log("Will update amount to \(amount as Any)")
 
         updateState(.loading(type: .full))
-        throwableUpdateTask { interactor in
+        updateTask { interactor in
             let state = try await interactor.expressManager.updateAmount(amount: amount)
-            try await interactor.updateViewForExpressManagerState(state)
+            return try await interactor.mapState(state: state)
         }
     }
 
@@ -131,16 +131,16 @@ extension ExpressInteractor {
         log("Will update provider to \(provider)")
 
         updateState(.loading(type: .full))
-        throwableUpdateTask { interactor in
+        updateTask { interactor in
             let state = try await interactor.expressManager.updateSelectedProvider(provider: provider)
-            try await interactor.updateViewForExpressManagerState(state)
+            return try await interactor.mapState(state: state)
         }
     }
 
     func updateApprovePolicy(policy: SwappingApprovePolicy) {
         approvePolicy.mutate { $0 = policy }
 
-        throwableUpdateTask { interactor in
+        updateTask { interactor in
             try await interactor.approvePolicyDidChange()
         }
     }
@@ -148,9 +148,8 @@ extension ExpressInteractor {
     func updateFeeOption(option: FeeOption) {
         feeOption.mutate { $0 = option }
 
-        throwableUpdateTask { interactor in
-            let state = try await interactor.feeOptionDidChange()
-            interactor.updateState(state)
+        updateTask { interactor in
+            try await interactor.feeOptionDidChange()
         }
     }
 }
@@ -200,17 +199,16 @@ extension ExpressInteractor {
     func refresh(type: SwappingManagerRefreshType) {
         log("Did requested for refresh with \(type)")
 
-        throwableUpdateTask { interactor in
+        updateTask { interactor in
             guard let amount = await interactor.expressManager.getAmount(), amount > 0 else {
-                interactor.updateState(.idle)
-                return
+                return .idle
             }
 
             interactor.log("Start refreshing task")
             interactor.updateState(.loading(type: type))
 
             let state = try await interactor.expressManager.update()
-            try await interactor.updateViewForExpressManagerState(state)
+            return try await interactor.mapState(state: state)
         }
     }
 
@@ -235,16 +233,16 @@ private extension ExpressInteractor {
             return
         }
 
-        let sender = getSender()
-        throwableUpdateTask { [sender] interactor in
-            guard let amount = await interactor.expressManager.getAmount(), amount > 0 else {
-                interactor.updateState(.idle)
-                return
+        updateTask { interactor in
+            // If we have a amount to we will start the full update
+            if let amount = await interactor.expressManager.getAmount(), amount > 0 {
+                interactor.updateState(.loading(type: .full))
             }
 
+            let sender = interactor.getSender()
             let pair = ExpressManagerSwappingPair(source: sender, destination: destination)
             let state = try await interactor.expressManager.updatePair(pair: pair)
-            try await interactor.updateViewForExpressManagerState(state)
+            return try await interactor.mapState(state: state)
         }
     }
 }
@@ -252,13 +250,6 @@ private extension ExpressInteractor {
 // MARK: - Private
 
 private extension ExpressInteractor {
-    func updateViewForExpressManagerState(_ state: ExpressManagerState) async throws {
-        log("Receive the express manager state - \(state)")
-
-        let state = try await mapState(state: state)
-        updateState(state)
-    }
-
     func mapState(state: ExpressManagerState) async throws -> ExpressInteractorState {
         switch state {
         case .idle:
@@ -349,15 +340,15 @@ private extension ExpressInteractor {
 // MARK: - Allowance
 
 private extension ExpressInteractor {
-    func approvePolicyDidChange() async throws {
+    func approvePolicyDidChange() async throws -> ExpressInteractorState {
         guard case .restriction(let type, let quote) = _state.value,
               case .permissionRequired(let state) = type else {
             assertionFailure("We can't update policy if we don't needed in the permission")
-            return
+            return .idle
         }
 
         let newState = try await getPermissionRequiredViewState(spender: state.spender)
-        updateState(.restriction(.permissionRequired(state: newState), quote: quote))
+        return .restriction(.permissionRequired(state: newState), quote: quote)
     }
 
     func getPermissionRequiredViewState(spender: String) async throws -> PermissionRequiredViewState {
@@ -444,25 +435,44 @@ private extension ExpressInteractor {
                 data: hexData.map { Data(hexString: $0) }
             ).async()
 
-            return [.market: fees[1], .fast: fees[2]]
+            return mapFeeToDictionary(fees: fees)
         }
 
         let fees = try await sender.getFee(amount: amount, destination: destination).async()
-        return [.market: fees[1], .fast: fees[2]]
+        return mapFeeToDictionary(fees: fees)
+    }
+
+    func mapFeeToDictionary(fees: [Fee]) -> [FeeOption: Fee] {
+        switch fees.count {
+        case 1:
+            return [.market: fees[0]]
+        case 3:
+            return [.market: fees[1], .fast: fees[2]]
+        default:
+            return [:]
+        }
     }
 }
 
 // MARK: - Helpers
 
 private extension ExpressInteractor {
-    func throwableUpdateTask(block: @escaping (_ interactor: ExpressInteractor) async throws -> Void) {
+    func updateTask(block: @escaping (_ interactor: ExpressInteractor) async throws -> ExpressInteractorState) {
+        cancelRefresh()
         updateStateTask = Task { [weak self] in
             guard let self else { return }
 
             do {
-                try await block(self)
+                let state = try await block(self)
+
+                try Task.checkCancellation()
+
+                updateState(state)
+            } catch is CancellationError {
+                // Do nothing
             } catch {
-                updateState(.restriction(.requiredRefresh(occurredError: error), quote: .none))
+                let quote = getState().quote
+                updateState(.restriction(.requiredRefresh(occurredError: error), quote: quote))
             }
         }
     }
