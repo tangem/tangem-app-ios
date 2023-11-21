@@ -500,13 +500,12 @@ private extension ExpressViewModel {
 
     func updateMainButton(state: ExpressInteractor.ExpressInteractorState) {
         switch state {
-        case .idle:
+        case .idle, .loading(type: .full):
             mainButtonState = .swap
             mainButtonIsEnabled = false
-        case .loading(let type):
-            if type == .full {
-                mainButtonIsEnabled = false
-            }
+        case .loading(type: .refreshRates):
+            // Do nothing
+            break
         case .restriction(let type, _):
             switch type {
             case .permissionRequired:
