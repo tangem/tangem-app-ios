@@ -8,8 +8,8 @@
 
 import Combine
 import SwiftUI
-import BlockchainSdk
 import TangemSwapping
+import struct BlockchainSdk.Fee
 
 final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
