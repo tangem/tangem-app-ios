@@ -96,7 +96,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         let changePercent = 1 - bestRate / quote.rate
-        let formatted = percentFormatter.percentFormat(value: changePercent, option: .expressRate)
+        let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
     }
