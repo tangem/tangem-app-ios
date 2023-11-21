@@ -18,37 +18,39 @@ struct ExpressSuccessSentView: View {
     var body: some View {
         ZStack(alignment: .top) {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
-            
+
             VStack(spacing: .zero) {
                 titleView
-            
+
                 VStack(spacing: 14) {
                     GroupedSection(viewModel.sourceData) {
                         AmountSummaryView(data: $0)
                     }
-                    .verticalPadding(0)
                     .interSectionPadding(12)
+                    .verticalPadding(0)
                     
                     GroupedSection(viewModel.destinationData) {
                         AmountSummaryView(data: $0)
                     }
-                    .verticalPadding(0)
                     .interSectionPadding(12)
+                    .verticalPadding(0)
                     
                     GroupedSection(viewModel.provider) {
                         ProviderRowView(viewModel: $0)
                     }
-                    .verticalPadding(0)
                     .interSectionPadding(12)
-                    
+                    .verticalPadding(0)
+
                     GroupedSection(viewModel.expressFee) {
                         ExpressFeeRowView(viewModel: $0)
                     }
-                    .verticalPadding(0)
                     .interSectionPadding(12)
+                    .verticalPadding(0)
                 }
             }
             .padding(.horizontal, 14)
+
+            buttonsView
         }
     }
 
@@ -62,11 +64,42 @@ struct ExpressSuccessSentView: View {
                 Text(Localization.swappingSuccessViewTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
-                Text("20 September 2023 at 13:45")
+                Text(viewModel.dateFormatted)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
         }
         .padding(.vertical, 24)
+    }
+
+    private var buttonsView: some View {
+        VStack(spacing: .zero) {
+            Spacer()
+
+            VStack(spacing: 10) {
+                HStack(spacing: 8) {
+                    MainButton(
+                        title: Localization.commonExplore,
+                        icon: .leading(Assets.compassExplore),
+                        style: .secondary,
+                        action: viewModel.openExplore
+                    )
+
+                    MainButton(
+                        title: Localization.commonShare,
+                        icon: .leading(Assets.share),
+                        style: .secondary,
+                        action: viewModel.openShare
+                    )
+                }
+
+                MainButton(
+                    title: Localization.commonClose,
+                    style: .primary,
+                    action: viewModel.closeView
+                )
+            }
+        }
+        .padding(.horizontal, 16)
     }
 }
 
@@ -79,8 +112,8 @@ struct ExpressSuccessSentView_Preview: PreviewProvider {
     static var previews: some View {
         NavHolder()
             .sheet(item: .constant(viewModel)) {
-            ExpressSuccessSentView(viewModel: $0)
-        }
+                ExpressSuccessSentView(viewModel: $0)
+            }
     }
 }
 
