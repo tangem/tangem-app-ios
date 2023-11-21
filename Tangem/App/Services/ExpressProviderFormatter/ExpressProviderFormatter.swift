@@ -26,8 +26,7 @@ struct ExpressProviderFormatter {
                     return .text(CommonError.noData.localizedDescription)
                 }
 
-                let amount = expressQuote.fromAmount
-                let rate = expressQuote.expectAmount / amount
+                let rate = expressQuote.expectAmount / expressQuote.fromAmount
                 let formattedSourceAmount = balanceFormatter.formatCryptoBalance(1, currencyCode: senderCurrencyCode)
                 let formattedDestinationAmount = balanceFormatter.formatCryptoBalance(rate, currencyCode: destinationCurrencyCode)
 

@@ -126,6 +126,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     ) -> ExpressProvidersBottomSheetViewModel {
         ExpressProvidersBottomSheetViewModel(
             input: input,
+            percentFormatter: .init(),
             expressProviderFormatter: expressProviderFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
