@@ -306,7 +306,7 @@ private extension SwappingViewModel {
         }
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            balanceValue: swappingItems.destinationBalance,
+            balance: .loaded(swappingItems.destinationBalance ?? 0),
             canChangeCurrency: destination != initialSourceCurrency,
             cryptoAmountState: cryptoAmountState,
             fiatAmountState: fiatAmountState,
