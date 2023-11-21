@@ -11,6 +11,5 @@ import Foundation
 public enum ExpressManagerRestriction {
     case notEnoughAmountForSwapping(_ minAmount: Decimal)
     case permissionRequired(spender: String)
-    case hasPendingTransaction
     case notEnoughBalanceForSwapping
 }
