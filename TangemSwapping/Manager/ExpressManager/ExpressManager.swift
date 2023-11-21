@@ -22,3 +22,9 @@ public protocol ExpressManager {
 
     func update() async throws -> ExpressManagerState
 }
+
+public extension ExpressManager {
+    func getBestQuote() async -> ExpectedQuote? {
+        return await getAllQuotes().sorted { $0.rate > $1.rate }.first
+    }
+}
