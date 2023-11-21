@@ -236,6 +236,8 @@ private extension ExpressInteractor {
             log("The destination not found")
             return
         }
+        
+        refresh(type: .full)
 
         updateViewState(.loading(type: .full))
         let pair = ExpressManagerSwappingPair(source: getSender(), destination: destination)
@@ -458,6 +460,9 @@ private extension ExpressInteractor {
 
             do {
                 try await block(self)
+            } catch is CancellationError {
+                // Do nothing
+                log("The update task did cancelled")
             } catch {
                 updateViewState(.restriction(.requiredRefresh(occurredError: error), quote: .none))
             }
