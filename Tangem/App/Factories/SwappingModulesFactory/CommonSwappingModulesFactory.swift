@@ -55,12 +55,10 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         ExpressViewModel(
             initialWallet: walletModel,
-            swappingInteractor: expressInteractor,
-            swappingDestinationService: swappingDestinationService,
-            tokenIconURLBuilder: tokenIconURLBuilder,
-            transactionSender: transactionSender,
-            fiatRatesProvider: fiatRatesProvider,
             swappingFeeFormatter: swappingFeeFormatter,
+            balanceConverter: .init(),
+            balanceFormatter: .init(),
+            interactor: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -190,6 +188,25 @@ private extension CommonSwappingModulesFactory {
         )
     }
 
+    var allowanceProvider: CommonAllowanceProvider {
+        CommonAllowanceProvider(
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionProcessor: ethereumTransactionProcessor
+        )
+    }
+
+    var pendingTransactionRepository: ExpressPendingTransactionRepository {
+        CommonExpressPendingTransactionRepository()
+    }
+
+    var expressDestinationService: ExpressDestinationService {
+        CommonExpressDestinationService(walletModelsManager: walletModelsManager)
+    }
+
+    var expressTransactionBuilder: ExpressTransactionBuilder {
+        CommonExpressTransactionBuilder()
+    }
+
     var swappingInteractor: SwappingInteractor {
         if let interactor = _swappingInteractor {
             return interactor
@@ -217,19 +234,21 @@ private extension CommonSwappingModulesFactory {
     // MARK: - Methods
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let swappingManager = swappingFactory.makeSwappingManager(
-            walletDataProvider: walletDataProvider,
-            referrer: referrer,
-            source: source,
-            destination: nil,
+        let expressManager = swappingFactory.makeExpressManager(
+            expressAPIProvider: expressAPIProvider,
+            allowanceProvider: allowanceProvider,
             logger: logger
         )
 
         let interactor = ExpressInteractor(
-            swappingManager: swappingManager,
-            userTokensManager: userTokensManager,
-            currencyMapper: currencyMapper,
-            blockchainNetwork: walletModel.blockchainNetwork
+            sender: walletModel,
+            expressManager: expressManager,
+            allowanceProvider: allowanceProvider,
+            expressPendingTransactionRepository: pendingTransactionRepository,
+            expressDestinationService: expressDestinationService,
+            expressTransactionBuilder: expressTransactionBuilder,
+            signer: signer,
+            logger: logger
         )
 
         return interactor
