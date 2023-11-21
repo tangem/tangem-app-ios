@@ -17,7 +17,7 @@ final class ExpressViewModel: ObservableObject {
     // Main bubbles
     @Published var sendCurrencyViewModel: SendCurrencyViewModel?
     @Published var sendDecimalValue: DecimalNumberTextField.DecimalValue?
-    @Published var swapButtonIsLoading: Bool = false
+    @Published var isSwapButtonLoading: Bool = false
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
 
     // Warnings
@@ -381,14 +381,14 @@ private extension ExpressViewModel {
 
         switch state {
         case .idle:
-            swapButtonIsLoading = false
+            isSwapButtonLoading = false
             update(restriction: .none)
             stopTimer()
 
             updateReceiveCurrencyValue(expectAmount: 0)
 
         case .loading(let type):
-            swapButtonIsLoading = true
+            isSwapButtonLoading = true
 
             // Turn on skeletons only for full update
             guard type == .full else { return }
@@ -398,7 +398,7 @@ private extension ExpressViewModel {
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
         case .restriction(let type, let quote):
-            swapButtonIsLoading = false
+            isSwapButtonLoading = false
             update(restriction: type)
 
             if case .requiredRefresh = type {
@@ -410,7 +410,7 @@ private extension ExpressViewModel {
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
         case .readyToSwap(let data, let quote):
-            swapButtonIsLoading = false
+            isSwapButtonLoading = false
             update(restriction: .none)
             restartTimer()
 
@@ -484,26 +484,19 @@ private extension ExpressViewModel {
     func updateHighPriceImpact(state: ExpressInteractor.ExpressInteractorState) {
         runTask(in: self) { viewModel in
             switch state {
-            case .idle:
+            case .idle, .loading(.full), .restriction(_, nil):
                 await runOnMain {
                     viewModel.highPriceImpactWarningRowViewModel = nil
                 }
-            case .loading(let type):
-                if type == .full {
-                    await runOnMain {
-                        viewModel.highPriceImpactWarningRowViewModel = nil
-                    }
-                }
+            case .loading(.refreshRates):
+                // Do nothing
+                break
             case .restriction(_, let quote):
                 if let quote = quote?.quote {
                     try await viewModel.checkForHighPriceImpact(
                         sourceAmount: quote.fromAmount,
                         destinationAmount: quote.expectAmount
                     )
-                } else {
-                    await runOnMain {
-                        viewModel.highPriceImpactWarningRowViewModel = nil
-                    }
                 }
 
             case .readyToSwap(let data, _):
