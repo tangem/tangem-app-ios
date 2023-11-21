@@ -74,7 +74,7 @@ struct ExpressView: View {
     @ViewBuilder
     private var swappingButton: some View {
         Group {
-            if viewModel.swapButtonIsLoading {
+            if viewModel.isSwapButtonLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
             } else {
