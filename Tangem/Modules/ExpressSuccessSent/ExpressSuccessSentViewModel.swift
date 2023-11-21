@@ -8,7 +8,10 @@
 
 import Combine
 import SwiftUI
+import TangemSwapping
 
+// [REDACTED_TODO_COMMENT]
+// [REDACTED_INFO]
 final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
@@ -16,6 +19,14 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     @Published var destinationData: AmountSummaryViewData?
     @Published var provider: ProviderRowViewModel?
     @Published var expressFee: ExpressFeeRowData?
+
+    var dateFormatted: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .short
+
+        return formatter.string(from: Date())
+    }
 
     // MARK: - Dependencies
 
@@ -28,6 +39,12 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
         setupView()
     }
+
+    func openExplore() {}
+
+    func openShare() {}
+
+    func closeView() {}
 }
 
 private extension ExpressSuccessSentViewModel {
@@ -65,7 +82,7 @@ private extension ExpressSuccessSentViewModel {
             // Should be replaced on id
             tapAction: {}
         )
-        
+
         expressFee = ExpressFeeRowData(title: "Fee", subtitle: "0.117 MATIC (0.14 $)", action: nil)
     }
 }
