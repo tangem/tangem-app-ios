@@ -9,9 +9,14 @@
 import Foundation
 
 struct CommonExpressDestinationService {
+    private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let walletModelsManager: WalletModelsManager
 
-    init(walletModelsManager: WalletModelsManager) {
+    init(
+        pendingTransactionRepository: ExpressPendingTransactionRepository,
+        walletModelsManager: WalletModelsManager
+    ) {
+        self.pendingTransactionRepository = pendingTransactionRepository
         self.walletModelsManager = walletModelsManager
     }
 }
@@ -19,25 +24,28 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getDestination(source: WalletModel) async throws -> WalletModel {
-        // [REDACTED_TODO_COMMENT]
+    func getDestination(source: WalletModel) -> WalletModel? {
+        return nil
 
-        if source.isMainToken {
-            if let wallet = walletModelsManager.walletModels.first(where: {
-                $0.blockchainNetwork == source.blockchainNetwork && $0.id != source.id
-            }) {
-                return wallet
-            }
+        let searchableWalletModels = walletModelsManager.walletModels.filter { $0.id != source.id }
+
+        if let lastCurrencyTransaction = pendingTransactionRepository.lastCurrencyTransaction(),
+           let lastWallet = searchableWalletModels.first(where: { $0.expressCurrency == lastCurrencyTransaction }) {
+            return lastWallet
         }
 
-        if source.isToken {
-            if let wallet = walletModelsManager.walletModels.first(where: {
-                $0.blockchainNetwork == source.blockchainNetwork && $0.isMainToken
-            }) {
-                return wallet
-            }
+        let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatValue ?? 0) > 0 }
+
+        // If all wallets without balance
+        if walletModelsWithPositiveBalance.isEmpty, let first = searchableWalletModels.first {
+            return first
         }
 
-        throw CommonError.noData
+        // If user has wallets with balance then select with maximum
+        if let maxFiatBalance = walletModelsWithPositiveBalance.max(by: { ($0.fiatValue ?? 0) < ($1.fiatValue ?? 0) }) {
+            return maxFiatBalance
+        }
+
+        return nil
     }
 }
