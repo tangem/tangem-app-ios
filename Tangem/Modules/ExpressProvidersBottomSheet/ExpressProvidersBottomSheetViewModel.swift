@@ -17,8 +17,8 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     // MARK: - Dependencies
 
-    private var selectedProviderId: Int?
-    private let quotes: [ExpectedQuote]
+    private var selectedProviderId: Int? = nil
+    private var quotes: [ExpectedQuote] = []
 
     private let percentFormatter: PercentFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
@@ -28,15 +28,11 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     private var bag: Set<AnyCancellable> = []
 
     init(
-        input: InputModel,
         percentFormatter: PercentFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressProvidersBottomSheetRoutable
     ) {
-        selectedProviderId = input.selectedProviderId
-        quotes = input.quotes
-
         self.percentFormatter = percentFormatter
         self.expressProviderFormatter = expressProviderFormatter
         self.expressInteractor = expressInteractor
@@ -46,7 +42,15 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func setupView() {
-        updateView(quotes: quotes)
+        runTask(in: self) { viewModel in
+            let quotes = await viewModel.expressInteractor.getAllQuotes()
+            let selectedProviderId = await viewModel.expressInteractor.getSelectedProvider()?.id
+
+            await runOnMain {
+                viewModel.selectedProviderId = selectedProviderId
+                viewModel.updateView(quotes: quotes)
+            }
+        }
     }
 
     func updateView(quotes: [ExpectedQuote]) {
@@ -65,7 +69,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
                 quote: quote,
                 senderCurrencyCode: senderCurrencyCode,
                 destinationCurrencyCode: destinationCurrencyCode,
-                option: .destination
+                option: .exchangeReceivedAmount
             )
         )
 
@@ -99,12 +103,5 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
-    }
-}
-
-extension ExpressProvidersBottomSheetViewModel {
-    struct InputModel {
-        let selectedProviderId: Int?
-        let quotes: [ExpectedQuote]
     }
 }

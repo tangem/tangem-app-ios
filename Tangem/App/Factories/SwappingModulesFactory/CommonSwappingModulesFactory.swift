@@ -121,11 +121,9 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeExpressProvidersBottomSheetViewModel(
-        input: ExpressProvidersBottomSheetViewModel.InputModel,
         coordinator: ExpressProvidersBottomSheetRoutable
     ) -> ExpressProvidersBottomSheetViewModel {
         ExpressProvidersBottomSheetViewModel(
-            input: input,
             percentFormatter: .init(),
             expressProviderFormatter: expressProviderFormatter,
             expressInteractor: expressInteractor,
