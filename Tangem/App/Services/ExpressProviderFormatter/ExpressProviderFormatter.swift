@@ -21,7 +21,7 @@ struct ExpressProviderFormatter {
         switch quote.state {
         case .quote(let expressQuote):
             switch option {
-            case .rate:
+            case .exchangeRate:
                 guard let senderCurrencyCode, let destinationCurrencyCode else {
                     return .text(CommonError.noData.localizedDescription)
                 }
@@ -31,7 +31,7 @@ struct ExpressProviderFormatter {
                 let formattedDestinationAmount = balanceFormatter.formatCryptoBalance(rate, currencyCode: destinationCurrencyCode)
 
                 return .text("\(formattedSourceAmount) ≈ \(formattedDestinationAmount)")
-            case .destination:
+            case .exchangeReceivedAmount:
                 guard let destinationCurrencyCode else {
                     return .text(CommonError.noData.localizedDescription)
                 }
@@ -66,9 +66,9 @@ struct ExpressProviderFormatter {
 extension ExpressProviderFormatter {
     enum RateSubtitleFormattingOption {
         // How many destination's tokens user will get for the 1 token of source
-        case rate
+        case exchangeRate
 
         // How many destination's tokens user will get at the end of swap
-        case destination
+        case exchangeReceivedAmount
     }
 }
