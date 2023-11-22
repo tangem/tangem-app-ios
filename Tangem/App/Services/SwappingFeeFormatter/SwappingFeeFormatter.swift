@@ -11,4 +11,6 @@ import TangemSwapping
 protocol SwappingFeeFormatter {
     func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String
     func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String
+
+    func format(fee: Decimal, currencySymbol: String, currencyId: String) -> String
 }
