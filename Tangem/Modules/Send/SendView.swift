@@ -38,11 +38,31 @@ struct SendView: View {
             SheetDragHandler()
                 .padding(.bottom, 4)
 
-            Text(viewModel.title)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                .animation(nil)
-                .padding(.vertical, 8)
+            
+            HStack {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: 1)
+                
+                Text(viewModel.title)
+                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .animation(nil)
+                    .padding(.vertical, 8)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                
+                if viewModel.showQRCodeButton {
+                    Button(action: viewModel.scanQRCode) {
+                        Assets.qrCode.image
+                            .foregroundColor(Colors.Icon.primary1)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                } else {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: 1)
+                }
+            }
         }
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
