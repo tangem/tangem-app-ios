@@ -46,11 +46,15 @@ actor CommonExpressManager {
 
 extension CommonExpressManager: ExpressManager {
     func getPair() -> ExpressManagerSwappingPair? {
-        _pair
+        return _pair
     }
 
     func getAmount() -> Decimal? {
-        _amount
+        return _amount
+    }
+
+    func getAllQuotes() async -> [ExpectedQuote] {
+        return availableQuotes
     }
 
     func getSelectedQuote() -> ExpectedQuote? {
@@ -196,12 +200,30 @@ private extension CommonExpressManager {
         try Task.checkCancellation()
 
         let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
+
+        // Find the best quote
+        let best = quotes
+            .compactMapValues { try? $0.get() }
+            .max { $0.value.expectAmount < $1.value.expectAmount }?.value
+
         let allQuotes: [ExpectedQuote] = allProviders.map { provider in
-            if let loadedQuote = quotes[provider.id] {
-                return ExpectedQuote(provider: provider, state: loadedQuote)
+            guard let loadedQuoteResult = quotes[provider.id] else {
+                return ExpectedQuote(provider: provider, state: .notAvailable, isBest: false)
             }
 
-            return ExpectedQuote(provider: provider, state: .notAvailable)
+            switch loadedQuoteResult {
+            case .success(let quote):
+                let isBest = best == quote
+                return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
+            case .failure(let error as ExpressDTO.ExpressAPIError):
+                if error.code == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
+                    return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
+                }
+
+                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+            case .failure(let error):
+                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+            }
         }
 
         return allQuotes
@@ -212,38 +234,37 @@ private extension CommonExpressManager {
             throw ExpressManagerError.quotesNotFound
         }
 
-        let sortedQuotes = quotes.sorted { lhs, rhs in
-            let lhsAmount = lhs.quote?.expectAmount ?? 0
-            let rhsAmount = rhs.quote?.expectAmount ?? 0
+        let availableQuotes = quotes.filter { $0.isAvailable }
 
-            return lhsAmount > rhsAmount
+        if availableQuotes.isEmpty, let firstWithError = quotes.first(where: { $0.isError }) {
+            return firstWithError
         }
 
-        guard let bestExpectedQuote = sortedQuotes.first else {
-            throw ExpressManagerError.quotesNotFound
+        if let bestAvailable = availableQuotes.first(where: { $0.isBest }) {
+            return bestAvailable
         }
 
-        return bestExpectedQuote
+        throw ExpressManagerError.quotesNotFound
     }
 
-    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: ExpectedQuote.State] {
-        typealias TaskValue = (id: Int, quote: ExpectedQuote.State)
+    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: Result<ExpressQuote, Error>] {
+        typealias TaskValue = (id: Int, result: Result<ExpressQuote, Error>)
 
-        let quotes: [Int: ExpectedQuote.State] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
+        let quotes: [Int: Result<ExpressQuote, Error>] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
             providerIds.forEach { providerId in
 
                 // Run a parallel asynchronous task and collect it into the group
                 _ = taskGroup.addTaskUnlessCancelled { [weak self] in
                     guard let self else {
-                        return (providerId, .error("CommonError.objectReleased"))
+                        return (providerId, .failure(ExpressManagerError.objectReleased))
                     }
 
                     do {
                         let item = await makeExpressSwappableItem(request: request, providerId: providerId)
                         let quote = try await expressAPIProvider.exchangeQuote(item: item)
-                        return (providerId, .quote(quote))
+                        return (providerId, .success(quote))
                     } catch {
-                        return (providerId, .error(error.localizedDescription))
+                        return (providerId, .failure(error))
                     }
                 }
             }
@@ -264,6 +285,10 @@ private extension CommonExpressManager {
     func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpectedQuote) async throws -> ExpressManagerRestriction? {
         // 1. Check minimal amount
         if let minAmount = quote.quote?.minAmount, request.amount < minAmount {
+            return .notEnoughAmountForSwapping(minAmount)
+        }
+
+        if case .tooSmallAmount(let minAmount) = quote.state {
             return .notEnoughAmountForSwapping(minAmount)
         }
 
