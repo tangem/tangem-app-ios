@@ -15,6 +15,7 @@ final class SendViewModel: ObservableObject {
 
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
+    @Published var alert: AlertBinder?
 
     var title: String {
         step.name
@@ -64,6 +65,9 @@ final class SendViewModel: ObservableObject {
     private let sendModel: SendModel
     private let sendType: SendType
     private let steps: [SendStep]
+    private let walletModel: WalletModel
+    private let emailData: [EmailCollectedData]
+    private let emailConfig: EmailConfig
 
     private unowned let coordinator: SendRoutable
 
@@ -90,9 +94,12 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, emailData: [EmailCollectedData], emailConfig: EmailConfig, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
+        self.walletModel = walletModel
+        self.emailData = emailData
+        self.emailConfig = emailConfig
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
 
         let steps = sendType.steps
@@ -146,6 +153,16 @@ final class SendViewModel: ObservableObject {
                 self?.setLoadingViewVisibile(isSending)
             }
             .store(in: &bag)
+
+        sendModel
+            .sendError
+            .compactMap { $0 }
+            .sink { [weak self] sendError in
+                guard let self else { return }
+
+                alert = SendError(sendError, openMailAction: openMail).alertBinder
+            }
+            .store(in: &bag)
     }
 
     private func setLoadingViewVisibile(_ visible: Bool) {
@@ -155,6 +172,21 @@ final class SendViewModel: ObservableObject {
         } else {
             appDelegate.removeLoadingView()
         }
+    }
+
+    private func openMail(with error: Error) {
+        guard let transaction = sendModel.currentTransaction() else { return }
+
+        let emailDataCollector = SendScreenDataCollector(
+            userWalletEmailData: emailData,
+            walletModel: walletModel,
+            fee: transaction.fee.amount,
+            destination: transaction.destinationAddress,
+            amount: transaction.amount,
+            isFeeIncluded: sendModel.isFeeIncluded,
+            lastError: error
+        )
+        coordinator.openMail(with: emailDataCollector, recipient: emailConfig.recipient)
     }
 }
 
