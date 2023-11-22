@@ -562,15 +562,10 @@ extension ExpressInteractor {
 
         var isAvailableToSendTransaction: Bool {
             switch self {
-            case .idle, .loading:
-                return false
-            case .restriction(let type, _):
-                if case .permissionRequired = type {
-                    return true
-                }
-                return false
-            case .readyToSwap:
+            case .readyToSwap, .restriction(.permissionRequired, _):
                 return true
+            case .idle, .loading, .restriction:
+                return false
             }
         }
     }
