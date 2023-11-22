@@ -41,7 +41,7 @@ public struct ExpectedQuote: Hashable {
     }
 
     public var rate: Decimal {
-        if let quote {
+        if let quote, !quote.fromAmount.isZero {
             return quote.expectAmount / quote.fromAmount
         }
 
