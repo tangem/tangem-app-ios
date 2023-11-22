@@ -70,3 +70,19 @@ extension LockedUserWallet: MainHeaderInfoProvider {
 
     var isTokensListEmpty: Bool { false }
 }
+
+extension LockedUserWallet: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        let cardInfo = userWallet.cardInfo()
+        let embeddedEntry = config.embeddedBlockchain
+        let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
+
+        return AnalyticsContextData(
+            id: nil,
+            productType: config.productType,
+            batchId: cardInfo.card.batchId,
+            firmware: cardInfo.card.firmwareVersion.stringValue,
+            baseCurrency: baseCurrency
+        )
+    }
+}
