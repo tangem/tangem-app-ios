@@ -8,4 +8,6 @@
 
 import Foundation
 
-protocol SendRoutable: AnyObject {}
+protocol SendRoutable: AnyObject {
+    func openMail(with dataCollector: EmailDataCollector, recipient: String)
+}
