@@ -113,8 +113,12 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
             transactionSender: transactionSender,
-            swappingInteractor: swappingInteractor,
             fiatRatesProvider: fiatRatesProvider,
+            swappingInteractor: swappingInteractor,
+            swappingFeeFormatter: swappingFeeFormatter,
+            pendingTransactionRepository: pendingTransactionRepository,
+            logger: logger,
+            expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
