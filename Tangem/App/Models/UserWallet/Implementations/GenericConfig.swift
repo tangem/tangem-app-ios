@@ -110,15 +110,6 @@ extension GenericConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
-    var tangemSigner: TangemSigner {
-        let shouldSkipCardId = card.backupStatus?.isActive ?? false
-        if shouldSkipCardId, let userWalletId = UserWalletIdFactory().userWalletId(config: self)?.value {
-            return .init(with: userWalletId, sdk: makeTangemSdk())
-        }
-
-        return .init(with: card.cardId, sdk: makeTangemSdk())
-    }
-
     var userWalletIdSeed: Data? {
         card.wallets.first?.publicKey
     }
