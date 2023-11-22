@@ -180,19 +180,7 @@ private extension ExpressViewModel {
     }
 
     func presentProviderSelectorView() {
-        runTask(in: self) { viewModel in
-            async let quotes = viewModel.interactor.getAllQuotes()
-            async let provider = viewModel.interactor.getSelectedProvider()
-
-            let input = await ExpressProvidersBottomSheetViewModel.InputModel(
-                selectedProviderId: provider?.id,
-                quotes: quotes
-            )
-
-            await runOnMain {
-                viewModel.coordinator.presentProviderSelectorView(input: input)
-            }
-        }
+        coordinator.presentProviderSelectorView()
     }
 }
 
@@ -613,7 +601,7 @@ private extension ExpressViewModel {
             quote: expectedQuote,
             senderCurrencyCode: interactor.getSender().tokenItem.currencySymbol,
             destinationCurrencyCode: interactor.getDestination()?.tokenItem.currencySymbol,
-            option: .rate
+            option: .exchangeRate
         )
 
         return ProviderRowViewModel(

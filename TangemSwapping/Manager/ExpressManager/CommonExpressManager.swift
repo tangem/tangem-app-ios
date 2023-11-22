@@ -202,24 +202,15 @@ private extension CommonExpressManager {
         let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
 
         // Find the best quote
-        var best: ExpressQuote?
-        quotes.forEach { _, value in
-            guard let quote = try? value.get() else {
-                return
-            }
-            
-            if let bestAmount = best?.expectAmount, quote.expectAmount > bestAmount {
-                best = quote
-            } else if best == nil {
-                best = quote
-            }
-        }
+        let best = quotes
+            .compactMapValues { try? $0.get() }
+            .max { $0.value.expectAmount < $1.value.expectAmount }?.value
 
         let allQuotes: [ExpectedQuote] = allProviders.map { provider in
             guard let loadedQuoteResult = quotes[provider.id] else {
                 return ExpectedQuote(provider: provider, state: .notAvailable, isBest: false)
             }
-            
+
             switch loadedQuoteResult {
             case .success(let quote):
                 let isBest = best == quote
@@ -228,7 +219,7 @@ private extension CommonExpressManager {
                 if error.code == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
                     return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
                 }
-                
+
                 return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
             case .failure(let error):
                 return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
@@ -249,7 +240,7 @@ private extension CommonExpressManager {
             return firstWithError
         }
 
-        if let bestAvailable = quotes.sorted(by: { $0.rate > $1.rate }).first {
+        if let bestAvailable = quotes.max(by: { $0.rate > $1.rate }) {
             return bestAvailable
         }
 
