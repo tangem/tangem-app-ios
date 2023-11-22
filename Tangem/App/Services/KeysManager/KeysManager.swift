@@ -22,6 +22,7 @@ protocol KeysManager {
     var swapReferrerAccount: SwapReferrerAccount? { get }
     var utorgSID: String { get }
     var walletConnectProjectId: String { get }
+    var tangemExpressApiKey: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
