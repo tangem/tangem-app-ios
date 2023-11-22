@@ -51,21 +51,55 @@ struct ExpressAPIMapper {
         )
     }
 
-    func mapToExpressQuote(response: ExpressDTO.ExchangeQuote.Response) -> ExpressQuote {
-        ExpressQuote(
-            expectAmount: response.toAmount,
-            minAmount: response.minAmount,
+    func mapToExpressQuote(response: ExpressDTO.ExchangeQuote.Response) throws -> ExpressQuote {
+        guard var fromAmount = Decimal(string: response.fromAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
+        }
+
+        guard var toAmount = Decimal(string: response.toAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
+        }
+
+        guard let minAmount = Decimal(string: response.minAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.minAmount)
+        }
+
+        fromAmount /= pow(10, response.fromDecimals)
+        toAmount /= pow(10, response.toDecimals)
+
+        return ExpressQuote(
+            fromAmount: fromAmount,
+            expectAmount: toAmount,
+            minAmount: minAmount,
             allowanceContract: response.allowanceContract
         )
     }
 
-    func mapToExpressTransactionData(response: ExpressDTO.ExchangeData.Response) -> ExpressTransactionData {
-        ExpressTransactionData(
+    func mapToExpressTransactionData(response: ExpressDTO.ExchangeData.Response) throws -> ExpressTransactionData {
+        guard var fromAmount = Decimal(string: response.fromAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
+        }
+
+        guard var toAmount = Decimal(string: response.toAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
+        }
+
+        guard var txValue = Decimal(string: response.txValue) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.txValue)
+        }
+
+        fromAmount /= pow(10, response.fromDecimals)
+        toAmount /= pow(10, response.toDecimals)
+        txValue /= pow(10, response.fromDecimals)
+
+        return ExpressTransactionData(
+            fromAmount: fromAmount,
+            toAmount: toAmount,
             expressTransactionId: response.txId,
             transactionType: response.txType,
             sourceAddress: response.txFrom,
             destinationAddress: response.txTo,
-            value: response.txValue,
+            value: txValue,
             txData: response.txData,
             externalTxId: response.externalTxId,
             externalTxUrl: response.externalTxUrl
@@ -80,4 +114,8 @@ struct ExpressAPIMapper {
             errorCode: response.errorCode
         )
     }
+}
+
+enum ExpressAPIMapperError: Error {
+    case mapToDecimalError(_ string: String)
 }
