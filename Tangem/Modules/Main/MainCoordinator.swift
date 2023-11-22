@@ -26,6 +26,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var legacySendCoordinator: LegacySendCoordinator?
+    @Published var sendCoordinator: SendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator?
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var manageTokensCoordinator: ManageTokensCoordinator? = nil
@@ -51,11 +52,16 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        mainViewModel = MainViewModel(
+        let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
+        let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
+            swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
         )
+
+        swipeDiscoveryHelper.delegate = viewModel
+        mainViewModel = viewModel
     }
 }
 
@@ -209,7 +215,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+    func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel) {
         guard FeatureProvider.isAvailable(.sendV2) else {
             let coordinator = LegacySendCoordinator { [weak self] in
                 self?.legacySendCoordinator = nil
@@ -225,10 +231,20 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        assertionFailure("[REDACTED_TODO_COMMENT]")
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
+
+        let options = SendCoordinator.Options(
+            walletModel: walletModel,
+            transactionSigner: cardViewModel.signer,
+            type: .send
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+    func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel) {
         guard FeatureProvider.isAvailable(.sendV2) else {
             let coordinator = LegacySendCoordinator { [weak self] in
                 self?.legacySendCoordinator = nil
@@ -244,7 +260,16 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        assertionFailure("[REDACTED_TODO_COMMENT]")
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
+        let options = SendCoordinator.Options(
+            walletModel: walletModel,
+            transactionSigner: cardViewModel.signer,
+            type: .sell(amount: amountToSend.value, destination: destination)
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
     }
 
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
