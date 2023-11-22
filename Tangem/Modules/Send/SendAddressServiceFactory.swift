@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdk
 
 struct SendAddressServiceFactory {
     private let walletModel: WalletModel
