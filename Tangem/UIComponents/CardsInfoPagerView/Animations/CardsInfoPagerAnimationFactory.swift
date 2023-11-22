@@ -26,6 +26,13 @@ struct CardsInfoPagerAnimationFactory {
         self.pageSwitchAnimationDuration = pageSwitchAnimationDuration
     }
 
+    func makeSwipeDicoveryAnimation() -> Animation {
+        return .interpolatingSpring(
+            stiffness: 17.82,
+            damping: 6.06
+        )
+    }
+
     func makeHorizontalScrollAnimation(
         totalWidth: CGFloat,
         dragGestureVelocity: CGSize,
