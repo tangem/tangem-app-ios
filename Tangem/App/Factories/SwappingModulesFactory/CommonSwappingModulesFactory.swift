@@ -55,12 +55,11 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         ExpressViewModel(
             initialWallet: walletModel,
-            swappingInteractor: expressInteractor,
-            swappingDestinationService: swappingDestinationService,
-            tokenIconURLBuilder: tokenIconURLBuilder,
-            transactionSender: transactionSender,
-            fiatRatesProvider: fiatRatesProvider,
             swappingFeeFormatter: swappingFeeFormatter,
+            balanceConverter: .init(),
+            balanceFormatter: .init(),
+            expressProviderFormatter: expressProviderFormatter,
+            interactor: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -92,11 +91,11 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeExpressTokensListViewModel(
-        walletType: ExpressTokensListViewModel.SwapDirection,
+        swapDirection: ExpressTokensListViewModel.SwapDirection,
         coordinator: ExpressTokensListRoutable
     ) -> ExpressTokensListViewModel {
         ExpressTokensListViewModel(
-            swapDirection: walletType,
+            swapDirection: swapDirection,
             walletModels: walletModelsManager.walletModels,
             expressAPIProvider: expressAPIProvider,
             expressInteractor: expressInteractor,
@@ -117,6 +116,17 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             transactionSender: transactionSender,
             swappingInteractor: swappingInteractor,
             fiatRatesProvider: fiatRatesProvider,
+            coordinator: coordinator
+        )
+    }
+
+    func makeExpressProvidersBottomSheetViewModel(
+        coordinator: ExpressProvidersBottomSheetRoutable
+    ) -> ExpressProvidersBottomSheetViewModel {
+        ExpressProvidersBottomSheetViewModel(
+            percentFormatter: .init(),
+            expressProviderFormatter: expressProviderFormatter,
+            expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -177,6 +187,10 @@ private extension CommonSwappingModulesFactory {
         )
     }
 
+    var expressProviderFormatter: ExpressProviderFormatter {
+        ExpressProviderFormatter(balanceFormatter: .init())
+    }
+
     var explorerURLService: ExplorerURLService {
         CommonExplorerURLService()
     }
@@ -188,6 +202,25 @@ private extension CommonSwappingModulesFactory {
             ethereumTransactionProcessor: ethereumTransactionProcessor,
             currencyMapper: currencyMapper
         )
+    }
+
+    var allowanceProvider: CommonAllowanceProvider {
+        CommonAllowanceProvider(
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionProcessor: ethereumTransactionProcessor
+        )
+    }
+
+    var pendingTransactionRepository: ExpressPendingTransactionRepository {
+        CommonExpressPendingTransactionRepository()
+    }
+
+    var expressDestinationService: ExpressDestinationService {
+        CommonExpressDestinationService(walletModelsManager: walletModelsManager)
+    }
+
+    var expressTransactionBuilder: ExpressTransactionBuilder {
+        CommonExpressTransactionBuilder()
     }
 
     var swappingInteractor: SwappingInteractor {
@@ -217,19 +250,21 @@ private extension CommonSwappingModulesFactory {
     // MARK: - Methods
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let swappingManager = swappingFactory.makeSwappingManager(
-            walletDataProvider: walletDataProvider,
-            referrer: referrer,
-            source: source,
-            destination: nil,
+        let expressManager = swappingFactory.makeExpressManager(
+            expressAPIProvider: expressAPIProvider,
+            allowanceProvider: allowanceProvider,
             logger: logger
         )
 
         let interactor = ExpressInteractor(
-            swappingManager: swappingManager,
-            userTokensManager: userTokensManager,
-            currencyMapper: currencyMapper,
-            blockchainNetwork: walletModel.blockchainNetwork
+            sender: walletModel,
+            expressManager: expressManager,
+            allowanceProvider: allowanceProvider,
+            expressPendingTransactionRepository: pendingTransactionRepository,
+            expressDestinationService: expressDestinationService,
+            expressTransactionBuilder: expressTransactionBuilder,
+            signer: signer,
+            logger: logger
         )
 
         return interactor
