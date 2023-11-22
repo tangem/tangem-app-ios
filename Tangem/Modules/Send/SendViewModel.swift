@@ -31,6 +31,15 @@ final class SendViewModel: ObservableObject {
     var showNextButton: Bool {
         nextStep != nil
     }
+    
+    var showQRCodeButton: Bool {
+        switch step {
+        case .amount, .destination:
+            return true
+        case .fee, .summary:
+            return false
+        }
+    }
 
     let sendAmountViewModel: SendAmountViewModel
     let sendDestinationViewModel: SendDestinationViewModel
@@ -129,6 +138,10 @@ final class SendViewModel: ObservableObject {
         }
 
         step = previousStep
+    }
+    
+    func scanQRCode() {
+        
     }
 
     private func bind() {
