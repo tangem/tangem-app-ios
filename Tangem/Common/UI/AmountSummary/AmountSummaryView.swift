@@ -14,47 +14,43 @@ struct AmountSummaryView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        GroupedSection([data]) { data in
-            VStack(alignment: .leading, spacing: 12) {
-                Text(Localization.sendAmountLabel)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            Text(Localization.sendAmountLabel)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
-                HStack(spacing: 0) {
-                    TokenIcon(
-                        tokenIconInfo: TokenIconInfo(
-                            name: data.tokenIconName,
-                            blockchainIconName: data.tokenIconBlockchainIconName,
-                            imageURL: data.tokenIconURL,
-                            isCustom: data.isCustomToken,
-                            customTokenColor: data.tokenIconCustomTokenColor
-                        ),
-                        size: iconSize
-                    )
-                    .padding(.trailing, 12)
+            HStack(spacing: 0) {
+                TokenIcon(
+                    tokenIconInfo: TokenIconInfo(
+                        name: data.tokenIconName,
+                        blockchainIconName: data.tokenIconBlockchainIconName,
+                        imageURL: data.tokenIconURL,
+                        isCustom: data.isCustomToken,
+                        customTokenColor: data.tokenIconCustomTokenColor
+                    ),
+                    size: iconSize
+                )
+                .padding(.trailing, 12)
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(data.amount)
-                            .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(data.amount)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
-                        Text(data.amountFiat)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    }
-                    .truncationMode(.middle)
-                    .lineLimit(1)
-
-                    Spacer(minLength: 0)
+                    Text(data.amountFiat)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
+                .truncationMode(.middle)
+                .lineLimit(1)
+
+                Spacer(minLength: 0)
             }
-            .padding(.vertical, 12)
         }
-        .horizontalPadding(14)
     }
 }
 
 #Preview {
-    GroupedScrollView {
-        AmountSummaryView(
-            data: AmountSummaryViewData(
+    GroupedScrollView(spacing: 14) {
+        GroupedSection([
+            AmountSummaryViewData(
                 amount: "100.00 USDT",
                 amountFiat: "99.98$",
                 tokenIconName: "tether",
@@ -62,11 +58,15 @@ struct AmountSummaryView: View {
                 tokenIconCustomTokenColor: nil,
                 tokenIconBlockchainIconName: "ethereum.fill",
                 isCustomToken: false
-            )
-        )
+            ),
+        ]) {
+            AmountSummaryView(data: $0)
+        }
+        .interSectionPadding(12)
+        .verticalPadding(0)
 
-        AmountSummaryView(
-            data: AmountSummaryViewData(
+        GroupedSection([
+            AmountSummaryViewData(
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
                 tokenIconName: "optimism",
@@ -74,8 +74,12 @@ struct AmountSummaryView: View {
                 tokenIconCustomTokenColor: nil,
                 tokenIconBlockchainIconName: nil,
                 isCustomToken: false
-            )
-        )
+            ),
+        ]) {
+            AmountSummaryView(data: $0)
+        }
+        .interSectionPadding(12)
+        .verticalPadding(0)
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
