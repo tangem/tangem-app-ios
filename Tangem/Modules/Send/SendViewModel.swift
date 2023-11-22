@@ -166,6 +166,7 @@ final class SendViewModel: ObservableObject {
 
         sendModel
             .transactionFinished
+            .removeDuplicates()
             .sink { [weak self] transactionFinished in
                 guard let self, transactionFinished else { return }
 
