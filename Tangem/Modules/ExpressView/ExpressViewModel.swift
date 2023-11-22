@@ -21,6 +21,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
 
     // Warnings
+    @Published var destinationNotFoundViewModel: DefaultWarningRowViewModel?
     @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
     @Published var pendingTransaction: DefaultWarningRowViewModel?
@@ -41,6 +42,7 @@ final class ExpressViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     var informationSectionViewModels: [DefaultWarningRowViewModel] {
         [
+            destinationNotFoundViewModel,
             refreshWarningRowViewModel,
             highPriceImpactWarningRowViewModel,
             pendingTransaction,
@@ -188,8 +190,6 @@ private extension ExpressViewModel {
 
 private extension ExpressViewModel {
     func setupView() {
-        updateState(state: .idle)
-
         sendCurrencyViewModel = SendCurrencyViewModel(
             maximumFractionDigits: interactor.getSender().decimalCount,
             canChangeCurrency: interactor.getSender().id != initialWallet.id,
@@ -230,7 +230,6 @@ private extension ExpressViewModel {
             .store(in: &bag)
 
         interactor.state
-            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.updateState(state: state)
@@ -313,7 +312,8 @@ private extension ExpressViewModel {
     func updateReceiveView(wallet: WalletModel?) {
         guard let wallet = wallet else {
             receiveCurrencyViewModel?.canChangeCurrency = false
-            receiveCurrencyViewModel?.tokenIconState = .loading
+            receiveCurrencyViewModel?.tokenIconState = .notAvailable
+            receiveCurrencyViewModel?.isAvailable = false
             return
         }
 
@@ -365,7 +365,8 @@ private extension ExpressViewModel {
         receiveCurrencyViewModel?.update(cryptoAmountState: .formatted(formatted))
 
         guard let currencyId = tokenItem?.currencyId else {
-            receiveCurrencyViewModel?.update(fiatAmountState: .formatted(BalanceFormatter.defaultEmptyBalanceString))
+            let formatted = balanceFormatter.formatFiatBalance(0)
+            receiveCurrencyViewModel?.update(fiatAmountState: .formatted(formatted))
             return
         }
 
@@ -420,16 +421,10 @@ private extension ExpressViewModel {
         case .restriction(let type, let quote):
             isSwapButtonLoading = false
             update(restriction: type)
-
-            if case .requiredRefresh = type {
-                stopTimer()
-            } else {
-                restartTimer()
-            }
-
+            stopTimer()
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
-        case .readyToSwap(let data, let quote):
+        case .readyToSwap(_, let quote):
             isSwapButtonLoading = false
             update(restriction: .none)
             restartTimer()
@@ -500,7 +495,7 @@ private extension ExpressViewModel {
                 mainButtonState = .givePermission
                 mainButtonIsEnabled = true
 
-            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping:
+            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .destinationNotFound:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
@@ -650,6 +645,15 @@ private extension ExpressViewModel {
     func update(restriction: ExpressInteractor.RestrictionType?) {
         switch restriction {
         case .none:
+            updateDestinationNotFoundViewModel(isShow: false)
+            updateRequiredPermission(isPermissionRequired: false)
+            updatePendingApprovingTransaction(hasPendingTransaction: false)
+            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
+            updateRefreshWarningRowViewModel(message: .none)
+            updateHighPriceImpact(isHighPriceImpact: false)
+
+        case .destinationNotFound:
+            updateDestinationNotFoundViewModel(isShow: true)
             updateRequiredPermission(isPermissionRequired: false)
             updatePendingApprovingTransaction(hasPendingTransaction: false)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
@@ -657,6 +661,7 @@ private extension ExpressViewModel {
             updateHighPriceImpact(isHighPriceImpact: false)
 
         case .notEnoughAmountForSwapping:
+            updateDestinationNotFoundViewModel(isShow: false)
             updateRequiredPermission(isPermissionRequired: false)
             updatePendingApprovingTransaction(hasPendingTransaction: false)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
@@ -664,6 +669,7 @@ private extension ExpressViewModel {
             updateHighPriceImpact(isHighPriceImpact: false)
 
         case .permissionRequired:
+            updateDestinationNotFoundViewModel(isShow: false)
             updateRequiredPermission(isPermissionRequired: true)
             updatePendingApprovingTransaction(hasPendingTransaction: false)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
@@ -671,6 +677,7 @@ private extension ExpressViewModel {
             updateHighPriceImpact(isHighPriceImpact: false)
 
         case .hasPendingTransaction:
+            updateDestinationNotFoundViewModel(isShow: false)
             updateRequiredPermission(isPermissionRequired: false)
             updatePendingApprovingTransaction(hasPendingTransaction: true)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
@@ -678,6 +685,7 @@ private extension ExpressViewModel {
             updateHighPriceImpact(isHighPriceImpact: false)
 
         case .notEnoughBalanceForSwapping:
+            updateDestinationNotFoundViewModel(isShow: false)
             updateRequiredPermission(isPermissionRequired: false)
             updatePendingApprovingTransaction(hasPendingTransaction: false)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
@@ -685,6 +693,7 @@ private extension ExpressViewModel {
             updateHighPriceImpact(isHighPriceImpact: false)
 
         case .notEnoughAmountForFee:
+            updateDestinationNotFoundViewModel(isShow: false)
             updateRequiredPermission(isPermissionRequired: false)
             updatePendingApprovingTransaction(hasPendingTransaction: false)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: true)
@@ -692,11 +701,25 @@ private extension ExpressViewModel {
             updateHighPriceImpact(isHighPriceImpact: false)
 
         case .requiredRefresh(let error):
+            updateDestinationNotFoundViewModel(isShow: false)
             updateRequiredPermission(isPermissionRequired: false)
             updatePendingApprovingTransaction(hasPendingTransaction: false)
             updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
             updateRefreshWarningRowViewModel(message: mapToMessage(error: error))
             updateHighPriceImpact(isHighPriceImpact: false)
+        }
+    }
+
+    func updateDestinationNotFoundViewModel(isShow: Bool) {
+        if isShow {
+            let name = interactor.getSender().tokenItem.blockchain.displayName
+            destinationNotFoundViewModel = DefaultWarningRowViewModel(
+                title: "No available tokens to swap",
+                subtitle: "You do not have any \(name) exchangeable coins in your list",
+                leftView: .icon(Assets.attention)
+            )
+        } else {
+            destinationNotFoundViewModel = nil
         }
     }
 
