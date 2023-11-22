@@ -9,5 +9,6 @@
 import Foundation
 
 protocol SendRoutable: AnyObject {
+    func dismiss()
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
 }
