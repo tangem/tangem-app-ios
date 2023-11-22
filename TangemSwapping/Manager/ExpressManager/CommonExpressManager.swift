@@ -240,7 +240,7 @@ private extension CommonExpressManager {
             return firstWithError
         }
 
-        if let bestAvailable = quotes.max(by: { $0.rate > $1.rate }) {
+        if let bestAvailable = availableQuotes.first(where: { $0.isBest }) {
             return bestAvailable
         }
 
