@@ -18,12 +18,12 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
-    private let expectedUserWalletId: Data
+    private let cardSessionFilter: CardSessionFilter
     private let sdk: TangemSdk
     private unowned let coordinator: ScanCardSettingsRoutable
 
-    init(expectedUserWalletId: Data, sdk: TangemSdk, coordinator: ScanCardSettingsRoutable) {
-        self.expectedUserWalletId = expectedUserWalletId
+    init(cardSessionFilter: CardSessionFilter, sdk: TangemSdk, coordinator: ScanCardSettingsRoutable) {
+        self.cardSessionFilter = cardSessionFilter
         self.sdk = sdk
         self.coordinator = coordinator
     }
@@ -75,7 +75,7 @@ extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
         isLoading = true
         let task = AppScanTask(shouldAskForAccessCode: true)
-        sdk.startSession(with: task, sessionFilter: .cardKitId(expectedUserWalletId)) { [weak self] result in
+        sdk.startSession(with: task, sessionFilter: cardSessionFilter) { [weak self] result in
             self?.isLoading = false
 
             switch result {
