@@ -91,8 +91,8 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(url: url, style: .details)
     }
 
-    func openScanCardSettings(with userWalletId: Data, sdk: TangemSdk) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, sdk: sdk, coordinator: self)
+    func openScanCardSettings(with cardSessionFilter: CardSessionFilter, sdk: TangemSdk) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(cardSessionFilter: cardSessionFilter, sdk: sdk, coordinator: self)
     }
 
     func openAppSettings() {
