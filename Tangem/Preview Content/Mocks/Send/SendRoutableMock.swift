@@ -10,4 +10,6 @@ import Foundation
 
 class SendRoutableMock: SendRoutable {
     init() {}
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
 }

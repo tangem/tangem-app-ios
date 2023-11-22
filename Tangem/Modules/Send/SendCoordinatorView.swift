@@ -33,6 +33,11 @@ struct SendCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        VStack {
+            NavHolder()
+                .sheet(item: $coordinator.mailViewModel) {
+                    MailView(viewModel: $0)
+                }
+        }
     }
 }
