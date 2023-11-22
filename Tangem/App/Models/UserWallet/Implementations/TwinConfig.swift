@@ -66,13 +66,13 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        guard let walletPublicKey = card.wallets.first?.publicKey,
-              let pairWalletPublicKey = twinData.pairPublicKey else {
-            return .init(with: card.cardId, sdk: makeTangemSdk())
+        if let walletPublicKey = card.wallets.first?.publicKey,
+           let pairWalletPublicKey = twinData.pairPublicKey {
+            let twinKey = TwinKey(key1: walletPublicKey, key2: pairWalletPublicKey)
+            return .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
         }
 
-        let twinKey = TwinKey(key1: walletPublicKey, key2: pairWalletPublicKey)
-        return .init(with: twinKey, sdk: makeTangemSdk())
+        return .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
     }
 
     var emailData: [EmailCollectedData] {
@@ -89,6 +89,18 @@ extension TwinConfig: UserWalletConfig {
 
     var cardHeaderImage: ImageType? {
         Assets.Cards.twins
+    }
+
+    var cardSessionFilter: CardSessionFilter {
+        let shouldSkipCardId = card.backupStatus?.isActive ?? false
+
+        if shouldSkipCardId, let userWalletIdSeed, let pairKey = twinData.pairPublicKey {
+            let userWalletId = UserWalletId(with: userWalletIdSeed)
+            let filter = TwinPreflightReadFilter(userWalletId: userWalletId, pairPublicKey: pairKey)
+            return .custom(filter)
+        }
+
+        return .cardId(card.cardId)
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
