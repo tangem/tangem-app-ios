@@ -32,6 +32,14 @@ class SendModel {
         .just(output: true)
     }
 
+    var sendError: AnyPublisher<Error?, Never> {
+        _sendError.eraseToAnyPublisher()
+    }
+
+    var isFeeIncluded: Bool {
+        _isFeeIncluded.value
+    }
+
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -47,8 +55,11 @@ class SendModel {
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
     private var _feeText: String = ""
+    private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
+
+    private let _sendError = PassthroughSubject<Error?, Never>()
 
     // MARK: - Errors (raw implementation)
 
@@ -88,6 +99,10 @@ class SendModel {
     func useMaxAmount() {
         setAmount("1000")
     }
+        
+    func currentTransaction() -> BlockchainSdk.Transaction? {
+        transaction.value
+    }
 
     func send() {
         guard var transaction = transaction.value else {
@@ -105,8 +120,10 @@ class SendModel {
 
                 _isSending.send(false)
 
-                print("SEND FINISH ", completion)
-                #warning("[REDACTED_TODO_COMMENT]")
+                if case .failure(let error) = completion,
+                   !error.toTangemSdkError().isUserCancelled {
+                    _sendError.send(error)
+                }
             } receiveValue: { _ in
             }
             .store(in: &bag)
