@@ -22,6 +22,8 @@ class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var mailViewModel: MailViewModel? = nil
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -35,6 +37,8 @@ class SendCoordinator: CoordinatorObject {
             walletModel: options.walletModel,
             transactionSigner: options.transactionSigner,
             sendType: options.type,
+            emailData: options.userWalletModel.emailData,
+            emailConfig: options.userWalletModel.config.emailConfig ?? EmailConfig.default,
             coordinator: self
         )
     }
@@ -44,6 +48,7 @@ class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
+        let userWalletModel: UserWalletModel
         let walletModel: WalletModel
         let transactionSigner: TransactionSigner
         let type: SendType
@@ -52,4 +57,9 @@ extension SendCoordinator {
 
 // MARK: - SendRoutable
 
-extension SendCoordinator: SendRoutable {}
+extension SendCoordinator: SendRoutable {
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+    }
+}
