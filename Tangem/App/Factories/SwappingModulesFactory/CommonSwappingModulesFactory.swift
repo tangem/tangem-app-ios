@@ -58,6 +58,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             swappingFeeFormatter: swappingFeeFormatter,
             balanceConverter: .init(),
             balanceFormatter: .init(),
+            expressProviderFormatter: expressProviderFormatter,
             interactor: expressInteractor,
             coordinator: coordinator
         )
@@ -90,11 +91,11 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeExpressTokensListViewModel(
-        walletType: ExpressTokensListViewModel.SwapDirection,
+        swapDirection: ExpressTokensListViewModel.SwapDirection,
         coordinator: ExpressTokensListRoutable
     ) -> ExpressTokensListViewModel {
         ExpressTokensListViewModel(
-            swapDirection: walletType,
+            swapDirection: swapDirection,
             walletModels: walletModelsManager.walletModels,
             expressAPIProvider: expressAPIProvider,
             expressInteractor: expressInteractor,
@@ -118,6 +119,17 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             swappingFeeFormatter: swappingFeeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
+            expressInteractor: expressInteractor,
+            coordinator: coordinator
+        )
+    }
+
+    func makeExpressProvidersBottomSheetViewModel(
+        coordinator: ExpressProvidersBottomSheetRoutable
+    ) -> ExpressProvidersBottomSheetViewModel {
+        ExpressProvidersBottomSheetViewModel(
+            percentFormatter: .init(),
+            expressProviderFormatter: expressProviderFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -177,6 +189,10 @@ private extension CommonSwappingModulesFactory {
             balanceConverter: .init(),
             fiatRatesProvider: fiatRatesProvider
         )
+    }
+
+    var expressProviderFormatter: ExpressProviderFormatter {
+        ExpressProviderFormatter(balanceFormatter: .init())
     }
 
     var explorerURLService: ExplorerURLService {
