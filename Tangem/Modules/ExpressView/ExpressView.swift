@@ -22,10 +22,6 @@ struct ExpressView: View {
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
-                permissionInfoSection
-
-                warningSections
-
                 informationSection
 
                 feeSection
@@ -54,7 +50,7 @@ struct ExpressView: View {
                     )
                     .didTapMaxAmount(viewModel.userDidTapMaxAmount)
                     .didTapChangeCurrency {
-                        viewModel.userDidTapChangeCurrencyButton()
+                        viewModel.userDidTapChangeSourceButton()
                     }
                 }
 
@@ -74,7 +70,7 @@ struct ExpressView: View {
     @ViewBuilder
     private var swappingButton: some View {
         Group {
-            if viewModel.swapButtonIsLoading {
+            if viewModel.isSwapButtonLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
             } else {
@@ -94,27 +90,6 @@ struct ExpressView: View {
             RoundedRectangle(cornerRadius: 22)
                 .stroke(Colors.Stroke.primary, lineWidth: 1)
         )
-    }
-
-    @ViewBuilder
-    private var permissionInfoSection: some View {
-        GroupedSection(viewModel.permissionInfoRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-    }
-
-    @ViewBuilder
-    private var warningSections: some View {
-        GroupedSection(viewModel.highPriceImpactWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-
-        GroupedSection(viewModel.refreshWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
     }
 
     @ViewBuilder
