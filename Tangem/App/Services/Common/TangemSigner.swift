@@ -17,23 +17,11 @@ struct TangemSigner: TransactionSigner {
 
     private var _signPublisher: PassthroughSubject<Card, Never> = .init()
     private var initialMessage: Message { .init(header: nil, body: Localization.initialMessageSignBody) }
-    private let filter: SessionFilter?
+    private let filter: CardSessionFilter
     private let twinKey: TwinKey?
     private let sdk: TangemSdk
 
-    init(with cardId: String, sdk: TangemSdk) {
-        self.init(filter: .cardId(cardId), twinKey: nil, sdk: sdk)
-    }
-
-    init(with userWalletId: Data, sdk: TangemSdk) {
-        self.init(filter: .cardKitId(userWalletId), twinKey: nil, sdk: sdk)
-    }
-
-    init(with twinKey: TwinKey, sdk: TangemSdk) {
-        self.init(filter: nil, twinKey: twinKey, sdk: sdk)
-    }
-
-    private init(filter: SessionFilter?, twinKey: TwinKey?, sdk: TangemSdk) {
+    init(filter: CardSessionFilter, sdk: TangemSdk, twinKey: TwinKey?) {
         self.filter = filter
         self.twinKey = twinKey
         self.sdk = sdk
