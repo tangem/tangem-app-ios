@@ -102,7 +102,7 @@ private extension CommonExpressManager {
     func updateState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
             logger.debug("ExpressManagerSwappingPair not found")
-            return .idle
+            return .restriction(.pairNotFound)
         }
 
         // Just update availableProviders for this pair
