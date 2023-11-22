@@ -41,7 +41,7 @@ target 'Tangem' do
   pod 'Moya'
   pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2', :tag => '1.8.4'
   pod 'Kingfisher', '~> 7.9.0'
-  pod 'Mobile-Buy-SDK' # Shopify
+  #pod 'Mobile-Buy-SDK' # Shopify
 
   # Helpers
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
@@ -51,7 +51,7 @@ target 'Tangem' do
   pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2-tangem1'
   
   # Analytics
-  pod 'Amplitude', '~> 8.8.0'
+  pod 'Amplitude'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
   pod 'AppsFlyerFramework'
