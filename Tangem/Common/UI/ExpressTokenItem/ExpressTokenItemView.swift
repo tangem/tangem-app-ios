@@ -30,6 +30,7 @@ struct ExpressTokenItemView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(viewModel.isDisable)
     }
 
     private var infoView: some View {
@@ -43,13 +44,11 @@ struct ExpressTokenItemView: View {
 
                 Spacer(minLength: 4)
 
-                if let fiatBalanceFormatted = viewModel.fiatBalanceFormatted {
-                    SensitiveText(fiatBalanceFormatted)
-                        .style(
-                            Fonts.Regular.subheadline,
-                            color: viewModel.isDisable ? Colors.Text.tertiary : Colors.Text.primary1
-                        )
-                }
+                SensitiveText(viewModel.fiatBalance)
+                    .style(
+                        Fonts.Regular.subheadline,
+                        color: viewModel.isDisable ? Colors.Text.tertiary : Colors.Text.primary1
+                    )
             }
 
             HStack(spacing: .zero) {
@@ -58,13 +57,11 @@ struct ExpressTokenItemView: View {
 
                 Spacer(minLength: 4)
 
-                if let balanceFormatted = viewModel.balanceFormatted {
-                    SensitiveText(balanceFormatted)
-                        .style(
-                            Fonts.Regular.footnote,
-                            color: viewModel.isDisable ? Colors.Text.disabled : Colors.Text.tertiary
-                        )
-                }
+                SensitiveText(viewModel.balance)
+                    .style(
+                        Fonts.Regular.footnote,
+                        color: viewModel.isDisable ? Colors.Text.disabled : Colors.Text.tertiary
+                    )
             }
         }
         .lineLimit(1)
@@ -84,8 +81,8 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             ),
             name: "Bitcoin",
             symbol: "BTC",
-            balance: CurrencyAmount(value: 3.543, currency: .mock),
-            fiatBalance: 1.23415 * 16345,
+            balance: "3.543 BTC",
+            fiatBalance: "$3.543",
             isDisable: false,
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
@@ -99,8 +96,8 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             ),
             name: "Ethereum",
             symbol: "ETH",
-            balance: CurrencyAmount(value: 3.543, currency: .mock),
-            fiatBalance: 3.543 * 1341,
+            balance: "3.543 ETH",
+            fiatBalance: "$3.543",
             isDisable: false,
             itemDidTap: {}
         ), ExpressTokenItemViewModel(
@@ -114,8 +111,8 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             ),
             name: "Dai",
             symbol: "DAI",
-            balance: CurrencyAmount(value: 3.543, currency: .mock),
-            fiatBalance: 3.543 * 1341,
+            balance: "3.543 DAI",
+            fiatBalance: "$3.543",
             isDisable: true,
             itemDidTap: {}
         ),
