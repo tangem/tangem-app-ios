@@ -16,7 +16,7 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
     @Published var tokenIconState: SwappingTokenIconView.State
 
     var balanceString: String {
-        switch cryptoAmountState {
+        switch balance {
         case .idle:
             return ""
         case .loading:

@@ -86,6 +86,14 @@ extension ExpressInteractor {
     func getApprovePolicy() -> SwappingApprovePolicy {
         approvePolicy.read()
     }
+
+    func getAllQuotes() async -> [ExpectedQuote] {
+        await expressManager.getAllQuotes()
+    }
+
+    func getSelectedProvider() async -> ExpressProvider? {
+        await expressManager.getSelectedQuote()?.provider
+    }
 }
 
 // MARK: - Updates
@@ -549,6 +557,15 @@ extension ExpressInteractor {
                 return quote
             case .readyToSwap(_, let quote):
                 return quote
+            }
+        }
+
+        var isAvailableToSendTransaction: Bool {
+            switch self {
+            case .readyToSwap, .restriction(.permissionRequired, _):
+                return true
+            case .idle, .loading, .restriction:
+                return false
             }
         }
     }
