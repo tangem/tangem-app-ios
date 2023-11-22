@@ -96,7 +96,6 @@ class SendModel {
 
         #warning("[REDACTED_TODO_COMMENT]")
         #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
 
         _isSending.send(true)
         walletModel.send(transaction, signer: transactionSigner)
