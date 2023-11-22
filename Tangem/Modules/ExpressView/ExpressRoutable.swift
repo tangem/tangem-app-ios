@@ -14,5 +14,5 @@ protocol ExpressRoutable: AnyObject {
     func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection)
     func presentSuccessView(inputModel: SwappingSuccessInputModel)
     func presentApproveView()
-    func presentProviderSelectorView(input: ExpressProvidersBottomSheetViewModel.InputModel)
+    func presentProviderSelectorView()
 }
