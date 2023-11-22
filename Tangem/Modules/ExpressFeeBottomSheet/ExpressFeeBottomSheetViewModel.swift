@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemSwapping
+import struct BlockchainSdk.Fee
 
 final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
@@ -22,15 +23,6 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressFeeBottomSheetRoutable
 
-    private var currencySymbol: String {
-        expressInteractor.getSwappingItems().source.symbol
-    }
-
-    // Model will be changed on FeeOption in [REDACTED_INFO]
-    private var currencyId: String {
-        expressInteractor.getSwappingItems().source.blockchain.currencyID
-    }
-
     init(
         swappingFeeFormatter: SwappingFeeFormatter,
         expressInteractor: ExpressInteractor,
@@ -40,40 +32,30 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        selectedFeeOption = {
-            switch expressInteractor.getSwappingGasPricePolicy() {
-            case .normal:
-                return .market
-            case .priority:
-                return .fast
-            }
-        }()
-
+        selectedFeeOption = expressInteractor.getFeeOption()
         setupView()
     }
 
     private func setupView() {
-        guard case .available(let model) = expressInteractor.state.value else {
+        guard case .readyToSwap(let state, _) = expressInteractor.getState() else {
             return
         }
 
-        // Model will be changed on FeeOption in [REDACTED_INFO]
-        feeRowViewModels = model.gasOptions.map { option in
-            makeFeeRowViewModel(gasModel: option)
+        // Should use the option's array for the correct order
+        feeRowViewModels = [FeeOption.market, .fast].compactMap { option in
+            guard let fee = state.fees[option] else {
+                return nil
+            }
+
+            return makeFeeRowViewModel(option: option, fee: fee)
         }
     }
 
-    private func makeFeeRowViewModel(gasModel: EthereumGasDataModel) -> FeeRowViewModel {
-        let option: FeeOption = {
-            switch gasModel.policy {
-            case .normal:
-                return .market
-            case .priority:
-                return .fast
-            }
-        }()
-
-        let formatedFee = swappingFeeFormatter.format(fee: gasModel.fee, currencySymbol: currencySymbol, currencyId: currencyId)
+    private func makeFeeRowViewModel(option: FeeOption, fee: Fee) -> FeeRowViewModel {
+        let blockchain = expressInteractor.getSender().tokenItem.blockchain
+        let currencySymbol = blockchain.currencySymbol
+        let currencyId = blockchain.currencyId
+        let formatedFee = swappingFeeFormatter.format(fee: fee.amount.value, currencySymbol: currencySymbol, currencyId: currencyId)
 
         return FeeRowViewModel(
             option: option,
@@ -82,15 +64,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
                 root.selectedFeeOption == option
             }, set: { root, newValue in
                 if newValue {
-                    switch option {
-                    case .market:
-                        root.expressInteractor.update(gasPricePolicy: .normal)
-                    case .fast:
-                        root.expressInteractor.update(gasPricePolicy: .priority)
-                    default:
-                        break
-                    }
-
+                    root.expressInteractor.updateFeeOption(option: option)
                     root.selectedFeeOption = option
                     root.coordinator.closeExpressFeeBottomSheet()
                 }
