@@ -40,6 +40,15 @@ class SendModel {
         _isFeeIncluded.value
     }
 
+    var transactionFinished: AnyPublisher<Bool, Never> {
+        _transactionTime
+            .map {
+                $0 != nil
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -58,6 +67,7 @@ class SendModel {
     private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
+    private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
 
     private let _sendError = PassthroughSubject<Error?, Never>()
 
@@ -99,7 +109,7 @@ class SendModel {
     func useMaxAmount() {
         setAmount("1000")
     }
-        
+
     func currentTransaction() -> BlockchainSdk.Transaction? {
         transaction.value
     }
@@ -124,7 +134,10 @@ class SendModel {
                    !error.toTangemSdkError().isUserCancelled {
                     _sendError.send(error)
                 }
-            } receiveValue: { _ in
+            } receiveValue: { [weak self] result in
+                guard let self else { return }
+
+                _transactionTime.send(Date())
             }
             .store(in: &bag)
     }
