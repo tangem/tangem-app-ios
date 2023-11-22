@@ -11,5 +11,6 @@ import Foundation
 class SendRoutableMock: SendRoutable {
     init() {}
 
+    func dismiss() {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
 }

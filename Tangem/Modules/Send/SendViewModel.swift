@@ -163,6 +163,19 @@ final class SendViewModel: ObservableObject {
                 alert = SendError(sendError, openMailAction: openMail).alertBinder
             }
             .store(in: &bag)
+
+        sendModel
+            .transactionFinished
+            .sink { [weak self] transactionFinished in
+                guard let self, transactionFinished else { return }
+
+                if walletModel.isDemo {
+                    alert = AlertBuilder.makeSuccessAlert(message: Localization.alertDemoFeatureDisabled) {
+                        self.coordinator.dismiss()
+                    }
+                }
+            }
+            .store(in: &bag)
     }
 
     private func setLoadingViewVisibile(_ visible: Bool) {
