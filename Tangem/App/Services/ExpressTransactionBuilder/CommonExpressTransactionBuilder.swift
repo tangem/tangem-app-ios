@@ -16,7 +16,7 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
             wallet: wallet,
             amount: data.value,
             fee: fee,
-            sourceAddress: data.sourceAddress,
+            sourceAddress: data.sourceAddress ?? wallet.defaultAddress,
             destinationAddress: data.destinationAddress,
             data: data.txData.map { Data(hexString: $0) }
         )
