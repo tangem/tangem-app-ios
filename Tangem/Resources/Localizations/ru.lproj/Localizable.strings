@@ -190,7 +190,11 @@
 "exchange_tokens_unavailable_tokens_header" = "Недоступен для обмена с %@";
 "express_choose_providers_subtitle" = "Провайдеры проводят транзакции, обеспечивая плавный и эффективный обмен токенами";
 "express_choose_providers_title" = "Выберите провайдера";
+"express_fetch_best_rates" = "Получение наилучших курсов...";
+"express_provider" = "Провайдер";
 "express_provider_best_rate" = "Лучший курс";
+"express_provider_min_amount" = "Доступно с %@";
+"express_provider_not_available" = "Не доступен";
 "express_provider_permission_needed" = "Требуется разрешение";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
