@@ -495,9 +495,13 @@ private extension ExpressInteractor {
                 try Task.checkCancellation()
 
                 updateState(state)
-            } catch is CancellationError {
-                // Do nothing
             } catch {
+                if error is CancellationError || Task.isCancelled {
+                    // Do nothing
+                    log("The update task was cancelled")
+                    return
+                }
+
                 let quote = getState().quote
                 updateState(.restriction(.requiredRefresh(occurredError: error), quote: quote))
             }
