@@ -138,6 +138,23 @@ final class SendViewModel: ObservableObject {
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
             .store(in: &bag)
+
+        sendModel
+            .isSending
+            .removeDuplicates()
+            .sink { [weak self] isSending in
+                self?.setLoadingViewVisibile(isSending)
+            }
+            .store(in: &bag)
+    }
+
+    private func setLoadingViewVisibile(_ visible: Bool) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if visible {
+            appDelegate.addLoadingView()
+        } else {
+            appDelegate.removeLoadingView()
+        }
     }
 }
 
