@@ -70,7 +70,8 @@ class SingleTokenRouter: SingleTokenRoutable {
         coordinator.openSend(
             amountToSend: amountToSend,
             blockchainNetwork: walletModel.blockchainNetwork,
-            cardViewModel: cardViewModel
+            cardViewModel: cardViewModel,
+            walletModel: walletModel
         )
     }
 
@@ -98,7 +99,9 @@ class SingleTokenRouter: SingleTokenRoutable {
             logger: AppLog.shared,
             referrer: referrer,
             source: sourceCurrency,
-            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
+            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork),
+            walletModelsManager: userWalletModel.walletModelsManager,
+            userWalletId: userWalletModel.userWalletId.stringValue
         )
 
         coordinator.openSwapping(input: input)
@@ -131,7 +134,8 @@ class SingleTokenRouter: SingleTokenRoutable {
             amountToSend: amount,
             destination: request.targetAddress,
             blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
+            cardViewModel: cardViewModel,
+            walletModel: walletModel
         )
     }
 
