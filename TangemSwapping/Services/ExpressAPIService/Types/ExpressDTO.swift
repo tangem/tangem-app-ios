@@ -171,19 +171,18 @@ enum ExpressDTO {
         struct MinAmountValue: Decodable {
             let minAmount: String
             let decimals: Int
-            
+
             var amount: Decimal? {
                 Decimal(string: minAmount).map { $0 / pow(10, decimals) }
             }
         }
-        
+
         var errorDescription: String? {
             description
         }
 
         enum Code: Int, Decodable {
             case badRequest = 2010
-            case expressInternalError = 2200
             case exchangeProviderNotFoundError = 2210
             case exchangeProviderNotActiveError = 2220
             case exchangeProviderNotAvailableError = 2230

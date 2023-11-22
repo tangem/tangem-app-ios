@@ -96,8 +96,8 @@ extension ExpressCoordinator: ExpressRoutable {
         swappingSuccessCoordinator = coordinator
     }
 
-    func presentProviderSelectorView(input: ExpressProvidersBottomSheetViewModel.InputModel) {
-        expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(input: input, coordinator: self)
+    func presentProviderSelectorView() {
+        expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(coordinator: self)
     }
 }
 
