@@ -171,9 +171,10 @@ final class SendViewModel: ObservableObject {
                 guard let self, transactionFinished else { return }
 
                 if walletModel.isDemo {
-                    alert = AlertBuilder.makeSuccessAlert(message: Localization.alertDemoFeatureDisabled) {
+                    let button = Alert.Button.default(Text(Localization.commonOk)) {
                         self.coordinator.dismiss()
                     }
+                    alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
                 }
             }
             .store(in: &bag)
