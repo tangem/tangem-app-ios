@@ -9,6 +9,7 @@
 import Foundation
 
 struct CommonExpressDestinationService {
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
     private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let walletModelsManager: WalletModelsManager
 
@@ -25,9 +26,9 @@ struct CommonExpressDestinationService {
 
 extension CommonExpressDestinationService: ExpressDestinationService {
     func getDestination(source: WalletModel) -> WalletModel? {
-        return nil
-
-        let searchableWalletModels = walletModelsManager.walletModels.filter { $0.id != source.id }
+        let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
+            wallet.id != source.id && swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+        }
 
         if let lastCurrencyTransaction = pendingTransactionRepository.lastCurrencyTransaction(),
            let lastWallet = searchableWalletModels.first(where: { $0.expressCurrency == lastCurrencyTransaction }) {
