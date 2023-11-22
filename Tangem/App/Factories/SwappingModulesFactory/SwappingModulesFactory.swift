@@ -19,10 +19,7 @@ protocol SwappingModulesFactory {
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel
 
-    func makeExpressProvidersBottomSheetViewModel(
-        input: ExpressProvidersBottomSheetViewModel.InputModel,
-        coordinator: ExpressProvidersBottomSheetRoutable
-    ) -> ExpressProvidersBottomSheetViewModel
+    func makeExpressProvidersBottomSheetViewModel(coordinator: ExpressProvidersBottomSheetRoutable) -> ExpressProvidersBottomSheetViewModel
 
     func makeSwappingSuccessViewModel(
         inputModel: SwappingSuccessInputModel,
