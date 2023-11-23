@@ -118,13 +118,14 @@ extension ExpressCoordinator: ExpressTokensListRoutable {
 extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
     func closeExpressFeeBottomSheet() {
         expressFeeSelectorViewModel = nil
+        rootViewModel?.didCloseFeeSelectorSheet()
     }
 }
 
 // MARK: - SwappingApproveRoutable
 
 extension ExpressCoordinator: SwappingApproveRoutable {
-    func didSendApproveTransaction(transactionData: SwappingTransactionData) {
+    func didSendApproveTransaction() {
         swappingApproveViewModel = nil
     }
 
