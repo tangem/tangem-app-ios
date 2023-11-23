@@ -21,4 +21,7 @@ public protocol ExpressManager {
     func updateSelectedProvider(provider: ExpressProvider) async throws -> ExpressManagerState
 
     func update() async throws -> ExpressManagerState
+
+    /// Use this method for CEX provider
+    func requestData() async throws -> ExpressTransactionData
 }
