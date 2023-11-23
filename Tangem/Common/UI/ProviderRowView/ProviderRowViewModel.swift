@@ -17,7 +17,7 @@ struct ProviderRowViewModel: Identifiable {
     let subtitles: [Subtitle]
     let detailsType: DetailsType?
     let tapAction: (() -> Void)?
-    
+
     init(
         provider: Provider,
         isDisabled: Bool,
