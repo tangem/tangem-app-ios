@@ -37,13 +37,11 @@ public struct TangemSwappingFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
-        pendingTransactionRepository: ExpressPendingTransactionRepository,
-        logger: SwappingLogger?
+        logger: SwappingLogger? = nil
     ) -> ExpressManager {
         CommonExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
-            expressPendingTransactionRepository: pendingTransactionRepository,
             logger: logger ?? CommonSwappingLogger()
         )
     }

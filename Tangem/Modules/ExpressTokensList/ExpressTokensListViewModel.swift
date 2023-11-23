@@ -158,13 +158,9 @@ private extension ExpressTokensListViewModel {
     func userDidTap(on walletModel: WalletModel) {
         switch swapDirection {
         case .fromSource:
-            // [REDACTED_TODO_COMMENT]
-            // expressInteractor.update(destination: walletModel)
-            break
+            expressInteractor.update(destination: walletModel)
         case .toDestination:
-            // [REDACTED_TODO_COMMENT]
-            // expressInteractor.update(source: walletModel)
-            break
+            expressInteractor.update(sender: walletModel)
         }
 
         coordinator.closeExpressTokensList()
