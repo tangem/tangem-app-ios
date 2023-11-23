@@ -33,10 +33,11 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private var bag = Set<AnyCancellable>()
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
+    private unowned let coordinator: ManageTokensNetworkSelectorRoutable
     private let networkDataSource: ManageTokensNetworkDataSource
-    private unowned let coordinator: ManageTokensNetworkSelectorCoordinator
 
-    private let coinModel: CoinModel
+    private let coinId: String
+    private let tokenItems: [TokenItem]
 
     private var selectedUserWalletModel: UserWalletModel? {
         networkDataSource.selectedUserWalletModelPublisher.value
@@ -62,14 +63,16 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Init
 
     init(
-        coinModel: CoinModel,
-        coordinator: ManageTokensNetworkSelectorCoordinator
+        coinId: String,
+        tokenItems: [TokenItem],
+        coordinator: ManageTokensNetworkSelectorRoutable
     ) {
-        self.coinModel = coinModel
+        self.coinId = coinId
+        self.tokenItems = tokenItems
         self.coordinator = coordinator
 
-        networkDataSource = ManageTokensNetworkDataSource(tokenItems: coinModel.items.map { $0.tokenItem })
-        notificationViewModel = .init(coinId: coinModel.id)
+        networkDataSource = ManageTokensNetworkDataSource(tokenItems: tokenItems)
+        notificationViewModel = .init(coinId: coinId)
 
         bind()
     }
@@ -82,7 +85,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
-        coordinator.openWalletSelector(with: networkDataSource)
+//        coordinator.openWalletSelector(with: networkDataSource)
     }
 
     func displayNonNativeNetworkAlert() {
@@ -106,8 +109,6 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func fillSelectorItemsFromTokenItems() {
-        let tokenItems = coinModel.items.map { $0.tokenItem }
-
         nativeSelectorItems = tokenItems
             .filter {
                 $0.isBlockchain
@@ -127,7 +128,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
         nonNativeSelectorItems = tokenItems
             .filter {
-                $0.isToken
+                !$0.isBlockchain
             }
             .map {
                 .init(
