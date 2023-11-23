@@ -29,14 +29,15 @@ class ManageTokensDataSource {
     init() {
         userWalletRepository
             .eventProvider
-            .filter {
-                if case .unlocked = $0 {
+            .filter { event in
+                switch event {
+                case .locked, .unlocked, .inserted, .deleted:
                     return true
+                default:
+                    return false
                 }
-
-                return false
             }
-            .sink { [weak self] _ in
+            .sink { [weak self] event in
                 guard let self = self else { return }
 
                 let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
