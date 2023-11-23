@@ -30,6 +30,7 @@ struct SendView: View {
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
+        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
 
     @ViewBuilder
