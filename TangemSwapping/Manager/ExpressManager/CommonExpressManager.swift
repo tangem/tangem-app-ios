@@ -333,6 +333,7 @@ private extension CommonExpressManager {
         )
 
         let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
+        logger.debug("\(request.pair.source) allowance - \(allowance)")
         return allowance < request.amount
     }
 }
