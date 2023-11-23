@@ -60,8 +60,8 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             initialWallet: walletModel,
             userWalletModel: userWalletModel,
             swappingFeeFormatter: swappingFeeFormatter,
-            balanceConverter: .init(),
-            balanceFormatter: .init(),
+            balanceConverter: balanceConverter,
+            balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
             interactor: expressInteractor,
@@ -135,7 +135,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
         coordinator: ExpressProvidersBottomSheetRoutable
     ) -> ExpressProvidersBottomSheetViewModel {
         ExpressProvidersBottomSheetViewModel(
-            percentFormatter: .init(),
+            percentFormatter: percentFormatter,
             expressProviderFormatter: expressProviderFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
@@ -149,6 +149,17 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
         SwappingSuccessViewModel(
             inputModel: inputModel,
             explorerURLService: explorerURLService,
+            coordinator: coordinator
+        )
+    }
+
+    func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
+        ExpressSuccessSentViewModel(
+            data: data,
+            balanceConverter: balanceConverter,
+            balanceFormatter: balanceFormatter,
+            providerFormatter: providerFormatter,
+            feeFormatter: swappingFeeFormatter,
             coordinator: coordinator
         )
     }
@@ -192,14 +203,14 @@ private extension CommonSwappingModulesFactory {
 
     var swappingFeeFormatter: SwappingFeeFormatter {
         CommonSwappingFeeFormatter(
-            balanceFormatter: .init(),
-            balanceConverter: .init(),
+            balanceFormatter: balanceFormatter,
+            balanceConverter: balanceConverter,
             fiatRatesProvider: fiatRatesProvider
         )
     }
 
     var expressProviderFormatter: ExpressProviderFormatter {
-        ExpressProviderFormatter(balanceFormatter: .init())
+        ExpressProviderFormatter(balanceFormatter: balanceFormatter)
     }
 
     var notificationManager: ExpressNotificationManager {
@@ -209,6 +220,11 @@ private extension CommonSwappingModulesFactory {
     var explorerURLService: ExplorerURLService {
         CommonExplorerURLService()
     }
+
+    var percentFormatter: PercentFormatter { .init() }
+    var balanceConverter: BalanceConverter { .init() }
+    var balanceFormatter: BalanceFormatter { .init() }
+    var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
 
     var walletDataProvider: SwappingWalletDataProvider {
         CommonSwappingWalletDataProvider(
