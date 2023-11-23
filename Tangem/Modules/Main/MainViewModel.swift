@@ -327,6 +327,8 @@ final class MainViewModel: ObservableObject {
                 switch event {
                 case .locked:
                     isLoggingOut = true
+                case .unlocked:
+                    break
                 case .scan:
                     // [REDACTED_TODO_COMMENT]
                     break
