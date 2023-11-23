@@ -238,7 +238,7 @@ private extension ExpressInteractor {
     func swappingPairDidChange() {
         updateTask { interactor in
             guard let destination = interactor.getDestination() else {
-                return .restriction(.destinationNotFound, quote: .none)
+                return .restriction(.noDestinationTokens, quote: .none)
             }
 
             // If we have a amount to we will start the full update
@@ -300,7 +300,7 @@ private extension ExpressInteractor {
     func proceedRestriction(restriction: ExpressManagerRestriction, quote: ExpectedQuote?) async throws -> ExpressInteractorState {
         switch restriction {
         case .pairNotFound:
-            return .restriction(.destinationNotFound, quote: quote)
+            return .restriction(.noDestinationTokens, quote: quote)
         case .notEnoughAmountForSwapping(let minAmount):
             return .restriction(.notEnoughAmountForSwapping(minAmount: minAmount), quote: quote)
 
@@ -563,7 +563,6 @@ extension ExpressInteractor {
     }
 
     enum RestrictionType {
-        case destinationNotFound
         case notEnoughAmountForSwapping(minAmount: Decimal)
         case permissionRequired(state: PermissionRequiredViewState)
         case hasPendingTransaction
