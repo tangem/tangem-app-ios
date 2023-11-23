@@ -90,7 +90,6 @@ final class ExpressViewModel: ObservableObject {
 
     func userDidTapSwapSwappingItemsButton() {
         Analytics.log(.swapButtonSwipe)
-//        update(restriction: .none)
         interactor.swapPair()
 
         // If we have amount then we should round and update it with new decimalCount
@@ -604,9 +603,8 @@ extension ExpressViewModel: NotificationTapDelegate {
 
     private func openNetworkCurrency() {
         guard
-            case .token(_, let blockchain) = initialWallet.tokenItem,
             let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == initialWallet.blockchainNetwork
+                $0.tokenItem == .blockchain(initialWallet.tokenItem.blockchain) && $0.blockchainNetwork == initialWallet.blockchainNetwork
             })
         else {
             assertionFailure("Network currency WalletModel not found")
