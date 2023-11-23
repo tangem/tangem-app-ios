@@ -43,7 +43,7 @@ class ManageTokensCoordinator: CoordinatorObject {
 
 extension ManageTokensCoordinator {
     struct Options {
-        let searchTextPublisher: AnyPublisher<String, Never>?
+        let searchTextPublisher: AnyPublisher<String, Never>
     }
 }
 

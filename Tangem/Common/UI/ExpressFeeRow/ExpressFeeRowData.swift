@@ -13,5 +13,5 @@ struct ExpressFeeRowData: Identifiable {
 
     let title: String
     let subtitle: String
-    let action: () -> Void
+    let action: (() -> Void)?
 }
