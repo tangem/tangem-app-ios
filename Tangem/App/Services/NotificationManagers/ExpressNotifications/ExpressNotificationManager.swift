@@ -56,6 +56,8 @@ class ExpressNotificationManager {
             }
 
             checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
+        case .permissionRequired:
+            setupPermissionRequiredNotification()
 
         case .readyToSwap(let swapData, _):
             notificationInputsSubject.value = []
@@ -93,8 +95,6 @@ class ExpressNotificationManager {
         switch restrictions {
         case .notEnoughAmountForSwapping(let minAmount):
             event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceNetworkSymbol)")
-        case .permissionRequired:
-            event = .permissionNeeded(currencyCode: sourceNetworkSymbol)
         case .hasPendingTransaction:
             event = .hasPendingTransaction
         case .notEnoughBalanceForSwapping:
@@ -112,6 +112,20 @@ class ExpressNotificationManager {
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceNetworkSymbol)
         }
+
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+        }
+        notificationInputsSubject.value = [notification]
+    }
+
+    private func setupPermissionRequiredNotification() {
+        guard let interactor = expressInteractor else { return }
+
+        let sourceTokenItem = interactor.getSender().tokenItem
+        let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
+        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceNetworkSymbol)
+        let notificationsFactory = NotificationsFactory()
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
