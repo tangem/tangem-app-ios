@@ -118,8 +118,8 @@ extension ExpressInteractor {
         swappingPairDidChange()
     }
 
-    func update(destination wallet: WalletModel) {
-        log("Will update destination to \(wallet)")
+    func update(destination wallet: WalletModel?) {
+        log("Will update destination to \(String(describing: wallet))")
 
         _swappingPair.value.destination = wallet
         swappingPairDidChange()
@@ -255,12 +255,11 @@ extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func swappingPairDidChange() {
-        guard let destination = getDestination() else {
-            log("The destination not found")
-            return
-        }
-
         updateTask { interactor in
+            guard let destination = interactor.getDestination() else {
+                return .restriction(.noDestinationTokens, quote: .none)
+            }
+
             // If we have a amount to we will start the full update
             if let amount = await interactor.expressManager.getAmount(), amount > 0 {
                 interactor.updateState(.loading(type: .full))
@@ -282,9 +281,7 @@ private extension ExpressInteractor {
         case .idle:
             return .idle
         case .restriction(let restriction):
-            guard let quote = await expressManager.getSelectedQuote() else {
-                throw ExpressInteractorError.quoteNotFound
-            }
+            let quote = await expressManager.getSelectedQuote()
 
             if hasPendingTransaction() {
                 return .restriction(.hasPendingTransaction, quote: quote)
@@ -319,8 +316,10 @@ private extension ExpressInteractor {
 // MARK: - Restriction
 
 private extension ExpressInteractor {
-    func proceedRestriction(restriction: ExpressManagerRestriction, quote: ExpectedQuote) async throws -> ExpressInteractorState {
+    func proceedRestriction(restriction: ExpressManagerRestriction, quote: ExpectedQuote?) async throws -> ExpressInteractorState {
         switch restriction {
+        case .pairNotFound:
+            return .restriction(.noDestinationTokens, quote: quote)
         case .notEnoughAmountForSwapping(let minAmount):
             return .restriction(.notEnoughAmountForSwapping(minAmount: minAmount), quote: quote)
 
@@ -528,16 +527,8 @@ private extension ExpressInteractor {
         }
 
         let sender = getSender()
-        runTask(in: self) { [sender] root in
-            do {
-                let destination = try await root.expressDestinationService.getDestination(source: sender)
-                root.update(destination: destination)
-            } catch {
-                root.log("Destination load handle error")
-                root.logger.error(error)
-                root.updateState(.restriction(.noDestinationTokens, quote: nil))
-            }
-        }
+        let destination = expressDestinationService.getDestination(source: sender)
+        update(destination: destination)
     }
 }
 
