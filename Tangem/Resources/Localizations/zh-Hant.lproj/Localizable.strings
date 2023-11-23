@@ -76,6 +76,7 @@
 "common_enabled" = "啟用";
 "common_error" = "錯誤";
 "common_exchange" = "交易";
+"common_explore" = "Explore";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
@@ -189,7 +190,11 @@
 "exchange_tokens_unavailable_tokens_header" = "Unavailable for swap from %@";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token exchanges";
 "express_choose_providers_title" = "Choose Provider";
+"express_fetch_best_rates" = "Fetching best rates...";
+"express_provider" = "Provider";
 "express_provider_best_rate" = "Best Rate";
+"express_provider_min_amount" = "Available from %@";
+"express_provider_not_available" = "Not available";
 "express_provider_permission_needed" = "Permission Needed";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
@@ -378,7 +383,6 @@
 "send_destination_tag_field" = "Destination Tag";
 "send_enter_address_field" = "Enter address";
 "send_error_address_same_as_wallet" = "地址與錢包地址相同";
-"send_explore" = "Explore";
 "send_extras_error_invalid_destination_tag" = "標籤無效。它不會被添加到交易中";
 "send_extras_hint_destination_tag" = "Tag";
 "send_extras_hint_memo" = "Memo";
