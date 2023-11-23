@@ -12,7 +12,7 @@ import TangemSwapping
 import UIKit
 
 class ExpressCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
@@ -27,6 +27,7 @@ class ExpressCoordinator: CoordinatorObject {
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
     @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
+    @Published var expressProvidersBottomSheetViewModel: ExpressProvidersBottomSheetViewModel?
     @Published var swappingApproveViewModel: SwappingApproveViewModel?
 
     // MARK: - Properties
@@ -35,7 +36,7 @@ class ExpressCoordinator: CoordinatorObject {
 
     required init(
         factory: SwappingModulesFactory,
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.factory = factory
@@ -59,10 +60,10 @@ extension ExpressCoordinator {
 // MARK: - ExpressRoutable
 
 extension ExpressCoordinator: ExpressRoutable {
-    func presentSwappingTokenList(walletType: ExpressTokensListViewModel.SwapDirection) {
+    func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection) {
         UIApplication.shared.endEditing()
         Analytics.log(.swapChooseTokenScreenOpened)
-        expressTokensListViewModel = factory.makeExpressTokensListViewModel(walletType: walletType, coordinator: self)
+        expressTokensListViewModel = factory.makeExpressTokensListViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
     func presentFeeSelectorView() {
@@ -81,7 +82,7 @@ extension ExpressCoordinator: ExpressRoutable {
         let dismissAction = { [weak self] in
             self?.swappingSuccessCoordinator = nil
             DispatchQueue.main.async {
-                self?.dismiss()
+                self?.dismiss(with: nil)
             }
         }
 
@@ -94,9 +95,17 @@ extension ExpressCoordinator: ExpressRoutable {
 
         swappingSuccessCoordinator = coordinator
     }
+
+    func presentProviderSelectorView() {
+        expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(coordinator: self)
+    }
+
+    func openNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
+        dismiss(with: (walletModel, userWalletModel))
+    }
 }
 
-// MARK: -  ExpressTokensListRoutable
+// MARK: - ExpressTokensListRoutable
 
 extension ExpressCoordinator: ExpressTokensListRoutable {
     func closeExpressTokensList() {
@@ -112,7 +121,7 @@ extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
     }
 }
 
-// MARK: -  SwappingApproveRoutable
+// MARK: - SwappingApproveRoutable
 
 extension ExpressCoordinator: SwappingApproveRoutable {
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
@@ -122,5 +131,13 @@ extension ExpressCoordinator: SwappingApproveRoutable {
     func userDidCancel() {
         swappingApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
+    }
+}
+
+// MARK: - ExpressProvidersBottomSheetRoutable
+
+extension ExpressCoordinator: ExpressProvidersBottomSheetRoutable {
+    func closeExpressProvidersBottomSheet() {
+        expressProvidersBottomSheetViewModel = nil
     }
 }

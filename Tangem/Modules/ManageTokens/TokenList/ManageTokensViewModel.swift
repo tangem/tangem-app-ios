@@ -35,7 +35,7 @@ final class ManageTokensViewModel: ObservableObject {
     private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     init(
-        searchTextPublisher: (some Publisher<String, Never>)?,
+        searchTextPublisher: some Publisher<String, Never>,
         coordinator: ManageTokensRoutable
     ) {
         self.coordinator = coordinator
