@@ -64,7 +64,11 @@ class SendFinishViewModel: ObservableObject {
             }
             .eraseToAnyPublisher()
 
-        Publishers.CombineLatest(formattedTime, input.transactionURL)
+        let transactionURL: AnyPublisher<URL, Never> = input.transactionURL
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
+
+        Publishers.CombineLatest(formattedTime, transactionURL)
             .sink { [weak self] formattedTime, transactionURL in
                 self?.transactionTime = formattedTime
                 self?.transactionURL = transactionURL
