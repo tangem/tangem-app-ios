@@ -18,7 +18,6 @@ final class ManageTokensViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var generateAddressesViewModel: GenerateAddressesViewModel?
 
     // MARK: - Properties
 
@@ -36,7 +35,7 @@ final class ManageTokensViewModel: ObservableObject {
     private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     private var userWalletModels: [UserWalletModel] {
-        dataSource.userWalletModels
+        dataSource.userWalletModelsSubject.value
     }
 
     // MARK: - Init
@@ -54,8 +53,6 @@ final class ManageTokensViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.manageTokensScreenOpened)
-
-        updateAlreadyExistTokenUserList()
         loader.reset("")
 
         dataSource = ManageTokensDataSource()
@@ -75,8 +72,8 @@ private extension ManageTokensViewModel {
 
     /// Obtain supported token list from UserWalletModels to determine the cell action type
     /// Should be reset after updating the list of tokens
-    func updateAlreadyExistTokenUserList() {
-        let existEntriesList = userWalletModels
+    func updateAlreadyExistTokenUserList(from models: [UserWalletModel]) {
+        let existEntriesList = models
             .map { $0.userTokenListManager }
             .flatMap { userTokenListManager in
                 let entries = userTokenListManager.userTokensList.entries
@@ -97,6 +94,15 @@ private extension ManageTokensViewModel {
                 }
 
                 self?.fetch(with: value)
+            }
+            .store(in: &bag)
+    }
+
+    func userWalletModelsBind() {
+        dataSource
+            .userWalletModelsSubject
+            .sink { [weak self] models in
+                self?.updateAlreadyExistTokenUserList(from: models)
             }
             .store(in: &bag)
     }
@@ -129,7 +135,7 @@ private extension ManageTokensViewModel {
             .receiveValue { [weak self] value in
                 guard let self = self else { return }
 
-                updateAlreadyExistTokenUserList()
+                updateAlreadyExistTokenUserList(from: userWalletModels)
 
                 tokenViewModels.forEach {
                     $0.action = self.actionType(for: $0.id)
@@ -199,7 +205,8 @@ private extension ManageTokensViewModel {
         let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
 
         guard countWalletPendingDerivation > 0 else {
-            return generateAddressesViewModel = nil
+            coordinator.hideGenerateAddressesWarning()
+            return
         }
 
         Analytics.log(
@@ -207,11 +214,11 @@ private extension ManageTokensViewModel {
             params: [.cardsCount: String(countWalletPendingDerivation)]
         )
 
-        generateAddressesViewModel = GenerateAddressesViewModel(
-            numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
+        coordinator.showGenerateAddressesWarning(
+            numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
             totalWalletNumber: userWalletModels.count,
-            didTapGenerate: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
+            action: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
         )
     }
 
