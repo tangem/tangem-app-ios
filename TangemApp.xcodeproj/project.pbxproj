@@ -1074,6 +1074,11 @@
 		EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5AD228D86094002544AC /* CardImageProvider.swift */; };
 		EF5A5AD628D86094002544AC /* CardImageProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5AD328D86094002544AC /* CardImageProviding.swift */; };
 		EF5A5AD728D86094002544AC /* CardArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A5AD428D86094002544AC /* CardArtwork.swift */; };
+		EF5D83D92B0B7A2B00516B5F /* ExpressSuccessSentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83D42B0B7A2B00516B5F /* ExpressSuccessSentView.swift */; };
+		EF5D83DA2B0B7A2B00516B5F /* ExpressSuccessSentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83D52B0B7A2B00516B5F /* ExpressSuccessSentViewModel.swift */; };
+		EF5D83DB2B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83D62B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift */; };
+		EF5D83DD2B0BBE3000516B5F /* LoadingProvidersRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83DC2B0BBE3000516B5F /* LoadingProvidersRow.swift */; };
+		EF5D83DF2B0BC4C400516B5F /* ExpressProviderFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83DE2B0BC4C400516B5F /* ExpressProviderFormatter.swift */; };
 		EF5D83E42B0CADEE00516B5F /* ExpressTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83E32B0CADEE00516B5F /* ExpressTransactionBuilder.swift */; };
 		EF5D83E62B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */; };
 		EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */; };
@@ -1118,7 +1123,6 @@
 		EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */; };
 		EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */; };
 		EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */; };
-		EF729B602AF1567000D80205 /* ExpressAPIServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */; };
 		EF729B622AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */; };
 		EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */; };
 		EF729B712AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */; };
@@ -2465,6 +2469,11 @@
 		EF5A5AD228D86094002544AC /* CardImageProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardImageProvider.swift; sourceTree = "<group>"; };
 		EF5A5AD328D86094002544AC /* CardImageProviding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardImageProviding.swift; sourceTree = "<group>"; };
 		EF5A5AD428D86094002544AC /* CardArtwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardArtwork.swift; sourceTree = "<group>"; };
+		EF5D83D42B0B7A2B00516B5F /* ExpressSuccessSentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSuccessSentView.swift; sourceTree = "<group>"; };
+		EF5D83D52B0B7A2B00516B5F /* ExpressSuccessSentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSuccessSentViewModel.swift; sourceTree = "<group>"; };
+		EF5D83D62B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSuccessSentRoutable.swift; sourceTree = "<group>"; };
+		EF5D83DC2B0BBE3000516B5F /* LoadingProvidersRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingProvidersRow.swift; sourceTree = "<group>"; };
+		EF5D83DE2B0BC4C400516B5F /* ExpressProviderFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderFormatter.swift; sourceTree = "<group>"; };
 		EF5D83E32B0CADEE00516B5F /* ExpressTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionBuilder.swift; sourceTree = "<group>"; };
 		EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressTransactionBuilder.swift; sourceTree = "<group>"; };
 		EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderMock.swift; sourceTree = "<group>"; };
@@ -2512,7 +2521,6 @@
 		EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIService.swift; sourceTree = "<group>"; };
 		EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
 		EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPITarget.swift; sourceTree = "<group>"; };
-		EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIServiceError.swift; sourceTree = "<group>"; };
 		EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAuthorizationPlugin.swift; sourceTree = "<group>"; };
 		EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIService.swift; sourceTree = "<group>"; };
 		EF729B6C2AF3E86300D80205 /* ExpressProvidersBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersBottomSheetView.swift; sourceTree = "<group>"; };
@@ -5153,6 +5161,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EF5D83E02B0BC4DB00516B5F /* ExpressProviderFormatter */,
 				EF5D83E22B0CADE600516B5F /* ExpressTransactionBuilder */,
 				EF5D83E12B0CAD2E00516B5F /* ExpressInteractor */,
 				EF0DD7992B026D9E0099527D /* ExpressPendingTransactionRepository */,
@@ -5540,6 +5549,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EF5D83D12B0B79F900516B5F /* ExpressSuccessSent */,
 				EF842DE22AFA58A5006E472E /* ExpressTokensList */,
 				EF48E6CC2B023EC900FE0072 /* ExpressView */,
 				EF729B672AF3E82C00D80205 /* ExpressProvidersBottomSheet */,
@@ -6159,6 +6169,24 @@
 			path = CardImageProvider;
 			sourceTree = "<group>";
 		};
+		EF5D83D12B0B79F900516B5F /* ExpressSuccessSent */ = {
+			isa = PBXGroup;
+			children = (
+				EF5D83D42B0B7A2B00516B5F /* ExpressSuccessSentView.swift */,
+				EF5D83D52B0B7A2B00516B5F /* ExpressSuccessSentViewModel.swift */,
+				EF5D83D62B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift */,
+			);
+			path = ExpressSuccessSent;
+			sourceTree = "<group>";
+		};
+		EF5D83E02B0BC4DB00516B5F /* ExpressProviderFormatter */ = {
+			isa = PBXGroup;
+			children = (
+				EF5D83DE2B0BC4C400516B5F /* ExpressProviderFormatter.swift */,
+			);
+			path = ExpressProviderFormatter;
+			sourceTree = "<group>";
+		};
 		EF5D83E12B0CAD2E00516B5F /* ExpressInteractor */ = {
 			isa = PBXGroup;
 			children = (
@@ -6336,7 +6364,6 @@
 			children = (
 				EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */,
 				EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */,
-				EF729B5F2AF1567000D80205 /* ExpressAPIServiceError.swift */,
 				EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */,
 			);
 			path = Types;
@@ -6366,6 +6393,7 @@
 			children = (
 				EF729B762AF3E95F00D80205 /* ProviderRowView.swift */,
 				EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */,
+				EF5D83DC2B0BBE3000516B5F /* LoadingProvidersRow.swift */,
 			);
 			path = ProviderRowView;
 			sourceTree = "<group>";
@@ -8026,6 +8054,7 @@
 				B00371BE2A8A5E5900D77A4B /* FakeUserTokensManager.swift in Sources */,
 				DC261CA9292CF56600875E64 /* AuthCoordinatorView.swift in Sources */,
 				DAA5E30328D21369003C0E80 /* BiometryLogoImage.swift in Sources */,
+				EF5D83DF2B0BC4C400516B5F /* ExpressProviderFormatter.swift in Sources */,
 				B074AF872B06778800E9CEA3 /* AnalyticsContextDataProvider.swift in Sources */,
 				EF729B732AF3E86300D80205 /* ExpressProvidersBottomSheetRoutable.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
@@ -8073,6 +8102,7 @@
 				B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */,
 				B0C616682AFBA58E00ABADF0 /* ThemeSelectionView.swift in Sources */,
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
+				EF5D83DA2B0B7A2B00516B5F /* ExpressSuccessSentViewModel.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */,
 				B06A828029C81E3A00B6160E /* SeedPhraseTextView.swift in Sources */,
@@ -8224,6 +8254,7 @@
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				B06C083B2A73E0D400D982BC /* MainHeaderSubtitleProvider.swift in Sources */,
 				65D87499287DA0F6009D0448 /* BottomSheetSettings.swift in Sources */,
+				EF5D83DD2B0BBE3000516B5F /* LoadingProvidersRow.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
 				B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */,
@@ -8413,6 +8444,7 @@
 				DAA5E31628D213A4003C0E80 /* CardDTOv4.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */,
+				EF5D83D92B0B7A2B00516B5F /* ExpressSuccessSentView.swift in Sources */,
 				EF0DD79C2B026DC40099527D /* ExpressPendingTransactionRepository.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				EF862715297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift in Sources */,
@@ -8433,6 +8465,7 @@
 				EFD39C9D2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift in Sources */,
 				B0B335E329FA9EB800E2082E /* BalanceFormattingOptions.swift in Sources */,
 				DCFCA17528F4232F0037586C /* Array+.swift in Sources */,
+				EF5D83DB2B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift in Sources */,
 				EFA6B044295334AF0090A92F /* ResetToFactoryView.swift in Sources */,
 				EF48E6C42B02273800FE0072 /* ExpressTokenItemViewModel.swift in Sources */,
 				DC3DCADB2A40AACF00F72554 /* DemoWalletModelsFactory.swift in Sources */,
@@ -8514,7 +8547,6 @@
 				EF5F1BBF29D6CDA90093307B /* ApproveAllowanceParameters.swift in Sources */,
 				EFA6B03F2953113E0090A92F /* OneInchError.swift in Sources */,
 				EF4662002924CC6E00346B6C /* ApproveTransactionParameters.swift in Sources */,
-				EF729B602AF1567000D80205 /* ExpressAPIServiceError.swift in Sources */,
 				DCAB5808295F47A7005D0F4A /* CommonSwappingLogger.swift in Sources */,
 				EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */,
 				EF07082A2A1638890072AA0E /* SwappingAvailabilityModel.swift in Sources */,
