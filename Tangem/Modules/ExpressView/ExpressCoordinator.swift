@@ -25,7 +25,9 @@ class ExpressCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var swappingTokenListViewModel: SwappingTokenListViewModel?
+    @Published var expressTokensListViewModel: ExpressTokensListViewModel?
+    @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
+    @Published var expressProvidersBottomSheetViewModel: ExpressProvidersBottomSheetViewModel?
     @Published var swappingApproveViewModel: SwappingApproveViewModel?
 
     // MARK: - Properties
@@ -58,10 +60,14 @@ extension ExpressCoordinator {
 // MARK: - ExpressRoutable
 
 extension ExpressCoordinator: ExpressRoutable {
-    func presentSwappingTokenList(sourceCurrency: Currency) {
+    func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection) {
         UIApplication.shared.endEditing()
         Analytics.log(.swapChooseTokenScreenOpened)
-        swappingTokenListViewModel = factory.makeSwappingTokenListViewModel(coordinator: self)
+        expressTokensListViewModel = factory.makeExpressTokensListViewModel(swapDirection: swapDirection, coordinator: self)
+    }
+
+    func presentFeeSelectorView() {
+        expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
     }
 
     func presentApproveView() {
@@ -89,18 +95,29 @@ extension ExpressCoordinator: ExpressRoutable {
 
         swappingSuccessCoordinator = coordinator
     }
-}
 
-// MARK: - SwappingTokenListRoutable
-
-extension ExpressCoordinator: SwappingTokenListRoutable {
-    func userDidTap(currency: Currency) {
-        swappingTokenListViewModel = nil
-        rootViewModel?.userDidRequestChangeDestination(to: currency)
+    func presentProviderSelectorView() {
+        expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(coordinator: self)
     }
 }
 
-// MARK: -  SwappingApproveRoutable
+// MARK: - ExpressTokensListRoutable
+
+extension ExpressCoordinator: ExpressTokensListRoutable {
+    func closeExpressTokensList() {
+        expressTokensListViewModel = nil
+    }
+}
+
+// MARK: - ExpressRoutable
+
+extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
+    func closeExpressFeeBottomSheet() {
+        expressFeeSelectorViewModel = nil
+    }
+}
+
+// MARK: - SwappingApproveRoutable
 
 extension ExpressCoordinator: SwappingApproveRoutable {
     func didSendApproveTransaction(transactionData: SwappingTransactionData) {
@@ -110,5 +127,13 @@ extension ExpressCoordinator: SwappingApproveRoutable {
     func userDidCancel() {
         swappingApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
+    }
+}
+
+// MARK: - ExpressProvidersBottomSheetRoutable
+
+extension ExpressCoordinator: ExpressProvidersBottomSheetRoutable {
+    func closeExpressProvidersBottomSheet() {
+        expressProvidersBottomSheetViewModel = nil
     }
 }
