@@ -14,7 +14,6 @@ final class ManageTokensViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
@@ -29,6 +28,7 @@ final class ManageTokensViewModel: ObservableObject {
 
     private unowned let coordinator: ManageTokensRoutable
 
+    private var dataSource: ManageTokensDataSource
     private lazy var loader = setupListDataLoader()
 
     private var bag = Set<AnyCancellable>()
@@ -36,7 +36,7 @@ final class ManageTokensViewModel: ObservableObject {
     private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     private var userWalletModels: [UserWalletModel] {
-        userWalletRepository.models.filter { !$0.isUserWalletLocked }
+        dataSource.userWalletModels
     }
 
     // MARK: - Init
@@ -46,6 +46,7 @@ final class ManageTokensViewModel: ObservableObject {
         coordinator: ManageTokensRoutable
     ) {
         self.coordinator = coordinator
+        dataSource = ManageTokensDataSource()
 
         searchBind(searchTextPublisher: searchTextPublisher)
         derivationBind()
@@ -56,6 +57,8 @@ final class ManageTokensViewModel: ObservableObject {
 
         updateAlreadyExistTokenUserList()
         loader.reset("")
+
+        dataSource = ManageTokensDataSource()
     }
 
     func fetchMore() {
@@ -73,7 +76,7 @@ private extension ManageTokensViewModel {
     /// Obtain supported token list from UserWalletModels to determine the cell action type
     /// Should be reset after updating the list of tokens
     func updateAlreadyExistTokenUserList() {
-        let existEntriesList = userWalletRepository.models
+        let existEntriesList = userWalletModels
             .map { $0.userTokenListManager }
             .flatMap { userTokenListManager in
                 let entries = userTokenListManager.userTokensList.entries
@@ -184,7 +187,11 @@ private extension ManageTokensViewModel {
             let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
             Analytics.log(event: event, params: [.token: coinModel.id])
 
-            coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items.map { $0.tokenItem })
+            coordinator.openTokenSelector(
+                dataSource: dataSource,
+                coinId: coinModel.id,
+                tokenItems: coinModel.items.map { $0.tokenItem }
+            )
         }
     }
 
