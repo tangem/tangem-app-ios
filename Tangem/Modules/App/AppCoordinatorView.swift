@@ -39,7 +39,8 @@ struct AppCoordinatorView: CoordinatorView {
                 isHiddenWhenCollapsed: true,
                 allowsHitTesting: coordinator.isMainBottomSheetShown,
                 header: { MainBottomSheetHeaderCoordinatorView(coordinator: mainBottomSheetCoordinator) },
-                content: { MainBottomSheetContentCoordinatorView(coordinator: mainBottomSheetCoordinator) }
+                content: { MainBottomSheetContentCoordinatorView(coordinator: mainBottomSheetCoordinator) },
+                overlay: { MainBottomSheetOverlayCoordinatorView(coordinator: mainBottomSheetCoordinator) }
             )
         }
     }
