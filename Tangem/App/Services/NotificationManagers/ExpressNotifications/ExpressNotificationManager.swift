@@ -38,16 +38,14 @@ class ExpressNotificationManager {
         switch state {
         case .readyToSwap(let swapData, _):
             notificationInputsSubject.value = []
-            priceImpactTask = runTask(in: self, code: { manager in
-                guard let notification = try await manager.generateHighPriceImpactIfNeeded(
-                    fromAmount: swapData.data.fromAmount,
-                    toAmount: swapData.data.toAmount
-                ) else {
-                    return
-                }
+            checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
 
-                manager.notificationInputsSubject.value = [notification]
-            })
+        case .previewCEX(_, let quote):
+            notificationInputsSubject.value = []
+            if let quote = quote.quote {
+                checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
+            }
+
         case .restriction(let restrictions, let expectedQuote):
             setupNotification(for: restrictions)
 
@@ -55,16 +53,7 @@ class ExpressNotificationManager {
                 return
             }
 
-            priceImpactTask = runTask(in: self, code: { manager in
-                guard let notification = try await manager.generateHighPriceImpactIfNeeded(
-                    fromAmount: quote.fromAmount,
-                    toAmount: quote.expectAmount
-                ) else {
-                    return
-                }
-
-                manager.notificationInputsSubject.value.append(notification)
-            })
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
         case .loading(.full):
             notificationInputsSubject.value = notificationInputsSubject.value.filter {
                 guard let event = $0.settings.event as? ExpressNotificationEvent else {
@@ -76,6 +65,19 @@ class ExpressNotificationManager {
         case .loading(.refreshRates), .idle:
             break
         }
+    }
+
+    private func checkHighPriceImpact(fromAmount: Decimal, toAmount: Decimal) {
+        priceImpactTask = runTask(in: self, code: { manager in
+            guard let notification = try await manager.generateHighPriceImpactIfNeeded(
+                fromAmount: fromAmount,
+                toAmount: toAmount
+            ) else {
+                return
+            }
+
+            manager.notificationInputsSubject.value.append(notification)
+        })
     }
 
     private func setupNotification(for restrictions: ExpressInteractor.RestrictionType) {
