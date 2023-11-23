@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 enum SendType {
     case send
-    case sell(amount: Decimal, destination: String)
+    case sell(amount: Amount, destination: String)
 }
 
 extension SendType {
@@ -23,7 +24,7 @@ extension SendType {
         }
     }
 
-    var predefinedAmount: Decimal? {
+    var predefinedAmount: Amount? {
         switch self {
         case .send:
             return nil
