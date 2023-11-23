@@ -32,9 +32,7 @@ struct WalletSelectorView: View {
 
 struct WalletSelectorView_Previews: PreviewProvider {
     private class PreviewWalletSelectorDataSource: WalletSelectorDataSource {
-        var userWalletModels: [UserWalletModel] = [
-            FakeUserWalletModel.wallet3Cards,
-        ]
+        var walletSelectorItemViewModels: [WalletSelectorItemViewModel] = []
 
         var selectedUserWalletModelPublisher: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
     }
