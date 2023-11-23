@@ -98,11 +98,11 @@ extension TokenNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .networkUnreachable, .someNetworksUnreachable, .longTransaction:
-            return .init(image: Assets.attention.image)
+            return .init(iconType: .image(Assets.attention.image))
         case .rentFee, .noAccount, .existentialDepositWarning, .hasPendingTransactions:
-            return .init(image: Assets.blueCircleWarning.image)
+            return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTokenTx(_, _, _, let blockchainIconName):
-            return .init(image: Image(blockchainIconName))
+            return .init(iconType: .image(Image(blockchainIconName)))
         }
     }
 
