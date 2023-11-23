@@ -53,19 +53,22 @@ class SendFinishViewModel: ObservableObject {
     }
 
     private func bind(from input: SendFinishViewModelInput) {
-        input.transactionURL
-            .assign(to: \.transactionURL, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .short
-        input.transactionTime
+        let formattedTime: AnyPublisher<String, Never> = input.transactionTime
             .compactMap { transactionTime in
                 guard let transactionTime else { return nil }
+
+                let formatter = DateFormatter()
+                formatter.dateStyle = .long
+                formatter.timeStyle = .short
                 return formatter.string(from: transactionTime)
             }
-            .assign(to: \.transactionTime, on: self, ownership: .weak)
+            .eraseToAnyPublisher()
+
+        Publishers.CombineLatest(formattedTime, input.transactionURL)
+            .sink { [weak self] formattedTime, transactionURL in
+                self?.transactionTime = formattedTime
+                self?.transactionURL = transactionURL
+            }
             .store(in: &bag)
     }
 }
