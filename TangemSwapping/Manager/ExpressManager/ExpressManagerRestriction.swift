@@ -9,6 +9,7 @@
 import Foundation
 
 public enum ExpressManagerRestriction {
+    case pairNotFound
     case notEnoughAmountForSwapping(_ minAmount: Decimal)
     case permissionRequired(spender: String)
     case notEnoughBalanceForSwapping
