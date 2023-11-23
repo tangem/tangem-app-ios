@@ -38,18 +38,17 @@ struct SendView: View {
             SheetDragHandler()
                 .padding(.bottom, 4)
 
-            
             HStack {
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: 1)
-                
+
                 Text(viewModel.title)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
                     .animation(nil)
                     .padding(.vertical, 8)
                     .lineLimit(1)
                     .layoutPriority(1)
-                
+
                 if viewModel.showQRCodeButton {
                     Button(action: viewModel.scanQRCode) {
                         Assets.qrCode.image
