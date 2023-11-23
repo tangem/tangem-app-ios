@@ -184,8 +184,6 @@ private extension ExpressViewModel {
 
 private extension ExpressViewModel {
     func setupView() {
-        updateState(state: .idle)
-
         sendCurrencyViewModel = SendCurrencyViewModel(
             maximumFractionDigits: interactor.getSender().decimalCount,
             canChangeCurrency: interactor.getSender().id != initialWallet.id,
@@ -230,7 +228,6 @@ private extension ExpressViewModel {
             .store(in: &bag)
 
         interactor.state
-            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.updateState(state: state)
@@ -313,7 +310,8 @@ private extension ExpressViewModel {
     func updateReceiveView(wallet: WalletModel?) {
         guard let wallet = wallet else {
             receiveCurrencyViewModel?.canChangeCurrency = false
-            receiveCurrencyViewModel?.tokenIconState = .loading
+            receiveCurrencyViewModel?.tokenIconState = .notAvailable
+            receiveCurrencyViewModel?.isAvailable = false
             return
         }
 
@@ -365,7 +363,8 @@ private extension ExpressViewModel {
         receiveCurrencyViewModel?.update(cryptoAmountState: .formatted(formatted))
 
         guard let currencyId = tokenItem?.currencyId else {
-            receiveCurrencyViewModel?.update(fiatAmountState: .formatted(BalanceFormatter.defaultEmptyBalanceString))
+            let formatted = balanceFormatter.formatFiatBalance(0)
+            receiveCurrencyViewModel?.update(fiatAmountState: .formatted(formatted))
             return
         }
 
@@ -414,13 +413,7 @@ private extension ExpressViewModel {
 
         case .restriction(let type, let quote):
             isSwapButtonLoading = false
-
-            if case .requiredRefresh = type {
-                stopTimer()
-            } else {
-                restartTimer()
-            }
-
+            stopTimer()
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
         case .readyToSwap(_, let quote), .previewCEX(_, let quote):
