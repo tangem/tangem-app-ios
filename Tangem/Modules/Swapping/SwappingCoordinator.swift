@@ -85,7 +85,7 @@ extension SwappingCoordinator: SwappingRoutable {
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init(inputModel: inputModel))
+        coordinator.start(with: .swapping(inputModel))
 
         swappingSuccessCoordinator = coordinator
     }

@@ -75,7 +75,7 @@ extension ExpressCoordinator: ExpressRoutable {
         swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
     }
 
-    func presentSuccessView(inputModel: SwappingSuccessInputModel) {
+    func presentSuccessView(data: SentExpressTransactionData) {
         UIApplication.shared.endEditing()
         Analytics.log(.swapSwapInProgressScreenOpened)
 
@@ -91,7 +91,7 @@ extension ExpressCoordinator: ExpressRoutable {
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init(inputModel: inputModel))
+        coordinator.start(with: .express(data))
 
         swappingSuccessCoordinator = coordinator
     }
@@ -100,7 +100,7 @@ extension ExpressCoordinator: ExpressRoutable {
         expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(coordinator: self)
     }
 
-    func openNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
+    func presentNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
         dismiss(with: (walletModel, userWalletModel))
     }
 }
