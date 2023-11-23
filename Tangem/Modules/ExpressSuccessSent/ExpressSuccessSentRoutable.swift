@@ -1,5 +1,5 @@
 //
-//  ManageTokensRoutable.swift
+//  ExpressSuccessSentRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,4 @@
 
 import Foundation
 
-protocol ManageTokensRoutable: AnyObject {
-    func openTokenSelector(coinModel: CoinModel)
-}
+protocol ExpressSuccessSentRoutable: AnyObject {}
