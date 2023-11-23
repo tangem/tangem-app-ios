@@ -13,8 +13,9 @@ struct ManageTokensNetworkSelectorView: View {
 
     var body: some View {
         GroupedScrollView {
-            if let notificationViewModel = viewModel.notificationViewModel {
-                ManageTokensNetworkSelectorNotificationView(viewModel: notificationViewModel)
+            if let notificationInput = viewModel.notificationInput {
+                NotificationView(input: notificationInput)
+                    .transition(.notificationTransition)
 
                 Spacer(minLength: 14)
             }
