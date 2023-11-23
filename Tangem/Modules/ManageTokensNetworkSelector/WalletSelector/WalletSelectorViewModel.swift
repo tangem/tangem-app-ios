@@ -19,9 +19,9 @@ class WalletSelectorViewModel: ObservableObject {
 
     init(dataSource: WalletSelectorDataSource?) {
         self.dataSource = dataSource
+        itemViewModels = dataSource?.walletSelectorItemViewModels ?? []
 
         bind()
-        fillItemViewModels()
     }
 
     func bind() {
@@ -32,18 +32,5 @@ class WalletSelectorViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-    }
-
-    private func fillItemViewModels() {
-        itemViewModels = dataSource?.userWalletModels.map { userWalletModel in
-            WalletSelectorItemViewModel(
-                userWalletModel: userWalletModel,
-                isSelected: userWalletModel.userWalletId == dataSource?.selectedUserWalletModelPublisher.value?.userWalletId,
-                cardImageProvider: CardImageProvider()
-            ) { [weak self] userWalletId in
-                let selectedUserWalletModel = self?.dataSource?.userWalletModels.first(where: { $0.userWalletId == userWalletId })
-                self?.dataSource?.selectedUserWalletModelPublisher.send(selectedUserWalletModel)
-            }
-        } ?? []
     }
 }
