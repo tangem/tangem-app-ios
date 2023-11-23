@@ -11,7 +11,7 @@ import SwiftUI
 
 enum ExpressNotificationEvent {
     case permissionNeeded(currencyCode: String)
-    case refreshRequired(title: String, message: String)
+    case refreshRequired(message: String)
     case hasPendingTransaction
     case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconName: String)
     case notEnoughAmountToSwap(minimumAmountText: String)
@@ -24,8 +24,8 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .permissionNeeded:
             return Localization.expressProviderPermissionNeeded
-        case .refreshRequired(let title, _):
-            return title
+        case .refreshRequired:
+            return Localization.warningExpressRefreshRequiredTitle
         case .hasPendingTransaction:
             return Localization.swappingPendingTransactionTitle
         case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
@@ -43,7 +43,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .permissionNeeded(let currencyCode):
             return Localization.swappingPermissionSubheader(currencyCode)
-        case .refreshRequired(_, let message):
+        case .refreshRequired(let message):
             return Localization.swappingErrorWrapper(message)
         case .hasPendingTransaction:
             return Localization.swappingPendingTransactionSubtitle
