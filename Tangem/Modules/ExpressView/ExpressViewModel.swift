@@ -172,8 +172,7 @@ private extension ExpressViewModel {
     }
 
     func openApproveView() {
-        guard case .restriction(let type, _) = interactor.getState(),
-              case .permissionRequired = type else {
+        guard case .permissionRequired = interactor.getState() else {
             return
         }
 
@@ -182,7 +181,8 @@ private extension ExpressViewModel {
     }
 
     func openFeeSelectorView() {
-        guard interactor.getState().isAvailableToSendTransaction else {
+        // If we have fees for choosing
+        guard !interactor.getState().fees.isEmpty else {
             return
         }
 
@@ -431,7 +431,7 @@ private extension ExpressViewModel {
             stopTimer()
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
-        case .readyToSwap(_, let quote), .previewCEX(_, let quote):
+        case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
             isSwapButtonLoading = false
             restartTimer()
 
@@ -455,23 +455,24 @@ private extension ExpressViewModel {
                 providerState = .none
             }
 
-        case .readyToSwap(_, let quote), .previewCEX(_, let quote):
+        case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
             providerState = .loaded(data: mapToProviderRowViewModel(expectedQuote: quote))
         }
     }
 
     func updateFeeValue(state: ExpressInteractor.ExpressInteractorState) {
         switch state {
-        case .idle, .restriction:
-            expressFeeRowViewModel = nil
-        case .loading(let type):
-            if type == .full {
-                expressFeeRowViewModel = nil
-            }
+        case .restriction(.notEnoughAmountForFee(let state), _):
+            updateExpressFeeRowViewModel(fees: state.fees)
         case .previewCEX(let fees, _):
             updateExpressFeeRowViewModel(fees: fees)
         case .readyToSwap(let state, _):
             updateExpressFeeRowViewModel(fees: state.fees)
+        case .idle, .restriction, .loading(.full), .permissionRequired:
+            // We have decided that will not give a choose for .permissionRequired state also
+            expressFeeRowViewModel = nil
+        case .loading(.refreshRates):
+            break
         }
     }
 
@@ -503,10 +504,6 @@ private extension ExpressViewModel {
             break
         case .restriction(let type, _):
             switch type {
-            case .permissionRequired:
-                mainButtonState = .givePermission
-                mainButtonIsEnabled = true
-
             case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
@@ -515,6 +512,10 @@ private extension ExpressViewModel {
                 mainButtonState = .insufficientFunds
                 mainButtonIsEnabled = false
             }
+
+        case .permissionRequired:
+            mainButtonState = .givePermission
+            mainButtonIsEnabled = true
 
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
