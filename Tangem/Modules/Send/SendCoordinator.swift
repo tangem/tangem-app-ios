@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 class SendCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -30,14 +31,23 @@ class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = SendViewModel(sendType: .send, coordinator: self)
+        rootViewModel = SendViewModel(
+            walletModel: options.walletModel,
+            transactionSigner: options.transactionSigner,
+            sendType: options.type,
+            coordinator: self
+        )
     }
 }
 
 // MARK: - Options
 
 extension SendCoordinator {
-    struct Options {}
+    struct Options {
+        let walletModel: WalletModel
+        let transactionSigner: TransactionSigner
+        let type: SendType
+    }
 }
 
 // MARK: - SendRoutable
