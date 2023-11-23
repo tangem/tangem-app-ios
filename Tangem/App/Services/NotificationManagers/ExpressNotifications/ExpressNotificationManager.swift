@@ -36,6 +36,27 @@ class ExpressNotificationManager {
         priceImpactTask = nil
 
         switch state {
+        case .idle:
+            notificationInputsSubject.value = []
+        case .loading(.refreshRates):
+            break
+        case .loading(.full):
+            notificationInputsSubject.value = notificationInputsSubject.value.filter {
+                guard let event = $0.settings.event as? ExpressNotificationEvent else {
+                    return false
+                }
+
+                return !event.removingOnFullLoadingState
+            }
+        case .restriction(let restrictions, let expectedQuote):
+            setupNotification(for: restrictions)
+
+            guard let quote = expectedQuote?.quote else {
+                return
+            }
+
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
+
         case .readyToSwap(let swapData, _):
             notificationInputsSubject.value = []
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
@@ -45,25 +66,6 @@ class ExpressNotificationManager {
             if let quote = quote.quote {
                 checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
             }
-
-        case .restriction(let restrictions, let expectedQuote):
-            setupNotification(for: restrictions)
-
-            guard let quote = expectedQuote?.quote else {
-                return
-            }
-
-            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
-        case .loading(.full):
-            notificationInputsSubject.value = notificationInputsSubject.value.filter {
-                guard let event = $0.settings.event as? ExpressNotificationEvent else {
-                    return false
-                }
-
-                return !event.removingOnFullLoadingState
-            }
-        case .loading(.refreshRates), .idle:
-            break
         }
     }
 
