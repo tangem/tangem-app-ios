@@ -178,7 +178,7 @@ extension SendViewModel: SendFinishRoutable {
         coordinator.share(url: url)
     }
 
-    func close() {
+    func dismiss() {
         coordinator.dismiss()
     }
 }
