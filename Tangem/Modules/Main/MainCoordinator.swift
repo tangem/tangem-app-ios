@@ -29,7 +29,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator?
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
-    @Published var manageTokensCoordinator: ManageTokensCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -154,15 +153,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openManageTokens(with settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.legacyTokenListCoordinator = nil
-            self?.manageTokensCoordinator = nil
-        }
-
-        if FeatureProvider.isAvailable(.manageTokens) {
-            let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
-            let options = ManageTokensCoordinator.Options()
-            coordinator.start(with: options)
-            manageTokensCoordinator = coordinator
-            return
         }
 
         let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
