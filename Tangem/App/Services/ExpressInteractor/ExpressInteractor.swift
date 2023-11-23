@@ -86,6 +86,14 @@ extension ExpressInteractor {
     func getApprovePolicy() -> SwappingApprovePolicy {
         approvePolicy.read()
     }
+
+    func getAllQuotes() async -> [ExpectedQuote] {
+        await expressManager.getAllQuotes()
+    }
+
+    func getSelectedProvider() async -> ExpressProvider? {
+        await expressManager.getSelectedQuote()?.provider
+    }
 }
 
 // MARK: - Updates
@@ -504,6 +512,7 @@ private extension ExpressInteractor {
             } catch {
                 root.log("Destination load handle error")
                 root.logger.error(error)
+                root.updateState(.restriction(.noDestinationTokens, quote: nil))
             }
         }
     }
@@ -551,6 +560,15 @@ extension ExpressInteractor {
                 return quote
             }
         }
+
+        var isAvailableToSendTransaction: Bool {
+            switch self {
+            case .readyToSwap, .restriction(.permissionRequired, _):
+                return true
+            case .idle, .loading, .restriction:
+                return false
+            }
+        }
     }
 
     enum RestrictionType {
@@ -560,6 +578,7 @@ extension ExpressInteractor {
         case notEnoughBalanceForSwapping
         case notEnoughAmountForFee
         case requiredRefresh(occurredError: Error)
+        case noDestinationTokens
     }
 
     struct SwappingPair {
