@@ -93,6 +93,24 @@ extension CommonExpressManager: ExpressManager {
     func update() async throws -> ExpressManagerState {
         try await updateState()
     }
+
+    func requestData() async throws -> ExpressTransactionData {
+        guard let pair = _pair else {
+            throw ExpressManagerError.pairNotFound
+        }
+
+        guard let amount = _amount, amount > 0 else {
+            throw ExpressManagerError.amountNotFound
+        }
+
+        guard let selectedQuote = selectedQuote else {
+            throw ExpressManagerError.selectedProviderNotFound
+        }
+
+        let request = ExpressManagerSwappingPairRequest(pair: pair, amount: amount)
+        let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
+        return data
+    }
 }
 
 // MARK: - Private
@@ -125,11 +143,14 @@ private extension CommonExpressManager {
             return .restriction(restriction)
         }
 
-        let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
-
-        try Task.checkCancellation()
-
-        return .ready(data: data)
+        switch selectedQuote.provider.type {
+        case .dex:
+            let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
+            try Task.checkCancellation()
+            return .ready(data: data)
+        case .cex:
+            return .previewCEX(quote: selectedQuote)
+        }
     }
 }
 
