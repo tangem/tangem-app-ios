@@ -41,7 +41,6 @@ target 'Tangem' do
   pod 'Moya'
   pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2', :tag => '1.8.4'
   pod 'Kingfisher', '~> 7.9.0'
-  pod 'Mobile-Buy-SDK' # Shopify
 
   # Helpers
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
