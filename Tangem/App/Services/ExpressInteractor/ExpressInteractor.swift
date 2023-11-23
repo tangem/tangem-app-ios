@@ -276,9 +276,7 @@ private extension ExpressInteractor {
         switch state {
         case .idle:
             return .idle
-        case .restriction(let restriction):
-            let quote = await expressManager.getSelectedQuote()
-
+        case .restriction(let restriction, let quote):
             if hasPendingTransaction() {
                 return .restriction(.hasPendingTransaction, quote: quote)
             }
@@ -300,11 +298,7 @@ private extension ExpressInteractor {
 
             return state
 
-        case .ready(let data):
-            guard let quote = await expressManager.getSelectedQuote() else {
-                throw ExpressInteractorError.quoteNotFound
-            }
-
+        case .ready(let data, let quote):
             if hasPendingTransaction() {
                 return .restriction(.hasPendingTransaction, quote: quote)
             }
