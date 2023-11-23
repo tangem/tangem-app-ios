@@ -549,7 +549,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     userWallets = [cardModel.userWallet]
                     models = [cardModel]
                     selectedUserWalletId = cardModel.userWalletId.value
-                    sendEvent(.replaced)
+                    sendEvent(.replaced(userWallet: cardModel.userWallet))
                     completion(result)
                     return
                 }
