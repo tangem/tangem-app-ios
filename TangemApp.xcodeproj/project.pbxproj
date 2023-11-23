@@ -47,6 +47,7 @@
 		2DF5A80C2B0FAEF800AA5E73 /* ManageTokensNetworkDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A8082B0FAEF800AA5E73 /* ManageTokensNetworkDataSource.swift */; };
 		2DF5A80D2B0FAEF800AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A80A2B0FAEF800AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift */; };
 		2DF5A80E2B0FAEF800AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A80B2B0FAEF800AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift */; };
+		2DF5A8102B0FB2DE00AA5E73 /* ManageTokensDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A80F2B0FB2DE00AA5E73 /* ManageTokensDataSource.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
 		5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09380925E6AEB10049B8F0 /* BalanceAddressView.swift */; };
@@ -1380,6 +1381,7 @@
 		2DF5A8082B0FAEF800AA5E73 /* ManageTokensNetworkDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkDataSource.swift; sourceTree = "<group>"; };
 		2DF5A80A2B0FAEF800AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorNotificationViewModel.swift; sourceTree = "<group>"; };
 		2DF5A80B2B0FAEF800AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorNotificationView.swift; sourceTree = "<group>"; };
+		2DF5A80F2B0FB2DE00AA5E73 /* ManageTokensDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensDataSource.swift; sourceTree = "<group>"; };
 		3A37E80DF75687F125EDA4D1 /* Pods-TangemSwapping.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(production).xcconfig"; sourceTree = "<group>"; };
 		3C9182C6C925702F336B218E /* Pods-TangemTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		4552F5633786F1E20D40E88E /* Pods-TangemSwappingTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(production).xcconfig"; sourceTree = "<group>"; };
@@ -2775,6 +2777,7 @@
 				2DC5675C2B0DFFAF00B0244F /* ManageTokensSettings.swift */,
 				2DC5675D2B0DFFAF00B0244F /* ManageTokensView.swift */,
 				2DC5675E2B0DFFAF00B0244F /* ManageTokensViewModel.swift */,
+				2DF5A80F2B0FB2DE00AA5E73 /* ManageTokensDataSource.swift */,
 			);
 			path = TokenList;
 			sourceTree = "<group>";
@@ -8215,6 +8218,7 @@
 				EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */,
 				EF8D7814298281F700B67418 /* SwappingModulesFactory.swift in Sources */,
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
+				2DF5A8102B0FB2DE00AA5E73 /* ManageTokensDataSource.swift in Sources */,
 				EF46623E2924F21600346B6C /* SendCurrencyView.swift in Sources */,
 				B0DD16282A331C2100CB23AA /* TokenDetailsCoordinator.swift in Sources */,
 				DC261CB3292CF6B700875E64 /* UncompletedBackupCoordinator.swift in Sources */,
