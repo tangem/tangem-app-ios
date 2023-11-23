@@ -49,7 +49,7 @@ class SendFinishViewModel: ObservableObject {
     }
 
     func close() {
-        router?.close()
+        router?.dismiss()
     }
 
     private func bind(from input: SendFinishViewModelInput) {
