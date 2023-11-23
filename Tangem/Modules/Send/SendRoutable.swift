@@ -8,8 +8,4 @@
 
 import Foundation
 
-protocol SendRoutable: AnyObject {
-    func explore(url: URL)
-    func share(url: URL)
-    func dismiss()
-}
+protocol SendRoutable: SendFinishRoutable, AnyObject {}

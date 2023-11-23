@@ -111,7 +111,7 @@ final class SendViewModel: ObservableObject {
 
         sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
-        sendFinishViewModel.router = self
+        sendFinishViewModel.router = coordinator
 
         bind()
     }
@@ -166,19 +166,5 @@ extension SendViewModel: SendSummaryRoutable {
 extension SendViewModel: SendAmountViewModelDelegate {
     func didTapMaxAmount() {
         sendModel.useMaxAmount()
-    }
-}
-
-extension SendViewModel: SendFinishRoutable {
-    func explore(url: URL) {
-        coordinator.explore(url: url)
-    }
-
-    func share(url: URL) {
-        coordinator.share(url: url)
-    }
-
-    func dismiss() {
-        coordinator.dismiss()
     }
 }
