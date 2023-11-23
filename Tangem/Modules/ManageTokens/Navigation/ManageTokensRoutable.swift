@@ -10,4 +10,13 @@ import Foundation
 
 protocol ManageTokensRoutable: AnyObject {
     func openTokenSelector(coinId: String, with tokenItems: [TokenItem])
+
+    func showGenerateAddressesWarning(
+        numberOfNetworks: Int,
+        currentWalletNumber: Int,
+        totalWalletNumber: Int,
+        action: @escaping () -> Void
+    )
+
+    func hideGenerateAddressesWarning()
 }
