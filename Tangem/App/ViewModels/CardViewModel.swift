@@ -582,3 +582,14 @@ extension CardViewModel: TotalBalanceProviding {
         totalBalanceProvider.totalBalancePublisher()
     }
 }
+
+extension CardViewModel: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        return AnalyticsContextData(
+            card: card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
+    }
+}
