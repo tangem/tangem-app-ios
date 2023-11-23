@@ -50,7 +50,7 @@ extension ManageTokensCoordinator {
 extension ManageTokensCoordinator: ManageTokensRoutable {
     func openTokenSelector(dataSource: ManageTokensDataSource, coinId: String, tokenItems: [TokenItem]) {
         networkSelectorViewModel = ManageTokensNetworkSelectorViewModel(
-            dataSource: dataSource,
+            parentDataSource: dataSource,
             coinId: coinId,
             tokenItems: tokenItems,
             coordinator: self
