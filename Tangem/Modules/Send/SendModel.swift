@@ -45,7 +45,7 @@ class SendModel {
 
     // MARK: - Data
 
-    private var amount = CurrentValueSubject<DecimalNumberTextField.DecimalValue?, Never>(nil)
+    private let amount = CurrentValueSubject<Amount?, Never>(nil)
     private let destination = CurrentValueSubject<String?, Never>(nil)
     private let destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
@@ -54,7 +54,7 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var _amount: DecimalNumberTextField.DecimalValue?
+    private var _amount: Amount?
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
     private var _feeText: String = ""
@@ -84,7 +84,7 @@ class SendModel {
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
-            setAmount(.external(amount))
+            setAmount(amount)
         }
 
         if let destination = sendType.predefinedDestination {
@@ -146,12 +146,9 @@ class SendModel {
                     return .just(output: [])
                 }
 
-                let blockchain = walletModel.blockchainNetwork.blockchain
-                let amountToSend = Amount(with: blockchain, type: walletModel.amountType, value: amount.value)
-
                 #warning("[REDACTED_TODO_COMMENT]")
                 return walletModel
-                    .getFee(amount: amountToSend, destination: destination)
+                    .getFee(amount: amount, destination: destination)
                     .receive(on: DispatchQueue.main)
                     .catch { [weak self] error in
                         #warning("[REDACTED_TODO_COMMENT]")
@@ -182,12 +179,9 @@ class SendModel {
                     return nil
                 }
 
-                let blockchain = walletModel.blockchainNetwork.blockchain
-                let amountToSend = Amount(with: blockchain, type: walletModel.amountType, value: amount.value)
-
                 #warning("[REDACTED_TODO_COMMENT]")
                 return try? walletModel.createTransaction(
-                    amountToSend: amountToSend,
+                    amountToSend: amount,
                     fee: fee,
                     destinationAddress: destination
                 )
@@ -201,13 +195,13 @@ class SendModel {
 
     // MARK: - Amount
 
-    private func setAmount(_ amount: DecimalNumberTextField.DecimalValue?) {
+    func setAmount(_ amount: Amount) {
         _amount = amount
         validateAmount()
     }
 
     private func validateAmount() {
-        let amount: DecimalNumberTextField.DecimalValue?
+        let amount: Amount?
         let error: Error?
 
         #warning("validate")
@@ -311,7 +305,7 @@ extension SendModel: SendAmountViewModelInput {
     }
 
     var decimalValue: Binding<DecimalNumberTextField.DecimalValue?> {
-        Binding { self._amount } set: { self.setAmount($0) }
+        Binding { nil } set: { _ in }
     }
 
     #warning("TODO")
