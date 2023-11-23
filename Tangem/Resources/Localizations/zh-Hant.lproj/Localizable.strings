@@ -605,12 +605,17 @@
 "warning_button_like_it" = "Like it";
 "warning_button_ok" = "了解";
 "warning_button_really_cool" = "真的很酷！";
+"warning_button_refresh" = "Refresh";
 "warning_demo_mode_message" = "You are currently in the Demo mode";
 "warning_demo_mode_title" = "Demo mode active";
 "warning_developer_card_message" = "The card you scanned is a developer card. Do not use it to create your wallet.";
 "warning_developer_card_title" = "Not for users!";
 "warning_existential_deposit_message" = "%1$@ network requires an Existential Deposit. If your account drops below %2$@, it will be deactivated, and any remaining funds will be destroyed.";
 "warning_existential_deposit_title" = "Network requires Existential Deposit";
+"warning_express_no_exchangeable_coins_description" = "You do not have any %@ exchangeable coins in your list";
+"warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
+"warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
+"warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
 "warning_failed_to_verify_card_title" = "認證檢查失敗";
 "warning_long_transaction_message" = "iPhone 7/7+ cannot sign transactions on this network. To complete this operation, please use a different phone.";
