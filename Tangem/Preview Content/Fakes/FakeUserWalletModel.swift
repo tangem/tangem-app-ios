@@ -88,6 +88,12 @@ extension FakeUserWalletModel: MainHeaderInfoProvider {
     var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 }
 
+extension FakeUserWalletModel: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        return nil
+    }
+}
+
 extension FakeUserWalletModel {
     static let allFakeWalletModels = [
         wallet3Cards,
