@@ -153,7 +153,22 @@ final class ExpressViewModel: ObservableObject {
 private extension ExpressViewModel {
     @MainActor
     func openSuccessView(resultState: ExpressInteractor.TransactionSendResultState) {
-        // [REDACTED_TODO_COMMENT]
+        guard let destination = interactor.getDestination() else {
+            assertionFailure("Destination isn't found")
+            return
+        }
+
+        let data = SentExpressTransactionData(
+            hash: resultState.hash,
+            source: interactor.getSender(),
+            destination: destination,
+            fee: resultState.fee.amount.value,
+            provider: resultState.provider,
+            date: Date(),
+            expressTransactionData: resultState.data
+        )
+
+        coordinator.presentSuccessView(data: data)
     }
 
     func openApproveView() {
@@ -315,7 +330,7 @@ private extension ExpressViewModel {
             return
         }
 
-        updateReceiveCurrencyBalance(wallet: wallet)
+        receiveCurrencyViewModel?.isAvailable = true
         receiveCurrencyViewModel?.canChangeCurrency = wallet.id != initialWallet.id
         receiveCurrencyViewModel?.tokenIconState = mapToSwappingTokenIconViewModelState(wallet: wallet)
 
@@ -392,7 +407,6 @@ private extension ExpressViewModel {
     func updateState(state: ExpressInteractor.ExpressInteractorState) {
         updateFeeValue(state: state)
         updateProviderView(state: state)
-
         updateMainButton(state: state)
 
         switch state {
@@ -411,7 +425,7 @@ private extension ExpressViewModel {
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
-        case .restriction(let type, let quote):
+        case .restriction(_, let quote):
             isSwapButtonLoading = false
             stopTimer()
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
@@ -621,7 +635,7 @@ extension ExpressViewModel: NotificationTapDelegate {
             return
         }
 
-        coordinator.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator.presentNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
