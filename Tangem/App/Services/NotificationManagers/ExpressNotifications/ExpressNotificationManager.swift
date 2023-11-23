@@ -104,8 +104,7 @@ class ExpressNotificationManager {
 
             event = .notEnoughFeeForTokenTx(mainTokenName: sourceTokenItem.blockchain.displayName, mainTokenSymbol: sourceNetworkSymbol, blockchainIconName: sourceTokenItem.blockchain.iconNameFilled)
         case .requiredRefresh(let occurredError):
-            // [REDACTED_TODO_COMMENT]
-            event = .refreshRequired(title: "Something happened", message: occurredError.localizedDescription)
+            event = .refreshRequired(message: occurredError.localizedDescription)
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceNetworkSymbol)
         }
