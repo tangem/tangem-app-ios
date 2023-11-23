@@ -21,12 +21,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
 
     // Warnings
-    @Published var destinationNotFoundViewModel: DefaultWarningRowViewModel?
-    @Published var refreshWarningRowViewModel: DefaultWarningRowViewModel?
-    @Published var highPriceImpactWarningRowViewModel: DefaultWarningRowViewModel?
-    @Published var pendingTransaction: DefaultWarningRowViewModel?
-    @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
-    @Published var feeWarningRowViewModel: DefaultWarningRowViewModel?
+    @Published var notificationInputs: [NotificationViewInput] = []
 
     // Provider
     @Published var providerState: ProviderState?
@@ -39,25 +34,15 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var errorAlert: AlertBinder?
 
-    // [REDACTED_TODO_COMMENT]
-    var informationSectionViewModels: [DefaultWarningRowViewModel] {
-        [
-            destinationNotFoundViewModel,
-            refreshWarningRowViewModel,
-            highPriceImpactWarningRowViewModel,
-            pendingTransaction,
-            permissionInfoRowViewModel,
-            feeWarningRowViewModel,
-        ].compactMap { $0 }
-    }
-
     // MARK: - Dependencies
 
     private let initialWallet: WalletModel
+    private let userWalletModel: UserWalletModel
     private let swappingFeeFormatter: SwappingFeeFormatter
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
+    private let notificationManager: NotificationManager
     private unowned let interactor: ExpressInteractor
     private unowned let coordinator: ExpressRoutable
 
@@ -69,18 +54,22 @@ final class ExpressViewModel: ObservableObject {
 
     init(
         initialWallet: WalletModel,
+        userWalletModel: UserWalletModel,
         swappingFeeFormatter: SwappingFeeFormatter,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
+        notificationManager: NotificationManager,
         interactor: ExpressInteractor,
         coordinator: ExpressRoutable
     ) {
         self.initialWallet = initialWallet
+        self.userWalletModel = userWalletModel
         self.swappingFeeFormatter = swappingFeeFormatter
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
         self.expressProviderFormatter = expressProviderFormatter
+        self.notificationManager = notificationManager
         self.interactor = interactor
         self.coordinator = coordinator
 
@@ -101,7 +90,6 @@ final class ExpressViewModel: ObservableObject {
 
     func userDidTapSwapSwappingItemsButton() {
         Analytics.log(.swapButtonSwipe)
-        update(restriction: .none)
         interactor.swapPair()
 
         // If we have amount then we should round and update it with new decimalCount
@@ -219,14 +207,18 @@ private extension ExpressViewModel {
             })
             .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
-                // Remove refresh warning if user start typing
-                self?.updateRefreshWarningRowViewModel(message: .none)
                 self?.interactor.update(amount: amount?.value)
 
                 if let amount, amount.value > 0 {
                     self?.startTimer()
                 }
             }
+            .store(in: &bag)
+
+        notificationManager
+            .notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         interactor.state
@@ -395,15 +387,11 @@ private extension ExpressViewModel {
         updateFeeValue(state: state)
         updateProviderView(state: state)
 
-        // The HighPriceImpact warning can't be a restriction
-        // because it can be visible even on readyToSwap state
-        updateHighPriceImpact(state: state)
         updateMainButton(state: state)
 
         switch state {
         case .idle:
             isSwapButtonLoading = false
-            update(restriction: .none)
             stopTimer()
 
             updateReceiveCurrencyValue(expectAmount: 0)
@@ -414,19 +402,16 @@ private extension ExpressViewModel {
             // Turn on skeletons only for full update
             guard type == .full else { return }
 
-            refreshWarningRowViewModel?.update(rightView: .loader)
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
         case .restriction(let type, let quote):
             isSwapButtonLoading = false
-            update(restriction: type)
             stopTimer()
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
         case .readyToSwap(_, let quote):
             isSwapButtonLoading = false
-            update(restriction: .none)
             restartTimer()
 
             updateReceiveCurrencyValue(expectAmount: quote.quote?.expectAmount)
@@ -495,7 +480,7 @@ private extension ExpressViewModel {
                 mainButtonState = .givePermission
                 mainButtonIsEnabled = true
 
-            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .destinationNotFound:
+            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
@@ -507,58 +492,6 @@ private extension ExpressViewModel {
         case .readyToSwap:
             mainButtonState = .swap
             mainButtonIsEnabled = true
-        }
-    }
-
-    func updateHighPriceImpact(state: ExpressInteractor.ExpressInteractorState) {
-        runTask(in: self) { viewModel in
-            switch state {
-            case .idle, .loading(.full), .restriction(_, nil):
-                await runOnMain {
-                    viewModel.highPriceImpactWarningRowViewModel = nil
-                }
-            case .loading(.refreshRates):
-                // Do nothing
-                break
-            case .restriction(_, let quote):
-                if let quote = quote?.quote {
-                    try await viewModel.checkForHighPriceImpact(
-                        sourceAmount: quote.fromAmount,
-                        destinationAmount: quote.expectAmount
-                    )
-                }
-
-            case .readyToSwap(let data, _):
-                try await viewModel.checkForHighPriceImpact(
-                    sourceAmount: data.data.fromAmount,
-                    destinationAmount: data.data.toAmount
-                )
-            }
-        }
-    }
-
-    func checkForHighPriceImpact(sourceAmount: Decimal, destinationAmount: Decimal) async throws {
-        if sourceAmount.isZero {
-            // No need to calculate price impact with zero input
-            await runOnMain {
-                highPriceImpactWarningRowViewModel = nil
-            }
-            return
-        }
-
-        guard let senderCurrencyId = interactor.getSender().tokenItem.currencyId,
-              let destinationCurrencyId = interactor.getDestination()?.tokenItem.currencyId else {
-            throw CommonError.noData
-        }
-
-        let sourceFiatAmount = try await balanceConverter.convertToFiat(value: sourceAmount, from: senderCurrencyId)
-        let destinationFiatAmount = try await balanceConverter.convertToFiat(value: destinationAmount, from: destinationCurrencyId)
-
-        let lossesInPercents = (1 - destinationFiatAmount / sourceFiatAmount) * 100
-
-        await runOnMain {
-            let isHighPriceImpact = lossesInPercents >= Constants.highPriceImpactWarningLimit
-            updateHighPriceImpact(isHighPriceImpact: isHighPriceImpact)
         }
     }
 }
@@ -641,149 +574,37 @@ private extension ExpressViewModel {
 
 // MARK: - Restrictions
 
-private extension ExpressViewModel {
-    func update(restriction: ExpressInteractor.RestrictionType?) {
-        switch restriction {
-        case .none:
-            updateDestinationNotFoundViewModel(isShow: false)
-            updateRequiredPermission(isPermissionRequired: false)
-            updatePendingApprovingTransaction(hasPendingTransaction: false)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
-            updateRefreshWarningRowViewModel(message: .none)
-            updateHighPriceImpact(isHighPriceImpact: false)
+extension ExpressViewModel: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId) {}
 
-        case .destinationNotFound:
-            updateDestinationNotFoundViewModel(isShow: true)
-            updateRequiredPermission(isPermissionRequired: false)
-            updatePendingApprovingTransaction(hasPendingTransaction: false)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
-            updateRefreshWarningRowViewModel(message: .none)
-            updateHighPriceImpact(isHighPriceImpact: false)
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        guard
+            let notif = notificationInputs.first(where: { $0.id == id }),
+            notif.settings.event is ExpressNotificationEvent
+        else {
+            return
+        }
 
-        case .notEnoughAmountForSwapping:
-            updateDestinationNotFoundViewModel(isShow: false)
-            updateRequiredPermission(isPermissionRequired: false)
-            updatePendingApprovingTransaction(hasPendingTransaction: false)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
-            updateRefreshWarningRowViewModel(message: .none)
-            updateHighPriceImpact(isHighPriceImpact: false)
-
-        case .permissionRequired:
-            updateDestinationNotFoundViewModel(isShow: false)
-            updateRequiredPermission(isPermissionRequired: true)
-            updatePendingApprovingTransaction(hasPendingTransaction: false)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
-            updateRefreshWarningRowViewModel(message: .none)
-            updateHighPriceImpact(isHighPriceImpact: false)
-
-        case .hasPendingTransaction:
-            updateDestinationNotFoundViewModel(isShow: false)
-            updateRequiredPermission(isPermissionRequired: false)
-            updatePendingApprovingTransaction(hasPendingTransaction: true)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
-            updateRefreshWarningRowViewModel(message: .none)
-            updateHighPriceImpact(isHighPriceImpact: false)
-
-        case .notEnoughBalanceForSwapping:
-            updateDestinationNotFoundViewModel(isShow: false)
-            updateRequiredPermission(isPermissionRequired: false)
-            updatePendingApprovingTransaction(hasPendingTransaction: false)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
-            updateRefreshWarningRowViewModel(message: .none)
-            updateHighPriceImpact(isHighPriceImpact: false)
-
-        case .notEnoughAmountForFee:
-            updateDestinationNotFoundViewModel(isShow: false)
-            updateRequiredPermission(isPermissionRequired: false)
-            updatePendingApprovingTransaction(hasPendingTransaction: false)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: true)
-            updateRefreshWarningRowViewModel(message: .none)
-            updateHighPriceImpact(isHighPriceImpact: false)
-
-        case .requiredRefresh(let error):
-            updateDestinationNotFoundViewModel(isShow: false)
-            updateRequiredPermission(isPermissionRequired: false)
-            updatePendingApprovingTransaction(hasPendingTransaction: false)
-            updateEnoughAmountForFee(isNotEnoughAmountForFee: false)
-            updateRefreshWarningRowViewModel(message: mapToMessage(error: error))
-            updateHighPriceImpact(isHighPriceImpact: false)
+        switch action {
+        case .refresh:
+            didTapWaringRefresh()
+        case .openNetworkCurrency:
+            openNetworkCurrency()
+        default: return
         }
     }
 
-    func updateDestinationNotFoundViewModel(isShow: Bool) {
-        if isShow {
-            let name = interactor.getSender().tokenItem.blockchain.displayName
-            destinationNotFoundViewModel = DefaultWarningRowViewModel(
-                title: "No available tokens to swap",
-                subtitle: "You do not have any \(name) exchangeable coins in your list",
-                leftView: .icon(Assets.attention)
-            )
-        } else {
-            destinationNotFoundViewModel = nil
+    private func openNetworkCurrency() {
+        guard
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(initialWallet.tokenItem.blockchain) && $0.blockchainNetwork == initialWallet.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
+            return
         }
-    }
 
-    func updateRequiredPermission(isPermissionRequired: Bool) {
-        if isPermissionRequired {
-            let symbol = interactor.getSender().tokenItem.blockchain.currencySymbol
-            permissionInfoRowViewModel = DefaultWarningRowViewModel(
-                title: Localization.swappingGivePermission,
-                subtitle: Localization.swappingPermissionSubheader(symbol),
-                leftView: .icon(Assets.swapLock)
-            )
-        } else {
-            permissionInfoRowViewModel = nil
-        }
-    }
-
-    func updatePendingApprovingTransaction(hasPendingTransaction: Bool) {
-        if hasPendingTransaction {
-            pendingTransaction = DefaultWarningRowViewModel(
-                title: Localization.swappingPendingTransactionTitle,
-                subtitle: Localization.swappingPendingTransactionSubtitle,
-                leftView: .loader
-            )
-        } else {
-            pendingTransaction = nil
-        }
-    }
-
-    func updateEnoughAmountForFee(isNotEnoughAmountForFee: Bool) {
-        if isNotEnoughAmountForFee {
-            let symbol = interactor.getSender().tokenItem.blockchain.currencySymbol
-            feeWarningRowViewModel = DefaultWarningRowViewModel(
-                subtitle: Localization.swappingNotEnoughFundsForFee(symbol, symbol),
-                leftView: .icon(Assets.attention)
-            )
-        } else {
-            feeWarningRowViewModel = nil
-        }
-    }
-
-    func updateRefreshWarningRowViewModel(message: String?) {
-        if let message {
-            refreshWarningRowViewModel = DefaultWarningRowViewModel(
-                subtitle: Localization.swappingErrorWrapper(message.capitalizingFirstLetter()),
-                leftView: .icon(Assets.attention),
-                rightView: .icon(Assets.refreshWarningIcon)
-            ) { [weak self] in
-                self?.didTapWaringRefresh()
-            }
-        } else {
-            refreshWarningRowViewModel = nil
-        }
-    }
-
-    func updateHighPriceImpact(isHighPriceImpact: Bool) {
-        if isHighPriceImpact {
-            highPriceImpactWarningRowViewModel = DefaultWarningRowViewModel(
-                title: Localization.swappingHighPriceImpact,
-                subtitle: Localization.swappingHighPriceImpactDescription,
-                leftView: .icon(Assets.warningIcon)
-            )
-        } else {
-            highPriceImpactWarningRowViewModel = nil
-        }
+        coordinator.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
