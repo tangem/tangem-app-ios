@@ -442,14 +442,6 @@
 "send_transaction_success" = "交易已成功簽署並發送至區塊鏈節點。錢包餘額稍後更新";
 "send_validation_invalid_address" = "無效地址";
 "sent_transaction_sent_title" = "Transaction sent";
-"shop_buy_now" = "現在購買";
-"shop_i_have_a_promo_code" = "輸入折扣碼";
-"shop_one_wallet" = "Tangem Wallet";
-"shop_other_payment_methods" = "其他付款方式";
-"shop_placing_order" = "下訂";
-"shop_pre_order_now" = "Pre-order now";
-"shop_total" = "總計";
-"shop_web_checkout_title" = "你的訂單";
 "story_awe_description" = "安全地存儲您的加密貨幣，同時將私鑰保存在您的卡中";
 "story_awe_title" = "創新式的硬體錢包";
 "story_backup_description" = "最多 3張實體卡片 到一個錢包";
