@@ -192,9 +192,9 @@
 "express_choose_providers_title" = "Choose Provider";
 "express_fetch_best_rates" = "Fetching best rates...";
 "express_provider" = "Provider";
-"express_provider_best_rate" = "Best Rate";
+"express_provider_best_rate" = "Best rate";
 "express_provider_min_amount" = "Available from %@";
-"express_provider_not_available" = "Not available";
+"express_provider_not_available" = "Unavailable to this pair";
 "express_provider_permission_needed" = "Permission Needed";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
@@ -619,6 +619,7 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
 "warning_express_refresh_required_title" = "Service temporary unavailable";
+"warning_express_too_minimal_amount" = "The amount to swap must be at least %@";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
 "warning_failed_to_verify_card_title" = "認證檢查失敗";
 "warning_long_transaction_message" = "iPhone 7/7+ cannot sign transactions on this network. To complete this operation, please use a different phone.";
