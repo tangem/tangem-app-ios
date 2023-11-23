@@ -521,6 +521,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                     if let selectedModel = self.selectedModel {
                         if keys.count == self.userWallets.count {
+                            self.eventSubject.send(.unlocked(method: .biometry))
                             completion(.success(selectedModel))
                         } else {
                             completion(.partial(selectedModel, UserWalletRepositoryError.biometricsChanged))
@@ -600,6 +601,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 sendEvent(.updated(userWalletModel: cardModel))
 
+                eventSubject.send(.unlocked(method: .card(userWallet: cardModel.userWallet)))
                 completion(.success(cardModel))
             }
             .store(in: &bag)
