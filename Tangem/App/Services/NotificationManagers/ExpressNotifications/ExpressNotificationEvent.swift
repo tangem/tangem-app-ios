@@ -31,7 +31,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName)
         case .notEnoughAmountToSwap(let minimumAmountText):
-            return Localization.sendNotificationInvalidReserveAmountTitle(minimumAmountText)
+            return Localization.warningExpressTooMinimalAmount(minimumAmountText)
         case .noDestinationTokens:
             return Localization.warningExpressNoExchangeableCoinsTitle
         case .highPriceImpact:
