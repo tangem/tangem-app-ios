@@ -195,10 +195,25 @@ extension ExpressInteractor {
     }
 
     func sendApproveTransaction() async throws {
-        // [REDACTED_INFO]
-        try await Task.sleep(seconds: 1)
+        guard case .restriction(.permissionRequired(let state), _) = getState() else {
+            throw ExpressInteractorError.transactionDataNotFound
+        }
+
+        guard let fee = state.fees[getFeeOption()] else {
+            throw ExpressInteractorError.feeNotFound
+        }
+
+        let sender = getSender()
+        let transaction = try await expressTransactionBuilder.makeApproveTransaction(
+            wallet: sender,
+            data: state.data,
+            fee: fee,
+            contractAddress: state.toContractAddress
+        )
+        let result = try await sender.send(transaction, signer: signer).async()
+        logger.debug("Sent the approve transaction with result: \(result)")
         expressPendingTransactionRepository.didSendApproveTransaction()
-        refresh(type: .full)
+        updateState(.restriction(.hasPendingTransaction, quote: getState().quote))
     }
 }
 
@@ -388,8 +403,8 @@ private extension ExpressInteractor {
 
     func makeApproveData(wallet: ExpressWallet, spender: String) async throws -> Data {
         let amount = try await getApproveAmount()
-
-        return allowanceProvider.makeApproveData(spender: spender, amount: amount)
+        let wei = wallet.convertToWEI(value: amount)
+        return allowanceProvider.makeApproveData(spender: spender, amount: wei)
     }
 }
 
@@ -510,9 +525,13 @@ private extension ExpressInteractor {
                 try Task.checkCancellation()
 
                 updateState(state)
-            } catch is CancellationError {
-                // Do nothing
             } catch {
+                if error is CancellationError || Task.isCancelled {
+                    // Do nothing
+                    log("The update task was cancelled")
+                    return
+                }
+
                 let quote = getState().quote
                 updateState(.restriction(.requiredRefresh(occurredError: error), quote: quote))
             }
