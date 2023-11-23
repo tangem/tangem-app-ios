@@ -10,7 +10,8 @@ import Foundation
 import Combine
 
 struct MainBottomSheetVisibility {
-    var isShown: some Publisher<Bool, Never> { isShownSubject }
+    var isShown: Bool { isShownSubject.value }
+    var isShownPublisher: some Publisher<Bool, Never> { isShownSubject }
     private let isShownSubject: CurrentValueSubject<Bool, Never> = .init(false)
 
     mutating func show() {
