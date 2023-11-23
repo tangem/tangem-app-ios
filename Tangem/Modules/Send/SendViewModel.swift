@@ -31,7 +31,7 @@ final class SendViewModel: ObservableObject {
     var showNextButton: Bool {
         nextStep != nil
     }
-    
+
     var showQRCodeButton: Bool {
         switch step {
         case .amount, .destination:
@@ -139,10 +139,8 @@ final class SendViewModel: ObservableObject {
 
         step = previousStep
     }
-    
-    func scanQRCode() {
-        
-    }
+
+    func scanQRCode() {}
 
     private func bind() {
         currentStepValid
