@@ -27,6 +27,9 @@ final class ExpressViewModel: ObservableObject {
     @Published var permissionInfoRowViewModel: DefaultWarningRowViewModel?
     @Published var feeWarningRowViewModel: DefaultWarningRowViewModel?
 
+    // Provider
+    @Published var providerState: ProviderState?
+
     // Fee
     @Published var expressFeeRowViewModel: ExpressFeeRowData?
 
@@ -52,6 +55,7 @@ final class ExpressViewModel: ObservableObject {
     private let swappingFeeFormatter: SwappingFeeFormatter
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
+    private let expressProviderFormatter: ExpressProviderFormatter
     private unowned let interactor: ExpressInteractor
     private unowned let coordinator: ExpressRoutable
 
@@ -66,6 +70,7 @@ final class ExpressViewModel: ObservableObject {
         swappingFeeFormatter: SwappingFeeFormatter,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
+        expressProviderFormatter: ExpressProviderFormatter,
         interactor: ExpressInteractor,
         coordinator: ExpressRoutable
     ) {
@@ -73,6 +78,7 @@ final class ExpressViewModel: ObservableObject {
         self.swappingFeeFormatter = swappingFeeFormatter
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
+        self.expressProviderFormatter = expressProviderFormatter
         self.interactor = interactor
         self.coordinator = coordinator
 
@@ -109,11 +115,11 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapChangeSourceButton() {
-        coordinator.presentSwappingTokenList(walletType: .toDestination(initialWallet))
+        coordinator.presentSwappingTokenList(swapDirection: .toDestination(initialWallet))
     }
 
     func userDidTapChangeDestinationButton() {
-        coordinator.presentSwappingTokenList(walletType: .fromSource(initialWallet))
+        coordinator.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
     func didTapMainButton() {
@@ -162,6 +168,19 @@ private extension ExpressViewModel {
 
         stopTimer()
         coordinator.presentApproveView()
+    }
+
+    func openFeeSelectorView() {
+        guard interactor.getState().isAvailableToSendTransaction else {
+            return
+        }
+
+        stopTimer()
+        coordinator.presentFeeSelectorView()
+    }
+
+    func presentProviderSelectorView() {
+        coordinator.presentProviderSelectorView()
     }
 }
 
@@ -373,6 +392,7 @@ private extension ExpressViewModel {
 
     func updateState(state: ExpressInteractor.ExpressInteractorState) {
         updateFeeValue(state: state)
+        updateProviderView(state: state)
 
         // The HighPriceImpact warning can't be a restriction
         // because it can be visible even on readyToSwap state
@@ -415,12 +435,27 @@ private extension ExpressViewModel {
             restartTimer()
 
             updateReceiveCurrencyValue(expectAmount: quote.quote?.expectAmount)
-            runTask(in: self) { viewModel in
-                try await viewModel.checkForHighPriceImpact(
-                    sourceAmount: data.data.fromAmount,
-                    destinationAmount: data.data.toAmount
-                )
+        }
+    }
+
+    func updateProviderView(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .idle:
+            providerState = .none
+        case .loading(let type):
+            if type == .full {
+                providerState = .loading
             }
+        case .restriction(_, let quote):
+            if let quote {
+                let data = mapToProviderRowViewModel(expectedQuote: quote)
+                providerState = .loaded(data: data)
+            } else {
+                providerState = .none
+            }
+
+        case .readyToSwap(_, let quote):
+            providerState = .loaded(data: mapToProviderRowViewModel(expectedQuote: quote))
         }
     }
 
@@ -446,31 +481,30 @@ private extension ExpressViewModel {
             )
 
             expressFeeRowViewModel = ExpressFeeRowData(title: Localization.sendFeeLabel, subtitle: formattedFee) { [weak self] in
-                self?.coordinator.presentFeeSelectorView()
+                self?.openFeeSelectorView()
             }
         }
     }
 
     func updateMainButton(state: ExpressInteractor.ExpressInteractorState) {
         switch state {
-        case .idle:
+        case .idle, .loading(type: .full):
             mainButtonState = .swap
             mainButtonIsEnabled = false
-        case .loading(let type):
-            if type == .full {
-                mainButtonIsEnabled = false
-            }
+        case .loading(type: .refreshRates):
+            // Do nothing
+            break
         case .restriction(let type, _):
             switch type {
             case .permissionRequired:
                 mainButtonState = .givePermission
                 mainButtonIsEnabled = true
 
-            case .hasPendingTransaction, .requiredRefresh:
+            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
-            case .notEnoughAmountForFee, .notEnoughAmountForSwapping, .notEnoughBalanceForSwapping:
+            case .notEnoughAmountForFee, .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
                 mainButtonIsEnabled = false
             }
@@ -561,12 +595,35 @@ private extension ExpressViewModel {
             symbol: wallet.tokenItem.currencySymbol
         )
     }
+
+    func mapToProviderRowViewModel(expectedQuote: ExpectedQuote) -> ProviderRowViewModel {
+        let subtitle = expressProviderFormatter.mapToRateSubtitle(
+            quote: expectedQuote,
+            senderCurrencyCode: interactor.getSender().tokenItem.currencySymbol,
+            destinationCurrencyCode: interactor.getDestination()?.tokenItem.currencySymbol,
+            option: .exchangeRate
+        )
+
+        return ProviderRowViewModel(
+            provider: expressProviderFormatter.mapToProvider(provider: expectedQuote.provider),
+            isDisabled: false,
+            badge: expectedQuote.isBest ? .bestRate : .none,
+            subtitles: [subtitle],
+            detailsType: .chevron
+        ) { [weak self] in
+            self?.presentProviderSelectorView()
+        }
+    }
 }
 
 // MARK: - Methods
 
 private extension ExpressViewModel {
     func sendTransaction() {
+        guard interactor.getState().isAvailableToSendTransaction else {
+            return
+        }
+
         stopTimer()
         runTask(in: self) { root in
             do {
@@ -735,6 +792,20 @@ private extension ExpressViewModel {
 }
 
 extension ExpressViewModel {
+    enum ProviderState: Identifiable {
+        var id: Int {
+            switch self {
+            case .loading:
+                return "loading".hashValue
+            case .loaded(let data):
+                return data.id
+            }
+        }
+
+        case loading
+        case loaded(data: ProviderRowViewModel)
+    }
+
     enum MainButtonState: Hashable, Identifiable {
         var id: Int { hashValue }
 
