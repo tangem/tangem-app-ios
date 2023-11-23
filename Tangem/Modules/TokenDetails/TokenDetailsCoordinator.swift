@@ -23,6 +23,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var swappingCoordinator: SwappingCoordinator? = nil
+    @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     // MARK: - Child view models
@@ -45,7 +46,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
-        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel)
+        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel, contextDataProvider: options.cardModel)
 
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.cardModel,
@@ -139,7 +140,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+    func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel) {
         guard FeatureProvider.isAvailable(.sendV2) else {
             let coordinator = LegacySendCoordinator { [weak self] in
                 self?.legacySendCoordinator = nil
@@ -158,12 +159,16 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }
-        let options = SendCoordinator.Options()
+        let options = SendCoordinator.Options(
+            walletModel: walletModel,
+            transactionSigner: cardViewModel.signer,
+            type: .send
+        )
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+    func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel) {
         guard FeatureProvider.isAvailable(.sendV2) else {
             let coordinator = LegacySendCoordinator { [weak self] in
                 self?.legacySendCoordinator = nil
@@ -179,7 +184,16 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        assertionFailure("[REDACTED_TODO_COMMENT]")
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
+        let options = SendCoordinator.Options(
+            walletModel: walletModel,
+            transactionSigner: cardViewModel.signer,
+            type: .sell(amount: amountToSend.value, destination: destination)
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
     }
 
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
@@ -208,6 +222,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
+        if FeatureProvider.isAvailable(.express) {
+            openExpress(input: input)
+            return
+        }
+
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.swappingCoordinator = nil
         }
@@ -222,6 +241,23 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         coordinator.start(with: .default)
 
         swappingCoordinator = coordinator
+    }
+
+    func openExpress(input: CommonSwappingModulesFactory.InputModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.expressCoordinator = nil
+        }
+
+        let factory = CommonSwappingModulesFactory(inputModel: input)
+        let coordinator = ExpressCoordinator(
+            factory: factory,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .default)
+
+        expressCoordinator = coordinator
     }
 
     func openExplorer(at url: URL, blockchainDisplayName: String) {
