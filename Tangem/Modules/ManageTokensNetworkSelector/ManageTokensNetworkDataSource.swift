@@ -33,7 +33,7 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     // MARK: - Init
 
     init(_ dataSource: ManageTokensDataSource) {
-        userWalletModels = dataSource.userWalletModels.filter { $0.isMultiWallet }
+        userWalletModels = dataSource.userWalletModelsSubject.value.filter { $0.isMultiWallet }
 
         let selectedUserWalletModel = userWalletModels.first { userWalletModel in
             userWalletModel.userWalletId == dataSource.defaultUserWalletModel?.userWalletId
