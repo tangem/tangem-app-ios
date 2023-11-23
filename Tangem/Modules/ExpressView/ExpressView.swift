@@ -135,6 +135,7 @@ struct ExpressView: View {
             MainButton(
                 title: viewModel.mainButtonState.title,
                 icon: viewModel.mainButtonState.icon,
+                isLoading: viewModel.mainButtonIsLoading,
                 isDisabled: !viewModel.mainButtonIsEnabled,
                 action: viewModel.didTapMainButton
             )
