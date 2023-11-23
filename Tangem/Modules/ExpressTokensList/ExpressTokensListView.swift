@@ -15,23 +15,22 @@ struct ExpressTokensListView: View {
         self.viewModel = viewModel
     }
 
-    private var isEmpty: Bool {
-        viewModel.availableTokens.isEmpty && viewModel.unavailableTokens.isEmpty
-    }
-
     var body: some View {
-        ZStack(alignment: .center) {
-            Colors.Background.secondary.ignoresSafeArea(.all)
+        NavigationView {
+            ZStack(alignment: .center) {
+                Colors.Background.secondary.ignoresSafeArea(.all)
 
-            content
+                content
+            }
+            .navigationTitle(Localization.swappingTokenListTitle)
+            .searchableCompat(text: $viewModel.searchText)
         }
-        .navigationTitle(Localization.swappingTokenListTitle)
-        .searchableCompat(text: $viewModel.searchText)
+        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
     private var content: some View {
-        if isEmpty {
+        if viewModel.isEmptyView {
             emptyContent
         } else {
             listContent
@@ -85,12 +84,12 @@ struct ExpressTokensListView: View {
     }
 }
 
-struct ExpressTokensListView_Preview: PreviewProvider {
-    static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
+/*
+ struct ExpressTokensListView_Preview: PreviewProvider {
+     static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
 
-    static var previews: some View {
-        NavigationView {
-            ExpressTokensListView(viewModel: viewModel)
-        }
-    }
-}
+     static var previews: some View {
+          ExpressTokensListView(viewModel: viewModel)
+     }
+ }
+ */
