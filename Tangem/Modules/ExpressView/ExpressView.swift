@@ -22,9 +22,7 @@ struct ExpressView: View {
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
-                permissionInfoSection
-
-                warningSections
+                providerSection
 
                 informationSection
 
@@ -32,6 +30,8 @@ struct ExpressView: View {
             }
             .scrollDismissesKeyboardCompat(true)
             // For animate button below informationSection
+            .animation(.easeInOut, value: viewModel.providerState?.id)
+            .animation(.easeInOut, value: viewModel.expressFeeRowViewModel == nil)
             .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
 
             mainButton
@@ -54,7 +54,7 @@ struct ExpressView: View {
                     )
                     .didTapMaxAmount(viewModel.userDidTapMaxAmount)
                     .didTapChangeCurrency {
-                        viewModel.userDidTapChangeCurrencyButton()
+                        viewModel.userDidTapChangeSourceButton()
                     }
                 }
 
@@ -74,7 +74,7 @@ struct ExpressView: View {
     @ViewBuilder
     private var swappingButton: some View {
         Group {
-            if viewModel.swapButtonIsLoading {
+            if viewModel.isSwapButtonLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
             } else {
@@ -97,27 +97,6 @@ struct ExpressView: View {
     }
 
     @ViewBuilder
-    private var permissionInfoSection: some View {
-        GroupedSection(viewModel.permissionInfoRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-    }
-
-    @ViewBuilder
-    private var warningSections: some View {
-        GroupedSection(viewModel.highPriceImpactWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-
-        GroupedSection(viewModel.refreshWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-    }
-
-    @ViewBuilder
     private var informationSection: some View {
         GroupedSection(viewModel.informationSectionViewModels) {
             DefaultWarningRow(viewModel: $0)
@@ -129,6 +108,20 @@ struct ExpressView: View {
     private var feeSection: some View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
+        }
+        .interSectionPadding(12)
+        .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var providerSection: some View {
+        GroupedSection(viewModel.providerState) { state in
+            switch state {
+            case .loading:
+                LoadingProvidersRow()
+            case .loaded(let data):
+                ProviderRowView(viewModel: data)
+            }
         }
         .interSectionPadding(12)
         .verticalPadding(0)
