@@ -10,43 +10,35 @@ import Foundation
 import Combine
 
 class ManageTokensNetworkDataSource: WalletSelectorDataSource {
-    // MARK: - Injected
-
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    // MARK: - Properties
 
     var userWalletModels: [UserWalletModel] = []
     var selectedUserWalletModelPublisher: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
-    // MARK: - Init
+    var walletSelectorItemViewModels: [WalletSelectorItemViewModel] {
+        userWalletModels.map { userWalletModel in
+            WalletSelectorItemViewModel(
+                userWalletModel: userWalletModel,
+                isSelected: userWalletModel.userWalletId == selectedUserWalletModelPublisher.value?.userWalletId,
+                cardImageProvider: CardImageProvider()
+            ) { [weak self] userWalletId in
+                guard let self = self else { return }
 
-    init(tokenItems: [TokenItem]) {
-        userWalletModels = userWalletModels(for: tokenItems)
-
-        let selectedUserWalletModel = selectedUserWalletModel()
-        selectedUserWalletModelPublisher.send(selectedUserWalletModel)
-    }
-
-    // MARK: - Private Implementation
-
-    /// Full available list of wallets for selection
-    private func userWalletModels(for tokenItems: [TokenItem]) -> [UserWalletModel] {
-        userWalletRepository.models.filter { userWalletModel in
-            let walletCondition = userWalletModel.isMultiWallet && !userWalletModel.isUserWalletLocked
-
-            if tokenItems.isEmpty {
-                return walletCondition
-            } else {
-                return walletCondition && !userWalletModel.config.supportedBlockchains.filter { blockchain in
-                    tokenItems.map { $0.blockchain }.contains(blockchain)
-                }.isEmpty
+                let selectedUserWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletId })
+                selectedUserWalletModelPublisher.send(selectedUserWalletModel)
             }
         }
     }
 
-    /// Return of first selected wallet for display
-    private func selectedUserWalletModel() -> UserWalletModel? {
-        userWalletModels.first { userWalletModel in
-            userWalletModel.userWalletId == userWalletRepository.selectedUserModelModel?.userWalletId
+    // MARK: - Init
+
+    init(_ dataSource: ManageTokensDataSource) {
+        userWalletModels = dataSource.userWalletModels.filter { $0.isMultiWallet }
+
+        let selectedUserWalletModel = userWalletModels.first { userWalletModel in
+            userWalletModel.userWalletId == dataSource.defaultUserWalletModel?.userWalletId
         } ?? userWalletModels.first
+
+        selectedUserWalletModelPublisher.send(selectedUserWalletModel)
     }
 }
