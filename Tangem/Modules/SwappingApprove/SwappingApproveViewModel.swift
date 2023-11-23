@@ -282,10 +282,6 @@ private extension SwappingApproveViewModel {
             updateFeeAmount(fees: state.fees)
             isLoading = false
             mainButtonIsDisabled = false
-        case .readyToSwap(let state, quote: _):
-            updateFeeAmount(fees: state.fees)
-            isLoading = false
-            mainButtonIsDisabled = false
         case .loading:
             feeRowViewModel?.update(detailsType: .loader)
             isLoading = true
@@ -294,7 +290,8 @@ private extension SwappingApproveViewModel {
             errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
             isLoading = false
             mainButtonIsDisabled = true
-        case .idle, .restriction:
+        default:
+            assertionFailure("Wrong state for this view")
             updateFeeRowViewModel(fee: 0, fiatFee: 0)
             isLoading = false
             mainButtonIsDisabled = true
