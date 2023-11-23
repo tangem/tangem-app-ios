@@ -187,7 +187,7 @@ class SendModel {
 
     // MARK: - Amount
 
-    private func setAmount(_ amountText: String) {
+    func setAmount(_ amountText: String) {
         _amountText = amountText
         validateAmount()
     }
@@ -210,7 +210,7 @@ class SendModel {
 
     // MARK: - Destination and memo
 
-    private func setDestination(_ destinationText: String) {
+    func setDestination(_ destinationText: String) {
         _destinationText = destinationText
         validateDestination()
     }
