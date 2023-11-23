@@ -26,8 +26,10 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel? = nil
+    @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel?
     private lazy var __headerViewModel = MainBottomSheetHeaderViewModel()
+
+    @Published private(set) var overlayViewModel: MainBottomSheetOverlayViewModel?
 
     // MARK: - Private Properties
 
@@ -51,7 +53,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     private func bind() {
         bottomSheetVisibility
-            .isShown
+            .isShownPublisher
             .map { [weak self] isShown in
                 return isShown ? self?.__headerViewModel : nil
             }
@@ -68,7 +70,32 @@ class MainBottomSheetCoordinator: CoordinatorObject {
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
+        coordinator.delegate = self
         coordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
         manageTokensCoordinator = coordinator
+    }
+}
+
+// MARK: - ManageTokensCoordinatorDelegate protocol conformance
+
+extension MainBottomSheetCoordinator: ManageTokensCoordinatorDelegate {
+    func showGenerateAddressesWarning(
+        numberOfNetworks: Int,
+        currentWalletNumber: Int,
+        totalWalletNumber: Int,
+        action: @escaping () -> Void
+    ) {
+        overlayViewModel = .generateAddresses(
+            viewModel: GenerateAddressesViewModel(
+                numberOfNetworks: numberOfNetworks,
+                currentWalletNumber: currentWalletNumber,
+                totalWalletNumber: totalWalletNumber,
+                didTapGenerate: action
+            )
+        )
+    }
+
+    func hideGenerateAddressesWarning() {
+        overlayViewModel = nil
     }
 }
