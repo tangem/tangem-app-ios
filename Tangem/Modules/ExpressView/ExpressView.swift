@@ -24,15 +24,14 @@ struct ExpressView: View {
 
                 providerSection
 
-                informationSection
-
                 feeSection
+
+                informationSection
             }
             .scrollDismissesKeyboardCompat(true)
             // For animate button below informationSection
             .animation(.easeInOut, value: viewModel.providerState?.id)
             .animation(.easeInOut, value: viewModel.expressFeeRowViewModel == nil)
-            .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
 
             mainButton
         }
@@ -41,6 +40,7 @@ struct ExpressView: View {
         .onDisappear {
             viewModel.onDisappear()
         }
+        .animation(.default, value: viewModel.notificationInputs)
     }
 
     @ViewBuilder
@@ -98,10 +98,11 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var informationSection: some View {
-        GroupedSection(viewModel.informationSectionViewModels) {
-            DefaultWarningRow(viewModel: $0)
+        ForEach(viewModel.notificationInputs) {
+            NotificationView(input: $0)
+                .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
+                .transition(.notificationTransition)
         }
-        .verticalPadding(0)
     }
 
     @ViewBuilder
