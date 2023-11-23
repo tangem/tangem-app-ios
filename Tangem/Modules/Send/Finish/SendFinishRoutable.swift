@@ -11,5 +11,5 @@ import Foundation
 protocol SendFinishRoutable: AnyObject {
     func explore(url: URL)
     func share(url: URL)
-    func close()
+    func dismiss()
 }
