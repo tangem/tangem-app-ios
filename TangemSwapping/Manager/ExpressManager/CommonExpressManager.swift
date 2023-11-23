@@ -14,7 +14,6 @@ actor CommonExpressManager {
 
     private let expressAPIProvider: ExpressAPIProvider
     private let allowanceProvider: AllowanceProvider
-    private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let logger: SwappingLogger
 
     // MARK: - State
@@ -35,12 +34,10 @@ actor CommonExpressManager {
     init(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
-        expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         logger: SwappingLogger
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.allowanceProvider = allowanceProvider
-        self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.logger = logger
     }
 }
@@ -49,18 +46,23 @@ actor CommonExpressManager {
 
 extension CommonExpressManager: ExpressManager {
     func getPair() -> ExpressManagerSwappingPair? {
-        _pair
+        return _pair
     }
 
     func getAmount() -> Decimal? {
-        _amount
+        return _amount
     }
 
-    func getSelectedProvider() -> ExpressProvider? {
-        selectedQuote?.provider
+    func getAllQuotes() async -> [ExpectedQuote] {
+        return availableQuotes
+    }
+
+    func getSelectedQuote() -> ExpectedQuote? {
+        return selectedQuote
     }
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
+        assert(pair.source.expressCurrency != pair.destination.expressCurrency, "Pair has equal currencies")
         _pair = pair
 
         // Clear for reselected the best quote
@@ -89,7 +91,7 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update() async throws -> ExpressManagerState {
-        try await getState()
+        try await updateState()
     }
 }
 
@@ -97,7 +99,7 @@ extension CommonExpressManager: ExpressManager {
 
 private extension CommonExpressManager {
     /// Return the state which checking the all properties
-    func getState() async throws -> ExpressManagerState {
+    func updateState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
             logger.debug("ExpressManagerSwappingPair not found")
             return .idle
@@ -187,7 +189,6 @@ private extension CommonExpressManager {
         }
 
         let best = try bestQuote(from: quotes)
-
         selectedQuote = best
         return best
     }
@@ -199,12 +200,30 @@ private extension CommonExpressManager {
         try Task.checkCancellation()
 
         let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
+
+        // Find the best quote
+        let best = quotes
+            .compactMapValues { try? $0.get() }
+            .max { $0.value.expectAmount < $1.value.expectAmount }?.value
+
         let allQuotes: [ExpectedQuote] = allProviders.map { provider in
-            if let loadedQuote = quotes[provider.id] {
-                return ExpectedQuote(provider: provider, state: loadedQuote)
+            guard let loadedQuoteResult = quotes[provider.id] else {
+                return ExpectedQuote(provider: provider, state: .notAvailable, isBest: false)
             }
 
-            return ExpectedQuote(provider: provider, state: .notAvailable)
+            switch loadedQuoteResult {
+            case .success(let quote):
+                let isBest = best == quote
+                return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
+            case .failure(let error as ExpressDTO.ExpressAPIError):
+                if error.code == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
+                    return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
+                }
+
+                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+            case .failure(let error):
+                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+            }
         }
 
         return allQuotes
@@ -215,38 +234,37 @@ private extension CommonExpressManager {
             throw ExpressManagerError.quotesNotFound
         }
 
-        let sortedQuotes = quotes.sorted { lhs, rhs in
-            let lhsAmount = lhs.quote?.expectAmount ?? 0
-            let rhsAmount = rhs.quote?.expectAmount ?? 0
+        let availableQuotes = quotes.filter { $0.isAvailable }
 
-            return lhsAmount > rhsAmount
+        if availableQuotes.isEmpty, let firstWithError = quotes.first(where: { $0.isError }) {
+            return firstWithError
         }
 
-        guard let bestExpectedQuote = sortedQuotes.first else {
-            throw ExpressManagerError.quotesNotFound
+        if let bestAvailable = availableQuotes.first(where: { $0.isBest }) {
+            return bestAvailable
         }
 
-        return bestExpectedQuote
+        throw ExpressManagerError.quotesNotFound
     }
 
-    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: ExpectedQuote.State] {
-        typealias TaskValue = (id: Int, quote: ExpectedQuote.State)
+    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: Result<ExpressQuote, Error>] {
+        typealias TaskValue = (id: Int, result: Result<ExpressQuote, Error>)
 
-        let quotes: [Int: ExpectedQuote.State] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
+        let quotes: [Int: Result<ExpressQuote, Error>] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
             providerIds.forEach { providerId in
 
                 // Run a parallel asynchronous task and collect it into the group
                 _ = taskGroup.addTaskUnlessCancelled { [weak self] in
                     guard let self else {
-                        return (providerId, .error("CommonError.objectReleased"))
+                        return (providerId, .failure(ExpressManagerError.objectReleased))
                     }
 
                     do {
                         let item = await makeExpressSwappableItem(request: request, providerId: providerId)
                         let quote = try await expressAPIProvider.exchangeQuote(item: item)
-                        return (providerId, .quote(quote))
+                        return (providerId, .success(quote))
                     } catch {
-                        return (providerId, .error(error.localizedDescription))
+                        return (providerId, .failure(error))
                     }
                 }
             }
@@ -270,6 +288,10 @@ private extension CommonExpressManager {
             return .notEnoughAmountForSwapping(minAmount)
         }
 
+        if case .tooSmallAmount(let minAmount) = quote.state {
+            return .notEnoughAmountForSwapping(minAmount)
+        }
+
         // 2. Check Permission
 
         if let spender = quote.quote?.allowanceContract {
@@ -280,15 +302,7 @@ private extension CommonExpressManager {
             }
         }
 
-        // 3. Check Pending
-
-        let hasPendingTransaction = expressPendingTransactionRepository.hasPending(for: request.pair.source.expressCurrency.network)
-
-        if hasPendingTransaction {
-            return .hasPendingTransaction
-        }
-
-        // 4. Check Balance
+        // 3. Check Balance
 
         let sourceBalance = try await request.pair.source.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
@@ -312,12 +326,13 @@ private extension CommonExpressManager {
 
         assert(contractAddress != ExpressConstants.coinContractAddress)
 
-        let allowance = try await allowanceProvider.getAllowance(
+        let allowanceWEI = try await allowanceProvider.getAllowance(
             owner: request.pair.source.defaultAddress,
             to: spender,
             contract: contractAddress
         )
 
+        let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
         return allowance < request.amount
     }
 }
