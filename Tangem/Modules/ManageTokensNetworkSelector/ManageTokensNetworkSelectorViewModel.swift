@@ -16,7 +16,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Published Properties
 
     @Published var currentWalletName: String = ""
-    @Published var notificationViewModel: ManageTokensNetworkSelectorNotificationViewModel?
+    @Published var notificationInput: NotificationViewInput?
 
     @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
     @Published var nonNativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
@@ -63,7 +63,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Init
 
     init(
-        dataSource: ManageTokensDataSource,
+        parentDataSource: ManageTokensDataSource,
         coinId: String,
         tokenItems: [TokenItem],
         coordinator: ManageTokensNetworkSelectorRoutable
@@ -71,11 +71,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
-        self.dataSource = ManageTokensNetworkDataSource(dataSource)
-
-        notificationViewModel = .init(coinId: coinId)
+        dataSource = ManageTokensNetworkDataSource(parentDataSource)
 
         bind()
+        setNeedDisplayNotification(with: parentDataSource)
     }
 
     // MARK: - Implementation
@@ -143,6 +142,17 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     isAvailable: isAvailableTokenSelection()
                 )
             }
+    }
+
+    private func setNeedDisplayNotification(with parentDataSource: ManageTokensDataSource) {
+        if dataSource.userWalletModels.isEmpty {
+            if let defaultUserWalletModel = parentDataSource.defaultUserWalletModel,
+               defaultUserWalletModel.config.supportedBlockchains.contains(where: { $0.coinId != coinId }) {
+                displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
+            } else {
+                notificationInput = nil
+            }
+        }
     }
 
     private func saveChanges() {
@@ -344,6 +354,17 @@ private extension ManageTokensNetworkSelectorViewModel {
                 }
             )
         }
+    }
+
+    func displayWarningNotification(for event: WarningEvent) {
+        let notificationsFactory = NotificationsFactory()
+
+        notificationInput = notificationsFactory.buildNotificationInput(
+            for: event,
+            action: { _ in },
+            buttonAction: { _, _ in },
+            dismissAction: { _ in }
+        )
     }
 }
 
