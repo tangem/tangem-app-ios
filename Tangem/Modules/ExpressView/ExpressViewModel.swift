@@ -324,7 +324,7 @@ private extension ExpressViewModel {
 
     func updateReceiveView(wallet: WalletModel?) {
         guard let wallet = wallet else {
-            receiveCurrencyViewModel?.canChangeCurrency = false
+            receiveCurrencyViewModel?.canChangeCurrency = true
             receiveCurrencyViewModel?.tokenIconState = .notAvailable
             receiveCurrencyViewModel?.isAvailable = false
             return
@@ -333,6 +333,7 @@ private extension ExpressViewModel {
         receiveCurrencyViewModel?.isAvailable = true
         receiveCurrencyViewModel?.canChangeCurrency = wallet.id != initialWallet.id
         receiveCurrencyViewModel?.tokenIconState = mapToSwappingTokenIconViewModelState(wallet: wallet)
+        updateReceiveCurrencyBalance(wallet: wallet)
 
         let state = interactor.getState()
         switch state {
