@@ -34,13 +34,13 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private var bag = Set<AnyCancellable>()
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorRoutable
-    private let networkDataSource: ManageTokensNetworkDataSource
+    private let dataSource: ManageTokensNetworkDataSource
 
     private let coinId: String
     private let tokenItems: [TokenItem]
 
     private var selectedUserWalletModel: UserWalletModel? {
-        networkDataSource.selectedUserWalletModelPublisher.value
+        dataSource.selectedUserWalletModelPublisher.value
     }
 
     private var settings: ManageTokensSettings? {
@@ -63,6 +63,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Init
 
     init(
+        dataSource: ManageTokensDataSource,
         coinId: String,
         tokenItems: [TokenItem],
         coordinator: ManageTokensNetworkSelectorRoutable
@@ -70,8 +71,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
+        self.dataSource = ManageTokensNetworkDataSource(dataSource)
 
-        networkDataSource = ManageTokensNetworkDataSource(tokenItems: tokenItems)
         notificationViewModel = .init(coinId: coinId)
 
         bind()
@@ -80,12 +81,12 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Implementation
 
     func onAppear() {
-        fillSelectorItemsFromTokenItems()
+        reloadSelectorItemsFromTokenItems()
     }
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
-//        coordinator.openWalletSelector(with: networkDataSource)
+        coordinator.openWalletSelector(with: dataSource)
     }
 
     func displayNonNativeNetworkAlert() {
@@ -101,14 +102,14 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private func bind() {
-        networkDataSource.selectedUserWalletModelPublisher
+        dataSource.selectedUserWalletModelPublisher
             .sink { [weak self] userWalletModel in
                 self?.setNeedSelectWallet(userWalletModel)
             }
             .store(in: &bag)
     }
 
-    private func fillSelectorItemsFromTokenItems() {
+    private func reloadSelectorItemsFromTokenItems() {
         nativeSelectorItems = tokenItems
             .filter {
                 $0.isBlockchain
@@ -157,7 +158,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func isAvailableTokenSelection() -> Bool {
-        !networkDataSource.userWalletModels.isEmpty
+        !dataSource.userWalletModels.isEmpty
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
@@ -232,7 +233,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
         currentWalletName = userWalletModel?.config.cardName ?? ""
 
-        fillSelectorItemsFromTokenItems()
+        reloadSelectorItemsFromTokenItems()
     }
 }
 
