@@ -84,12 +84,14 @@ struct ExpressSuccessSentView: View {
                         action: viewModel.openExplore
                     )
 
-                    MainButton(
-                        title: Localization.commonShare,
-                        icon: .leading(Assets.share),
-                        style: .secondary,
-                        action: viewModel.openShare
-                    )
+                    if viewModel.isStatusButtonVisible {
+                        MainButton(
+                            title: Localization.commonShare,
+                            icon: .leading(Assets.share),
+                            style: .secondary,
+                            action: viewModel.openCEXStatus
+                        )
+                    }
                 }
 
                 MainButton(
@@ -103,18 +105,20 @@ struct ExpressSuccessSentView: View {
     }
 }
 
-struct ExpressSuccessSentView_Preview: PreviewProvider {
-    static let viewModel = ExpressSuccessSentViewModel(
-        input: .init(),
-        coordinator: ExpressSuccessSentRoutableMock()
-    )
+/*
+ struct ExpressSuccessSentView_Preview: PreviewProvider {
+     static let viewModel = ExpressSuccessSentViewModel(
+         input: .init(),
+         coordinator: ExpressSuccessSentRoutableMock()
+     )
 
-    static var previews: some View {
-        NavHolder()
-            .sheet(item: .constant(viewModel)) {
-                ExpressSuccessSentView(viewModel: $0)
-            }
-    }
-}
+     static var previews: some View {
+         NavHolder()
+             .sheet(item: .constant(viewModel)) {
+                 ExpressSuccessSentView(viewModel: $0)
+             }
+     }
+ }
 
-class ExpressSuccessSentRoutableMock: ExpressSuccessSentRoutable {}
+ class ExpressSuccessSentRoutableMock: ExpressSuccessSentRoutable {}
+ */
