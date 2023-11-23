@@ -18,8 +18,8 @@ public struct ExpressManagerSwappingPair: Hashable {
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(source.currency)
-        hasher.combine(destination.currency)
+        hasher.combine(source.expressCurrency)
+        hasher.combine(destination.expressCurrency)
     }
 
     public static func == (lhs: ExpressManagerSwappingPair, rhs: ExpressManagerSwappingPair) -> Bool {
