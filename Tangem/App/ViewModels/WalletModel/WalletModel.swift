@@ -193,7 +193,7 @@ class WalletModel {
 
         // no fee
         if !wallet.hasPendingTx, !canSendTransaction, !currentAmount.isZero {
-            return .notEnoughtFeeForTokenTx(
+            return .notEnoughFeeForTokenTx(
                 tokenName: token.name,
                 networkName: blockchainNetwork.blockchain.displayName,
                 coinSymbol: blockchainNetwork.blockchain.currencySymbol,
