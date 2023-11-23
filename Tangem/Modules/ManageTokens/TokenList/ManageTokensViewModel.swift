@@ -19,7 +19,6 @@ final class ManageTokensViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
     @Published var isLoading: Bool = true
-    @Published var generateAddressesViewModel: GenerateAddressesViewModel?
 
     // MARK: - Properties
 
@@ -186,7 +185,8 @@ private extension ManageTokensViewModel {
         let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
 
         guard countWalletPendingDerivation > 0 else {
-            return generateAddressesViewModel = nil
+            coordinator.hideGenerateAddressesWarning()
+            return
         }
 
         Analytics.log(
@@ -194,11 +194,11 @@ private extension ManageTokensViewModel {
             params: [.cardsCount: String(countWalletPendingDerivation)]
         )
 
-        generateAddressesViewModel = GenerateAddressesViewModel(
-            numberOfNetworks: pendingDerivationCountByWalletId.map { $0.value }.reduce(0, +),
+        coordinator.showGenerateAddressesWarning(
+            numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
             totalWalletNumber: userWalletRepository.userWallets.count,
-            didTapGenerate: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
+            action: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
         )
     }
 
