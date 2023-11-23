@@ -1,5 +1,5 @@
 //
-//  MainBottomSheetHeaderView.swift
+//  MainBottomSheetHeaderInputView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-/// A temporary entity for integration and testing, subject to change.
-struct MainBottomSheetHeaderView: View {
+/// Header UI component containing an input field.
+struct MainBottomSheetHeaderInputView: View {
     @Binding private var searchText: String
     private let textFieldAllowsHitTesting: Bool
 
@@ -37,7 +37,7 @@ struct MainBottomSheetHeaderView: View {
 
 // MARK: - Constants
 
-private extension MainBottomSheetHeaderView {
+private extension MainBottomSheetHeaderInputView {
     enum Constants {
         static let verticalInset = 20.0
     }
