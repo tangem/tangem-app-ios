@@ -45,24 +45,14 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     }
 
     private func loadImage() {
-        let artwork: CardArtwork
-        if let artworkInfo = userWalletModel.userWallet.artwork {
-            artwork = .artwork(artworkInfo)
-        } else {
-            artwork = .notLoaded
-        }
+        userWalletModel
+            .cardImagePublisher
+            .sink { [weak self] loadResult in
+                guard let self else { return }
 
-        cardImageProvider.loadImage(
-            cardId: userWalletModel.userWallet.card.cardId,
-            cardPublicKey: userWalletModel.userWallet.card.cardPublicKey,
-            artwork: artwork
-        )
-        .sink { [weak self] loadResult in
-            guard let self else { return }
-
-            image = scaleImage(loadResult.uiImage, newHeight: imageHeight * UIScreen.main.scale)
-        }
-        .store(in: &bag)
+                image = scaleImage(loadResult.uiImage, newHeight: imageHeight * UIScreen.main.scale)
+            }
+            .store(in: &bag)
     }
 
     private func scaleImage(_ image: UIImage, newHeight: CGFloat) -> UIImage {
