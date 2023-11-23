@@ -512,6 +512,7 @@ private extension ExpressInteractor {
             } catch {
                 root.log("Destination load handle error")
                 root.logger.error(error)
+                root.updateState(.restriction(.noDestinationTokens, quote: nil))
             }
         }
     }
@@ -577,6 +578,7 @@ extension ExpressInteractor {
         case notEnoughBalanceForSwapping
         case notEnoughAmountForFee
         case requiredRefresh(occurredError: Error)
+        case noDestinationTokens
     }
 
     struct SwappingPair {
