@@ -14,6 +14,7 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
     @Published var cryptoAmountState: State
     @Published var fiatAmountState: State
     @Published var tokenIconState: SwappingTokenIconView.State
+    @Published var isAvailable: Bool = false
 
     var balanceString: String {
         switch balance {
