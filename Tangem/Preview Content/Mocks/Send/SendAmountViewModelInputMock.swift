@@ -8,8 +8,16 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
+    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> { .just(output: nil) }
+
+    func setAmount(_ amount: BlockchainSdk.Amount?) {}
+
+    var amountType: Amount.AmountType { .coin }
+
+    var blockchain: Blockchain { .ethereum(testnet: false) }
     var walletName: String {
         "Family Wallet"
     }
@@ -44,10 +52,6 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
 
     var amountAlternativePublisher: AnyPublisher<String, Never> {
         .just(output: "1 000 010,99 USDT")
-    }
-
-    var decimalValue: Binding<DecimalNumberTextField.DecimalValue?> {
-        .constant(DecimalNumberTextField.DecimalValue.internal(0))
     }
 
     var amountError: AnyPublisher<Error?, Never> {
