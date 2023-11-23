@@ -131,6 +131,10 @@ final class ExpressViewModel: ObservableObject {
         restartTimer()
     }
 
+    func didCloseFeeSelectorSheet() {
+        restartTimer()
+    }
+
     func didTapWaringRefresh() {
         interactor.refresh(type: .full)
     }
