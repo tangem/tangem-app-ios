@@ -45,8 +45,6 @@
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		2DF5A8122B0FBC8500AA5E73 /* ManageTokensDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A8112B0FBC8500AA5E73 /* ManageTokensDataSource.swift */; };
 		2DF5A8142B0FBDAD00AA5E73 /* WalletSelectorDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A8132B0FBDAD00AA5E73 /* WalletSelectorDataSource.swift */; };
-		2DF5A8182B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A8162B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift */; };
-		2DF5A8192B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A8172B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift */; };
 		2DF5A81B2B0FBDCB00AA5E73 /* ManageTokensNetworkDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81A2B0FBDCB00AA5E73 /* ManageTokensNetworkDataSource.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
@@ -1363,8 +1361,6 @@
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		2DF5A8112B0FBC8500AA5E73 /* ManageTokensDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensDataSource.swift; sourceTree = "<group>"; };
 		2DF5A8132B0FBDAD00AA5E73 /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
-		2DF5A8162B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorNotificationViewModel.swift; sourceTree = "<group>"; };
-		2DF5A8172B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorNotificationView.swift; sourceTree = "<group>"; };
 		2DF5A81A2B0FBDCB00AA5E73 /* ManageTokensNetworkDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkDataSource.swift; sourceTree = "<group>"; };
 		3A37E80DF75687F125EDA4D1 /* Pods-TangemSwapping.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(production).xcconfig"; sourceTree = "<group>"; };
 		3C9182C6C925702F336B218E /* Pods-TangemTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
@@ -2713,7 +2709,6 @@
 		2D5EBA9F2ADD15EA00A25AC4 /* ManageTokensNetworkSelector */ = {
 			isa = PBXGroup;
 			children = (
-				2DF5A8152B0FBDC400AA5E73 /* EventNotification */,
 				2D788E7E2ADD657000E0884B /* WalletSelector */,
 				2D788E842ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift */,
 				2D5EBAA12ADD15EA00A25AC4 /* ManageTokensNetworkSelectorRoutable.swift */,
@@ -2807,15 +2802,6 @@
 				2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */,
 			);
 			path = TokenItemMenuActions;
-			sourceTree = "<group>";
-		};
-		2DF5A8152B0FBDC400AA5E73 /* EventNotification */ = {
-			isa = PBXGroup;
-			children = (
-				2DF5A8162B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift */,
-				2DF5A8172B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift */,
-			);
-			path = EventNotification;
 			sourceTree = "<group>";
 		};
 		2E5061A84512B23CCB5F2E17 /* Frameworks */ = {
@@ -7704,7 +7690,6 @@
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* TokenQuoteFormatter.swift in Sources */,
 				B6AA13722A2A378300B53937 /* CardInfoPageWarningIconOnlyCellPreviewViewModel.swift in Sources */,
-				2DF5A8182B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationViewModel.swift in Sources */,
 				EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */,
 				B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */,
 				EF0DD7952B026B3A0099527D /* ExpressDestinationService.swift in Sources */,
@@ -8321,7 +8306,6 @@
 				B030B4DB2A8CE1DA0023DB8B /* LockedWalletMainContentView.swift in Sources */,
 				EFEC653F292E1B9800AE8521 /* SwappingCoordinatorView.swift in Sources */,
 				B0C4F77D26F0BFF90086D815 /* OnboardingMessagesView.swift in Sources */,
-				2DF5A8192B0FBDC400AA5E73 /* ManageTokensNetworkSelectorNotificationView.swift in Sources */,
 				5D96BD2A27F60B0D000AA797 /* TokenIconView.swift in Sources */,
 				65469D3A28AA64520092138F /* ResizableSheetView.swift in Sources */,
 				EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */,
