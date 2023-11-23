@@ -30,11 +30,13 @@ struct SendAmountView: View {
                         .padding(.top, 4)
 
                     TokenIcon(
-                        name: viewModel.tokenIconName,
-                        imageURL: viewModel.tokenIconURL,
-                        customTokenColor: viewModel.tokenIconCustomTokenColor,
-                        blockchainIconName: viewModel.tokenIconBlockchainIconName,
-                        isCustom: viewModel.isCustomToken,
+                        tokenIconInfo: TokenIconInfo(
+                            name: viewModel.tokenIconName,
+                            blockchainIconName: viewModel.tokenIconBlockchainIconName,
+                            imageURL: viewModel.tokenIconURL,
+                            isCustom: viewModel.isCustomToken,
+                            customTokenColor: viewModel.tokenIconCustomTokenColor
+                        ),
                         size: iconSize
                     )
                     .padding(.top, 34)
