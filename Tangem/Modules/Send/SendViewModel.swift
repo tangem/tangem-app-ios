@@ -9,12 +9,14 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
+import AVFoundation
 
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
+    @Published var showCameraDeniedAlert = false
 
     var title: String {
         step.name
@@ -72,6 +74,7 @@ final class SendViewModel: ObservableObject {
 
     private let sendModel: SendModel
     private let sendType: SendType
+    private let walletModel: WalletModel
     private let steps: [SendStep]
 
     private unowned let coordinator: SendRoutable
@@ -102,6 +105,7 @@ final class SendViewModel: ObservableObject {
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
+        self.walletModel = walletModel
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
 
         let steps = sendType.steps
@@ -140,7 +144,22 @@ final class SendViewModel: ObservableObject {
         step = previousStep
     }
 
-    func scanQRCode() {}
+    func scanQRCode() {
+        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+            showCameraDeniedAlert = true
+        } else {
+            let binding = Binding<String>(
+                get: {
+                    ""
+                },
+                set: { [weak self] in
+                    self?.parseQRCode($0)
+                }
+            )
+
+            coordinator.openQRScanner(with: binding)
+        }
+    }
 
     private func bind() {
         currentStepValid
@@ -149,6 +168,25 @@ final class SendViewModel: ObservableObject {
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func parseQRCode(_ code: String) {
+        #warning("[REDACTED_TODO_COMMENT]")
+        let withoutPrefix = code.remove(contentsOf: walletModel.wallet.blockchain.qrPrefixes)
+        let splitted = withoutPrefix.split(separator: "?")
+        let destination = splitted.first.map { String($0) } ?? withoutPrefix
+        sendModel.setDestination(destination)
+
+        if splitted.count > 1 {
+            let queryItems = splitted[1].lowercased().split(separator: "&")
+            for queryItem in queryItems {
+                if queryItem.contains("amount") {
+                    let amountText = queryItem.replacingOccurrences(of: "amount=", with: "")
+                    sendModel.setAmount(amountText)
+                    break
+                }
+            }
+        }
     }
 }
 
