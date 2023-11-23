@@ -182,10 +182,10 @@ extension ExpressInteractor {
             switch getState() {
             case .idle, .loading, .restriction:
                 throw ExpressInteractorError.transactionDataNotFound
-            case .previewCEX(let fees, _):
-                return try await sendCEXTransaction(fees: fees)
-            case .readyToSwap(let state, _):
-                return try await sendDEXTransaction(state: state)
+            case .previewCEX(let fees, let quote):
+                return try await sendCEXTransaction(fees: fees, provider: quote.provider)
+            case .readyToSwap(let state, let quote):
+                return try await sendDEXTransaction(state: state, provider: quote.provider)
             }
         }()
 
@@ -283,7 +283,7 @@ private extension ExpressInteractor {
             return try await proceedRestriction(restriction: restriction, quote: quote)
 
         case .previewCEX(let quote):
-            guard let expressQuote = await expressManager.getSelectedQuote()?.quote else {
+            guard let expressQuote = quote.quote else {
                 throw ExpressInteractorError.quoteNotFound
             }
 
@@ -380,7 +380,7 @@ private extension ExpressInteractor {
         return .restriction(.permissionRequired(state: newState), quote: quote)
     }
 
-    func getPermissionRequiredViewState(spender: String) async throws -> PermissionRequiredViewState {
+    func getPermissionRequiredViewState(spender: String) async throws -> PermissionRequiredState {
         let source = getSender()
         let contractAddress = source.expressCurrency.contractAddress
         assert(contractAddress != ExpressConstants.coinContractAddress)
@@ -392,7 +392,7 @@ private extension ExpressInteractor {
         // For approve transaction value is always be 0
         let fees = try await getFee(destination: contractAddress, value: 0, hexData: data.hexString)
 
-        return PermissionRequiredViewState(
+        return PermissionRequiredState(
             spender: spender,
             toContractAddress: contractAddress,
             data: data,
@@ -410,7 +410,7 @@ private extension ExpressInteractor {
 // MARK: - Swap
 
 private extension ExpressInteractor {
-    func sendDEXTransaction(state: ExpressSwapData) async throws -> TransactionSendResultState {
+    func sendDEXTransaction(state: ExpressSwapData, provider: ExpressProvider) async throws -> TransactionSendResultState {
         guard let fee = state.fees[getFeeOption()] else {
             throw ExpressInteractorError.feeNotFound
         }
@@ -419,10 +419,10 @@ private extension ExpressInteractor {
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: state.data, fee: fee)
         let result = try await sender.send(transaction, signer: signer).async()
 
-        return TransactionSendResultState(data: state.data, hash: result.hash)
+        return TransactionSendResultState(hash: result.hash, data: state.data, fee: fee, provider: provider)
     }
 
-    func sendCEXTransaction(fees: [FeeOption: Fee]) async throws -> TransactionSendResultState {
+    func sendCEXTransaction(fees: [FeeOption: Fee], provider: ExpressProvider) async throws -> TransactionSendResultState {
         guard let fee = fees[getFeeOption()] else {
             throw ExpressInteractorError.feeNotFound
         }
@@ -432,7 +432,7 @@ private extension ExpressInteractor {
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: data, fee: fee)
         let result = try await sender.send(transaction, signer: signer).async()
 
-        return TransactionSendResultState(data: data, hash: result.hash)
+        return TransactionSendResultState(hash: result.hash, data: data, fee: fee, provider: provider)
     }
 
     func getReadyToSwapViewState(data: ExpressTransactionData) async throws -> ExpressSwapData {
@@ -574,13 +574,11 @@ private extension ExpressInteractor {
 
 enum ExpressInteractorError: String, LocalizedError {
     case feeNotFound
-    case coinBalanceNotFound
     case quoteNotFound
     case transactionDataNotFound
     case destinationNotFound
 
     var errorDescription: String? {
-        #warning("Add Localization")
         return rawValue
     }
 }
@@ -588,8 +586,6 @@ enum ExpressInteractorError: String, LocalizedError {
 extension ExpressInteractor {
     enum ExpressInteractorState {
         case idle
-
-        // After change swappingItems
         case loading(type: SwappingManagerRefreshType)
         case restriction(_ type: RestrictionType, quote: ExpectedQuote?)
         case previewCEX(fees: [FeeOption: Fee], quote: ExpectedQuote)
@@ -629,7 +625,7 @@ extension ExpressInteractor {
 
     enum RestrictionType {
         case notEnoughAmountForSwapping(minAmount: Decimal)
-        case permissionRequired(state: PermissionRequiredViewState)
+        case permissionRequired(state: PermissionRequiredState)
         case hasPendingTransaction
         case notEnoughBalanceForSwapping
         case notEnoughAmountForFee
@@ -642,7 +638,7 @@ extension ExpressInteractor {
         var destination: WalletModel?
     }
 
-    struct PermissionRequiredViewState {
+    struct PermissionRequiredState {
         let spender: String
         let toContractAddress: String
         let data: Data
@@ -655,7 +651,9 @@ extension ExpressInteractor {
     }
 
     struct TransactionSendResultState {
-        let data: ExpressTransactionData
         let hash: String
+        let data: ExpressTransactionData
+        let fee: Fee
+        let provider: ExpressProvider
     }
 }
