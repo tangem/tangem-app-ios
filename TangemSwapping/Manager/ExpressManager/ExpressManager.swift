@@ -16,6 +16,7 @@ public protocol ExpressManager {
     func getAmount() async -> Decimal?
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState
 
+    func getAllQuotes() async -> [ExpectedQuote]
     func getSelectedQuote() async -> ExpectedQuote?
     func updateSelectedProvider(provider: ExpressProvider) async throws -> ExpressManagerState
 
