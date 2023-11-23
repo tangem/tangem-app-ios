@@ -39,7 +39,7 @@ struct SendView: View {
                 SheetDragHandler()
                     .padding(.bottom, 4)
 
-                Text(viewModel.title)
+                Text(title)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
                     .animation(nil)
                     .padding(.vertical, 8)
