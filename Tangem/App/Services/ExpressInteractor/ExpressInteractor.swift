@@ -570,6 +570,7 @@ extension ExpressInteractor {
         case notEnoughBalanceForSwapping
         case notEnoughAmountForFee
         case requiredRefresh(occurredError: Error)
+        case noDestinationTokens
     }
 
     struct SwappingPair {
