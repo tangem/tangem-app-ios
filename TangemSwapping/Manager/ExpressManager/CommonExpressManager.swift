@@ -120,7 +120,7 @@ private extension CommonExpressManager {
     func updateState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
             logger.debug("ExpressManagerSwappingPair not found")
-            return .restriction(.pairNotFound)
+            return .restriction(.pairNotFound, quote: .none)
         }
 
         // Just update availableProviders for this pair
@@ -140,14 +140,14 @@ private extension CommonExpressManager {
         try Task.checkCancellation()
 
         if let restriction = try await checkRestriction(request: request, quote: selectedQuote) {
-            return .restriction(restriction)
+            return .restriction(restriction, quote: selectedQuote)
         }
 
         switch selectedQuote.provider.type {
         case .dex:
             let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
             try Task.checkCancellation()
-            return .ready(data: data)
+            return .ready(data: data, quote: selectedQuote)
         case .cex:
             return .previewCEX(quote: selectedQuote)
         }
