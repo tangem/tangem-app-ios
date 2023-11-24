@@ -22,7 +22,6 @@ protocol SendAmountViewModelInput {
 }
 
 protocol SendAmountViewModelDelegate: AnyObject {
-    func didSelectCurrencyOption(isFiat: Bool)
     func didTapMaxAmount()
 }
 
@@ -33,7 +32,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let cryptoCurrencyCode: String
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
-    
+
     var amount: Binding<DecimalNumberTextField.DecimalValue?> {
         .init(get: { [weak self] in
             guard let self else { return nil }
@@ -87,9 +86,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         $currencyOption
-            .sink { [weak self] option in
-                let isFiat = (option == .fiat)
-                self?.delegate?.didSelectCurrencyOption(isFiat: isFiat)
+            .sink { [weak self] _ in
+                #warning("[REDACTED_TODO_COMMENT]")
             }
             .store(in: &bag)
     }
