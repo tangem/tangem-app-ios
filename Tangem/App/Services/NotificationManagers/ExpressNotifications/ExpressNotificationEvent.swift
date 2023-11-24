@@ -15,6 +15,7 @@ enum ExpressNotificationEvent {
     case hasPendingTransaction
     case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconName: String)
     case notEnoughAmountToSwap(minimumAmountText: String)
+    case notEnoughBalanceToSwap(maximumAmountText: String)
     case noDestinationTokens(sourceTokenName: String)
     case highPriceImpact
 }
@@ -32,6 +33,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName)
         case .notEnoughAmountToSwap(let minimumAmountText):
             return Localization.warningExpressTooMinimalAmount(minimumAmountText)
+        case .notEnoughBalanceToSwap(let maximumAmountText):
+            return Localization.sendNotificationInvalidReserveAmountTitle(maximumAmountText)
         case .noDestinationTokens:
             return Localization.warningExpressNoExchangeableCoinsTitle
         case .highPriceImpact:
@@ -50,6 +53,8 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .notEnoughAmountToSwap:
+            return Localization.sendNotificationInvalidReserveAmountText
+        case .notEnoughBalanceToSwap:
             return Localization.sendNotificationInvalidReserveAmountText
         case .noDestinationTokens(let sourceTokenName):
             return Localization.warningExpressNoExchangeableCoinsDescription(sourceTokenName)
