@@ -288,29 +288,14 @@ extension SendModel: SendAmountViewModelInput {
         "2 130,88 USDT (2 129,92 $)"
     }
 
-    #warning("TODO")
-    var tokenIconName: String {
-        "tether"
-    }
-
-    #warning("TODO")
-    var tokenIconURL: URL? {
-        TokenIconURLBuilder().iconURL(id: "tether")
-    }
-
-    #warning("TODO")
-    var tokenIconCustomTokenColor: Color? {
-        nil
-    }
-
-    #warning("TODO")
-    var tokenIconBlockchainIconName: String? {
-        "ethereum.fill"
-    }
-
-    #warning("TODO")
-    var isCustomToken: Bool {
-        false
+    var tokenIconInfo: TokenIconInfo {
+        TokenIconInfo(
+            name: "Tether",
+            blockchainIconName: "ethereum.fill",
+            imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+            isCustom: false,
+            customTokenColor: nil
+        )
     }
 
     #warning("TODO")
