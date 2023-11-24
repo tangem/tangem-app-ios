@@ -30,10 +30,17 @@ struct ExpressTokensListView: View {
 
     @ViewBuilder
     private var content: some View {
-        if viewModel.isEmptyView {
+        switch viewModel.viewState {
+        case .idle, .loading:
+            EmptyView()
+        case .isEmpty:
             emptyContent
-        } else {
-            listContent
+        case .loaded(let availableTokens, let unavailableTokens):
+            GroupedScrollView(spacing: 14) {
+                section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: availableTokens)
+
+                section(title: viewModel.unavailableSectionHeader, viewModels: unavailableTokens)
+            }
         }
     }
 
@@ -47,14 +54,6 @@ struct ExpressTokensListView: View {
                 .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 50)
-        }
-    }
-
-    private var listContent: some View {
-        GroupedScrollView(spacing: 14) {
-            section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: viewModel.availableTokens)
-
-            section(title: viewModel.unavailableSectionHeader, viewModels: viewModel.unavailableTokens)
         }
     }
 
@@ -85,6 +84,7 @@ struct ExpressTokensListView: View {
 }
 
 /*
+ // [REDACTED_TODO_COMMENT]
  struct ExpressTokensListView_Preview: PreviewProvider {
      static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
 
