@@ -41,8 +41,6 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
-    private(set) var isFiatCalculation: Bool = false
-
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -95,12 +93,6 @@ class SendModel {
         validateDestination()
         validateDestinationAdditionalField()
         bind()
-    }
-
-    func setIsFiatCalculation(_ isFiatCalculation: Bool) {
-        self.isFiatCalculation = isFiatCalculation
-
-        #warning("TODO")
     }
 
     func useMaxAmount() {
