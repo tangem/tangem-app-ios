@@ -43,11 +43,17 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.legacySendCoordinator) {
                 LegacySendCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
             .sheet(item: $coordinator.swappingCoordinator) {
                 SwappingCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.expressCoordinator) {
+                ExpressCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -61,9 +67,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.legacyTokenListCoordinator) {
                 LegacyTokenListCoordinatorView(coordinator: $0)
-            }
-            .sheet(item: $coordinator.manageTokensCoordinator) {
-                ManageTokensCoordinatorView(coordinator: $0)
             }
 
         NavHolder()
