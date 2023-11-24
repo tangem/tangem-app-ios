@@ -32,10 +32,10 @@ class ExpressCoordinator: CoordinatorObject {
 
     // MARK: - Properties
 
-    private let factory: SwappingModulesFactory
+    private let factory: ExpressModulesFactory
 
     required init(
-        factory: SwappingModulesFactory,
+        factory: ExpressModulesFactory,
         dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
@@ -87,11 +87,10 @@ extension ExpressCoordinator: ExpressRoutable {
         }
 
         let coordinator = SwappingSuccessCoordinator(
-            factory: factory,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .express(data))
+        coordinator.start(with: .express(factory: factory, data))
 
         swappingSuccessCoordinator = coordinator
     }

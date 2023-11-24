@@ -305,7 +305,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         swappingCoordinator = coordinator
     }
 
-    func openExpress(input: CommonSwappingModulesFactory.InputModel) {
+    func openExpress(input: CommonExpressModulesFactory.InputModel) {
         let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.expressCoordinator = nil
 
@@ -316,7 +316,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.openNetworkCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
         }
 
-        let factory = CommonSwappingModulesFactory(inputModel: input)
+        let factory = CommonExpressModulesFactory(inputModel: input)
         let coordinator = ExpressCoordinator(
             factory: factory,
             dismissAction: dismissAction,
