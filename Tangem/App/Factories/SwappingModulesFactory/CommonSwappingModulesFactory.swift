@@ -227,7 +227,11 @@ private extension CommonSwappingModulesFactory {
     var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
-        CommonExpressTokensListAdapter(userWallet: userWalletModel)
+        CommonExpressTokensListAdapter(
+            walletModelsManager: userWalletModel.walletModelsManager,
+            userTokenListManager: userWalletModel.userTokenListManager,
+            userTokensManager: userWalletModel.userTokensManager
+        )
     }
 
     var walletDataProvider: SwappingWalletDataProvider {
