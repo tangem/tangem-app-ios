@@ -102,7 +102,11 @@ class SingleTokenRouter: SingleTokenRoutable {
             walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
         )
 
-        coordinator.openSwapping(input: input)
+        if FeatureProvider.isAvailable(.express) {
+            coordinator.openExpress(input: input)
+        } else {
+            coordinator.openSwapping(input: input)
+        }
     }
 
     func openSell(for walletModel: WalletModel) {
