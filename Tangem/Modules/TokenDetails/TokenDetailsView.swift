@@ -86,11 +86,13 @@ struct TokenDetailsView: View {
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 TokenIcon(
-                    name: "",
-                    imageURL: viewModel.iconUrl,
-                    customTokenColor: viewModel.customTokenColor,
-                    blockchainIconName: nil,
-                    isCustom: false,
+                    tokenIconInfo: .init(
+                        name: "",
+                        blockchainIconName: nil,
+                        imageURL: viewModel.iconUrl,
+                        isCustom: false,
+                        customTokenColor: viewModel.customTokenColor
+                    ),
                     size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
                 )
                 .opacity(toolbarIconOpacity)
