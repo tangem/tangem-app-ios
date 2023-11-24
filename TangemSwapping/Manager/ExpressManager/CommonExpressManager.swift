@@ -329,7 +329,7 @@ private extension CommonExpressManager {
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
         if isNotEnoughBalanceForSwapping {
-            return .notEnoughBalanceForSwapping
+            return .notEnoughBalanceForSwapping(request.amount)
         }
 
         // No Restrictions
