@@ -77,6 +77,7 @@
 "common_error" = "Ошибка";
 "common_exchange" = "Обменять";
 "common_explore" = "Explore";
+"common_explore_history" = "Посмотреть историю";
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
@@ -418,8 +419,8 @@
 "send_notification_invalid_amount_text" = "Включенная комиссия превышает сумму перевода, что приводит к отрицательному значению.";
 "send_notification_invalid_amount_title" = "Недопустимая сумма";
 "send_notification_invalid_minimum_amount_text" = "Минимальная сумма отправки - %1$@. Пожалуйста, убедитесь, что остаток после отправки также не будет меньше %1$@.";
-"send_notification_invalid_reserve_amount_text" = "Пожалуйста, пополните свой баланс, чтобы продолжить.";
-"send_notification_invalid_reserve_amount_title" = "Сумма резерва не может быть менее %1$@.";
+"send_notification_invalid_reserve_amount_text" = "Пожалуйста, пополните свой баланс, чтобы продолжить";
+"send_notification_invalid_reserve_amount_title" = "Сумма резерва не может быть менее %1$@";
 "send_notification_transaction_delay_text" = "Обратите внимание, что при определенных параметрах комиссии возможны задержки по вашей транзакции";
 "send_notification_transaction_delay_title" = "Возможны задержки по транзакции";
 "send_optional_field" = "Необязательное";
@@ -612,7 +613,8 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
 "warning_express_refresh_required_title" = "Cервис временно недоступен";
-"warning_express_too_minimal_amount" = "Сумма для обмена должна быть не менее %@";
+"warning_express_too_minimal_amount_description" = "Пожалуйста, измените сумму для обмена";
+"warning_express_too_minimal_amount_title" = "Сумма для обмена должна быть не менее %@";
 "warning_failed_to_verify_card_message" = "Возможно, данная карта - образец или подделка";
 "warning_failed_to_verify_card_title" = "Ошибка проверки подлинности";
 "warning_long_transaction_message" = "iPhone 7/7+ не может подписывать транзакции в данной сети. Для завершения этой операции, пожалуйста, используйте другой телефон";
