@@ -86,7 +86,7 @@ struct ExpressSuccessSentView: View {
 
                     if viewModel.isStatusButtonVisible {
                         MainButton(
-                            title: Localization.commonShare,
+                            title: Localization.expressCexStatusButtonTitle,
                             icon: .leading(Assets.share),
                             style: .secondary,
                             action: viewModel.openCEXStatus
