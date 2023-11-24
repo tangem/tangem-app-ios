@@ -43,17 +43,16 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     func setupView() {
         runTask(in: self) { viewModel in
-            let quotes = await viewModel.expressInteractor.getAllQuotes()
-            let selectedProviderId = await viewModel.expressInteractor.getSelectedProvider()?.id
+            viewModel.quotes = await viewModel.expressInteractor.getAllQuotes()
+            viewModel.selectedProviderId = await viewModel.expressInteractor.getSelectedProvider()?.id
 
             await runOnMain {
-                viewModel.selectedProviderId = selectedProviderId
-                viewModel.updateView(quotes: quotes)
+                viewModel.updateView()
             }
         }
     }
 
-    func updateView(quotes: [ExpectedQuote]) {
+    func updateView() {
         providerViewModels = quotes.map { quote in
             mapToProviderRowViewModel(quote: quote)
         }
@@ -94,8 +93,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func makePercentSubtitle(quote: ExpectedQuote) -> ProviderRowViewModel.Subtitle? {
-        guard let bestRate = quotes.first(where: { $0.isBest })?.rate,
-              !quote.rate.isZero else {
+        guard let bestRate = quotes.first(where: { $0.isBest })?.rate, !quote.rate.isZero else {
             return nil
         }
 
