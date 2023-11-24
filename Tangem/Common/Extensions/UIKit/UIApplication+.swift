@@ -16,8 +16,11 @@ extension UIApplication {
 }
 
 extension UIApplication {
+    static var keyWindow: UIWindow? {
+        return UIApplication.shared.windows.first { $0.isKeyWindow }
+    }
+
     static var topViewController: UIViewController? {
-        let keyWindow = UIApplication.shared.windows.filter { $0.isKeyWindow }.first
         return keyWindow?.topViewController
     }
 
