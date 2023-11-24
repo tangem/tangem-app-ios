@@ -36,7 +36,11 @@ struct ExpressTokensListView: View {
         case .isEmpty:
             emptyContent
         case .loaded(let availableTokens, let unavailableTokens):
-            listContent(availableTokens: availableTokens, unavailableTokens: unavailableTokens)
+            GroupedScrollView(spacing: 14) {
+                section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: availableTokens)
+
+                section(title: viewModel.unavailableSectionHeader, viewModels: unavailableTokens)
+            }
         }
     }
 
@@ -50,14 +54,6 @@ struct ExpressTokensListView: View {
                 .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 50)
-        }
-    }
-
-    private func listContent(availableTokens: [ExpressTokenItemViewModel], unavailableTokens: [ExpressTokenItemViewModel]) -> some View {
-        GroupedScrollView(spacing: 14) {
-            section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: availableTokens)
-
-            section(title: viewModel.unavailableSectionHeader, viewModels: unavailableTokens)
         }
     }
 
