@@ -92,9 +92,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var cardSessionFilter: CardSessionFilter {
-        let shouldSkipCardId = card.backupStatus?.isActive ?? false
-
-        if shouldSkipCardId, let userWalletIdSeed, let pairKey = twinData.pairPublicKey {
+        if let userWalletIdSeed, let pairKey = twinData.pairPublicKey {
             let userWalletId = UserWalletId(with: userWalletIdSeed)
             let filter = TwinPreflightReadFilter(userWalletId: userWalletId, pairPublicKey: pairKey)
             return .custom(filter)
