@@ -395,7 +395,7 @@ private extension ExpressInteractor {
         assert(contractAddress != ExpressConstants.coinContractAddress)
 
         let data = try await makeApproveData(wallet: source, spender: spender)
-        
+
         try Task.checkCancellation()
 
         // For approve transaction value is always be 0
