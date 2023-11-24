@@ -442,14 +442,6 @@
 "send_transaction_success" = "Транзакция успешно подписана и отправлена в блокчейн. Баланс будет обновлен через некоторое время";
 "send_validation_invalid_address" = "Неверный адрес";
 "sent_transaction_sent_title" = "Transaction sent";
-"shop_buy_now" = "Купить сейчас";
-"shop_i_have_a_promo_code" = "У меня есть промо-код…";
-"shop_one_wallet" = "Tangem Wallet";
-"shop_other_payment_methods" = "Другие способы оплаты";
-"shop_placing_order" = "Оформление заказа";
-"shop_pre_order_now" = "Сделать предзаказ";
-"shop_total" = "Итого";
-"shop_web_checkout_title" = "Ваш заказ";
 "story_awe_description" = "Держите свои криптосбережения в безопасности. Приватные ключи надежно хранятся на карте.";
 "story_awe_title" = "Революционный аппаратный кошелек";
 "story_backup_description" = "До трех карт с одним кошельком";
