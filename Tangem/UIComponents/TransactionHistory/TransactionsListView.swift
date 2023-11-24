@@ -195,21 +195,20 @@ struct TransactionsListView: View {
 
     @ViewBuilder
     private func makeExploreTransactionHistoryButton(withTitle title: String, hasFixedSize: Bool) -> some View {
-        Group {
-            if hasFixedSize {
-                FixedSizeButtonWithLeadingIcon(
-                    title: title,
-                    icon: Assets.arrowRightUpMini.image,
-                    action: exploreAction
-                )
-            } else {
-                FlexySizeButtonWithLeadingIcon(
-                    title: title,
-                    icon: Assets.arrowRightUpMini.image,
-                    action: exploreAction
-                )
-                .overrideBackgroundColor(Constants.buttonBackgroundColor)
-            }
+        if hasFixedSize {
+            FixedSizeButtonWithLeadingIcon(
+                title: title,
+                icon: Assets.arrowRightUpMini.image,
+                action: exploreAction
+            )
+            .overrideBackgroundColor(Constants.buttonBackgroundColor)
+        } else {
+            FlexySizeButtonWithLeadingIcon(
+                title: title,
+                icon: Assets.arrowRightUpMini.image,
+                action: exploreAction
+            )
+            .overrideBackgroundColor(Constants.buttonBackgroundColor)
         }
     }
 
