@@ -127,6 +127,7 @@ extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
 extension ExpressCoordinator: SwappingApproveRoutable {
     func didSendApproveTransaction() {
         swappingApproveViewModel = nil
+        rootViewModel?.didCloseApproveSheet()
     }
 
     func userDidCancel() {
