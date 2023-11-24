@@ -510,7 +510,7 @@ extension LegacyTokenDetailsViewModel {
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
-            userTokensManager: card.userTokensManager,
+            userWalletModel: card,
             walletModel: walletModel,
             signer: card.signer,
             ethereumNetworkProvider: ethereumNetworkProvider,
@@ -518,9 +518,7 @@ extension LegacyTokenDetailsViewModel {
             logger: AppLog.shared,
             referrer: referrer,
             source: source,
-            walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork),
-            walletModelsManager: card.walletModelsManager,
-            userWalletId: card.userWalletId.stringValue
+            walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
         )
 
         coordinator.openSwapping(input: input)
