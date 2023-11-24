@@ -17,29 +17,9 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         loadedSwapableTokenItems.eraseToAnyPublisher()
     }
 
-    private let supportedBlockchains: Set<Blockchain> = {
-        let supported: Set<SwappingBlockchain> = [
-            .ethereum,
-            .bsc,
-            .polygon,
-            .optimism,
-            .arbitrum,
-            .gnosis,
-            .avalanche,
-            .fantom,
-        ]
-
-        let mainnetBlockchains = Blockchain.allMainnetCases
-        return supported.compactMap { swappingBlockchain in
-            return mainnetBlockchains.first(where: { $0.networkId == swappingBlockchain.networkId })
-        }.toSet()
-    }()
-
     private var loadedSwapableTokenItems: CurrentValueSubject<[TokenItem: Bool], Never> = .init([:])
 
-    init() {
-        loadedSwapableTokenItems = .init(supportedBlockchains.reduce(into: [TokenItem: Bool]()) { $0[.blockchain($1)] = true })
-    }
+    init() {}
 
     func loadSwapAvailability(for items: [TokenItem], forceReload: Bool) {
         if items.isEmpty {
@@ -47,12 +27,6 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         }
 
         let filteredItemsToRequest = items.filter {
-            // We don't need to load exchangeable state for tokens in blockchains that not supported
-            // So we filter them
-            guard supportedBlockchains.contains($0.blockchain) else {
-                return false
-            }
-
             // If `forceReload` flag is true we need to force reload state for all items
             return loadedSwapableTokenItems.value[$0] == nil || forceReload
         }
@@ -66,7 +40,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         let requestItem = convertToRequestItem(filteredItemsToRequest)
         var loadSubscription: AnyCancellable?
         loadSubscription = tangemApiService
-            .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.currencyIds))
+            .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.ids))
             .sink(receiveCompletion: { _ in
                 withExtendedLifetime(loadSubscription) {}
             }, receiveValue: { [weak self] models in
@@ -74,20 +48,15 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                     return
                 }
 
-                let loadedTokenItems = models.flatMap { $0.items }
-
-                let preparedSwapStates: [TokenItem: Bool] = loadedTokenItems.reduce(into: [:]) { result, item in
-                    let exchangeable: Bool = {
-                        switch item {
-                        case .token(let token, _):
-                            return token.exchangeable ?? false
-                        case .blockchain(let blockchain):
-                            return self.supportedBlockchains.contains(blockchain)
+                let preparedSwapStates: [TokenItem: Bool] = models
+                    .flatMap { $0.items }
+                    .reduce(into: [:]) {
+                        guard SwappingBlockchain(networkId: $1.blockchain.networkId) != nil else {
+                            return
                         }
-                    }()
 
-                    result.updateValue(exchangeable, forKey: item)
-                }
+                        $0[$1.tokenItem] = $1.exchangeable
+                    }
 
                 var items = loadedSwapableTokenItems.value
                 preparedSwapStates.forEach { key, value in
@@ -103,23 +72,23 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
 
     private func convertToRequestItem(_ items: [TokenItem]) -> RequestItem {
         var blockchains = Set<Blockchain>()
-        var currencyIds = [String]()
+        var ids = [String]()
 
         items.forEach { item in
             blockchains.insert(item.blockchain)
-            guard let currencyId = item.currencyId else {
+            guard let id = item.id else {
                 return
             }
 
-            currencyIds.append(currencyId)
+            ids.append(id)
         }
-        return .init(blockchains: blockchains, currencyIds: currencyIds)
+        return .init(blockchains: blockchains, ids: ids)
     }
 }
 
 private extension CommonSwapAvailabilityManager {
     struct RequestItem: Hashable {
         let blockchains: Set<Blockchain>
-        let currencyIds: [String]
+        let ids: [String]
     }
 }
