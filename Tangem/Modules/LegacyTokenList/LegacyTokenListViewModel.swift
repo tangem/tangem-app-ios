@@ -99,7 +99,7 @@ class LegacyTokenListViewModel: ObservableObject {
     }
 
     func tokenListDidSave() {
-        Analytics.log(.buttonSaveChanges)
+        Analytics.log(.manageTokensButtonSaveChanges)
         closeModule()
     }
 
@@ -133,7 +133,7 @@ extension LegacyTokenListViewModel {
 
     func openAddCustom() {
         if let settings = mode.settings, let userTokensManager = mode.userTokensManager {
-            Analytics.log(.buttonCustomToken)
+            Analytics.log(.manageTokensButtonCustomToken)
             coordinator.openAddCustom(settings: settings, userTokensManager: userTokensManager)
         }
     }
@@ -149,7 +149,7 @@ private extension LegacyTokenListViewModel {
             .removeDuplicates()
             .sink { [weak self] string in
                 if !string.isEmpty {
-                    Analytics.log(.tokenSearched)
+                    Analytics.log(.manageTokensSearched)
                 }
 
                 self?.loader.fetch(string)
@@ -221,7 +221,7 @@ private extension LegacyTokenListViewModel {
             displayAlertAndUpdateSelection(
                 for: tokenItem,
                 title: Localization.commonAttention,
-                message: Localization.alertManageTokensUnsupportedMessage
+                message: Localization.alertManageTokensUnsupportedMessage(blockchain.displayName)
             )
 
             return
@@ -289,9 +289,9 @@ private extension LegacyTokenListViewModel {
     func mapToCoinViewModel(coinModel: CoinModel) -> LegacyCoinViewModel {
         let currencyItems = coinModel.items.enumerated().map { index, item in
             LegacyCoinItemViewModel(
-                tokenItem: item,
+                tokenItem: item.tokenItem,
                 isReadonly: isReadonlyMode,
-                isSelected: bindSelection(item),
+                isSelected: bindSelection(item.tokenItem),
                 isCopied: bindCopy(),
                 position: .init(with: index, total: coinModel.items.count)
             )
@@ -364,7 +364,7 @@ private extension LegacyTokenListViewModel {
     }
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(event: .tokenSwitcherChanged, params: [
+        Analytics.log(event: .manageTokensSwitcherChanged, params: [
             .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
         ])

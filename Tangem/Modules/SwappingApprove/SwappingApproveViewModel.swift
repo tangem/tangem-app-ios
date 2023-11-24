@@ -29,7 +29,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let transactionSender: SwappingTransactionSender
-    private let swappingInteractor: SwappingInteractor
+    private unowned let swappingInteractor: SwappingInteractor
     private let fiatRatesProvider: FiatRatesProviding
     private unowned let coordinator: SwappingApproveRoutable
 
@@ -55,7 +55,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         self.fiatRatesProvider = fiatRatesProvider
         self.coordinator = coordinator
 
-        self.selectedAction = swappingInteractor.getSwappingApprovePolicy()
+        selectedAction = swappingInteractor.getSwappingApprovePolicy()
         setupView()
         bind()
     }
@@ -193,7 +193,7 @@ private extension SwappingApproveViewModel {
             title: Localization.swappingPermissionRowsAmount(tokenSymbol),
             actions: [
                 SwappingApprovePolicy.unlimited,
-                SwappingApprovePolicy.amount(transactionData.sourceAmount),
+                SwappingApprovePolicy.specified,
             ]
         )
 
@@ -231,7 +231,7 @@ extension SwappingApprovePolicy: DefaultMenuRowViewModelAction {
 
     public var title: String {
         switch self {
-        case .amount:
+        case .specified:
             return Localization.swappingPermissionCurrentTransaction
         case .unlimited:
             return Localization.swappingPermissionUnlimited

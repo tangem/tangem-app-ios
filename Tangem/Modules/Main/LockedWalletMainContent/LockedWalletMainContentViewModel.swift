@@ -47,6 +47,8 @@ class LockedWalletMainContentViewModel: ObservableObject {
     let isMultiWallet: Bool
 
     private let userWalletModel: UserWalletModel
+    private let contextData: AnalyticsContextData?
+
     private var canManageTokens: Bool { userWalletModel.isMultiWallet }
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
 
@@ -58,10 +60,13 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
+
+        contextData = userWalletModel.getAnalyticsContextData()
+        Analytics.log(event: .mainNoticeWalletUnlock, params: contextData?.analyticsParams ?? [:])
     }
 
     private func onLockedWalletNotificationTap() {
-        Analytics.log(.mainNoticeWalletLocked)
+        Analytics.log(event: .mainNoticeWalletUnlockTapped, params: contextData?.analyticsParams ?? [:])
         openUnlockSheet()
     }
 
