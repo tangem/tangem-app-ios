@@ -102,7 +102,17 @@ final class SendViewModel: ObservableObject {
         self.steps = steps
         step = firstStep
 
-        sendAmountViewModel = SendAmountViewModel(input: sendModel)
+        let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+        let walletInfo = SendWalletInfo(
+            walletName: walletModel.name,
+            balance: walletModel.balance,
+            tokenIconInfo: tokenIconInfo,
+            cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
+            fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
+            amountFractionDigits: walletModel.tokenItem.decimalCount
+        )
+
+        sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
