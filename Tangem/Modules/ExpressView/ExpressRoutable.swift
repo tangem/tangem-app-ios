@@ -15,4 +15,5 @@ protocol ExpressRoutable: AnyObject {
     func presentSuccessView(inputModel: SwappingSuccessInputModel)
     func presentApproveView()
     func presentProviderSelectorView()
+    func openNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel)
 }
