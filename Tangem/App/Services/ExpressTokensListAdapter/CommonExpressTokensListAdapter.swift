@@ -10,14 +10,18 @@ import Foundation
 import Combine
 
 struct CommonExpressTokensListAdapter {
-    let userWallet: UserWalletModel
-    let adapter: TokenSectionsAdapter
+    private let walletModelsManager: WalletModelsManager
+    private let adapter: TokenSectionsAdapter
 
-    init(userWallet: UserWalletModel) {
-        self.userWallet = userWallet
+    init(
+        walletModelsManager: WalletModelsManager,
+        userTokenListManager: UserTokenListManager,
+        userTokensManager: UserTokensManager
+    ) {
+        self.walletModelsManager = walletModelsManager
         adapter = TokenSectionsAdapter(
-            userTokenListManager: userWallet.userTokenListManager,
-            optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: userWallet.userTokensManager),
+            userTokenListManager: userTokenListManager,
+            optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager),
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
     }
@@ -25,7 +29,7 @@ struct CommonExpressTokensListAdapter {
 
 extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
     func walletModels() -> AnyPublisher<[WalletModel], Never> {
-        let just = Just(userWallet.walletModelsManager.walletModels)
+        let just = Just(walletModelsManager.walletModels)
         return adapter
             .organizedSections(from: just, on: .global())
             .map { section -> [WalletModel] in
