@@ -115,15 +115,15 @@ extension WarningEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .failedToVerifyCard, .devCard:
-            return .init(image: Assets.redCircleWarning.image)
+            return .init(iconType: .image(Assets.redCircleWarning.image))
         case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup:
-            return .init(image: Assets.attention.image)
+            return .init(iconType: .image(Assets.attention.image))
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
-            return .init(image: Assets.blueCircleWarning.image)
+            return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .rateApp:
-            return .init(image: Assets.star.image)
+            return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
-            return .init(image: Assets.lock.image, color: Colors.Icon.primary1)
+            return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
         }
     }
 
@@ -196,9 +196,9 @@ extension WarningEvent {
     /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool {
         switch self {
-            /// Missing derivation notification can be tracked multiple times because if user make changes for
-            /// one card on different devices the `Missing derivation` notification will be updated
-            /// and we need to track this update after PTR
+        /// Missing derivation notification can be tracked multiple times because if user make changes for
+        /// one card on different devices the `Missing derivation` notification will be updated
+        /// and we need to track this update after PTR
         case .missingDerivation: return false
         default: return true
         }
