@@ -91,7 +91,7 @@ class SingleTokenRouter: SingleTokenRoutable {
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
-            userTokensManager: userWalletModel.userTokensManager,
+            userWalletModel: userWalletModel,
             walletModel: walletModel,
             signer: userWalletModel.signer,
             ethereumNetworkProvider: ethereumNetworkProvider,
@@ -99,12 +99,14 @@ class SingleTokenRouter: SingleTokenRoutable {
             logger: AppLog.shared,
             referrer: referrer,
             source: sourceCurrency,
-            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork),
-            walletModelsManager: userWalletModel.walletModelsManager,
-            userWalletId: userWalletModel.userWalletId.stringValue
+            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
         )
 
-        coordinator.openSwapping(input: input)
+        if FeatureProvider.isAvailable(.express) {
+            coordinator.openExpress(input: input)
+        } else {
+            coordinator.openSwapping(input: input)
+        }
     }
 
     func openSell(for walletModel: WalletModel) {
