@@ -442,14 +442,6 @@
 "send_transaction_success" = "La transazione è stata firmata con successo e inviata al nodo blockchain. Il saldo del portafoglio verrà aggiornato dopo un po' di tempo";
 "send_validation_invalid_address" = "Indirizzo non valido";
 "sent_transaction_sent_title" = "Transaction sent";
-"shop_buy_now" = "Buy now";
-"shop_i_have_a_promo_code" = "I have a promo code…";
-"shop_one_wallet" = "Tangem Wallet";
-"shop_other_payment_methods" = "Other payment methods";
-"shop_placing_order" = "Placing your order";
-"shop_pre_order_now" = "Pre-order now";
-"shop_total" = "Total";
-"shop_web_checkout_title" = "Your order";
 "story_awe_description" = "Store your crypto assets secure while keeping private keys contained in your card";
 "story_awe_title" = "Revolutionary Hardware Wallet";
 "story_backup_description" = "Up to 3 physical cards to one wallet";
