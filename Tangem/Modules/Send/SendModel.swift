@@ -279,51 +279,11 @@ extension SendModel: SendAmountViewModelInput {
     }
 
     #warning("TODO")
-    var walletName: String {
-        "My Wallet (TODO)"
-    }
-
-    #warning("TODO")
-    var balance: String {
-        "2 130,88 USDT (2 129,92 $)"
-    }
-
-    var tokenIconInfo: TokenIconInfo {
-        TokenIconInfo(
-            name: "Tether",
-            blockchainIconName: "ethereum.fill",
-            imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
-            isCustom: false,
-            customTokenColor: nil
-        )
-    }
-
-    #warning("TODO")
-    var amountFractionDigits: Int {
-        2
-    }
-
-    #warning("TODO")
-    var amountAlternativePublisher: AnyPublisher<String, Never> {
-        .just(output: "1 000 010,99 USDT")
-    }
-
-    #warning("TODO")
     var errorPublisher: AnyPublisher<Error?, Never> {
         _amountError.eraseToAnyPublisher()
     }
 
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
-
-    #warning("TODO")
-    var cryptoCurrencyCode: String {
-        "USDT"
-    }
-
-    #warning("TODO")
-    var fiatCurrencyCode: String {
-        "USD"
-    }
 }
 
 extension SendModel: SendDestinationViewModelInput {
