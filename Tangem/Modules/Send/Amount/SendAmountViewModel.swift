@@ -35,16 +35,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
 
-    var amount: Binding<DecimalNumberTextField.DecimalValue?> {
-        .init(get: { [weak self] in
-            guard let self else { return nil }
-            return _amount
-        }, set: { [weak self] newValue in
-            guard let self else { return }
-            input.setAmount(toAmount(newValue))
-        })
-    }
-
+    @Published var amount: DecimalNumberTextField.DecimalValue? = nil
     @Published var currencyOption: CurrencyOption = .fiat
     @Published var amountAlternative: String = ""
     @Published var error: String?
@@ -52,7 +43,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     weak var delegate: SendAmountViewModelDelegate?
 
     private let input: SendAmountViewModelInput
-    private var _amount: DecimalNumberTextField.DecimalValue? = nil
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
@@ -82,8 +72,15 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         input
             .amountPublisher
             .sink { [weak self] amount in
-                self?._amount = self?.fromAmount(amount)
+                self?.amount = self?.fromAmount(amount)
                 self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+
+        $amount
+            .sink { [weak self] amount in
+                guard let self else { return }
+                input.setAmount(toAmount(amount))
             }
             .store(in: &bag)
 
