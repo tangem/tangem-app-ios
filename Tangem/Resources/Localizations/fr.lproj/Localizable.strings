@@ -188,9 +188,9 @@
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You don't have any added tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Unavailable for swap from %@";
+"express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token exchanges";
 "express_choose_providers_title" = "Choose Provider";
-"express_cex_status_button_title" = "Status";
 "express_fetch_best_rates" = "Fetching best rates...";
 "express_provider" = "Provider";
 "express_provider_best_rate" = "Best rate";
