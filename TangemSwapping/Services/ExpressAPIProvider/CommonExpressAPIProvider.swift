@@ -50,30 +50,32 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
-            fromAmount: item.amount,
-            providerId: item.provider.id,
+            fromAmount: item.sourceAmountWEI(),
+            fromDecimals: item.source.decimalCount,
+            providerId: item.providerId,
             rateType: .float
         )
 
         let response = try await expressAPIService.exchangeQuote(request: request)
-        let quote = expressAPIMapper.mapToExpressQuote(response: response)
+        let quote = try expressAPIMapper.mapToExpressQuote(response: response)
         return quote
     }
 
-    func exchangeData(item: ExpressSwappableItem, destinationAddress: String) async throws -> ExpressTransactionData {
+    func exchangeData(item: ExpressSwappableItem) async throws -> ExpressTransactionData {
         let request = ExpressDTO.ExchangeData.Request(
             fromContractAddress: item.source.contractAddress,
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
-            fromAmount: item.amount,
-            providerId: item.provider.id,
+            fromAmount: item.sourceAmountWEI(),
+            fromDecimals: item.source.decimalCount,
+            providerId: item.providerId,
             rateType: .float,
-            toAddress: destinationAddress
+            toAddress: item.destination.defaultAddress
         )
 
         let response = try await expressAPIService.exchangeData(request: request)
-        let data = expressAPIMapper.mapToExpressTransactionData(response: response)
+        let data = try expressAPIMapper.mapToExpressTransactionData(response: response)
         return data
     }
 
