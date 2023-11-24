@@ -36,7 +36,7 @@ struct SendAmountView: View {
                     .padding(.top, 34)
 
                     SendDecimalNumberTextField(
-                        decimalValue: $viewModel.decimalValue,
+                        decimalValue: viewModel.amount,
                         maximumFractionDigits: viewModel.amountFractionDigits,
                         font: Fonts.Regular.title1
                     )
