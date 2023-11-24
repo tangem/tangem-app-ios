@@ -22,23 +22,16 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
     @Published var webViewContainerViewModel: WebViewContainerViewModel?
 
-    private let factory: SwappingModulesFactory
-
-    required init(
-        factory: SwappingModulesFactory,
-        dismissAction: @escaping Action<Void>,
-        popToRootAction: @escaping Action<PopToRootOptions>
-    ) {
-        self.factory = factory
+    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: Options) {
         switch options {
-        case .swapping(let inputModel):
+        case .swapping(let factory, let inputModel):
             legacyRootViewModel = factory.makeSwappingSuccessViewModel(inputModel: inputModel, coordinator: self)
-        case .express(let data):
+        case .express(let factory, let data):
             rootViewModel = factory.makeExpressSuccessSentViewModel(data: data, coordinator: self)
         }
     }
@@ -48,8 +41,8 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
 extension SwappingSuccessCoordinator {
     enum Options {
-        case swapping(SwappingSuccessInputModel)
-        case express(SentExpressTransactionData)
+        case swapping(factory: SwappingModulesFactory, SwappingSuccessInputModel)
+        case express(factory: ExpressModulesFactory, SentExpressTransactionData)
     }
 }
 
