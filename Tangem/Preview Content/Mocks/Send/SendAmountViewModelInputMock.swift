@@ -26,24 +26,14 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
         "2 130,88 USDT (2 129,92 $)"
     }
 
-    var tokenIconName: String {
-        "tether"
-    }
-
-    var tokenIconURL: URL? {
-        TokenIconURLBuilder().iconURL(id: "tether")
-    }
-
-    var tokenIconCustomTokenColor: Color? {
-        nil
-    }
-
-    var tokenIconBlockchainIconName: String? {
-        "ethereum.fill"
-    }
-
-    var isCustomToken: Bool {
-        false
+    var tokenIconInfo: TokenIconInfo {
+        TokenIconInfo(
+            name: "Tether",
+            blockchainIconName: "ethereum.fill",
+            imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+            isCustom: false,
+            customTokenColor: nil
+        )
     }
 
     var amountFractionDigits: Int {
