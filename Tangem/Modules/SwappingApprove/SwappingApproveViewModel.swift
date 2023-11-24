@@ -291,7 +291,7 @@ private extension SwappingApproveViewModel {
             isLoading = false
             mainButtonIsDisabled = true
         default:
-            assertionFailure("Wrong state for this view \(state)")
+            AppLog.shared.debug("Wrong state for this view \(state)")
             updateFeeRowViewModel(fee: 0, fiatFee: 0)
             isLoading = false
             mainButtonIsDisabled = true
