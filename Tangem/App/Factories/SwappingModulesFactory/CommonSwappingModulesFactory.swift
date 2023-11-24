@@ -72,8 +72,12 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
             transactionSender: transactionSender,
-            swappingInteractor: swappingInteractor,
             fiatRatesProvider: fiatRatesProvider,
+            swappingInteractor: swappingInteractor,
+            swappingFeeFormatter: swappingFeeFormatter,
+            pendingTransactionRepository: nil,
+            logger: logger,
+            expressInteractor: nil,
             coordinator: coordinator
         )
     }
@@ -127,7 +131,10 @@ private extension CommonSwappingModulesFactory {
     }
 
     var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(fiatRatesProvider: fiatRatesProvider)
+        CommonSwappingFeeFormatter(
+            balanceFormatter: .init(), balanceConverter: .init(),
+            fiatRatesProvider: fiatRatesProvider
+        )
     }
 
     var explorerURLService: ExplorerURLService {
