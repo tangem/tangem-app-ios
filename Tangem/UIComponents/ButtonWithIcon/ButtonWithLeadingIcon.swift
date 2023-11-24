@@ -145,7 +145,7 @@ private struct ButtonWithLeadingIconContentView: View {
             }
             .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
             .padding(.horizontal, 14)
-            .padding(.vertical, 7.0) // Will result in a frame height 34pt for this button
+            .padding(.vertical, 8)
             .background(colorConfiguration.backgroundColor)
         }
         .cornerRadiusContinuous(10)
