@@ -36,7 +36,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     @Published var decimalValue: DecimalNumberTextField.DecimalValue? = nil
 
-    @Published var currencyOption: CurrencyOption
+    @Published var currencyOption: CurrencyOption = .fiat
     @Published var amountAlternative: String = ""
     @Published var error: String?
 
@@ -52,9 +52,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
 
-        #warning("TODO")
-        let isFiatCalculation = false
-        currencyOption = isFiatCalculation ? .fiat : .crypto
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
