@@ -25,4 +25,9 @@ protocol SwappingModulesFactory {
         inputModel: SwappingSuccessInputModel,
         coordinator: SwappingSuccessRoutable
     ) -> SwappingSuccessViewModel
+
+    func makeExpressSuccessSentViewModel(
+        data: SentExpressTransactionData,
+        coordinator: ExpressSuccessSentRoutable
+    ) -> ExpressSuccessSentViewModel
 }

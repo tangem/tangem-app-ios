@@ -15,7 +15,8 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: SwappingSuccessViewModel?
+    @Published private(set) var legacyRootViewModel: SwappingSuccessViewModel?
+    @Published private(set) var rootViewModel: ExpressSuccessSentViewModel?
 
     // MARK: - Child view models
 
@@ -34,15 +35,21 @@ class SwappingSuccessCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = factory.makeSwappingSuccessViewModel(inputModel: options.inputModel, coordinator: self)
+        switch options {
+        case .swapping(let inputModel):
+            legacyRootViewModel = factory.makeSwappingSuccessViewModel(inputModel: inputModel, coordinator: self)
+        case .express(let data):
+            rootViewModel = factory.makeExpressSuccessSentViewModel(data: data, coordinator: self)
+        }
     }
 }
 
 // MARK: - Options
 
 extension SwappingSuccessCoordinator {
-    struct Options {
-        let inputModel: SwappingSuccessInputModel
+    enum Options {
+        case swapping(SwappingSuccessInputModel)
+        case express(SentExpressTransactionData)
     }
 }
 
@@ -59,5 +66,17 @@ extension SwappingSuccessCoordinator: SwappingSuccessRoutable {
             title: Localization.commonExplorerFormat(currencyName),
             withCloseButton: true
         )
+    }
+}
+
+// MARK: - ExpressSuccessSentRoutable
+
+extension SwappingSuccessCoordinator: ExpressSuccessSentRoutable {
+    func openWebView(url: URL?, title: String) {
+        webViewContainerViewModel = WebViewContainerViewModel(url: url, title: title, withCloseButton: true)
+    }
+
+    func close() {
+        dismiss()
     }
 }
