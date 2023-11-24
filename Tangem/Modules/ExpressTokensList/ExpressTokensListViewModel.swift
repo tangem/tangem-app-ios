@@ -23,7 +23,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let swapDirection: SwapDirection
-    private let walletModels: [WalletModel]
+    private let expressTokensListAdapter: ExpressTokensListAdapter
     private let expressAPIProvider: ExpressAPIProvider
     private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressTokensListRoutable
@@ -36,13 +36,13 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 
     init(
         swapDirection: SwapDirection,
-        walletModels: [WalletModel],
+        expressTokensListAdapter: ExpressTokensListAdapter,
         expressAPIProvider: ExpressAPIProvider,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressTokensListRoutable
     ) {
         self.swapDirection = swapDirection
-        self.walletModels = walletModels
+        self.expressTokensListAdapter = expressTokensListAdapter
         self.expressAPIProvider = expressAPIProvider
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
@@ -60,12 +60,14 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 private extension ExpressTokensListViewModel {
     func initialSetup() {
         runTask(in: self) { viewModel in
-            let availablePairs = try await viewModel.loadAvailablePairs()
-            await viewModel.updateWalletModels(availableCurrencies: availablePairs)
+            for await walletModels in await viewModel.expressTokensListAdapter.walletModels() {
+                let availablePairs = try await viewModel.loadAvailablePairs(walletModels: walletModels)
+                await viewModel.updateWalletModels(walletModels: walletModels, availableCurrencies: availablePairs)
+            }
         }
     }
 
-    func loadAvailablePairs() async throws -> [ExpressCurrency] {
+    func loadAvailablePairs(walletModels: [WalletModel]) async throws -> [ExpressCurrency] {
         let currencies = walletModels.map { $0.expressCurrency }
 
         switch swapDirection {
@@ -79,7 +81,7 @@ private extension ExpressTokensListViewModel {
     }
 
     @MainActor
-    func updateWalletModels(availableCurrencies: [ExpressCurrency]) {
+    func updateWalletModels(walletModels: [WalletModel], availableCurrencies: [ExpressCurrency]) {
         availableWalletModels.removeAll()
         unavailableWalletModels.removeAll()
 

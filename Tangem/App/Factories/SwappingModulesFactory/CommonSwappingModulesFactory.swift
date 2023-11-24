@@ -103,7 +103,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     ) -> ExpressTokensListViewModel {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
-            walletModels: walletModelsManager.walletModels,
+            expressTokensListAdapter: expressTokensListAdapter,
             expressAPIProvider: expressAPIProvider,
             expressInteractor: expressInteractor,
             coordinator: coordinator
@@ -225,6 +225,10 @@ private extension CommonSwappingModulesFactory {
     var balanceConverter: BalanceConverter { .init() }
     var balanceFormatter: BalanceFormatter { .init() }
     var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
+
+    var expressTokensListAdapter: ExpressTokensListAdapter {
+        CommonExpressTokensListAdapter(userWallet: userWalletModel)
+    }
 
     var walletDataProvider: SwappingWalletDataProvider {
         CommonSwappingWalletDataProvider(
