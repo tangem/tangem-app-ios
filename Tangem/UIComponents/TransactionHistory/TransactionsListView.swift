@@ -224,7 +224,7 @@ struct TransactionsListView: View {
         .overlay(
             ZStack {
                 Constants.buttonBackgroundColor
-                    .cornerRadiusContinuous(10.0)
+                    .cornerRadiusContinuous(FlexySizeButtonWithLeadingIcon.Constants.cornerRadius)
 
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
