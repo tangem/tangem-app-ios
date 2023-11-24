@@ -12,17 +12,8 @@ import Combine
 import BlockchainSdk
 
 protocol SendAmountViewModelInput {
-    var walletName: String { get }
-    var balance: String { get }
-    var tokenIconInfo: TokenIconInfo { get }
-    var amountFractionDigits: Int { get }
-    var amountAlternativePublisher: AnyPublisher<String, Never> { get }
     var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
-
-    var isFiatCalculation: Bool { get }
-    var cryptoCurrencyCode: String { get }
-    var fiatCurrencyCode: String { get }
 
     var blockchain: Blockchain { get }
     var amountType: Amount.AmountType { get }
@@ -54,16 +45,18 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let input: SendAmountViewModelInput
     private var bag: Set<AnyCancellable> = []
 
-    init(input: SendAmountViewModelInput) {
+    init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
-        walletName = input.walletName
-        balance = input.balance
-        tokenIconInfo = input.tokenIconInfo
-        amountFractionDigits = input.amountFractionDigits
+        walletName = walletInfo.walletName
+        balance = walletInfo.balance
+        tokenIconInfo = walletInfo.tokenIconInfo
+        amountFractionDigits = walletInfo.amountFractionDigits
 
-        currencyOption = input.isFiatCalculation ? .fiat : .crypto
-        cryptoCurrencyCode = input.cryptoCurrencyCode
-        fiatCurrencyCode = input.fiatCurrencyCode
+        #warning("TODO")
+        let isFiatCalculation = false
+        currencyOption = isFiatCalculation ? .fiat : .crypto
+        cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
+        fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
         bind(from: input)
     }
