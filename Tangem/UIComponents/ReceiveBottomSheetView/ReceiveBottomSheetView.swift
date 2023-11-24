@@ -32,11 +32,13 @@ struct ReceiveBottomSheetView: View {
     private var addressNetworkUnderstandingConfirmationView: some View {
         VStack(spacing: 56) {
             TokenIcon(
-                name: "",
-                imageURL: viewModel.iconURL,
-                customTokenColor: viewModel.customTokenColor,
-                blockchainIconName: nil,
-                isCustom: false,
+                tokenIconInfo: .init(
+                    name: "",
+                    blockchainIconName: nil,
+                    imageURL: viewModel.iconURL,
+                    isCustom: false,
+                    customTokenColor: viewModel.customTokenColor
+                ),
                 size: IconViewSizeSettings.receive.iconSize
             )
             .padding(.top, 56)
