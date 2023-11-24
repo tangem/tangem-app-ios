@@ -16,7 +16,23 @@ struct ProviderRowViewModel: Identifiable {
     let badge: Badge?
     let subtitles: [Subtitle]
     let detailsType: DetailsType?
-    let tapAction: () -> Void
+    let tapAction: (() -> Void)?
+
+    init(
+        provider: Provider,
+        isDisabled: Bool,
+        badge: Badge?,
+        subtitles: [Subtitle],
+        detailsType: DetailsType?,
+        tapAction: (() -> Void)? = nil
+    ) {
+        self.provider = provider
+        self.isDisabled = isDisabled
+        self.badge = badge
+        self.subtitles = subtitles
+        self.detailsType = detailsType
+        self.tapAction = tapAction
+    }
 }
 
 extension ProviderRowViewModel {
