@@ -97,9 +97,8 @@ class ExpressNotificationManager {
             event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceNetworkSymbol)")
         case .hasPendingTransaction:
             event = .hasPendingTransaction
-        case .notEnoughBalanceForSwapping:
-            notificationInputsSubject.value = []
-            return
+        case .notEnoughBalanceForSwapping(let requiredAmount):
+            event = .notEnoughBalanceToSwap(maximumAmountText: "\(requiredAmount) \(sourceTokenItem.currencySymbol)")
         case .notEnoughAmountForFee:
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
