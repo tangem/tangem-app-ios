@@ -13,28 +13,9 @@ struct MultiWalletMainContentView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            if let settings = viewModel.missingDerivationNotificationSettings {
-                NotificationView(settings: settings, buttons: [
-                    .init(
-                        action: viewModel.didTapNotificationButton(with:action:),
-                        actionType: .generateAddresses
-                    ),
-                ])
-                .setButtonsLoadingState(to: viewModel.isScannerBusy)
-                .transition(.notificationTransition)
-            }
-
-            if let settings = viewModel.missingBackupNotificationSettings {
-                NotificationView(settings: settings, buttons: [
-                    .init(
-                        action: viewModel.didTapNotificationButton(with:action:),
-                        actionType: .backupCard
-                    ),
-                ])
-            }
-
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
+                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
                     .transition(.notificationTransition)
             }
 
@@ -54,7 +35,6 @@ struct MultiWalletMainContentView: View {
                 .infinityFrame(axis: .horizontal)
             }
         }
-        .animation(.default, value: viewModel.missingDerivationNotificationSettings)
         .animation(.default, value: viewModel.notificationInputs)
         .animation(.default, value: viewModel.tokensNotificationInputs)
         .padding(.horizontal, 16)
@@ -116,7 +96,10 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
-        let optionsManager = OrganizeTokensOptionsManagerStub()
+        let optionsManager = FakeOrganizeTokensOptionsManager(
+            initialGroupingOption: .none,
+            initialSortingOption: .dragAndDrop
+        )
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
             optionsProviding: optionsManager,
