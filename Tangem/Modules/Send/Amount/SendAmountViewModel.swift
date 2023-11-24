@@ -33,8 +33,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let cryptoCurrencyCode: String
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
-
-    @Published var decimalValue: DecimalNumberTextField.DecimalValue? = nil
+    
+    var amount: Binding<DecimalNumberTextField.DecimalValue?> {
+        .init(get: { [weak self] in
+            guard let self else { return nil }
+            return _amount
+        }, set: { [weak self] newValue in
+            guard let self else { return }
+            input.setAmount(toAmount(newValue))
+        })
+    }
 
     @Published var currencyOption: CurrencyOption = .fiat
     @Published var amountAlternative: String = ""
@@ -43,6 +51,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     weak var delegate: SendAmountViewModelDelegate?
 
     private let input: SendAmountViewModelInput
+    private var _amount: DecimalNumberTextField.DecimalValue? = nil
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
@@ -72,14 +81,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         input
             .amountPublisher
             .sink { [weak self] amount in
-                self?.decimalValue = self?.fromAmount(amount)
-            }
-            .store(in: &bag)
-
-        $decimalValue
-            .sink { [weak self] decimalValue in
-                guard let self else { return }
-                input.setAmount(toAmount(decimalValue))
+                self?._amount = self?.fromAmount(amount)
+                self?.objectWillChange.send()
             }
             .store(in: &bag)
 
@@ -93,7 +96,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     private func fromAmount(_ amount: Amount?) -> DecimalNumberTextField.DecimalValue? {
         if let amount {
-            return DecimalNumberTextField.DecimalValue.internal(amount.value)
+            return DecimalNumberTextField.DecimalValue.external(amount.value)
         } else {
             return nil
         }
