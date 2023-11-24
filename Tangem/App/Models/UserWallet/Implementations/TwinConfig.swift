@@ -91,7 +91,7 @@ extension TwinConfig: UserWalletConfig {
         Assets.Cards.twins
     }
 
-    var cardSessionFilter: CardSessionFilter {
+    var cardSessionFilter: SessionFilter {
         if let userWalletIdSeed, let pairKey = twinData.pairPublicKey {
             let userWalletId = UserWalletId(with: userWalletIdSeed)
             let filter = TwinPreflightReadFilter(userWalletId: userWalletId, pairPublicKey: pairKey)
