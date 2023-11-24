@@ -36,6 +36,29 @@ class ExpressNotificationManager {
         priceImpactTask = nil
 
         switch state {
+        case .idle:
+            notificationInputsSubject.value = []
+        case .loading(.refreshRates):
+            break
+        case .loading(.full):
+            notificationInputsSubject.value = notificationInputsSubject.value.filter {
+                guard let event = $0.settings.event as? ExpressNotificationEvent else {
+                    return false
+                }
+
+                return !event.removingOnFullLoadingState
+            }
+        case .restriction(let restrictions, let expectedQuote):
+            setupNotification(for: restrictions)
+
+            guard let quote = expectedQuote?.quote else {
+                return
+            }
+
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
+        case .permissionRequired:
+            setupPermissionRequiredNotification()
+
         case .readyToSwap(let swapData, _):
             notificationInputsSubject.value = []
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
@@ -45,25 +68,6 @@ class ExpressNotificationManager {
             if let quote = quote.quote {
                 checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
             }
-
-        case .restriction(let restrictions, let expectedQuote):
-            setupNotification(for: restrictions)
-
-            guard let quote = expectedQuote?.quote else {
-                return
-            }
-
-            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
-        case .loading(.full):
-            notificationInputsSubject.value = notificationInputsSubject.value.filter {
-                guard let event = $0.settings.event as? ExpressNotificationEvent else {
-                    return false
-                }
-
-                return !event.removingOnFullLoadingState
-            }
-        case .loading(.refreshRates), .idle:
-            break
         }
     }
 
@@ -91,13 +95,10 @@ class ExpressNotificationManager {
         switch restrictions {
         case .notEnoughAmountForSwapping(let minAmount):
             event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceNetworkSymbol)")
-        case .permissionRequired:
-            event = .permissionNeeded(currencyCode: sourceNetworkSymbol)
         case .hasPendingTransaction:
             event = .hasPendingTransaction
-        case .notEnoughBalanceForSwapping:
-            notificationInputsSubject.value = []
-            return
+        case .notEnoughBalanceForSwapping(let requiredAmount):
+            event = .notEnoughBalanceToSwap(maximumAmountText: "\(requiredAmount) \(sourceTokenItem.currencySymbol)")
         case .notEnoughAmountForFee:
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
@@ -110,6 +111,20 @@ class ExpressNotificationManager {
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceNetworkSymbol)
         }
+
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+        }
+        notificationInputsSubject.value = [notification]
+    }
+
+    private func setupPermissionRequiredNotification() {
+        guard let interactor = expressInteractor else { return }
+
+        let sourceTokenItem = interactor.getSender().tokenItem
+        let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
+        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceNetworkSymbol)
+        let notificationsFactory = NotificationsFactory()
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
