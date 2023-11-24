@@ -40,7 +40,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.notificationTransition)
+                        .transition(viewModel.shouldShowNotificationsWithAnimation ? .notificationTransition : .identity)
                 }
 
                 if viewModel.isMarketPriceAvailable {
@@ -79,6 +79,7 @@ struct TokenDetailsView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
+        .onDidAppear(viewModel.onDidAppear)
         .alert(item: $viewModel.alert) { $0.alert }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
@@ -111,7 +112,6 @@ struct TokenDetailsView: View {
                 }
             } label: {
                 NavbarDotsImage()
-                    .offset(x: 10)
             }
         }
     }
