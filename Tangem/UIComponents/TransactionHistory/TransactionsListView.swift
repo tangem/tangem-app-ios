@@ -220,7 +220,6 @@ struct TransactionsListView: View {
                 .overrideBackgroundColor(Constants.buttonBackgroundColor)
             }
         }
-        .frame(height: Constants.buttonHeight)
     }
 
     @ViewBuilder
@@ -241,7 +240,6 @@ struct TransactionsListView: View {
             }
             .hidden(!isReloadButtonBusy)
         )
-        .frame(height: Constants.buttonHeight)
     }
 }
 
@@ -270,7 +268,6 @@ extension TransactionsListView {
     enum Constants {
         @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
         static let ios14ListItemHeight = 56.0
-        static let buttonHeight = 34.0
         static let buttonBackgroundColor = Colors.Button.secondary
     }
 }
