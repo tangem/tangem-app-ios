@@ -17,11 +17,11 @@ struct TangemSigner: TransactionSigner {
 
     private var _signPublisher: PassthroughSubject<Card, Never> = .init()
     private var initialMessage: Message { .init(header: nil, body: Localization.initialMessageSignBody) }
-    private let filter: CardSessionFilter
+    private let filter: SessionFilter
     private let twinKey: TwinKey?
     private let sdk: TangemSdk
 
-    init(filter: CardSessionFilter, sdk: TangemSdk, twinKey: TwinKey?) {
+    init(filter: SessionFilter, sdk: TangemSdk, twinKey: TwinKey?) {
         self.filter = filter
         self.twinKey = twinKey
         self.sdk = sdk
@@ -36,7 +36,7 @@ struct TangemSigner: TransactionSigner {
                 derivationPath: walletPublicKey.derivationPath
             )
 
-            sdk.startSession(with: signCommand, sessionFilter: filter, initialMessage: initialMessage) { signResult in
+            sdk.startSession(with: signCommand, filter: filter, initialMessage: initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
                     _signPublisher.send(response.card)
