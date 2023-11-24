@@ -14,15 +14,10 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var searchText: String = ""
-    @Published var availableTokens: [ExpressTokenItemViewModel] = []
-    @Published var unavailableTokens: [ExpressTokenItemViewModel] = []
+    @Published var viewState: ViewState = .idle
 
     var unavailableSectionHeader: String {
         Localization.exchangeTokensUnavailableTokensHeader(swapDirection.name)
-    }
-
-    var isEmptyView: Bool {
-        searchText.isEmpty && availableTokens.isEmpty && unavailableTokens.isEmpty
     }
 
     // MARK: - Dependencies
@@ -126,17 +121,23 @@ private extension ExpressTokensListViewModel {
     }
 
     func updateView(searchText: String = "") {
-        availableTokens = availableWalletModels
+        let availableTokens = availableWalletModels
             .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
             .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
             }
 
-        unavailableTokens = unavailableWalletModels
+        let unavailableTokens = unavailableWalletModels
             .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
             .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
             }
+
+        if searchText.isEmpty, availableTokens.isEmpty, unavailableTokens.isEmpty {
+            viewState = .isEmpty
+        } else {
+            viewState = .loaded(availableTokens: availableTokens, unavailableTokens: unavailableTokens)
+        }
     }
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
@@ -168,6 +169,13 @@ private extension ExpressTokensListViewModel {
 }
 
 extension ExpressTokensListViewModel {
+    enum ViewState {
+        case idle
+        case loading
+        case isEmpty
+        case loaded(availableTokens: [ExpressTokenItemViewModel], unavailableTokens: [ExpressTokenItemViewModel])
+    }
+
     enum SwapDirection {
         case fromSource(WalletModel)
         case toDestination(WalletModel)
