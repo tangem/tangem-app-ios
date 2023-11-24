@@ -11,36 +11,37 @@ import Combine
 
 struct CommonExpressTokensListAdapter {
     let userWallet: UserWalletModel
-}
+    let adapter: TokenSectionsAdapter
 
-extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
-    func walletModels() async -> AsyncStream<[WalletModel]> {
-        let just = Just(userWallet.walletModelsManager.walletModels)
-        let organizedTokensSectionsPublisher = makeAdapter()
-            .organizedSections(from: just, on: .global())
-            .map { section -> [WalletModel] in
-                section.flatMap { section in
-                    section.items.compactMap { item in
-                        guard case .default(let walletModel) = item else {
-                            return nil
-                        }
-
-                        return walletModel
-                    }
-                }
-            }
-            .replaceError(with: [])
-
-        return await organizedTokensSectionsPublisher.values
-    }
-}
-
-private extension CommonExpressTokensListAdapter {
-    func makeAdapter() -> TokenSectionsAdapter {
-        TokenSectionsAdapter(
+    init(userWallet: UserWalletModel) {
+        self.userWallet = userWallet
+        adapter = TokenSectionsAdapter(
             userTokenListManager: userWallet.userTokenListManager,
             optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: userWallet.userTokensManager),
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
+    }
+}
+
+extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
+    func walletModels() -> AnyPublisher<[WalletModel], Never> {
+        let just = Just(userWallet.walletModelsManager.walletModels)
+        return adapter
+            .organizedSections(from: just, on: .global())
+            .map { section -> [WalletModel] in
+                section.flatMap { $0.items.compactMap { $0.walletModel } }
+            }
+            .eraseToAnyPublisher()
+    }
+}
+
+private extension TokenSectionsAdapter.SectionItem {
+    var walletModel: WalletModel? {
+        switch self {
+        case .default(let walletModel):
+            return walletModel
+        case .withoutDerivation:
+            return nil
+        }
     }
 }
