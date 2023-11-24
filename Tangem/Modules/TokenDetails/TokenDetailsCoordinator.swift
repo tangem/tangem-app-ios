@@ -222,11 +222,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        if FeatureProvider.isAvailable(.express) {
-            openExpress(input: input)
-            return
-        }
-
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.swappingCoordinator = nil
         }
