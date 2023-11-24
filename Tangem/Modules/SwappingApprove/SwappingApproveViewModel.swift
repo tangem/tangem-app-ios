@@ -278,7 +278,7 @@ private extension SwappingApproveViewModel {
 private extension SwappingApproveViewModel {
     func updateView(for state: ExpressInteractor.ExpressInteractorState) {
         switch state {
-        case .restriction(.permissionRequired(let state), quote: _):
+        case .permissionRequired(let state, _):
             updateFeeAmount(fees: state.fees)
             isLoading = false
             mainButtonIsDisabled = false
@@ -291,7 +291,7 @@ private extension SwappingApproveViewModel {
             isLoading = false
             mainButtonIsDisabled = true
         default:
-            assertionFailure("Wrong state for this view")
+            AppLog.shared.debug("Wrong state for this view \(state)")
             updateFeeRowViewModel(fee: 0, fiatFee: 0)
             isLoading = false
             mainButtonIsDisabled = true
@@ -299,10 +299,9 @@ private extension SwappingApproveViewModel {
     }
 
     func updateFeeAmount(fees: [FeeOption: Fee]) {
-        let tokenItem = expressInteractor.getSender().tokenItem
+        let blockchain = expressInteractor.getSender().tokenItem.blockchain
 
-        guard let fee = fees[expressInteractor.getFeeOption()],
-              let currencyId = tokenItem.currencyId else {
+        guard let fee = fees[expressInteractor.getFeeOption()] else {
             errorAlert = AlertBinder(
                 title: Localization.commonError,
                 message: ExpressInteractorError.feeNotFound.localizedDescription
@@ -311,11 +310,10 @@ private extension SwappingApproveViewModel {
             return
         }
 
-        let currencySymbol = expressInteractor.getSender().tokenItem.currencySymbol
         let formatted = swappingFeeFormatter.format(
             fee: fee.amount.value,
-            currencySymbol: currencySymbol,
-            currencyId: currencyId
+            currencySymbol: blockchain.currencySymbol,
+            currencyId: blockchain.currencyId
         )
         feeRowViewModel?.update(detailsType: .text(formatted))
     }
@@ -339,6 +337,8 @@ private extension SwappingApproveViewModel {
             do {
                 try await viewModel.expressInteractor.sendApproveTransaction()
                 await viewModel.didSendApproveTransaction()
+            } catch TangemSdkError.userCancelled {
+                // Do nothing
             } catch {
                 viewModel.logger.error(error)
                 await runOnMain {
