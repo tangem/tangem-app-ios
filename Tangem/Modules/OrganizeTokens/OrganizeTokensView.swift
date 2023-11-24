@@ -76,6 +76,8 @@ struct OrganizeTokensView: View {
         )
     }
 
+    @State private var scrolledID: AnyHashable?
+
     // MARK: - Body
 
     var body: some View {
@@ -102,9 +104,10 @@ struct OrganizeTokensView: View {
 
     // MARK: - Subviews
 
+    @ViewBuilder
     private var tokenList: some View {
-        GeometryReader { geometryProxy in
-            ScrollViewReader { scrollProxy in
+        if #available(iOS 17.0, *) {
+            GeometryReader { geometryProxy in
                 ScrollView(showsIndicators: false) {
                     // ScrollView inserts default spacing between its content views.
                     // Wrapping content into `VStack` prevents it.
@@ -130,12 +133,15 @@ struct OrganizeTokensView: View {
                             bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
                         )
                         .overlay(makeDragAndDropGestureOverlayView())
+                        .scrollTargetLayout()
 
                         Spacer(minLength: scrollViewBottomContentInset)
                             .fixedSize()
                             .id(scrollViewBottomContentInsetSpacerIdentifier)
                     }
                 }
+                // .animation(.linear(duration: 5.0), value: scrolledID)   // won't work
+                .scrollPosition(id: $scrolledID /* .animation(.linear(duration: 5.0)) */ ) // won't work
                 .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
                     dragAndDropController.viewportSizeSubject.send(newValue.size)
                     visibleViewportFrame = newValue
@@ -147,39 +153,42 @@ struct OrganizeTokensView: View {
                 .onChange(of: draggedItemFrame) { draggedItemFrame in
                     changeAutoScrollStatusIfNeeded(draggedItemFrame: draggedItemFrame)
                 }
-                .onReceive(dragAndDropController.autoScrollTargetPublisher) { newValue in
-                    withAnimation(.linear(duration: Constants.autoScrollFrequency)) {
-                        scrollProxy.scrollTo(newValue, anchor: scrollAnchor())
-                    }
+                .overlay(
+                    makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
+                        .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
+                    alignment: .top
+                )
+                // .animation(.linear(duration: 5.0), value: scrolledID)   // won't work
+            }
+            .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+            .onChange(of: scrollState.contentOffset) { newValue in
+                dragAndDropController.contentOffsetSubject.send(newValue)
+                updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
+            }
+            .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
+                guard let oldValue = oldValue, let newValue = newValue else { return }
+
+                dragAndDropController.onItemsMove()
+                viewModel.move(from: oldValue, to: newValue)
+            }
+            .onChange(of: hasActiveDrag) { newValue in
+                if !newValue {
+                    // Perform required clean-up when the user lifts the finger
+                    dragAndDropController.stopAutoScrolling()
+                    dragAndDropDestinationIndexPath = nil
+                    dragAndDropSourceItemFrame = nil
                 }
             }
-            .overlay(
-                makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
-                    .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
-                alignment: .top
-            )
-        }
-        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
-        .onChange(of: scrollState.contentOffset) { newValue in
-            dragAndDropController.contentOffsetSubject.send(newValue)
-            updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
-        }
-        .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
-            guard let oldValue = oldValue, let newValue = newValue else { return }
-
-            dragAndDropController.onItemsMove()
-            viewModel.move(from: oldValue, to: newValue)
-        }
-        .onChange(of: hasActiveDrag) { newValue in
-            if !newValue {
-                // Perform required clean-up when the user lifts the finger
-                dragAndDropController.stopAutoScrolling()
-                dragAndDropDestinationIndexPath = nil
-                dragAndDropSourceItemFrame = nil
+            .onChange(of: dragGestureTranslation) { newValue in
+                updateDragAndDropDestinationIndexPath(using: newValue)
             }
-        }
-        .onChange(of: dragGestureTranslation) { newValue in
-            updateDragAndDropDestinationIndexPath(using: newValue)
+            .onReceive(dragAndDropController.autoScrollTargetPublisher) { newValue in
+                withAnimation(.linear(duration: 5.0)) {
+                    scrolledID = newValue
+                }
+            }
+        } else {
+            fatalError("Test only")
         }
     }
 
