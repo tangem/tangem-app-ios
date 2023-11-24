@@ -85,6 +85,7 @@ enum ExpressDTO {
             let toContractAddress: String
             let toNetwork: String
             let fromAmount: String
+            let fromDecimals: Int
             let providerId: Int
             let rateType: Provider.RateType
         }
@@ -108,9 +109,9 @@ enum ExpressDTO {
             let toContractAddress: String
             let toNetwork: String
             let fromAmount: String
+            let fromDecimals: Int
             let providerId: Int
             let rateType: Provider.RateType
-            let refundAddress: String // address for refund if something will wrong
             let toAddress: String // address for receiving token
         }
 
