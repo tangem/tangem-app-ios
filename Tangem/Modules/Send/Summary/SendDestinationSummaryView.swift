@@ -8,23 +8,6 @@
 
 import SwiftUI
 
-struct SendDestinationSummaryView: View {
-    let types: [SendDestinationSummaryViewType]
-
-    var body: some View {
-        GroupedSection(types) { type in
-            switch type {
-            case .address(let address):
-                SendDestinationAddressSummaryView(address: address)
-            case .additionalField(let type, let value):
-                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
-            }
-        }
-        .horizontalPadding(14)
-        .separatorStyle(.minimum)
-    }
-}
-
 private struct SendDestinationAddressSummaryView: View {
     let address: String
 
@@ -48,31 +31,52 @@ private struct SendDestinationAddressSummaryView: View {
 
 #Preview {
     GroupedScrollView {
-        SendDestinationSummaryView(
-            types: [
-                .address(address: "1230123"),
-            ]
-        )
+        GroupedSection(SendDestinationSummaryViewType.address(address: "1230123")) { type in
+            switch type {
+            case .address(let address):
+                SendDestinationAddressSummaryView(address: address)
+            case .additionalField(let type, let value):
+                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+            }
+        }
 
-        SendDestinationSummaryView(
-            types: [
-                .address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
-            ]
-        )
+        GroupedSection(SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470")) { type in
+            switch type {
+            case .address(let address):
+                SendDestinationAddressSummaryView(address: address)
+            case .additionalField(let type, let value):
+                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+            }
+        }
 
-        SendDestinationSummaryView(
-            types: [
-                .address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
-                .additionalField(type: .memo, value: "123456789"),
+        GroupedSection(
+            [
+                SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+                SendDestinationSummaryViewType.additionalField(type: .memo, value: "123456789"),
             ]
-        )
+        ) { type in
+            switch type {
+            case .address(let address):
+                SendDestinationAddressSummaryView(address: address)
+            case .additionalField(let type, let value):
+                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+            }
+        }
+        .backgroundColor(Colors.Button.disabled)
 
-        SendDestinationSummaryView(
-            types: [
-                .address(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470"),
-                .additionalField(type: .destinationTag, value: "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789"),
+        GroupedSection(
+            [
+                SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470"),
+                SendDestinationSummaryViewType.additionalField(type: .destinationTag, value: "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789"),
             ]
-        )
+        ) { type in
+            switch type {
+            case .address(let address):
+                SendDestinationAddressSummaryView(address: address)
+            case .additionalField(let type, let value):
+                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+            }
+        }
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
