@@ -57,12 +57,13 @@ private extension CommonExpressAPIService {
         do {
             response = try await provider.asyncRequest(target)
         } catch {
-            logError(target: target, error: error)
-            throw ExpressAPIServiceError.requestError(error)
+            log(target: target, error: error)
+            throw error
         }
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
+            log(target: target, response: response)
         } catch {
             try handleError(target: target, response: response)
         }
@@ -70,25 +71,20 @@ private extension CommonExpressAPIService {
         do {
             return try decoder.decode(T.self, from: response.data)
         } catch {
-            logError(target: target, response: response, error: error)
-            throw ExpressAPIServiceError.decodingError(error)
+            log(target: target, response: response, error: error)
+            throw error
         }
     }
 
     func handleError(target: ExpressAPITarget, response: Response) throws {
         let decoder = JSONDecoder()
 
-        do {
-            let error = try decoder.decode(ExpressDTO.APIError.self, from: response.data)
-            logError(target: target, response: response, error: error)
-            throw ExpressAPIServiceError.apiError(error)
-        } catch {
-            logError(target: target, response: response, error: error)
-            throw ExpressAPIServiceError.decodingError(error)
-        }
+        let error = try decoder.decode(ExpressDTO.APIError.Response.self, from: response.data)
+        log(target: target, response: response, error: error.error)
+        throw error.error
     }
 
-    func logError(target: TargetType, response: Response? = nil, error: Any) {
+    func log(target: TargetType, response: Response? = nil, error: Error? = nil) {
         var info = ""
         if let response {
             info = String(data: response.data, encoding: .utf8)!
@@ -96,9 +92,12 @@ private extension CommonExpressAPIService {
 
         logger.debug(
             """
-            Error when request to target \(target.path)
-            with info \(info)
-            \(error)
+            [ExpressAPIService]
+            Request to target: \(target.path)
+            plugins: \(provider.plugins))
+            task: \(target.task)
+            eded with response: \(info)
+            Error: \(String(describing: error))
             """
         )
     }
