@@ -102,9 +102,11 @@ final class SendViewModel: ObservableObject {
         self.steps = steps
         step = firstStep
 
+        #warning("[REDACTED_TODO_COMMENT]")
+        let walletName = "Wallet Name"
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let walletInfo = SendWalletInfo(
-            walletName: walletModel.name,
+            walletName: walletName,
             balance: walletModel.balance,
             tokenIconInfo: tokenIconInfo,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
