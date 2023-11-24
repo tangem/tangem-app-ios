@@ -52,6 +52,9 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.swappingCoordinator) {
                 SwappingCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.expressCoordinator) {
+                ExpressCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
