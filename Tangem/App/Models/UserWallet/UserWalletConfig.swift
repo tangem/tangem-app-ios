@@ -58,7 +58,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var customScanImage: ImageType? { get }
 
-    var cardSessionFilter: CardSessionFilter { get }
+    var cardSessionFilter: SessionFilter { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
@@ -136,7 +136,7 @@ extension UserWalletConfig where Self: CardContainer {
         .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
     }
 
-    var cardSessionFilter: CardSessionFilter {
+    var cardSessionFilter: SessionFilter {
         let shouldSkipCardId = card.backupStatus?.isActive ?? false
 
         if shouldSkipCardId, let userWalletIdSeed {
