@@ -71,10 +71,7 @@ struct TransactionsListView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 36)
 
-            makeExploreTransactionHistoryButton(
-                withTitle: Localization.exploreTransactionHistoryDefault,
-                hasFixedSize: true
-            )
+            makeExploreTransactionHistoryButton(withTitle: Localization.commonExploreTransactionHistory, hasFixedSize: true)
         }
         .padding(.vertical, 28)
     }
@@ -102,10 +99,7 @@ struct TransactionsListView: View {
             Text(Localization.transactionHistoryEmptyTransactions)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-            makeExploreTransactionHistoryButton(
-                withTitle: Localization.exploreTransactionHistoryBrief,
-                hasFixedSize: true
-            )
+            makeExploreTransactionHistoryButton(withTitle: Localization.commonExplore, hasFixedSize: true)
         }
         .padding(.vertical, 28)
     }
@@ -125,10 +119,7 @@ struct TransactionsListView: View {
             HStack(spacing: 8.0) {
                 makeReloadTransactionHistoryButton()
 
-                makeExploreTransactionHistoryButton(
-                    withTitle: Localization.exploreTransactionHistoryCompact,
-                    hasFixedSize: false
-                )
+                makeExploreTransactionHistoryButton(withTitle: Localization.commonExploreHistory, hasFixedSize: false)
             }
             .padding(.horizontal, 16.0)
         }
