@@ -49,22 +49,45 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 
         bind()
     }
-
-    func onAppear() {
-        initialSetup()
-    }
 }
 
 // MARK: - Private
 
 private extension ExpressTokensListViewModel {
-    func initialSetup() {
-        runTask(in: self) { viewModel in
-            for await walletModels in await viewModel.expressTokensListAdapter.walletModels() {
-                let availablePairs = try await viewModel.loadAvailablePairs(walletModels: walletModels)
-                await viewModel.updateWalletModels(walletModels: walletModels, availableCurrencies: availablePairs)
+    func bind() {
+        expressTokensListAdapter.walletModels()
+            .withWeakCaptureOf(self)
+            .asyncMap { viewModel, walletModels in
+                do {
+                    let availablePairs = try await viewModel.loadAvailablePairs(walletModels: walletModels)
+                    return (walletModels: walletModels, pairs: availablePairs)
+                } catch {
+                    return (walletModels: walletModels, pairs: [])
+                }
             }
-        }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] walletModels, pairs in
+                self?.updateWalletModels(walletModels: walletModels, availableCurrencies: pairs)
+            }
+            .store(in: &bag)
+
+        $searchText
+            .removeDuplicates()
+            .dropFirst()
+            .flatMapLatest { searchText in
+                // We don't add debounce for the empty text
+                if searchText.isEmpty {
+                    return Just(searchText).eraseToAnyPublisher()
+                }
+
+                return Just(searchText)
+                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                    .eraseToAnyPublisher()
+            }
+            .sink { [weak self] searchText in
+                self?.updateView(searchText: searchText)
+            }
+            .store(in: &bag)
     }
 
     func loadAvailablePairs(walletModels: [WalletModel]) async throws -> [ExpressCurrency] {
@@ -80,7 +103,6 @@ private extension ExpressTokensListViewModel {
         }
     }
 
-    @MainActor
     func updateWalletModels(walletModels: [WalletModel], availableCurrencies: [ExpressCurrency]) {
         availableWalletModels.removeAll()
         unavailableWalletModels.removeAll()
@@ -100,26 +122,6 @@ private extension ExpressTokensListViewModel {
             }
 
         updateView()
-    }
-
-    func bind() {
-        $searchText
-            .removeDuplicates()
-            .dropFirst()
-            .flatMapLatest { searchText in
-                // We don't add debounce for the empty text
-                if searchText.isEmpty {
-                    return Just(searchText).eraseToAnyPublisher()
-                }
-
-                return Just(searchText)
-                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
-                    .eraseToAnyPublisher()
-            }
-            .sink { [weak self] searchText in
-                self?.updateView(searchText: searchText)
-            }
-            .store(in: &bag)
     }
 
     func updateView(searchText: String = "") {
