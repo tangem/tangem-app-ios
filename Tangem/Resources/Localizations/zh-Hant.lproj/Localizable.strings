@@ -77,6 +77,7 @@
 "common_error" = "錯誤";
 "common_exchange" = "交易";
 "common_explore" = "Explore";
+"common_explore_history" = "Explore history";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
@@ -188,9 +189,6 @@
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You don't have any added tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Unavailable for swap from %@";
-"explore_transaction_history_brief" = "Explore";
-"explore_transaction_history_compact" = "Explore history";
-"explore_transaction_history_default" = "Explore transaction history";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token exchanges";
 "express_choose_providers_title" = "Choose Provider";
 "express_fetch_best_rates" = "Fetching best rates...";
