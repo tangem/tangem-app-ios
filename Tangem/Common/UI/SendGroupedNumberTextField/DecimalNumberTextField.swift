@@ -14,20 +14,23 @@ struct DecimalNumberTextField: View {
 
     private let placeholder: String = "0"
     private var decimalNumberFormatter: DecimalNumberFormatter
+    private let font: Font
     private var decimalSeparator: Character { decimalNumberFormatter.decimalSeparator }
     private var groupingSeparator: Character { decimalNumberFormatter.groupingSeparator }
 
     init(
         decimalValue: Binding<DecimalValue?>,
-        decimalNumberFormatter: DecimalNumberFormatter
+        decimalNumberFormatter: DecimalNumberFormatter,
+        font: Font
     ) {
         _decimalValue = decimalValue
         self.decimalNumberFormatter = decimalNumberFormatter
+        self.font = font
     }
 
     var body: some View {
         TextField(placeholder, text: $textFieldText)
-            .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+            .style(font, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
             .tintCompat(Colors.Text.primary1)
             .onChange(of: decimalValue) { newDecimalValue in
@@ -94,7 +97,8 @@ struct DecimalNumberTextField_Previews: PreviewProvider {
     static var previews: some View {
         DecimalNumberTextField(
             decimalValue: $decimalValue,
-            decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: 8)
+            decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: 8),
+            font: Fonts.Regular.title1
         )
     }
 }
