@@ -489,14 +489,11 @@ private extension ExpressViewModel {
             currencyId: tokenItem.currencyId ?? ""
         )
 
-        let action: (() -> Void)? = { [weak self] in
-            // If fee is one option then don't open selector
-            if fees.count > 1 {
-                self?.openFeeSelectorView()
-            }
-
-            return nil
-        }()
+        var action: (() -> Void)?
+        // If fee is one option then don't open selector
+        if fees.count > 1 {
+            action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
+        }
 
         expressFeeRowViewModel = ExpressFeeRowData(title: Localization.sendFeeLabel, subtitle: formattedFee, action: action)
     }
