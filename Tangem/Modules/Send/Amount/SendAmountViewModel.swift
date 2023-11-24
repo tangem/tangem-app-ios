@@ -14,11 +14,7 @@ import BlockchainSdk
 protocol SendAmountViewModelInput {
     var walletName: String { get }
     var balance: String { get }
-    var tokenIconName: String { get }
-    var tokenIconURL: URL? { get }
-    var tokenIconCustomTokenColor: Color? { get }
-    var tokenIconBlockchainIconName: String? { get }
-    var isCustomToken: Bool { get }
+    var tokenIconInfo: TokenIconInfo { get }
     var amountFractionDigits: Int { get }
     var amountAlternativePublisher: AnyPublisher<String, Never> { get }
     var amountPublisher: AnyPublisher<Amount?, Never> { get }
@@ -42,11 +38,7 @@ protocol SendAmountViewModelDelegate: AnyObject {
 class SendAmountViewModel: ObservableObject, Identifiable {
     let walletName: String
     let balance: String
-    let tokenIconName: String
-    let tokenIconURL: URL?
-    let tokenIconCustomTokenColor: Color?
-    let tokenIconBlockchainIconName: String?
-    let isCustomToken: Bool
+    let tokenIconInfo: TokenIconInfo
     let cryptoCurrencyCode: String
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
@@ -66,11 +58,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.input = input
         walletName = input.walletName
         balance = input.balance
-        tokenIconName = input.tokenIconName
-        tokenIconURL = input.tokenIconURL
-        tokenIconCustomTokenColor = input.tokenIconCustomTokenColor
-        tokenIconBlockchainIconName = input.tokenIconBlockchainIconName
-        isCustomToken = input.isCustomToken
+        tokenIconInfo = input.tokenIconInfo
         amountFractionDigits = input.amountFractionDigits
 
         currencyOption = input.isFiatCalculation ? .fiat : .crypto
