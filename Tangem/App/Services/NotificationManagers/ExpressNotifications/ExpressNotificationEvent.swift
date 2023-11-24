@@ -32,7 +32,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName)
         case .notEnoughAmountToSwap(let minimumAmountText):
-            return Localization.warningExpressTooMinimalAmount(minimumAmountText)
+            return Localization.warningExpressTooMinimalAmountTitle(minimumAmountText)
         case .notEnoughBalanceToSwap(let maximumAmountText):
             return Localization.sendNotificationInvalidReserveAmountTitle(maximumAmountText)
         case .noDestinationTokens:
@@ -53,7 +53,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .notEnoughAmountToSwap:
-            return Localization.sendNotificationInvalidReserveAmountText
+            return Localization.warningExpressTooMinimalAmountDescription
         case .notEnoughBalanceToSwap:
             return Localization.sendNotificationInvalidReserveAmountText
         case .noDestinationTokens(let sourceTokenName):
@@ -65,7 +65,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .permissionNeeded, .hasPendingTransaction, .notEnoughAmountToSwap, .noDestinationTokens, .highPriceImpact:
+        case .permissionNeeded, .hasPendingTransaction, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .noDestinationTokens, .highPriceImpact:
             return .secondary
         case .notEnoughFeeForTokenTx, .refreshRequired:
             return .primary
@@ -82,7 +82,7 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .init(iconType: .progressView)
         case .notEnoughFeeForTokenTx(_, _, let blockchainIconName):
             return .init(iconType: .image(Image(blockchainIconName)))
-        case .notEnoughAmountToSwap:
+        case .notEnoughAmountToSwap, .notEnoughBalanceToSwap:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         }
     }
@@ -111,7 +111,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .noDestinationTokens, .refreshRequired:
             return false
-        case .permissionNeeded, .hasPendingTransaction, .notEnoughFeeForTokenTx, .notEnoughAmountToSwap, .highPriceImpact:
+        case .permissionNeeded, .hasPendingTransaction, .notEnoughFeeForTokenTx, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .highPriceImpact:
             return true
         }
     }
