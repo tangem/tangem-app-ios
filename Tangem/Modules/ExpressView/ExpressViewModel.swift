@@ -488,13 +488,13 @@ private extension ExpressViewModel {
             currencySymbol: tokenItem.currencySymbol,
             currencyId: tokenItem.currencyId ?? ""
         )
-        
+
         let action: (() -> Void)? = { [weak self] in
             // If fee is one option then don't open selector
             if fees.count > 1 {
                 self?.openFeeSelectorView()
             }
-            
+
             return nil
         }()
 
