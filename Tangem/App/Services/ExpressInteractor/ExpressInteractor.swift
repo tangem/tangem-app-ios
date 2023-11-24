@@ -345,8 +345,8 @@ private extension ExpressInteractor {
 
             return state
 
-        case .notEnoughBalanceForSwapping:
-            return .restriction(.notEnoughBalanceForSwapping, quote: quote)
+        case .notEnoughBalanceForSwapping(let requiredAmount):
+            return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
         }
     }
 
@@ -656,7 +656,7 @@ extension ExpressInteractor {
     enum RestrictionType {
         case notEnoughAmountForSwapping(minAmount: Decimal)
         case hasPendingTransaction
-        case notEnoughBalanceForSwapping
+        case notEnoughBalanceForSwapping(requiredAmount: Decimal)
         case notEnoughAmountForFee(_ returnState: ExpressInteractorState)
         case requiredRefresh(occurredError: Error)
         case noDestinationTokens
