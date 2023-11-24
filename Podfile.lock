@@ -150,7 +150,6 @@ PODS:
     - CryptoSwift
     - secp256k1.swift
   - Kingfisher (7.9.1)
-  - Mobile-Buy-SDK (7.1.0)
   - Moya (15.0.0):
     - Moya/Core (= 15.0.0)
   - Moya/Core (15.0.0):
@@ -256,7 +255,6 @@ DEPENDENCIES:
   - Firebase/Crashlytics
   - HDWalletKit (from `https://github.com/tangem/hdwallet.git`, tag `0.3.12`)
   - Kingfisher (~> 7.9.0)
-  - Mobile-Buy-SDK
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-8`)
   - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
@@ -287,7 +285,6 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - Kingfisher
-    - Mobile-Buy-SDK
     - Moya
     - nanopb
     - ObjcExceptionBridging
@@ -402,7 +399,6 @@ SPEC CHECKSUMS:
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   HDWalletKit: 602ec664633cc6bae1c697e4e17af42efb69bfad
   Kingfisher: 1d14e9f59cbe19389f591c929000332bf70efd32
-  Mobile-Buy-SDK: 29812838f06cbf78fd80728d9f84e9eaf49c7843
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
@@ -427,6 +423,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 3e1b0b52d2f5a71123d77287ef493ad2654ee00f
+PODFILE CHECKSUM: a6657ba6e3da2c98a112233955cd10c6456c6cd8
 
-COCOAPODS: 1.13.0
+COCOAPODS: 1.14.3
