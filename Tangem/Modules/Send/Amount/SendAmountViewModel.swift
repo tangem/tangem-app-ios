@@ -11,6 +11,8 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
+#warning("[REDACTED_TODO_COMMENT]")
+
 protocol SendAmountViewModelInput {
     var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
