@@ -111,9 +111,27 @@ extension FlexySizeButtonWithLeadingIcon: Setupable {
     }
 }
 
+// MARK: - Constants
+
+extension FixedSizeButtonWithLeadingIcon {
+    enum Constants {
+        /// - Note: Exposed for consumers of this UI component.
+        static var cornerRadius: CGFloat { ButtonWithLeadingIconContentView.cornerRadius }
+    }
+}
+
+extension FlexySizeButtonWithLeadingIcon {
+    enum Constants {
+        /// - Note: Exposed for consumers of this UI component.
+        static var cornerRadius: CGFloat { ButtonWithLeadingIconContentView.cornerRadius }
+    }
+}
+
 // MARK: - Private implementation
 
 private struct ButtonWithLeadingIconContentView: View {
+    static let cornerRadius = 10.0
+
     struct ColorConfiguration {
         let textColor: Color
         let iconColor: Color
@@ -148,7 +166,7 @@ private struct ButtonWithLeadingIconContentView: View {
             .padding(.vertical, 8)
             .background(colorConfiguration.backgroundColor)
         }
-        .cornerRadiusContinuous(10)
+        .cornerRadiusContinuous(Self.cornerRadius)
         .buttonStyle(.borderless)
     }
 }
