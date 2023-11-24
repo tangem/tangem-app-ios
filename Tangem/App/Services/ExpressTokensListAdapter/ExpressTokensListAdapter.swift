@@ -7,7 +7,8 @@
 //
 
 import Foundation
+import Combine
 
 protocol ExpressTokensListAdapter {
-    func walletModels() async -> AsyncStream<[WalletModel]>
+    func walletModels() -> AnyPublisher<[WalletModel], Never>
 }
