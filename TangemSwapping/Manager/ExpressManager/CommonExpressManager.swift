@@ -93,6 +93,24 @@ extension CommonExpressManager: ExpressManager {
     func update() async throws -> ExpressManagerState {
         try await updateState()
     }
+
+    func requestData() async throws -> ExpressTransactionData {
+        guard let pair = _pair else {
+            throw ExpressManagerError.pairNotFound
+        }
+
+        guard let amount = _amount, amount > 0 else {
+            throw ExpressManagerError.amountNotFound
+        }
+
+        guard let selectedQuote = selectedQuote else {
+            throw ExpressManagerError.selectedProviderNotFound
+        }
+
+        let request = ExpressManagerSwappingPairRequest(pair: pair, amount: amount)
+        let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
+        return data
+    }
 }
 
 // MARK: - Private
@@ -102,7 +120,7 @@ private extension CommonExpressManager {
     func updateState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
             logger.debug("ExpressManagerSwappingPair not found")
-            return .idle
+            return .restriction(.pairNotFound, quote: .none)
         }
 
         // Just update availableProviders for this pair
@@ -122,14 +140,17 @@ private extension CommonExpressManager {
         try Task.checkCancellation()
 
         if let restriction = try await checkRestriction(request: request, quote: selectedQuote) {
-            return .restriction(restriction)
+            return .restriction(restriction, quote: selectedQuote)
         }
 
-        let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
-
-        try Task.checkCancellation()
-
-        return .ready(data: data)
+        switch selectedQuote.provider.type {
+        case .dex:
+            let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
+            try Task.checkCancellation()
+            return .ready(data: data, quote: selectedQuote)
+        case .cex:
+            return .previewCEX(quote: selectedQuote)
+        }
     }
 }
 
@@ -308,7 +329,7 @@ private extension CommonExpressManager {
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
         if isNotEnoughBalanceForSwapping {
-            return .notEnoughBalanceForSwapping
+            return .notEnoughBalanceForSwapping(request.amount)
         }
 
         // No Restrictions
@@ -333,6 +354,7 @@ private extension CommonExpressManager {
         )
 
         let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
+        logger.debug("\(request.pair.source) allowance - \(allowance)")
         return allowance < request.amount
     }
 }
