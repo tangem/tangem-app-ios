@@ -19,17 +19,8 @@ struct AmountSummaryView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             HStack(spacing: 0) {
-                TokenIcon(
-                    tokenIconInfo: TokenIconInfo(
-                        name: data.tokenIconName,
-                        blockchainIconName: data.tokenIconBlockchainIconName,
-                        imageURL: data.tokenIconURL,
-                        isCustom: data.isCustomToken,
-                        customTokenColor: data.tokenIconCustomTokenColor
-                    ),
-                    size: iconSize
-                )
-                .padding(.trailing, 12)
+                TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
+                    .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(data.amount)
@@ -49,17 +40,21 @@ struct AmountSummaryView: View {
 
 #Preview {
     GroupedScrollView(spacing: 14) {
-        GroupedSection([
-            AmountSummaryViewData(
-                amount: "100.00 USDT",
-                amountFiat: "99.98$",
-                tokenIconName: "tether",
-                tokenIconURL: TokenIconURLBuilder().iconURL(id: "tether"),
-                tokenIconCustomTokenColor: nil,
-                tokenIconBlockchainIconName: "ethereum.fill",
-                isCustomToken: false
-            ),
-        ]) {
+        GroupedSection(
+            [
+                AmountSummaryViewData(
+                    amount: "100.00 USDT",
+                    amountFiat: "99.98$",
+                    tokenIconInfo: .init(
+                        name: "tether",
+                        blockchainIconName: "ethereum.fill",
+                        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+                        isCustom: false,
+                        customTokenColor: nil
+                    )
+                ),
+            ]
+        ) {
             AmountSummaryView(data: $0)
         }
         .interSectionPadding(12)
@@ -69,11 +64,13 @@ struct AmountSummaryView: View {
             AmountSummaryViewData(
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
-                tokenIconName: "optimism",
-                tokenIconURL: TokenIconURLBuilder().iconURL(id: "solana"),
-                tokenIconCustomTokenColor: nil,
-                tokenIconBlockchainIconName: nil,
-                isCustomToken: false
+                tokenIconInfo: .init(
+                    name: "optimism",
+                    blockchainIconName: nil,
+                    imageURL: TokenIconURLBuilder().iconURL(id: "solana"),
+                    isCustom: false,
+                    customTokenColor: nil
+                )
             ),
         ]) {
             AmountSummaryView(data: $0)
