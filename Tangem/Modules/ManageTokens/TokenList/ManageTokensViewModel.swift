@@ -50,7 +50,6 @@ final class ManageTokensViewModel: ObservableObject {
         searchBind(searchTextPublisher: searchTextPublisher)
 
         userWalletModelsBind()
-        derivationBind()
     }
 
     func onAppear() {
@@ -103,12 +102,13 @@ private extension ManageTokensViewModel {
             .userWalletModelsSubject
             .sink { [weak self] models in
                 self?.updateAlreadyExistTokenUserList(from: models)
+                self?.updateDerivationBind()
                 self?.fetch()
             }
             .store(in: &bag)
     }
 
-    func derivationBind() {
+    func updateDerivationBind() {
         // Used for update state generateAddressesViewModel property
         let pendingDerivationsCountPublishers = userWalletModels
             .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
