@@ -15,10 +15,7 @@ class ManageTokensDataSource {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     var userWalletModelsSubject: CurrentValueSubject<[UserWalletModel], Never> = .init([])
-
-    var defaultUserWalletModel: UserWalletModel? {
-        userWalletRepository.selectedUserModelModel
-    }
+    var defaultUserWalletModel: UserWalletModel? { userWalletRepository.selectedUserModelModel }
 
     // MARK: - Private Properties
 
@@ -31,7 +28,7 @@ class ManageTokensDataSource {
             .eventProvider
             .filter { event in
                 switch event {
-                case .locked, .unlocked, .inserted, .deleted:
+                case .locked, .inserted, .deleted, .biometryUnlocked:
                     return true
                 default:
                     return false

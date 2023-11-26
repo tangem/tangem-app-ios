@@ -54,7 +54,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             .eventProvider
             .sink { [weak self] event in
                 switch event {
-                case .locked, .unlocked:
+                case .locked:
                     break
                 case .scan(let isScanning):
                     self?.isScanningCard = isScanning
@@ -65,6 +65,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 case .selected(let userWallet, let reason):
                     self?.setSelectedWallet(userWallet, reason: reason)
                 case .inserted, .replaced:
+                    break
+                case .biometryUnlocked:
                     break
                 }
             }
