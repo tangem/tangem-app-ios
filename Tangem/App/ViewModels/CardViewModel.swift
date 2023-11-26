@@ -28,7 +28,9 @@ class CardViewModel: Identifiable, ObservableObject {
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
-        cardDerivableProvider: self
+        cardDerivableProvider: self,
+        existingCurves: config.walletCurves,
+        longHashesSupported: config.hasFeature(.longHashes)
     )
 
     let userTokenListManager: UserTokenListManager
