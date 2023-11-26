@@ -32,10 +32,10 @@ class ExpressCoordinator: CoordinatorObject {
 
     // MARK: - Properties
 
-    private let factory: SwappingModulesFactory
+    private let factory: ExpressModulesFactory
 
     required init(
-        factory: SwappingModulesFactory,
+        factory: ExpressModulesFactory,
         dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
@@ -75,7 +75,7 @@ extension ExpressCoordinator: ExpressRoutable {
         swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
     }
 
-    func presentSuccessView(inputModel: SwappingSuccessInputModel) {
+    func presentSuccessView(data: SentExpressTransactionData) {
         UIApplication.shared.endEditing()
         Analytics.log(.swapSwapInProgressScreenOpened)
 
@@ -87,11 +87,10 @@ extension ExpressCoordinator: ExpressRoutable {
         }
 
         let coordinator = SwappingSuccessCoordinator(
-            factory: factory,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init(inputModel: inputModel))
+        coordinator.start(with: .express(factory: factory, data))
 
         swappingSuccessCoordinator = coordinator
     }
@@ -100,7 +99,7 @@ extension ExpressCoordinator: ExpressRoutable {
         expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(coordinator: self)
     }
 
-    func openNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
+    func presentNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
         dismiss(with: (walletModel, userWalletModel))
     }
 }
@@ -127,6 +126,7 @@ extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
 extension ExpressCoordinator: SwappingApproveRoutable {
     func didSendApproveTransaction() {
         swappingApproveViewModel = nil
+        rootViewModel?.didCloseApproveSheet()
     }
 
     func userDidCancel() {
