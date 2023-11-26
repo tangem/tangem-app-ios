@@ -30,7 +30,7 @@ class CardViewModel: Identifiable, ObservableObject {
         derivationManager: derivationManager,
         cardDerivableProvider: self,
         existingCurves: config.walletCurves,
-        longHashesSupported: config.hasFeature(.longHashes)
+        longHashesSupported: longHashesSupported
     )
 
     let userTokenListManager: UserTokenListManager

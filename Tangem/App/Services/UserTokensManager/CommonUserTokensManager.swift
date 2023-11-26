@@ -144,7 +144,7 @@ extension CommonUserTokensManager: UserTokensManager {
             throw CanAddTokenError.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
-        if longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
+        if longHashesSupported, tokenItem.blockchain.hasLongTransactions {
             throw CanAddTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
