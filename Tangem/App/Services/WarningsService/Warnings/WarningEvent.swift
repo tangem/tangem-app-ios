@@ -25,7 +25,6 @@ enum WarningEvent: Equatable {
     case walletLocked
     case missingBackup
     case supportedOnlySingleCurrencyWallet
-    case walletsNotSupportedBlockchain
 }
 
 // For Notifications
@@ -68,8 +67,6 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningNoBackupTitle
         case .supportedOnlySingleCurrencyWallet:
             return Localization.manageTokensWalletSupportOnlyOneNetworkTitle
-        case .walletsNotSupportedBlockchain:
-            return Localization.manageTokensWalletDoesNotSupportedBlockchain
         }
     }
 
@@ -106,7 +103,7 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
-        case .supportedOnlySingleCurrencyWallet, .walletsNotSupportedBlockchain:
+        case .supportedOnlySingleCurrencyWallet:
             return nil
         }
     }
@@ -124,7 +121,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .devCard:
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .supportedOnlySingleCurrencyWallet, .walletsNotSupportedBlockchain:
+        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .supportedOnlySingleCurrencyWallet:
             return .init(iconType: .image(Assets.attention.image))
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
@@ -137,7 +134,7 @@ extension WarningEvent: NotificationEvent {
 
     var isDismissable: Bool {
         switch self {
-        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet, .walletsNotSupportedBlockchain:
+        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
@@ -195,7 +192,6 @@ extension WarningEvent {
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
         case .supportedOnlySingleCurrencyWallet: return nil
-        case .walletsNotSupportedBlockchain: return nil
         }
     }
 
