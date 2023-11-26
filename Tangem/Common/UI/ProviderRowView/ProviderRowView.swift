@@ -12,10 +12,12 @@ struct ProviderRowView: View {
     let viewModel: ProviderRowViewModel
 
     var body: some View {
-        Button(action: viewModel.tapAction) {
+        if let action = viewModel.tapAction {
+            Button(action: action) { content }
+                .disabled(viewModel.isDisabled)
+        } else {
             content
         }
-        .disabled(viewModel.isDisabled)
     }
 
     private var content: some View {
