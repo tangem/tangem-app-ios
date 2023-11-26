@@ -14,39 +14,36 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var image: UIImage? = nil
     @Published var isSelected: Bool = false
 
-    var id: UserWalletId {
-        userWalletModel.userWalletId
-    }
-
-    var name: String {
-        userWalletModel.config.cardName
-    }
-
+    let id: UserWalletId
+    let name: String
+    
+    let cardImagePublisher: AnyPublisher<CardImageResult, Never>
     let didTapWallet: (UserWalletId) -> Void
+
     let imageHeight = 30.0
 
-    private let userWalletModel: UserWalletModel
-
-    private let cardImageProvider: CardImageProviding
     private var bag: Set<AnyCancellable> = []
 
+    // MARK: - Init
+
     init(
-        userWalletModel: UserWalletModel,
+        id: UserWalletId,
+        name: String,
+        cardImagePublisher: AnyPublisher<CardImageResult, Never>,
         isSelected: Bool,
-        cardImageProvider: CardImageProviding,
         didTapWallet: @escaping (UserWalletId) -> Void
     ) {
-        self.userWalletModel = userWalletModel
+        self.id = id
+        self.name = name
         self.isSelected = isSelected
-        self.cardImageProvider = cardImageProvider
+        self.cardImagePublisher = cardImagePublisher
         self.didTapWallet = didTapWallet
 
         loadImage()
     }
 
     private func loadImage() {
-        userWalletModel
-            .cardImagePublisher
+        cardImagePublisher
             .sink { [weak self] loadResult in
                 guard let self else { return }
 
