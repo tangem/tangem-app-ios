@@ -18,9 +18,10 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     var walletSelectorItemViewModels: [WalletSelectorItemViewModel] {
         userWalletModels.map { userWalletModel in
             WalletSelectorItemViewModel(
-                userWalletModel: userWalletModel,
-                isSelected: userWalletModel.userWalletId == selectedUserWalletModelPublisher.value?.userWalletId,
-                cardImageProvider: CardImageProvider()
+                id: userWalletModel.userWalletId,
+                name: userWalletModel.config.cardName,
+                cardImagePublisher: userWalletModel.cardImagePublisher,
+                isSelected: userWalletModel.userWalletId == selectedUserWalletModelPublisher.value?.userWalletId
             ) { [weak self] userWalletId in
                 guard let self = self else { return }
 
