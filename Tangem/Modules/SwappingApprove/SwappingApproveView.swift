@@ -91,6 +91,7 @@ struct SwappingApproveView: View {
 }
 
 /*
+ // [REDACTED_TODO_COMMENT]
  struct SwappingApproveView_Preview: PreviewProvider {
      static let viewModel = SwappingApproveViewModel(
          transactionSender: TransactionSenderMock(),
