@@ -20,6 +20,8 @@ class FakeUserTokensManager: UserTokensManager {
         self.userTokenListManager = userTokenListManager
     }
 
+    func tryCanAdd(_ tokenItem: TokenItem, derivationPath: DerivationPath?) throws {}
+
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         completion(.success(()))
     }
