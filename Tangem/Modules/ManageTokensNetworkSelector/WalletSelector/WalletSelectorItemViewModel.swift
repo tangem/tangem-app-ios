@@ -16,7 +16,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
 
     let id: UserWalletId
     let name: String
-    
+
     let cardImagePublisher: AnyPublisher<CardImageResult, Never>
     let didTapWallet: (UserWalletId) -> Void
 
