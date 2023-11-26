@@ -20,6 +20,8 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
 
+    func tryCanAdd(_ tokenItem: TokenItem, derivationPath: DerivationPath?) throws {}
+
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
         return ""
     }
