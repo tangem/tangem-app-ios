@@ -50,9 +50,23 @@ struct WalletSelectorItemView: View {
 struct WalletSelectorItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            WalletSelectorItemView(viewModel: .init(userWalletModel: FakeUserWalletModel.wallet3Cards, isSelected: true, cardImageProvider: CardImageProvider(), didTapWallet: { _ in }))
+            WalletSelectorItemView(viewModel: .init(
+                id: FakeUserWalletModel.wallet3Cards.userWalletId,
+                name: FakeUserWalletModel.wallet3Cards.config.cardName,
+                cardImagePublisher: FakeUserWalletModel.wallet3Cards.cardImagePublisher,
+                isSelected: true,
+                didTapWallet: { _ in }
+            )
+            )
 
-            WalletSelectorItemView(viewModel: .init(userWalletModel: FakeUserWalletModel.wallet3Cards, isSelected: false, cardImageProvider: CardImageProvider(), didTapWallet: { _ in }))
+            WalletSelectorItemView(viewModel: .init(
+                id: FakeUserWalletModel.wallet3Cards.userWalletId,
+                name: FakeUserWalletModel.wallet3Cards.config.cardName,
+                cardImagePublisher: FakeUserWalletModel.wallet3Cards.cardImagePublisher,
+                isSelected: false,
+                didTapWallet: { _ in }
+            )
+            )
         }
     }
 }
