@@ -56,8 +56,6 @@ final class ManageTokensViewModel: ObservableObject {
     func onAppear() {
         Analytics.log(.manageTokensScreenOpened)
         loader.reset("")
-
-        dataSource = ManageTokensDataSource()
     }
 
     func fetchMore() {
@@ -105,6 +103,7 @@ private extension ManageTokensViewModel {
             .userWalletModelsSubject
             .sink { [weak self] models in
                 self?.updateAlreadyExistTokenUserList(from: models)
+                self?.fetch()
             }
             .store(in: &bag)
     }
