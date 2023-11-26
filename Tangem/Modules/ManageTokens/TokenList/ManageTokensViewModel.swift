@@ -48,6 +48,8 @@ final class ManageTokensViewModel: ObservableObject {
         dataSource = ManageTokensDataSource()
 
         searchBind(searchTextPublisher: searchTextPublisher)
+
+        userWalletModelsBind()
         derivationBind()
     }
 
