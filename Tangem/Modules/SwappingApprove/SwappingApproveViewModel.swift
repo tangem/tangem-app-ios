@@ -35,15 +35,15 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     // Old
-    private let transactionSender: SwappingTransactionSender
-    private let fiatRatesProvider: FiatRatesProviding
-    private unowned let swappingInteractor: SwappingInteractor
+    private let transactionSender: SwappingTransactionSender!
+    private let fiatRatesProvider: FiatRatesProviding!
+    private unowned let swappingInteractor: SwappingInteractor!
 
     // New
     private let swappingFeeFormatter: SwappingFeeFormatter
-    private let pendingTransactionRepository: ExpressPendingTransactionRepository
+    private let pendingTransactionRepository: ExpressPendingTransactionRepository!
     private let logger: SwappingLogger
-    private unowned let expressInteractor: ExpressInteractor
+    private unowned let expressInteractor: ExpressInteractor!
     private unowned let coordinator: SwappingApproveRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
@@ -58,13 +58,13 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     }
 
     init(
-        transactionSender: SwappingTransactionSender,
-        fiatRatesProvider: FiatRatesProviding,
-        swappingInteractor: SwappingInteractor,
+        transactionSender: SwappingTransactionSender?,
+        fiatRatesProvider: FiatRatesProviding?,
+        swappingInteractor: SwappingInteractor?,
         swappingFeeFormatter: SwappingFeeFormatter,
-        pendingTransactionRepository: ExpressPendingTransactionRepository,
+        pendingTransactionRepository: ExpressPendingTransactionRepository?,
         logger: SwappingLogger,
-        expressInteractor: ExpressInteractor,
+        expressInteractor: ExpressInteractor?,
         coordinator: SwappingApproveRoutable
     ) {
         self.transactionSender = transactionSender
@@ -77,10 +77,10 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         if FeatureProvider.isAvailable(.express) {
-            selectedAction = expressInteractor.getApprovePolicy()
+            selectedAction = expressInteractor!.getApprovePolicy()
             setupExpressView()
         } else {
-            selectedAction = swappingInteractor.getSwappingApprovePolicy()
+            selectedAction = swappingInteractor!.getSwappingApprovePolicy()
             setupView()
         }
 
@@ -278,7 +278,7 @@ private extension SwappingApproveViewModel {
 private extension SwappingApproveViewModel {
     func updateView(for state: ExpressInteractor.ExpressInteractorState) {
         switch state {
-        case .restriction(.permissionRequired(let state), quote: _):
+        case .permissionRequired(let state, _):
             updateFeeAmount(fees: state.fees)
             isLoading = false
             mainButtonIsDisabled = false
@@ -291,7 +291,7 @@ private extension SwappingApproveViewModel {
             isLoading = false
             mainButtonIsDisabled = true
         default:
-            assertionFailure("Wrong state for this view")
+            AppLog.shared.debug("Wrong state for this view \(state)")
             updateFeeRowViewModel(fee: 0, fiatFee: 0)
             isLoading = false
             mainButtonIsDisabled = true
@@ -299,10 +299,9 @@ private extension SwappingApproveViewModel {
     }
 
     func updateFeeAmount(fees: [FeeOption: Fee]) {
-        let tokenItem = expressInteractor.getSender().tokenItem
+        let blockchain = expressInteractor.getSender().tokenItem.blockchain
 
-        guard let fee = fees[expressInteractor.getFeeOption()],
-              let currencyId = tokenItem.currencyId else {
+        guard let fee = fees[expressInteractor.getFeeOption()] else {
             errorAlert = AlertBinder(
                 title: Localization.commonError,
                 message: ExpressInteractorError.feeNotFound.localizedDescription
@@ -311,11 +310,10 @@ private extension SwappingApproveViewModel {
             return
         }
 
-        let currencySymbol = expressInteractor.getSender().tokenItem.currencySymbol
         let formatted = swappingFeeFormatter.format(
             fee: fee.amount.value,
-            currencySymbol: currencySymbol,
-            currencyId: currencyId
+            currencySymbol: blockchain.currencySymbol,
+            currencyId: blockchain.currencyId
         )
         feeRowViewModel?.update(detailsType: .text(formatted))
     }
@@ -339,6 +337,8 @@ private extension SwappingApproveViewModel {
             do {
                 try await viewModel.expressInteractor.sendApproveTransaction()
                 await viewModel.didSendApproveTransaction()
+            } catch TangemSdkError.userCancelled {
+                // Do nothing
             } catch {
                 viewModel.logger.error(error)
                 await runOnMain {
