@@ -43,17 +43,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         dataSource.selectedUserWalletModelPublisher.value
     }
 
-    private var settings: ManageTokensSettings? {
-        guard let userWalletModel = selectedUserWalletModel else {
-            return nil
-        }
-
-        let settings = ManageTokensSettings(
-            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
-            existingCurves: userWalletModel.config.walletCurves
-        )
-
-        return settings
+    private var isTokenAvailableForSwitching: Bool {
+        selectedUserWalletModel != nil
     }
 
     private var userTokensManager: UserTokensManager? {
@@ -122,7 +113,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: nil,
                     isSelected: bindSelection($0),
-                    isAvailable: isAvailableTokenSelection()
+                    isAvailable: isTokenAvailableForSwitching
                 )
             }
 
@@ -139,7 +130,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
                     isSelected: bindSelection($0),
-                    isAvailable: isAvailableTokenSelection()
+                    isAvailable: isTokenAvailableForSwitching
                 )
             }
     }
@@ -173,7 +164,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
         if selected {
-            try tryTokenAvailable(tokenItem)
+            try userTokensManager?.tryCanAdd(tokenItem, derivationPath: nil)
         }
 
         sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
@@ -204,7 +195,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             do {
                 try self?.displayAlertWarningDeleteIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
             } catch {
-                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error)
+                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
             }
         }
 
@@ -250,24 +241,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 // MARK: - Helpers
 
 private extension ManageTokensNetworkSelectorViewModel {
-    func tryTokenAvailable(_ tokenItem: TokenItem) throws {
-        guard let settings = settings else {
-            return
-        }
-
-        guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw AvailableTokenError.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
-        }
-
-        if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
-            throw AvailableTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
-        }
-
-        return
-    }
-
     func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
-        return (try? tryTokenAvailable(tokenItem)) != nil
+        return (try? userTokensManager?.tryCanAdd(tokenItem, derivationPath: nil)) != nil
     }
 
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
@@ -294,18 +269,14 @@ private extension ManageTokensNetworkSelectorViewModel {
 // MARK: - Alerts
 
 private extension ManageTokensNetworkSelectorViewModel {
-    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: Error) {
-        guard let availableTokenError = error as? AvailableTokenError else {
-            return
-        }
-
+    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: LocalizedError?) {
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {
             self.updateSelection(tokenItem)
         }
 
         alert = AlertBinder(alert: Alert(
-            title: Text(availableTokenError.title),
-            message: Text(availableTokenError.errorDescription ?? ""),
+            title: Text(Localization.commonAttention),
+            message: Text(error?.errorDescription ?? ""),
             dismissButton: okButton
         ))
     }
@@ -342,7 +313,7 @@ private extension ManageTokensNetworkSelectorViewModel {
                     do {
                         try onSelect(isSelected, tokenItem)
                     } catch {
-                        displayAlertAndUpdateSelection(for: tokenItem, error: error)
+                        displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
                     }
                 }
             )
@@ -365,27 +336,5 @@ private extension ManageTokensNetworkSelectorViewModel {
             buttonAction: { _, _ in },
             dismissAction: { _ in }
         )
-    }
-}
-
-// MARK: - Errors
-
-private extension ManageTokensNetworkSelectorViewModel {
-    enum AvailableTokenError: Error, LocalizedError {
-        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
-        case failedSupportedCurve(blockchainDisplayName: String)
-
-        var errorDescription: String? {
-            switch self {
-            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
-                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
-            case .failedSupportedCurve(let blockchainDisplayName):
-                return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
-            }
-        }
-
-        var title: String {
-            return Localization.commonAttention
-        }
     }
 }
