@@ -34,6 +34,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private var bag = Set<AnyCancellable>()
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorRoutable
+
+    private let parentDataSource: ManageTokensDataSource
     private let dataSource: ManageTokensNetworkDataSource
 
     private let coinId: String
@@ -62,6 +64,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
+        self.parentDataSource = parentDataSource
+
         dataSource = ManageTokensNetworkDataSource(parentDataSource)
 
         bind()
@@ -136,13 +140,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func setNeedDisplayNotification(with parentDataSource: ManageTokensDataSource) {
-        if dataSource.userWalletModels.isEmpty {
-            if let defaultUserWalletModel = parentDataSource.defaultUserWalletModel,
-               defaultUserWalletModel.config.supportedBlockchains.contains(where: { $0.coinId != coinId }) {
-                displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
-            } else {
-                notificationInput = nil
-            }
+        if ifSingleCurrencyDataSourceCompareUserWalletModels(isContains: false) {
+            displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
+        } else {
+            notificationInput = nil
         }
     }
 
@@ -245,15 +246,19 @@ private extension ManageTokensNetworkSelectorViewModel {
         return (try? userTokensManager?.tryCanAdd(tokenItem, derivationPath: nil)) != nil
     }
 
-    private func isAdded(_ tokenItem: TokenItem) -> Bool {
-        userTokensManager?.contains(tokenItem, derivationPath: nil) ?? false
+    func isAdded(_ tokenItem: TokenItem) -> Bool {
+        guard let userTokensManager = userTokensManager else {
+            return ifSingleCurrencyDataSourceCompareUserWalletModels(isContains: true)
+        }
+
+        return userTokensManager.contains(tokenItem, derivationPath: nil)
     }
 
-    private func canRemove(_ tokenItem: TokenItem) -> Bool {
+    func canRemove(_ tokenItem: TokenItem) -> Bool {
         userTokensManager?.canRemove(tokenItem, derivationPath: nil) ?? false
     }
 
-    private func isSelected(_ tokenItem: TokenItem) -> Bool {
+    func isSelected(_ tokenItem: TokenItem) -> Bool {
         let isWaitingToBeAdded = pendingAdd.contains(tokenItem)
         let isWaitingToBeRemoved = pendingRemove.contains(tokenItem)
         let alreadyAdded = isAdded(tokenItem)
@@ -263,6 +268,19 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         return isWaitingToBeAdded || alreadyAdded
+    }
+
+    func ifSingleCurrencyDataSourceCompareUserWalletModels(isContains: Bool) -> Bool {
+        if dataSource.userWalletModels.isEmpty {
+            if let defaultUserWalletModel = parentDataSource.defaultUserWalletModel,
+               defaultUserWalletModel.config.supportedBlockchains.contains(where: {
+                   return isContains ? $0.coinId == coinId : $0.coinId != coinId
+               }) {
+                return true
+            }
+        }
+
+        return false
     }
 }
 
