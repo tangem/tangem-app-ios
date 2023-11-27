@@ -24,7 +24,7 @@ struct TwinPreflightReadFilter: PreflightReadFilter {
     func onFullCardRead(_ card: Card, environment: SessionEnvironment) throws {
         guard let firstPublicKey = card.wallets.first?.publicKey,
               let combinedKey = TwinCardsUtils.makeCombinedWalletKey(for: firstPublicKey, pairPublicKey: pairPublicKey) else {
-            return
+            throw TangemSdkError.walletNotFound
         }
 
         let userWalletId = UserWalletId(with: combinedKey)
