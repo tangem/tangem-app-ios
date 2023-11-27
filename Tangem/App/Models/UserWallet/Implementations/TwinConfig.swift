@@ -19,6 +19,15 @@ struct TwinConfig: CardContainer {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
 
+    private var twinKey: TwinKey? {
+        if let walletPublicKey = card.wallets.first?.publicKey,
+           let pairWalletPublicKey = twinData.pairPublicKey {
+            return TwinKey(key1: walletPublicKey, key2: pairWalletPublicKey)
+        }
+
+        return nil
+    }
+
     init(card: CardDTO, walletData: WalletData, twinData: TwinData) {
         self.card = card
         self.walletData = walletData
@@ -66,9 +75,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        if let walletPublicKey = card.wallets.first?.publicKey,
-           let pairWalletPublicKey = twinData.pairPublicKey {
-            let twinKey = TwinKey(key1: walletPublicKey, key2: pairWalletPublicKey)
+        if let twinKey {
             return .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
         }
 
@@ -80,7 +87,12 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var userWalletIdSeed: Data? {
-        TwinCardsUtils.makeCombinedWalletKey(for: card, pairData: twinData)
+        if let firstWalletPiblicKey = card.wallets.first?.publicKey,
+           let pairWalletPiblicKey = twinData.pairPublicKey {
+            return TwinCardsUtils.makeCombinedWalletKey(for: firstWalletPiblicKey, pairPublicKey: pairWalletPiblicKey)
+        }
+
+        return nil
     }
 
     var productType: Analytics.ProductType {
@@ -92,9 +104,8 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var cardSessionFilter: SessionFilter {
-        if let userWalletIdSeed, let pairKey = twinData.pairPublicKey {
-            let userWalletId = UserWalletId(with: userWalletIdSeed)
-            let filter = TwinPreflightReadFilter(userWalletId: userWalletId, pairPublicKey: pairKey)
+        if let twinKey {
+            let filter = TwinPreflightReadFilter(twinKey: twinKey)
             return .custom(filter)
         }
 
