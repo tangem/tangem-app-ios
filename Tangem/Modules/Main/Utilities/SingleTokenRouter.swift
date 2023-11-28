@@ -37,7 +37,12 @@ class SingleTokenRouter: SingleTokenRoutable {
         sendAnalyticsEvent(.buttonReceive, for: walletModel)
 
         let infos = walletModel.wallet.addresses.map { address in
-            ReceiveAddressInfo(address: address.value, type: address.type, addressQRImage: QrCodeGenerator.generateQRCode(from: address.value))
+            ReceiveAddressInfo(
+                address: address.value,
+                type: address.type,
+                localizedName: address.localizedName,
+                addressQRImage: QrCodeGenerator.generateQRCode(from: address.value)
+            )
         }
         coordinator.openReceiveScreen(
             amountType: walletModel.amountType,
@@ -78,33 +83,30 @@ class SingleTokenRouter: SingleTokenRoutable {
     func openExchange(walletModel: WalletModel) {
         sendAnalyticsEvent(.buttonExchange, for: walletModel)
 
-        guard
-            let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: walletModel.amountType, in: walletModel.blockchainNetwork.blockchain),
-            let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
-            let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
-        else { return }
-
-        var referrer: SwappingReferrerAccount?
-
-        if let account = keysManager.swapReferrerAccount {
-            referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
-        }
-
-        let input = CommonSwappingModulesFactory.InputModel(
-            userWalletModel: userWalletModel,
-            walletModel: walletModel,
-            signer: userWalletModel.signer,
-            ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionProcessor: ethereumTransactionProcessor,
-            logger: AppLog.shared,
-            referrer: referrer,
-            source: sourceCurrency,
-            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
-        )
-
         if FeatureProvider.isAvailable(.express) {
+            let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
             coordinator.openExpress(input: input)
-        } else {
+
+        } else if let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: walletModel.amountType, in: walletModel.blockchainNetwork.blockchain),
+                  let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
+                  let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor {
+            var referrer: SwappingReferrerAccount?
+
+            if let account = keysManager.swapReferrerAccount {
+                referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
+            }
+
+            let input = CommonSwappingModulesFactory.InputModel(
+                userTokensManager: userWalletModel.userTokensManager,
+                walletModel: walletModel,
+                signer: userWalletModel.signer,
+                ethereumNetworkProvider: ethereumNetworkProvider,
+                ethereumTransactionProcessor: ethereumTransactionProcessor,
+                logger: AppLog.shared,
+                referrer: referrer,
+                source: sourceCurrency,
+                walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
+            )
             coordinator.openSwapping(input: input)
         }
     }
