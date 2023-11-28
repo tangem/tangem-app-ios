@@ -25,7 +25,7 @@ actor CommonExpressManager {
     // 2. All provider in the express
     private var providers: [ExpressProvider] = []
     // 3. Here ids from `/pair` for each pair
-    private var availableProviders: [Int] = []
+    private var availableProviders: [ExpressProvider.Id] = []
     // 4. Here from all `providers` with filled the quote from `/quote`.
     private var availableQuotes: [ExpectedQuote] = []
     // 5. Here the provider with his quote which was selected from user
@@ -169,14 +169,14 @@ private extension CommonExpressManager {
     }
 
     @discardableResult
-    func getAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
+    func getAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
         let providers = try await loadAvailableProviders(pair: pair)
         availableProviders = providers
 
         return providers
     }
 
-    func loadAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
+    func loadAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
         let pairs = try await expressAPIProvider.pairs(
             from: [pair.source.expressCurrency],
             to: [pair.destination.expressCurrency]
@@ -268,10 +268,10 @@ private extension CommonExpressManager {
         throw ExpressManagerError.quotesNotFound
     }
 
-    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: Result<ExpressQuote, Error>] {
-        typealias TaskValue = (id: Int, result: Result<ExpressQuote, Error>)
+    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [ExpressProvider.Id]) async -> [ExpressProvider.Id: Result<ExpressQuote, Error>] {
+        typealias TaskValue = (id: ExpressProvider.Id, result: Result<ExpressQuote, Error>)
 
-        let quotes: [Int: Result<ExpressQuote, Error>] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
+        let quotes: [ExpressProvider.Id: Result<ExpressQuote, Error>] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
             providerIds.forEach { providerId in
 
                 // Run a parallel asynchronous task and collect it into the group
@@ -362,7 +362,7 @@ private extension CommonExpressManager {
 // MARK: - Swapping Data
 
 private extension CommonExpressManager {
-    func loadSwappingData(request: ExpressManagerSwappingPairRequest, providerId: Int) async throws -> ExpressTransactionData {
+    func loadSwappingData(request: ExpressManagerSwappingPairRequest, providerId: ExpressProvider.Id) async throws -> ExpressTransactionData {
         let item = makeExpressSwappableItem(request: request, providerId: providerId)
         let data = try await expressAPIProvider.exchangeData(item: item)
         return data
@@ -372,7 +372,7 @@ private extension CommonExpressManager {
 // MARK: - Mapping
 
 private extension CommonExpressManager {
-    func makeExpressSwappableItem(request: ExpressManagerSwappingPairRequest, providerId: Int) -> ExpressSwappableItem {
+    func makeExpressSwappableItem(request: ExpressManagerSwappingPairRequest, providerId: ExpressProvider.Id) -> ExpressSwappableItem {
         ExpressSwappableItem(
             source: request.pair.source,
             destination: request.pair.destination,
