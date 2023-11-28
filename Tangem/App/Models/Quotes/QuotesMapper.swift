@@ -19,7 +19,7 @@ struct QuotesMapper {
                 id: key,
                 price: price,
                 priceChange: value.priceChange24h,
-                prices24h: []
+                prices24h: Array(value.prices24h.values)
             )
         }
     }
