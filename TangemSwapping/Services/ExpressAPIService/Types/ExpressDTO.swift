@@ -17,12 +17,17 @@ enum ExpressDTO {
     }
 
     struct Provider: Codable {
-        let providerId: Int
+        let providerId: Id
         let rateTypes: [RateType]
 
         enum RateType: String, Codable {
             case float
             case fixed
+        }
+
+        enum Id: String, Codable {
+            case changeNow = "changenow"
+            case oneInch = "1inch"
         }
     }
 
@@ -31,21 +36,12 @@ enum ExpressDTO {
     enum Assets {
         struct Request: Encodable {
             let tokensList: [Currency]
-            let onlyActive: Bool = true
         }
 
         struct Response: Decodable {
             let contractAddress: String
             let network: String
-            let token: String
-            let name: String
-            let symbol: String
-            let decimals: Int
-            let isActive: Bool?
             let exchangeAvailable: Bool
-            // Future
-            let onrampAvailable: Bool?
-            let offrampAvailable: Bool?
         }
     }
 
@@ -68,7 +64,7 @@ enum ExpressDTO {
 
     enum Providers {
         struct Response: Decodable {
-            let id: Int
+            let id: Provider.Id
             let name: String
             let type: ExpressProviderType
             let imageLarge: String
@@ -85,7 +81,8 @@ enum ExpressDTO {
             let toContractAddress: String
             let toNetwork: String
             let fromAmount: String
-            let providerId: Int
+            let fromDecimals: Int
+            let providerId: Provider.Id
             let rateType: Provider.RateType
         }
 
@@ -108,9 +105,9 @@ enum ExpressDTO {
             let toContractAddress: String
             let toNetwork: String
             let fromAmount: String
-            let providerId: Int
+            let fromDecimals: Int
+            let providerId: Provider.Id
             let rateType: Provider.RateType
-            let refundAddress: String // address for refund if something will wrong
             let toAddress: String // address for receiving token
         }
 
