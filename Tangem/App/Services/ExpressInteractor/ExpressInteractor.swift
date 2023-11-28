@@ -25,7 +25,7 @@ class ExpressInteractor {
     // MARK: - Dependencies
 
     private let expressManager: ExpressManager
-    private let allowanceProvider: AllowanceProvider
+    private let allowanceProvider: ExpressAllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressTransactionBuilder: ExpressTransactionBuilder
@@ -44,7 +44,7 @@ class ExpressInteractor {
     init(
         sender: WalletModel,
         expressManager: ExpressManager,
-        allowanceProvider: AllowanceProvider,
+        allowanceProvider: ExpressAllowanceProvider,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressTransactionBuilder: ExpressTransactionBuilder,
@@ -255,6 +255,8 @@ extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func swappingPairDidChange() {
+        allowanceProvider.setup(wallet: getSender())
+
         updateTask { interactor in
             guard let destination = interactor.getDestination() else {
                 return .restriction(.noDestinationTokens, quote: .none)
@@ -412,7 +414,7 @@ private extension ExpressInteractor {
     func makeApproveData(wallet: ExpressWallet, spender: String) async throws -> Data {
         let amount = try await getApproveAmount()
         let wei = wallet.convertToWEI(value: amount)
-        return allowanceProvider.makeApproveData(spender: spender, amount: wei)
+        return try allowanceProvider.makeApproveData(spender: spender, amount: wei)
     }
 }
 
