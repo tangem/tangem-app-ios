@@ -125,6 +125,7 @@ private extension CommonTokenQuotesRepository {
                 currencyId: quote.id,
                 change: quote.priceChange,
                 price: quote.price,
+                prices24h: quote.prices24h,
                 currencyCode: currencyCode
             )
         }
