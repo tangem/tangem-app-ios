@@ -43,7 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendV2: return .unspecified
         case .mainScreenBottomSheet: return .unspecified
         case .dynamicFonts: return .unspecified
-        case .express: return .unspecified
+        case .express: return .version("5.4")
         }
     }
 }
