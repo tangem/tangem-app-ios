@@ -92,6 +92,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
 
         priceChangeState = getPriceChangeState(by: quote)
         priceValue = balanceFormatter.formatFiatBalance(quote.price)
+        priceHistory = quote.prices24h?.map { $0.doubleValue }
     }
 
     private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {

@@ -28,4 +28,8 @@ extension Decimal {
         let formatter = DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
         return formatter.format(value: self)
     }
+
+    var doubleValue: Double {
+        return NSDecimalNumber(decimal: self).doubleValue
+    }
 }
