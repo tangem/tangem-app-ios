@@ -21,11 +21,19 @@ class CommonExpressAPIProvider {
 // MARK: - ExpressAPIProvider
 
 extension CommonExpressAPIProvider: ExpressAPIProvider {
-    func assets(with filter: [ExpressCurrency]) async throws -> [ExpressAsset] {
+    /// Requests from Express API `exchangeAvailable` state for currencies included in filter
+    /// - Returns: All `ExpressCurrency` that available to exchange specified by filter
+    func assets(with filter: [ExpressCurrency]) async throws -> [ExpressCurrency] {
         let tokens = filter.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Assets.Request(tokensList: tokens)
         let response = try await expressAPIService.assets(request: request)
-        let assets = response.map(expressAPIMapper.mapToExpressAsset(currency:))
+        let assets: [ExpressCurrency] = response.compactMap {
+            guard $0.exchangeAvailable else {
+                return nil
+            }
+
+            return ExpressCurrency(response: $0)
+        }
         return assets
     }
 
@@ -51,7 +59,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
             fromAmount: item.sourceAmountWEI(),
-            providerId: item.providerId,
+            fromDecimals: item.source.decimalCount,
+            providerId: item.providerId.requestId,
             rateType: .float
         )
 
@@ -67,9 +76,9 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
             fromAmount: item.sourceAmountWEI(),
-            providerId: item.providerId,
+            fromDecimals: item.source.decimalCount,
+            providerId: item.providerId.requestId,
             rateType: .float,
-            refundAddress: item.source.defaultAddress,
             toAddress: item.destination.defaultAddress
         )
 
