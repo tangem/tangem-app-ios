@@ -18,7 +18,7 @@ extension QuotesDTO {
         struct Fields: Decodable {
             let price: Decimal?
             let priceChange24h: Decimal?
-            let prices24h: [[TimeInterval: Decimal]]
+            let prices24h: [TimeInterval: Decimal]
         }
     }
 }
