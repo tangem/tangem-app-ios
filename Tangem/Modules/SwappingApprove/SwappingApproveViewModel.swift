@@ -35,15 +35,15 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     // Old
-    private let transactionSender: SwappingTransactionSender
-    private let fiatRatesProvider: FiatRatesProviding
-    private unowned let swappingInteractor: SwappingInteractor
+    private let transactionSender: SwappingTransactionSender!
+    private let fiatRatesProvider: FiatRatesProviding!
+    private unowned let swappingInteractor: SwappingInteractor!
 
     // New
     private let swappingFeeFormatter: SwappingFeeFormatter
-    private let pendingTransactionRepository: ExpressPendingTransactionRepository
+    private let pendingTransactionRepository: ExpressPendingTransactionRepository!
     private let logger: SwappingLogger
-    private unowned let expressInteractor: ExpressInteractor
+    private unowned let expressInteractor: ExpressInteractor!
     private unowned let coordinator: SwappingApproveRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
@@ -58,13 +58,13 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     }
 
     init(
-        transactionSender: SwappingTransactionSender,
-        fiatRatesProvider: FiatRatesProviding,
-        swappingInteractor: SwappingInteractor,
+        transactionSender: SwappingTransactionSender?,
+        fiatRatesProvider: FiatRatesProviding?,
+        swappingInteractor: SwappingInteractor?,
         swappingFeeFormatter: SwappingFeeFormatter,
-        pendingTransactionRepository: ExpressPendingTransactionRepository,
+        pendingTransactionRepository: ExpressPendingTransactionRepository?,
         logger: SwappingLogger,
-        expressInteractor: ExpressInteractor,
+        expressInteractor: ExpressInteractor?,
         coordinator: SwappingApproveRoutable
     ) {
         self.transactionSender = transactionSender
@@ -77,10 +77,10 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         if FeatureProvider.isAvailable(.express) {
-            selectedAction = expressInteractor.getApprovePolicy()
+            selectedAction = expressInteractor!.getApprovePolicy()
             setupExpressView()
         } else {
-            selectedAction = swappingInteractor.getSwappingApprovePolicy()
+            selectedAction = swappingInteractor!.getSwappingApprovePolicy()
             setupView()
         }
 
