@@ -21,30 +21,17 @@ struct ExpressAPIMapper {
         ExpressCurrency(contractAddress: currency.contractAddress, network: currency.network)
     }
 
-    func mapToExpressAsset(currency: ExpressDTO.Assets.Response) -> ExpressAsset {
-        ExpressAsset(
-            currency: .init(contractAddress: currency.contractAddress, network: currency.network),
-            token: currency.token,
-            name: currency.name,
-            symbol: currency.symbol,
-            decimals: currency.decimals,
-            exchangeAvailable: currency.exchangeAvailable,
-            onrampAvailable: currency.onrampAvailable,
-            offrampAvailable: currency.offrampAvailable
-        )
-    }
-
     func mapToExpressPair(response: ExpressDTO.Pairs.Response) -> ExpressPair {
         ExpressPair(
             source: mapToExpressCurrency(currency: response.from),
             destination: mapToExpressCurrency(currency: response.to),
-            providers: response.providers.map { $0.providerId }
+            providers: response.providers.map { .init($0.providerId) }
         )
     }
 
     func mapToExpressProvider(provider: ExpressDTO.Providers.Response) -> ExpressProvider {
         ExpressProvider(
-            id: provider.id,
+            id: .init(provider.id),
             name: provider.name,
             url: URL(string: provider.imageSmall),
             type: provider.type
