@@ -16,9 +16,7 @@ protocol TokenQuotesRepository: AnyObject {
     var quotes: Quotes { get }
     var quotesPublisher: AnyPublisher<Quotes, Never> { get }
 
-    func quote(for item: TokenItem) -> TokenQuote?
     func quote(for currencyId: String) async throws -> TokenQuote
-
     /// Use it just for load and save quotes in the cache
     /// For get updates make a subscribe to quotesPublisher
     func loadQuotes(currencyIds: [String]) -> AnyPublisher<Void, Never>
