@@ -16,6 +16,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published var actionSheet: ActionSheetBinder?
     @Published var shouldShowNotificationsWithAnimation: Bool = false
+    @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
