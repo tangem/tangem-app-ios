@@ -15,12 +15,14 @@ import TangemSwapping
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published var actionSheet: ActionSheetBinder?
+    @Published var shouldShowNotificationsWithAnimation: Bool = false
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
     private unowned let coordinator: TokenDetailsRoutable
     private var bag = Set<AnyCancellable>()
+    private var notificatioChangeSubscription: AnyCancellable?
 
     var tokenItem: TokenItem {
         switch amountType {
@@ -67,8 +69,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.detailsScreenOpened)
-        // [REDACTED_TODO_COMMENT]
+        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: tokenItem.currencySymbol])
+    }
+
+    func onDidAppear() {
+        shouldShowNotificationsWithAnimation = true
     }
 
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -121,7 +126,13 @@ extension TokenDetailsViewModel {
     }
 
     private func hideToken() {
-        Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
+        Analytics.log(
+            event: .buttonRemoveToken,
+            params: [
+                Analytics.ParameterKey.token: currencySymbol,
+                Analytics.ParameterKey.source: Analytics.ParameterValue.token.rawValue,
+            ]
+        )
 
         userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
         dismiss()
@@ -132,6 +143,8 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
+        updateBalance(walletModelState: walletModel.state)
+        tokenNotificationInputs = notificationManager.notificationInputs
         bind()
     }
 
