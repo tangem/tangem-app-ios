@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SwappingApprovePolicy: Hashable {
-    case amount(Decimal)
+public enum SwappingApprovePolicy: Hashable, CaseIterable {
     case unlimited
+    case specified
 }
