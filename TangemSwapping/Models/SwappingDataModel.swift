@@ -20,14 +20,9 @@ public struct SwappingDataModel {
     public let sourceCurrencyAmount: Decimal
     public let destinationCurrencyAmount: Decimal
 
-    /// Contract address
-    public let sourceTokenAddress: String?
-    /// Contract address
-    public let destinationTokenAddress: String?
-
-    public init(swappingData: SwappingData) throws {
-        guard let sourceCurrencyAmount = Decimal(string: swappingData.fromTokenAmount),
-              let destinationCurrencyAmount = Decimal(string: swappingData.toTokenAmount),
+    public init(sourceAmount: String, swappingData: SwappingData) throws {
+        guard let sourceCurrencyAmount = Decimal(string: sourceAmount),
+              let destinationCurrencyAmount = Decimal(string: swappingData.toAmount),
               let value = Decimal(string: swappingData.tx.value) else {
             throw OneInchSwappingProvider.Errors.incorrectDataFormat
         }
@@ -39,7 +34,5 @@ public struct SwappingDataModel {
         txData = Data(hexString: swappingData.tx.data)
         sourceAddress = swappingData.tx.from
         destinationAddress = swappingData.tx.to
-        sourceTokenAddress = swappingData.fromToken.address
-        destinationTokenAddress = swappingData.toToken.address
     }
 }
