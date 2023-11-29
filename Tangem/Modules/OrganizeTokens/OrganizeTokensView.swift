@@ -160,7 +160,7 @@ struct OrganizeTokensView: View {
             )
         }
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
-        .onChange(of: scrollState.contentOffset) { newValue in
+        .onReceive(scrollState.contentOffsetSubject) { newValue in
             dragAndDropController.contentOffsetSubject.send(newValue)
             updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
         }
@@ -171,8 +171,11 @@ struct OrganizeTokensView: View {
             viewModel.move(from: oldValue, to: newValue)
         }
         .onChange(of: hasActiveDrag) { newValue in
-            if !newValue {
+            if newValue {
+                scrollState.onDragStart()
+            } else {
                 // Perform required clean-up when the user lifts the finger
+                scrollState.onDragEnd()
                 dragAndDropController.stopAutoScrolling()
                 dragAndDropDestinationIndexPath = nil
                 dragAndDropSourceItemFrame = nil
