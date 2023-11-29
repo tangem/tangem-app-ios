@@ -11,6 +11,8 @@ import TangemSwapping
 import BlockchainSdk
 
 class CommonSwappingModulesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     private let userTokensManager: UserTokensManager
     private let walletModel: WalletModel
     private let signer: TransactionSigner
@@ -148,7 +150,9 @@ private extension CommonSwappingModulesFactory {
             return interactor
         }
 
-        let swappingManager = TangemSwappingFactory().makeSwappingManager(
+        let swappingManager = TangemSwappingFactory(
+            oneInchApiKey: keysManager.oneInchApiKey
+        ).makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
