@@ -152,7 +152,9 @@ private extension CommonSwappingModulesFactory {
     }
 
     func makeSwappingManager(source: Currency, destination: Currency?) -> SwappingManager {
-        TangemSwappingFactory().makeSwappingManager(
+        TangemSwappingFactory(
+            oneInchApiKey: (try? CommonKeysManager().oneInchApiKey) ?? ""
+        ).makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
