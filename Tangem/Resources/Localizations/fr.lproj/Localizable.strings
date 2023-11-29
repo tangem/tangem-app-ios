@@ -85,7 +85,7 @@
 "common_fee_selector_option_market" = "Market";
 "common_fee_selector_option_slow" = "Slow";
 "common_fee_selector_title" = "Speed and fee";
-"common_generate_addresses" = "Generate addresses";
+"common_generate_addresses" = "Get addresses";
 "common_import" = "Import";
 "common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Like";
