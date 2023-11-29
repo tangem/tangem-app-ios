@@ -10,6 +10,7 @@ import SwiftUI
 
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
+    @ObservedObject var sensitiveTextVisibilityViewModel = SensitiveTextVisibilityViewModel.shared
 
     var body: some View {
         ZStack {
@@ -78,6 +79,13 @@ struct MainCoordinatorView: CoordinatorView {
                 settings: .init(backgroundColor: Colors.Background.primary)
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
+            }
+            // It's works on all nested views because the bottom sheet works with UIViewController
+            .bottomSheet(
+                item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
+                settings: .init(backgroundColor: Colors.Background.primary)
+            ) {
+                InformationHiddenBalancesView(viewModel: $0)
             }
     }
 }

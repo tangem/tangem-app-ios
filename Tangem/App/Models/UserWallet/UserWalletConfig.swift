@@ -21,6 +21,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardName: String { get }
 
+    var walletCurves: [EllipticCurve] { get }
+
     var mandatoryCurves: [EllipticCurve] { get }
 
     var derivationStyle: DerivationStyle? { get }
@@ -124,6 +126,10 @@ protocol CardContainer {
 }
 
 extension UserWalletConfig where Self: CardContainer {
+    var walletCurves: [EllipticCurve] {
+        card.walletCurves
+    }
+
     func makeTangemSdk() -> TangemSdk {
         let factory = GenericTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet)
         return factory.makeTangemSdk()
