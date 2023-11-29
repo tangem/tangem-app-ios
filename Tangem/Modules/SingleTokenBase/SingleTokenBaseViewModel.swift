@@ -21,7 +21,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
-    @Published private(set) var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published var tokenNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
 
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
