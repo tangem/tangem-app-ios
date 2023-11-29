@@ -90,6 +90,10 @@ extension CommonKeysManager: KeysManager {
     var walletConnectProjectId: String {
         keys.walletConnectProjectId
     }
+
+    var oneInchApiKey: String {
+        keys.oneInchApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -120,5 +124,6 @@ extension CommonKeysManager {
         let swapReferrerAccount: SwapReferrerAccount?
         let walletConnectProjectId: String
         let sprinklr: SprinklrConfig
+        let oneInchApiKey: String
     }
 }
