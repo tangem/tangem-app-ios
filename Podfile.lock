@@ -43,7 +43,6 @@ PODS:
     - SwiftyJSON (= 5.0.1)
     - TangemSdk
     - TangemWalletCore
-    - web3swift
   - CombineExt (1.8.0)
   - CryptoSwift (1.5.1)
   - Firebase/Analytics (10.18.0):
@@ -162,15 +161,6 @@ PODS:
   - ObjcExceptionBridging (1.0.1):
     - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
   - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
-  - PromiseKit (6.18.1):
-    - PromiseKit/CorePromise (= 6.18.1)
-    - PromiseKit/Foundation (= 6.18.1)
-    - PromiseKit/UIKit (= 6.18.1)
-  - PromiseKit/CorePromise (6.18.1)
-  - PromiseKit/Foundation (6.18.1):
-    - PromiseKit/CorePromise
-  - PromiseKit/UIKit (6.18.1):
-    - PromiseKit/CorePromise
   - PromisesObjC (2.3.1)
   - PromisesSwift (2.3.1):
     - PromisesObjC (= 2.3.1)
@@ -232,12 +222,6 @@ PODS:
   - WalletConnectSwiftV2/WalletConnectVerify (1.8.4):
     - WalletConnectSwiftV2/WalletConnectNetworking
     - WalletConnectSwiftV2/WalletConnectUtils
-  - web3swift (2.2.1):
-    - BigInt
-    - CryptoSwift
-    - PromiseKit
-    - secp256k1.swift
-    - Starscream
   - XCGLogger (7.0.1):
     - XCGLogger/Core (= 7.0.1)
   - XCGLogger/Core (7.0.1):
@@ -249,7 +233,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-414`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-415`)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -261,7 +245,6 @@ DEPENDENCIES:
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-274`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.2.4-tangem1`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
-  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.12`)
 
 SPEC REPOS:
   trunk:
@@ -288,7 +271,6 @@ SPEC REPOS:
     - Moya
     - nanopb
     - ObjcExceptionBridging
-    - PromiseKit
     - PromisesObjC
     - PromisesSwift
     - ScaleCodec
@@ -315,7 +297,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-414
+    :tag: develop-415
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -334,9 +316,6 @@ EXTERNAL SOURCES:
   WalletConnectSwiftV2:
     :git: https://github.com/WalletConnect/WalletConnectSwiftV2
     :tag: 1.8.4
-  web3swift:
-    :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.12
 
 CHECKOUT OPTIONS:
   AlertToast:
@@ -350,7 +329,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-414
+    :tag: develop-415
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -369,9 +348,6 @@ CHECKOUT OPTIONS:
   WalletConnectSwiftV2:
     :git: https://github.com/WalletConnect/WalletConnectSwiftV2
     :tag: 1.8.4
-  web3swift:
-    :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.12
 
 SPEC CHECKSUMS:
   Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
@@ -383,7 +359,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: 9e0a05467275f2f85aa8de3ce7b59bfd3a76419f
+  BlockchainSdk: 0ab212196f8152745a47337df2e72278713aa787
   CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
   CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
@@ -402,7 +378,6 @@ SPEC CHECKSUMS:
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
-  PromiseKit: 49d70c53d5d20e346beaea4b276b5dd2ab446bb4
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
@@ -420,9 +395,8 @@ SPEC CHECKSUMS:
   TangemWalletCore: 8495b203106e8246aaa2a51ff99dd19f29209942
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
-  web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: a80beee6b78fd9314496e73a06d4fa540f4e6202
+PODFILE CHECKSUM: 440a5856c427dced9defcb248c3acdd2735dc10d
 
 COCOAPODS: 1.14.3
