@@ -35,6 +35,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private let keysRepository: KeysRepository
     private let walletManagersRepository: WalletManagersRepository
+//    private let notificationAnalyticsManager: NotificationsAnalyticsManager
 
     lazy var derivationManager: DerivationManager? = {
         guard config.hasFeature(.hdWallets) else {
@@ -579,5 +580,16 @@ extension CardViewModel: CardDerivableProvider {
 extension CardViewModel: TotalBalanceProviding {
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
         totalBalanceProvider.totalBalancePublisher()
+    }
+}
+
+extension CardViewModel: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        return AnalyticsContextData(
+            card: card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
     }
 }
