@@ -9,7 +9,11 @@
 import Foundation
 
 public struct TangemSwappingFactory {
-    public init() {}
+    private let oneInchApiKey: String
+
+    public init(oneInchApiKey: String) {
+        self.oneInchApiKey = oneInchApiKey
+    }
 
     public func makeSwappingManager(
         walletDataProvider: SwappingWalletDataProvider,
@@ -20,7 +24,7 @@ public struct TangemSwappingFactory {
         logger: SwappingLogger? = nil
     ) -> SwappingManager {
         let swappingItems = SwappingItems(source: source, destination: destination)
-        let swappingService = OneInchAPIService(logger: logger ?? CommonSwappingLogger())
+        let swappingService = OneInchAPIService(logger: logger ?? CommonSwappingLogger(), oneInchApiKey: oneInchApiKey)
         let provider = OneInchSwappingProvider(swappingService: swappingService)
 
         return CommonSwappingManager(
