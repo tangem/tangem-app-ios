@@ -11,6 +11,8 @@ import TangemSwapping
 import BlockchainSdk
 
 class CommonSwappingModulesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     private let userTokensManager: UserTokensManager
     private let walletModel: WalletModel
     private let signer: TransactionSigner
@@ -22,7 +24,9 @@ class CommonSwappingModulesFactory {
     private let walletModelTokens: [Token]
     private let destination: Currency?
 
-    private lazy var swappingInteractor = makeSwappingInteractor(source: source, destination: destination)
+    // MARK: - Internal
+
+    private var _swappingInteractor: SwappingInteractor?
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
@@ -141,19 +145,13 @@ private extension CommonSwappingModulesFactory {
         )
     }
 
-    func makeSwappingInteractor(source: Currency, destination: Currency?) -> SwappingInteractor {
-        let swappingManager = makeSwappingManager(source: source, destination: destination)
-        return SwappingInteractor(
-            swappingManager: swappingManager,
-            userTokensManager: userTokensManager,
-            currencyMapper: currencyMapper,
-            blockchainNetwork: walletModel.blockchainNetwork
-        )
-    }
+    var swappingInteractor: SwappingInteractor {
+        if let interactor = _swappingInteractor {
+            return interactor
+        }
 
-    func makeSwappingManager(source: Currency, destination: Currency?) -> SwappingManager {
-        TangemSwappingFactory(
-            oneInchApiKey: (try? CommonKeysManager().oneInchApiKey) ?? ""
+        let swappingManager = TangemSwappingFactory(
+            oneInchApiKey: keysManager.oneInchApiKey
         ).makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
@@ -161,6 +159,16 @@ private extension CommonSwappingModulesFactory {
             destination: destination,
             logger: logger
         )
+
+        let interactor = SwappingInteractor(
+            swappingManager: swappingManager,
+            userTokensManager: userTokensManager,
+            currencyMapper: currencyMapper,
+            blockchainNetwork: walletModel.blockchainNetwork
+        )
+
+        _swappingInteractor = interactor
+        return interactor
     }
 }
 
