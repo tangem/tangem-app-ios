@@ -14,8 +14,9 @@ import TangemSdk
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
-    @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
+    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.analyticsContext) private var analyticsContext: AnalyticsContext
+    @Injected(\.expressPendingTransactionsRepository) private var expressPendingTxRepository: ExpressPendingTransactionRepository
 
     var selectedModel: CardViewModel? {
         return models.first {
@@ -450,6 +451,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         initializeAnalyticsContext(with: cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         walletConnectService.initialize(with: cardModel)
+        expressPendingTxRepository.initializeForUserWallet(with: cardModel.userWalletId)
     }
 
     // we can initialize it right after scan for more accurate analytics
