@@ -198,34 +198,44 @@ struct OrganizeTokensView: View {
                     ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
                         let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
                         let identifier = itemViewModel.id
+                        let isDragged = identifier.asAnyHashable == dragAndDropSourceViewModelIdentifier
 
                         makeCell(
                             viewModel: itemViewModel,
                             indexPath: indexPath,
                             parametersProvider: parametersProvider
                         )
-                        .hidden(identifier.asAnyHashable == dragAndDropSourceViewModelIdentifier)
+                        .hidden(isDragged)
                         .readGeometry(
                             \.frame,
                             inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                        ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                        ) { frame in
+                            if !isDragged {
+                                dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                            }
+                        }
                         .id(identifier)
                     }
                 },
                 header: {
                     let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
                     let identifier = sectionViewModel.id
+                    let isDragged = identifier == dragAndDropSourceViewModelIdentifier
 
                     makeSection(
                         from: sectionViewModel,
                         atIndex: sectionIndex,
                         parametersProvider: parametersProvider
                     )
-                    .hidden(identifier == dragAndDropSourceViewModelIdentifier)
+                    .hidden(isDragged)
                     .readGeometry(
                         \.frame,
                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                    ) { dragAndDropController.saveFrame($0, forItemAt: indexPath) }
+                    ) { frame in
+                        if !isDragged {
+                            dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                        }
+                    }
                     .id(identifier)
                     .padding(.top, sectionIndex == 0 ? 0.0 : Constants.headerBottomInset)
                 }
