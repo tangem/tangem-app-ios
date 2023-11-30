@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExpressProvider: Hashable {
+public struct ExpressProvider: Hashable, Codable {
     public let id: Id
     public let name: String
     public let url: URL?
@@ -23,7 +23,7 @@ public struct ExpressProvider: Hashable {
 }
 
 public extension ExpressProvider {
-    enum Id: String, Hashable {
+    enum Id: String, Hashable, Codable {
         case changeNow = "changenow"
         case oneInch = "1inch"
 
