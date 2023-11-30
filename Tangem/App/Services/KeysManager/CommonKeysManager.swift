@@ -40,7 +40,7 @@ extension CommonKeysManager: KeysManager {
             blockcypherTokens: keys.blockcypherTokens,
             infuraProjectId: keys.infuraProjectId,
             nowNodesApiKey: keys.nowNodesApiKey,
-            getBlockCredentials: .init(keys.getBlockAccessTokens),
+            getBlockApiKey: keys.getBlockApiKey,
             kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
             tronGridApiKey: keys.tronGridApiKey,
             tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
@@ -98,7 +98,8 @@ extension CommonKeysManager {
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let nowNodesApiKey: String
-        let getBlockAccessTokens: [String: GetBlockAccessToken]
+        let getBlockApiKey: String
+        let getBlockAccessTokens: [Blockchain: GetBlockAccessToken]
         let kaspaSecondaryApiUrl: String
         let tonCenterApiKey: TonCenterApiKeys
         let chiaFireAcademyApiKey: String
