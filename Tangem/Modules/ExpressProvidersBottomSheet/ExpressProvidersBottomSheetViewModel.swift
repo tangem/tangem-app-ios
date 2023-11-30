@@ -17,7 +17,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     // MARK: - Dependencies
 
-    private var selectedProviderId: Int? = nil
+    private var selectedProviderId: ExpressProvider.Id? = nil
     private var quotes: [ExpectedQuote] = []
 
     private let percentFormatter: PercentFormatter
