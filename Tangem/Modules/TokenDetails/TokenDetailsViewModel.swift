@@ -13,6 +13,8 @@ import BlockchainSdk
 import TangemSwapping
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
+    @Injected(\.expressPendingTransactionsRepository) private var expressPendingTxRepository: ExpressPendingTransactionRepository
+
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published var actionSheet: ActionSheetBinder?
     @Published var shouldShowNotificationsWithAnimation: Bool = false
@@ -155,6 +157,43 @@ private extension TokenDetailsViewModel {
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateBalance(walletModelState: newState)
+            }
+            .store(in: &bag)
+
+        expressPendingTxRepository.pendingTransactionsPublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { viewModel, records in
+                let blockchainNetwork = viewModel.walletModel.blockchainNetwork
+                let tokenItem = viewModel.walletModel.tokenItem
+
+                return records.filter { txRecord in
+                    let isSameBlockchain = txRecord.sourceTokenTxInfo.blockchainNetwork == blockchainNetwork
+                        || txRecord.destinationTokenTxInfo.blockchainNetwork == blockchainNetwork
+                    let isSameTokenItem = txRecord.sourceTokenTxInfo.tokenItem == tokenItem
+                        || txRecord.destinationTokenTxInfo.tokenItem == tokenItem
+
+                    return isSameBlockchain && isSameTokenItem
+                }
+            }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, records in
+                let iconBuilder = TokenIconInfoBuilder()
+                viewModel.pendingExpressTransactions = records.map {
+                    let sourceTokenItem = $0.sourceTokenTxInfo.tokenItem
+                    let destinationTokenItem = $0.destinationTokenTxInfo.tokenItem
+                    return .init(
+                        id: $0.expressTransactionId,
+                        providerName: $0.provider.name,
+                        sourceIconInfo: iconBuilder.build(from: sourceTokenItem, isCustom: $0.sourceTokenTxInfo.isCustom),
+                        sourceAmountText: "\($0.sourceTokenTxInfo.amount) \(sourceTokenItem.currencySymbol)",
+                        destinationIconInfo: iconBuilder.build(from: destinationTokenItem, isCustom: $0.destinationTokenTxInfo.isCustom),
+                        destinationCurrencySymbol: destinationTokenItem.currencySymbol,
+                        state: .inProgress
+                    ) { transactionId in
+                        print("Attempting to open pending tx with id: \(transactionId)")
+                    }
+                }
             }
             .store(in: &bag)
     }
