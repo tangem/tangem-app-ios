@@ -152,23 +152,8 @@ final class ExpressViewModel: ObservableObject {
 
 private extension ExpressViewModel {
     @MainActor
-    func openSuccessView(resultState: ExpressInteractor.TransactionSendResultState) {
-        guard let destination = interactor.getDestination() else {
-            assertionFailure("Destination isn't found")
-            return
-        }
-
-        let data = SentExpressTransactionData(
-            hash: resultState.hash,
-            source: interactor.getSender(),
-            destination: destination,
-            fee: resultState.fee.amount.value,
-            provider: resultState.provider,
-            date: Date(),
-            expressTransactionData: resultState.data
-        )
-
-        coordinator.presentSuccessView(data: data)
+    func openSuccessView(sentTransactionData: SentExpressTransactionData) {
+        coordinator.presentSuccessView(data: sentTransactionData)
     }
 
     func openApproveView() {
@@ -588,12 +573,11 @@ private extension ExpressViewModel {
         mainButtonIsLoading = true
         runTask(in: self) { root in
             do {
-                let resultState = try await root.interactor.send()
+                let sentTransactionData = try await root.interactor.send()
 
                 try Task.checkCancellation()
 
-                await root.openSuccessView(resultState: resultState)
-
+                await root.openSuccessView(sentTransactionData: sentTransactionData)
             } catch TangemSdkError.userCancelled {
                 root.restartTimer()
             } catch {
