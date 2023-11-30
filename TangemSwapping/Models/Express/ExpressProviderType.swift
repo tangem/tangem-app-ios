@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ExpressProviderType: String, Hashable, Decodable {
+public enum ExpressProviderType: String, Hashable, Codable {
     case dex
     case cex
 }

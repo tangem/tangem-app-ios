@@ -24,6 +24,8 @@ class ExpressInteractor {
 
     // MARK: - Dependencies
 
+//    [REDACTED_USERNAME](\.expressPendingTransactionsRepository) private var expressPendingTransactionRepository: ExpressPendingTransactionRepository
+
     private let expressManager: ExpressManager
     private let allowanceProvider: ExpressAllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -165,8 +167,8 @@ extension ExpressInteractor {
 // MARK: - Send
 
 extension ExpressInteractor {
-    func send() async throws -> TransactionSendResultState {
-        guard let destination = getDestination()?.tokenItem else {
+    func send() async throws -> SentExpressTransactionData {
+        guard let destination = getDestination() else {
             throw ExpressInteractorError.destinationNotFound
         }
 
@@ -174,7 +176,7 @@ extension ExpressInteractor {
             event: .swapButtonSwap,
             params: [
                 .sendToken: getSender().tokenItem.currencySymbol,
-                .receiveToken: destination.currencySymbol,
+                .receiveToken: destination.tokenItem.currencySymbol,
             ]
         )
 
@@ -193,8 +195,26 @@ extension ExpressInteractor {
         }()
 
         updateState(.idle)
-        expressPendingTransactionRepository.didSendSwapTransaction()
-        return result
+        let sentTransactionData = SentExpressTransactionData(
+            hash: result.hash,
+            source: getSender(),
+            destination: destination,
+            fee: result.fee.amount.value,
+            provider: result.provider,
+            date: Date(),
+            expressTransactionData: result.data
+        )
+        /*
+         Analytics.log(event: .transactionSent, params: [
+         .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+         .token: swappingTxData.sourceCurrency.symbol,
+         .blockchain: swappingTxData.sourceBlockchain.name,
+         .feeType: getAnalyticsFeeType()?.rawValue ?? .unknown,
+         ])
+         */
+
+        expressPendingTransactionRepository.didSendSwapTransaction(sentTransactionData)
+        return sentTransactionData
     }
 
     func sendApproveTransaction() async throws {
@@ -215,7 +235,23 @@ extension ExpressInteractor {
         )
         let result = try await sender.send(transaction, signer: signer).async()
         logger.debug("Sent the approve transaction with result: \(result)")
-        expressPendingTransactionRepository.didSendApproveTransaction()
+        /*
+         let permissionType: Analytics.ParameterValue = {
+         switch getApprovePolicy() {
+         case .specified: return .oneTransactionApprove
+         case .unlimited: return .unlimitedApprove
+         }
+         }()
+
+         Analytics.log(event: .transactionSent, params: [
+         .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+         .feeType: getAnalyticsFeeType()?.rawValue ?? .unknown,
+         .token: swappingTxData.sourceCurrency.symbol,
+         .blockchain: swappingTxData.sourceBlockchain.name,
+         .permissionType: permissionType.rawValue,
+         ])
+         */
+        await expressPendingTransactionRepository.didSendApproveTransaction()
         updateState(.restriction(.hasPendingTransaction, quote: getState().quote))
     }
 }
@@ -374,7 +410,7 @@ private extension ExpressInteractor {
 
     func hasPendingTransaction() -> Bool {
         let network = getSender().expressCurrency.network
-        return expressPendingTransactionRepository.hasPending(for: network)
+        return expressPendingTransactionRepository.hasPendingTransaction(in: network)
     }
 }
 
@@ -441,9 +477,10 @@ private extension ExpressInteractor {
         let sender = getSender()
         let data = try await expressManager.requestData()
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: data, fee: fee)
-        let result = try await sender.send(transaction, signer: signer).async()
+        let result = "GoodJOB!!"
+//        let result = try await sender.send(transaction, signer: signer).async()
 
-        return TransactionSendResultState(hash: result.hash, data: data, fee: fee, provider: provider)
+        return TransactionSendResultState(hash: result, data: data, fee: fee, provider: provider)
     }
 
     func getReadyToSwapState(data: ExpressTransactionData) async throws -> ExpressSwapData {
