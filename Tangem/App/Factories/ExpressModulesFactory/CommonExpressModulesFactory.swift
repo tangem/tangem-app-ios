@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class CommonExpressModulesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletModel: UserWalletModel
     private let initialWalletModel: WalletModel
@@ -142,10 +143,6 @@ private extension CommonExpressModulesFactory {
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
         CommonExpressTokensListAdapter(userWalletModel: userWalletModel)
-    }
-
-    var pendingTransactionRepository: ExpressPendingTransactionRepository {
-        CommonExpressPendingTransactionRepository()
     }
 
     var expressDestinationService: ExpressDestinationService {
