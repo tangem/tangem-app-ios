@@ -24,8 +24,6 @@ class ExpressInteractor {
 
     // MARK: - Dependencies
 
-//    [REDACTED_USERNAME](\.expressPendingTransactionsRepository) private var expressPendingTransactionRepository: ExpressPendingTransactionRepository
-
     private let expressManager: ExpressManager
     private let allowanceProvider: ExpressAllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -477,10 +475,8 @@ private extension ExpressInteractor {
         let sender = getSender()
         let data = try await expressManager.requestData()
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: data, fee: fee)
-        let result = "GoodJOB!!"
-//        let result = try await sender.send(transaction, signer: signer).async()
 
-        return TransactionSendResultState(hash: result, data: data, fee: fee, provider: provider)
+        return TransactionSendResultState(hash: result.hash, data: data, fee: fee, provider: provider)
     }
 
     func getReadyToSwapState(data: ExpressTransactionData) async throws -> ExpressSwapData {
