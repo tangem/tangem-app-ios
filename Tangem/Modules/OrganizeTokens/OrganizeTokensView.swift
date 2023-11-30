@@ -144,8 +144,8 @@ struct OrganizeTokensView: View {
                         .divided(atDistance: scrollViewBottomContentInset, from: .maxYEdge)
                         .remainder
                 }
-                .onChange(of: draggedItemFrame) { draggedItemFrame in
-                    changeAutoScrollStatusIfNeeded(draggedItemFrame: draggedItemFrame)
+                .onChange(of: draggedItemFrame) { newValue in
+                    changeAutoScrollStatusIfNeeded(draggedItemFrame: newValue)
                 }
                 .onReceive(dragAndDropController.autoScrollTargetPublisher) { newValue in
                     withAnimation(.linear(duration: Constants.autoScrollFrequency)) {
