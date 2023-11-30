@@ -159,7 +159,7 @@ extension Wallet2Config: UserWalletConfig {
         switch card.batchId {
         // Tron 37X cards
         case "AF07":
-            return cardsCount == 2 ? Assets.Cards.tron37xDouble : Assets.Cards.tron37xTriple
+            return cardsCount == 2 ? Assets.Cards.tronDouble : Assets.Cards.tronTriple
         // Kaspa cards
         case "AF08":
             return cardsCount == 2 ? Assets.Cards.kaspaDouble : Assets.Cards.kaspaTriple
