@@ -348,14 +348,14 @@ struct OrganizeTokensView: View {
         }
 
         let intersection = visibleViewportFrame.intersection(draggedItemFrame)
-        if intersection.isNull || intersection.height < min(visibleViewportFrame.height, draggedItemFrame.height) {
+        if intersection.height < min(visibleViewportFrame.height, draggedItemFrame.height) {
             if draggedItemFrame.minY + Constants.autoScrollTriggerHeightDiff < visibleViewportFrame.minY {
                 dragAndDropController.startAutoScrolling(direction: .top)
             } else if draggedItemFrame.maxY - Constants.autoScrollTriggerHeightDiff > visibleViewportFrame.maxY {
                 dragAndDropController.startAutoScrolling(direction: .bottom)
-            } else {
-                dragAndDropController.stopAutoScrolling()
             }
+        } else if !intersection.isNull {
+            dragAndDropController.stopAutoScrolling()
         }
     }
 
