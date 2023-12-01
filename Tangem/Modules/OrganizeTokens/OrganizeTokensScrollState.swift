@@ -65,7 +65,7 @@ final class OrganizeTokensScrollState: ObservableObject {
 
         contentOffsetSubject
             .map { contentOffset in
-                // `CGPoint` doesn't conform to `Comporable`, so we're applying `max(_:_:)` manually here
+                // `CGPoint` doesn't conform to `Comparable`, so we're applying `max(_:_:)` manually here
                 return CGPoint(
                     x: max(contentOffset.x, .zero),
                     y: max(contentOffset.y, .zero)
