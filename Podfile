@@ -1,6 +1,24 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '14.5'
-project 'TangemApp.xcodeproj'
+
+# Debug Xcode configurations
+debug_configuration = 'Debug(production)'
+debug_alpha_configuration = 'Debug(alpha)'
+debug_beta_configuration = 'Debug(beta)'
+
+# Release Xcode configurations
+release_configuration = 'Release(production)'
+release_alpha_configuration = 'Release(alpha)'
+release_beta_configuration = 'Release(beta)'
+
+project 'TangemApp.xcodeproj',
+  debug_configuration => :debug,
+  debug_alpha_configuration => :debug,
+  debug_beta_configuration => :debug,
+  release_configuration => :release,
+  release_alpha_configuration => :release,
+  release_beta_configuration => :release
+
 # Comment the next line if you don't want to use dynamic frameworks
 use_frameworks!
 inhibit_all_warnings!
