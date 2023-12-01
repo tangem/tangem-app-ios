@@ -23,7 +23,7 @@ public struct ExpressProvider: Hashable {
 }
 
 public extension ExpressProvider {
-    enum Id: String, Hashable, Codable {
+    enum Id: String, Hashable {
         case changeNow = "changenow"
         case oneInch = "1inch"
 
