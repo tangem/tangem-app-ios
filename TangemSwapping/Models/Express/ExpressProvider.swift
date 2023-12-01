@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExpressProvider: Hashable, Codable {
+public struct ExpressProvider: Hashable {
     public let id: Id
     public let name: String
     public let url: URL?
