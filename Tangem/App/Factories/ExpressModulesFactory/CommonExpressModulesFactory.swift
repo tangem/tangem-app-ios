@@ -166,6 +166,7 @@ private extension CommonExpressModulesFactory {
         )
 
         let interactor = ExpressInteractor(
+            userWalletId: userWalletId,
             sender: initialWalletModel,
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
