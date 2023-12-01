@@ -44,6 +44,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         isSceneStarted = true
 
+        PerformanceMonitorConfigurator.configureIfAvailable()
+
         guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
