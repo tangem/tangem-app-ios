@@ -76,7 +76,7 @@
 "common_enabled" = "Включено";
 "common_error" = "Ошибка";
 "common_exchange" = "Обменять";
-"common_explore" = "Explore";
+"common_explore" = "Обозреватель";
 "common_explore_history" = "Посмотреть историю";
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
