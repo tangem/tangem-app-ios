@@ -168,6 +168,10 @@ private extension TokenDetailsViewModel {
                 let tokenItem = viewModel.walletModel.tokenItem
 
                 return records.filter { txRecord in
+                    guard txRecord.userWalletId == viewModel.userWalletModel.userWalletId.stringValue else {
+                        return false
+                    }
+
                     let isSameBlockchain = txRecord.sourceTokenTxInfo.blockchainNetwork == blockchainNetwork
                         || txRecord.destinationTokenTxInfo.blockchainNetwork == blockchainNetwork
                     let isSameTokenItem = txRecord.sourceTokenTxInfo.tokenItem == tokenItem
