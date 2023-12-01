@@ -166,8 +166,7 @@ private extension TokenDetailsViewModel {
             .map { viewModel, records in
                 let blockchainNetwork = viewModel.walletModel.blockchainNetwork
                 let tokenItem = viewModel.walletModel.tokenItem
-
-                return records.filter { txRecord in
+                let filteredRecords = records.filter { txRecord in
                     guard txRecord.userWalletId == viewModel.userWalletModel.userWalletId.stringValue else {
                         return false
                     }
@@ -179,8 +178,9 @@ private extension TokenDetailsViewModel {
 
                     return isSameBlockchain && isSameTokenItem
                 }
+
+                return (viewModel, filteredRecords)
             }
-            .withWeakCaptureOf(self)
             .sink { viewModel, records in
                 let iconBuilder = TokenIconInfoBuilder()
                 viewModel.pendingExpressTransactions = records.map {
