@@ -87,15 +87,17 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             externalTxURL: txData.expressTransactionData.externalTxUrl
         )
 
-        lockQueue.async {
-            addRecordIfNeeded(expressPendingTransactionRecord)
+        lockQueue.async { [weak self] in
+            self?.addRecordIfNeeded(expressPendingTransactionRecord)
         }
     }
 
     func didSendApproveTransaction() {}
 
     func removeSwapTransaction(with expressTxId: String) {
-        lockQueue.async {
+        lockQueue.async { [weak self] in
+            guard let self else { return }
+
             guard let index = pendingTransactionSubject.value.firstIndex(where: { $0.expressTransactionId == expressTxId }) else {
                 log("Trying to remove transaction that not in repository.")
                 return
