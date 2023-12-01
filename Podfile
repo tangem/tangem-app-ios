@@ -60,7 +60,16 @@ target 'Tangem' do
   # Helpers
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
   pod 'CombineExt', '~> 1.8.0'
-  
+
+  # Debug and development pods
+  pod 'GDPerformanceView-Swift', '~> 2.1', :configurations => [
+    debug_configuration,
+    debug_alpha_configuration,
+    debug_beta_configuration,
+    release_alpha_configuration,
+    release_beta_configuration,
+  ]
+
   # support chat
   pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2-tangem1'
   
