@@ -80,6 +80,7 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
+            let toDecimals: Int
             let fromAmount: String
             let fromDecimals: Int
             let providerId: Provider.Id
@@ -104,6 +105,7 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
+            let toDecimals: Int
             let fromAmount: String
             let fromDecimals: Int
             let providerId: Provider.Id
