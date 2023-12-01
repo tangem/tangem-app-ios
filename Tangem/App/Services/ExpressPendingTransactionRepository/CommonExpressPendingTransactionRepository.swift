@@ -15,7 +15,6 @@ class CommonExpressPendingTransactionRepository {
 
     private let lockQueue = DispatchQueue(label: "com.tangem.CommonExpressPendingTransactionRepository.lockQueue")
 
-    private var userWalletId: UserWalletId?
     private var pendingTransactionSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
 
     init() {
@@ -44,61 +43,28 @@ class CommonExpressPendingTransactionRepository {
         }
     }
 
-    private func logNotInitializedRepository(with message: String) {
-        assertionFailure("Repository not initialized")
-        log("\(message) Reason: Failed to find UserWalletId")
-    }
-
     private func log<T>(_ message: @autoclosure () -> T) {
         AppLog.shared.debug("[Express Tx Repository] \(message())")
     }
 }
 
 extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRepository {
+    var pendingTransactions: [ExpressPendingTransactionRecord] {
+        pendingTransactionSubject.value
+    }
+
     var pendingTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
         pendingTransactionSubject.eraseToAnyPublisher()
     }
 
-    func initializeForUserWallet(with userWalletId: UserWalletId) {
-        self.userWalletId = userWalletId
-    }
-
-    func lastCurrencyTransaction() -> ExpressCurrency? {
-        lockQueue.sync {
-            return pendingTransactionSubject.value.last?.destinationTokenTxInfo.tokenItem.expressCurrency
-        }
-    }
-
-    func hasPendingTransaction(in networkid: String) -> Bool {
-        guard let userWalletId else {
-            return false
-        }
-
-        return lockQueue.sync {
-            pendingTransactionSubject.value.contains { record in
-                guard record.userWalletId == userWalletId.stringValue else {
-                    return false
-                }
-
-                return record.destinationTokenTxInfo.tokenItem.networkId == networkid ||
-                    record.sourceTokenTxInfo.tokenItem.networkId == networkid
-            }
-        }
-    }
-
-    func didSendSwapTransaction(_ txData: SentExpressTransactionData) {
+    func didSendSwapTransaction(_ txData: SentExpressTransactionData, userWalletId: String) {
         guard case .send = txData.expressTransactionData.transactionType else {
             log("No need to store DEX transactions. Skipping")
             return
         }
 
-        guard let userWalletId else {
-            logNotInitializedRepository(with: "Failed to save pending Swap transaction.")
-            return
-        }
-
         let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
-            userWalletId: userWalletId.stringValue,
+            userWalletId: userWalletId,
             expressTransactionId: txData.expressTransactionData.expressTransactionId,
             transactionType: .type(from: txData.expressTransactionData.transactionType),
             transactionHash: txData.hash,
