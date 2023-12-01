@@ -24,6 +24,7 @@ class ExpressInteractor {
 
     // MARK: - Dependencies
 
+    private let userWalletId: String
     private let expressManager: ExpressManager
     private let allowanceProvider: ExpressAllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -42,6 +43,7 @@ class ExpressInteractor {
     private var updateStateTask: Task<Void, Error>?
 
     init(
+        userWalletId: String,
         sender: WalletModel,
         expressManager: ExpressManager,
         allowanceProvider: ExpressAllowanceProvider,
@@ -51,6 +53,7 @@ class ExpressInteractor {
         signer: TransactionSigner,
         logger: SwappingLogger
     ) {
+        self.userWalletId = userWalletId
         _swappingPair = .init(SwappingPair(sender: sender, destination: nil))
         self.expressManager = expressManager
         self.allowanceProvider = allowanceProvider
@@ -211,7 +214,7 @@ extension ExpressInteractor {
          ])
          */
 
-        expressPendingTransactionRepository.didSendSwapTransaction(sentTransactionData)
+        expressPendingTransactionRepository.didSendSwapTransaction(sentTransactionData, userWalletId: userWalletId)
         return sentTransactionData
     }
 
@@ -249,7 +252,7 @@ extension ExpressInteractor {
          .permissionType: permissionType.rawValue,
          ])
          */
-        await expressPendingTransactionRepository.didSendApproveTransaction()
+        expressPendingTransactionRepository.didSendApproveTransaction()
         updateState(.restriction(.hasPendingTransaction, quote: getState().quote))
     }
 }
@@ -407,8 +410,17 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        let network = getSender().expressCurrency.network
-        return expressPendingTransactionRepository.hasPendingTransaction(in: network)
+        let networkId = getSender().expressCurrency.network
+        let transactions = expressPendingTransactionRepository.pendingTransactions
+
+        return transactions.contains(where: { record in
+            guard record.userWalletId == userWalletId else {
+                return false
+            }
+
+            return record.destinationTokenTxInfo.tokenItem.networkId == networkId ||
+                record.sourceTokenTxInfo.tokenItem.networkId == networkId
+        })
     }
 }
 
