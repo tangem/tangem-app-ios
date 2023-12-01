@@ -13,6 +13,8 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     @ViewBuilder private let content: () -> Content
     @ViewBuilder private let overlay: () -> Overlay
 
+    @Environment(\.bottomScrollableSheetStateObserver) private var bottomScrollableSheetStateObserver
+
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
     @State private var overlayHeight: CGFloat = .zero
@@ -51,6 +53,9 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             }
             .ignoresSafeArea(edges: .bottom)
             .onAppear(perform: stateObject.onAppear)
+            .onChange(of: stateObject.state) { newValue in
+                bottomScrollableSheetStateObserver?(newValue)
+            }
             .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
         }
         .ignoresSafeArea(edges: .bottom)
