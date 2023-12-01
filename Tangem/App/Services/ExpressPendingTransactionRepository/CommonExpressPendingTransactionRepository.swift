@@ -18,13 +18,12 @@ class CommonExpressPendingTransactionRepository {
     private var userWalletId: UserWalletId?
     private var pendingTransactionSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
 
-    private func setup(for userWalletId: UserWalletId) {
-        self.userWalletId = userWalletId
-        loadPendingTransactions(for: userWalletId)
+    init() {
+        loadPendingTransactions()
     }
 
-    private func loadPendingTransactions(for userWalletId: UserWalletId) {
-        let savedTransactions: [ExpressPendingTransactionRecord] = (try? storage.value(for: .pendingExpressTransactions(userWalletId: userWalletId.stringValue))) ?? []
+    private func loadPendingTransactions() {
+        let savedTransactions: [ExpressPendingTransactionRecord] = (try? storage.value(for: .pendingExpressTransactions)) ?? []
         pendingTransactionSubject.value = savedTransactions
     }
 
@@ -38,13 +37,8 @@ class CommonExpressPendingTransactionRepository {
     }
 
     private func saveChanges() {
-        guard let userWalletId else {
-            logNotInitializedRepository(with: "Failed to save changes for pending transactions.")
-            return
-        }
-
         do {
-            try storage.store(value: pendingTransactionSubject.value, for: .pendingExpressTransactions(userWalletId: userWalletId.stringValue))
+            try storage.store(value: pendingTransactionSubject.value, for: .pendingExpressTransactions)
         } catch {
             log("Failed to save changes in storage. Reason: \(error)")
         }
@@ -66,9 +60,7 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
     }
 
     func initializeForUserWallet(with userWalletId: UserWalletId) {
-        lockQueue.sync {
-            setup(for: userWalletId)
-        }
+        self.userWalletId = userWalletId
     }
 
     func lastCurrencyTransaction() -> ExpressCurrency? {
@@ -78,8 +70,16 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
     }
 
     func hasPendingTransaction(in networkid: String) -> Bool {
-        lockQueue.sync {
-            return pendingTransactionSubject.value.contains { record in
+        guard let userWalletId else {
+            return false
+        }
+
+        return lockQueue.sync {
+            pendingTransactionSubject.value.contains { record in
+                guard record.userWalletId == userWalletId.stringValue else {
+                    return false
+                }
+
                 return record.destinationTokenTxInfo.tokenItem.networkId == networkid ||
                     record.sourceTokenTxInfo.tokenItem.networkId == networkid
             }
@@ -87,41 +87,41 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
     }
 
     func didSendSwapTransaction(_ txData: SentExpressTransactionData) {
+        guard case .send = txData.expressTransactionData.transactionType else {
+            log("No need to store DEX transactions. Skipping")
+            return
+        }
+
+        guard let userWalletId else {
+            logNotInitializedRepository(with: "Failed to save pending Swap transaction.")
+            return
+        }
+
+        let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
+            userWalletId: userWalletId.stringValue,
+            expressTransactionId: txData.expressTransactionData.expressTransactionId,
+            transactionType: .type(from: txData.expressTransactionData.transactionType),
+            transactionHash: txData.hash,
+            sourceTokenTxInfo: .init(
+                tokenItem: txData.source.tokenItem,
+                blockchainNetwork: txData.source.blockchainNetwork,
+                amount: txData.expressTransactionData.fromAmount,
+                isCustom: txData.source.isCustom
+            ),
+            destinationTokenTxInfo: .init(
+                tokenItem: txData.destination.tokenItem,
+                blockchainNetwork: txData.destination.blockchainNetwork,
+                amount: txData.expressTransactionData.toAmount,
+                isCustom: txData.destination.isCustom
+            ),
+            fee: txData.fee,
+            provider: .init(provider: txData.provider),
+            date: txData.date,
+            externalTxId: txData.expressTransactionData.externalTxId,
+            externalTxURL: txData.expressTransactionData.externalTxUrl
+        )
+
         lockQueue.sync {
-            guard case .send = txData.expressTransactionData.transactionType else {
-                log("No need to store DEX transactions. Skipping")
-                return
-            }
-
-            guard let userWalletId else {
-                logNotInitializedRepository(with: "Failed to save pending Swap transaction.")
-                return
-            }
-
-            let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
-                userWalletId: userWalletId.stringValue,
-                expressTransactionId: txData.expressTransactionData.expressTransactionId,
-                transactionType: txData.expressTransactionData.transactionType,
-                transactionHash: txData.hash,
-                sourceTokenTxInfo: .init(
-                    tokenItem: txData.source.tokenItem,
-                    blockchainNetwork: txData.source.blockchainNetwork,
-                    amount: txData.expressTransactionData.fromAmount,
-                    isCustom: txData.source.isCustom
-                ),
-                destinationTokenTxInfo: .init(
-                    tokenItem: txData.destination.tokenItem,
-                    blockchainNetwork: txData.destination.blockchainNetwork,
-                    amount: txData.expressTransactionData.toAmount,
-                    isCustom: txData.destination.isCustom
-                ),
-                fee: txData.fee,
-                provider: txData.provider,
-                date: txData.date,
-                externalTxId: txData.expressTransactionData.externalTxId,
-                externalTxURL: txData.expressTransactionData.externalTxUrl
-            )
-
             addRecordIfNeeded(expressPendingTransactionRecord)
         }
     }
