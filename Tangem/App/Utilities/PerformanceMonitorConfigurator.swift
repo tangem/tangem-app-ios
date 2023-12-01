@@ -14,6 +14,7 @@ import GDPerformanceView_Swift
 #endif // canImport(GDPerformanceView_Swift)
 
 enum PerformanceMonitorConfigurator {
+    #if canImport(GDPerformanceView_Swift)
     private static var performanceMonitorStyle: PerformanceMonitor.Style {
         return .custom(
             backgroundColor: UIColor.systemBackground,
@@ -24,6 +25,7 @@ enum PerformanceMonitorConfigurator {
             font: UIFont.systemFont(ofSize: 8.0)
         )
     }
+    #endif // canImport(GDPerformanceView_Swift)
 
     private static var isEnabledUsingLaunchArguments: Bool {
         return UserDefaults.standard.bool(forKey: "com.tangem.PerformanceMonitorEnabled")
