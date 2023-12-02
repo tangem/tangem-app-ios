@@ -37,11 +37,13 @@ struct AppCoordinatorView: CoordinatorView {
             // `mainBottomSheetCoordinator.headerViewModel` or `mainBottomSheetCoordinator.contentViewModel`
             view
                 .bottomScrollableSheet(
-                    isHiddenWhenCollapsed: true,
-                    allowsHitTesting: coordinator.isMainBottomSheetShown,
                     header: { MainBottomSheetHeaderCoordinatorView(coordinator: mainBottomSheetCoordinator) },
                     content: { MainBottomSheetContentCoordinatorView(coordinator: mainBottomSheetCoordinator) },
                     overlay: { MainBottomSheetOverlayCoordinatorView(coordinator: mainBottomSheetCoordinator) }
+                )
+                .bottomScrollableSheetConfiguration(
+                    isHiddenWhenCollapsed: true,
+                    allowsHitTesting: coordinator.isMainBottomSheetShown
                 )
                 .onBottomScrollableSheetStateChange { state in
                     mainBottomSheetCoordinator.start(with: .bottomScrollableSheetStateChange(state: state))
