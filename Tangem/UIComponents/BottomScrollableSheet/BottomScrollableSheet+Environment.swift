@@ -28,7 +28,5 @@ extension EnvironmentValues {
 // MARK: - Private implementation
 
 private enum BottomScrollableSheetStateObserverEnvironmentKey: EnvironmentKey {
-    typealias Value = BottomScrollableSheetStateObserver?
-
-    static var defaultValue: Value { nil }
+    static var defaultValue: BottomScrollableSheetStateObserver? { nil }
 }
