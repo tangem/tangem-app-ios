@@ -135,7 +135,7 @@ class AppCoordinator: CoordinatorObject {
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start()
+        coordinator.start(with: .default)
         mainBottomSheetCoordinator = coordinator
     }
 
