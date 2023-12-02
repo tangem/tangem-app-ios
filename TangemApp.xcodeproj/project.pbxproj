@@ -4593,6 +4593,18 @@
 			path = UserTokensReordering;
 			sourceTree = "<group>";
 		};
+		B673FC3F2B1BF73A0089944C /* ViewModifiers */ = {
+			isa = PBXGroup;
+			children = (
+				B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */,
+				B69257E12AFC072000F33B3D /* BottomScrollableSheetCornerRadiusView.swift */,
+				B60B203B2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift */,
+				B6A90A922AC6464D00108144 /* BottomScrollableSheetGrabberView.swift */,
+				B6C4D7312B1A71480084AF1E /* BottomScrollableSheet+Environment.swift */,
+			);
+			path = ViewModifiers;
+			sourceTree = "<group>";
+		};
 		B675A1E42A1E050C00F624B6 /* CardsInfoPagerView */ = {
 			isa = PBXGroup;
 			children = (
@@ -6531,16 +6543,12 @@
 		EF81B2A82A6686D2006CD57B /* BottomScrollableSheet */ = {
 			isa = PBXGroup;
 			children = (
+				B673FC3F2B1BF73A0089944C /* ViewModifiers */,
 				EFE503582A727A100086A1B1 /* BottomScrollableSheet.swift */,
 				B6C4D7332B1A74DB0084AF1E /* BottomScrollableSheetState.swift */,
 				B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */,
 				EF193C022A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift */,
-				B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */,
 				B673FC3C2B1BF4220089944C /* BottomScrollableSheetConfiguration.swift */,
-				B69257E12AFC072000F33B3D /* BottomScrollableSheetCornerRadiusView.swift */,
-				B60B203B2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift */,
-				B6A90A922AC6464D00108144 /* BottomScrollableSheetGrabberView.swift */,
-				B6C4D7312B1A71480084AF1E /* BottomScrollableSheet+Environment.swift */,
 			);
 			path = BottomScrollableSheet;
 			sourceTree = "<group>";
