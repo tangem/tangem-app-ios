@@ -9,7 +9,7 @@
 import Foundation
 import TangemSwapping
 
-struct ExpressPendingTransactionRecord: Codable {
+struct ExpressPendingTransactionRecord: Codable, Equatable {
     let userWalletId: String
     let expressTransactionId: String
     let transactionType: TransactionType
@@ -24,14 +24,14 @@ struct ExpressPendingTransactionRecord: Codable {
 }
 
 extension ExpressPendingTransactionRecord {
-    struct TokenTxInfo: Codable {
+    struct TokenTxInfo: Codable, Equatable {
         let tokenItem: TokenItem
         let blockchainNetwork: BlockchainNetwork
         let amount: Decimal
         let isCustom: Bool
     }
 
-    enum TransactionType: String, Codable {
+    enum TransactionType: String, Codable, Equatable {
         case send
         case swap
 
@@ -43,7 +43,7 @@ extension ExpressPendingTransactionRecord {
         }
     }
 
-    struct Provider: Codable {
+    struct Provider: Codable, Equatable {
         let id: String
         let name: String
         let iconURL: URL?
@@ -57,7 +57,7 @@ extension ExpressPendingTransactionRecord {
         }
     }
 
-    enum ProviderType: String, Codable {
+    enum ProviderType: String, Codable, Equatable {
         case cex
         case dex
 
