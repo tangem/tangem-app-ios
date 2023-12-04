@@ -139,18 +139,18 @@ enum ExpressDTO {
         }
     }
 
-    // MARK: - ExchangeResult
+    // MARK: - ExchangeStatus
 
-    enum ExchangeResult {
+    enum ExchangeStatus {
         struct Request: Encodable {
             let txId: String
         }
 
         struct Response: Decodable {
-            let status: ExpressTransactionStatus
-            let externalStatus: String
+            let providerId: Provider.Id
+            let externalTxId: String
+            let externalTxStatus: ExpressTransactionStatus
             let externalTxUrl: String
-            let errorCode: Int
         }
     }
 
