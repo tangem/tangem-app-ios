@@ -209,9 +209,14 @@ private extension CommonExpressManager {
             return quote
         }
 
-        let best = try bestQuote(from: quotes)
+        let best = bestQuote(from: quotes)
         selectedQuote = best
-        return best
+
+        if let best {
+            return best
+        }
+
+        throw ExpressManagerError.quotesNotFound
     }
 
     func loadQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
@@ -223,9 +228,16 @@ private extension CommonExpressManager {
         let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
 
         // Find the best quote
-        let best = quotes
-            .compactMapValues { try? $0.get() }
-            .max { $0.value.expectAmount < $1.value.expectAmount }?.value
+        let best: ExpressQuote? = {
+            // If we have only one quote it can't be the best
+            guard quotes.count > 1 else {
+                return nil
+            }
+
+            return quotes
+                .compactMapValues { try? $0.get() }
+                .max { $0.value.expectAmount < $1.value.expectAmount }?.value
+        }()
 
         let allQuotes: [ExpectedQuote] = allProviders.map { provider in
             guard let loadedQuoteResult = quotes[provider.id] else {
@@ -250,22 +262,18 @@ private extension CommonExpressManager {
         return allQuotes
     }
 
-    func bestQuote(from quotes: [ExpectedQuote]) throws -> ExpectedQuote {
+    func bestQuote(from quotes: [ExpectedQuote]) -> ExpectedQuote? {
         guard !quotes.isEmpty else {
-            throw ExpressManagerError.quotesNotFound
+            return nil
         }
 
         let availableQuotes = quotes.filter { $0.isAvailable }
 
-        if availableQuotes.isEmpty, let firstWithError = quotes.first(where: { $0.isError }) {
-            return firstWithError
+        guard !availableQuotes.isEmpty else {
+            return quotes.first(where: { $0.isError }) ?? quotes.first
         }
 
-        if let bestAvailable = availableQuotes.first(where: { $0.isBest }) {
-            return bestAvailable
-        }
-
-        throw ExpressManagerError.quotesNotFound
+        return availableQuotes.first(where: { $0.isBest }) ?? availableQuotes.first
     }
 
     func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [ExpressProvider.Id]) async -> [ExpressProvider.Id: Result<ExpressQuote, Error>] {
