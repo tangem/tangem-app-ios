@@ -34,10 +34,6 @@ final class ManageTokensViewModel: ObservableObject {
     private var cacheExistListCoinId: [String] = []
     private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
-    private var userWalletModels: [UserWalletModel] {
-        dataSource.userWalletModelsSubject.value
-    }
-
     // MARK: - Init
 
     init(
@@ -71,7 +67,9 @@ private extension ManageTokensViewModel {
 
     /// Obtain supported token list from UserWalletModels to determine the cell action type
     /// Should be reset after updating the list of tokens
-    func updateAlreadyExistTokenUserList(from models: [UserWalletModel]) {
+    func updateAlreadyExistTokenUserList() {
+        let models = dataSource.userWalletModels
+
         let existEntriesList = models
             .map { $0.userTokenListManager }
             .flatMap { userTokenListManager in
@@ -99,9 +97,9 @@ private extension ManageTokensViewModel {
 
     func userWalletModelsBind() {
         dataSource
-            .userWalletModelsSubject
+            ._userWalletModels
             .sink { [weak self] models in
-                self?.updateAlreadyExistTokenUserList(from: models)
+                self?.updateAlreadyExistTokenUserList()
                 self?.updateDerivationBind()
                 self?.fetch()
             }
@@ -110,7 +108,7 @@ private extension ManageTokensViewModel {
 
     func updateDerivationBind() {
         // Used for update state generateAddressesViewModel property
-        let pendingDerivationsCountPublishers = userWalletModels
+        let pendingDerivationsCountPublishers = dataSource.userWalletModels
             .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
                 if let derivationManager = model.userTokensManager.derivationManager {
                     return derivationManager.pendingDerivationsCount
@@ -129,14 +127,14 @@ private extension ManageTokensViewModel {
             .store(in: &bag)
 
         // Used for update state actionType tokenViewModels list property
-        let userTokensPublishers = userWalletModels
+        let userTokensPublishers = dataSource.userWalletModels
             .map { $0.userTokenListManager.userTokensPublisher }
 
         Publishers.MergeMany(userTokensPublishers)
             .receiveValue { [weak self] value in
                 guard let self = self else { return }
 
-                updateAlreadyExistTokenUserList(from: userWalletModels)
+                updateAlreadyExistTokenUserList()
 
                 tokenViewModels.forEach {
                     $0.action = self.actionType(for: $0.id)
@@ -218,7 +216,7 @@ private extension ManageTokensViewModel {
         coordinator.showGenerateAddressesWarning(
             numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
-            totalWalletNumber: userWalletModels.count,
+            totalWalletNumber: dataSource.userWalletModels.count,
             action: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
         )
     }
@@ -228,7 +226,7 @@ private extension ManageTokensViewModel {
             return
         }
 
-        guard let userWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
+        guard let userWalletModel = dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
 
