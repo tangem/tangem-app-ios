@@ -53,9 +53,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func updateView() {
-        providerViewModels = quotes.map { quote in
-            mapToProviderRowViewModel(quote: quote)
-        }
+        providerViewModels = quotes
+            .sorted(by: { $0.rate > $1.rate })
+            .map { mapToProviderRowViewModel(quote: $0) }
     }
 
     func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
