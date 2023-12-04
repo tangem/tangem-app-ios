@@ -43,7 +43,7 @@ class LockedUserWallet: UserWalletModel {
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
-        signer = TangemSigner(with: userWallet.card.cardId, sdk: config.makeTangemSdk())
+        signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     }
 
     func initialUpdate() {}
