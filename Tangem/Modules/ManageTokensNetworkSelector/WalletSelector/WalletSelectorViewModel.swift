@@ -25,7 +25,7 @@ class WalletSelectorViewModel: ObservableObject {
     }
 
     private func bind() {
-        dataSource?.selectedUserWalletModelPublisher
+        dataSource?._selectedUserWalletModel
             .sink { [weak self] userWalletModel in
                 self?.itemViewModels.forEach { item in
                     item.isSelected = item.id == userWalletModel?.userWalletId
