@@ -15,7 +15,6 @@ protocol UserWalletRepository: Initializable {
     var userWallets: [UserWallet] { get }
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
-    var selectedUserModelModel: UserWalletModel? { get }
     var selectedIndexUserWalletModel: Int? { get }
     var isEmpty: Bool { get }
     var count: Int { get }
