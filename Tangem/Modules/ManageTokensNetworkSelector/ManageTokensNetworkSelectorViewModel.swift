@@ -42,7 +42,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private let tokenItems: [TokenItem]
 
     private var selectedUserWalletModel: UserWalletModel? {
-        dataSource.selectedUserWalletModelPublisher.value
+        dataSource._selectedUserWalletModel.value
     }
 
     private var isTokenAvailableForSwitching: Bool {
@@ -96,7 +96,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private func bind() {
-        dataSource.selectedUserWalletModelPublisher
+        dataSource._selectedUserWalletModel
             .sink { [weak self] userWalletModel in
                 self?.setNeedSelectWallet(userWalletModel)
             }
