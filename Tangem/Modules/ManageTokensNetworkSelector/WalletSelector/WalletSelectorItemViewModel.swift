@@ -14,7 +14,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var image: UIImage? = nil
     @Published var isSelected: Bool = false
 
-    let id: UserWalletId
+    let userWalletId: UserWalletId
     let name: String
 
     let cardImagePublisher: AnyPublisher<CardImageResult, Never>
@@ -27,13 +27,13 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     // MARK: - Init
 
     init(
-        id: UserWalletId,
+        userWalletId: UserWalletId,
         name: String,
         cardImagePublisher: AnyPublisher<CardImageResult, Never>,
         isSelected: Bool,
         didTapWallet: @escaping (UserWalletId) -> Void
     ) {
-        self.id = id
+        self.userWalletId = userWalletId
         self.name = name
         self.isSelected = isSelected
         self.cardImagePublisher = cardImagePublisher
