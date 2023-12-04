@@ -50,7 +50,7 @@ extension ExpressPendingTransactionRecord {
         let type: ProviderType
 
         init(provider: ExpressProvider) {
-            id = provider.id.rawValue
+            id = provider.id
             name = provider.name
             iconURL = provider.url
             type = .type(from: provider.type)
