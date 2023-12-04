@@ -31,6 +31,19 @@ enum PendingExpressTransactionStatus: String, Equatable {
         }
     }
 
+    var activeStatusTitle: String {
+        switch self {
+        case .awaitingDeposit: return Localization.expressExchangeStatusReceivingActive
+        case .confirming: return Localization.expressExchangeStatusConfirmingActive
+        case .exchanging: return Localization.expressExchangeStatusExchangingActive
+        case .sendingToUser: return Localization.expressExchangeStatusSendingActive
+        case .done: return Localization.commonDone
+        case .failed: return Localization.expressExchangeStatusFailed
+        case .refunded: return Localization.expressExchangeStatusRefundedActive
+        case .verificationRequired: return Localization.expressExchangeStatusVerifying
+        }
+    }
+
     var passedStatusTitle: String {
         switch self {
         case .awaitingDeposit: return Localization.expressExchangeStatusReceived
