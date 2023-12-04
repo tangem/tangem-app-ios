@@ -19,7 +19,7 @@ class WalletSelectorViewModel: ObservableObject {
 
     init(dataSource: WalletSelectorDataSource?) {
         self.dataSource = dataSource
-        itemViewModels = dataSource?.walletSelectorItemViewModels ?? []
+        itemViewModels = dataSource?.itemViewModels ?? []
 
         bind()
     }
@@ -28,7 +28,7 @@ class WalletSelectorViewModel: ObservableObject {
         dataSource?._selectedUserWalletModel
             .sink { [weak self] userWalletModel in
                 self?.itemViewModels.forEach { item in
-                    item.isSelected = item.id == userWalletModel?.userWalletId
+                    item.isSelected = item.userWalletId == userWalletModel?.userWalletId
                 }
             }
             .store(in: &bag)
