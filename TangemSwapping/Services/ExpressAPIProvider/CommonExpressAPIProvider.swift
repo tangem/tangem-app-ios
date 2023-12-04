@@ -89,9 +89,9 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return data
     }
 
-    func exchangeResult(transactionId: String) async throws -> ExpressTransaction {
-        let request = ExpressDTO.ExchangeResult.Request(txId: transactionId)
-        let response = try await expressAPIService.exchangeResult(request: request)
+    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction {
+        let request = ExpressDTO.ExchangeStatus.Request(txId: transactionId)
+        let response = try await expressAPIService.exchangeStatus(request: request)
         let transaction = expressAPIMapper.mapToExpressTransaction(response: response)
         return transaction
     }
