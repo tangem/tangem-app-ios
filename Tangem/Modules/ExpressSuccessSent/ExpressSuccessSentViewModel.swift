@@ -120,11 +120,7 @@ private extension ExpressSuccessSentViewModel {
             tapAction: {}
         )
 
-        let feeFormatted = feeFormatter.format(
-            fee: data.fee,
-            currencySymbol: data.source.tokenItem.blockchain.currencySymbol,
-            currencyId: data.source.tokenItem.blockchain.currencyId
-        )
+        let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.tokenItem)
 
         expressFee = ExpressFeeRowData(title: Localization.sendFeeLabel, subtitle: feeFormatted)
     }
