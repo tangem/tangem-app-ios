@@ -34,7 +34,7 @@ struct PendingExpressTransactionView: View {
                         isWithOverlays: false
                     )
 
-                    Text(info.sourceAmountText)
+                    SensitiveText(info.sourceAmountText)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
 
                     Assets.arrowRightMini.image
@@ -83,7 +83,7 @@ struct PendingExpressTransactionView: View {
 }
 
 extension PendingExpressTransactionView {
-    struct Info: Identifiable {
+    struct Info: Identifiable, Equatable {
         let id: String
         let providerName: String
         let sourceIconInfo: TokenIconInfo
@@ -92,9 +92,13 @@ extension PendingExpressTransactionView {
         let destinationCurrencySymbol: String
         let state: State
         let action: (String) -> Void
+
+        static func == (lhs: Info, rhs: Info) -> Bool {
+            return lhs.id == rhs.id && lhs.state == rhs.state
+        }
     }
 
-    enum State {
+    enum State: Equatable {
         case inProgress
         case warning
         case error
