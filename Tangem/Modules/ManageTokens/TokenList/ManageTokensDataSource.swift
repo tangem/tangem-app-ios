@@ -14,8 +14,10 @@ class ManageTokensDataSource {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    var userWalletModelsSubject: CurrentValueSubject<[UserWalletModel], Never> = .init([])
-    var defaultUserWalletModel: UserWalletModel? { userWalletRepository.selectedUserModelModel }
+    var _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
+    var userWalletModels: [UserWalletModel] { _userWalletModels.value }
+
+    var defaultUserWalletModel: UserWalletModel? { userWalletRepository.selectedModel }
 
     // MARK: - Private Properties
 
@@ -38,7 +40,7 @@ class ManageTokensDataSource {
                 guard let self = self else { return }
 
                 let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-                userWalletModelsSubject.send(userWalletModels)
+                _userWalletModels.send(userWalletModels)
             }
             .store(in: &bag)
     }
