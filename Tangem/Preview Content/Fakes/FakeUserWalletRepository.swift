@@ -19,8 +19,6 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     var selectedModel: CardViewModel?
 
-    var selectedUserModelModel: UserWalletModel?
-
     var selectedUserWalletId: Data?
 
     var selectedIndexUserWalletModel: Int?
