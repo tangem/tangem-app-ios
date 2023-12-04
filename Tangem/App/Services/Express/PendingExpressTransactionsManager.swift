@@ -68,20 +68,18 @@ class CommonPendingExpressTransactionsManager {
     private func updateTransactionsStatuses(_ records: [ExpressPendingTransactionRecord]) {
         cancelTask()
 
-        updateTask = Task { [weak self] in
-            guard let self else { return }
-
+        updateTask = runTask(in: self) { manager in
             do {
                 var recordsToRequest = [ExpressPendingTransactionRecord]()
                 var transactionsInProgress = [PendingExpressTransaction]()
                 for record in records {
-                    guard let status = await loadStatus(for: record) else {
+                    guard let status = await manager.loadStatus(for: record) else {
                         recordsToRequest.append(record)
                         continue
                     }
 
                     guard status.currentStatus.isTransactionInProgress else {
-                        removeTransactionFromRepository(record)
+                        manager.removeTransactionFromRepository(record)
                         continue
                     }
 
@@ -90,7 +88,7 @@ class CommonPendingExpressTransactionsManager {
                     try Task.checkCancellation()
                 }
 
-                transactionsInProgressSubject.send(transactionsInProgress)
+                manager.transactionsInProgressSubject.send(transactionsInProgress)
 
                 try Task.checkCancellation()
 
@@ -98,14 +96,14 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
-                updateTransactionsStatuses(recordsToRequest)
+                manager.updateTransactionsStatuses(recordsToRequest)
             } catch {
                 if error is CancellationError || error.isCancelled {
-                    print("Task cancelled")
+                    manager.log("Pending express txs status check task was cancelled")
                     return
                 }
 
-                updateTransactionsStatuses(records)
+                manager.updateTransactionsStatuses(records)
             }
         }
     }
