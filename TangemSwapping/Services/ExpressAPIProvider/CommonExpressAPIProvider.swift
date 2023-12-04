@@ -61,7 +61,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toDecimals: item.destination.decimalCount,
             fromAmount: item.sourceAmountWEI(),
             fromDecimals: item.source.decimalCount,
-            providerId: item.providerId.requestId,
+            providerId: item.providerId,
             rateType: .float
         )
 
@@ -79,7 +79,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toDecimals: item.destination.decimalCount,
             fromAmount: item.sourceAmountWEI(),
             fromDecimals: item.source.decimalCount,
-            providerId: item.providerId.requestId,
+            providerId: item.providerId,
             rateType: .float,
             toAddress: item.destination.defaultAddress
         )
