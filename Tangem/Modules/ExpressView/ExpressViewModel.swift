@@ -468,11 +468,7 @@ private extension ExpressViewModel {
         }
 
         let tokenItem = interactor.getSender().tokenItem
-        let formattedFee = swappingFeeFormatter.format(
-            fee: fee,
-            currencySymbol: tokenItem.currencySymbol,
-            currencyId: tokenItem.currencyId ?? ""
-        )
+        let formattedFee = swappingFeeFormatter.format(fee: fee, tokenItem: tokenItem)
 
         var action: (() -> Void)?
         // If fee is one option then don't open selector
