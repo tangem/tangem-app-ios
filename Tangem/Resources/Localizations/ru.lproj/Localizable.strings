@@ -209,6 +209,7 @@
 "express_exchange_status_receiving" = "Awaiting deposit";
 "express_exchange_status_receiving_active" = "Awaiting deposit...";
 "express_exchange_status_refunded" = "Refunded";
+"express_exchange_status_refunded_active" = "Refunding...";
 "express_exchange_status_sending" = "Sending to you";
 "express_exchange_status_sending_active" = "Sending to you...";
 "express_exchange_status_sent" = "Sent";
