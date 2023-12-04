@@ -18,10 +18,10 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
     var selectedUserWalletModel: [UserWalletModel] { _userWalletModels.value }
 
-    var walletSelectorItemViewModels: [WalletSelectorItemViewModel] {
+    var itemViewModels: [WalletSelectorItemViewModel] {
         userWalletModels.map { userWalletModel in
             WalletSelectorItemViewModel(
-                id: userWalletModel.userWalletId,
+                userWalletId: userWalletModel.userWalletId,
                 name: userWalletModel.config.cardName,
                 cardImagePublisher: userWalletModel.cardImagePublisher,
                 isSelected: userWalletModel.userWalletId == _selectedUserWalletModel.value?.userWalletId
@@ -37,7 +37,9 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     // MARK: - Init
 
     init(_ dataSource: ManageTokensDataSource) {
-        _userWalletModels.send(dataSource.userWalletModels.filter { $0.isMultiWallet })
+        let userWalletModels = dataSource.userWalletModels.filter { $0.isMultiWallet }
+
+        _userWalletModels.send(userWalletModels)
 
         let selectedUserWalletModel = userWalletModels.first { userWalletModel in
             userWalletModel.userWalletId == dataSource.defaultUserWalletModel?.userWalletId
