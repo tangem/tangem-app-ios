@@ -250,7 +250,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-407.6`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-407.7`)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -258,7 +258,7 @@ DEPENDENCIES:
   - Kingfisher (~> 7.9.0)
   - Mobile-Buy-SDK
   - Moya
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-8`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-9`)
   - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-273`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.2.4-tangem1`)
@@ -318,13 +318,13 @@ EXTERNAL SOURCES:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-407.6
+    :tag: develop-407.7
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-8
+    :tag: add-external-signer-9
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -353,13 +353,13 @@ CHECKOUT OPTIONS:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-407.6
+    :tag: develop-407.7
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-8
+    :tag: add-external-signer-9
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -427,6 +427,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: f67b9555c9ff5014ca0de3fff95511ce9061e00b
+PODFILE CHECKSUM: 8c5716a25125b3ea5d4fd423ccd23a0ff3851d9f
 
 COCOAPODS: 1.14.3
