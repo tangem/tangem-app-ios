@@ -25,6 +25,8 @@
 		2D788E892ADD657000E0884B /* WalletSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D788E832ADD657000E0884B /* WalletSelectorDelegate.swift */; };
 		2D788E8A2ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D788E842ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift */; };
 		2D805ECA29ADE17100C030F7 /* ExchangeButtonStateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */; };
+		2D9BC02A2B1F87EF0033FA21 /* DetentBottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */; };
+		2D9BC02D2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */; };
 		2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */; };
 		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
 		2DC567632B0DFFAF00B0244F /* ManageTokensItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5675A2B0DFFAF00B0244F /* ManageTokensItemView.swift */; };
@@ -1346,6 +1348,8 @@
 		2D788E832ADD657000E0884B /* WalletSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDelegate.swift; sourceTree = "<group>"; };
 		2D788E842ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorAlertBuilder.swift; sourceTree = "<group>"; };
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
+		2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetModifier.swift; sourceTree = "<group>"; };
+		2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetContainer.swift; sourceTree = "<group>"; };
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2DC5675A2B0DFFAF00B0244F /* ManageTokensItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensItemView.swift; sourceTree = "<group>"; };
@@ -2749,6 +2753,15 @@
 			path = WalletSelector;
 			sourceTree = "<group>";
 		};
+		2D9BC02B2B1F8DBC0033FA21 /* DetentBottonSheet */ = {
+			isa = PBXGroup;
+			children = (
+				2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */,
+				2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */,
+			);
+			path = DetentBottonSheet;
+			sourceTree = "<group>";
+		};
 		2DC567592B0DFFAF00B0244F /* TokenList */ = {
 			isa = PBXGroup;
 			children = (
@@ -3975,6 +3988,7 @@
 				EFE7D5822AA224C50047D93A /* Types */,
 				EF81B2A82A6686D2006CD57B /* BottomScrollableSheet */,
 				B0A4C49E2A270F490060E039 /* BalanceWithButtonsView */,
+				2D9BC02B2B1F8DBC0033FA21 /* DetentBottonSheet */,
 				EF666C242A2DF9D60044986F /* BottomSheet */,
 				2D535E6D2A0CB4D20081EB76 /* BottonSheetInfoView */,
 				B05A13AF29FBF16300FB511A /* ButtonWithIcon */,
@@ -7787,6 +7801,7 @@
 				B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */,
 				B644EC292ACBF469007D9F4B /* DragGesturePassthroughView.swift in Sources */,
 				EFBAABAE2927CCBA0065C6D4 /* DecimalNumberTextField.swift in Sources */,
+				2D9BC02A2B1F87EF0033FA21 /* DetentBottomSheetModifier.swift in Sources */,
 				B02B74B029879DE3006473F2 /* WalletConnectV2HandlersFactory.swift in Sources */,
 				5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */,
 				B08A47C22A4962FC00DD751E /* FakeTransactionHistoryFactory.swift in Sources */,
@@ -8194,6 +8209,7 @@
 				B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */,
 				B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */,
 				DC0A584C282C07B10031BECC /* CommonWalletConnectService.swift in Sources */,
+				2D9BC02D2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift in Sources */,
 				EF5F1BB729D6C6510093307B /* UserCurrenciesProviding.swift in Sources */,
 				B0D7F896295EDCBE00497139 /* ReferralErrors.swift in Sources */,
 				DA559C412B0261F400F59584 /* SendDestinationViewModel.swift in Sources */,
