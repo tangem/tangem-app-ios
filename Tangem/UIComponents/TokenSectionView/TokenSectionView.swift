@@ -11,8 +11,8 @@ import SwiftUI
 struct TokenSectionView: View {
     private let title: String?
 
-    /// Not used on iOS versions below iOS 17.0.
-    /// - Note: Although this property has no effect on iOS versions below iOS 17.0,
+    /// Not used on iOS versions below iOS 16.0.
+    /// - Note: Although this property has no effect on iOS versions below iOS 16.0,
     /// it can't be marked using `@available` declaration in Swift 5.7 and above.
     private let topEdgeCornerRadius: CGFloat?
 
@@ -25,7 +25,7 @@ struct TokenSectionView: View {
 
     @ViewBuilder
     private var background: some View {
-        if #available(iOS 17.0, *), let topEdgeCornerRadius = topEdgeCornerRadius {
+        if #available(iOS 16.0, *), let topEdgeCornerRadius = topEdgeCornerRadius {
             Colors.Background.primary.cornerRadiusContinuous(
                 topLeadingRadius: topEdgeCornerRadius,
                 topTrailingRadius: topEdgeCornerRadius
@@ -39,7 +39,7 @@ struct TokenSectionView: View {
 // MARK: - Initialization
 
 extension TokenSectionView {
-    @available(iOS 17.0, *)
+    @available(iOS 16.0, *)
     init(
         title: String?,
         cornerRadius: CGFloat?
@@ -48,7 +48,7 @@ extension TokenSectionView {
         topEdgeCornerRadius = cornerRadius
     }
 
-    @available(iOS, obsoleted: 17.0, message: "Use 'init(title:cornerRadius:)' instead")
+    @available(iOS, obsoleted: 16.0, message: "Use 'init(title:cornerRadius:)' instead")
     init(
         title: String?
     ) {
