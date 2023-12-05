@@ -11,8 +11,8 @@ import SwiftUI
 struct TokenItemView: View {
     @ObservedObject private var viewModel: TokenItemViewModel
 
-    /// Not used on iOS versions below iOS 17.0.
-    /// - Note: Although this property has no effect on iOS versions below iOS 17.0,
+    /// Not used on iOS versions below iOS 16.0.
+    /// - Note: Although this property has no effect on iOS versions below iOS 16.0,
     /// it can't be marked using `@available` declaration in Swift 5.7 and above.
     private let roundedCornersConfiguration: RoundedCornersConfiguration?
 
@@ -113,7 +113,7 @@ struct TokenItemView: View {
 
     @ViewBuilder
     private var background: some View {
-        if #available(iOS 17.0, *), let roundedCornersConfiguration = roundedCornersConfiguration {
+        if #available(iOS 16.0, *), let roundedCornersConfiguration = roundedCornersConfiguration {
             Colors.Background.primary
                 .cornerRadiusContinuous(
                     topLeadingRadius: roundedCornersConfiguration.topLeadingRadius,
@@ -156,7 +156,7 @@ struct TokenItemView: View {
 // MARK: - Initialization
 
 extension TokenItemView {
-    @available(iOS 17.0, *)
+    @available(iOS 16.0, *)
     init(
         viewModel: TokenItemViewModel,
         cornerRadius: CGFloat,
@@ -181,7 +181,7 @@ extension TokenItemView {
         }
     }
 
-    @available(iOS, obsoleted: 17.0, message: "Use 'init(viewModel:cornerRadius:roundedCornersConfiguration:)' instead")
+    @available(iOS, obsoleted: 16.0, message: "Use 'init(viewModel:cornerRadius:roundedCornersConfiguration:)' instead")
     init(
         viewModel: TokenItemViewModel,
         cornerRadius: CGFloat
@@ -195,7 +195,7 @@ extension TokenItemView {
 // MARK: - Auxiliary types
 
 extension TokenItemView {
-    @available(iOS 17.0, *)
+    @available(iOS 16.0, *)
     enum RoundedCornersVerticalEdge {
         case topEdge
         case bottomEdge
