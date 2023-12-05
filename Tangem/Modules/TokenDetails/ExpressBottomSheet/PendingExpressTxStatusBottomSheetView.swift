@@ -50,7 +50,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
         .animation(animation, value: viewModel.statusesList)
         .animation(animation, value: viewModel.currentStatusIndex)
         .animation(animation, value: viewModel.notificationViewInput)
-        .animation(animation, value: viewModel.showGoToProviderHeader)
+        .animation(animation, value: viewModel.showGoToProviderHeaderButton)
         // Can't move this sheet to coordinator because coordinator already presenting bottom sheet ViewController
         .sheet(item: $viewModel.modalWebViewModel) {
             WebViewContainer(viewModel: $0)
@@ -148,7 +148,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                 })
-                .opacity(viewModel.showGoToProviderHeader ? 1.0 : 0.0)
+                .opacity(viewModel.showGoToProviderHeaderButton ? 1.0 : 0.0)
             }
 
             VStack(spacing: 0) {
