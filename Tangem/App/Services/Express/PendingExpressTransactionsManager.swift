@@ -19,7 +19,8 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
 
     private let userWalletId: String
-    private let walletModel: WalletModel
+    private let blockchainNetwork: BlockchainNetwork
+    private let tokenItem: TokenItem
     private let expressAPIProvider: ExpressAPIProvider
 
     private let transactionsToUpdateStatusSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
@@ -31,10 +32,12 @@ class CommonPendingExpressTransactionsManager {
 
     init(
         userWalletId: String,
-        walletModel: WalletModel
+        blockchainNetwork: BlockchainNetwork,
+        tokenItem: TokenItem
     ) {
         self.userWalletId = userWalletId
-        self.walletModel = walletModel
+        self.blockchainNetwork = blockchainNetwork
+        self.tokenItem = tokenItem
         expressAPIProvider = CommonExpressAPIFactory().makeExpressAPIProvider(userId: userWalletId)
 
         bind()
@@ -109,9 +112,6 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func filterRelatedTokenTransactions(list: [ExpressPendingTransactionRecord]) -> [ExpressPendingTransactionRecord] {
-        let blockchainNetwork = walletModel.blockchainNetwork
-        let tokenItem = walletModel.tokenItem
-
         return list.filter { record in
             guard record.userWalletId == userWalletId else {
                 return false
