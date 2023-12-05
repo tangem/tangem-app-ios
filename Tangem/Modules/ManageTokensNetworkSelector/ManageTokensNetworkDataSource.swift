@@ -12,10 +12,10 @@ import Combine
 class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     // MARK: - Properties
 
-    private var _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
+    private let _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
     var userWalletModels: [UserWalletModel] { _userWalletModels.value }
 
-    var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
+    let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
     var selectedUserWalletModel: [UserWalletModel] { _userWalletModels.value }
 
     var itemViewModels: [WalletSelectorItemViewModel] {
