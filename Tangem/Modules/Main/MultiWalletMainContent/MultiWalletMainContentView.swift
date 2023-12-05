@@ -50,9 +50,9 @@ struct MultiWalletMainContentView: View {
             emptyList
                 .cornerRadiusContinuous(Constants.cornerRadius)
         } else {
-            // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 17.0 and above,
+            // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 16.0 and above,
             // this will cause clipping of iOS context menu previews in `TokenItemView` view
-            if #available(iOS 17.0, *) {
+            if #available(iOS 16.0, *) {
                 tokensList
             } else {
                 tokensList
@@ -83,7 +83,7 @@ struct MultiWalletMainContentView: View {
                 let cornerRadius = Constants.cornerRadius
                 let hasTitle = section.model.title != nil
 
-                if #available(iOS 17.0, *) {
+                if #available(iOS 16.0, *) {
                     let isFirstVisibleSection = hasTitle && sectionIndex == 0
                     let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
 
@@ -93,7 +93,7 @@ struct MultiWalletMainContentView: View {
                 }
 
                 ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    if #available(iOS 17.0, *) {
+                    if #available(iOS 16.0, *) {
                         let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
                         let isLastItem = sectionIndex == viewModel.sections.count - 1 && itemIndex == section.items.count - 1
 
