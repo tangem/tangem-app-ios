@@ -30,7 +30,7 @@ protocol UserTokensManager: UserTokensReordering {
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?)
 
     /// Check condition for adding token
-    func assertCanAdd(_ tokenItem: TokenItem) throws
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
