@@ -99,7 +99,7 @@ extension CommonKeysManager {
         let infuraProjectId: String
         let nowNodesApiKey: String
         let getBlockApiKey: String
-        let getBlockAccessTokens: [Blockchain: GetBlockAccessToken]
+        let getBlockAccessTokens: [String: GetBlockAccessToken]
         let kaspaSecondaryApiUrl: String
         let tonCenterApiKey: TonCenterApiKeys
         let chiaFireAcademyApiKey: String
