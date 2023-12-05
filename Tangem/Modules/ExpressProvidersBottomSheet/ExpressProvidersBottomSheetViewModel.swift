@@ -53,9 +53,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func updateView() {
-        providerViewModels = quotes.map { quote in
-            mapToProviderRowViewModel(quote: quote)
-        }
+        providerViewModels = quotes
+            .sorted(by: { $0.rate > $1.rate })
+            .map { mapToProviderRowViewModel(quote: $0) }
     }
 
     func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
@@ -77,11 +77,20 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         let provider = quote.provider
+        let isDisabled = !quote.isAvailable
+
+        let badge: ProviderRowViewModel.Badge? = {
+            if isDisabled {
+                return .none
+            }
+
+            return provider.type == .dex ? .permissionNeeded : .none
+        }()
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider),
-            isDisabled: !quote.isAvailable,
-            badge: provider.type == .dex ? .permissionNeeded : .none,
+            isDisabled: isDisabled,
+            badge: badge,
             subtitles: subtitles,
             detailsType: selectedProviderId == provider.id ? .selected : .none,
             tapAction: { [weak self] in

@@ -299,8 +299,6 @@ private extension SwappingApproveViewModel {
     }
 
     func updateFeeAmount(fees: [FeeOption: Fee]) {
-        let blockchain = expressInteractor.getSender().tokenItem.blockchain
-
         guard let fee = fees[expressInteractor.getFeeOption()] else {
             errorAlert = AlertBinder(
                 title: Localization.commonError,
@@ -312,9 +310,9 @@ private extension SwappingApproveViewModel {
 
         let formatted = swappingFeeFormatter.format(
             fee: fee.amount.value,
-            currencySymbol: blockchain.currencySymbol,
-            currencyId: blockchain.currencyId
+            tokenItem: expressInteractor.getSender().tokenItem
         )
+
         feeRowViewModel?.update(detailsType: .text(formatted))
     }
 
