@@ -16,7 +16,7 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     var userWalletModels: [UserWalletModel] { _userWalletModels.value }
 
     let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
-    var selectedUserWalletModel: [UserWalletModel] { _userWalletModels.value }
+    var selectedUserWalletModel: UserWalletModel? { _selectedUserWalletModel.value }
 
     var itemViewModels: [WalletSelectorItemViewModel] {
         userWalletModels.map { userWalletModel in
