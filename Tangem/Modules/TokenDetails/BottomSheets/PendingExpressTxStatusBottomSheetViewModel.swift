@@ -30,6 +30,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     @Published var sourceFiatAmountTextState: LoadableTextView.State = .loading
     @Published var destinationFiatAmountTextState: LoadableTextView.State = .loading
+    @Published var statusesList: [PendingExpressTxStatusBottomSheetView.StatusRowData] = []
+    @Published var currentStatusIndex = 2
+    @Published var showGoToProviderHeader = true
+
+    // Navigation   
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
 
     private let pendingTransaction: PendingExpressTransaction
@@ -66,6 +71,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         destinationAmountText = balanceFormatter.formatCryptoBalance(destinationTokenTxInfo.amount, currencyCode: destinationTokenItem.currencySymbol)
 
         loadEmptyFiatRates()
+        setupStatusList(for: pendingTransaction)
         bind()
     }
 
@@ -117,16 +123,80 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private func bind() {
         subscription = pendingTransactionsManager.pendingTransactionsPublisher
+            .dropFirst()
             .withWeakCaptureOf(self)
             .map { viewModel, pendingTransactions in
                 guard let first = pendingTransactions.first(where: { tx in
                     tx.transactionRecord.expressTransactionId == viewModel.pendingTransaction.transactionRecord.expressTransactionId
                 }) else {
-                    return viewModel.pendingTransaction
+                    return (viewModel, nil)
                 }
 
-                return first
+                return (viewModel, first)
             }
-            .sink()
+            .receive(on: DispatchQueue.main)
+            .sink { (viewModel: PendingExpressTxStatusBottomSheetViewModel, pendingTx: PendingExpressTransaction?) in
+                guard let pendingTx else {
+                    viewModel.subscription = nil
+                    return
+                }
+                let (list, currentIndex) = viewModel.convertToStatusRowDataList(for: pendingTx)
+                viewModel.statusesList = list
+                viewModel.currentStatusIndex = currentIndex
+            }
+    }
+
+    private var persistentStateList: [PendingExpressTxStatusBottomSheetView.StatusRowData]?
+
+    private func setupStatusList(for pendingTransaction: PendingExpressTransaction) {
+        let (list, currentIndex) = convertToStatusRowDataList(for: pendingTransaction)
+        statusesList = list
+        currentStatusIndex = currentIndex
+    }
+
+    private func convertToStatusRowDataList(for pendingTransaction: PendingExpressTransaction) -> (list: [PendingExpressTxStatusBottomSheetView.StatusRowData], currentIndex: Int) {
+        let statuses = pendingTransaction.statuses
+        let currentStatusIndex = statuses.firstIndex(of: pendingTransaction.currentStatus) ?? 0
+        return (statuses.indexed().map { index, status in
+            convertToStatusRowData(index: index, status: status, currentStatusIndex: currentStatusIndex, currentStatus: pendingTransaction.currentStatus, lastStatusIndex: statuses.count - 1)
+        }, currentStatusIndex)
+    }
+
+    private func convertToStatusRowData(
+        index: Int,
+        status: PendingExpressTransactionStatus,
+        currentStatusIndex: Int,
+        currentStatus: PendingExpressTransactionStatus,
+        lastStatusIndex: Int
+    ) -> PendingExpressTxStatusBottomSheetView.StatusRowData {
+        let isCurrentStatus = index == currentStatusIndex
+        let isPendingStatus = index > currentStatusIndex
+        let isFinished = !currentStatus.isTransactionInProgress
+        if isFinished {
+            let state: PendingExpressTxStatusBottomSheetView.StatusRowData.State = status == .failed ? .cross(passed: true) : .checkmark
+            return .init(
+                title: status.passedStatusTitle,
+                state: state
+            )
+        }
+        let title: String = isCurrentStatus ? status.activeStatusTitle : isPendingStatus ? status.pendingStatusTitle : status.passedStatusTitle
+
+        var state: PendingExpressTxStatusBottomSheetView.StatusRowData.State =
+            isCurrentStatus ? .loader : isPendingStatus ? .empty : .checkmark
+        switch status {
+        case .failed:
+            state = .cross(passed: false)
+        case .refunded:
+            state = isFinished ? .checkmark : .empty
+        case .verificationRequired:
+            state = .exclamationMark
+        case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done:
+            break
+        }
+
+        return .init(
+            title: title,
+            state: state
+        )
     }
 }
