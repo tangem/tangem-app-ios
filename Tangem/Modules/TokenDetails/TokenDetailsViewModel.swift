@@ -201,7 +201,13 @@ private extension TokenDetailsViewModel {
     }
 
     private func didTapPendingExpressTransaction(with id: String) {
-        // [REDACTED_TODO_COMMENT]
+        guard
+            let pendingTransaction = pendingExpressTransactionsManager.pendingTransactions.first(where: { $0.transactionRecord.expressTransactionId == id })
+        else {
+            return
+        }
+
+        coordinator.openPendingExpressBottomSheet(for: pendingTransaction, pendingTransactionsManager: pendingExpressTransactionsManager)
     }
 }
 
