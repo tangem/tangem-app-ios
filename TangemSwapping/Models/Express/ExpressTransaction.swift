@@ -9,8 +9,8 @@
 import Foundation
 
 public struct ExpressTransaction {
-    public let status: ExpressTransactionStatus
-    public let externalStatus: String
+    public let providerId: ExpressProvider.Id
+    public let externalStatus: ExpressTransactionStatus
+    public let externalTxId: String
     public let externalTxUrl: String
-    public let errorCode: Int
 }
