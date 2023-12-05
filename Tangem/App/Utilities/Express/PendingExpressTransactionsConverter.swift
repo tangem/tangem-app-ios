@@ -41,4 +41,57 @@ struct PendingExpressTransactionsConverter {
             )
         }
     }
+
+    func convertToStatusRowDataList(for pendingTransaction: PendingExpressTransaction) -> (list: [PendingExpressTransactionStatusRow.StatusRowData], currentIndex: Int) {
+        let statuses = pendingTransaction.statuses
+        let currentStatusIndex = statuses.firstIndex(of: pendingTransaction.currentStatus) ?? 0
+
+        return (statuses.indexed().map { index, status in
+            convertToStatusRowData(
+                index: index,
+                status: status,
+                currentStatusIndex: currentStatusIndex,
+                currentStatus: pendingTransaction.currentStatus,
+                lastStatusIndex: statuses.count - 1
+            )
+        }, currentStatusIndex)
+    }
+
+    private func convertToStatusRowData(
+        index: Int,
+        status: PendingExpressTransactionStatus,
+        currentStatusIndex: Int,
+        currentStatus: PendingExpressTransactionStatus,
+        lastStatusIndex: Int
+    ) -> PendingExpressTransactionStatusRow.StatusRowData {
+        let isCurrentStatus = index == currentStatusIndex
+        let isPendingStatus = index > currentStatusIndex
+        let isFinished = !currentStatus.isTransactionInProgress
+        if isFinished {
+            let state: PendingExpressTransactionStatusRow.State = status == .failed ? .cross(passed: true) : .checkmark
+            return .init(
+                title: status.passedStatusTitle,
+                state: state
+            )
+        }
+        let title: String = isCurrentStatus ? status.activeStatusTitle : isPendingStatus ? status.pendingStatusTitle : status.passedStatusTitle
+
+        var state: PendingExpressTransactionStatusRow.State =
+            isCurrentStatus ? .loader : isPendingStatus ? .empty : .checkmark
+        switch status {
+        case .failed:
+            state = .cross(passed: false)
+        case .refunded:
+            state = isFinished ? .checkmark : .empty
+        case .verificationRequired:
+            state = .exclamationMark
+        case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done:
+            break
+        }
+
+        return .init(
+            title: title,
+            state: state
+        )
+    }
 }
