@@ -24,6 +24,7 @@ class ExpressInteractor {
 
     // MARK: - Dependencies
 
+    private let userWalletId: String
     private let expressManager: ExpressManager
     private let allowanceProvider: ExpressAllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -42,6 +43,7 @@ class ExpressInteractor {
     private var updateStateTask: Task<Void, Error>?
 
     init(
+        userWalletId: String,
         sender: WalletModel,
         expressManager: ExpressManager,
         allowanceProvider: ExpressAllowanceProvider,
@@ -51,6 +53,7 @@ class ExpressInteractor {
         signer: TransactionSigner,
         logger: SwappingLogger
     ) {
+        self.userWalletId = userWalletId
         _swappingPair = .init(SwappingPair(sender: sender, destination: nil))
         self.expressManager = expressManager
         self.allowanceProvider = allowanceProvider
@@ -165,8 +168,8 @@ extension ExpressInteractor {
 // MARK: - Send
 
 extension ExpressInteractor {
-    func send() async throws -> TransactionSendResultState {
-        guard let destination = getDestination()?.tokenItem else {
+    func send() async throws -> SentExpressTransactionData {
+        guard let destination = getDestination() else {
             throw ExpressInteractorError.destinationNotFound
         }
 
@@ -174,7 +177,7 @@ extension ExpressInteractor {
             event: .swapButtonSwap,
             params: [
                 .sendToken: getSender().tokenItem.currencySymbol,
-                .receiveToken: destination.currencySymbol,
+                .receiveToken: destination.tokenItem.currencySymbol,
             ]
         )
 
@@ -193,8 +196,26 @@ extension ExpressInteractor {
         }()
 
         updateState(.idle)
-        expressPendingTransactionRepository.didSendSwapTransaction()
-        return result
+        let sentTransactionData = SentExpressTransactionData(
+            hash: result.hash,
+            source: getSender(),
+            destination: destination,
+            fee: result.fee.amount.value,
+            provider: result.provider,
+            date: Date(),
+            expressTransactionData: result.data
+        )
+        /*
+         Analytics.log(event: .transactionSent, params: [
+         .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+         .token: swappingTxData.sourceCurrency.symbol,
+         .blockchain: swappingTxData.sourceBlockchain.name,
+         .feeType: getAnalyticsFeeType()?.rawValue ?? .unknown,
+         ])
+         */
+
+        expressPendingTransactionRepository.didSendSwapTransaction(sentTransactionData, userWalletId: userWalletId)
+        return sentTransactionData
     }
 
     func sendApproveTransaction() async throws {
@@ -215,6 +236,22 @@ extension ExpressInteractor {
         )
         let result = try await sender.send(transaction, signer: signer).async()
         logger.debug("Sent the approve transaction with result: \(result)")
+        /*
+         let permissionType: Analytics.ParameterValue = {
+         switch getApprovePolicy() {
+         case .specified: return .oneTransactionApprove
+         case .unlimited: return .unlimitedApprove
+         }
+         }()
+
+         Analytics.log(event: .transactionSent, params: [
+         .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+         .feeType: getAnalyticsFeeType()?.rawValue ?? .unknown,
+         .token: swappingTxData.sourceCurrency.symbol,
+         .blockchain: swappingTxData.sourceBlockchain.name,
+         .permissionType: permissionType.rawValue,
+         ])
+         */
         expressPendingTransactionRepository.didSendApproveTransaction()
         updateState(.restriction(.hasPendingTransaction, quote: getState().quote))
     }
@@ -373,8 +410,17 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        let network = getSender().expressCurrency.network
-        return expressPendingTransactionRepository.hasPending(for: network)
+        let networkId = getSender().expressCurrency.network
+        let transactions = expressPendingTransactionRepository.pendingTransactions
+
+        return transactions.contains(where: { record in
+            guard record.userWalletId == userWalletId else {
+                return false
+            }
+
+            return record.destinationTokenTxInfo.tokenItem.networkId == networkId ||
+                record.sourceTokenTxInfo.tokenItem.networkId == networkId
+        })
     }
 }
 
