@@ -159,19 +159,22 @@ struct PendingExpressTxStatusBottomSheetView: View {
             }
         }
     }
-
 }
 
 struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
-    static var defaultViewModel: PendingExpressTxStatusBottomSheetViewModel = .init(
-        record: .init(
-            userWalletId: "",
+    static var defaultViewModel: PendingExpressTxStatusBottomSheetViewModel = {
+        let factory = PendingExpressTransactionFactory()
+        let userWalletId = "21321"
+        let tokenItem = TokenItem.blockchain(.polygon(testnet: false))
+        let blockchainNetwork = BlockchainNetwork(.polygon(testnet: false))
+        let record = ExpressPendingTransactionRecord(
+            userWalletId: userWalletId,
             expressTransactionId: "1bd298ee-2e99-406e-a25f-a715bb87e806",
             transactionType: .send,
             transactionHash: "13213124321",
             sourceTokenTxInfo: .init(
-                tokenItem: .blockchain(.polygon(testnet: false)),
-                blockchainNetwork: .init(.polygon(testnet: false)),
+                tokenItem: tokenItem,
+                blockchainNetwork: blockchainNetwork,
                 amount: 10,
                 isCustom: true
             ),
@@ -182,12 +185,21 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
                 isCustom: false
             ),
             fee: 0.021351,
-            provider: .init(id: .changeNow, name: "ChangeNow", url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png"), type: .cex),
+            provider: ExpressPendingTransactionRecord.Provider(provider: .init(id: "changenow", name: "ChangeNow", url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png"), type: .cex)),
             date: Date(),
             externalTxId: "a34883e049a416",
             externalTxURL: "https://changenow.io/exchange/txs/a34883e049a416"
         )
-    )
+        let pendingTransaction = factory.buildPendingExpressTransaction(currentExpressStatus: .sending, for: record)
+        return .init(
+            pendingTransaction: pendingTransaction,
+            pendingTransactionsManager: CommonPendingExpressTransactionsManager(
+                userWalletId: userWalletId,
+                blockchainNetwork: blockchainNetwork,
+                tokenItem: tokenItem
+            )
+        )
+    }()
 
     static var previews: some View {
         Group {
