@@ -20,6 +20,8 @@ struct CommonUserTokensManager {
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
     private weak var cardDerivableProvider: CardDerivableProvider?
+    private let existingCurves: [EllipticCurve]
+    private let longHashesSupported: Bool
 
     private var bag: Set<AnyCancellable> = []
 
@@ -28,13 +30,17 @@ struct CommonUserTokensManager {
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
-        cardDerivableProvider: CardDerivableProvider
+        cardDerivableProvider: CardDerivableProvider,
+        existingCurves: [EllipticCurve],
+        longHashesSupported: Bool
     ) {
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
+        self.existingCurves = existingCurves
+        self.longHashesSupported = longHashesSupported
 
         bind()
     }
@@ -131,6 +137,18 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         return []
+    }
+
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+        guard existingCurves.contains(tokenItem.blockchain.curve) else {
+            throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
+        }
+
+        if longHashesSupported, tokenItem.blockchain.hasLongTransactions {
+            throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+        }
+
+        return
     }
 
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
@@ -277,7 +295,20 @@ extension CommonUserTokensManager: UserTokensReordering {
 }
 
 extension CommonUserTokensManager {
-    enum Error: Swift.Error {
+    enum Error: Swift.Error, LocalizedError {
         case addressNotFound
+        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedCurve(blockchainDisplayName: String)
+
+        var errorDescription: String? {
+            switch self {
+            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+            case .failedSupportedCurve(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
+            case .addressNotFound:
+                return nil
+            }
+        }
     }
 }

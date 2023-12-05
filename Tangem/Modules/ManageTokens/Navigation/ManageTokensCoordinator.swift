@@ -48,8 +48,9 @@ extension ManageTokensCoordinator {
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
-    func openTokenSelector(coinId: String, with tokenItems: [TokenItem]) {
+    func openTokenSelector(dataSource: ManageTokensDataSource, coinId: String, tokenItems: [TokenItem]) {
         networkSelectorViewModel = ManageTokensNetworkSelectorViewModel(
+            parentDataSource: dataSource,
             coinId: coinId,
             tokenItems: tokenItems,
             coordinator: self
@@ -76,16 +77,7 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
 }
 
 extension ManageTokensCoordinator: ManageTokensNetworkSelectorRoutable {
-    func openWalletSelector(
-        userWallets: [UserWallet],
-        currentUserWalletId: Data?,
-        delegate: WalletSelectorDelegate?
-    ) {
-        walletSelectorViewModel = .init(
-            userWallets: userWallets,
-            currentUserWalletId: currentUserWalletId
-        )
-
-        walletSelectorViewModel?.delegate = delegate
+    func openWalletSelector(with dataSource: WalletSelectorDataSource) {
+        walletSelectorViewModel = WalletSelectorViewModel(dataSource: dataSource)
     }
 }
