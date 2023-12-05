@@ -21,6 +21,7 @@ protocol KeysManager {
     var swapReferrerAccount: SwapReferrerAccount? { get }
     var utorgSID: String { get }
     var walletConnectProjectId: String { get }
+    var oneInchApiKey: String { get }
     var tangemExpressApiKey: String { get }
 }
 
