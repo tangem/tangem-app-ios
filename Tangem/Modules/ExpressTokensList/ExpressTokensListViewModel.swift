@@ -149,8 +149,10 @@ private extension ExpressTokensListViewModel {
             return true
         }
 
-        let searchableText = item.name + item.currencySymbol
-        return searchableText.lowercased().contains(text.lowercased())
+        let isContainsName = item.name.lowercased().contains(text.lowercased())
+        let isContainsCurrencySymbol = item.currencySymbol.lowercased().contains(text.lowercased())
+
+        return isContainsName || isContainsCurrencySymbol
     }
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
