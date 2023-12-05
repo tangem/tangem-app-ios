@@ -14,7 +14,6 @@ final class ManageTokensViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
@@ -28,26 +27,29 @@ final class ManageTokensViewModel: ObservableObject {
 
     private unowned let coordinator: ManageTokensRoutable
 
+    private var dataSource: ManageTokensDataSource
     private lazy var loader = setupListDataLoader()
 
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
     private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
+    // MARK: - Init
+
     init(
         searchTextPublisher: some Publisher<String, Never>,
         coordinator: ManageTokensRoutable
     ) {
         self.coordinator = coordinator
+        dataSource = ManageTokensDataSource()
 
         searchBind(searchTextPublisher: searchTextPublisher)
-        derivationBind()
+
+        bind()
     }
 
     func onAppear() {
         Analytics.log(.manageTokensScreenOpened)
-
-        updateAlreadyExistTokenUserList()
         loader.reset("")
     }
 
@@ -66,9 +68,11 @@ private extension ManageTokensViewModel {
     /// Obtain supported token list from UserWalletModels to determine the cell action type
     /// Should be reset after updating the list of tokens
     func updateAlreadyExistTokenUserList() {
-        let existEntriesList = userWalletRepository.models
-            .map { $0.userTokenListManager }
-            .flatMap { userTokenListManager in
+        let models = dataSource.userWalletModels
+
+        let existEntriesList = models
+            .flatMap {
+                let userTokenListManager = $0.userTokenListManager
                 let entries = userTokenListManager.userTokensList.entries
                 return entries.compactMap { $0.isCustom ? nil : $0.id }
             }
@@ -91,9 +95,20 @@ private extension ManageTokensViewModel {
             .store(in: &bag)
     }
 
-    func derivationBind() {
+    func bind() {
+        dataSource
+            ._userWalletModels
+            .sink { [weak self] models in
+                self?.updateAlreadyExistTokenUserList()
+                self?.updateDerivationBind()
+                self?.fetch()
+            }
+            .store(in: &bag)
+    }
+
+    func updateDerivationBind() {
         // Used for update state generateAddressesViewModel property
-        let pendingDerivationsCountPublishers = userWalletRepository.models
+        let pendingDerivationsCountPublishers = dataSource.userWalletModels
             .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
                 if let derivationManager = model.userTokensManager.derivationManager {
                     return derivationManager.pendingDerivationsCount
@@ -112,7 +127,7 @@ private extension ManageTokensViewModel {
             .store(in: &bag)
 
         // Used for update state actionType tokenViewModels list property
-        let userTokensPublishers = userWalletRepository.models
+        let userTokensPublishers = dataSource.userWalletModels
             .map { $0.userTokenListManager.userTokensPublisher }
 
         Publishers.MergeMany(userTokensPublishers)
@@ -177,7 +192,11 @@ private extension ManageTokensViewModel {
             let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
             Analytics.log(event: event, params: [.token: coinModel.id])
 
-            coordinator.openTokenSelector(coinId: coinModel.id, with: coinModel.items.map { $0.tokenItem })
+            coordinator.openTokenSelector(
+                dataSource: dataSource,
+                coinId: coinModel.id,
+                tokenItems: coinModel.items.map { $0.tokenItem }
+            )
         }
     }
 
@@ -197,7 +216,7 @@ private extension ManageTokensViewModel {
         coordinator.showGenerateAddressesWarning(
             numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
-            totalWalletNumber: userWalletRepository.userWallets.count,
+            totalWalletNumber: dataSource.userWalletModels.count,
             action: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
         )
     }
@@ -207,7 +226,7 @@ private extension ManageTokensViewModel {
             return
         }
 
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+        guard let userWalletModel = dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
 
