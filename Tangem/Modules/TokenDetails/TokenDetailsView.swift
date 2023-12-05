@@ -54,6 +54,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
+                        .transition(.notificationTransition)
                 }
 
                 PendingTransactionsListView(
@@ -78,6 +79,7 @@ struct TokenDetailsView: View {
             )
         }
         .animation(.default, value: viewModel.tokenNotificationInputs)
+        .animation(.default, value: viewModel.pendingExpressTransactions)
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
