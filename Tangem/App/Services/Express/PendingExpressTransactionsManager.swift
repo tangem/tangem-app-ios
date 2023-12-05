@@ -77,17 +77,20 @@ class CommonPendingExpressTransactionsManager {
                 var transactionsInProgress = [PendingExpressTransaction]()
                 for record in records {
                     guard let pendingTransaction = await manager.loadPendingTransactionStatus(for: record) else {
+                        if let previousResult = manager.transactionsInProgressSubject.value.first(where: { $0.transactionRecord.expressTransactionId == record.expressTransactionId }) {
+                            transactionsInProgress.append(previousResult)
+                        }
                         recordsToRequest.append(record)
                         continue
                     }
 
+                    transactionsInProgress.append(pendingTransaction)
                     guard pendingTransaction.currentStatus.isTransactionInProgress else {
                         manager.removeTransactionFromRepository(record)
                         continue
                     }
 
                     recordsToRequest.append(record)
-                    transactionsInProgress.append(pendingTransaction)
                     try Task.checkCancellation()
                 }
 
