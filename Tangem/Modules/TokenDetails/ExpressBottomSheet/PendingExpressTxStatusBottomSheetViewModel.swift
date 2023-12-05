@@ -35,8 +35,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     @Published var sourceFiatAmountTextState: LoadableTextView.State = .loading
     @Published var destinationFiatAmountTextState: LoadableTextView.State = .loading
     @Published var statusesList: [PendingExpressTransactionStatusRow.StatusRowData] = []
-    @Published var currentStatusIndex = 2
-    @Published var showGoToProviderHeader = true
+    @Published var currentStatusIndex = 0
+    @Published var showGoToProviderHeaderButton = true
     @Published var notificationViewInput: NotificationViewInput? = nil
 
     // Navigation
@@ -77,7 +77,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         destinationAmountText = balanceFormatter.formatCryptoBalance(destinationTokenTxInfo.amount, currencyCode: destinationTokenItem.currencySymbol)
 
         loadEmptyFiatRates()
-        updateUI(for: pendingTransaction, delay: 0)
+        updateUI(with: pendingTransaction, delay: 0)
         bind()
     }
 
@@ -142,22 +142,34 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             }
             .receive(on: DispatchQueue.main)
             .sink { (viewModel: PendingExpressTxStatusBottomSheetViewModel, pendingTx: PendingExpressTransaction?) in
+                // If we've failed to find this transaction in manager it means that it was finished in either way on the provider side
+                // We can remove subscription and just display final state of transaction
                 guard let pendingTx else {
                     viewModel.subscription = nil
                     return
                 }
 
-                viewModel.updateUI(for: pendingTx, delay: Constants.notificationAnimationDelay)
+                viewModel.updateUI(with: pendingTx, delay: Constants.notificationAnimationDelay)
             }
     }
 
-    private func updateUI(for pendingTransaction: PendingExpressTransaction, delay: TimeInterval) {
+    private func updateUI(with pendingTransaction: PendingExpressTransaction, delay: TimeInterval) {
         let converter = PendingExpressTransactionsConverter()
         let (list, currentIndex) = converter.convertToStatusRowDataList(for: pendingTransaction)
-        updateUI(statusesList: list, currentIndex: currentIndex, currentStatus: pendingTransaction.currentStatus, delay: delay)
+        updateUI(
+            statusesList: list,
+            currentIndex: currentIndex,
+            currentStatus: pendingTransaction.currentStatus,
+            delay: delay
+        )
     }
 
-    private func updateUI(statusesList: [PendingExpressTransactionStatusRow.StatusRowData], currentIndex: Int, currentStatus: PendingExpressTransactionStatus, delay: TimeInterval) {
+    private func updateUI(
+        statusesList: [PendingExpressTransactionStatusRow.StatusRowData],
+        currentIndex: Int,
+        currentStatus: PendingExpressTransactionStatus,
+        delay: TimeInterval
+    ) {
         self.statusesList = statusesList
         currentStatusIndex = currentIndex
 
@@ -173,12 +185,12 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         guard let event else {
-            showGoToProviderHeader = true
+            showGoToProviderHeaderButton = true
             scheduleNotificationUpdate(nil, delay: delay)
             return
         }
 
-        showGoToProviderHeader = false
+        showGoToProviderHeaderButton = false
         scheduleNotificationUpdate(notificationFactory.buildNotificationInput(
             for: event,
             buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
