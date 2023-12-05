@@ -12,7 +12,7 @@ import TangemSwapping
 struct PendingExpressTransactionFactory {
     private let defaultStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .exchanging, .sendingToUser]
 
-    func buildStatusesList(currentExpressStatus: ExpressTransactionStatus, for transactionRecord: ExpressPendingTransactionRecord) -> PendingExpressTransaction {
+    func buildPendingExpressTransaction(currentExpressStatus: ExpressTransactionStatus, for transactionRecord: ExpressPendingTransactionRecord) -> PendingExpressTransaction {
         let currentStatus: PendingExpressTransactionStatus
         var statusesList: [PendingExpressTransactionStatus] = defaultStatusesList
         switch currentExpressStatus {
