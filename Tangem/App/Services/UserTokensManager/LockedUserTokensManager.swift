@@ -20,7 +20,7 @@ struct LockedUserTokensManager: UserTokensManager {
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {}
 
-    func assertCanAdd(_ tokenItem: TokenItem) throws {}
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
 
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
         return ""
