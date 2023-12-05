@@ -14,7 +14,7 @@ class ManageTokensDataSource {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    var _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
+    let _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
     var userWalletModels: [UserWalletModel] { _userWalletModels.value }
 
     var defaultUserWalletModel: UserWalletModel? { userWalletRepository.selectedModel }
