@@ -17,17 +17,14 @@ enum ExpressDTO {
     }
 
     struct Provider: Codable {
+        typealias Id = String
+
         let providerId: Id
         let rateTypes: [RateType]
 
         enum RateType: String, Codable {
             case float
             case fixed
-        }
-
-        enum Id: String, Codable {
-            case changeNow = "changenow"
-            case oneInch = "1inch"
         }
     }
 
@@ -80,6 +77,7 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
+            let toDecimals: Int
             let fromAmount: String
             let fromDecimals: Int
             let providerId: Provider.Id
@@ -104,6 +102,7 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
+            let toDecimals: Int
             let fromAmount: String
             let fromDecimals: Int
             let providerId: Provider.Id
@@ -137,18 +136,18 @@ enum ExpressDTO {
         }
     }
 
-    // MARK: - ExchangeResult
+    // MARK: - ExchangeStatus
 
-    enum ExchangeResult {
+    enum ExchangeStatus {
         struct Request: Encodable {
             let txId: String
         }
 
         struct Response: Decodable {
-            let status: ExpressTransactionStatus
-            let externalStatus: String
+            let providerId: Provider.Id
+            let externalTxId: String
+            let externalTxStatus: ExpressTransactionStatus
             let externalTxUrl: String
-            let errorCode: Int
         }
     }
 
