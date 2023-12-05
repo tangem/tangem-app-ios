@@ -45,7 +45,7 @@ final class ManageTokensViewModel: ObservableObject {
 
         searchBind(searchTextPublisher: searchTextPublisher)
 
-        userWalletModelsBind()
+        bind()
     }
 
     func onAppear() {
@@ -71,8 +71,8 @@ private extension ManageTokensViewModel {
         let models = dataSource.userWalletModels
 
         let existEntriesList = models
-            .map { $0.userTokenListManager }
-            .flatMap { userTokenListManager in
+            .flatMap {
+                let userTokenListManager = $0.userTokenListManager
                 let entries = userTokenListManager.userTokensList.entries
                 return entries.compactMap { $0.isCustom ? nil : $0.id }
             }
@@ -95,7 +95,7 @@ private extension ManageTokensViewModel {
             .store(in: &bag)
     }
 
-    func userWalletModelsBind() {
+    func bind() {
         dataSource
             ._userWalletModels
             .sink { [weak self] models in

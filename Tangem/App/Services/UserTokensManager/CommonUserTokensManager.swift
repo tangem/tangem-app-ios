@@ -139,7 +139,7 @@ extension CommonUserTokensManager: UserTokensManager {
         return []
     }
 
-    func tryCanAdd(_ tokenItem: TokenItem, derivationPath: DerivationPath?) throws {
+    func assertCanAdd(_ tokenItem: TokenItem) throws {
         guard existingCurves.contains(tokenItem.blockchain.curve) else {
             throw CanAddTokenError.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
