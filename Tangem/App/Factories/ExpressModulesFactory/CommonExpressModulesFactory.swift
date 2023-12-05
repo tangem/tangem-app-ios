@@ -22,7 +22,7 @@ class CommonExpressModulesFactory {
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPICredential = makeExpressAPICredential()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var swappingFactory = TangemSwappingFactory()
+    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
     private lazy var allowanceProvider = makeAllowanceProvider()
 
     init(inputModel: InputModel) {
