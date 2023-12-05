@@ -13,6 +13,11 @@ struct PendingExpressTxStatusBottomSheetView: View {
 
     private let tokenIconSize = CGSize(bothDimensions: 36)
 
+    // This animation is created explicitly to synchronise them with the delayed appearance of the notification
+    private var animation: Animation {
+        .easeInOut(duration: viewModel.animationDuration)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 12) {
@@ -31,33 +36,22 @@ struct PendingExpressTxStatusBottomSheetView: View {
 
                 providerView
 
-                VStack(spacing: 14) {
-                    HStack(spacing: 10) {
-                        exchangeByTitle
+                statusesView
 
-                        Spacer()
-
-                        Button(action: viewModel.openProvider, label: {
-                            HStack(spacing: 4) {
-                                Assets.arrowRightUpMini.image
-                                    .renderingMode(.template)
-                                    .foregroundColor(Colors.Text.tertiary)
-
-                                Text(Localization.expressGoToProvider)
-                                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                            }
-                        })
-                    }
-
-                    statusesView
+                if let input = viewModel.notificationViewInput {
+                    NotificationView(input: input)
+                        .transition(.bottomNotificationTransition)
                 }
-                .defaultRoundedBackground(with: Colors.Background.action)
             }
             .padding(.vertical, 22)
             .padding(.horizontal, 16)
         }
-        .animation(.default, value: viewModel.statusesList)
-        .animation(.default, value: viewModel.currentStatusIndex)
+        // This animations are set explicitly to synchronise them with the delayed appearance of the notification
+        .animation(animation, value: viewModel.statusesList)
+        .animation(animation, value: viewModel.currentStatusIndex)
+        .animation(animation, value: viewModel.notificationViewInput)
+        .animation(animation, value: viewModel.showGoToProviderHeader)
+        // Can't move this sheet to coordinator because coordinator already presenting bottom sheet ViewController
         .sheet(item: $viewModel.modalWebViewModel) {
             WebViewContainer(viewModel: $0)
         }
@@ -135,41 +129,39 @@ struct PendingExpressTxStatusBottomSheetView: View {
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
-    @ViewBuilder
     private var statusesView: some View {
-        VStack(spacing: 0) {
-            ForEach(0 ..< 4) { index in
-                let status = viewModel.statusesList[index]
-                statusRow(isFirstRow: index == 0, info: status)
-            }
-        }
-    }
-
-    private func statusRow(isFirstRow: Bool, info: StatusRowData) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if !isFirstRow {
-                HStack {
-                    Assets.verticalLine.image
-                        .foregroundColor(info.state.lineColor)
-                        .opacity(info.state.lineOpacity)
-                }
-            }
-
-            HStack(spacing: 12) {
-                ZStack {
-                    Assets.circleOutline20.image
-                        .foregroundColor(info.state.circleColor)
-                        .opacity(info.state.circleOpacity)
-
-                    info.state.foregroundIcon
-                }
-
-                Text(info.title)
-                    .style(Fonts.Regular.footnote, color: info.state.textColor)
+        VStack(spacing: 14) {
+            HStack(spacing: 10) {
+                exchangeByTitle
 
                 Spacer()
+
+                Button(action: viewModel.openProvider, label: {
+                    HStack(spacing: 4) {
+                        Assets.arrowRightUpMini.image
+                            .resizable()
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Text.tertiary)
+                            .frame(size: .init(bothDimensions: 18))
+
+                        Text(Localization.expressGoToProvider)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    }
+                })
+                .opacity(viewModel.showGoToProviderHeader ? 1.0 : 0.0)
+            }
+
+            VStack(spacing: 0) {
+                // We always display 4 states
+                ForEach(0 ..< 4) { index in
+                    let status = viewModel.statusesList[index]
+                    PendingExpressTransactionStatusRow(isFirstRow: index == 0, info: status)
+                }
             }
         }
+        .defaultRoundedBackground(with: Colors.Background.action)
+        // This prevents notification to appear and disappear on top of the statuses list
+        .zIndex(5)
     }
 
     private func tokenInfo(with tokenIconInfo: TokenIconInfo, cryptoAmountText: String, fiatAmountTextState: LoadableTextView.State) -> some View {
@@ -190,98 +182,6 @@ struct PendingExpressTxStatusBottomSheetView: View {
                 )
             }
         }
-    }
-}
-
-extension PendingExpressTxStatusBottomSheetView {
-    struct StatusRowData: Identifiable, Hashable {
-        enum State: Hashable {
-            case empty
-            case loader
-            case checkmark
-            case cross(passed: Bool)
-            case exclamationMark
-
-            @ViewBuilder
-            var foregroundIcon: some View {
-                Group {
-                    switch self {
-                    case .empty: EmptyView()
-                    case .loader:
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                    case .checkmark:
-                        Assets.checkmark20.image
-                    case .cross:
-                        Assets.cross20.image
-                    case .exclamationMark:
-                        Assets.exclamationMark20.image
-                    }
-                }
-                .foregroundColor(iconColor)
-                .frame(size: .init(bothDimensions: 20))
-            }
-
-            var circleColor: Color {
-                switch self {
-                case .empty, .checkmark: return Colors.Field.focused
-                case .loader: return Color.clear
-                case .cross(let passed):
-                    return passed ? Colors.Field.focused : Colors.Icon.warning
-                case .exclamationMark: return Colors.Icon.attention
-                }
-            }
-
-            var iconColor: Color {
-                switch self {
-                case .empty: return Color.clear
-                case .loader, .checkmark: return Colors.Text.primary1
-                case .cross(let passed):
-                    return passed ? Colors.Text.primary1 : Colors.Icon.warning
-                case .exclamationMark: return Colors.Icon.attention
-                }
-            }
-
-            var lineColor: Color {
-                switch self {
-                case .empty, .loader, .checkmark, .exclamationMark: return Colors.Field.focused
-                case .cross(let passed):
-                    return passed ? Colors.Field.focused : Colors.Icon.warning
-                }
-            }
-
-            var textColor: Color {
-                switch self {
-                case .checkmark, .loader: return Colors.Text.primary1
-                case .empty: return Colors.Text.disabled
-                case .cross(let passed):
-                    return passed ? Colors.Text.primary1 : Colors.Text.warning
-                case .exclamationMark: return Colors.Text.attention
-                }
-            }
-
-            var lineOpacity: Double {
-                switch self {
-                case .empty, .loader, .checkmark, .exclamationMark: return 1.0
-                case .cross(let passed):
-                    return passed ? 1.0 : 0.4
-                }
-            }
-
-            var circleOpacity: Double {
-                switch self {
-                case .empty, .loader, .checkmark: return 1.0
-                case .exclamationMark: return 0.4
-                case .cross(let passed):
-                    return passed ? 1.0 : 0.4
-                }
-            }
-        }
-
-        let title: String
-        let state: State
-
-        var id: Int { hashValue }
     }
 }
 
