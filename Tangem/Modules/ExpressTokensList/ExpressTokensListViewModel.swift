@@ -126,13 +126,13 @@ private extension ExpressTokensListViewModel {
 
     func updateView(searchText: String = "") {
         let availableTokens = availableWalletModels
-            .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
+            .filter { filter(searchText, item: $0.tokenItem) }
             .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
             }
 
         let unavailableTokens = unavailableWalletModels
-            .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
+            .filter { filter(searchText, item: $0.tokenItem) }
             .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
             }
@@ -142,6 +142,17 @@ private extension ExpressTokensListViewModel {
         } else {
             viewState = .loaded(availableTokens: availableTokens, unavailableTokens: unavailableTokens)
         }
+    }
+
+    func filter(_ text: String, item: TokenItem) -> Bool {
+        if text.isEmpty {
+            return true
+        }
+
+        let isContainsName = item.name.lowercased().contains(text.lowercased())
+        let isContainsCurrencySymbol = item.currencySymbol.lowercased().contains(text.lowercased())
+
+        return isContainsName || isContainsCurrencySymbol
     }
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
