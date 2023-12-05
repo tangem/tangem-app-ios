@@ -42,15 +42,11 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private let tokenItems: [TokenItem]
 
     private var selectedUserWalletModel: UserWalletModel? {
-        dataSource._selectedUserWalletModel.value
+        dataSource.selectedUserWalletModel
     }
 
     private var isTokenAvailableForSwitching: Bool {
         selectedUserWalletModel != nil
-    }
-
-    private var userTokensManager: UserTokensManager? {
-        selectedUserWalletModel?.userTokensManager
     }
 
     // MARK: - Init
@@ -149,7 +145,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func saveChanges() {
-        guard let userTokensManager = userTokensManager else {
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
             return
         }
 
@@ -165,8 +161,12 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
+            return
+        }
+
         if selected {
-            try userTokensManager?.assertCanAdd(tokenItem)
+            try userTokensManager.addTokenItemPrecondition(tokenItem)
         }
 
         sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
@@ -244,11 +244,20 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
 private extension ManageTokensNetworkSelectorViewModel {
     func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
-        return (try? userTokensManager?.assertCanAdd(tokenItem)) != nil
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
+            return false
+        }
+
+        do {
+            try userTokensManager.addTokenItemPrecondition(tokenItem)
+            return true
+        } catch {
+            return false
+        }
     }
 
     func isAdded(_ tokenItem: TokenItem) -> Bool {
-        guard let userTokensManager = userTokensManager else {
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
             return isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: true)
         }
 
@@ -256,7 +265,11 @@ private extension ManageTokensNetworkSelectorViewModel {
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
-        userTokensManager?.canRemove(tokenItem, derivationPath: nil) ?? false
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
+            return false
+        }
+
+        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {
