@@ -17,17 +17,14 @@ enum ExpressDTO {
     }
 
     struct Provider: Codable {
+        typealias Id = String
+
         let providerId: Id
         let rateTypes: [RateType]
 
         enum RateType: String, Codable {
             case float
             case fixed
-        }
-
-        enum Id: String, Codable {
-            case changeNow = "changenow"
-            case oneInch = "1inch"
         }
     }
 
