@@ -14,7 +14,7 @@ enum ExpressAPITarget: Moya.TargetType {
     case providers
     case exchangeQuote(request: ExpressDTO.ExchangeQuote.Request)
     case exchangeData(request: ExpressDTO.ExchangeData.Request)
-    case exchangeResult(request: ExpressDTO.ExchangeResult.Request)
+    case exchangeStatus(request: ExpressDTO.ExchangeStatus.Request)
 
     var baseURL: URL {
         URL(string: "https://express.tangem.org/v1/")!
@@ -27,14 +27,14 @@ enum ExpressAPITarget: Moya.TargetType {
         case .providers: return "providers"
         case .exchangeQuote: return "exchange-quote"
         case .exchangeData: return "exchange-data"
-        case .exchangeResult: return "exchange-result"
+        case .exchangeStatus: return "exchange-status"
         }
     }
 
     var method: Moya.Method {
         switch self {
         case .assets, .pairs: return .post
-        case .providers, .exchangeQuote, .exchangeData, .exchangeResult: return .get
+        case .providers, .exchangeQuote, .exchangeData, .exchangeStatus: return .get
         }
     }
 
@@ -50,7 +50,7 @@ enum ExpressAPITarget: Moya.TargetType {
             return .requestParameters(request)
         case .exchangeData(let request):
             return .requestParameters(request)
-        case .exchangeResult(let request):
+        case .exchangeStatus(let request):
             return .requestParameters(request)
         }
     }
