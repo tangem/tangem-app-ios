@@ -29,7 +29,8 @@ protocol UserTokensManager: UserTokensReordering {
     /// Update storage without derivtion
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?)
 
-    func tryCanAdd(_ tokenItem: TokenItem, derivationPath: DerivationPath?) throws
+    /// Check condition for adding token
+    func assertCanAdd(_ tokenItem: TokenItem) throws
     func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
