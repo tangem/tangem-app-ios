@@ -11,15 +11,15 @@ import Combine
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
     var providerName: String {
-        record.provider.name
+        pendingTransaction.transactionRecord.provider.name
     }
 
     var providerIconURL: URL? {
-        record.provider.url
+        pendingTransaction.transactionRecord.provider.iconURL
     }
 
     var providerType: String {
-        record.provider.type.rawValue.capitalized
+        pendingTransaction.transactionRecord.provider.type.rawValue.capitalized
     }
 
     let timeString: String
@@ -28,27 +28,34 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     let sourceAmountText: String
     let destinationAmountText: String
 
-    @Published var sourceFiatAmountTextState: LoadableTextView.State
-    @Published var destinationFiatAmountTextState: LoadableTextView.State
+    @Published var sourceFiatAmountTextState: LoadableTextView.State = .loading
+    @Published var destinationFiatAmountTextState: LoadableTextView.State = .loading
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
 
-    private let record: ExpressPendingTransactionRecord
+    private let pendingTransaction: PendingExpressTransaction
+    private let pendingTransactionsManager: PendingExpressTransactionsManager
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
 
-    init(record: ExpressPendingTransactionRecord) {
-        self.record = record
+    private var subscription: AnyCancellable?
+
+    init(
+        pendingTransaction: PendingExpressTransaction,
+        pendingTransactionsManager: PendingExpressTransactionsManager
+    ) {
+        self.pendingTransaction = pendingTransaction
+        self.pendingTransactionsManager = pendingTransactionsManager
 
         let dateFormatter = DateFormatter()
         dateFormatter.doesRelativeDateFormatting = true
         dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .short
-        timeString = dateFormatter.string(from: record.date)
+        timeString = dateFormatter.string(from: pendingTransaction.transactionRecord.date)
 
-        let sourceTokenTxInfo = record.sourceTokenTxInfo
+        let sourceTokenTxInfo = pendingTransaction.transactionRecord.sourceTokenTxInfo
         let sourceTokenItem = sourceTokenTxInfo.tokenItem
-        let destinationTokenTxInfo = record.destinationTokenTxInfo
+        let destinationTokenTxInfo = pendingTransaction.transactionRecord.destinationTokenTxInfo
         let destinationTokenItem = destinationTokenTxInfo.tokenItem
 
         let iconInfoBuilder = TokenIconInfoBuilder()
@@ -56,33 +63,15 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         destinationTokenIconInfo = iconInfoBuilder.build(from: destinationTokenItem, isCustom: destinationTokenTxInfo.isCustom)
 
         sourceAmountText = balanceFormatter.formatCryptoBalance(sourceTokenTxInfo.amount, currencyCode: sourceTokenItem.currencySymbol)
-        if let currencyId = sourceTokenItem.currencyId {
-            if let sourceFiat = balanceConverter.convertToFiat(value: sourceTokenTxInfo.amount, from: currencyId) {
-                sourceFiatAmountTextState = .loaded(text: balanceFormatter.formatFiatBalance(sourceFiat))
-            } else {
-                sourceFiatAmountTextState = .loading
-            }
-        } else {
-            sourceFiatAmountTextState = .noData
-        }
-
         destinationAmountText = balanceFormatter.formatCryptoBalance(destinationTokenTxInfo.amount, currencyCode: destinationTokenItem.currencySymbol)
-        if let currencyId = destinationTokenTxInfo.tokenItem.currencyId {
-            if let destinationFiat = balanceConverter.convertToFiat(value: destinationTokenTxInfo.amount, from: currencyId) {
-                destinationFiatAmountTextState = .loaded(text: balanceFormatter.formatFiatBalance(destinationFiat))
-            } else {
-                destinationFiatAmountTextState = .loading
-            }
-        } else {
-            destinationFiatAmountTextState = .noData
-        }
 
-        loadEmptyRates()
+        loadEmptyFiatRates()
+        bind()
     }
 
     func openProvider() {
         guard
-            let urlString = record.externalTxURL,
+            let urlString = pendingTransaction.transactionRecord.externalTxURL,
             let url = URL(string: urlString)
         else {
             return
@@ -95,9 +84,9 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         )
     }
 
-    private func loadEmptyRates() {
-        loadRatesIfNeeded(stateKeyPath: \.sourceFiatAmountTextState, for: record.sourceTokenTxInfo, on: self)
-        loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: record.destinationTokenTxInfo, on: self)
+    private func loadEmptyFiatRates() {
+        loadRatesIfNeeded(stateKeyPath: \.sourceFiatAmountTextState, for: pendingTransaction.transactionRecord.sourceTokenTxInfo, on: self)
+        loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: pendingTransaction.transactionRecord.destinationTokenTxInfo, on: self)
     }
 
     private func loadRatesIfNeeded(
@@ -105,12 +94,13 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         for tokenTxInfo: ExpressPendingTransactionRecord.TokenTxInfo,
         on root: PendingExpressTxStatusBottomSheetViewModel
     ) {
-        guard root[keyPath: stateKeyPath] == .loading else {
+        guard let currencyId = tokenTxInfo.tokenItem.currencyId else {
+            root[keyPath: stateKeyPath] = .noData
             return
         }
 
-        guard let currencyId = tokenTxInfo.tokenItem.currencyId else {
-            root[keyPath: stateKeyPath] = .noData
+        if let fiat = balanceConverter.convertToFiat(value: tokenTxInfo.amount, from: currencyId) {
+            root[keyPath: stateKeyPath] = .loaded(text: balanceFormatter.formatFiatBalance(fiat))
             return
         }
 
@@ -123,5 +113,20 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                 root[keyPath: stateKeyPath] = .loaded(text: formattedFiat)
             }
         }
+    }
+
+    private func bind() {
+        subscription = pendingTransactionsManager.pendingTransactionsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, pendingTransactions in
+                guard let first = pendingTransactions.first(where: { tx in
+                    tx.transactionRecord.expressTransactionId == viewModel.pendingTransaction.transactionRecord.expressTransactionId
+                }) else {
+                    return viewModel.pendingTransaction
+                }
+
+                return first
+            }
+            .sink()
     }
 }
