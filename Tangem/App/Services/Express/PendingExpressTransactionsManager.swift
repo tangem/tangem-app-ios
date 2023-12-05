@@ -77,6 +77,8 @@ class CommonPendingExpressTransactionsManager {
                 var transactionsInProgress = [PendingExpressTransaction]()
                 for record in records {
                     guard let pendingTransaction = await manager.loadPendingTransactionStatus(for: record) else {
+                        // If received error from backend and transaction was already displayed on TokenDetails screen
+                        // we need to send previously received transaction, otherwise it will hide on TokenDetails
                         if let previousResult = manager.transactionsInProgressSubject.value.first(where: { $0.transactionRecord.expressTransactionId == record.expressTransactionId }) {
                             transactionsInProgress.append(previousResult)
                         }
@@ -84,6 +86,7 @@ class CommonPendingExpressTransactionsManager {
                         continue
                     }
 
+                    // We need to send finished transaction one more time to properly update status on bottom sheet
                     transactionsInProgress.append(pendingTransaction)
                     guard pendingTransaction.currentStatus.isTransactionInProgress else {
                         manager.removeTransactionFromRepository(record)
