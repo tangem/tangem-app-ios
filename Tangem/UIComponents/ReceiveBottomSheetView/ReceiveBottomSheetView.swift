@@ -30,7 +30,7 @@ struct ReceiveBottomSheetView: View {
 
     @ViewBuilder
     private var addressNetworkUnderstandingConfirmationView: some View {
-        VStack(spacing: 56) {
+        VStack(spacing: 92) {
             TokenIcon(
                 tokenIconInfo: .init(
                     name: "",
@@ -65,7 +65,7 @@ struct ReceiveBottomSheetView: View {
                 indexUpdateNotifier: viewModel.addressIndexUpdateNotifier,
                 pageWidth: containerWidth
             ) { info in
-                VStack(spacing: 0) {
+                VStack(spacing: 44) {
                     Text(viewModel.headerForAddress(with: info))
                         .multilineTextAlignment(.center)
                         .style(Fonts.Bold.title3, color: Colors.Text.primary1)
