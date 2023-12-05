@@ -24,7 +24,7 @@ class CommonPendingExpressTransactionsManager {
 
     private let transactionsToUpdateStatusSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
     private let transactionsInProgressSubject = CurrentValueSubject<[PendingExpressTransaction], Never>([])
-    private let statusListFactory = PendingExpressTransactionFactory()
+    private let pendingTransactionFactory = PendingExpressTransactionFactory()
 
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Never>?
@@ -73,18 +73,18 @@ class CommonPendingExpressTransactionsManager {
                 var recordsToRequest = [ExpressPendingTransactionRecord]()
                 var transactionsInProgress = [PendingExpressTransaction]()
                 for record in records {
-                    guard let status = await manager.loadStatus(for: record) else {
+                    guard let pendingTransaction = await manager.loadPendingTransactionStatus(for: record) else {
                         recordsToRequest.append(record)
                         continue
                     }
 
-                    guard status.currentStatus.isTransactionInProgress else {
+                    guard pendingTransaction.currentStatus.isTransactionInProgress else {
                         manager.removeTransactionFromRepository(record)
                         continue
                     }
 
                     recordsToRequest.append(record)
-                    transactionsInProgress.append(status)
+                    transactionsInProgress.append(pendingTransaction)
                     try Task.checkCancellation()
                 }
 
@@ -126,11 +126,11 @@ class CommonPendingExpressTransactionsManager {
         }
     }
 
-    private func loadStatus(for transactionRecord: ExpressPendingTransactionRecord) async -> PendingExpressTransaction? {
+    private func loadPendingTransactionStatus(for transactionRecord: ExpressPendingTransactionRecord) async -> PendingExpressTransaction? {
         do {
             let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
-            let statusList = statusListFactory.buildStatusesList(currentExpressStatus: expressTransaction.externalStatus, for: transactionRecord)
-            return statusList
+            let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(currentExpressStatus: expressTransaction.externalStatus, for: transactionRecord)
+            return pendingTransaction
         } catch {
             log("Failed to load status info for transaction with id: \(transactionRecord.expressTransactionId). Error: \(error)")
             return nil
