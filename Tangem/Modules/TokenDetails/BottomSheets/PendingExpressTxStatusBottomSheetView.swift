@@ -49,20 +49,15 @@ struct PendingExpressTxStatusBottomSheetView: View {
                         })
                     }
 
-                    VStack {
-                        HStack(alignment: .top, spacing: 12) {
-                            VStack {}
-
-                            Text(Localization.expressExchangeStatusReceived)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-                        }
-                    }
+                    statusesView
                 }
                 .defaultRoundedBackground(with: Colors.Background.action)
             }
             .padding(.vertical, 22)
             .padding(.horizontal, 16)
         }
+        .animation(.default, value: viewModel.statusesList)
+        .animation(.default, value: viewModel.currentStatusIndex)
         .sheet(item: $viewModel.modalWebViewModel) {
             WebViewContainer(viewModel: $0)
         }
@@ -140,6 +135,43 @@ struct PendingExpressTxStatusBottomSheetView: View {
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
+    @ViewBuilder
+    private var statusesView: some View {
+        VStack(spacing: 0) {
+            ForEach(0 ..< 4) { index in
+                let status = viewModel.statusesList[index]
+                statusRow(isFirstRow: index == 0, info: status)
+            }
+        }
+    }
+
+    private func statusRow(isFirstRow: Bool, info: StatusRowData) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if !isFirstRow {
+                HStack {
+                    Assets.verticalLine.image
+                        .foregroundColor(info.state.lineColor)
+                        .opacity(info.state.lineOpacity)
+                }
+            }
+
+            HStack(spacing: 12) {
+                ZStack {
+                    Assets.circleOutline20.image
+                        .foregroundColor(info.state.circleColor)
+                        .opacity(info.state.circleOpacity)
+
+                    info.state.foregroundIcon
+                }
+
+                Text(info.title)
+                    .style(Fonts.Regular.footnote, color: info.state.textColor)
+
+                Spacer()
+            }
+        }
+    }
+
     private func tokenInfo(with tokenIconInfo: TokenIconInfo, cryptoAmountText: String, fiatAmountTextState: LoadableTextView.State) -> some View {
         HStack(spacing: 12) {
             TokenIcon(tokenIconInfo: tokenIconInfo, size: tokenIconSize)
@@ -158,6 +190,98 @@ struct PendingExpressTxStatusBottomSheetView: View {
                 )
             }
         }
+    }
+}
+
+extension PendingExpressTxStatusBottomSheetView {
+    struct StatusRowData: Identifiable, Hashable {
+        enum State: Hashable {
+            case empty
+            case loader
+            case checkmark
+            case cross(passed: Bool)
+            case exclamationMark
+
+            @ViewBuilder
+            var foregroundIcon: some View {
+                Group {
+                    switch self {
+                    case .empty: EmptyView()
+                    case .loader:
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    case .checkmark:
+                        Assets.checkmark20.image
+                    case .cross:
+                        Assets.cross20.image
+                    case .exclamationMark:
+                        Assets.exclamationMark20.image
+                    }
+                }
+                .foregroundColor(iconColor)
+                .frame(size: .init(bothDimensions: 20))
+            }
+
+            var circleColor: Color {
+                switch self {
+                case .empty, .checkmark: return Colors.Field.focused
+                case .loader: return Color.clear
+                case .cross(let passed):
+                    return passed ? Colors.Field.focused : Colors.Icon.warning
+                case .exclamationMark: return Colors.Icon.attention
+                }
+            }
+
+            var iconColor: Color {
+                switch self {
+                case .empty: return Color.clear
+                case .loader, .checkmark: return Colors.Text.primary1
+                case .cross(let passed):
+                    return passed ? Colors.Text.primary1 : Colors.Icon.warning
+                case .exclamationMark: return Colors.Icon.attention
+                }
+            }
+
+            var lineColor: Color {
+                switch self {
+                case .empty, .loader, .checkmark, .exclamationMark: return Colors.Field.focused
+                case .cross(let passed):
+                    return passed ? Colors.Field.focused : Colors.Icon.warning
+                }
+            }
+
+            var textColor: Color {
+                switch self {
+                case .checkmark, .loader: return Colors.Text.primary1
+                case .empty: return Colors.Text.disabled
+                case .cross(let passed):
+                    return passed ? Colors.Text.primary1 : Colors.Text.warning
+                case .exclamationMark: return Colors.Text.attention
+                }
+            }
+
+            var lineOpacity: Double {
+                switch self {
+                case .empty, .loader, .checkmark, .exclamationMark: return 1.0
+                case .cross(let passed):
+                    return passed ? 1.0 : 0.4
+                }
+            }
+
+            var circleOpacity: Double {
+                switch self {
+                case .empty, .loader, .checkmark: return 1.0
+                case .exclamationMark: return 0.4
+                case .cross(let passed):
+                    return passed ? 1.0 : 0.4
+                }
+            }
+        }
+
+        let title: String
+        let state: State
+
+        var id: Int { hashValue }
     }
 }
 
