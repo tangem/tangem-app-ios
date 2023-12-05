@@ -55,7 +55,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: options.cardModel.userWalletId.stringValue,
-            walletModel: options.walletModel
+            blockchainNetwork: options.walletModel.blockchainNetwork,
+            tokenItem: options.walletModel.tokenItem
         )
 
         tokenDetailsViewModel = .init(
