@@ -238,6 +238,7 @@
 		B03478602B0F6C08004FECA0 /* HighPriceImpactCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B034785F2B0F6C08004FECA0 /* HighPriceImpactCalculator.swift */; };
 		B035645D2950689700397787 /* WalletConnectServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B035645C2950689700397787 /* WalletConnectServiceError.swift */; };
 		B035645F29506C4D00397787 /* WalletConnectAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B035645E29506C4D00397787 /* WalletConnectAction.swift */; };
+		B03574C82B1F876300118786 /* PendingExpressTransactionStatusRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03574C72B1F876300118786 /* PendingExpressTransactionStatusRow.swift */; };
 		B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */; };
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* LegacyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* LegacyCardView.swift */; };
@@ -1597,6 +1598,7 @@
 		B034785F2B0F6C08004FECA0 /* HighPriceImpactCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighPriceImpactCalculator.swift; sourceTree = "<group>"; };
 		B035645C2950689700397787 /* WalletConnectServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceError.swift; sourceTree = "<group>"; };
 		B035645E29506C4D00397787 /* WalletConnectAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectAction.swift; sourceTree = "<group>"; };
+		B03574C72B1F876300118786 /* PendingExpressTransactionStatusRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTransactionStatusRow.swift; sourceTree = "<group>"; };
 		B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsFinalizeWalletCreationTask.swift; sourceTree = "<group>"; };
 		B03A9338259877790061FB2D /* WarningsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsContainer.swift; sourceTree = "<group>"; };
 		B03ACAC82567CFFF00F5D269 /* LegacyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCardView.swift; sourceTree = "<group>"; };
@@ -3874,13 +3876,14 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
-		B072E12C2B18B22900B0AB27 /* BottomSheets */ = {
+		B072E12C2B18B22900B0AB27 /* ExpressBottomSheet */ = {
 			isa = PBXGroup;
 			children = (
 				B072E12D2B18B26000B0AB27 /* PendingExpressTxStatusBottomSheetView.swift */,
 				B0E1CED52B19B682006DDF98 /* PendingExpressTxStatusBottomSheetViewModel.swift */,
+				B03574C72B1F876300118786 /* PendingExpressTransactionStatusRow.swift */,
 			);
-			path = BottomSheets;
+			path = ExpressBottomSheet;
 			sourceTree = "<group>";
 		};
 		B074AF832B06585B00E9CEA3 /* AnalyticsContext */ = {
@@ -4377,7 +4380,7 @@
 		B0DD16182A331BF300CB23AA /* TokenDetails */ = {
 			isa = PBXGroup;
 			children = (
-				B072E12C2B18B22900B0AB27 /* BottomSheets */,
+				B072E12C2B18B22900B0AB27 /* ExpressBottomSheet */,
 				B0A1B47E2A42C71200376FCC /* Views */,
 				B0DD16232A331C2100CB23AA /* TokenDetailsCoordinator.swift */,
 				B0DD16242A331C2100CB23AA /* TokenDetailsCoordinatorView.swift */,
@@ -7917,6 +7920,7 @@
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
 				EF729B4A2AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift in Sources */,
 				EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */,
+				B03574C82B1F876300118786 /* PendingExpressTransactionStatusRow.swift in Sources */,
 				B61980122AB98ACE00153886 /* HighlightableViewModifier.swift in Sources */,
 				EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */,
 				5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */,
