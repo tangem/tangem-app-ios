@@ -80,9 +80,12 @@ struct MultiWalletMainContentView: View {
     private var tokensList: some View {
         LazyVStack(spacing: 0) {
             ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, section in
+                let cornerRadius = Constants.cornerRadius
+                let hasTitle = section.model.title != nil
+
                 if #available(iOS 17.0, *) {
-                    let isFirstVisibleSection = (section.model.title != nil && sectionIndex == 0)
-                    let topEdgeCornerRadius = isFirstVisibleSection ? Constants.cornerRadius : nil
+                    let isFirstVisibleSection = hasTitle && sectionIndex == 0
+                    let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
 
                     TokenSectionView(title: section.model.title, cornerRadius: topEdgeCornerRadius)
                 } else {
@@ -91,9 +94,8 @@ struct MultiWalletMainContentView: View {
 
                 ForEach(indexed: section.items.indexed()) { itemIndex, item in
                     if #available(iOS 17.0, *) {
-                        let isFirstItem = (section.model.title == nil && sectionIndex == 0 && itemIndex == 0)
-                        let isLastItem = (sectionIndex == viewModel.sections.count - 1 && itemIndex == section.items.count - 1)
-                        let cornerRadius = Constants.cornerRadius
+                        let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
+                        let isLastItem = sectionIndex == viewModel.sections.count - 1 && itemIndex == section.items.count - 1
 
                         if isFirstItem {
                             TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .topEdge)
@@ -103,7 +105,7 @@ struct MultiWalletMainContentView: View {
                             TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: nil)
                         }
                     } else {
-                        TokenItemView(viewModel: item, cornerRadius: Constants.cornerRadius)
+                        TokenItemView(viewModel: item, cornerRadius: cornerRadius)
                     }
                 }
             }
