@@ -68,6 +68,7 @@ struct PendingExpressTransactionsConverter {
         let isPendingStatus = index > currentStatusIndex
         let isFinished = !currentStatus.isTransactionInProgress
         if isFinished {
+            // Always display cross for failed state
             let state: PendingExpressTransactionStatusRow.State = status == .failed ? .cross(passed: true) : .checkmark
             return .init(
                 title: status.passedStatusTitle,
@@ -82,6 +83,7 @@ struct PendingExpressTransactionsConverter {
         case .failed:
             state = .cross(passed: false)
         case .refunded:
+            // Refunded state is the final state and it can't be pending (with loader)
             state = isFinished ? .checkmark : .empty
         case .verificationRequired:
             state = .exclamationMark
