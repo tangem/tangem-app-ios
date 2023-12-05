@@ -102,6 +102,7 @@ PODS:
     - GoogleUtilities/Environment (~> 7.10)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesSwift (~> 2.1)
+  - GDPerformanceView-Swift (2.1.1)
   - GoogleAppMeasurement (10.18.0):
     - GoogleAppMeasurement/AdIdSupport (= 10.18.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
@@ -233,10 +234,11 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-415`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-417`)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
+  - GDPerformanceView-Swift (~> 2.1)
   - HDWalletKit (from `https://github.com/tangem/hdwallet.git`, tag `0.3.12`)
   - Kingfisher (~> 7.9.0)
   - Moya
@@ -264,6 +266,7 @@ SPEC REPOS:
     - FirebaseCrashlytics
     - FirebaseInstallations
     - FirebaseSessions
+    - GDPerformanceView-Swift
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
@@ -297,7 +300,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-415
+    :tag: develop-417
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -329,7 +332,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-415
+    :tag: develop-417
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -370,6 +373,7 @@ SPEC CHECKSUMS:
   FirebaseCrashlytics: 86d5bce01f42fa1db265f87ff1d591f04db610ec
   FirebaseInstallations: e842042ec6ac1fd2e37d7706363ebe7f662afea4
   FirebaseSessions: f90fe9212ee2818641eda051c0835c9c4e30d9ae
+  GDPerformanceView-Swift: 22d964fe40b19e3d914dba2586237d064de8fd77
   GoogleAppMeasurement: 70ce9aa438cff1cfb31ea3e660bcc67734cb716e
   GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
@@ -397,6 +401,6 @@ SPEC CHECKSUMS:
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 440a5856c427dced9defcb248c3acdd2735dc10d
+PODFILE CHECKSUM: 6cf56f12636ef537589d87a4c204df5846db4c0b
 
 COCOAPODS: 1.14.3
