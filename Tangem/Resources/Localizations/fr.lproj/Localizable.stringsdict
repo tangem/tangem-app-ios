@@ -109,9 +109,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use your card to generate an address for %li new network</string>
+        <string>Use your card to get an address for %li network</string>
         <key>other</key>
-        <string>Use your card to generate an addresses for %li new networks</string>
+        <string>Use your card to get an addresses for %li networks</string>
       </dict>
     </dict>
   </dict>
