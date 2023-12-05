@@ -86,8 +86,8 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openPendingExpressBottomSheet(for record: ExpressPendingTransactionRecord) {
-        pendingExpressTxStatusBottomSheetViewModel = .init(record: record)
+    func openPendingExpressBottomSheet(for pendingTransaction: PendingExpressTransaction, pendingTransactionsManager: PendingExpressTransactionsManager) {
+        pendingExpressTxStatusBottomSheetViewModel = .init(pendingTransaction: pendingTransaction, pendingTransactionsManager: pendingTransactionsManager)
     }
 }
 
