@@ -12,15 +12,11 @@ import Combine
 import BlockchainSdk
 import TangemSdk
 
-final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject, WalletSelectorDelegate {
-    // MARK: - Injected Properties
-
-    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
+final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject {
     // MARK: - Published Properties
 
     @Published var currentWalletName: String = ""
+    @Published var notificationInput: NotificationViewInput?
 
     @Published var nativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
     @Published var nonNativeSelectorItems: [ManageTokensNetworkSelectorItemViewModel] = []
@@ -35,42 +31,28 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Implementation
 
+    private var bag = Set<AnyCancellable>()
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorRoutable
 
-    private var tokenItems: [TokenItem]
+    private let parentDataSource: ManageTokensDataSource
+    private let dataSource: ManageTokensNetworkDataSource
+
     private let coinId: String
+    private let tokenItems: [TokenItem]
 
-    private var userWalletModel: UserWalletModel?
-
-    private var settings: ManageTokensSettings? {
-        guard let userWalletModel = userWalletModel else {
-            return nil
-        }
-
-        var supportedBlockchains = userWalletModel.config.supportedBlockchains
-        supportedBlockchains.remove(.ducatus)
-        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
-
-        let settings = ManageTokensSettings(
-            supportedBlockchains: supportedBlockchains,
-            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
-            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
-            derivationStyle: userWalletModel.config.derivationStyle,
-            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: userWalletModel.config.walletCurves
-        )
-
-        return settings
+    private var selectedUserWalletModel: UserWalletModel? {
+        dataSource.selectedUserWalletModel
     }
 
-    private var userTokensManager: UserTokensManager? {
-        userWalletRepository.selectedModel?.userTokensManager
+    private var isTokenAvailableForSwitching: Bool {
+        selectedUserWalletModel != nil
     }
 
     // MARK: - Init
 
     init(
+        parentDataSource: ManageTokensDataSource,
         coinId: String,
         tokenItems: [TokenItem],
         coordinator: ManageTokensNetworkSelectorRoutable
@@ -78,26 +60,23 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
+        self.parentDataSource = parentDataSource
 
-        userWalletModel = userWalletRepository.models.first
+        dataSource = ManageTokensNetworkDataSource(parentDataSource)
 
-        fillSelectorItemsFromTokenItems()
+        bind()
+        displayNotificationIfNeededWithCheckCondition()
     }
 
     // MARK: - Implementation
 
     func onAppear() {
-        currentWalletName = userWalletRepository.selectedModel?.name ?? ""
+        reloadSelectorItemsFromTokenItems()
     }
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
-
-        coordinator.openWalletSelector(
-            userWallets: userWalletRepository.userWallets,
-            currentUserWalletId: userWalletRepository.selectedUserWalletId,
-            delegate: self
-        )
+        coordinator.openWalletSelector(with: dataSource)
     }
 
     func displayNonNativeNetworkAlert() {
@@ -112,7 +91,15 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     // MARK: - Private Implementation
 
-    private func fillSelectorItemsFromTokenItems() {
+    private func bind() {
+        dataSource._selectedUserWalletModel
+            .sink { [weak self] userWalletModel in
+                self?.setNeedSelectWallet(userWalletModel)
+            }
+            .store(in: &bag)
+    }
+
+    private func reloadSelectorItemsFromTokenItems() {
         nativeSelectorItems = tokenItems
             .filter {
                 $0.isBlockchain
@@ -125,13 +112,14 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     iconNameSelected: $0.blockchain.iconNameFilled,
                     networkName: $0.networkName,
                     tokenTypeName: nil,
-                    isSelected: bindSelection($0)
+                    isSelected: bindSelection($0),
+                    isAvailable: isTokenAvailableForSwitching
                 )
             }
 
         nonNativeSelectorItems = tokenItems
             .filter {
-                $0.isToken
+                !$0.isBlockchain
             }
             .map {
                 .init(
@@ -141,13 +129,23 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     iconNameSelected: $0.blockchain.iconNameFilled,
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
-                    isSelected: bindSelection($0)
+                    isSelected: bindSelection($0),
+                    isAvailable: isTokenAvailableForSwitching
                 )
             }
     }
 
+    /// This method that shows a notification result if the condition is single currency
+    private func displayNotificationIfNeededWithCheckCondition() {
+        if isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: false) {
+            displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
+        } else {
+            notificationInput = nil
+        }
+    }
+
     private func saveChanges() {
-        guard let userTokensManager = userTokensManager else {
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
             return
         }
 
@@ -158,9 +156,17 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         )
     }
 
+    private func isAvailableTokenSelection() -> Bool {
+        !dataSource.userWalletModels.isEmpty
+    }
+
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
+            return
+        }
+
         if selected {
-            try tryTokenAvailable(tokenItem)
+            try userTokensManager.addTokenItemPrecondition(tokenItem)
         }
 
         sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
@@ -191,7 +197,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             do {
                 try self?.displayAlertWarningDeleteIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
             } catch {
-                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error)
+                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
             }
         }
 
@@ -217,10 +223,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         ])
     }
 
-    // MARK: - ManageTokensNetworkSelectorViewModel
-
-    func didSelectWallet(with userWalletId: Data) {
-        if userWalletModel?.userWalletId.value != userWalletId {
+    private func setNeedSelectWallet(_ userWalletModel: UserWalletModel?) {
+        if selectedUserWalletModel?.userWalletId != userWalletModel?.userWalletId {
             Analytics.log(
                 event: .manageTokensWalletSelected,
                 params: [.source: Analytics.ParameterValue.mainToken.rawValue]
@@ -230,48 +234,45 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         pendingAdd = []
         pendingRemove = []
 
-        userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
+        currentWalletName = userWalletModel?.config.cardName ?? ""
 
-        fillSelectorItemsFromTokenItems()
+        reloadSelectorItemsFromTokenItems()
     }
 }
 
 // MARK: - Helpers
 
 private extension ManageTokensNetworkSelectorViewModel {
-    func tryTokenAvailable(_ tokenItem: TokenItem) throws {
-        guard let settings = settings else {
-            return
-        }
-
-        guard settings.supportedBlockchains.contains(tokenItem.blockchain) else {
-            throw AvailableTokenError.failedSupportedBlockchainByCard(tokenItem)
-        }
-
-        guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw AvailableTokenError.failedSupportedCurve(tokenItem)
-        }
-
-        if settings.longHashesSupported, !tokenItem.blockchain.hasLongTransactions {
-            throw AvailableTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
-        }
-
-        return
-    }
-
     func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
-        return (try? tryTokenAvailable(tokenItem)) != nil
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
+            return false
+        }
+
+        do {
+            try userTokensManager.addTokenItemPrecondition(tokenItem)
+            return true
+        } catch {
+            return false
+        }
     }
 
-    private func isAdded(_ tokenItem: TokenItem) -> Bool {
-        userTokensManager?.contains(tokenItem, derivationPath: nil) ?? false
+    func isAdded(_ tokenItem: TokenItem) -> Bool {
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
+            return isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: true)
+        }
+
+        return userTokensManager.contains(tokenItem, derivationPath: nil)
     }
 
-    private func canRemove(_ tokenItem: TokenItem) -> Bool {
-        userTokensManager?.canRemove(tokenItem, derivationPath: nil) ?? false
+    func canRemove(_ tokenItem: TokenItem) -> Bool {
+        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
+            return false
+        }
+
+        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
     }
 
-    private func isSelected(_ tokenItem: TokenItem) -> Bool {
+    func isSelected(_ tokenItem: TokenItem) -> Bool {
         let isWaitingToBeAdded = pendingAdd.contains(tokenItem)
         let isWaitingToBeRemoved = pendingRemove.contains(tokenItem)
         let alreadyAdded = isAdded(tokenItem)
@@ -282,23 +283,35 @@ private extension ManageTokensNetworkSelectorViewModel {
 
         return isWaitingToBeAdded || alreadyAdded
     }
+
+    /// This method that checks whether there is a single currency and contain supported the coinId parameter
+    func isExistOnlySingleCurrencyUserWalletModelWithCoin(contained condition: Bool) -> Bool {
+        guard dataSource.userWalletModels.isEmpty else {
+            return false
+        }
+
+        if let defaultUserWalletModel = parentDataSource.defaultUserWalletModel,
+           defaultUserWalletModel.config.supportedBlockchains.contains(where: {
+               return condition ? $0.coinId == coinId : $0.coinId != coinId
+           }) {
+            return true
+        }
+
+        return false
+    }
 }
 
 // MARK: - Alerts
 
 private extension ManageTokensNetworkSelectorViewModel {
-    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: Error) {
-        guard let availableTokenError = error as? AvailableTokenError else {
-            return
-        }
-
+    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: LocalizedError?) {
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {
             self.updateSelection(tokenItem)
         }
 
         alert = AlertBinder(alert: Alert(
-            title: Text(availableTokenError.title),
-            message: Text(availableTokenError.errorDescription ?? ""),
+            title: Text(Localization.commonAttention),
+            message: Text(error?.errorDescription ?? ""),
             dismissButton: okButton
         ))
     }
@@ -335,7 +348,7 @@ private extension ManageTokensNetworkSelectorViewModel {
                     do {
                         try onSelect(isSelected, tokenItem)
                     } catch {
-                        displayAlertAndUpdateSelection(for: tokenItem, error: error)
+                        displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
                     }
                 }
             )
@@ -348,29 +361,15 @@ private extension ManageTokensNetworkSelectorViewModel {
             )
         }
     }
-}
 
-// MARK: - Errors
+    func displayWarningNotification(for event: WarningEvent) {
+        let notificationsFactory = NotificationsFactory()
 
-private extension ManageTokensNetworkSelectorViewModel {
-    enum AvailableTokenError: Error, LocalizedError {
-        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
-        case failedSupportedCurve(TokenItem)
-        case failedSupportedBlockchainByCard(TokenItem)
-
-        var errorDescription: String? {
-            switch self {
-            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
-                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
-            case .failedSupportedCurve(let tokenItem):
-                return Localization.alertManageTokensUnsupportedCurveMessage(tokenItem.blockchain.displayName)
-            case .failedSupportedBlockchainByCard:
-                return nil
-            }
-        }
-
-        var title: String {
-            return Localization.commonAttention
-        }
+        notificationInput = notificationsFactory.buildNotificationInput(
+            for: event,
+            action: { _ in },
+            buttonAction: { _, _ in },
+            dismissAction: { _ in }
+        )
     }
 }
