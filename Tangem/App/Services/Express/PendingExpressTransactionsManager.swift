@@ -101,7 +101,7 @@ class CommonPendingExpressTransactionsManager {
 
                 manager.updateTransactionsStatuses(recordsToRequest)
             } catch {
-                if error is CancellationError || error.isCancelled {
+                if error is CancellationError {
                     manager.log("Pending express txs status check task was cancelled")
                     return
                 }
