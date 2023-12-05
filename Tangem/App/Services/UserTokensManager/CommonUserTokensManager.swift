@@ -139,13 +139,13 @@ extension CommonUserTokensManager: UserTokensManager {
         return []
     }
 
-    func assertCanAdd(_ tokenItem: TokenItem) throws {
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
         guard existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw CanAddTokenError.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
+            throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         if longHashesSupported, tokenItem.blockchain.hasLongTransactions {
-            throw CanAddTokenError.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+            throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         return
@@ -295,11 +295,8 @@ extension CommonUserTokensManager: UserTokensReordering {
 }
 
 extension CommonUserTokensManager {
-    enum Error: Swift.Error {
+    enum Error: Swift.Error, LocalizedError {
         case addressNotFound
-    }
-
-    enum CanAddTokenError: Swift.Error, LocalizedError {
         case failedSupportedLongHahesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
 
@@ -309,6 +306,8 @@ extension CommonUserTokensManager {
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
+            case .addressNotFound:
+                return nil
             }
         }
     }

@@ -20,7 +20,7 @@ class FakeUserTokensManager: UserTokensManager {
         self.userTokenListManager = userTokenListManager
     }
 
-    func assertCanAdd(_ tokenItem: TokenItem) throws {}
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
 
     func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         completion(.success(()))
