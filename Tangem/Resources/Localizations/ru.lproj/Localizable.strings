@@ -85,7 +85,7 @@
 "common_fee_selector_option_market" = "По рынку";
 "common_fee_selector_option_slow" = "Медленно";
 "common_fee_selector_title" = "Скорость и комиссия";
-"common_generate_addresses" = "Сгенерировать адреса";
+"common_generate_addresses" = "Получить адреса";
 "common_import" = "Импортировать";
 "common_learn_and_earn" = "Learn & Earn";
 "common_like" = "Нравится";
