@@ -11,11 +11,11 @@ import TangemSwapping
 struct CommonExpressAPIFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    func makeExpressAPIProvider() -> ExpressAPIProvider {
+    func makeExpressAPIProvider(userId: String = UUID().uuidString) -> ExpressAPIProvider {
         let factory = TangemSwappingFactory()
         let credentials = ExpressAPICredential(
             apiKey: keysManager.tangemExpressApiKey,
-            userId: UUID().uuidString,
+            userId: userId,
             sessionId: UUID().uuidString
         )
 
