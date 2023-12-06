@@ -16,6 +16,7 @@ struct CommonUserTokensManager {
 
     let derivationManager: DerivationManager?
 
+    private let shouldLoadSwapAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
@@ -26,6 +27,7 @@ struct CommonUserTokensManager {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        shouldLoadSwapAvailability: Bool,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
@@ -34,6 +36,7 @@ struct CommonUserTokensManager {
         existingCurves: [EllipticCurve],
         longHashesSupported: Bool
     ) {
+        self.shouldLoadSwapAvailability = shouldLoadSwapAvailability
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
@@ -41,8 +44,6 @@ struct CommonUserTokensManager {
         self.cardDerivableProvider = cardDerivableProvider
         self.existingCurves = existingCurves
         self.longHashesSupported = longHashesSupported
-
-        bind()
     }
 
     private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
@@ -81,20 +82,13 @@ struct CommonUserTokensManager {
         }
     }
 
-    private mutating func bind() {
-        userTokenListManager
-            .userTokensListPublisher
-            // We can skip first element, because swap state will be loaded during `sync`
-            // for all token list after loading actual info from backend
-            .dropFirst()
-            .removeDuplicates()
-            .sink { [swapAvailabilityController] tokenList in
-                let converter = StorageEntryConverter()
-                let nonCustomTokens = tokenList.entries.filter { !$0.isCustom }
-                let tokenItems = converter.convertToTokenItem(nonCustomTokens)
-                swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: false)
-            }
-            .store(in: &bag)
+    private func loadSwapAvailbilityStateIfNeeded(forceReload: Bool) {
+        guard shouldLoadSwapAvailability else { return }
+
+        let converter = StorageEntryConverter()
+        let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
+        let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+        swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: forceReload)
     }
 }
 
@@ -206,15 +200,13 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
+        loadSwapAvailbilityStateIfNeeded(forceReload: false)
         userTokenListManager.upload()
     }
 
     func sync(completion: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { _ in
-            let converter = StorageEntryConverter()
-            let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
-            let tokenItems = converter.convertToTokenItem(nonCustomTokens)
-            self.swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: true)
+            self.loadSwapAvailbilityStateIfNeeded(forceReload: true)
             self.walletModelsManager.updateAll(silent: false, completion: completion)
         }
     }

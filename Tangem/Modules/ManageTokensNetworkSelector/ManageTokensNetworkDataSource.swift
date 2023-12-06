@@ -13,10 +13,12 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
     // MARK: - Properties
 
     private let _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
-    var userWalletModels: [UserWalletModel] { _userWalletModels.value }
+    private let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
-    let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
+    var userWalletModels: [UserWalletModel] { _userWalletModels.value }
     var selectedUserWalletModel: UserWalletModel? { _selectedUserWalletModel.value }
+
+    var selectedUserWalletModelPublisher: AnyPublisher<UserWalletModel?, Never> { _selectedUserWalletModel.eraseToAnyPublisher() }
 
     var itemViewModels: [WalletSelectorItemViewModel] {
         userWalletModels.map { userWalletModel in
