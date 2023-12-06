@@ -113,8 +113,7 @@ class ExpressNotificationManager {
             let message = Localization.expressErrorCode(occurredError.codeCase.rawValue)
             event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
         case .requiredRefresh(let occurredError):
-            let message = Localization.swappingErrorWrapper(occurredError.localizedDescription)
-            event = .refreshRequired(title: Localization.commonError, message: message)
+            event = .refreshRequired(title: Localization.commonError, message: occurredError.localizedDescription)
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceTokenItemSymbol)
         }
