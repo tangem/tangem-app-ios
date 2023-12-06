@@ -65,5 +65,9 @@ extension Analytics {
         case methodName = "Method Name"
         case groupType = "Group"
         case sortType = "Sort"
+        case tokenChosen = "Token Chosen"
+        case availableTokens = "Available tokens"
+        case provider = "Provider"
+        case commission = "Commission"
     }
 }
