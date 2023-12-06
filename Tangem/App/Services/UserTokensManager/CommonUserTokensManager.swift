@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-struct CommonUserTokensManager {
+class CommonUserTokensManager {
     @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
 
     let derivationManager: DerivationManager?
@@ -187,9 +187,11 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func sync(completion: @escaping () -> Void) {
-        userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self.loadSwapAvailbilityStateIfNeeded(forceReload: true)
-            self.walletModelsManager.updateAll(silent: false, completion: completion)
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            guard let self else { return }
+
+            loadSwapAvailbilityStateIfNeeded(forceReload: true)
+            walletModelsManager.updateAll(silent: false, completion: completion)
         }
     }
 }
