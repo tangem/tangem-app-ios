@@ -97,7 +97,7 @@ private extension ManageTokensViewModel {
 
     func bind() {
         dataSource
-            ._userWalletModels
+            .userWalletModelsPublisher
             .sink { [weak self] models in
                 self?.updateAlreadyExistTokenUserList()
                 self?.updateDerivationBind()
