@@ -35,7 +35,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorRoutable
 
-    private let parentDataSource: ManageTokensDataSource
+    /// CoinId from parent data source embedded on selected UserWalletModel
+    private let defaultCoinId: String?
     private let dataSource: ManageTokensNetworkDataSource
 
     private let coinId: String
@@ -60,19 +61,17 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
-        self.parentDataSource = parentDataSource
+        defaultCoinId = parentDataSource.defaultUserWalletModel?.embeddedCoinId
 
         dataSource = ManageTokensNetworkDataSource(parentDataSource)
 
         bind()
-        setupNotificationWithCheckCoinCondition()
+        setup()
 
         reloadSelectorItemsFromTokenItems()
     }
 
     // MARK: - Implementation
-
-    func onAppear() {}
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
@@ -136,11 +135,13 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     /// This method that shows a configure notification input result if the condition is single currency by coinId
-    private func setupNotificationWithCheckCoinCondition() {
-        if isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: false) {
+    private func setup() {
+        guard dataSource.userWalletModels.isEmpty else {
+            return
+        }
+
+        if defaultCoinId != coinId {
             displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
-        } else {
-            notificationInput = nil
         }
     }
 
@@ -257,11 +258,11 @@ private extension ManageTokensNetworkSelectorViewModel {
     }
 
     func isAdded(_ tokenItem: TokenItem) -> Bool {
-        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
-            return isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: true)
+        if let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager {
+            return userTokensManager.contains(tokenItem, derivationPath: nil)
         }
 
-        return userTokensManager.contains(tokenItem, derivationPath: nil)
+        return defaultCoinId == tokenItem.blockchain.coinId
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
@@ -282,22 +283,6 @@ private extension ManageTokensNetworkSelectorViewModel {
         }
 
         return isWaitingToBeAdded || alreadyAdded
-    }
-
-    /// This method that checks whether there is a single currency and contain supported the coinId parameter
-    func isExistOnlySingleCurrencyUserWalletModelWithCoin(contained condition: Bool) -> Bool {
-        guard dataSource.userWalletModels.isEmpty else {
-            return false
-        }
-
-        if let defaultUserWalletModel = parentDataSource.defaultUserWalletModel,
-           defaultUserWalletModel.config.supportedBlockchains.contains(where: {
-               return condition ? $0.coinId == coinId : $0.coinId != coinId
-           }) {
-            return true
-        }
-
-        return false
     }
 }
 
@@ -371,5 +356,11 @@ private extension ManageTokensNetworkSelectorViewModel {
             buttonAction: { _, _ in },
             dismissAction: { _ in }
         )
+    }
+}
+
+private extension UserWalletModel {
+    var embeddedCoinId: String? {
+        config.embeddedBlockchain?.blockchainNetwork.blockchain.coinId
     }
 }
