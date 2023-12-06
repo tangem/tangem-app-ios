@@ -207,7 +207,10 @@ private extension TokenDetailsViewModel {
             return
         }
 
-        coordinator.openPendingExpressBottomSheet(for: pendingTransaction, pendingTransactionsManager: pendingExpressTransactionsManager)
+        coordinator.openPendingExpressTransactionDetails(
+            for: pendingTransaction,
+            pendingTransactionsManager: pendingExpressTransactionsManager
+        )
     }
 }
 
