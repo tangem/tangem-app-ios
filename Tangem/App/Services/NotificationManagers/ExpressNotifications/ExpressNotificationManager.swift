@@ -110,9 +110,11 @@ class ExpressNotificationManager {
             event = .notEnoughFeeForTokenTx(mainTokenName: sourceTokenItem.blockchain.displayName, mainTokenSymbol: sourceNetworkSymbol, blockchainIconName: sourceTokenItem.blockchain.iconNameFilled)
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
+            let message = Localization.expressErrorCode(occurredError.codeCase.rawValue)
             event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: occurredError.localizedDescription)
         case .requiredRefresh(let occurredError):
-            event = .refreshRequired(title: Localization.commonError, message: occurredError.localizedDescription)
+            let message = Localization.swappingErrorWrapper(occurredError.localizedDescription)
+            event = .refreshRequired(title: Localization.commonError, message: message)
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceTokenItemSymbol)
         }
