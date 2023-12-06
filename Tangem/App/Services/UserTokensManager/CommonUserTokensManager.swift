@@ -205,7 +205,7 @@ extension CommonUserTokensManager: UserTokensManager {
             if self.shouldLoadSwapAvailability {
                 self.swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: true)
             }
-            
+
             self.walletModelsManager.updateAll(silent: false, completion: completion)
         }
     }
