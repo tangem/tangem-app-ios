@@ -9,6 +9,8 @@
 import Foundation
 
 public struct ExpressProvider: Hashable {
+    public typealias Id = String
+
     public let id: Id
     public let name: String
     public let url: URL?
@@ -19,28 +21,5 @@ public struct ExpressProvider: Hashable {
         self.name = name
         self.url = url
         self.type = type
-    }
-}
-
-public extension ExpressProvider {
-    enum Id: String, Hashable {
-        case changeNow = "changenow"
-        case oneInch = "1inch"
-
-        internal init(_ id: ExpressDTO.Provider.Id) {
-            switch id {
-            case .changeNow:
-                self = .changeNow
-            case .oneInch:
-                self = .oneInch
-            }
-        }
-
-        internal var requestId: ExpressDTO.Provider.Id {
-            switch self {
-            case .changeNow: return .changeNow
-            case .oneInch: return .oneInch
-            }
-        }
     }
 }
