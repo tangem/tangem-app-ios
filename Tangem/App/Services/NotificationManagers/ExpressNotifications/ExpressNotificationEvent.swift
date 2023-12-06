@@ -18,6 +18,8 @@ enum ExpressNotificationEvent {
     case notEnoughBalanceToSwap(maximumAmountText: String)
     case noDestinationTokens(sourceTokenName: String)
     case highPriceImpact
+    case verificationRequired
+    case cexOperationFailed
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -39,6 +41,10 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressNoExchangeableCoinsTitle
         case .highPriceImpact:
             return Localization.swappingHighPriceImpact
+        case .verificationRequired:
+            return Localization.expressExchangeNotificationVerificationTitle
+        case .cexOperationFailed:
+            return Localization.expressExchangeNotificationFailedTitle
         }
     }
 
@@ -60,6 +66,10 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressNoExchangeableCoinsDescription(sourceTokenName)
         case .highPriceImpact:
             return Localization.swappingHighPriceImpactDescription
+        case .verificationRequired:
+            return Localization.expressExchangeNotificationVerificationText
+        case .cexOperationFailed:
+            return Localization.expressExchangeNotificationFailedText
         }
     }
 
@@ -67,7 +77,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .permissionNeeded, .hasPendingTransaction, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .noDestinationTokens, .highPriceImpact:
             return .secondary
-        case .notEnoughFeeForTokenTx, .refreshRequired:
+        case .notEnoughFeeForTokenTx, .refreshRequired, .verificationRequired, .cexOperationFailed:
             return .primary
         }
     }
@@ -76,13 +86,13 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .permissionNeeded:
             return .init(iconType: .image(Assets.swapLock.image))
-        case .refreshRequired, .noDestinationTokens, .highPriceImpact:
+        case .refreshRequired, .noDestinationTokens, .highPriceImpact, .verificationRequired:
             return .init(iconType: .image(Assets.attention.image))
         case .hasPendingTransaction:
             return .init(iconType: .progressView)
         case .notEnoughFeeForTokenTx(_, _, let blockchainIconName):
             return .init(iconType: .image(Image(blockchainIconName)))
-        case .notEnoughAmountToSwap, .notEnoughBalanceToSwap:
+        case .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .cexOperationFailed:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         }
     }
@@ -93,6 +103,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .openNetworkCurrency(currencySymbol: mainTokenSymbol)
         case .refreshRequired:
             return .refresh
+        case .verificationRequired, .cexOperationFailed:
+            return .goToProvider
         default:
             return nil
         }
@@ -109,7 +121,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var removingOnFullLoadingState: Bool {
         switch self {
-        case .noDestinationTokens, .refreshRequired:
+        case .noDestinationTokens, .refreshRequired, .verificationRequired, .cexOperationFailed:
             return false
         case .permissionNeeded, .hasPendingTransaction, .notEnoughFeeForTokenTx, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .highPriceImpact:
             return true
