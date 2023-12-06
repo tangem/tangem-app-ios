@@ -13,8 +13,12 @@ public struct ExpressAPIError: Decodable, LocalizedError, Error {
     let description: String?
     let value: Value?
 
-    public var codeCase: CodeCase? {
-        code.map { CodeCase(rawValue: $0) ?? .unknown }
+    public var codeCase: CodeCase {
+        if let code, let codeCase = CodeCase(rawValue: code) {
+            return codeCase
+        }
+
+        return .unknown
     }
 
     public var errorDescription: String? {
@@ -33,7 +37,7 @@ public extension ExpressAPIError {
     }
 
     enum CodeCase: Int, Decodable {
-        case unknown
+        case unknown = -1
 
         // Service
         case serverError = 2000
