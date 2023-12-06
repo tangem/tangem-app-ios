@@ -90,6 +90,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
                     content()
                         .readContentOffset(
                             inCoordinateSpace: .named(coordinateSpaceName),
+                            throttleInterval: .standard,
                             bindTo: stateObject.contentOffsetSubject.asWriteOnlyBinding(.zero)
                         )
 
