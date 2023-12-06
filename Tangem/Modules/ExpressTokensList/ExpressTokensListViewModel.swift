@@ -33,6 +33,8 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     private var availableWalletModels: [WalletModel] = []
     private var unavailableWalletModels: [WalletModel] = []
     private var bag: Set<AnyCancellable> = []
+    // For Analytics
+    private var isTokenChosen: Bool = false
 
     init(
         swapDirection: SwapDirection,
@@ -48,6 +50,11 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         bind()
+        Analytics.log(.swapChooseTokenScreenOpened) // [REDACTED_TODO_COMMENT]
+    }
+
+    func onDisappear() {
+        Analytics.log(.swapChooseTokenScreenResult, params: [.tokenChosen: isTokenChosen ? .yes : .no])
     }
 }
 
@@ -172,6 +179,8 @@ private extension ExpressTokensListViewModel {
     }
 
     func userDidTap(on walletModel: WalletModel) {
+        Analytics.log(event: .swapSearchedTokenClicked, params: [.token: walletModel.tokenItem.currencySymbol])
+
         switch swapDirection {
         case .fromSource:
             expressInteractor.update(destination: walletModel)
@@ -179,6 +188,7 @@ private extension ExpressTokensListViewModel {
             expressInteractor.update(sender: walletModel)
         }
 
+        isTokenChosen = true
         coordinator.closeExpressTokensList()
     }
 }
