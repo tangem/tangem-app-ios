@@ -15,6 +15,8 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
 
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
+    @Environment(\.statusBarStyleConfigurator) private var statusBarStyleConfigurator
+
     @State private var overlayHeight: CGFloat = .zero
 
     @State private var isHidden = true
@@ -51,6 +53,10 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             }
             .ignoresSafeArea(edges: .bottom)
             .onAppear(perform: stateObject.onAppear)
+            .onDisappear { statusBarStyleConfigurator.setSelectedStatusBarColorScheme(nil, animated: true) }
+            .onChange(of: stateObject.preferredStatusBarColorScheme) { newValue in
+                statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
+            }
             .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
         }
         .ignoresSafeArea(edges: .bottom)
