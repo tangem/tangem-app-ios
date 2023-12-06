@@ -65,14 +65,14 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         dataSource = ManageTokensNetworkDataSource(parentDataSource)
 
         bind()
-        displayNotificationIfNeededWithCheckCondition()
+        setupNotificationWithCheckCoinCondition()
+
+        reloadSelectorItemsFromTokenItems()
     }
 
     // MARK: - Implementation
 
-    func onAppear() {
-        reloadSelectorItemsFromTokenItems()
-    }
+    func onAppear() {}
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
@@ -92,7 +92,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private func bind() {
-        dataSource._selectedUserWalletModel
+        dataSource.selectedUserWalletModelPublisher
             .sink { [weak self] userWalletModel in
                 self?.setNeedSelectWallet(userWalletModel)
             }
@@ -135,8 +135,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             }
     }
 
-    /// This method that shows a notification result if the condition is single currency
-    private func displayNotificationIfNeededWithCheckCondition() {
+    /// This method that shows a configure notification input result if the condition is single currency by coinId
+    private func setupNotificationWithCheckCoinCondition() {
         if isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: false) {
             displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
         } else {
