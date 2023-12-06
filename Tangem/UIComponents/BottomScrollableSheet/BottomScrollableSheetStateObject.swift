@@ -12,9 +12,9 @@ import UIKit
 import Combine
 
 final class BottomScrollableSheetStateObject: ObservableObject {
-    @Published var scrollViewIsDragging: Bool = false
+    @Published private(set) var scrollViewIsDragging: Bool = false
 
-    @Published var visibleHeight: CGFloat = .zero
+    @Published private(set) var visibleHeight: CGFloat = .zero
 
     @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
 
