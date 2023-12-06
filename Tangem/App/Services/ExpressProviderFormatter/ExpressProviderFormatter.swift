@@ -72,6 +72,7 @@ struct ExpressProviderFormatter {
 
     func mapToProvider(provider: ExpressProvider) -> ProviderRowViewModel.Provider {
         ProviderRowViewModel.Provider(
+            id: provider.id,
             iconURL: provider.url,
             name: provider.name,
             type: provider.type.rawValue.uppercased()
