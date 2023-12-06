@@ -2995,12 +2995,12 @@
 				B0958BA529F6B698007CD76D /* UIComponents */,
 				B0CC817C25CD626A006D49B9 /* Resources */,
 				EF2EFDE02865BFE800798051 /* Configurations */,
+				5D3F77CD24BF56DC00E8695B /* Preview Content */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
-				DC751ADB2ABB750A0039A4D2 /* Tangem-Bridging-Header.h */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
+				DC751ADB2ABB750A0039A4D2 /* Tangem-Bridging-Header.h */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */,
-				5D3F77CD24BF56DC00E8695B /* Preview Content */,
 			);
 			path = Tangem;
 			sourceTree = "<group>";
