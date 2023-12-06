@@ -23,7 +23,8 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
 
     @Binding private var item: Item?
 
-    private let stateObject: Sheet.StateObject
+    @State private var showBottomSheet = false
+
     private let settings: Sheet.Settings
     private var sheetContent: (Item) -> ContentView
 
@@ -32,34 +33,69 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
 
     init(
         item: Binding<Item?>,
-        stateObject: Sheet.StateObject,
         settings: Sheet.Settings,
         sheetContent: @escaping (Item) -> ContentView
     ) {
         _item = item
-        self.stateObject = stateObject
         self.settings = settings
         self.sheetContent = sheetContent
     }
 
     func body(content: Content) -> some View {
+//        if #available(iOS 16.0, *) {
+//            content
+//                .sheet(isPresented: $showBottomSheet) {
+//                    if let item = item {
+//                        DetentBottomSheetContainer(settings: settings) {
+//                            sheetContent(item)
+//                        }
+//                        .presentationDragIndicator(.hidden)
+//                        .presentationDetents([.medium, .large])
+//                    }
+//                }.onChange(of: item?.id) { _ in
+//                    showBottomSheet = true
+//                }
+//        } else {
+//            content
+//                .onChange(of: item?.id) { _ in
+//                    sheetPresentationControllerUpdate(item: item)
+//                }
+//        }
         content
-            .onChange(of: item?.id) { _ in update(item: item) }
+            .onChange(of: item?.id) { _ in
+                sheetPresentationControllerUpdate(item: item)
+            }
     }
 
-    func update(item: Item?) {
+    // MARK: - iOS16 UIKit Implementation BottomSheet
+
+    @available(iOS 16.0, *)
+    func sheetUpdate(item: Item?, on content: Content) -> some View {
+        content
+            .sheet(isPresented: $showBottomSheet) {
+                if let item = item {
+                    DetentBottomSheetContainer(settings: settings) {
+                        sheetContent(item)
+                    }
+                    .presentationDragIndicator(.hidden)
+                    .presentationDetents([.medium])
+                }
+            }
+    }
+
+    // MARK: - iOS15 UIKit Implementation BottomSheet
+
+    func sheetPresentationControllerUpdate(item: Item?) {
         if let item = item {
             let controller = updateUIController(item: item)
             showController(controller)
         } else {
-            sheet?.hideView {
-                hideController()
-            }
+            hideController()
         }
     }
 
     func updateUIController(item: Item) -> UIHostingController<Sheet> {
-        let sheet = DetentBottomSheetContainer(stateObject: stateObject, settings: settings) {
+        let sheet = DetentBottomSheetContainer(settings: settings) {
             sheetContent(item)
         }
 
@@ -69,12 +105,8 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
         controller.view.backgroundColor = .clear
 
         if let sheet = controller.sheetPresentationController {
-            sheet.detents = settings.detents
+            sheet.detents = [.large(), .medium()]
             sheet.preferredCornerRadius = settings.cornerRadius
-        }
-
-        stateObject.viewDidHidden = {
-            hideController()
         }
 
         // Save the controller for dismiss it when it will be needed
@@ -84,9 +116,7 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
     }
 
     func showController(_ controller: UIViewController) {
-        UIApplication.modalFromTop(controller, animated: false) {
-            sheet?.showView()
-        }
+        UIApplication.modalFromTop(controller, animated: true)
     }
 
     func hideController() {
