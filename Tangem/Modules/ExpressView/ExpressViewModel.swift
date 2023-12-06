@@ -176,6 +176,7 @@ private extension ExpressViewModel {
     }
 
     func presentProviderSelectorView() {
+        Analytics.log(.swapProviderClicked)
         coordinator.presentProviderSelectorView()
     }
 }
