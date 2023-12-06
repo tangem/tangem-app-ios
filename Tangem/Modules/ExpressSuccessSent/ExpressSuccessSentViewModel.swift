@@ -53,11 +53,25 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         self.providerFormatter = providerFormatter
         self.feeFormatter = feeFormatter
         self.coordinator = coordinator
+
         setupView()
+        Analytics.log(
+            event: .swapSwapInProgressScreenOpened,
+            params: [
+                .provider: data.provider.name,
+                .commission: data.feeOption.rawValue.capitalizingFirstLetter(),
+                .sendToken: data.source.tokenItem.currencySymbol,
+                .receiveToken: data.destination.tokenItem.currencySymbol,
+            ]
+        )
     }
 
     func openExplore() {
-        let exploreURL = data.source.exploreTransactionURL(for: data.hash)
+        guard let exploreURL = data.source.exploreTransactionURL(for: data.hash) else {
+            return
+        }
+
+        Analytics.log(event: .swapButtonExplore, params: [.token: data.source.tokenItem.currencySymbol])
         let title = Localization.commonExplorerFormat(data.source.name)
         coordinator.openWebView(url: exploreURL, title: title)
     }
@@ -66,6 +80,8 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         guard let externalTxUrl = data.expressTransactionData.externalTxUrl.map(URL.init(string:)) else {
             return
         }
+
+        Analytics.log(event: .swapButtonStatus, params: [.token: data.source.tokenItem.currencySymbol])
 
         let title = Localization.commonExplorerFormat(data.source.name)
         coordinator.openWebView(url: externalTxUrl, title: title)
