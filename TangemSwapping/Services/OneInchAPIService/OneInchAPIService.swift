@@ -12,64 +12,70 @@ import Moya
 struct OneInchAPIService: OneInchAPIServicing {
     private let provider: MoyaProvider<OneInchBaseTarget>
     private let logger: SwappingLogger
+    private let oneInchApiKey: String
 
-    init(logger: SwappingLogger, configuration: URLSessionConfiguration = .oneInchURLConfiguration) {
+    init(
+        logger: SwappingLogger,
+        configuration: URLSessionConfiguration = .oneInchURLConfiguration,
+        oneInchApiKey: String
+    ) {
         self.logger = logger
         let session = Session(configuration: configuration)
         provider = MoyaProvider<OneInchBaseTarget>(session: session)
+        self.oneInchApiKey = oneInchApiKey
     }
 
     func healthCheck(blockchain: SwappingBlockchain) async -> Result<HealthCheck, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: HealthCheckTarget.healthCheck, blockchain: blockchain)
+            target: OneInchBaseTarget(target: HealthCheckTarget.healthCheck, blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func tokens(blockchain: SwappingBlockchain) async -> Result<TokensList, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: InfoTarget.tokens, blockchain: blockchain)
+            target: OneInchBaseTarget(target: InfoTarget.tokens, blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func presets(blockchain: SwappingBlockchain) async -> Result<PresetsConfiguration, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: InfoTarget.presets, blockchain: blockchain)
+            target: OneInchBaseTarget(target: InfoTarget.presets, blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func liquiditySources(blockchain: SwappingBlockchain) async -> Result<LiquiditySourcesList, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: InfoTarget.liquiditySources, blockchain: blockchain)
+            target: OneInchBaseTarget(target: InfoTarget.liquiditySources, blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func quote(blockchain: SwappingBlockchain, parameters: QuoteParameters) async -> Result<QuoteData, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: SwappingTarget.quote(parameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: SwappingTarget.quote(parameters), blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func swap(blockchain: SwappingBlockchain, parameters: SwappingParameters) async -> Result<SwappingData, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: SwappingTarget.swap(parameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: SwappingTarget.swap(parameters), blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func spender(blockchain: SwappingBlockchain) async -> Result<ApproveSpender, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: ApproveTarget.spender, blockchain: blockchain)
+            target: OneInchBaseTarget(target: ApproveTarget.spender, blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func approveTransaction(blockchain: SwappingBlockchain, approveTransactionParameters: ApproveTransactionParameters) async -> Result<ApprovedTransactionData, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: ApproveTarget.transaction(approveTransactionParameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: ApproveTarget.transaction(approveTransactionParameters), blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 
     func allowance(blockchain: SwappingBlockchain, allowanceParameters: ApproveAllowanceParameters) async -> Result<ApprovedAllowance, SwappingProviderError> {
         await request(
-            target: OneInchBaseTarget(target: ApproveTarget.allowance(allowanceParameters), blockchain: blockchain)
+            target: OneInchBaseTarget(target: ApproveTarget.allowance(allowanceParameters), blockchain: blockchain, oneInchApiKey: oneInchApiKey)
         )
     }
 }
