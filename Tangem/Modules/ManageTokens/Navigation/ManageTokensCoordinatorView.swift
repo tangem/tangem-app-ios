@@ -18,44 +18,47 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 ManageTokensView(viewModel: model)
                     .onAppear(perform: model.onAppear)
 
-                sheets
+                if #available(iOS 15.0, *) {
+                    ios15Sheets
+                } else {
+                    ios14Sheets
+                }
             }
         }
     }
 
+    @available(iOS 15.0, *)
     @ViewBuilder
-    private var sheets: some View {
-        if #available(iOS 15.0, *) {
-            NavHolder()
-                .detentBottomSheet(
-                    item: $coordinator.networkSelectorViewModel,
-                    settings: .init(
-                        detents: [.large()],
-                        backgroundColor: Colors.Background.primary
-                    )
-                ) { viewModel in
-                    NavigationView {
-                        ZStack {
-                            ManageTokensNetworkSelectorView(viewModel: viewModel)
-
-                            links
-                        }
-                    }
-                    .navigationViewStyle(.stack)
+    private var ios15Sheets: some View {
+        NavHolder()
+            .detentBottomSheet(
+                item: $coordinator.networkSelectorViewModel,
+                settings: .init(
+                    detents: [.large],
+                    backgroundColor: Colors.Background.primary
+                )
+            ) { viewModel in
+                NavigationView {
+                    ManageTokensNetworkSelectorView(viewModel: viewModel)
+                        .navigationLinks(links)
                 }
-        } else {
-            NavHolder()
-                .sheet(item: $coordinator.networkSelectorViewModel) { viewModel in
-                    NavigationView {
-                        ZStack {
-                            ManageTokensNetworkSelectorView(viewModel: viewModel)
+                .navigationViewStyle(.stack)
+            }
+    }
 
-                            links
-                        }
+    @ViewBuilder
+    private var ios14Sheets: some View {
+        NavHolder()
+            .sheet(item: $coordinator.networkSelectorViewModel) { viewModel in
+                NavigationView {
+                    ZStack {
+                        ManageTokensNetworkSelectorView(viewModel: viewModel)
+
+                        links
                     }
-                    .navigationViewStyle(.stack)
                 }
-        }
+                .navigationViewStyle(.stack)
+            }
     }
 
     @ViewBuilder
