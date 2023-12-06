@@ -47,7 +47,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .permissionNeeded(let currencyCode):
             return Localization.swappingPermissionSubheader(currencyCode)
         case .refreshRequired(_, let message):
-            return Localization.swappingErrorWrapper(message)
+            return message
         case .hasPendingTransaction:
             return Localization.swappingPendingTransactionSubtitle
         case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
