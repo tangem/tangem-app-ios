@@ -26,6 +26,7 @@
 		2D805ECA29ADE17100C030F7 /* ExchangeButtonStateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */; };
 		2D9BC02A2B1F87EF0033FA21 /* DetentBottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */; };
 		2D9BC02D2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */; };
+		2D9BC02F2B20743D0033FA21 /* View+DetentBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9BC02E2B20743D0033FA21 /* View+DetentBottomSheet.swift */; };
 		2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */; };
 		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
 		2DC567632B0DFFAF00B0244F /* ManageTokensItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5675A2B0DFFAF00B0244F /* ManageTokensItemView.swift */; };
@@ -1357,6 +1358,7 @@
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
 		2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetModifier.swift; sourceTree = "<group>"; };
 		2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetContainer.swift; sourceTree = "<group>"; };
+		2D9BC02E2B20743D0033FA21 /* View+DetentBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+DetentBottomSheet.swift"; sourceTree = "<group>"; };
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2DC5675A2B0DFFAF00B0244F /* ManageTokensItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensItemView.swift; sourceTree = "<group>"; };
@@ -2775,6 +2777,7 @@
 			children = (
 				2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */,
 				2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */,
+				2D9BC02E2B20743D0033FA21 /* View+DetentBottomSheet.swift */,
 			);
 			path = DetentBottonSheet;
 			sourceTree = "<group>";
@@ -7865,6 +7868,7 @@
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
 				DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */,
 				B68907852A32482F00A0D246 /* ForEach+.swift in Sources */,
+				2D9BC02F2B20743D0033FA21 /* View+DetentBottomSheet.swift in Sources */,
 				B6ED082C2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift in Sources */,
 				2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */,
 				DA559C322B0261F400F59584 /* SendModel.swift in Sources */,
