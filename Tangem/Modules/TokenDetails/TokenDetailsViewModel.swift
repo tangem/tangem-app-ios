@@ -24,6 +24,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
     private unowned let coordinator: TokenDetailsRoutable
+    private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+
     private var bag = Set<AnyCancellable>()
     private var notificatioChangeSubscription: AnyCancellable?
 
@@ -55,10 +57,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
+        pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         coordinator: TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable
     ) {
         self.coordinator = coordinator
+        self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         super.init(
             userWalletModel: cardModel,
             walletModel: walletModel,
@@ -69,6 +73,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
 
         prepareSelf()
+    }
+
+    deinit {
+        print("TokenDetailsViewModel deinit")
     }
 
     func onAppear() {
@@ -160,45 +168,18 @@ private extension TokenDetailsViewModel {
             }
             .store(in: &bag)
 
-        expressPendingTxRepository.pendingTransactionsPublisher
-            .receive(on: DispatchQueue.main)
+        pendingExpressTransactionsManager.pendingTransactionsPublisher
             .withWeakCaptureOf(self)
-            .map { viewModel, records in
-                let blockchainNetwork = viewModel.walletModel.blockchainNetwork
-                let tokenItem = viewModel.walletModel.tokenItem
-                let filteredRecords = records.filter { txRecord in
-                    guard txRecord.userWalletId == viewModel.userWalletModel.userWalletId.stringValue else {
-                        return false
-                    }
+            .map { viewModel, pendingTxs in
+                let factory = PendingExpressTransactionsConverter()
 
-                    let isSameBlockchain = txRecord.sourceTokenTxInfo.blockchainNetwork == blockchainNetwork
-                        || txRecord.destinationTokenTxInfo.blockchainNetwork == blockchainNetwork
-                    let isSameTokenItem = txRecord.sourceTokenTxInfo.tokenItem == tokenItem
-                        || txRecord.destinationTokenTxInfo.tokenItem == tokenItem
-
-                    return isSameBlockchain && isSameTokenItem
-                }
-
-                return (viewModel, filteredRecords)
+                return factory.convertToTokenDetailsPendingTxInfo(
+                    pendingTxs,
+                    tapAction: weakify(viewModel, forFunction: TokenDetailsViewModel.didTapPendingExpressTransaction(with:))
+                )
             }
-            .sink { viewModel, records in
-                let iconBuilder = TokenIconInfoBuilder()
-                viewModel.pendingExpressTransactions = records.map {
-                    let sourceTokenItem = $0.sourceTokenTxInfo.tokenItem
-                    let destinationTokenItem = $0.destinationTokenTxInfo.tokenItem
-                    return .init(
-                        id: $0.expressTransactionId,
-                        providerName: $0.provider.name,
-                        sourceIconInfo: iconBuilder.build(from: sourceTokenItem, isCustom: $0.sourceTokenTxInfo.isCustom),
-                        sourceAmountText: "\($0.sourceTokenTxInfo.amount) \(sourceTokenItem.currencySymbol)",
-                        destinationIconInfo: iconBuilder.build(from: destinationTokenItem, isCustom: $0.destinationTokenTxInfo.isCustom),
-                        destinationCurrencySymbol: destinationTokenItem.currencySymbol,
-                        state: .inProgress
-                    ) { transactionId in
-                        print("Attempting to open pending tx with id: \(transactionId)")
-                    }
-                }
-            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -217,6 +198,10 @@ private extension TokenDetailsViewModel {
             // User can't reach this screen without derived keys
             balance = .failedToLoad(error: "")
         }
+    }
+
+    private func didTapPendingExpressTransaction(with id: String) {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
