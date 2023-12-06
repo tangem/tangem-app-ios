@@ -111,7 +111,7 @@ class ExpressNotificationManager {
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
             let message = Localization.expressErrorCode(occurredError.codeCase.rawValue)
-            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: occurredError.localizedDescription)
+            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
         case .requiredRefresh(let occurredError):
             let message = Localization.swappingErrorWrapper(occurredError.localizedDescription)
             event = .refreshRequired(title: Localization.commonError, message: message)
