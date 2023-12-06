@@ -16,6 +16,7 @@ struct CommonUserTokensManager {
 
     let derivationManager: DerivationManager?
 
+    private let shouldLoadSwapAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
@@ -24,12 +25,14 @@ struct CommonUserTokensManager {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        shouldLoadSwapAvailability: Bool,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
         cardDerivableProvider: CardDerivableProvider
     ) {
+        self.shouldLoadSwapAvailability = shouldLoadSwapAvailability
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
@@ -76,6 +79,8 @@ struct CommonUserTokensManager {
     }
 
     private mutating func bind() {
+        guard shouldLoadSwapAvailability else { return }
+
         userTokenListManager
             .userTokensListPublisher
             // We can skip first element, because swap state will be loaded during `sync`
@@ -196,7 +201,11 @@ extension CommonUserTokensManager: UserTokensManager {
             let converter = StorageEntryConverter()
             let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
             let tokenItems = converter.convertToTokenItem(nonCustomTokens)
-            self.swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: true)
+
+            if self.shouldLoadSwapAvailability {
+                self.swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: true)
+            }
+            
             self.walletModelsManager.updateAll(silent: false, completion: completion)
         }
     }
