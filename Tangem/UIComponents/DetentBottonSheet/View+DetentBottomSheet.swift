@@ -1,5 +1,5 @@
 //
-//  View+BottomSheet.swift
+//  View+DetentBottomSheet.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -14,17 +14,16 @@ extension View {
     ///   - settings: You can setup the sheet's appearance
     ///   - stateObject: You can use custom`Sheet.StateObject` for tracking the sheet changes
     ///   - sheetContent: View for `sheetContent`
+    @available(iOS 15.0, *)
     @ViewBuilder
-    func bottomSheet<Item: Identifiable, ContentView: View>(
+    func detentBottomSheet<Item: Identifiable, ContentView: View>(
         item: Binding<Item?>,
-        settings: BottomSheetContainer<ContentView>.Settings = .init(),
-        stateObject: BottomSheetContainer<ContentView>.StateObject = .init(),
+        settings: DetentBottomSheetContainer<ContentView>.Settings = .init(),
         @ViewBuilder sheetContent: @escaping (Item) -> ContentView
     ) -> some View {
         modifier(
-            BottomSheetModifier(
+            DetentBottomSheetModifier(
                 item: item,
-                stateObject: stateObject,
                 settings: settings,
                 sheetContent: sheetContent
             )
