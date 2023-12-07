@@ -125,7 +125,6 @@ private extension SwappingApproveViewModel {
             mainButtonIsDisabled = true
         default:
             AppLog.shared.debug("Wrong state for this view \(state)")
-            updateFeeAmount(fees: state.fees)
             isLoading = false
             mainButtonIsDisabled = true
         }
