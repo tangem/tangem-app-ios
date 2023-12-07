@@ -1,5 +1,5 @@
 //
-//  CommonRateAppService.swift
+//  LegacyRateAppService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import StoreKit
 
-class CommonRateAppService {
+class LegacyRateAppService {
     private(set) var shouldShowRateAppWarning: Bool = false
     private let positiveBalanceTimeThreshold: TimeInterval = 3600 * 24 * 3
     private let positiveBalanceLaunchThreshold: Int = 3
@@ -44,7 +44,9 @@ class CommonRateAppService {
     }
 }
 
-extension CommonRateAppService: RateAppService {
+// MARK: - RateAppService protocol conformance
+
+extension LegacyRateAppService: RateAppService {
     var shouldCheckBalanceForRateApp: Bool {
         !(AppSettings.shared.didUserRespondToRateApp ||
             AppSettings.shared.positiveBalanceAppearanceLaunch != nil)
@@ -74,5 +76,18 @@ extension CommonRateAppService: RateAppService {
 
         AppSettings.shared.positiveBalanceAppearanceDate = Date()
         AppSettings.shared.positiveBalanceAppearanceLaunch = AppSettings.shared.numberOfLaunches
+    }
+}
+
+// MARK: - Dependency injection
+
+private struct RateAppServiceKey: InjectionKey {
+    static var currentValue: RateAppService = LegacyRateAppService()
+}
+
+extension InjectedValues {
+    var rateAppService: RateAppService {
+        get { Self[RateAppServiceKey.self] }
+        set { Self[RateAppServiceKey.self] = newValue }
     }
 }
