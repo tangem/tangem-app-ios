@@ -35,7 +35,9 @@ struct WalletSelectorView_Previews: PreviewProvider {
         private var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
         var itemViewModels: [WalletSelectorItemViewModel] = []
-        var selectedUserWalletModelPublisher: AnyPublisher<UserWalletModel?, Never> { _selectedUserWalletModel.eraseToAnyPublisher() }
+        var selectedUserWalletModelPublisher: AnyPublisher<UserWalletId?, Never> {
+            _selectedUserWalletModel.map { $0?.userWalletId }.eraseToAnyPublisher()
+        }
     }
 
     static var previews: some View {
