@@ -27,7 +27,7 @@ struct LegacyTokenListView: View {
         .toast(isPresenting: $viewModel.showToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.contractAddressCopiedMessage)
         }
-        .searchableCompat(text: $viewModel.enteredSearchText.value)
+        .searchableCompatWithoutCorrection(text: $viewModel.enteredSearchText.value)
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
@@ -38,6 +38,8 @@ struct LegacyTokenListView: View {
             LazyVStack {
                 if #available(iOS 15.0, *) {} else {
                     SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
+                        .keyboardType(.alphabet)
+                        .disableAutocorrection(true)
                         .padding(.horizontal, 8)
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
