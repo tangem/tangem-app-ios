@@ -17,7 +17,7 @@ final class ManageTokensViewModel: ObservableObject {
 
     @Published var alert: AlertBinder?
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
-    @Published var isLoading: Bool = true
+    @Published var isShowAddCustomToken: Bool = true
 
     // MARK: - Properties
 
@@ -66,6 +66,7 @@ final class ManageTokensViewModel: ObservableObject {
 
 private extension ManageTokensViewModel {
     func fetch(with searchText: String = "") {
+        isShowAddCustomToken = false
         loader.fetch(searchText)
     }
 
@@ -157,7 +158,8 @@ private extension ManageTokensViewModel {
                 guard let self = self else {
                     return
                 }
-
+                
+                isShowAddCustomToken = true
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
             })
