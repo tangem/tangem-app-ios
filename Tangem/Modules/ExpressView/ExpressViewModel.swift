@@ -512,20 +512,6 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToMessage(error: Error) -> String {
-        AppLog.shared.debug("ExpressViewModel catch error: ")
-        AppLog.shared.error(error)
-
-        switch error {
-        case let error as ExpressManagerError:
-            return error.localizedDescription
-        case let error as ExpressInteractorError:
-            return error.localizedDescription
-        default:
-            return error.localizedDescription
-        }
-    }
-
     func mapToSwappingTokenIconViewModelState(wallet: WalletModel?) -> SwappingTokenIconView.State {
         guard let wallet = wallet else {
             return .loading
