@@ -25,6 +25,7 @@ class ExpressInteractor {
     // MARK: - Dependencies
 
     private let userWalletId: String
+    private let initialWallet: WalletModel
     private let expressManager: ExpressManager
     private let allowanceProvider: ExpressAllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -40,12 +41,11 @@ class ExpressInteractor {
     private let approvePolicy: ThreadSafeContainer<SwappingApprovePolicy> = .init(.unlimited)
     private let feeOption: ThreadSafeContainer<FeeOption> = .init(.market)
 
-    private let initialWallet: WalletModel
     private var updateStateTask: Task<Void, Error>?
 
     init(
         userWalletId: String,
-        sender: WalletModel,
+        initialWallet: WalletModel,
         expressManager: ExpressManager,
         allowanceProvider: ExpressAllowanceProvider,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -55,8 +55,7 @@ class ExpressInteractor {
         logger: SwappingLogger
     ) {
         self.userWalletId = userWalletId
-        self.initialWallet = sender
-        _swappingPair = .init(SwappingPair(sender: sender, destination: nil))
+        self.initialWallet = initialWallet
         self.expressManager = expressManager
         self.allowanceProvider = allowanceProvider
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
@@ -65,6 +64,7 @@ class ExpressInteractor {
         self.signer = signer
         self.logger = logger
 
+        _swappingPair = .init(SwappingPair(sender: initialWallet, destination: nil))
         loadDestinationIfNeeded()
     }
 }
@@ -579,8 +579,8 @@ private extension ExpressInteractor {
                 try Task.checkCancellation()
 
                 updateState(state)
-            } catch let error is ExpressAPIError {
-                
+            } catch let error as ExpressAPIError {
+                await logExpressError(error)
             } catch {
                 if error is CancellationError || Task.isCancelled {
                     // Do nothing
@@ -641,8 +641,20 @@ private extension ExpressInteractor {
         if let destination = getDestination() {
             parameters[.receiveToken] = destination.tokenItem.currencySymbol
         }
-        
+
         Analytics.log(event: event, params: parameters)
+    }
+
+    func logExpressError(_ error: ExpressAPIError) async {
+        var parameters: [Analytics.ParameterKey: String] = [
+            .token: initialWallet.tokenItem.currencySymbol,
+            .errorCode: error.errorCode.localizedDescription,
+        ]
+        if let provider = await getSelectedProvider() {
+            parameters[.provider] = provider.name
+        }
+
+        Analytics.log(event: .swapNoticeExpressError, params: parameters)
     }
 }
 
