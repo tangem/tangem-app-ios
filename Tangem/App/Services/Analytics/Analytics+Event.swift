@@ -192,6 +192,12 @@ extension Analytics {
 
         case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen Capture"
 
+        // MARK: Express
+
+        case tokenChangeNowStatus = "[Token] - ChangeNow Status"
+        case tokenChangeNowStatusScreenOpened = "[Token] - ChangeNow Status Opened"
+        case tokenChangeNowButtonGoToProvider = "[Token] - Button - Go To Provider"
+
         // MARK: - App settings
 
         case appSettingsAppThemeSwitched = "[Settings / App Settings] App Theme Swithed"
