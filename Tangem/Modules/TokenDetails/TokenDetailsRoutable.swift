@@ -14,6 +14,7 @@ protocol TokenDetailsRoutable: AnyObject {
     func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel)
     func openPendingExpressTransactionDetails(
         for pendingTransaction: PendingExpressTransaction,
+        tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
 }
