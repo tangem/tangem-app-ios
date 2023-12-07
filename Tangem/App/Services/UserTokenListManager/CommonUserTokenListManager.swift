@@ -75,6 +75,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
         let converter = StorageEntryConverter()
         return userTokensListSubject
+            .receive(on: DispatchQueue.main)
             .map { converter.convertToStorageEntries($0.entries) }
             .eraseToAnyPublisher()
     }
@@ -84,7 +85,9 @@ extension CommonUserTokenListManager: UserTokenListManager {
     }
 
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> {
-        userTokensListSubject.eraseToAnyPublisher()
+        userTokensListSubject
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     func update(with userTokenList: StoredUserTokenList) {
@@ -135,9 +138,8 @@ extension CommonUserTokenListManager: UserTokenListManager {
 private extension CommonUserTokenListManager {
     func notifyAboutTokenListUpdates(with userTokenList: StoredUserTokenList? = nil) {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
+        userTokensListSubject.send(updatedUserTokenList)
         DispatchQueue.main.async {
-            self.userTokensListSubject.send(updatedUserTokenList)
-
             if !self.initialized, self.tokenItemsRepository.containsFile {
                 self.initializedSubject.send(true)
             }
@@ -166,7 +168,7 @@ private extension CommonUserTokenListManager {
         let loadTokensPublisher = tangemApiService.loadTokens(for: userWalletId.hexString)
         let upgradeTokensPublisher = tryMigrateTokens().setFailureType(to: TangemAPIError.self)
 
-        self.loadTokensCancellable = loadTokensPublisher
+        loadTokensCancellable = loadTokensPublisher
             .combineLatest(upgradeTokensPublisher)
             .sink { [weak self] subscriberCompletion in
                 defer {
@@ -215,7 +217,7 @@ private extension CommonUserTokenListManager {
                 case .finished:
                     completions.forEach { $0(.success(())) }
                 case .failure(let error):
-                    self.pendingTokensToUpdate = listToUpdate
+                    pendingTokensToUpdate = listToUpdate
                     completions.forEach { $0(.failure(error)) }
                 }
             }
