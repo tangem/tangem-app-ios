@@ -31,6 +31,8 @@ actor CommonExpressManager {
     // 5. Here the provider with his quote which was selected from user
     private var selectedQuote: ExpectedQuote?
 
+    private var awaitingAllowanceSpenders = Set<String>()
+
     init(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
@@ -92,6 +94,10 @@ extension CommonExpressManager: ExpressManager {
 
     func update() async throws -> ExpressManagerState {
         try await updateState()
+    }
+
+    func didSentAllowanceTransaction(for spender: String) async {
+        awaitingAllowanceSpenders.insert(spender)
     }
 
     func requestData() async throws -> ExpressTransactionData {
@@ -325,10 +331,17 @@ private extension CommonExpressManager {
         // 2. Check Permission
 
         if let spender = quote.quote?.allowanceContract {
-            let isPermissionRequired = try await isPermissionRequired(request: request, for: spender)
+            do {
+                let isPermissionRequired = try await isPermissionRequired(request: request, for: spender)
 
-            if isPermissionRequired {
-                return .permissionRequired(spender: spender)
+                if isPermissionRequired {
+                    return .permissionRequired(spender: spender)
+                }
+            } catch let error as AllowanceProviderError {
+                if case .allowanceTransactionInProgress = error {
+                    return .permissionRequired(spender: spender)
+                }
+                throw error
             }
         }
 
@@ -364,6 +377,17 @@ private extension CommonExpressManager {
 
         let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
         logger.debug("\(request.pair.source) allowance - \(allowance)")
+
+        let allowanceTxWasSent = awaitingAllowanceSpenders.contains(spender)
+        let hasAllowance = allowance < request.amount
+        if allowanceTxWasSent {
+            if hasAllowance {
+                awaitingAllowanceSpenders.remove(spender)
+                return hasAllowance
+            } else {
+                throw AllowanceProviderError.allowanceTransactionInProgress
+            }
+        }
         return allowance < request.amount
     }
 }
