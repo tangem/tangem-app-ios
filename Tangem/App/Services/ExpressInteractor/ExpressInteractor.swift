@@ -40,6 +40,7 @@ class ExpressInteractor {
     private let approvePolicy: ThreadSafeContainer<SwappingApprovePolicy> = .init(.unlimited)
     private let feeOption: ThreadSafeContainer<FeeOption> = .init(.market)
 
+    private let initialWallet: WalletModel
     private var updateStateTask: Task<Void, Error>?
 
     init(
@@ -54,6 +55,7 @@ class ExpressInteractor {
         logger: SwappingLogger
     ) {
         self.userWalletId = userWalletId
+        self.initialWallet = sender
         _swappingPair = .init(SwappingPair(sender: sender, destination: nil))
         self.expressManager = expressManager
         self.allowanceProvider = allowanceProvider
@@ -334,8 +336,8 @@ private extension ExpressInteractor {
             Analytics.log(
                 event: .swapNoticeNotEnoughFee,
                 params: [
-                    .token: getSender().tokenItem.currencySymbol,
-                    .blockchain: getSender().tokenItem.blockchain.displayName,
+                    .token: initialWallet.tokenItem.currencySymbol,
+                    .blockchain: initialWallet.tokenItem.blockchain.displayName,
                 ]
             )
         }
@@ -577,7 +579,9 @@ private extension ExpressInteractor {
                 try Task.checkCancellation()
 
                 updateState(state)
-            } catch {
+            } catch let error is ExpressAPIError {
+                
+            }catch {
                 if error is CancellationError || Task.isCancelled {
                     // Do nothing
                     log("The update task was cancelled")
@@ -639,6 +643,14 @@ private extension ExpressInteractor {
         }
         
         Analytics.log(event: event, params: parameters)
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension ExpressInteractor: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
 
