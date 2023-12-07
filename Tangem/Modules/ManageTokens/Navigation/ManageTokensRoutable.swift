@@ -10,7 +10,6 @@ import Foundation
 
 protocol ManageTokensRoutable: AnyObject {
     func openAddCustomToken()
-    func openTokenSelector(coinId: String, with tokenItems: [TokenItem])
 
     func showGenerateAddressesWarning(
         numberOfNetworks: Int,
