@@ -56,9 +56,9 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
         case .twitter:
             return URL(string: "https://twitter.com/tangem")
         case .facebook:
-            return URL(string: "https://facebook.com/TangemCards/")
+            return URL(string: "https://www.facebook.com/tangemwallet")
         case .instagram:
-            return URL(string: "https://instagram.com/tangemcards")
+            return URL(string: "https://www.instagram.com/tangemwallet")
         case .youtube:
             return URL(string: "https://youtube.com/channel/UCFGwLS7yggzVkP6ozte0m1w")
         case .linkedin:
