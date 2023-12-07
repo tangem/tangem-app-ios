@@ -73,9 +73,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
-            transactionSender: nil,
-            fiatRatesProvider: nil,
-            swappingInteractor: nil,
             swappingFeeFormatter: swappingFeeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
@@ -98,6 +95,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
+            initialWallet: initialWalletModel,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
@@ -166,7 +164,7 @@ private extension CommonExpressModulesFactory {
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            sender: initialWalletModel,
+            initialWallet: initialWalletModel,
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
             expressPendingTransactionRepository: pendingTransactionRepository,
