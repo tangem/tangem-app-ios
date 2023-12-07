@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import struct TangemSwapping.ExpressAPIError
 
 class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
@@ -107,8 +108,12 @@ class ExpressNotificationManager {
             }
 
             event = .notEnoughFeeForTokenTx(mainTokenName: sourceTokenItem.blockchain.displayName, mainTokenSymbol: sourceNetworkSymbol, blockchainIconName: sourceTokenItem.blockchain.iconNameFilled)
+        case .requiredRefresh(let occurredError as ExpressAPIError):
+            // For only a express error we use "Service temporary unavailable"
+            let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
+            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
         case .requiredRefresh(let occurredError):
-            event = .refreshRequired(message: occurredError.localizedDescription)
+            event = .refreshRequired(title: Localization.commonError, message: occurredError.localizedDescription)
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceTokenItemSymbol)
         }
