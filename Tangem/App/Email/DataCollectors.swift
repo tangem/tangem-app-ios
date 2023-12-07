@@ -26,8 +26,10 @@ extension EmailDataCollector {
 
 private extension EmailDataCollector {
     func formatData(_ collectedInfo: [EmailCollectedData], appendDeviceInfo: Bool = true) -> Data? {
+        let sessionPrefix = "Session ID: \(AppConstants.sessionId)\n"
         let collectedString = collectedInfo.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
-        return collectedString.data(using: .utf8)
+        let messageToConvert = "\(sessionPrefix)\n\(collectedString)"
+        return messageToConvert.data(using: .utf8)
     }
 }
 
