@@ -248,8 +248,8 @@ private extension CommonExpressManager {
             case .success(let quote):
                 let isBest = best == quote
                 return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
-            case .failure(let error as ExpressDTO.ExpressAPIError):
-                if error.code == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
+            case .failure(let error as ExpressAPIError):
+                if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
                     return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
                 }
 
