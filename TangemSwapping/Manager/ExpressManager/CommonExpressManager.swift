@@ -143,6 +143,12 @@ private extension CommonExpressManager {
             return .restriction(restriction, quote: selectedQuote)
         }
 
+        // If we have only only on selectedQuote and it has an error state
+        // Then stop request's sequence
+        if let error = selectedQuote.error {
+            throw error
+        }
+
         switch selectedQuote.provider.type {
         case .dex:
             let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
@@ -253,9 +259,9 @@ private extension CommonExpressManager {
                     return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
                 }
 
-                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+                return ExpectedQuote(provider: provider, state: .error(error), isBest: false)
             case .failure(let error):
-                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+                return ExpectedQuote(provider: provider, state: .error(error), isBest: false)
             }
         }
 
@@ -267,13 +273,8 @@ private extension CommonExpressManager {
             return nil
         }
 
-        let availableQuotes = quotes.filter { $0.isAvailable }
-
-        guard !availableQuotes.isEmpty else {
-            return quotes.first(where: { $0.isError }) ?? quotes.first
-        }
-
-        return availableQuotes.first(where: { $0.isBest }) ?? availableQuotes.first
+        // Find the best in possible providers
+        return quotes.max(by: { $0.priority < $1.priority })
     }
 
     func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [ExpressProvider.Id]) async -> [ExpressProvider.Id: Result<ExpressQuote, Error>] {
