@@ -15,14 +15,3 @@ protocol RateAppService: AnyObject {
     func dismissRateAppWarning()
     func userReactToRateAppWarning(isPositive: Bool)
 }
-
-private struct RateAppServiceKey: InjectionKey {
-    static var currentValue: RateAppService = CommonRateAppService()
-}
-
-extension InjectedValues {
-    var rateAppService: RateAppService {
-        get { Self[RateAppServiceKey.self] }
-        set { Self[RateAppServiceKey.self] = newValue }
-    }
-}
