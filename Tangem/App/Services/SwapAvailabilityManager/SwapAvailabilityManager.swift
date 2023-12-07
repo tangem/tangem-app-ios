@@ -11,7 +11,7 @@ import Combine
 typealias SwapAvailabilityManager = SwapAvailabilityProvider & SwapAvailabilityController
 
 protocol SwapAvailabilityController {
-    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool)
+    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String)
 }
 
 protocol SwapAvailabilityProvider {
