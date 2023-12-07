@@ -113,6 +113,11 @@ private extension ExpressTokensListViewModel {
     }
 
     func loadAvailablePairs(walletModels: [WalletModel]) async throws -> [ExpressCurrency] {
+        // If walletModels contains another wallets
+        guard walletModels.contains(where: { $0 != self.swapDirection.wallet }) else {
+            return []
+        }
+
         let currencies = walletModels.map { $0.expressCurrency }
 
         switch swapDirection {
