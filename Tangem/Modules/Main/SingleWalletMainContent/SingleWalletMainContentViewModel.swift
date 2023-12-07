@@ -22,7 +22,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    private weak var mainViewDelegate: MainViewDelegate?
+    private weak var mainViewDelegate: MainViewDelegate? // [REDACTED_TODO_COMMENT]
 
     init(
         userWalletModel: UserWalletModel,
@@ -52,10 +52,23 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     private func bind() {
-        userWalletNotificationManager.notificationPublisher
+        let userWalletNotificationPublisher = userWalletNotificationManager
+            .notificationPublisher
             .receive(on: DispatchQueue.main)
-            .removeDuplicates()
+            .share(replay: 1)
+
+        userWalletNotificationPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        userWalletNotificationPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, notificationInputs in
+                viewModel.mainViewDelegate?.didChangeNotificationInputs(
+                    notificationInputs,
+                    forUserWalletWithId: viewModel.userWalletModel.userWalletId
+                )
+            }
             .store(in: &bag)
     }
 }
