@@ -73,9 +73,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
-            transactionSender: nil,
-            fiatRatesProvider: nil,
-            swappingInteractor: nil,
             swappingFeeFormatter: swappingFeeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
