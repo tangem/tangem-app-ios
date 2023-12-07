@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct ManageTokensAddCustomItemView: View {
-    let didTapGenerate: () -> Void
+    let didTapAction: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -29,7 +29,7 @@ struct ManageTokensAddCustomItemView: View {
         .contentShape(Rectangle())
         .animation(nil) // Disable animations on scroll reuse
         .onTapGesture {
-            didTapGenerate()
+            didTapAction()
         }
     }
 }
