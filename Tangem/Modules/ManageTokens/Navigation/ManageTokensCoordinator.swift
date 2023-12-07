@@ -25,7 +25,7 @@ class ManageTokensCoordinator: CoordinatorObject {
 
     @Published var networkSelectorViewModel: ManageTokensNetworkSelectorViewModel? = nil
     @Published var walletSelectorViewModel: WalletSelectorViewModel? = nil
-    
+
     // [REDACTED_TODO_COMMENT]
 //    [REDACTED_USERNAME] var addCustomTokenViewModel: AddCustomTokenViewModel? = nil
 
