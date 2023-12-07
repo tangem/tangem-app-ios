@@ -17,8 +17,10 @@ enum ExpressDTO {
     }
 
     struct Provider: Codable {
-        let providerId: Int
-        let rateType: RateType
+        typealias Id = String
+
+        let providerId: Id
+        let rateTypes: [RateType]
 
         enum RateType: String, Codable {
             case float
@@ -26,43 +28,17 @@ enum ExpressDTO {
         }
     }
 
-    struct APIError: Decodable, Error {
-        let code: Int
-        let description: String
-    }
-
-    enum TransactionType: String, Codable {
-        case send
-        case swap
-    }
-
-    enum TransactionStatus: String, Codable {
-        case processing
-        case done
-        case failed
-        case refunded
-        case verificationRequired
-    }
-
     // MARK: - Assets
 
     enum Assets {
         struct Request: Encodable {
-            let filter: Currency
+            let tokensList: [Currency]
         }
 
         struct Response: Decodable {
             let contractAddress: String
             let network: String
-            let token: String
-            let name: String
-            let symbol: String
-            let decimals: Int
-            let isActive: Bool?
             let exchangeAvailable: Bool
-            // Future
-            let onrampAvailable: Bool?
-            let offrampAvailable: Bool?
         }
     }
 
@@ -70,8 +46,8 @@ enum ExpressDTO {
 
     enum Pairs {
         struct Request: Encodable {
-            let from: Currency
-            let to: Currency
+            let from: [Currency]
+            let to: [Currency]
         }
 
         struct Response: Decodable {
@@ -85,16 +61,11 @@ enum ExpressDTO {
 
     enum Providers {
         struct Response: Decodable {
-            let id: Int
+            let id: Provider.Id
             let name: String
-            let type: ProviderType
+            let type: ExpressProviderType
             let imageLarge: String
             let imageSmall: String
-
-            enum ProviderType: String, Decodable {
-                case dex
-                case cex
-            }
         }
     }
 
@@ -106,16 +77,20 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
-            let fromAmount: Int
-            let providerId: Int
+            let toDecimals: Int
+            let fromAmount: String
+            let fromDecimals: Int
+            let providerId: Provider.Id
             let rateType: Provider.RateType
         }
 
         struct Response: Decodable {
-            let toAmount: Decimal
-            let minAmount: Decimal
+            let fromAmount: String
+            let fromDecimals: Int
+            let toAmount: String
+            let toDecimals: Int
+            let minAmount: String
             let allowanceContract: String?
-            let error: APIError?
         }
     }
 
@@ -127,15 +102,21 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
-            let fromAmount: Decimal
-            let providerId: Int
+            let toDecimals: Int
+            let fromAmount: String
+            let fromDecimals: Int
+            let providerId: Provider.Id
             let rateType: Provider.RateType
             let toAddress: String // address for receiving token
         }
 
         struct Response: Decodable {
-            let toAmount: Decimal
-            let txType: TransactionType
+            let fromAmount: String
+            let fromDecimals: Int
+            let toAmount: String
+            let toDecimals: Int
+
+            let txType: ExpressTransactionType
             // inner tangem-express transaction id
             let txId: String
             // account for debiting tokens (same as toAddress)
@@ -147,7 +128,7 @@ enum ExpressDTO {
             // transaction data
             let txData: String?
             // amount (same as fromAmount)
-            let txValue: Decimal
+            let txValue: String
             // CEX provider transaction id
             let externalTxId: String?
             // url of CEX porider exchange status page
@@ -155,18 +136,57 @@ enum ExpressDTO {
         }
     }
 
-    // MARK: - ExchangeResult
+    // MARK: - ExchangeStatus
 
-    enum ExchangeResult {
+    enum ExchangeStatus {
         struct Request: Encodable {
             let txId: String
         }
 
         struct Response: Decodable {
-            let status: TransactionStatus
-            let externalStatus: String
+            let providerId: Provider.Id
+            let externalTxId: String
+            let externalTxStatus: ExpressTransactionStatus
             let externalTxUrl: String
-            let errorCode: Int
+        }
+    }
+
+    // MARK: - Error
+
+    enum APIError {
+        struct Response: Decodable {
+            let error: ExpressAPIError
+        }
+    }
+
+    struct ExpressAPIError: Decodable, LocalizedError, Error {
+        let code: Code?
+        let description: String?
+        let value: MinAmountValue?
+
+        struct MinAmountValue: Decodable {
+            let minAmount: String
+            let decimals: Int
+
+            var amount: Decimal? {
+                Decimal(string: minAmount).map { $0 / pow(10, decimals) }
+            }
+        }
+
+        var errorDescription: String? {
+            description
+        }
+
+        enum Code: Int, Decodable {
+            case badRequest = 2010
+            case exchangeProviderNotFoundError = 2210
+            case exchangeProviderNotActiveError = 2220
+            case exchangeProviderNotAvailableError = 2230
+            case exchangeNotPossibleError = 2240
+            case exchangeTooSmallAmountError = 2250
+            case exchangeInvalidAddressError = 2260
+            case exchangeNotEnoughBalanceError = 2270
+            case exchangeNotEnoughAllowanceError = 2280
         }
     }
 }
