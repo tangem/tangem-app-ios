@@ -24,6 +24,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var userTokensManager: UserTokensManager { _userTokensManager }
 
     private lazy var _userTokensManager = CommonUserTokensManager(
+        shouldLoadSwapAvailability: config.hasFeature(.swapping),
         userTokenListManager: userTokenListManager,
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
@@ -580,5 +581,16 @@ extension CardViewModel: CardDerivableProvider {
 extension CardViewModel: TotalBalanceProviding {
     func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
         totalBalanceProvider.totalBalancePublisher()
+    }
+}
+
+extension CardViewModel: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        return AnalyticsContextData(
+            card: card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
     }
 }
