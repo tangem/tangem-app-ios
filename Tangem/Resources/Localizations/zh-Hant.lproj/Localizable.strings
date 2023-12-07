@@ -192,7 +192,7 @@
 "express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token swaps";
 "express_choose_providers_title" = "Choose provider";
-"express_error_code" = "An error occurred. Code: %i";
+"express_error_code" = "An error occurred. Code: %@";
 "express_estimated_amount" = "Estimated amount";
 "express_exchange_by" = "Exchange by %@";
 "express_exchange_notification_failed_text" = "Visit provider’s website to refund your money";
