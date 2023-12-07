@@ -180,20 +180,21 @@ class WalletModel {
             return .cantSignLongTransactions
         }
 
-        guard
-            let currentAmount = wallet.amounts[amountType],
-            let token = amountType.token
-        else {
+        guard let currentAmount = wallet.amounts[amountType] else {
             return nil
         }
 
-        if wallet.hasPendingTx, !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
+        if wallet.hasPendingTx { // has pending tx for fee
             return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
+        }
+
+        guard let token = amountType.token else {
+            return nil
         }
 
         // no fee
         if !wallet.hasPendingTx, !canSendTransaction, !currentAmount.isZero {
-            return .notEnoughtFeeForTokenTx(
+            return .notEnoughFeeForTokenTx(
                 tokenName: token.name,
                 networkName: blockchainNetwork.blockchain.displayName,
                 coinSymbol: blockchainNetwork.blockchain.currencySymbol,
