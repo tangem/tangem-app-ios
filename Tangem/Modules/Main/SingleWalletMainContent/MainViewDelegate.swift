@@ -8,6 +8,7 @@
 
 import Foundation
 
-protocol MainViewDelegate: AnyObject {
+// [REDACTED_TODO_COMMENT]
+protocol MainViewDelegate: MainNotificationsObserver {
     func present(actionSheet: ActionSheetBinder)
 }
