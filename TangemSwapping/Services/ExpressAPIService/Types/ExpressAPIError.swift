@@ -36,7 +36,7 @@ public extension ExpressAPIError {
         }
     }
 
-    enum Code: Int, Decodable {
+    enum Code: Int, Decodable, LocalizedError {
         case unknown = -1
 
         // Service
@@ -65,5 +65,9 @@ public extension ExpressAPIError {
         case exchangeInvalidDecimalsError = 2290
 
         case exchangeTransactionNotFoundError = 2500
+
+        public var errorDescription: String? {
+            rawValue.description
+        }
     }
 }
