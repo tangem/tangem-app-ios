@@ -13,6 +13,7 @@ import SwiftUI
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\._rateAppService) private var rateAppService: _CommonRateAppService
     @InjectedWritable(\.mainBottomSheetVisibility) private var bottomSheetVisibility: MainBottomSheetVisibility
 
     // MARK: - ViewState
@@ -42,6 +43,18 @@ final class MainViewModel: ObservableObject {
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
     private var isLoggingOut = false
+
+    // [REDACTED_TODO_COMMENT]
+    private var lastNotificationInputs: [Data: [NotificationViewInput]] = [:] {
+        didSet { requestRateAppIfAvailable() }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private var lastTotalBalances: [Data: TotalBalanceProvider.TotalBalance] = [:] {
+        didSet { requestRateAppIfAvailable() }
+    }
+
+    private var totalBalanceSubscriptions: [Data: AnyCancellable] = [:]
 
     private var bag: Set<AnyCancellable> = []
 
@@ -103,6 +116,8 @@ final class MainViewModel: ObservableObject {
         addPendingUserWalletModelsIfNeeded { [weak self] in
             self?.swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         }
+
+        requestRateAppIfAvailable()
     }
 
     func onViewDisappear() {
@@ -265,12 +280,13 @@ final class MainViewModel: ObservableObject {
         let newPageIndex = pages.count
         pages.append(newPage)
         selectedCardIndex = newPageIndex
+
+        subscribeToTotalBalanceUpdate(userWalletModel: userWalletModel)
     }
 
     private func removePages(with userWalletIds: [Data]) {
-        pages.removeAll { page in
-            userWalletIds.contains(page.id.value)
-        }
+        pages.removeAll { userWalletIds.contains($0.id.value) }
+        totalBalanceSubscriptions.removeAll { userWalletIds.contains($0.key) }
 
         guard
             let newSelectedId = userWalletRepository.selectedUserWalletId,
@@ -293,6 +309,7 @@ final class MainViewModel: ObservableObject {
     }
 
     private func recreatePages() {
+        // [REDACTED_TODO_COMMENT]
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
@@ -352,6 +369,31 @@ final class MainViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
+
+    private func subscribeToTotalBalanceUpdate(userWalletModel: UserWalletModel) {
+        // [REDACTED_TODO_COMMENT]
+        totalBalanceSubscriptions[userWalletModel.userWalletId.value] = userWalletModel
+            .totalBalancePublisher()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, totalBalance in
+                viewModel.lastTotalBalances[userWalletModel.userWalletId.value] = totalBalance.value
+            }
+    }
+
+    private func requestRateAppIfAvailable() {
+        guard let selectedPage = pages[safe: selectedCardIndex] else { return }
+
+        let totalBalances = Array(lastTotalBalances.values)
+        let displayedNotifications = lastNotificationInputs[selectedPage.id.value, default: []]
+
+        rateAppService.requestRateAppIfAvailable(
+            with: .init(
+                isLocked: selectedPage.isLockedWallet,
+                totalBalances: totalBalances,
+                displayedNotifications: displayedNotifications
+            )
+        )
     }
 
     private func log(_ message: String) {
@@ -426,6 +468,14 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
     func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
         swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
+    }
+}
+
+// MARK: - MainNotificationsObserver protocol conformance
+
+extension MainViewModel: MainNotificationsObserver {
+    func didChangeNotificationInputs(_ inputs: [NotificationViewInput], forUserWalletWithId userWalletId: UserWalletId) {
+        lastNotificationInputs[userWalletId.value] = inputs
     }
 }
 
