@@ -249,7 +249,7 @@ private extension CommonExpressManager {
                 let isBest = best == quote
                 return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
             case .failure(let error as ExpressAPIError):
-                if error.codeCase == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
+                if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
                     return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
                 }
 
