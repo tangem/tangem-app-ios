@@ -15,7 +15,6 @@ struct ManageTokensAddCustomItemView: View {
     var body: some View {
         HStack(spacing: 12) {
             CircleIconView(image: Assets.plusMini.image)
-                .padding(.trailing, 12)
 
             Text(Localization.addCustomTokenTitle)
                 .lineLimit(1)
@@ -24,8 +23,8 @@ struct ManageTokensAddCustomItemView: View {
 
             Spacer()
         }
-        .padding(.horizontal, 32)
-        .padding(.vertical, 28)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
         .contentShape(Rectangle())
         .animation(nil) // Disable animations on scroll reuse
         .onTapGesture {
@@ -37,13 +36,16 @@ struct ManageTokensAddCustomItemView: View {
 private struct CircleIconView: View {
     let image: Image
     var imageSize: CGSize = .init(width: 16, height: 16)
-    var circleSize: CGSize = .init(bothDimensions: 46)
+    var circleSize: CGSize = .init(bothDimensions: 36)
 
     var body: some View {
         image
-            .resizable()
+            .renderingMode(.template)
+            .foregroundColor(Colors.Icon.informative)
             .frame(width: imageSize.width, height: imageSize.height)
-            .background(background)
+            .padding(10)
+            .background(Colors.Button.secondary)
+            .cornerRadiusContinuous(18)
     }
 
     @ViewBuilder
