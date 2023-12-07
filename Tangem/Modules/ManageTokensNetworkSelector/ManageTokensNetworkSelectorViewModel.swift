@@ -92,7 +92,11 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private func bind() {
         dataSource.selectedUserWalletModelPublisher
-            .sink { [weak self] userWalletModel in
+            .sink { [weak self] userWalletId in
+                guard let userWalletModel = self?.dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
+                    return
+                }
+
                 self?.setNeedSelectWallet(userWalletModel)
             }
             .store(in: &bag)
