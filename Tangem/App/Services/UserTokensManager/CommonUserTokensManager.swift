@@ -16,6 +16,7 @@ struct CommonUserTokensManager {
 
     let derivationManager: DerivationManager?
 
+    private let userWalletId: UserWalletId
     private let shouldLoadSwapAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
@@ -25,6 +26,7 @@ struct CommonUserTokensManager {
     private var bag: Set<AnyCancellable> = []
 
     init(
+        userWalletId: UserWalletId,
         shouldLoadSwapAvailability: Bool,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
@@ -32,6 +34,7 @@ struct CommonUserTokensManager {
         derivationManager: DerivationManager?,
         cardDerivableProvider: CardDerivableProvider
     ) {
+        self.userWalletId = userWalletId
         self.shouldLoadSwapAvailability = shouldLoadSwapAvailability
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
@@ -82,7 +85,7 @@ struct CommonUserTokensManager {
         let converter = StorageEntryConverter()
         let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
         let tokenItems = converter.convertToTokenItem(nonCustomTokens)
-        swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: forceReload)
+        swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: forceReload, userWalletId: userWalletId.stringValue)
     }
 }
 
