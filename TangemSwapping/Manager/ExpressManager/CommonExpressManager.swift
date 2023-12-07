@@ -207,22 +207,21 @@ private extension CommonExpressManager {
         return quotes
     }
 
-    func getSelectedQuote(
-        request: ExpressManagerSwappingPairRequest,
-        quotes: [ExpectedQuote]
-    ) async throws -> ExpectedQuote {
-        if let quote = selectedQuote {
-            return quote
-        }
-
-        let best = bestQuote(from: quotes)
-        selectedQuote = best
-
-        if let best {
+    func getSelectedQuote(request: ExpressManagerSwappingPairRequest, quotes: [ExpectedQuote]) async throws -> ExpectedQuote {
+        // If we don't have selectedQuote just update it
+        guard let selectedQuote else {
+            let best = try bestQuote(from: quotes)
+            self.selectedQuote = best
             return best
         }
 
-        throw ExpressManagerError.quotesNotFound
+        // If the new quote has same provider
+        if let quote = quotes.first(where: { $0.provider == selectedQuote.provider }) {
+            self.selectedQuote = quote
+            return quote
+        }
+
+        return selectedQuote
     }
 
     func loadQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
@@ -268,13 +267,13 @@ private extension CommonExpressManager {
         return allQuotes
     }
 
-    func bestQuote(from quotes: [ExpectedQuote]) -> ExpectedQuote? {
-        guard !quotes.isEmpty else {
-            return nil
+    func bestQuote(from quotes: [ExpectedQuote]) throws -> ExpectedQuote {
+        // Find the best quote with provider
+        guard let bestPossibleQuote = quotes.max(by: { $0.priority < $1.priority }) else {
+            throw ExpressManagerError.quotesNotFound
         }
 
-        // Find the best in possible providers
-        return quotes.max(by: { $0.priority < $1.priority })
+        return bestPossibleQuote
     }
 
     func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [ExpressProvider.Id]) async -> [ExpressProvider.Id: Result<ExpressQuote, Error>] {
