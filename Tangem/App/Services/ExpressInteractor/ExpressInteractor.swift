@@ -228,8 +228,8 @@ extension ExpressInteractor {
         let result = try await sender.send(transaction, signer: signer).async()
         logger.debug("Sent the approve transaction with result: \(result)")
 
-        expressPendingTransactionRepository.didSendApproveTransaction()
-        updateState(.restriction(.hasPendingTransaction, quote: getState().quote))
+        await expressManager.didSentAllowanceTransaction(for: state.spender)
+        updateState(.restriction(.hasPendingAllowanceTransaction, quote: getState().quote))
     }
 }
 
@@ -369,7 +369,8 @@ private extension ExpressInteractor {
             }
 
             return state
-
+        case .allowanceTransactionInProgress:
+            return .restriction(.hasPendingAllowanceTransaction, quote: quote)
         case .notEnoughBalanceForSwapping(let requiredAmount):
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
         }
@@ -396,17 +397,7 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        let networkId = getSender().expressCurrency.network
-        let transactions = expressPendingTransactionRepository.pendingTransactions
-
-        return transactions.contains(where: { record in
-            guard record.userWalletId == userWalletId else {
-                return false
-            }
-
-            return record.destinationTokenTxInfo.tokenItem.networkId == networkId ||
-                record.sourceTokenTxInfo.tokenItem.networkId == networkId
-        })
+        return getSender().outgoingPendingTransactions.isEmpty
     }
 }
 
@@ -585,7 +576,7 @@ private extension ExpressInteractor {
                     log("The update task was cancelled")
                     return
                 }
-                
+
                 if let error = error as? ExpressAPIError {
                     await logExpressError(error)
                 }
@@ -733,6 +724,7 @@ extension ExpressInteractor {
     enum RestrictionType {
         case notEnoughAmountForSwapping(minAmount: Decimal)
         case hasPendingTransaction
+        case hasPendingAllowanceTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
         case notEnoughAmountForFee(_ returnState: ExpressInteractorState)
         case requiredRefresh(occurredError: Error)
