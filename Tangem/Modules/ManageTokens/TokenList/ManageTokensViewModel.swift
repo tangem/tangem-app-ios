@@ -158,7 +158,7 @@ private extension ManageTokensViewModel {
                 guard let self = self else {
                     return
                 }
-                
+
                 isShowAddCustomToken = true
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
