@@ -101,7 +101,6 @@ private extension CommonExpressAPIService {
             """
             [ExpressAPIService]
             Request to target: \(target.path)
-            plugins: \(provider.plugins))
             task: \(target.task)
             ended with response: \(info)
             Error: \(String(describing: error))
