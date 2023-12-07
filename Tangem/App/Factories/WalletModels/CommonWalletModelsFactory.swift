@@ -65,12 +65,12 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let currentBlockchain = walletManager.wallet.blockchain
         let currentDerivation = walletManager.wallet.publicKey.derivationPath
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
-        let transactionHistoryService = makeTransactionHistoryService(
-            tokenItem: .blockchain(currentBlockchain),
-            addresses: walletManager.wallet.addresses.map { $0.value }
-        )
 
         if types.contains(.coin) {
+            let transactionHistoryService = makeTransactionHistoryService(
+                tokenItem: .blockchain(currentBlockchain),
+                addresses: walletManager.wallet.addresses.map { $0.value }
+            )
             let mainCoinModel = WalletModel(
                 walletManager: walletManager,
                 transactionHistoryService: transactionHistoryService,
