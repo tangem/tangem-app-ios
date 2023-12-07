@@ -69,5 +69,6 @@ extension Analytics {
         case availableTokens = "Available tokens"
         case provider = "Provider"
         case commission = "Commission"
+        case place = "Place"
     }
 }
