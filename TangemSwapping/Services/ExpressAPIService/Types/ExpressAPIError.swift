@@ -62,8 +62,8 @@ public extension ExpressAPIError {
         case exchangeInvalidAddressError = 2260
         case exchangeNotEnoughBalanceError = 2270
         case exchangeNotEnoughAllowanceError = 2280
-        case ExchangeInvalidDecimalsError = 2290
+        case exchangeInvalidDecimalsError = 2290
 
-        case ExchangeTransactionNotFoundError = 2500
+        case exchangeTransactionNotFoundError = 2500
     }
 }
