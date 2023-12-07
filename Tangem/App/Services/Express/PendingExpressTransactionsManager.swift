@@ -38,7 +38,7 @@ class CommonPendingExpressTransactionsManager {
         self.userWalletId = userWalletId
         self.blockchainNetwork = blockchainNetwork
         self.tokenItem = tokenItem
-        expressAPIProvider = CommonExpressAPIFactory().makeExpressAPIProvider(userId: userWalletId)
+        expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
 
         bind()
     }
