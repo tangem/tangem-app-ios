@@ -10,16 +10,18 @@ import Moya
 
 struct CommonExpressAPIService {
     private let provider: MoyaProvider<ExpressAPITarget>
+    private let isProduction: Bool
     private let logger: SwappingLogger
     private let decoder = JSONDecoder()
 
-    init(provider: MoyaProvider<ExpressAPITarget>, logger: SwappingLogger) {
+    init(provider: MoyaProvider<ExpressAPITarget>, isProduction: Bool, logger: SwappingLogger) {
         assert(
             provider.plugins.contains(where: { $0 is ExpressAuthorizationPlugin }),
             "Should contains ExpressHeaderMoyaPlugin"
         )
 
         self.provider = provider
+        self.isProduction = isProduction
         self.logger = logger
     }
 }
@@ -51,21 +53,22 @@ extension CommonExpressAPIService: ExpressAPIService {
 }
 
 private extension CommonExpressAPIService {
-    func _request<T: Decodable>(target: ExpressAPITarget) async throws -> T {
+    func _request<T: Decodable>(target: ExpressAPITarget.Target) async throws -> T {
+        let request = ExpressAPITarget(isProduction: isProduction, target: target)
         var response: Response
 
         do {
-            response = try await provider.asyncRequest(target)
+            response = try await provider.asyncRequest(request)
         } catch {
-            log(target: target, error: error)
+            log(target: request, error: error)
             throw error
         }
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
-            log(target: target, response: response)
+            log(target: request, response: response)
         } catch {
-            if let expressError = tryMapError(target: target, response: response) {
+            if let expressError = tryMapError(target: request, response: response) {
                 throw expressError
             }
 
@@ -75,7 +78,7 @@ private extension CommonExpressAPIService {
         do {
             return try decoder.decode(T.self, from: response.data)
         } catch {
-            log(target: target, response: response, error: error)
+            log(target: request, response: response, error: error)
             throw error
         }
     }
