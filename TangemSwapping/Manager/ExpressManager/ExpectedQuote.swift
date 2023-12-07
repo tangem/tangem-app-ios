@@ -57,7 +57,7 @@ public struct ExpectedQuote {
         case .quote:
             return .high
         case .tooSmallAmount:
-            return .middle
+            return .medium
         case .error, .notAvailable:
             return .lowest
         }
@@ -74,7 +74,7 @@ public extension ExpectedQuote {
     enum Priority: Int, Comparable {
         case lowest
         case low
-        case middle
+        case medium
         case high
         case highest
 
