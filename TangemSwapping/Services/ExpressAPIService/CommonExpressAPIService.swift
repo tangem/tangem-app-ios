@@ -65,7 +65,11 @@ private extension CommonExpressAPIService {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
             log(target: target, response: response)
         } catch {
-            try handleError(target: target, response: response)
+            if let expressError = tryMapError(target: target, response: response) {
+                throw expressError
+            }
+
+            throw error
         }
 
         do {
@@ -76,12 +80,15 @@ private extension CommonExpressAPIService {
         }
     }
 
-    func handleError(target: ExpressAPITarget, response: Response) throws {
-        let decoder = JSONDecoder()
-
-        let error = try decoder.decode(ExpressDTO.APIError.Response.self, from: response.data)
-        log(target: target, response: response, error: error.error)
-        throw error.error
+    func tryMapError(target: ExpressAPITarget, response: Response) -> ExpressAPIError? {
+        do {
+            let error = try JSONDecoder().decode(ExpressDTO.APIError.Response.self, from: response.data)
+            log(target: target, response: response, error: error.error)
+            return error.error
+        } catch {
+            log(target: target, response: response, error: error)
+            return nil
+        }
     }
 
     func log(target: TargetType, response: Response? = nil, error: Error? = nil) {
