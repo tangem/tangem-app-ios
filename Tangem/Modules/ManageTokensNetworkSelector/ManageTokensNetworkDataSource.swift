@@ -14,7 +14,7 @@ class ManageTokensNetworkDataSource {
 
     private let _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
     private let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
-    
+
     var userWalletModels: [UserWalletModel] { _userWalletModels.value }
     var selectedUserWalletModel: UserWalletModel? { _selectedUserWalletModel.value }
 
@@ -34,7 +34,9 @@ class ManageTokensNetworkDataSource {
 }
 
 extension ManageTokensNetworkDataSource: WalletSelectorDataSource {
-    var selectedUserWalletModelPublisher: AnyPublisher<UserWalletModel?, Never> { _selectedUserWalletModel.eraseToAnyPublisher() }
+    var selectedUserWalletModelPublisher: AnyPublisher<UserWalletId?, Never> {
+        _selectedUserWalletModel.map { $0?.userWalletId }.eraseToAnyPublisher()
+    }
 
     var itemViewModels: [WalletSelectorItemViewModel] {
         userWalletModels.map { userWalletModel in
