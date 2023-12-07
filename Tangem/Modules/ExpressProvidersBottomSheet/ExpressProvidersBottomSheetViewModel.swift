@@ -38,7 +38,14 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        setupView()
+        bind()
+    }
+
+    func bind() {
+        expressInteractor.state
+            .sink { [weak self] state in
+                self?.setupView()
+            }.store(in: &bag)
     }
 
     func setupView() {
