@@ -65,5 +65,6 @@ extension Analytics {
         case methodName = "Method Name"
         case groupType = "Group"
         case sortType = "Sort"
+        case place = "Place"
     }
 }
