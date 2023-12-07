@@ -33,6 +33,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let data: SentExpressTransactionData
+    private let initialWallet: WalletModel
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
     private let providerFormatter: ExpressProviderFormatter
@@ -41,6 +42,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
 
     init(
         data: SentExpressTransactionData,
+        initialWallet: WalletModel,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
         providerFormatter: ExpressProviderFormatter,
@@ -48,16 +50,31 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         coordinator: ExpressSuccessSentRoutable
     ) {
         self.data = data
+        self.initialWallet = initialWallet
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
         self.providerFormatter = providerFormatter
         self.feeFormatter = feeFormatter
         self.coordinator = coordinator
+
         setupView()
+        Analytics.log(
+            event: .swapSwapInProgressScreenOpened,
+            params: [
+                .provider: data.provider.name,
+                .commission: data.feeOption.rawValue.capitalizingFirstLetter(),
+                .sendToken: data.source.tokenItem.currencySymbol,
+                .receiveToken: data.destination.tokenItem.currencySymbol,
+            ]
+        )
     }
 
     func openExplore() {
-        let exploreURL = data.source.exploreTransactionURL(for: data.hash)
+        guard let exploreURL = data.source.exploreTransactionURL(for: data.hash) else {
+            return
+        }
+
+        Analytics.log(event: .swapButtonExplore, params: [.token: initialWallet.tokenItem.currencySymbol])
         let title = Localization.commonExplorerFormat(data.source.name)
         coordinator.openWebView(url: exploreURL, title: title)
     }
@@ -66,6 +83,8 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         guard let externalTxUrl = data.expressTransactionData.externalTxUrl.map(URL.init(string:)) else {
             return
         }
+
+        Analytics.log(event: .swapButtonStatus, params: [.token: initialWallet.tokenItem.currencySymbol])
 
         let title = Localization.commonExplorerFormat(data.source.name)
         coordinator.openWebView(url: externalTxUrl, title: title)
