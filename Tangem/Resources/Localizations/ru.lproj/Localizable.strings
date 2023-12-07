@@ -192,7 +192,7 @@
 "express_cex_status_button_title" = "Статус";
 "express_choose_providers_subtitle" = "Провайдеры проводят транзакции, обеспечивая плавный и эффективный обмен токенами";
 "express_choose_providers_title" = "Выберите провайдера";
-"express_error_code" = "Произошла ошибка. Код: %i";
+"express_error_code" = "Произошла ошибка. Код: %@";
 "express_estimated_amount" = "Estimated amount";
 "express_exchange_by" = "Exchange by %@";
 "express_exchange_notification_failed_text" = "Visit provider’s website to see why";
