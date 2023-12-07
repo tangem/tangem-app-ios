@@ -28,8 +28,8 @@ struct ExpressProviderFormatter {
                 option: option
             )
 
-        case .error(let string):
-            return .text(string)
+        case .error(let error):
+            return .text(error.localizedDescription)
         case .notAvailable:
             return .text(Localization.expressProviderNotAvailable)
         case .tooSmallAmount(let minAmount):
