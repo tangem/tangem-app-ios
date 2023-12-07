@@ -28,11 +28,16 @@ public struct ExpressAPIError: Decodable, LocalizedError, Error {
 
 public extension ExpressAPIError {
     struct Value: Decodable {
-        let minAmount: String
-        let decimals: Int
+        let currentAllowance: String?
+        let minAmount: String?
+        let decimals: Int?
 
         var amount: Decimal? {
-            Decimal(string: minAmount).map { $0 / pow(10, decimals) }
+            guard let minAmount, let decimals else {
+                return nil
+            }
+
+            return Decimal(string: minAmount).map { $0 / pow(10, decimals) }
         }
     }
 
