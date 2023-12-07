@@ -581,7 +581,7 @@ private extension ExpressInteractor {
                 updateState(state)
             } catch let error is ExpressAPIError {
                 
-            }catch {
+            } catch {
                 if error is CancellationError || Task.isCancelled {
                     // Do nothing
                     log("The update task was cancelled")
