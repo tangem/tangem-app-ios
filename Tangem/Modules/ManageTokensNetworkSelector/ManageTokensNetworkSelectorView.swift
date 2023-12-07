@@ -13,10 +13,21 @@ struct ManageTokensNetworkSelectorView: View {
 
     var body: some View {
         GroupedScrollView {
-            walletSelectorContent
+            if let notificationInput = viewModel.notificationInput {
+                NotificationView(input: notificationInput)
+                    .transition(.notificationTransition)
+
+                Spacer(minLength: 14)
+            }
+
+            if !viewModel.currentWalletName.isEmpty {
+                walletSelectorContent
+
+                Spacer(minLength: 14)
+            }
 
             if !viewModel.nativeSelectorItems.isEmpty {
-                Spacer(minLength: 24)
+                Spacer(minLength: 10)
 
                 nativeNetworksContent
             }
@@ -30,7 +41,6 @@ struct ManageTokensNetworkSelectorView: View {
         .alert(item: $viewModel.alert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
-        .onAppear(perform: viewModel.onAppear)
     }
 
     private var walletSelectorContent: some View {
