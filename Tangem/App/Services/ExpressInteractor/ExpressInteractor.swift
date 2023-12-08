@@ -585,7 +585,7 @@ private extension ExpressInteractor {
                     log("The update task was cancelled")
                     return
                 }
-                
+
                 if let error = error as? ExpressAPIError {
                     await logExpressError(error)
                 }
