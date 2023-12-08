@@ -22,7 +22,7 @@ public protocol ExpressManager {
 
     func update() async throws -> ExpressManagerState
 
-    func didSentAllowanceTransaction(for spender: String) async
+    func didSendApproveTransaction(for spender: String) async
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
 }
