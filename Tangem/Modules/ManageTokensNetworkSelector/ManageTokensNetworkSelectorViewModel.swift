@@ -46,7 +46,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         dataSource.selectedUserWalletModel
     }
 
-    private var isTokenAvailableForSwitching: Bool {
+    private var canTokenItemBeToggled: Bool {
         selectedUserWalletModel != nil
     }
 
@@ -116,7 +116,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: nil,
                     isSelected: bindSelection($0),
-                    isAvailable: isTokenAvailableForSwitching
+                    isAvailable: canTokenItemBeToggled
                 )
             }
 
@@ -133,7 +133,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
                     isSelected: bindSelection($0),
-                    isAvailable: isTokenAvailableForSwitching
+                    isAvailable: canTokenItemBeToggled
                 )
             }
     }
