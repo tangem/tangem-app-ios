@@ -391,14 +391,17 @@ final class MainViewModel: ObservableObject {
     private func requestRateAppIfAvailable() {
         guard let selectedPage = pages[safe: selectedCardIndex] else { return }
 
+        let userWalletIdValue = selectedPage.id.value
         let totalBalances = Array(lastTotalBalances.values)
-        let displayedNotifications = lastNotificationInputs[selectedPage.id.value, default: []]
+        let isSelectedPageFailedToLoadTotalBalance = lastTotalBalances[userWalletIdValue]?.hasError ?? false
+        let displayedNotifications = lastNotificationInputs[userWalletIdValue, default: []]
 
         rateAppService.requestRateAppIfAvailable(
             with: .init(
-                isLocked: selectedPage.isLockedWallet,
                 totalBalances: totalBalances,
-                displayedNotifications: displayedNotifications
+                isSelectedPageLocked: selectedPage.isLockedWallet,
+                isSelectedPageFailedToLoadTotalBalance: isSelectedPageFailedToLoadTotalBalance,
+                selectedPageDisplayedNotifications: displayedNotifications
             )
         )
     }
