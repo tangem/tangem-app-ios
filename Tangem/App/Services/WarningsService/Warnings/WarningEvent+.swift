@@ -58,11 +58,11 @@ extension WarningEvent {
 
     private var type: WarningType {
         switch self {
-        case .numberOfSignedHashesIncorrect, .rateApp, .systemDeprecationTemporary:
+        case .numberOfSignedHashesIncorrect, .rateApp, .systemDeprecationTemporary, .supportedOnlySingleCurrencyWallet:
             return .temporary
         case .failedToVerifyCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .permanent
-        case .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
+        case .missingDerivation, .walletLocked, .missingBackup:
             // New cases won't be displayed in new design
             return .temporary
         }
