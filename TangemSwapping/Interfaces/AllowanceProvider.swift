@@ -16,5 +16,5 @@ public protocol AllowanceProvider {
 public enum AllowanceProviderError: LocalizedError {
     case ethereumNetworkProviderNotFound
     case ethereumTransactionProcessorNotFound
-    case allowanceTransactionInProgress
+    case approveTransactionInProgress
 }
