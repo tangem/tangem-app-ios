@@ -22,15 +22,6 @@ public struct ExpectedQuote {
         }
     }
 
-    public var isAvailableToSelect: Bool {
-        switch state {
-        case .quote, .tooSmallAmount:
-            return true
-        case .error, .notAvailable:
-            return false
-        }
-    }
-
     public var error: Error? {
         switch state {
         case .error(let error):
