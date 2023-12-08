@@ -7,25 +7,29 @@
 //
 
 import Foundation
+import TangemSwapping
 
 struct CommonExpressDestinationService {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
     private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let walletModelsManager: WalletModelsManager
+    private let expressAPIProvider: ExpressAPIProvider
 
     init(
         pendingTransactionRepository: ExpressPendingTransactionRepository,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        expressAPIProvider: ExpressAPIProvider
     ) {
         self.pendingTransactionRepository = pendingTransactionRepository
         self.walletModelsManager = walletModelsManager
+        self.expressAPIProvider = expressAPIProvider
     }
 }
 
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getDestination(source: WalletModel) -> WalletModel? {
+    func getDestination(source: WalletModel) async throws -> WalletModel? {
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
             wallet.id != source.id && swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
         }
@@ -41,9 +45,13 @@ extension CommonExpressDestinationService: ExpressDestinationService {
             return first
         }
 
-        // If user has wallets with balance then select with maximum
-        if let maxFiatBalance = walletModelsWithPositiveBalance.max(by: { ($0.fiatValue ?? 0) < ($1.fiatValue ?? 0) }) {
-            return maxFiatBalance
+        let sortedWallets = walletModelsWithPositiveBalance.sorted(by: { ($0.fiatValue ?? 0) > ($1.fiatValue ?? 0) })
+
+        for wallet in sortedWallets {
+            let available = try await expressAPIProvider.pairs(from: [source.expressCurrency], to: [wallet.expressCurrency])
+            if let providers = available.first?.providers, !providers.isEmpty {
+                return wallet
+            }
         }
 
         return nil

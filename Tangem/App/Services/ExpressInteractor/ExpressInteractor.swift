@@ -65,7 +65,10 @@ class ExpressInteractor {
         self.logger = logger
 
         _swappingPair = .init(SwappingPair(sender: initialWallet, destination: nil))
-        loadDestinationIfNeeded()
+
+        Task { [weak self] in
+            try await self?.loadDestinationIfNeeded()
+        }
     }
 }
 
@@ -299,12 +302,12 @@ private extension ExpressInteractor {
             return try await proceedRestriction(restriction: restriction, quote: quote)
 
         case .previewCEX(let quote):
-            guard let expressQuote = quote.quote else {
+            guard let amount = await expressManager.getAmount() else {
                 throw ExpressInteractorError.quoteNotFound
             }
 
             let address = getSender().defaultAddress
-            let fees = try await getFee(destination: address, value: expressQuote.fromAmount, hexData: nil)
+            let fees = try await getFee(destination: address, value: amount, hexData: nil)
             let state: ExpressInteractorState = .previewCEX(fees: fees, quote: quote)
 
             guard try await hasEnoughBalanceForFee(fees: fees) else {
@@ -539,11 +542,11 @@ private extension ExpressInteractor {
         )
 
         // If EVM network we should pass data in the fee calculation
-        if let ethereumNetworkProvider = sender.ethereumNetworkProvider {
+        if let ethereumNetworkProvider = sender.ethereumNetworkProvider, let hexData {
             let fees = try await ethereumNetworkProvider.getFee(
                 destination: destination,
                 value: amount.encodedForSend,
-                data: hexData.map { Data(hexString: $0) }
+                data: Data(hexString: hexData)
             ).async()
 
             return mapFeeToDictionary(fees: fees)
@@ -609,14 +612,14 @@ private extension ExpressInteractor {
         }
     }
 
-    func loadDestinationIfNeeded() {
+    func loadDestinationIfNeeded() async throws {
         guard getDestination() == nil else {
             log("Swapping item destination has already set")
             return
         }
 
         let sender = getSender()
-        let destination = expressDestinationService.getDestination(source: sender)
+        let destination = try await expressDestinationService.getDestination(source: sender)
 
         if destination == nil {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
