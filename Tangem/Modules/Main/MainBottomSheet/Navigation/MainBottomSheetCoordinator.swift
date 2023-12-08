@@ -47,13 +47,12 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         bind()
     }
 
-    func start(with options: Options) {
-        switch options {
-        case .default:
-            setupManageTokens()
-        case .bottomScrollableSheetStateChange(let state):
-            onBottomScrollableSheetStateChange(state)
-        }
+    func start(with options: Void = ()) {
+        setupManageTokens()
+    }
+
+    func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {
+        __headerViewModel.onBottomScrollableSheetStateChange(state)
     }
 
     private func bind() {
@@ -78,19 +77,6 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         coordinator.delegate = self
         coordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
         manageTokensCoordinator = coordinator
-    }
-
-    func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {
-        __headerViewModel.onBottomScrollableSheetStateChange(state)
-    }
-}
-
-// MARK: - Options
-
-extension MainBottomSheetCoordinator {
-    enum Options {
-        case `default`
-        case bottomScrollableSheetStateChange(state: BottomScrollableSheetState)
     }
 }
 
