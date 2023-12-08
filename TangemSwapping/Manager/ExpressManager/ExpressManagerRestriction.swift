@@ -12,6 +12,6 @@ public enum ExpressManagerRestriction {
     case pairNotFound
     case notEnoughAmountForSwapping(_ minAmount: Decimal)
     case permissionRequired(spender: String)
-    case allowanceTransactionInProgress(spender: String)
+    case approveTransactionInProgress(spender: String)
     case notEnoughBalanceForSwapping(_ requiredAmount: Decimal)
 }
