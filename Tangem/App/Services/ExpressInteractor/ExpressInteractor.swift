@@ -228,8 +228,8 @@ extension ExpressInteractor {
         let result = try await sender.send(transaction, signer: signer).async()
         logger.debug("Sent the approve transaction with result: \(result)")
 
-        await expressManager.didSentAllowanceTransaction(for: state.spender)
-        updateState(.restriction(.hasPendingAllowanceTransaction, quote: getState().quote))
+        await expressManager.didSendApproveTransaction(for: state.spender)
+        updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
 }
 
@@ -369,8 +369,8 @@ private extension ExpressInteractor {
             }
 
             return state
-        case .allowanceTransactionInProgress:
-            return .restriction(.hasPendingAllowanceTransaction, quote: quote)
+        case .approveTransactionInProgress:
+            return .restriction(.hasPendingApproveTransaction, quote: quote)
         case .notEnoughBalanceForSwapping(let requiredAmount):
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
         }
@@ -397,7 +397,7 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        return getSender().outgoingPendingTransactions.isEmpty
+        return !getSender().outgoingPendingTransactions.isEmpty
     }
 }
 
@@ -724,7 +724,7 @@ extension ExpressInteractor {
     enum RestrictionType {
         case notEnoughAmountForSwapping(minAmount: Decimal)
         case hasPendingTransaction
-        case hasPendingAllowanceTransaction
+        case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
         case notEnoughAmountForFee(_ returnState: ExpressInteractorState)
         case requiredRefresh(occurredError: Error)
