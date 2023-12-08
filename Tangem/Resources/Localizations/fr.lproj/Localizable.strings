@@ -226,6 +226,7 @@
 "express_provider_min_amount" = "Available from %@";
 "express_provider_not_available" = "Unavailable for this pair";
 "express_provider_permission_needed" = "Permission Needed";
+"express_unknown_error" = "There was an error. Please try again.";
 "feedback_preface_rate_negative" = "Tell us what functions you are missing, and we will try to help you.";
 "feedback_preface_scan_failed" = "Please tell us what card do you have";
 "feedback_preface_support" = "Hi support team,";
