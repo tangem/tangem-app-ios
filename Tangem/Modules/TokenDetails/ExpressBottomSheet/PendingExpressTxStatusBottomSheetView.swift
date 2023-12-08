@@ -11,7 +11,7 @@ import SwiftUI
 struct PendingExpressTxStatusBottomSheetView: View {
     @ObservedObject var viewModel: PendingExpressTxStatusBottomSheetViewModel
 
-    private let tokenIconSize = CGSize(bothDimensions: 36)
+    private let iconSize = CGSize(bothDimensions: 36)
 
     // This animation is created explicitly to synchronise them with the delayed appearance of the notification
     private var animation: Animation {
@@ -46,6 +46,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
             .padding(.vertical, 22)
             .padding(.horizontal, 16)
         }
+        .onAppear(perform: viewModel.onAppear)
         // This animations are set explicitly to synchronise them with the delayed appearance of the notification
         .animation(animation, value: viewModel.statusesList)
         .animation(animation, value: viewModel.currentStatusIndex)
@@ -101,7 +102,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
             HStack(spacing: 12) {
                 IconView(
                     url: viewModel.providerIconURL,
-                    size: .init(bothDimensions: 36)
+                    size: iconSize
                 )
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -113,10 +114,8 @@ struct PendingExpressTxStatusBottomSheetView: View {
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
 
-                    HStack {
-                        Text(Localization.expressFloatingRate)
-                            .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                    }
+                    Text(Localization.expressFloatingRate)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                 }
                 Spacer()
             }
@@ -136,7 +135,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
 
                 Spacer()
 
-                Button(action: viewModel.openProvider, label: {
+                Button(action: viewModel.openProviderFromStatusHeader, label: {
                     HStack(spacing: 4) {
                         Assets.arrowRightUpMini.image
                             .resizable()
@@ -152,9 +151,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
             }
 
             VStack(spacing: 0) {
-                // We always display 4 states
-                ForEach(0 ..< 4) { index in
-                    let status = viewModel.statusesList[index]
+                ForEach(viewModel.statusesList.indexed(), id: \.1) { index, status in
                     PendingExpressTransactionStatusRow(isFirstRow: index == 0, info: status)
                 }
             }
@@ -166,7 +163,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
 
     private func tokenInfo(with tokenIconInfo: TokenIconInfo, cryptoAmountText: String, fiatAmountTextState: LoadableTextView.State) -> some View {
         HStack(spacing: 12) {
-            TokenIcon(tokenIconInfo: tokenIconInfo, size: tokenIconSize)
+            TokenIcon(tokenIconInfo: tokenIconInfo, size: iconSize)
 
             VStack(alignment: .leading, spacing: 2) {
                 SensitiveText(cryptoAmountText)
@@ -199,16 +196,16 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             sourceTokenTxInfo: .init(
                 tokenItem: tokenItem,
                 blockchainNetwork: blockchainNetwork,
-                amount: 10,
+                amountString: "10",
                 isCustom: true
             ),
             destinationTokenTxInfo: .init(
                 tokenItem: .token(.shibaInuMock, .ethereum(testnet: false)),
                 blockchainNetwork: .init(.ethereum(testnet: false)),
-                amount: 1,
+                amountString: "1",
                 isCustom: false
             ),
-            fee: 0.021351,
+            feeString: "0.021351",
             provider: ExpressPendingTransactionRecord.Provider(provider: .init(id: "changenow", name: "ChangeNow", url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png"), type: .cex)),
             date: Date(),
             externalTxId: "a34883e049a416",
@@ -217,6 +214,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
         let pendingTransaction = factory.buildPendingExpressTransaction(currentExpressStatus: .sending, for: record)
         return .init(
             pendingTransaction: pendingTransaction,
+            currentTokenItem: tokenItem,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
                 blockchainNetwork: blockchainNetwork,
