@@ -412,9 +412,14 @@ private extension ExpressViewModel {
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
-        case .restriction(_, let quote):
+        case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-            stopTimer()
+
+            if case .hasPendingApproveTransaction = restriction {
+                restartTimer()
+            } else {
+                stopTimer()
+            }
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
         case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
@@ -490,7 +495,7 @@ private extension ExpressViewModel {
             break
         case .restriction(let type, _):
             switch type {
-            case .hasPendingTransaction, .hasPendingAllowanceTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
+            case .hasPendingTransaction, .hasPendingApproveTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
