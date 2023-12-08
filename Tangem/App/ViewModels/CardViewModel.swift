@@ -29,13 +29,16 @@ class CardViewModel: Identifiable, ObservableObject {
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
-        cardDerivableProvider: self
+        cardDerivableProvider: self,
+        existingCurves: config.walletCurves,
+        longHashesSupported: longHashesSupported
     )
 
     let userTokenListManager: UserTokenListManager
 
     private let keysRepository: KeysRepository
     private let walletManagersRepository: WalletManagersRepository
+    private let cardImageProvider = CardImageProvider()
 //    private let notificationAnalyticsManager: NotificationsAnalyticsManager
 
     lazy var derivationManager: DerivationManager? = {
@@ -109,7 +112,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var artworkInfo: ArtworkInfo? {
-        CardImageProvider().cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
+        cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
     }
 
     var name: String {
@@ -540,6 +543,22 @@ extension CardViewModel: UserWalletModel {
 
     var tokensCount: Int? {
         walletModelsManager.walletModels.count
+    }
+
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
+        let artwork: CardArtwork
+
+        if let artworkInfo = artworkInfo {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
+        }
+
+        return cardImageProvider.loadImage(
+            cardId: card.cardId,
+            cardPublicKey: card.cardPublicKey,
+            artwork: artwork
+        )
     }
 
     func updateWalletName(_ name: String) {
