@@ -195,10 +195,10 @@
 "express_error_code" = "Произошла ошибка. Код: %@";
 "express_estimated_amount" = "Estimated amount";
 "express_exchange_by" = "Exchange by %@";
-"express_exchange_notification_failed_text" = "Visit provider’s website to see why";
-"express_exchange_notification_failed_title" = "Operation failed by provider";
-"express_exchange_notification_verification_text" = "Visit provider’s website for verification";
-"express_exchange_notification_verification_title" = "KYC verification required by provider";
+"express_exchange_notification_failed_text" = "Чтобы вернуть ваши деньги, посетите сайт провайдера";
+"express_exchange_notification_failed_title" = "Операция не выполнена провайдером";
+"express_exchange_notification_verification_text" = "Посетите сайт провайдера для проверки";
+"express_exchange_notification_verification_title" = "Провайдер запрашивает прохождение верификации";
 "express_exchange_status_confirmed" = "Confirmed";
 "express_exchange_status_confirming" = "Confirming";
 "express_exchange_status_confirming_active" = "Confirming...";
@@ -226,6 +226,7 @@
 "express_provider_min_amount" = "Доступно с %@";
 "express_provider_not_available" = "Недоступно для этой пары";
 "express_provider_permission_needed" = "Требуется разрешение";
+"express_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
 "feedback_preface_support" = "Привет, команда поддержки,";
