@@ -12,7 +12,8 @@ import SwiftUI
 enum ExpressNotificationEvent {
     case permissionNeeded(currencyCode: String)
     case refreshRequired(title: String, message: String)
-    case hasPendingTransaction
+    case hasPendingTransaction(symbol: String)
+    case hasPendingApproveTransaction
     case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconName: String)
     case notEnoughAmountToSwap(minimumAmountText: String)
     case notEnoughBalanceToSwap(maximumAmountText: String)
@@ -30,7 +31,9 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .refreshRequired(let title, _):
             return title
         case .hasPendingTransaction:
-            return Localization.swappingPendingTransactionTitle
+            return Localization.warningExpressActiveTransactionTitle
+        case .hasPendingApproveTransaction:
+            return Localization.warningExpressApprovalInProgressTitle
         case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName)
         case .notEnoughAmountToSwap(let minimumAmountText):
@@ -54,8 +57,10 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.swappingPermissionSubheader(currencyCode)
         case .refreshRequired(_, let message):
             return message
-        case .hasPendingTransaction:
-            return Localization.swappingPendingTransactionSubtitle
+        case .hasPendingTransaction(let symbol):
+            return Localization.warningExpressActiveTransactionMessage(symbol)
+        case .hasPendingApproveTransaction:
+            return Localization.warningExpressApprovalInProgressMessage
         case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .notEnoughAmountToSwap:
@@ -75,7 +80,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .permissionNeeded, .hasPendingTransaction, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .noDestinationTokens, .highPriceImpact:
+        case .permissionNeeded, .hasPendingTransaction, .hasPendingApproveTransaction, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .noDestinationTokens, .highPriceImpact:
             return .secondary
         case .notEnoughFeeForTokenTx, .refreshRequired, .verificationRequired, .cexOperationFailed:
             return .primary
@@ -88,12 +93,14 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.swapLock.image))
         case .refreshRequired, .noDestinationTokens, .highPriceImpact, .verificationRequired:
             return .init(iconType: .image(Assets.attention.image))
-        case .hasPendingTransaction:
+        case .hasPendingApproveTransaction:
             return .init(iconType: .progressView)
         case .notEnoughFeeForTokenTx(_, _, let blockchainIconName):
             return .init(iconType: .image(Image(blockchainIconName)))
         case .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .cexOperationFailed:
             return .init(iconType: .image(Assets.redCircleWarning.image))
+        case .hasPendingTransaction:
+            return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
     }
 
@@ -123,7 +130,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .noDestinationTokens, .refreshRequired, .verificationRequired, .cexOperationFailed:
             return false
-        case .permissionNeeded, .hasPendingTransaction, .notEnoughFeeForTokenTx, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .highPriceImpact:
+        case .permissionNeeded, .hasPendingTransaction, .hasPendingApproveTransaction, .notEnoughFeeForTokenTx, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .highPriceImpact:
             return true
         }
     }
