@@ -88,10 +88,12 @@ extension TokenDetailsCoordinator {
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openPendingExpressTransactionDetails(
         for pendingTransaction: PendingExpressTransaction,
+        tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     ) {
         pendingExpressTxStatusBottomSheetViewModel = .init(
             pendingTransaction: pendingTransaction,
+            currentTokenItem: tokenItem,
             pendingTransactionsManager: pendingTransactionsManager
         )
     }
