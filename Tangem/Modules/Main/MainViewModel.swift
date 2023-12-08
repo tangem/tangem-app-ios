@@ -75,7 +75,9 @@ final class MainViewModel: ObservableObject {
             mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
+
         bind()
+        subscribeToTotalBalanceUpdates(userWalletModels: userWalletRepository.models)
     }
 
     convenience init(
@@ -281,7 +283,7 @@ final class MainViewModel: ObservableObject {
         pages.append(newPage)
         selectedCardIndex = newPageIndex
 
-        subscribeToTotalBalanceUpdate(userWalletModel: userWalletModel)
+        subscribeToTotalBalanceUpdates(userWalletModel: userWalletModel)
     }
 
     private func removePages(with userWalletIds: [Data]) {
@@ -309,13 +311,14 @@ final class MainViewModel: ObservableObject {
     }
 
     private func recreatePages() {
-        // [REDACTED_TODO_COMMENT]
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
             mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
+
+        subscribeToTotalBalanceUpdates(userWalletModels: userWalletRepository.models)
     }
 
     // MARK: - Private functions
@@ -371,7 +374,11 @@ final class MainViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func subscribeToTotalBalanceUpdate(userWalletModel: UserWalletModel) {
+    private func subscribeToTotalBalanceUpdates(userWalletModels: [UserWalletModel]) {
+        userWalletModels.forEach(subscribeToTotalBalanceUpdates(userWalletModel:))
+    }
+
+    private func subscribeToTotalBalanceUpdates(userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
         totalBalanceSubscriptions[userWalletModel.userWalletId.value] = userWalletModel
             .totalBalancePublisher()
