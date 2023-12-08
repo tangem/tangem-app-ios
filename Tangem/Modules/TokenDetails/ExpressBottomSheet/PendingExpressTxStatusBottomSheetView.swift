@@ -196,16 +196,16 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             sourceTokenTxInfo: .init(
                 tokenItem: tokenItem,
                 blockchainNetwork: blockchainNetwork,
-                amount: 10,
+                amountString: "10",
                 isCustom: true
             ),
             destinationTokenTxInfo: .init(
                 tokenItem: .token(.shibaInuMock, .ethereum(testnet: false)),
                 blockchainNetwork: .init(.ethereum(testnet: false)),
-                amount: 1,
+                amountString: "1",
                 isCustom: false
             ),
-            fee: 0.021351,
+            feeString: "0.021351",
             provider: ExpressPendingTransactionRecord.Provider(provider: .init(id: "changenow", name: "ChangeNow", url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png"), type: .cex)),
             date: Date(),
             externalTxId: "a34883e049a416",
