@@ -17,23 +17,25 @@ struct ManageTokensNetworkSelectorView: View {
                 NotificationView(input: notificationInput)
                     .transition(.notificationTransition)
 
-                Spacer(minLength: 14)
+                Spacer(minLength: 10)
             }
 
             if !viewModel.currentWalletName.isEmpty {
                 walletSelectorContent
 
-                Spacer(minLength: 14)
+                Spacer(minLength: 10)
             }
 
             if !viewModel.nativeSelectorItems.isEmpty {
-                Spacer(minLength: 10)
+                Spacer(minLength: 14)
 
                 nativeNetworksContent
+
+                Spacer(minLength: 10)
             }
 
             if !viewModel.nonNativeSelectorItems.isEmpty {
-                Spacer(minLength: 24)
+                Spacer(minLength: 14)
 
                 noneNativeNetworksContent
             }
