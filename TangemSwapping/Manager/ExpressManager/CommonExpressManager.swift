@@ -31,7 +31,7 @@ actor CommonExpressManager {
     // 5. Here the provider with his quote which was selected from user
     private var selectedQuote: ExpectedQuote?
 
-    private var awaitingAllowanceSpenders = Set<String>()
+    private var spendersAwaitingApprove = Set<String>()
 
     init(
         expressAPIProvider: ExpressAPIProvider,
@@ -96,8 +96,8 @@ extension CommonExpressManager: ExpressManager {
         try await updateState()
     }
 
-    func didSentAllowanceTransaction(for spender: String) async {
-        awaitingAllowanceSpenders.insert(spender)
+    func didSendApproveTransaction(for spender: String) async {
+        spendersAwaitingApprove.insert(spender)
     }
 
     func requestData() async throws -> ExpressTransactionData {
@@ -338,8 +338,8 @@ private extension CommonExpressManager {
                     return .permissionRequired(spender: spender)
                 }
             } catch let error as AllowanceProviderError {
-                if case .allowanceTransactionInProgress = error {
-                    return .permissionRequired(spender: spender)
+                if case .approveTransactionInProgress = error {
+                    return .approveTransactionInProgress(spender: spender)
                 }
                 throw error
             }
@@ -378,17 +378,17 @@ private extension CommonExpressManager {
         let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
         logger.debug("\(request.pair.source) allowance - \(allowance)")
 
-        let allowanceTxWasSent = awaitingAllowanceSpenders.contains(spender)
-        let hasAllowance = allowance < request.amount
-        if allowanceTxWasSent {
-            if hasAllowance {
-                awaitingAllowanceSpenders.remove(spender)
-                return hasAllowance
+        let approveTxWasSent = spendersAwaitingApprove.contains(spender)
+        let hasEnoughAllowance = allowance >= request.amount
+        if approveTxWasSent {
+            if hasEnoughAllowance {
+                spendersAwaitingApprove.remove(spender)
+                return hasEnoughAllowance
             } else {
-                throw AllowanceProviderError.allowanceTransactionInProgress
+                throw AllowanceProviderError.approveTransactionInProgress
             }
         }
-        return allowance < request.amount
+        return !hasEnoughAllowance
     }
 }
 
