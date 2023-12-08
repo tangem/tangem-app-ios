@@ -66,7 +66,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
             Analytics.log(
                 event: .swapChooseTokenScreenResult,
                 params: [
-                    .tokenChosen: Analytics.ParameterValue.no.rawValue
+                    .tokenChosen: Analytics.ParameterValue.no.rawValue,
                 ]
             )
         }
