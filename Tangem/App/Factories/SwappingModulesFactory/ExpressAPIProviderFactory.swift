@@ -13,7 +13,7 @@ struct ExpressAPIProviderFactory {
 
     func makeExpressAPIProvider(userId: String, logger: SwappingLogger) -> ExpressAPIProvider {
         let factory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
-        let isProduction = !FeatureStorage().useDevApi
+        let isProduction = AppEnvironment.current.isProduction
 
         let credentials = ExpressAPICredential(
             apiKey: keysManager.tangemExpressApiKey,
