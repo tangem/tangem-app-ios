@@ -22,9 +22,10 @@ final class _CommonRateAppService {
 
 extension _CommonRateAppService {
     struct RateAppRequest {
-        let isLocked: Bool
         let totalBalances: [TotalBalanceProvider.TotalBalance]
-        let displayedNotifications: [NotificationViewInput]
+        let isSelectedPageLocked: Bool
+        let isSelectedPageFailedToLoadTotalBalance: Bool
+        let selectedPageDisplayedNotifications: [NotificationViewInput]
     }
 }
 
