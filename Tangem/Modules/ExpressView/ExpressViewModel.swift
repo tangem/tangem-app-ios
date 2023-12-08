@@ -422,6 +422,13 @@ private extension ExpressViewModel {
             }
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
+            // restart timer only for error
+            if case .requiredRefresh = restriction {
+                restartTimer()
+            } else {
+                stopTimer()
+            }
+
         case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
             isSwapButtonLoading = false
             restartTimer()
