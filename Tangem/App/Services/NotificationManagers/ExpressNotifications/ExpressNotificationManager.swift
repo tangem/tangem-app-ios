@@ -112,8 +112,8 @@ class ExpressNotificationManager {
             // For only a express error we use "Service temporary unavailable"
             let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
             event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
-        case .requiredRefresh(let occurredError):
-            event = .refreshRequired(title: Localization.commonError, message: occurredError.localizedDescription)
+        case .requiredRefresh:
+            event = .refreshRequired(title: Localization.commonError, message: Localization.expressUnknownError)
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceTokenItemSymbol)
         }
