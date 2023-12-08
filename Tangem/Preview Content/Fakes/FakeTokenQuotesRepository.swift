@@ -35,8 +35,8 @@ class FakeTokenQuotesRepository: TokenQuotesRepository {
                 change: Decimal(floatLiteral: Double.random(in: -10 ... 10)),
                 price: Decimal(floatLiteral: Double.random(in: 1 ... 50000)),
                 prices24h: [
-                    Decimal(floatLiteral: Double.random(in: -10 ... 10)),
-                    Decimal(floatLiteral: Double.random(in: -10 ... 10)),
+                    Double.random(in: -10 ... 10),
+                    Double.random(in: -10 ... 10),
                 ],
                 currencyCode: AppSettings.shared.selectedCurrencyCode
             )
