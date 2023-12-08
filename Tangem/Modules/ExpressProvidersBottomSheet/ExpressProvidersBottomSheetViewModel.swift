@@ -62,7 +62,13 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     func updateView() {
         providerViewModels = quotes
             .sorted(by: { $0.rate > $1.rate })
-            .map { mapToProviderRowViewModel(quote: $0) }
+            .compactMap { quote in
+                guard quote.isAvailableToShow else {
+                    return nil
+                }
+
+                return mapToProviderRowViewModel(quote: quote)
+            }
     }
 
     func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
@@ -123,5 +129,25 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
+    }
+}
+
+private extension ExpectedQuote {
+    var isAvailableToSelect: Bool {
+        switch state {
+        case .quote, .tooSmallAmount:
+            return true
+        case .error, .notAvailable:
+            return false
+        }
+    }
+
+    var isAvailableToShow: Bool {
+        switch state {
+        case .quote, .tooSmallAmount, .notAvailable:
+            return true
+        case .error:
+            return false
+        }
     }
 }
