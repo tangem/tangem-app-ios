@@ -45,9 +45,7 @@ struct AppCoordinatorView: CoordinatorView {
                     isHiddenWhenCollapsed: true,
                     allowsHitTesting: coordinator.isMainBottomSheetShown
                 )
-                .onBottomScrollableSheetStateChange { state in
-                    mainBottomSheetCoordinator.start(with: .bottomScrollableSheetStateChange(state: state))
-                }
+                .onBottomScrollableSheetStateChange(mainBottomSheetCoordinator.onBottomScrollableSheetStateChange(_:))
         }
     }
 }
