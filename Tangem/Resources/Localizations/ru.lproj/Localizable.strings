@@ -637,6 +637,8 @@
 "warning_developer_card_title" = "Не для пользователя!";
 "warning_existential_deposit_message" = "Cеть %1$@ использует концепцию экзистенциального депозита. Если баланс вашего счета будет ниже %2$@, то он будет деактивирован, а средства на счете уничтожены.";
 "warning_existential_deposit_title" = "Для работы с сетью необходим депозит";
+"warning_express_active_transaction_message" = "Обмен будет доступен после завершения транзакции %@";
+"warning_express_active_transaction_title" = "У вас есть активная транзакция";
 "warning_express_no_exchangeable_coins_description" = "У вас в списке нет монет доступных для обмена с %@";
 "warning_express_no_exchangeable_coins_title" = "Нет доступных токенов для обмена";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";

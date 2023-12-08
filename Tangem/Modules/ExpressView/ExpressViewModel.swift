@@ -414,18 +414,13 @@ private extension ExpressViewModel {
 
         case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-
-            if case .hasPendingApproveTransaction = restriction {
-                restartTimer()
-            } else {
-                stopTimer()
-            }
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
 
-            // restart timer only for error
-            if case .requiredRefresh = restriction {
+            // restart timer for error and pending approve transaction
+            switch restriction {
+            case .requiredRefresh, .hasPendingApproveTransaction:
                 restartTimer()
-            } else {
+            default:
                 stopTimer()
             }
 
