@@ -637,6 +637,8 @@
 "warning_developer_card_title" = "Not for users!";
 "warning_existential_deposit_message" = "%1$@ network requires an Existential Deposit. If your account drops below %2$@, it will be deactivated, and any remaining funds will be destroyed.";
 "warning_existential_deposit_title" = "Network requires Existential Deposit";
+"warning_express_active_transaction_message" = "Swap will be available once the %@ transaction is complete";
+"warning_express_active_transaction_title" = "You have active transaction";
 "warning_express_no_exchangeable_coins_description" = "You do not have any %@ exchangeable coins in your list";
 "warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
