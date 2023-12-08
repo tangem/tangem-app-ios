@@ -36,7 +36,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private unowned let coordinator: ManageTokensNetworkSelectorRoutable
 
     /// CoinId from parent data source embedded on selected UserWalletModel
-    private let defaultCoinId: String?
+    private let parentEmbeddedCoinId: String?
     private let dataSource: ManageTokensNetworkDataSource
 
     private let coinId: String
@@ -46,7 +46,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         dataSource.selectedUserWalletModel
     }
 
-    private var isTokenAvailableForSwitching: Bool {
+    private var canTokenItemBeToggled: Bool {
         selectedUserWalletModel != nil
     }
 
@@ -61,7 +61,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
-        defaultCoinId = parentDataSource.defaultUserWalletModel?.embeddedCoinId
+        parentEmbeddedCoinId = parentDataSource.defaultUserWalletModel?.embeddedCoinId
 
         dataSource = ManageTokensNetworkDataSource(parentDataSource)
 
@@ -116,7 +116,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: nil,
                     isSelected: bindSelection($0),
-                    isAvailable: isTokenAvailableForSwitching
+                    isAvailable: canTokenItemBeToggled
                 )
             }
 
@@ -133,7 +133,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
                     isSelected: bindSelection($0),
-                    isAvailable: isTokenAvailableForSwitching
+                    isAvailable: canTokenItemBeToggled
                 )
             }
     }
@@ -144,7 +144,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             return
         }
 
-        if defaultCoinId != coinId {
+        if parentEmbeddedCoinId != coinId {
             displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
         }
     }
@@ -202,7 +202,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             do {
                 try self?.displayAlertWarningDeleteIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
             } catch {
-                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
+                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error)
             }
         }
 
@@ -266,7 +266,7 @@ private extension ManageTokensNetworkSelectorViewModel {
             return userTokensManager.contains(tokenItem, derivationPath: nil)
         }
 
-        return defaultCoinId == tokenItem.blockchain.coinId
+        return parentEmbeddedCoinId == tokenItem.blockchain.coinId
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
@@ -293,14 +293,14 @@ private extension ManageTokensNetworkSelectorViewModel {
 // MARK: - Alerts
 
 private extension ManageTokensNetworkSelectorViewModel {
-    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: LocalizedError?) {
+    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: Error?) {
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {
             self.updateSelection(tokenItem)
         }
 
         alert = AlertBinder(alert: Alert(
             title: Text(Localization.commonAttention),
-            message: Text(error?.errorDescription ?? ""),
+            message: Text(error?.localizedDescription ?? ""),
             dismissButton: okButton
         ))
     }
