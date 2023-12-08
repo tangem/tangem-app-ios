@@ -33,7 +33,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .hasPendingTransaction:
             return Localization.warningExpressActiveTransactionTitle
         case .hasPendingApproveTransaction:
-            return "Approve transaction in progress"
+            return Localization.warningExpressApprovalInProgressTitle
         case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName)
         case .notEnoughAmountToSwap(let minimumAmountText):
@@ -60,7 +60,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .hasPendingTransaction(let symbol):
             return Localization.warningExpressActiveTransactionMessage(symbol)
         case .hasPendingApproveTransaction:
-            return "Approve transaction is in progress. Please wait for a while"
+            return Localization.warningExpressApprovalInProgressMessage
         case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .notEnoughAmountToSwap:
