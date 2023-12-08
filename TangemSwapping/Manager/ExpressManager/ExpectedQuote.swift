@@ -22,11 +22,11 @@ public struct ExpectedQuote {
         }
     }
 
-    public var isAvailable: Bool {
+    public var isAvailableToSelect: Bool {
         switch state {
-        case .quote:
+        case .quote, .tooSmallAmount:
             return true
-        case .error, .notAvailable, .tooSmallAmount:
+        case .error, .notAvailable:
             return false
         }
     }
