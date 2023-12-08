@@ -32,8 +32,10 @@ struct ManageTokensNetworkSelectorView: View {
                 nativeNetworksContent
             }
 
+            Spacer(minLength: 14)
+
             if !viewModel.nonNativeSelectorItems.isEmpty {
-                Spacer(minLength: 24)
+                Spacer(minLength: 10)
 
                 noneNativeNetworksContent
             }
