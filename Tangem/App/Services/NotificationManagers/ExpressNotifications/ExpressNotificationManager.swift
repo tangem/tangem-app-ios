@@ -128,8 +128,7 @@ class ExpressNotificationManager {
         guard let interactor = expressInteractor else { return }
 
         let sourceTokenItem = interactor.getSender().tokenItem
-        let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
-        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceNetworkSymbol)
+        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceTokenItem.currencySymbol)
         let notificationsFactory = NotificationsFactory()
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
