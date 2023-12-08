@@ -84,7 +84,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         let provider = quote.provider
-        let isDisabled = !quote.isAvailable
+        let isDisabled = !quote.isAvailableToSelect
 
         let badge: ProviderRowViewModel.Badge? = {
             if isDisabled {
