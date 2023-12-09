@@ -43,6 +43,10 @@ struct ManageTokensView: View {
                 ManageTokensItemView(viewModel: $0)
             }
 
+            if viewModel.isShowAddCustomToken {
+                addCutomTokenView
+            }
+
             if viewModel.hasNextPage {
                 HStack(alignment: .center) {
                     ActivityIndicatorView(color: .gray)
@@ -55,5 +59,11 @@ struct ManageTokensView: View {
     @ViewBuilder private var titleView: some View {
         Text(Localization.addTokensTitle)
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+    }
+
+    private var addCutomTokenView: some View {
+        ManageTokensAddCustomItemView {
+            viewModel.addCustomTokenDidTapAction()
+        }
     }
 }
