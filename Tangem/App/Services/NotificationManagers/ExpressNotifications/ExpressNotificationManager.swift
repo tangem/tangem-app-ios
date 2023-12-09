@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import struct TangemSwapping.ExpressAPIError
 
 class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
@@ -88,17 +89,20 @@ class ExpressNotificationManager {
         guard let interactor = expressInteractor else { return }
 
         let sourceTokenItem = interactor.getSender().tokenItem
+        let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
         let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
         let event: ExpressNotificationEvent
         let notificationsFactory = NotificationsFactory()
 
         switch restrictions {
         case .notEnoughAmountForSwapping(let minAmount):
-            event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceNetworkSymbol)")
+            event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceTokenItemSymbol)")
         case .hasPendingTransaction:
-            event = .hasPendingTransaction
+            event = .hasPendingTransaction(symbol: sourceTokenItem.currencySymbol)
+        case .hasPendingApproveTransaction:
+            event = .hasPendingApproveTransaction
         case .notEnoughBalanceForSwapping(let requiredAmount):
-            event = .notEnoughBalanceToSwap(maximumAmountText: "\(requiredAmount) \(sourceTokenItem.currencySymbol)")
+            event = .notEnoughBalanceToSwap(maximumAmountText: "\(requiredAmount) \(sourceTokenItemSymbol)")
         case .notEnoughAmountForFee:
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
@@ -106,10 +110,14 @@ class ExpressNotificationManager {
             }
 
             event = .notEnoughFeeForTokenTx(mainTokenName: sourceTokenItem.blockchain.displayName, mainTokenSymbol: sourceNetworkSymbol, blockchainIconName: sourceTokenItem.blockchain.iconNameFilled)
-        case .requiredRefresh(let occurredError):
-            event = .refreshRequired(message: occurredError.localizedDescription)
+        case .requiredRefresh(let occurredError as ExpressAPIError):
+            // For only a express error we use "Service temporary unavailable"
+            let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
+            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
+        case .requiredRefresh:
+            event = .refreshRequired(title: Localization.commonError, message: Localization.expressUnknownError)
         case .noDestinationTokens:
-            event = .noDestinationTokens(sourceTokenName: sourceNetworkSymbol)
+            event = .noDestinationTokens(sourceTokenName: sourceTokenItemSymbol)
         }
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
@@ -122,8 +130,7 @@ class ExpressNotificationManager {
         guard let interactor = expressInteractor else { return }
 
         let sourceTokenItem = interactor.getSender().tokenItem
-        let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
-        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceNetworkSymbol)
+        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceTokenItem.currencySymbol)
         let notificationsFactory = NotificationsFactory()
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
