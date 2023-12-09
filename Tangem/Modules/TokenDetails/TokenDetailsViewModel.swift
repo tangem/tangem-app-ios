@@ -209,6 +209,7 @@ private extension TokenDetailsViewModel {
 
         coordinator.openPendingExpressTransactionDetails(
             for: pendingTransaction,
+            tokenItem: tokenItem,
             pendingTransactionsManager: pendingExpressTransactionsManager
         )
     }
