@@ -38,7 +38,14 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        setupView()
+        bind()
+    }
+
+    func bind() {
+        expressInteractor.state
+            .sink { [weak self] state in
+                self?.setupView()
+            }.store(in: &bag)
     }
 
     func setupView() {
@@ -53,9 +60,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func updateView() {
-        providerViewModels = quotes.map { quote in
-            mapToProviderRowViewModel(quote: quote)
-        }
+        providerViewModels = quotes
+            .sorted(by: { $0.rate > $1.rate })
+            .map { mapToProviderRowViewModel(quote: $0) }
     }
 
     func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
@@ -77,19 +84,34 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         let provider = quote.provider
+        let isDisabled = !quote.isAvailableToSelect
+
+        let badge: ProviderRowViewModel.Badge? = {
+            if isDisabled {
+                return .none
+            }
+
+            return provider.type == .dex ? .permissionNeeded : .none
+        }()
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider),
-            isDisabled: !quote.isAvailable,
-            badge: provider.type == .dex ? .permissionNeeded : .none,
+            isDisabled: isDisabled,
+            badge: badge,
             subtitles: subtitles,
             detailsType: selectedProviderId == provider.id ? .selected : .none,
             tapAction: { [weak self] in
-                self?.selectedProviderId = provider.id
-                self?.expressInteractor.updateProvider(provider: provider)
-                self?.coordinator.closeExpressProvidersBottomSheet()
+                self?.userDidTap(provider: provider)
             }
         )
+    }
+
+    func userDidTap(provider: ExpressProvider) {
+        Analytics.log(event: .swapProviderChosen, params: [.provider: provider.name])
+
+        selectedProviderId = provider.id
+        expressInteractor.updateProvider(provider: provider)
+        coordinator.closeExpressProvidersBottomSheet()
     }
 
     func makePercentSubtitle(quote: ExpectedQuote) -> ProviderRowViewModel.Subtitle? {
