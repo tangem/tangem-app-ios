@@ -17,17 +17,14 @@ enum ExpressDTO {
     }
 
     struct Provider: Codable {
+        typealias Id = String
+
         let providerId: Id
         let rateTypes: [RateType]
 
         enum RateType: String, Codable {
             case float
             case fixed
-        }
-
-        enum Id: String, Codable {
-            case changeNow = "changenow"
-            case oneInch = "1inch"
         }
     }
 
@@ -80,6 +77,7 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
+            let toDecimals: Int
             let fromAmount: String
             let fromDecimals: Int
             let providerId: Provider.Id
@@ -104,6 +102,7 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
+            let toDecimals: Int
             let fromAmount: String
             let fromDecimals: Int
             let providerId: Provider.Id
@@ -137,18 +136,18 @@ enum ExpressDTO {
         }
     }
 
-    // MARK: - ExchangeResult
+    // MARK: - ExchangeStatus
 
-    enum ExchangeResult {
+    enum ExchangeStatus {
         struct Request: Encodable {
             let txId: String
         }
 
         struct Response: Decodable {
-            let status: ExpressTransactionStatus
-            let externalStatus: String
+            let providerId: Provider.Id
+            let externalTxId: String
+            let externalTxStatus: ExpressTransactionStatus
             let externalTxUrl: String
-            let errorCode: Int
         }
     }
 
@@ -157,37 +156,6 @@ enum ExpressDTO {
     enum APIError {
         struct Response: Decodable {
             let error: ExpressAPIError
-        }
-    }
-
-    struct ExpressAPIError: Decodable, LocalizedError, Error {
-        let code: Code?
-        let description: String?
-        let value: MinAmountValue?
-
-        struct MinAmountValue: Decodable {
-            let minAmount: String
-            let decimals: Int
-
-            var amount: Decimal? {
-                Decimal(string: minAmount).map { $0 / pow(10, decimals) }
-            }
-        }
-
-        var errorDescription: String? {
-            description
-        }
-
-        enum Code: Int, Decodable {
-            case badRequest = 2010
-            case exchangeProviderNotFoundError = 2210
-            case exchangeProviderNotActiveError = 2220
-            case exchangeProviderNotAvailableError = 2230
-            case exchangeNotPossibleError = 2240
-            case exchangeTooSmallAmountError = 2250
-            case exchangeInvalidAddressError = 2260
-            case exchangeNotEnoughBalanceError = 2270
-            case exchangeNotEnoughAllowanceError = 2280
         }
     }
 }
