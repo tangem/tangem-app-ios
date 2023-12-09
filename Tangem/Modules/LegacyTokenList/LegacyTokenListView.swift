@@ -27,7 +27,9 @@ struct LegacyTokenListView: View {
         .toast(isPresenting: $viewModel.showToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.contractAddressCopiedMessage)
         }
-        .searchableCompatWithoutCorrection(text: $viewModel.enteredSearchText.value)
+        .searchableCompat(text: $viewModel.enteredSearchText.value)
+        .keyboardType(.alphabet)
+        .disableAutocorrection(true)
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
