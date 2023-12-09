@@ -177,6 +177,7 @@ private extension SensitiveTextVisibilityViewModel {
 extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
     func hiddenBalancesSheetDidRequestClose() {
         informationHiddenBalancesViewModel = nil
+        presentToast()
     }
 
     func hiddenBalancesSheetDidRequestDoNotShowAgain() {
