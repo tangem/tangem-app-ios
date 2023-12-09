@@ -10,16 +10,18 @@ import Moya
 
 struct CommonExpressAPIService {
     private let provider: MoyaProvider<ExpressAPITarget>
+    private let isProduction: Bool
     private let logger: SwappingLogger
     private let decoder = JSONDecoder()
 
-    init(provider: MoyaProvider<ExpressAPITarget>, logger: SwappingLogger) {
+    init(provider: MoyaProvider<ExpressAPITarget>, isProduction: Bool, logger: SwappingLogger) {
         assert(
             provider.plugins.contains(where: { $0 is ExpressAuthorizationPlugin }),
             "Should contains ExpressHeaderMoyaPlugin"
         )
 
         self.provider = provider
+        self.isProduction = isProduction
         self.logger = logger
     }
 }
@@ -45,43 +47,51 @@ extension CommonExpressAPIService: ExpressAPIService {
         try await _request(target: .exchangeData(request: request))
     }
 
-    func exchangeResult(request: ExpressDTO.ExchangeResult.Request) async throws -> ExpressDTO.ExchangeResult.Response {
-        try await _request(target: .exchangeResult(request: request))
+    func exchangeStatus(request: ExpressDTO.ExchangeStatus.Request) async throws -> ExpressDTO.ExchangeStatus.Response {
+        try await _request(target: .exchangeStatus(request: request))
     }
 }
 
 private extension CommonExpressAPIService {
-    func _request<T: Decodable>(target: ExpressAPITarget) async throws -> T {
+    func _request<T: Decodable>(target: ExpressAPITarget.Target) async throws -> T {
+        let request = ExpressAPITarget(isProduction: isProduction, target: target)
         var response: Response
 
         do {
-            response = try await provider.asyncRequest(target)
+            response = try await provider.asyncRequest(request)
         } catch {
-            log(target: target, error: error)
+            log(target: request, error: error)
             throw error
         }
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
-            log(target: target, response: response)
+            log(target: request, response: response)
         } catch {
-            try handleError(target: target, response: response)
+            if let expressError = tryMapError(target: request, response: response) {
+                throw expressError
+            }
+
+            throw error
         }
 
         do {
             return try decoder.decode(T.self, from: response.data)
         } catch {
-            log(target: target, response: response, error: error)
+            log(target: request, response: response, error: error)
             throw error
         }
     }
 
-    func handleError(target: ExpressAPITarget, response: Response) throws {
-        let decoder = JSONDecoder()
-
-        let error = try decoder.decode(ExpressDTO.APIError.Response.self, from: response.data)
-        log(target: target, response: response, error: error.error)
-        throw error.error
+    func tryMapError(target: ExpressAPITarget, response: Response) -> ExpressAPIError? {
+        do {
+            let error = try JSONDecoder().decode(ExpressDTO.APIError.Response.self, from: response.data)
+            log(target: target, response: response, error: error.error)
+            return error.error
+        } catch {
+            log(target: target, response: response, error: error)
+            return nil
+        }
     }
 
     func log(target: TargetType, response: Response? = nil, error: Error? = nil) {
@@ -94,7 +104,6 @@ private extension CommonExpressAPIService {
             """
             [ExpressAPIService]
             Request to target: \(target.path)
-            plugins: \(provider.plugins))
             task: \(target.task)
             ended with response: \(info)
             Error: \(String(describing: error))
