@@ -152,23 +152,8 @@ final class ExpressViewModel: ObservableObject {
 
 private extension ExpressViewModel {
     @MainActor
-    func openSuccessView(resultState: ExpressInteractor.TransactionSendResultState) {
-        guard let destination = interactor.getDestination() else {
-            assertionFailure("Destination isn't found")
-            return
-        }
-
-        let data = SentExpressTransactionData(
-            hash: resultState.hash,
-            source: interactor.getSender(),
-            destination: destination,
-            fee: resultState.fee.amount.value,
-            provider: resultState.provider,
-            date: Date(),
-            expressTransactionData: resultState.data
-        )
-
-        coordinator.presentSuccessView(data: data)
+    func openSuccessView(sentTransactionData: SentExpressTransactionData) {
+        coordinator.presentSuccessView(data: sentTransactionData)
     }
 
     func openApproveView() {
@@ -191,6 +176,7 @@ private extension ExpressViewModel {
     }
 
     func presentProviderSelectorView() {
+        Analytics.log(.swapProviderClicked)
         coordinator.presentProviderSelectorView()
     }
 }
@@ -426,10 +412,17 @@ private extension ExpressViewModel {
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
-        case .restriction(_, let quote):
+        case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-            stopTimer()
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
+
+            // restart timer for error and pending approve transaction
+            switch restriction {
+            case .requiredRefresh, .hasPendingApproveTransaction:
+                restartTimer()
+            default:
+                stopTimer()
+            }
 
         case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
             isSwapButtonLoading = false
@@ -483,11 +476,7 @@ private extension ExpressViewModel {
         }
 
         let tokenItem = interactor.getSender().tokenItem
-        let formattedFee = swappingFeeFormatter.format(
-            fee: fee,
-            currencySymbol: tokenItem.currencySymbol,
-            currencyId: tokenItem.currencyId ?? ""
-        )
+        let formattedFee = swappingFeeFormatter.format(fee: fee, tokenItem: tokenItem)
 
         var action: (() -> Void)?
         // If fee is one option then don't open selector
@@ -508,7 +497,7 @@ private extension ExpressViewModel {
             break
         case .restriction(let type, _):
             switch type {
-            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
+            case .hasPendingTransaction, .hasPendingApproveTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
@@ -531,20 +520,6 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToMessage(error: Error) -> String {
-        AppLog.shared.debug("ExpressViewModel catch error: ")
-        AppLog.shared.error(error)
-
-        switch error {
-        case let error as ExpressManagerError:
-            return error.localizedDescription
-        case let error as ExpressInteractorError:
-            return error.localizedDescription
-        default:
-            return error.localizedDescription
-        }
-    }
-
     func mapToSwappingTokenIconViewModelState(wallet: WalletModel?) -> SwappingTokenIconView.State {
         guard let wallet = wallet else {
             return .loading
@@ -588,12 +563,11 @@ private extension ExpressViewModel {
         mainButtonIsLoading = true
         runTask(in: self) { root in
             do {
-                let resultState = try await root.interactor.send()
+                let sentTransactionData = try await root.interactor.send()
 
                 try Task.checkCancellation()
 
-                await root.openSuccessView(resultState: resultState)
-
+                await root.openSuccessView(sentTransactionData: sentTransactionData)
             } catch TangemSdkError.userCancelled {
                 root.restartTimer()
             } catch {
