@@ -34,6 +34,9 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     private var unavailableWalletModels: [WalletModel] = []
     private var bag: Set<AnyCancellable> = []
 
+    // For Analytics
+    private var selectedWallet: WalletModel?
+
     init(
         swapDirection: SwapDirection,
         expressTokensListAdapter: ExpressTokensListAdapter,
@@ -48,6 +51,25 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         bind()
+    }
+
+    func onDisappear() {
+        if let wallet = selectedWallet {
+            Analytics.log(
+                event: .swapChooseTokenScreenResult,
+                params: [
+                    .tokenChosen: Analytics.ParameterValue.yes.rawValue,
+                    .token: wallet.tokenItem.currencySymbol,
+                ]
+            )
+        } else {
+            Analytics.log(
+                event: .swapChooseTokenScreenResult,
+                params: [
+                    .tokenChosen: Analytics.ParameterValue.no.rawValue,
+                ]
+            )
+        }
     }
 }
 
@@ -91,6 +113,11 @@ private extension ExpressTokensListViewModel {
     }
 
     func loadAvailablePairs(walletModels: [WalletModel]) async throws -> [ExpressCurrency] {
+        // If walletModels contains another wallets
+        guard walletModels.contains(where: { $0 != self.swapDirection.wallet }) else {
+            return []
+        }
+
         let currencies = walletModels.map { $0.expressCurrency }
 
         switch swapDirection {
@@ -108,6 +135,7 @@ private extension ExpressTokensListViewModel {
         unavailableWalletModels.removeAll()
 
         let currenciesSet = availableCurrencies.toSet()
+        Analytics.log(.swapChooseTokenScreenOpened, params: [.availableTokens: currenciesSet.isEmpty ? .no : .yes])
 
         walletModels
             .forEach { walletModel in
@@ -126,13 +154,13 @@ private extension ExpressTokensListViewModel {
 
     func updateView(searchText: String = "") {
         let availableTokens = availableWalletModels
-            .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
+            .filter { filter(searchText, item: $0.tokenItem) }
             .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
             }
 
         let unavailableTokens = unavailableWalletModels
-            .filter { searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }
+            .filter { filter(searchText, item: $0.tokenItem) }
             .map { walletModel in
                 mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
             }
@@ -142,6 +170,17 @@ private extension ExpressTokensListViewModel {
         } else {
             viewState = .loaded(availableTokens: availableTokens, unavailableTokens: unavailableTokens)
         }
+    }
+
+    func filter(_ text: String, item: TokenItem) -> Bool {
+        if text.isEmpty {
+            return true
+        }
+
+        let isContainsName = item.name.lowercased().contains(text.lowercased())
+        let isContainsCurrencySymbol = item.currencySymbol.lowercased().contains(text.lowercased())
+
+        return isContainsName || isContainsCurrencySymbol
     }
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
@@ -168,6 +207,7 @@ private extension ExpressTokensListViewModel {
             expressInteractor.update(sender: walletModel)
         }
 
+        selectedWallet = walletModel
         coordinator.closeExpressTokensList()
     }
 }
