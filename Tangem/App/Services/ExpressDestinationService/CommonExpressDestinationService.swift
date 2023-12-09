@@ -30,9 +30,8 @@ extension CommonExpressDestinationService: ExpressDestinationService {
             wallet.id != source.id && swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
         }
 
-        if let lastCurrencyTransaction = pendingTransactionRepository.lastCurrencyTransaction(),
-           let lastWallet = searchableWalletModels.first(where: { $0.expressCurrency == lastCurrencyTransaction }) {
-            return lastWallet
+        if let lastTransactionWalletModel = getLastTransactionWalletModel(in: searchableWalletModels) {
+            return lastTransactionWalletModel
         }
 
         let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatValue ?? 0) > 0 }
@@ -48,5 +47,18 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         }
 
         return nil
+    }
+
+    private func getLastTransactionWalletModel(in searchableWalletModels: [WalletModel]) -> WalletModel? {
+        let transactions = pendingTransactionRepository.pendingTransactions
+
+        guard
+            let lastTransactionCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency,
+            let lastWallet = searchableWalletModels.first(where: { $0.expressCurrency == lastTransactionCurrency })
+        else {
+            return nil
+        }
+
+        return lastWallet
     }
 }
