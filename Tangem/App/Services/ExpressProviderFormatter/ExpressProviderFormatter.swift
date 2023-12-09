@@ -28,8 +28,8 @@ struct ExpressProviderFormatter {
                 option: option
             )
 
-        case .error(let string):
-            return .text(string)
+        case .error(let error):
+            return .text(error.localizedDescription)
         case .notAvailable:
             return .text(Localization.expressProviderNotAvailable)
         case .tooSmallAmount(let minAmount):
@@ -72,6 +72,7 @@ struct ExpressProviderFormatter {
 
     func mapToProvider(provider: ExpressProvider) -> ProviderRowViewModel.Provider {
         ProviderRowViewModel.Provider(
+            id: provider.id,
             iconURL: provider.url,
             name: provider.name,
             type: provider.type.rawValue.uppercased()

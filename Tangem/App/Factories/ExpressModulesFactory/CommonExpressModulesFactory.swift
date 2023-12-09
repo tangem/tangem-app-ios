@@ -12,16 +12,16 @@ import BlockchainSdk
 
 class CommonExpressModulesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletModel: UserWalletModel
     private let initialWalletModel: WalletModel
+    private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     // MARK: - Internal
 
     private lazy var expressInteractor = makeExpressInteractor()
-    private lazy var expressAPICredential = makeExpressAPICredential()
-    private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var swappingFactory = TangemSwappingFactory()
+    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
     private lazy var allowanceProvider = makeAllowanceProvider()
 
     init(inputModel: InputModel) {
@@ -57,7 +57,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
             expressTokensListAdapter: expressTokensListAdapter,
-            expressAPIProvider: expressAPIProvider,
+            expressAPIProvider: expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger),
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -73,9 +73,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
-            transactionSender: nil,
-            fiatRatesProvider: nil,
-            swappingInteractor: nil,
             swappingFeeFormatter: swappingFeeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
@@ -98,6 +95,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
+            initialWallet: initialWalletModel,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
@@ -144,10 +142,6 @@ private extension CommonExpressModulesFactory {
         CommonExpressTokensListAdapter(userWalletModel: userWalletModel)
     }
 
-    var pendingTransactionRepository: ExpressPendingTransactionRepository {
-        CommonExpressPendingTransactionRepository()
-    }
-
     var expressDestinationService: ExpressDestinationService {
         CommonExpressDestinationService(
             pendingTransactionRepository: pendingTransactionRepository,
@@ -163,13 +157,14 @@ private extension CommonExpressModulesFactory {
 
     func makeExpressInteractor() -> ExpressInteractor {
         let expressManager = swappingFactory.makeExpressManager(
-            expressAPIProvider: expressAPIProvider,
+            expressAPIProvider: expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger),
             allowanceProvider: allowanceProvider,
             logger: logger
         )
 
         let interactor = ExpressInteractor(
-            sender: initialWalletModel,
+            userWalletId: userWalletId,
+            initialWallet: initialWalletModel,
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
             expressPendingTransactionRepository: pendingTransactionRepository,
@@ -186,22 +181,6 @@ private extension CommonExpressModulesFactory {
         let provider = CommonExpressAllowanceProvider()
         provider.setup(wallet: initialWalletModel)
         return provider
-    }
-
-    func makeExpressAPIProvider() -> ExpressAPIProvider {
-        swappingFactory.makeExpressAPIProvider(
-            credential: expressAPICredential,
-            configuration: .defaultConfiguration,
-            logger: logger
-        )
-    }
-
-    func makeExpressAPICredential() -> ExpressAPICredential {
-        ExpressAPICredential(
-            apiKey: keysManager.tangemExpressApiKey,
-            userId: userWalletId,
-            sessionId: UUID().uuidString
-        )
     }
 }
 
