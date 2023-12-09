@@ -47,8 +47,3 @@ extension CommonExpressAllowanceProvider: ExpressAllowanceProvider {
         return ethereumTransactionProcessor.buildForApprove(spender: spender, amount: amount)
     }
 }
-
-enum AllowanceProviderError: LocalizedError {
-    case ethereumNetworkProviderNotFound
-    case ethereumTransactionProcessorNotFound
-}
