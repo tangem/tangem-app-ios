@@ -43,20 +43,6 @@ extension View {
     }
 
     @ViewBuilder
-    func searchableCompatWithoutCorrection(text: Binding<String>) -> some View {
-        if #available(iOS 15.0, *) {
-            self.searchable(
-                text: text,
-                placement: .navigationBarDrawer(displayMode: .always)
-            )
-            .keyboardType(.alphabet)
-            .autocorrectionDisabled(true)
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
     func interactiveDismissDisabledCompat() -> some View {
         if #available(iOS 15, *) {
             self.interactiveDismissDisabled()
