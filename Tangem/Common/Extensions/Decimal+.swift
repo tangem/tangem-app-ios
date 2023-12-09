@@ -29,7 +29,9 @@ extension Decimal {
         return formatter.format(value: self)
     }
 
-    var doubleValue: Double {
-        return NSDecimalNumber(decimal: self).doubleValue
+	}
+
+    var stringValue: String {
+        (self as NSDecimalNumber).stringValue
     }
 }
