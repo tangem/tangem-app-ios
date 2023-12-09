@@ -24,6 +24,8 @@ class ExpressInteractor {
 
     // MARK: - Dependencies
 
+    private let userWalletId: String
+    private let initialWallet: WalletModel
     private let expressManager: ExpressManager
     private let allowanceProvider: ExpressAllowanceProvider
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -42,7 +44,8 @@ class ExpressInteractor {
     private var updateStateTask: Task<Void, Error>?
 
     init(
-        sender: WalletModel,
+        userWalletId: String,
+        initialWallet: WalletModel,
         expressManager: ExpressManager,
         allowanceProvider: ExpressAllowanceProvider,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -51,7 +54,8 @@ class ExpressInteractor {
         signer: TransactionSigner,
         logger: SwappingLogger
     ) {
-        _swappingPair = .init(SwappingPair(sender: sender, destination: nil))
+        self.userWalletId = userWalletId
+        self.initialWallet = initialWallet
         self.expressManager = expressManager
         self.allowanceProvider = allowanceProvider
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
@@ -60,6 +64,7 @@ class ExpressInteractor {
         self.signer = signer
         self.logger = logger
 
+        _swappingPair = .init(SwappingPair(sender: initialWallet, destination: nil))
         loadDestinationIfNeeded()
     }
 }
@@ -165,18 +170,12 @@ extension ExpressInteractor {
 // MARK: - Send
 
 extension ExpressInteractor {
-    func send() async throws -> TransactionSendResultState {
-        guard let destination = getDestination()?.tokenItem else {
+    func send() async throws -> SentExpressTransactionData {
+        guard let destination = getDestination() else {
             throw ExpressInteractorError.destinationNotFound
         }
 
-        Analytics.log(
-            event: .swapButtonSwap,
-            params: [
-                .sendToken: getSender().tokenItem.currencySymbol,
-                .receiveToken: destination.currencySymbol,
-            ]
-        )
+        logAnalyticsEvent(.swapButtonSwap)
 
         let result: TransactionSendResultState = try await {
             switch getState() {
@@ -193,8 +192,19 @@ extension ExpressInteractor {
         }()
 
         updateState(.idle)
-        expressPendingTransactionRepository.didSendSwapTransaction()
-        return result
+        let sentTransactionData = SentExpressTransactionData(
+            hash: result.hash,
+            source: getSender(),
+            destination: destination,
+            fee: result.fee.amount.value,
+            feeOption: getFeeOption(),
+            provider: result.provider,
+            date: Date(),
+            expressTransactionData: result.data
+        )
+
+        expressPendingTransactionRepository.didSendSwapTransaction(sentTransactionData, userWalletId: userWalletId)
+        return sentTransactionData
     }
 
     func sendApproveTransaction() async throws {
@@ -206,6 +216,8 @@ extension ExpressInteractor {
             throw ExpressInteractorError.feeNotFound
         }
 
+        logAnalyticsEvent(.swapButtonPermissionApprove)
+
         let sender = getSender()
         let transaction = try await expressTransactionBuilder.makeApproveTransaction(
             wallet: sender,
@@ -215,8 +227,9 @@ extension ExpressInteractor {
         )
         let result = try await sender.send(transaction, signer: signer).async()
         logger.debug("Sent the approve transaction with result: \(result)")
-        expressPendingTransactionRepository.didSendApproveTransaction()
-        updateState(.restriction(.hasPendingTransaction, quote: getState().quote))
+
+        await expressManager.didSendApproveTransaction(for: state.spender)
+        updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
 }
 
@@ -319,6 +332,16 @@ private extension ExpressInteractor {
     func updateState(_ state: ExpressInteractorState) {
         log("Update state to express interactor state \(state)")
 
+        if case .restriction(.notEnoughAmountForFee, _) = state {
+            Analytics.log(
+                event: .swapNoticeNotEnoughFee,
+                params: [
+                    .token: initialWallet.tokenItem.currencySymbol,
+                    .blockchain: initialWallet.tokenItem.blockchain.displayName,
+                ]
+            )
+        }
+
         _state.send(state)
     }
 }
@@ -346,7 +369,8 @@ private extension ExpressInteractor {
             }
 
             return state
-
+        case .approveTransactionInProgress:
+            return .restriction(.hasPendingApproveTransaction, quote: quote)
         case .notEnoughBalanceForSwapping(let requiredAmount):
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
         }
@@ -373,8 +397,7 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        let network = getSender().expressCurrency.network
-        return expressPendingTransactionRepository.hasPending(for: network)
+        return !getSender().outgoingPendingTransactions.isEmpty
     }
 }
 
@@ -457,7 +480,7 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func feeOptionDidChange() async throws -> ExpressInteractorState {
-        switch _state.value {
+        switch getState() {
         case .idle:
             return .idle
         case .loading(let type):
@@ -554,6 +577,10 @@ private extension ExpressInteractor {
                     return
                 }
 
+                if let error = error as? ExpressAPIError {
+                    await logExpressError(error)
+                }
+
                 let quote = getState().quote
                 updateState(.restriction(.requiredRefresh(occurredError: error), quote: quote))
             }
@@ -581,6 +608,11 @@ private extension ExpressInteractor {
 
         let sender = getSender()
         let destination = expressDestinationService.getDestination(source: sender)
+
+        if destination == nil {
+            Analytics.log(.swapNoticeNoAvailableTokensToSwap)
+        }
+
         update(destination: destination)
     }
 }
@@ -590,6 +622,40 @@ private extension ExpressInteractor {
 private extension ExpressInteractor {
     func log(_ args: Any) {
         logger.debug("[Express] \(self) \(args)")
+    }
+}
+
+// MARK: - Analytics
+
+private extension ExpressInteractor {
+    func logAnalyticsEvent(_ event: Analytics.Event) {
+        var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
+
+        if let destination = getDestination() {
+            parameters[.receiveToken] = destination.tokenItem.currencySymbol
+        }
+
+        Analytics.log(event: event, params: parameters)
+    }
+
+    func logExpressError(_ error: ExpressAPIError) async {
+        var parameters: [Analytics.ParameterKey: String] = [
+            .token: initialWallet.tokenItem.currencySymbol,
+            .errorCode: error.errorCode.localizedDescription,
+        ]
+        if let provider = await getSelectedProvider() {
+            parameters[.provider] = provider.name
+        }
+
+        Analytics.log(event: .swapNoticeExpressError, params: parameters)
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension ExpressInteractor: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
 
@@ -658,6 +724,7 @@ extension ExpressInteractor {
     enum RestrictionType {
         case notEnoughAmountForSwapping(minAmount: Decimal)
         case hasPendingTransaction
+        case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
         case notEnoughAmountForFee(_ returnState: ExpressInteractorState)
         case requiredRefresh(occurredError: Error)
