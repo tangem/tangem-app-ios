@@ -176,6 +176,7 @@ private extension ExpressViewModel {
     }
 
     func presentProviderSelectorView() {
+        Analytics.log(.swapProviderClicked)
         coordinator.presentProviderSelectorView()
     }
 }
@@ -411,10 +412,17 @@ private extension ExpressViewModel {
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
-        case .restriction(_, let quote):
+        case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-            stopTimer()
             updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
+
+            // restart timer for error and pending approve transaction
+            switch restriction {
+            case .requiredRefresh, .hasPendingApproveTransaction:
+                restartTimer()
+            default:
+                stopTimer()
+            }
 
         case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
             isSwapButtonLoading = false
@@ -489,7 +497,7 @@ private extension ExpressViewModel {
             break
         case .restriction(let type, _):
             switch type {
-            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
+            case .hasPendingTransaction, .hasPendingApproveTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
@@ -512,20 +520,6 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToMessage(error: Error) -> String {
-        AppLog.shared.debug("ExpressViewModel catch error: ")
-        AppLog.shared.error(error)
-
-        switch error {
-        case let error as ExpressManagerError:
-            return error.localizedDescription
-        case let error as ExpressInteractorError:
-            return error.localizedDescription
-        default:
-            return error.localizedDescription
-        }
-    }
-
     func mapToSwappingTokenIconViewModelState(wallet: WalletModel?) -> SwappingTokenIconView.State {
         guard let wallet = wallet else {
             return .loading
