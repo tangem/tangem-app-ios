@@ -29,7 +29,7 @@ struct LegacyTokenListView: View {
         }
         .searchableCompat(text: $viewModel.enteredSearchText.value)
         .keyboardType(.alphabet)
-        .disableAutocorrection(true)
+        .autocorrectionDisabled()
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDisappear() }
@@ -41,7 +41,7 @@ struct LegacyTokenListView: View {
                 if #available(iOS 15.0, *) {} else {
                     SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
                         .keyboardType(.alphabet)
-                        .disableAutocorrection(true)
+                        .autocorrectionDisabled()
                         .padding(.horizontal, 8)
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
