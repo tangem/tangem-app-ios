@@ -9,11 +9,14 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 protocol SendFeeViewModelInput {
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
-    var feeValues: AnyPublisher<[FeeOption: LoadingValue<String>], Never> { get }
+    var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
+    var blockchain: Blockchain { get }
+    var tokenItem: TokenItem { get }
 }
 
 protocol SendFeeViewModelDelegate: AnyObject {
@@ -27,12 +30,24 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
 
     private let feeOptions: [FeeOption]
+    private let blockchain: Blockchain
+    private let tokenItem: TokenItem
     private var feeValues: [FeeOption: LoadingValue<String>] = [:]
     private var bag: Set<AnyCancellable> = []
+
+    private var feeFormatter: SwappingFeeFormatter {
+        CommonSwappingFeeFormatter(
+            balanceFormatter: BalanceFormatter(),
+            balanceConverter: BalanceConverter(),
+            fiatRatesProvider: SwappingRatesProvider()
+        )
+    }
 
     init(input: SendFeeViewModelInput) {
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
+        blockchain = input.blockchain
+        tokenItem = input.tokenItem
         feeRowViewModels = makeFeeRowViewModels()
 
         bind(from: input)
@@ -42,10 +57,28 @@ class SendFeeViewModel: ObservableObject {
         input.feeValues
             .sink { [weak self] feeValues in
                 guard let self else { return }
-                self.feeValues = feeValues
+                self.feeValues = formatFees(feeValues)
                 feeRowViewModels = makeFeeRowViewModels()
             }
             .store(in: &bag)
+    }
+
+    private func formatFees(_ fees: [FeeOption: LoadingValue<Fee>]) -> [FeeOption: LoadingValue<String>] {
+        return fees.mapValues { fee in
+            switch fee {
+            case .loading:
+                return .loading
+            case .loaded(let value):
+
+                let formattedValue = self.feeFormatter.format(
+                    fee: value.amount.value,
+                    tokenItem: tokenItem
+                )
+                return .loaded(formattedValue)
+            case .failedToLoad(let error):
+                return .failedToLoad(error: error)
+            }
+        }
     }
 
     private func makeFeeRowViewModels() -> [FeeRowViewModel] {
