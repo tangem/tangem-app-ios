@@ -15,10 +15,8 @@ struct PendingExpressTransactionStatusRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if !isFirstRow {
-                HStack {
-                    Assets.verticalLine.image
-                        .foregroundColor(Colors.Field.focused)
-                }
+                Assets.verticalLine.image
+                    .foregroundColor(Colors.Field.focused)
             }
 
             HStack(spacing: 12) {
