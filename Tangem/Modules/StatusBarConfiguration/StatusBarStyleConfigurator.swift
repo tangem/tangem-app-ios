@@ -22,7 +22,7 @@ extension StatusBarStyleConfigurator {
     func setSelectedStatusBarColorScheme(_ colorScheme: ColorScheme?, animated: Bool) {
         switch colorScheme {
         case .light:
-            setSelectedStatusBarStyle(.lightContent, animated: animated)
+            setSelectedStatusBarStyle(.darkContent, animated: animated)
         case .dark:
             setSelectedStatusBarStyle(.lightContent, animated: animated)
         case .none:
