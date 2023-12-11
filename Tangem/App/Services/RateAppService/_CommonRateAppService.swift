@@ -37,16 +37,15 @@ final class _CommonRateAppService {
     }
 
     func requestRateAppIfAvailable(with request: RateAppRequest) {
-        guard !request.isSelectedPageLocked else {
+        if request.isSelectedPageLocked {
             return
         }
 
-        guard !request.isSelectedPageFailedToLoadTotalBalance else {
+        if request.isSelectedPageFailedToLoadTotalBalance {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
-        guard request.selectedPageDisplayedNotifications.isEmpty else {
+        if request.selectedPageDisplayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
             return
         }
 
@@ -113,7 +112,7 @@ private extension _CommonRateAppService {
 
 private extension _CommonRateAppService {
     enum Constants {
-        // MARK: - Constants that control the behavior of the rate app sheet
+        // MARK: - Constants that control the behavior of the rate app sheet itself
 
         /// The user interacted with the review prompt.
         static let normalReviewRequestNumberOfLaunchesInterval = 3
@@ -121,6 +120,11 @@ private extension _CommonRateAppService {
         static let dismissedReviewRequestNumberOfLaunchesInterval = 20
         /// Three days.
         static let reviewRequestTimeInterval: TimeInterval = 3600 * 24 * 3
+
+        static let forbiddenSeverityLevels: Set<NotificationView.Severity> = [
+            .warning,
+            .critical,
+        ]
 
         // MARK: - Constants that control the behavior of the system rate app prompt (`SKStoreReviewController`)
 
