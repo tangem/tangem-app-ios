@@ -369,6 +369,8 @@ final class MainViewModel: ObservableObject {
                     }
                 case .replaced(let userWallet):
                     recreatePagesIfNeeded(for: userWallet)
+                case .biometryUnlocked:
+                    break
                 }
             }
             .store(in: &bag)
