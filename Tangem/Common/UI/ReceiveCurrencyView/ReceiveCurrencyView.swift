@@ -32,13 +32,19 @@ struct ReceiveCurrencyView: View {
     private var headerLabels: some View {
         HStack(spacing: 0) {
             Text(Localization.exchangeReceiveViewHeader)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
 
             Spacer()
 
-            SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .fixedSize(horizontal: false, vertical: true)
+            if viewModel.isAvailable {
+                SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text(Localization.swappingTokenNotAvailable)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.disabled)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
