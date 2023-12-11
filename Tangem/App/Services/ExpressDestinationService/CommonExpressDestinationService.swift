@@ -34,7 +34,11 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         try await expressRepository.updatePairs(for: source)
 
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
-            wallet.id != source.id && swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+            let isNotSource = wallet.id != source.id
+            let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+            let isNotCustom = !wallet.isCustom
+
+            return isNotSource && isAvailable && isNotCustom
         }
 
         if let lastTransactionWalletModel = getLastTransactionWalletModel(in: searchableWalletModels) {
