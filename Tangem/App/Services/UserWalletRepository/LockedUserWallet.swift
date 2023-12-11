@@ -35,10 +35,27 @@ class LockedUserWallet: UserWalletModel {
         return data
     }
 
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
+        let artwork: CardArtwork
+
+        if let artworkInfo = userWallet.artwork {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
+        }
+
+        return cardImageProvider.loadImage(
+            cardId: userWallet.card.cardId,
+            cardPublicKey: userWallet.card.cardPublicKey,
+            artwork: artwork
+        )
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
     private(set) var userWallet: UserWallet
+    private let cardImageProvider = CardImageProvider()
 
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
