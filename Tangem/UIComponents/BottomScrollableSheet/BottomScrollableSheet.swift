@@ -55,7 +55,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             }
             .ignoresSafeArea(edges: .bottom)
             .onAppear(perform: stateObject.onAppear)
-            .onDisappear { statusBarStyleConfigurator.setSelectedStatusBarColorScheme(nil, animated: true) }
+            .onDisappear(perform: restoreStatusBarColorScheme)
             .onChange(of: stateObject.state) { newValue in
                 bottomScrollableSheetStateObserver?(newValue)
             }
@@ -164,6 +164,11 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
         header()
             .if(prefersGrabberVisible) { $0.bottomScrollableSheetGrabber() }
             .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
+    }
+
+    /// Restores default (system-driven) appearance of the status bar.
+    private func restoreStatusBarColorScheme() {
+        statusBarStyleConfigurator.setSelectedStatusBarColorScheme(nil, animated: true)
     }
 }
 
