@@ -23,7 +23,6 @@ class CommonExpressModulesFactory {
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
-    private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var allowanceProvider = makeAllowanceProvider()
     private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
@@ -188,10 +187,6 @@ private extension CommonExpressModulesFactory {
         )
 
         return interactor
-    }
-
-    func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger)
     }
 
     func makeAllowanceProvider() -> ExpressAllowanceProvider {
