@@ -85,6 +85,16 @@ final class UserWalletNotificationManager {
             )
         }
 
+        #warning("TODO")
+        inputs.append(
+            factory.buildNotificationInput(
+                for: .crosschainSwap,
+                action: action,
+                buttonAction: buttonAction,
+                dismissAction: dismissAction
+            )
+        )
+
         notificationInputsSubject.send(inputs)
 
         validateHashesCount()
