@@ -32,11 +32,13 @@ struct ReceiveBottomSheetView: View {
     private var addressNetworkUnderstandingConfirmationView: some View {
         VStack(spacing: 56) {
             TokenIcon(
-                name: "",
-                imageURL: viewModel.iconURL,
-                customTokenColor: viewModel.customTokenColor,
-                blockchainIconName: nil,
-                isCustom: false,
+                tokenIconInfo: .init(
+                    name: "",
+                    blockchainIconName: nil,
+                    imageURL: viewModel.iconURL,
+                    isCustom: false,
+                    customTokenColor: viewModel.customTokenColor
+                ),
                 size: IconViewSizeSettings.receive.iconSize
             )
             .padding(.top, 56)
@@ -125,11 +127,13 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                 .init(
                     address: "bc1qeguhvlnxu4lwg48p5sfhxqxz679v3l5fma9u0c",
                     type: .default,
+                    localizedName: "default",
                     addressQRImage: QrCodeGenerator.generateQRCode(from: "bc1qeguhvlnxu4lwg48p5sfhxqxz679v3l5fma9u0c")
                 ),
                 .init(
                     address: "18VEbRSEASi1npnXnoJ6pVVBrhT5zE6qRz",
                     type: .legacy,
+                    localizedName: "legacy",
                     addressQRImage: QrCodeGenerator.generateQRCode(from: "18VEbRSEASi1npnXnoJ6pVVBrhT5zE6qRz")
                 ),
             ]
@@ -143,6 +147,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                 .init(
                     address: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1",
                     type: .default,
+                    localizedName: "default",
                     addressQRImage: QrCodeGenerator.generateQRCode(from: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1")
                 ),
             ]
