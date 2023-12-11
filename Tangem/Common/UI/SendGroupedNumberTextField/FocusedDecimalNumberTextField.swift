@@ -32,19 +32,6 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     }
 
     var body: some View {
-        // An experimental workaround for a buggy `.toolbar` modifier on iOS 17+
-        if #available(iOS 17.0, *) {
-            NavigationStack {
-                textField
-                    .background(Colors.Background.primary)
-            }
-        } else {
-            textField
-        }
-    }
-
-    @ViewBuilder
-    private var textField: some View {
         DecimalNumberTextField(
             decimalValue: $decimalValue,
             decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits),
