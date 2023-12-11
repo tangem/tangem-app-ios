@@ -530,6 +530,7 @@
 "token_details_unable_hide_alert_message" = "The %1$@ token is the main currency on the %2$@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
 "token_item_no_rate" = "No rate";
+"token_swap_promotion_button" = "Exchange now";
 "token_swap_promotion_message" = "Exchange this token for any other asset in your portfolio";
 "token_swap_promotion_title" = "Introducing cross-chain swaps";
 "transaction_history_contract_address" = "contract: %@";
