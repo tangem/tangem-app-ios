@@ -73,8 +73,14 @@ struct MainView: View {
         .bottomSheet(
             item: $viewModel.unlockWalletBottomSheetViewModel,
             settings: .init(backgroundColor: Colors.Background.primary)
-        ) { model in
-            UnlockUserWalletBottomSheetView(viewModel: model)
+        ) { viewModel in
+            UnlockUserWalletBottomSheetView(viewModel: viewModel)
+        }
+        .bottomSheet(
+            item: $viewModel.rateAppBottomSheetViewModel,
+            settings: .init(backgroundColor: Colors.Background.primary)
+        ) { viewModel in
+            RateAppBottomSheetView(viewModel: viewModel)
         }
         .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
