@@ -24,6 +24,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
+    case crosschainSwap
 }
 
 // For Notifications
@@ -64,6 +65,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.commonAccessDenied
         case .missingBackup:
             return Localization.warningNoBackupTitle
+        case .crosschainSwap:
+            return "Abcd"
         }
     }
 
@@ -100,6 +103,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
+        case .crosschainSwap:
+            return "Abcdefg"
         }
     }
 
@@ -107,6 +112,8 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
             return .primary
+        case .crosschainSwap:
+            return .swap
         default:
             return .secondary
         }
@@ -124,6 +131,8 @@ extension WarningEvent: NotificationEvent {
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
+        case .crosschainSwap:
+            return .init(iconType: .image(Assets.swapBannerIcon.image))
         }
     }
 
@@ -131,7 +140,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
             return false
-        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
+        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary, .crosschainSwap:
             return true
         }
     }
@@ -186,6 +195,7 @@ extension WarningEvent {
         case .missingDerivation: return .mainNoticeMissingAddress
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
+        case .crosschainSwap: return nil
         }
     }
 
