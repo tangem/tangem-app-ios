@@ -65,10 +65,10 @@ extension NotificationView {
             switch self {
             case .primary: Colors.Background.primary
             case .secondary: Colors.Button.disabled
-            case .swap: 
+            case .swap:
                 Assets.swapBannerBackground.image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
             }
         }
     }
