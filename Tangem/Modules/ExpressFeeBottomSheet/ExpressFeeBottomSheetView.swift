@@ -59,7 +59,9 @@ struct ExpressFeeBottomSheetView_Preview: PreviewProvider {
     class BottomSheetCoordinator: ObservableObject, ExpressFeeBottomSheetRoutable {
         @Published var item: ExpressFeeBottomSheetViewModel?
 
-        func toggleItem() {}
+        func toggleItem() {
+            // [REDACTED_TODO_COMMENT]
+        }
 
         func closeExpressFeeBottomSheet() {
             item = nil

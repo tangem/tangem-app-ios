@@ -8,27 +8,68 @@
 
 import Combine
 import SwiftUI
+import TangemSwapping
 
-final class ExpressTokensListViewModel: ObservableObject {
+final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var searchText: String = ""
-    @Published var availableTokens: [ExpressTokenItemViewModel] = []
-    @Published var unavailableTokens: [ExpressTokenItemViewModel] = []
+    @Published var viewState: ViewState = .idle
 
     var unavailableSectionHeader: String {
-        Localization.exchangeTokensUnavailableTokensHeader("Bitcoin")
+        Localization.exchangeTokensUnavailableTokensHeader(swapDirection.name)
     }
 
     // MARK: - Dependencies
 
+    private let swapDirection: SwapDirection
+    private let expressTokensListAdapter: ExpressTokensListAdapter
+    private let expressAPIProvider: ExpressAPIProvider
+    private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressTokensListRoutable
+
+    // MARK: - Internal
+
+    private var availableWalletModels: [WalletModel] = []
+    private var unavailableWalletModels: [WalletModel] = []
     private var bag: Set<AnyCancellable> = []
 
-    init(coordinator: ExpressTokensListRoutable) {
+    // For Analytics
+    private var selectedWallet: WalletModel?
+
+    init(
+        swapDirection: SwapDirection,
+        expressTokensListAdapter: ExpressTokensListAdapter,
+        expressAPIProvider: ExpressAPIProvider,
+        expressInteractor: ExpressInteractor,
+        coordinator: ExpressTokensListRoutable
+    ) {
+        self.swapDirection = swapDirection
+        self.expressTokensListAdapter = expressTokensListAdapter
+        self.expressAPIProvider = expressAPIProvider
+        self.expressInteractor = expressInteractor
         self.coordinator = coordinator
-        setupView()
+
         bind()
+    }
+
+    func onDisappear() {
+        if let wallet = selectedWallet {
+            Analytics.log(
+                event: .swapChooseTokenScreenResult,
+                params: [
+                    .tokenChosen: Analytics.ParameterValue.yes.rawValue,
+                    .token: wallet.tokenItem.currencySymbol,
+                ]
+            )
+        } else {
+            Analytics.log(
+                event: .swapChooseTokenScreenResult,
+                params: [
+                    .tokenChosen: Analytics.ParameterValue.no.rawValue,
+                ]
+            )
+        }
     }
 }
 
@@ -36,112 +77,169 @@ final class ExpressTokensListViewModel: ObservableObject {
 
 private extension ExpressTokensListViewModel {
     func bind() {
-        $searchText
+        expressTokensListAdapter.walletModels()
             .withWeakCaptureOf(self)
-            .sink { viewModel, searchText in
-                if searchText.isEmpty {
-                    viewModel.availableTokens = viewModel.getAvailableTokens()
-                    viewModel.unavailableTokens = viewModel.getUnavailableTokens()
-                } else {
-                    viewModel.availableTokens = viewModel.getAvailableTokens().filter { $0.name.contains(searchText) }
-                    viewModel.unavailableTokens = viewModel.getUnavailableTokens().filter { $0.name.contains(searchText) }
+            .asyncMap { viewModel, walletModels in
+                do {
+                    let availablePairs = try await viewModel.loadAvailablePairs(walletModels: walletModels)
+                    return (walletModels: walletModels, pairs: availablePairs)
+                } catch {
+                    return (walletModels: walletModels, pairs: [])
                 }
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] walletModels, pairs in
+                self?.updateWalletModels(walletModels: walletModels, availableCurrencies: pairs)
+            }
+            .store(in: &bag)
+
+        $searchText
+            .removeDuplicates()
+            .dropFirst()
+            .flatMapLatest { searchText in
+                // We don't add debounce for the empty text
+                if searchText.isEmpty {
+                    return Just(searchText).eraseToAnyPublisher()
+                }
+
+                return Just(searchText)
+                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                    .eraseToAnyPublisher()
+            }
+            .sink { [weak self] searchText in
+                self?.updateView(searchText: searchText)
             }
             .store(in: &bag)
     }
 
-    // Temporary. Will be replaced
-    func getAvailableTokens() -> [ExpressTokenItemViewModel] {
-        [
-            ExpressTokenItemViewModel(
-                id: "Polygon",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Polygon",
-                symbol: "MATIC",
-                balance: CurrencyAmount(value: 120, currency: .mock),
-                fiatBalance: 60.30,
-                isDisable: false,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Cardano",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Cardano",
-                symbol: "ADA",
-                balance: CurrencyAmount(value: 12.097, currency: .mock),
-                fiatBalance: 4.3,
-                isDisable: false,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Binance",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
-                    networkURL: nil
-                ),
-                name: "Binance",
-                symbol: "BNB",
-                balance: CurrencyAmount(value: 1.6, currency: .mock),
-                fiatBalance: 383.3,
-                isDisable: false,
-                itemDidTap: {}
-            ),
-        ]
+    func loadAvailablePairs(walletModels: [WalletModel]) async throws -> [ExpressCurrency] {
+        // If walletModels contains another wallets
+        guard walletModels.contains(where: { $0 != self.swapDirection.wallet }) else {
+            return []
+        }
+
+        let currencies = walletModels.map { $0.expressCurrency }
+
+        switch swapDirection {
+        case .fromSource(let wallet):
+            let pairs = try await expressAPIProvider.pairs(from: [wallet.expressCurrency], to: currencies)
+            return pairs.map { $0.destination }
+        case .toDestination(let wallet):
+            let pairs = try await expressAPIProvider.pairs(from: currencies, to: [wallet.expressCurrency])
+            return pairs.map { $0.source }
+        }
     }
 
-    // Temporary. Will be replaced
-    func getUnavailableTokens() -> [ExpressTokenItemViewModel] {
-        [
-            ExpressTokenItemViewModel(
-                id: "Polygon",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "matic-network", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Polygon",
-                symbol: "MATIC",
-                balance: CurrencyAmount(value: 120, currency: .mock),
-                fiatBalance: 60.30,
-                isDisable: true,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Cardano",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "cardano", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .small)
-                ),
-                name: "Cardano",
-                symbol: "ADA",
-                balance: CurrencyAmount(value: 12.097, currency: .mock),
-                fiatBalance: 4.3,
-                isDisable: true,
-                itemDidTap: {}
-            ),
-            ExpressTokenItemViewModel(
-                id: "Binance",
-                tokenIconItem: TokenIconItemViewModel(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "binancecoin", size: .large),
-                    networkURL: nil
-                ),
-                name: "Binance",
-                symbol: "BNB",
-                balance: CurrencyAmount(value: 1.6, currency: .mock),
-                fiatBalance: 383.3,
-                isDisable: true,
-                itemDidTap: {}
-            ),
-        ]
+    func updateWalletModels(walletModels: [WalletModel], availableCurrencies: [ExpressCurrency]) {
+        availableWalletModels.removeAll()
+        unavailableWalletModels.removeAll()
+
+        let currenciesSet = availableCurrencies.toSet()
+        Analytics.log(.swapChooseTokenScreenOpened, params: [.availableTokens: currenciesSet.isEmpty ? .no : .yes])
+
+        walletModels
+            .forEach { walletModel in
+                guard walletModel != swapDirection.wallet else { return }
+
+                let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
+                if isAvailable {
+                    availableWalletModels.append(walletModel)
+                } else {
+                    unavailableWalletModels.append(walletModel)
+                }
+            }
+
+        updateView()
     }
 
-    func setupView() {
-        availableTokens = getAvailableTokens()
-        unavailableTokens = getUnavailableTokens()
+    func updateView(searchText: String = "") {
+        let availableTokens = availableWalletModels
+            .filter { filter(searchText, item: $0.tokenItem) }
+            .map { walletModel in
+                mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: false)
+            }
+
+        let unavailableTokens = unavailableWalletModels
+            .filter { filter(searchText, item: $0.tokenItem) }
+            .map { walletModel in
+                mapToExpressTokenItemViewModel(walletModel: walletModel, isDisable: true)
+            }
+
+        if searchText.isEmpty, availableTokens.isEmpty, unavailableTokens.isEmpty {
+            viewState = .isEmpty
+        } else {
+            viewState = .loaded(availableTokens: availableTokens, unavailableTokens: unavailableTokens)
+        }
+    }
+
+    func filter(_ text: String, item: TokenItem) -> Bool {
+        if text.isEmpty {
+            return true
+        }
+
+        let isContainsName = item.name.lowercased().contains(text.lowercased())
+        let isContainsCurrencySymbol = item.currencySymbol.lowercased().contains(text.lowercased())
+
+        return isContainsName || isContainsCurrencySymbol
+    }
+
+    func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
+        let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+        return ExpressTokenItemViewModel(
+            id: walletModel.id,
+            tokenIconInfo: tokenIconInfo,
+            name: walletModel.name,
+            symbol: walletModel.tokenItem.currencySymbol,
+            balance: walletModel.balance,
+            fiatBalance: walletModel.fiatBalance,
+            isDisable: isDisable,
+            itemDidTap: { [weak self] in
+                self?.userDidTap(on: walletModel)
+            }
+        )
+    }
+
+    func userDidTap(on walletModel: WalletModel) {
+        switch swapDirection {
+        case .fromSource:
+            expressInteractor.update(destination: walletModel)
+        case .toDestination:
+            expressInteractor.update(sender: walletModel)
+        }
+
+        selectedWallet = walletModel
+        coordinator.closeExpressTokensList()
+    }
+}
+
+extension ExpressTokensListViewModel {
+    enum ViewState {
+        case idle
+        case loading
+        case isEmpty
+        case loaded(availableTokens: [ExpressTokenItemViewModel], unavailableTokens: [ExpressTokenItemViewModel])
+    }
+
+    enum SwapDirection {
+        case fromSource(WalletModel)
+        case toDestination(WalletModel)
+
+        var name: String {
+            switch self {
+            case .fromSource(let walletModel):
+                return walletModel.name
+            case .toDestination(let walletModel):
+                return walletModel.name
+            }
+        }
+
+        var wallet: WalletModel {
+            switch self {
+            case .fromSource(let walletModel):
+                return walletModel
+            case .toDestination(let walletModel):
+                return walletModel
+            }
+        }
     }
 }
