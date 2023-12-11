@@ -17,7 +17,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     // MARK: - Dependencies
 
-    private var selectedProviderId: Int? = nil
+    private var selectedProviderId: ExpressProvider.Id? = nil
     private var quotes: [ExpectedQuote] = []
 
     private let percentFormatter: PercentFormatter
@@ -38,25 +38,31 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        setupView()
+        bind()
+    }
+
+    func bind() {
+        expressInteractor.state
+            .sink { [weak self] state in
+                self?.setupView()
+            }.store(in: &bag)
     }
 
     func setupView() {
         runTask(in: self) { viewModel in
-            let quotes = await viewModel.expressInteractor.getAllQuotes()
-            let selectedProviderId = await viewModel.expressInteractor.getSelectedProvider()?.id
+            viewModel.quotes = await viewModel.expressInteractor.getAllQuotes()
+            viewModel.selectedProviderId = await viewModel.expressInteractor.getSelectedProvider()?.id
 
             await runOnMain {
-                viewModel.selectedProviderId = selectedProviderId
-                viewModel.updateView(quotes: quotes)
+                viewModel.updateView()
             }
         }
     }
 
-    func updateView(quotes: [ExpectedQuote]) {
-        providerViewModels = quotes.map { quote in
-            mapToProviderRowViewModel(quote: quote)
-        }
+    func updateView() {
+        providerViewModels = quotes
+            .sorted(by: { $0.rate > $1.rate })
+            .map { mapToProviderRowViewModel(quote: $0) }
     }
 
     func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
@@ -78,24 +84,38 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         let provider = quote.provider
+        let isDisabled = !quote.isAvailableToSelect
+
+        let badge: ProviderRowViewModel.Badge? = {
+            if isDisabled {
+                return .none
+            }
+
+            return provider.type == .dex ? .permissionNeeded : .none
+        }()
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider),
-            isDisabled: !quote.isAvailable,
-            badge: provider.type == .dex ? .permissionNeeded : .none,
+            isDisabled: isDisabled,
+            badge: badge,
             subtitles: subtitles,
             detailsType: selectedProviderId == provider.id ? .selected : .none,
             tapAction: { [weak self] in
-                self?.selectedProviderId = provider.id
-                self?.expressInteractor.updateProvider(provider: provider)
-                self?.coordinator.closeExpressProvidersBottomSheet()
+                self?.userDidTap(provider: provider)
             }
         )
     }
 
+    func userDidTap(provider: ExpressProvider) {
+        Analytics.log(event: .swapProviderChosen, params: [.provider: provider.name])
+
+        selectedProviderId = provider.id
+        expressInteractor.updateProvider(provider: provider)
+        coordinator.closeExpressProvidersBottomSheet()
+    }
+
     func makePercentSubtitle(quote: ExpectedQuote) -> ProviderRowViewModel.Subtitle? {
-        guard let bestRate = quotes.first(where: { $0.isBest })?.rate,
-              !quote.rate.isZero else {
+        guard let bestRate = quotes.first(where: { $0.isBest })?.rate, !quote.rate.isZero else {
             return nil
         }
 
