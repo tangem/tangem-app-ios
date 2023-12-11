@@ -10,13 +10,14 @@ import Foundation
 import Combine
 import TangemSwapping
 
-protocol PendingExpressTransactionsManager {
+protocol PendingExpressTransactionsManager: AnyObject {
     var pendingTransactions: [PendingExpressTransaction] { get }
     var pendingTransactionsPublisher: AnyPublisher<[PendingExpressTransaction], Never> { get }
 }
 
 class CommonPendingExpressTransactionsManager {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
+    @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
     private let blockchainNetwork: BlockchainNetwork
@@ -38,9 +39,14 @@ class CommonPendingExpressTransactionsManager {
         self.userWalletId = userWalletId
         self.blockchainNetwork = blockchainNetwork
         self.tokenItem = tokenItem
-        expressAPIProvider = CommonExpressAPIFactory().makeExpressAPIProvider(userId: userWalletId)
+        expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
 
         bind()
+    }
+
+    deinit {
+        print("CommonPendingExpressTransactionsManager deinit")
+        cancelTask()
     }
 
     private func bind() {
@@ -71,27 +77,33 @@ class CommonPendingExpressTransactionsManager {
     private func updateTransactionsStatuses(_ records: [ExpressPendingTransactionRecord]) {
         cancelTask()
 
-        updateTask = runTask(in: self) { manager in
+        updateTask = Task { [weak self] in
             do {
                 var recordsToRequest = [ExpressPendingTransactionRecord]()
                 var transactionsInProgress = [PendingExpressTransaction]()
                 for record in records {
-                    guard let pendingTransaction = await manager.loadPendingTransactionStatus(for: record) else {
+                    guard let pendingTransaction = await self?.loadPendingTransactionStatus(for: record) else {
+                        // If received error from backend and transaction was already displayed on TokenDetails screen
+                        // we need to send previously received transaction, otherwise it will hide on TokenDetails
+                        if let previousResult = self?.transactionsInProgressSubject.value.first(where: { $0.transactionRecord.expressTransactionId == record.expressTransactionId }) {
+                            transactionsInProgress.append(previousResult)
+                        }
                         recordsToRequest.append(record)
                         continue
                     }
 
+                    // We need to send finished transaction one more time to properly update status on bottom sheet
+                    transactionsInProgress.append(pendingTransaction)
                     guard pendingTransaction.currentStatus.isTransactionInProgress else {
-                        manager.removeTransactionFromRepository(record)
+                        self?.removeTransactionFromRepository(record)
                         continue
                     }
 
                     recordsToRequest.append(record)
-                    transactionsInProgress.append(pendingTransaction)
                     try Task.checkCancellation()
                 }
 
-                manager.transactionsInProgressSubject.send(transactionsInProgress)
+                self?.transactionsInProgressSubject.send(transactionsInProgress)
 
                 try Task.checkCancellation()
 
@@ -99,14 +111,14 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
-                manager.updateTransactionsStatuses(recordsToRequest)
+                self?.updateTransactionsStatuses(recordsToRequest)
             } catch {
-                if error is CancellationError {
-                    manager.log("Pending express txs status check task was cancelled")
+                if error is CancellationError || Task.isCancelled {
+                    self?.log("Pending express txs status check task was cancelled")
                     return
                 }
 
-                manager.updateTransactionsStatuses(records)
+                self?.updateTransactionsStatuses(records)
             }
         }
     }
@@ -130,6 +142,11 @@ class CommonPendingExpressTransactionsManager {
         do {
             let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(currentExpressStatus: expressTransaction.externalStatus, for: transactionRecord)
+            pendingExpressTransactionAnalyticsTracker.trackStatusForTransaction(
+                with: transactionRecord.expressTransactionId,
+                tokenSymbol: tokenItem.currencySymbol,
+                status: pendingTransaction.currentStatus
+            )
             return pendingTransaction
         } catch {
             log("Failed to load status info for transaction with id: \(transactionRecord.expressTransactionId). Error: \(error)")
