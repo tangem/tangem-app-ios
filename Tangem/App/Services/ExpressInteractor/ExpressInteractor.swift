@@ -240,8 +240,15 @@ extension ExpressInteractor {
         log("Did requested for refresh with \(type)")
 
         updateTask { interactor in
-            guard let amount = await interactor.expressManager.getAmount(), amount > 0 else {
-                return .idle
+            switch type {
+            case .full:
+                // A full refresh always performed unconditionally
+                break
+            case .refreshRates:
+                // Rates will only be refreshed if there is a valid amount to swap
+                guard let amount = await interactor.expressManager.getAmount(), amount > 0 else {
+                    return .idle
+                }
             }
 
             interactor.log("Start refreshing task")
