@@ -71,6 +71,33 @@ extension NotificationView {
                     .aspectRatio(contentMode: .fill)
             }
         }
+
+        var dismissButtonColor: Color {
+            switch self {
+            case .primary, .secondary:
+                return Colors.Icon.inactive
+            case .swap:
+                return .white
+            }
+        }
+
+        var titleColor: Color {
+            switch self {
+            case .primary, .secondary:
+                return Colors.Text.primary1
+            case .swap:
+                return .white
+            }
+        }
+
+        var messageColor: Color {
+            switch self {
+            case .primary, .secondary:
+                return Colors.Text.tertiary
+            case .swap:
+                return .white
+            }
+        }
     }
 
     enum LeadingIconType {
