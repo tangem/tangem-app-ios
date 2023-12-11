@@ -36,6 +36,7 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 }
                 .navigationViewStyle(.stack)
             }
+        // [REDACTED_TODO_COMMENT]
     }
 
     @ViewBuilder
