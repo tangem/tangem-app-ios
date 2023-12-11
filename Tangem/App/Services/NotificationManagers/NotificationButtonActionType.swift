@@ -13,6 +13,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case backupCard
     case buyCrypto(currencySymbol: String?)
     case openNetworkCurrency(currencySymbol: String)
+    case refresh
+    case goToProvider
 
     var id: Int { hashValue }
 
@@ -30,6 +32,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.commonBuyCurrency(currencySymbol)
         case .openNetworkCurrency(let currencySymbol):
             return Localization.commonBuyCurrency(currencySymbol)
+        case .refresh:
+            return Localization.warningButtonRefresh
+        case .goToProvider:
+            return Localization.expressGoToProvider
         }
     }
 
@@ -37,7 +43,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .trailing(Assets.tangemIcon)
-        case .backupCard, .buyCrypto, .openNetworkCurrency:
+        case .backupCard, .buyCrypto, .openNetworkCurrency, .refresh, .goToProvider:
             return nil
         }
     }
@@ -46,7 +52,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard, .buyCrypto, .openNetworkCurrency:
+        case .backupCard, .buyCrypto, .openNetworkCurrency, .refresh, .goToProvider:
             return .secondary
         }
     }
