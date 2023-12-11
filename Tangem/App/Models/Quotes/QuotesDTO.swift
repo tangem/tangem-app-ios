@@ -27,7 +27,7 @@ extension QuotesDTO {
     struct Request: Encodable {
         let coinIds: [String]
         let currencyId: String
-        let fields: [Fields] = [.price, .priceChange24h]
+        let fields: [Fields]
 
         enum Fields: String, Encodable {
             case priceChange24h
