@@ -237,7 +237,7 @@ extension ExpressInteractor {
 
 extension ExpressInteractor {
     func refresh(type: SwappingManagerRefreshType) {
-        log("Did requested for refresh with \(type)")
+        log("Requested refresh with type '\(type)'")
 
         updateTask { interactor in
             switch type {
@@ -251,7 +251,7 @@ extension ExpressInteractor {
                 }
             }
 
-            interactor.log("Start refreshing task")
+            interactor.log("Start refreshing task for refresh with type: '\(type)'")
             interactor.updateState(.loading(type: type))
 
             let state = try await interactor.expressManager.update()
