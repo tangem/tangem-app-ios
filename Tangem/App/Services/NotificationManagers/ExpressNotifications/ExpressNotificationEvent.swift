@@ -104,6 +104,25 @@ extension ExpressNotificationEvent: NotificationEvent {
         }
     }
 
+    var severity: NotificationView.Severity {
+        switch self {
+        case .permissionNeeded,
+             .refreshRequired,
+             .hasPendingTransaction,
+             .hasPendingApproveTransaction,
+             .verificationRequired:
+            return .info
+        case .notEnoughFeeForTokenTx,
+             .notEnoughAmountToSwap,
+             .notEnoughBalanceToSwap,
+             .noDestinationTokens,
+             .highPriceImpact:
+            return .warning
+        case .cexOperationFailed:
+            return .critical
+        }
+    }
+
     var buttonActionType: NotificationButtonActionType? {
         switch self {
         case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _):
