@@ -49,10 +49,10 @@ class ExpressNotificationManager {
 
                 return !event.removingOnFullLoadingState
             }
-        case .restriction(let restrictions, let expectedQuote):
+        case .restriction(let restrictions, let quote):
             setupNotification(for: restrictions)
 
-            guard let quote = expectedQuote?.quote else {
+            guard let quote else {
                 return
             }
 
@@ -66,9 +66,7 @@ class ExpressNotificationManager {
 
         case .previewCEX(_, let quote):
             notificationInputsSubject.value = []
-            if let quote = quote.quote {
-                checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
-            }
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
         }
     }
 
