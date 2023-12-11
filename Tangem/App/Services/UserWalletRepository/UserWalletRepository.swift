@@ -78,12 +78,13 @@ enum UserWalletRepositoryResult {
 
 enum UserWalletRepositoryEvent {
     case locked(reason: UserWalletRepositoryLockReason)
+    case biometryUnlocked
     case scan(isScanning: Bool)
     case inserted(userWallet: UserWallet)
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletIds: [Data])
     case selected(userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason)
-    case replaced
+    case replaced(userWallet: UserWallet)
 }
 
 enum UserWalletRepositorySelectionChangeReason {
