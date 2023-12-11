@@ -15,9 +15,17 @@ struct ManageTokensView: View {
     @ObservedObject var viewModel: ManageTokensViewModel
 
     var body: some View {
-        list
-            .scrollDismissesKeyboardCompat(true)
-            .alert(item: $viewModel.alert, content: { $0.alert })
+        VStack {
+            header
+
+            if viewModel.isShowTokenList {
+                list
+            } else {
+                skeletonList
+            }
+        }
+        .scrollDismissesKeyboardCompat(true)
+        .alert(item: $viewModel.alert, content: { $0.alert })
     }
 
     private var header: some View {
@@ -26,9 +34,11 @@ struct ManageTokensView: View {
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            Text(Localization.manageTokensListHeaderSubtitle)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                .lineLimit(1)
+            if viewModel.isShowAddCustomToken {
+                Text(Localization.manageTokensListHeaderSubtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
@@ -37,33 +47,55 @@ struct ManageTokensView: View {
 
     private var list: some View {
         LazyVStack(spacing: 0) {
-            header
-
             ForEach(viewModel.tokenViewModels) {
                 ManageTokensItemView(viewModel: $0)
             }
 
-            if viewModel.isShowAddCustomToken {
-                addCutomTokenView
-            }
+            addCutomTokenView
 
             if viewModel.hasNextPage {
-                HStack(alignment: .center) {
-                    ActivityIndicatorView(color: .gray)
-                        .onAppear(perform: viewModel.fetchMore)
-                }
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
+                    .onAppear(perform: viewModel.fetchMore)
             }
         }
-    }
-
-    @ViewBuilder private var titleView: some View {
-        Text(Localization.addTokensTitle)
-            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
     private var addCutomTokenView: some View {
         ManageTokensAddCustomItemView {
             viewModel.addCustomTokenDidTapAction()
+        }
+    }
+
+    private var skeletonList: some View {
+        ForEach(1 ... 10, id: \.self) { _ in
+            VStack(spacing: 10) {
+                HStack(spacing: 12) {
+                    SkeletonView()
+                        .frame(size: .init(width: 36, height: 36))
+                        .cornerRadius(18)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        SkeletonView()
+                            .frame(size: .init(width: 70, height: 12))
+                            .cornerRadius(3)
+
+                        SkeletonView()
+                            .frame(size: .init(width: 52, height: 12))
+                            .cornerRadius(3)
+                    }
+
+                    Spacer(minLength: 24)
+
+                    VStack(alignment: .trailing) {
+                        SkeletonView()
+                            .frame(size: .init(width: 44, height: 12))
+                            .cornerRadius(3)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
         }
     }
 }
