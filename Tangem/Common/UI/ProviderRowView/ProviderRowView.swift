@@ -12,10 +12,12 @@ struct ProviderRowView: View {
     let viewModel: ProviderRowViewModel
 
     var body: some View {
-        Button(action: viewModel.tapAction) {
+        if let action = viewModel.tapAction {
+            Button(action: action) { content }
+                .disabled(viewModel.isDisabled)
+        } else {
             content
         }
-        .disabled(viewModel.isDisabled)
     }
 
     private var content: some View {
@@ -37,7 +39,7 @@ struct ProviderRowView: View {
     }
 
     private var titleView: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
+        HStack(alignment: .center, spacing: 4) {
             Text(viewModel.provider.name)
                 .style(
                     Fonts.Bold.subheadline,
@@ -153,6 +155,7 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
     ) -> ProviderRowViewModel {
         ProviderRowViewModel(
             provider: .init(
+                id: UUID().uuidString,
                 iconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/1inch_512.png")!,
                 name: "1inch",
                 type: "DEX"
