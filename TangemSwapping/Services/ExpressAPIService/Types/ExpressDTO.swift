@@ -17,8 +17,10 @@ enum ExpressDTO {
     }
 
     struct Provider: Codable {
-        let providerId: Int
-        let rateType: RateType
+        typealias Id = String
+
+        let providerId: Id
+        let rateTypes: [RateType]
 
         enum RateType: String, Codable {
             case float
@@ -26,31 +28,17 @@ enum ExpressDTO {
         }
     }
 
-    struct APIError: Decodable, Error {
-        let code: Int
-        let description: String
-    }
-
     // MARK: - Assets
 
     enum Assets {
         struct Request: Encodable {
             let tokensList: [Currency]
-            let onlyActive: Bool = true
         }
 
         struct Response: Decodable {
             let contractAddress: String
             let network: String
-            let token: String
-            let name: String
-            let symbol: String
-            let decimals: Int
-            let isActive: Bool?
             let exchangeAvailable: Bool
-            // Future
-            let onrampAvailable: Bool?
-            let offrampAvailable: Bool?
         }
     }
 
@@ -73,7 +61,7 @@ enum ExpressDTO {
 
     enum Providers {
         struct Response: Decodable {
-            let id: Int
+            let id: Provider.Id
             let name: String
             let type: ExpressProviderType
             let imageLarge: String
@@ -89,14 +77,19 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
-            let fromAmount: Decimal
-            let providerId: Int
+            let toDecimals: Int
+            let fromAmount: String
+            let fromDecimals: Int
+            let providerId: Provider.Id
             let rateType: Provider.RateType
         }
 
         struct Response: Decodable {
-            let toAmount: Decimal
-            let minAmount: Decimal
+            let fromAmount: String
+            let fromDecimals: Int
+            let toAmount: String
+            let toDecimals: Int
+            let minAmount: String
             let allowanceContract: String?
         }
     }
@@ -109,27 +102,33 @@ enum ExpressDTO {
             let fromNetwork: String
             let toContractAddress: String
             let toNetwork: String
-            let fromAmount: Decimal
-            let providerId: Int
+            let toDecimals: Int
+            let fromAmount: String
+            let fromDecimals: Int
+            let providerId: Provider.Id
             let rateType: Provider.RateType
             let toAddress: String // address for receiving token
         }
 
         struct Response: Decodable {
-            let toAmount: Decimal
+            let fromAmount: String
+            let fromDecimals: Int
+            let toAmount: String
+            let toDecimals: Int
+
             let txType: ExpressTransactionType
             // inner tangem-express transaction id
             let txId: String
             // account for debiting tokens (same as toAddress)
             // for CEX doesn't matter from wich address send
-            let txFrom: String
+            let txFrom: String?
             // swap smart-contract address
             // CEX address for sending transaction
             let txTo: String
             // transaction data
             let txData: String?
             // amount (same as fromAmount)
-            let txValue: Decimal
+            let txValue: String
             // CEX provider transaction id
             let externalTxId: String?
             // url of CEX porider exchange status page
@@ -137,18 +136,26 @@ enum ExpressDTO {
         }
     }
 
-    // MARK: - ExchangeResult
+    // MARK: - ExchangeStatus
 
-    enum ExchangeResult {
+    enum ExchangeStatus {
         struct Request: Encodable {
             let txId: String
         }
 
         struct Response: Decodable {
-            let status: ExpressTransactionStatus
-            let externalStatus: String
+            let providerId: Provider.Id
+            let externalTxId: String
+            let externalTxStatus: ExpressTransactionStatus
             let externalTxUrl: String
-            let errorCode: Int
+        }
+    }
+
+    // MARK: - Error
+
+    enum APIError {
+        struct Response: Decodable {
+            let error: ExpressAPIError
         }
     }
 }
