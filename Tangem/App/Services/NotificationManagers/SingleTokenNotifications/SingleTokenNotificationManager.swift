@@ -85,7 +85,7 @@ final class SingleTokenNotificationManager {
             events.append(.event(for: sendBlockedReason))
         }
 
-        if canSwapSomeToken {
+        if canSwapSomeToken, !AppSettings.shared.crosschainExchangeTokenPromoDismissed {
             events.append(.crosschainSwap)
         }
 
@@ -190,6 +190,21 @@ extension SingleTokenNotificationManager: NotificationManager {
     }
 
     func dismissNotification(with id: NotificationViewId) {
+        guard let notification = notificationInputsSubject.value.first(where: { $0.id == id }) else {
+            return
+        }
+
+        guard let event = notification.settings.event as? TokenNotificationEvent else {
+            return
+        }
+
+        switch event {
+        case .crosschainSwap:
+            AppSettings.shared.crosschainExchangeTokenPromoDismissed = true
+        default:
+            break
+        }
+
         notificationInputsSubject.value.removeAll(where: { $0.id == id })
     }
 }
