@@ -66,7 +66,7 @@ extension WarningEvent: NotificationEvent {
         case .missingBackup:
             return Localization.warningNoBackupTitle
         case .crosschainSwap:
-            return "Abcd"
+            return Localization.mainSwapPromotionTitle
         }
     }
 
@@ -104,7 +104,7 @@ extension WarningEvent: NotificationEvent {
         case .missingBackup:
             return Localization.warningNoBackupMessage
         case .crosschainSwap:
-            return "Abcdefg"
+            return Localization.mainSwapPromotionMessage
         }
     }
 
