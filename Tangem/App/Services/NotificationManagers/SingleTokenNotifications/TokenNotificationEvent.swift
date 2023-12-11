@@ -106,6 +106,22 @@ extension TokenNotificationEvent: NotificationEvent {
         }
     }
 
+    var severity: NotificationView.Severity {
+        switch self {
+        case .noAccount,
+             .longTransaction,
+             .hasPendingTransactions:
+            return .info
+        case .someNetworksUnreachable,
+             .rentFee,
+             .existentialDepositWarning,
+             .notEnoughFeeForTokenTx:
+            return .warning
+        case .networkUnreachable:
+            return .critical
+        }
+    }
+
     var isDismissable: Bool {
         switch self {
         case .rentFee:
