@@ -511,6 +511,8 @@
 		B61B14CD2A25DD33001AF997 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61B14CC2A25DD33001AF997 /* Lock.swift */; };
 		B61D2A202B1947E6004F2C2D /* TokenDetailsScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61D2A1F2B1947E6004F2C2D /* TokenDetailsScrollState.swift */; };
 		B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */; };
+		B62570EA2B24A59B005EBC91 /* RateAppBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62570E92B24A59B005EBC91 /* RateAppBottomSheetView.swift */; };
+		B62570EC2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62570EB2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift */; };
 		B62E42512A79328A0045AB31 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E42502A79328A0045AB31 /* Collection+.swift */; };
 		B63127D42A2F52E2007C124C /* OrganizeTokensListSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */; };
 		B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */; };
@@ -1895,6 +1897,8 @@
 		B61B14CC2A25DD33001AF997 /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
 		B61D2A1F2B1947E6004F2C2D /* TokenDetailsScrollState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDetailsScrollState.swift; sourceTree = "<group>"; };
 		B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFactory.swift; sourceTree = "<group>"; };
+		B62570E92B24A59B005EBC91 /* RateAppBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppBottomSheetView.swift; sourceTree = "<group>"; };
+		B62570EB2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		B62E42502A79328A0045AB31 /* Collection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
 		B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSection.swift; sourceTree = "<group>"; };
 		B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemViewModel.swift; sourceTree = "<group>"; };
@@ -3862,6 +3866,7 @@
 			children = (
 				B030B4D92A8CE1CA0023DB8B /* LockedWalletMainContent */,
 				B0BDFD202A8BAB1800479F53 /* UnlockCardBottomSheet */,
+				B62570E82B24A582005EBC91 /* RateAppBottomSheet */,
 				B09310592A0BC03100F6043A /* MainHeaderView */,
 				B6E9A8C32A997AE5005CF137 /* MainFooterView */,
 				EF763E902A7935B400D12644 /* MainBottomSheet */,
@@ -4633,6 +4638,15 @@
 				B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */,
 			);
 			path = OrganizeTokens;
+			sourceTree = "<group>";
+		};
+		B62570E82B24A582005EBC91 /* RateAppBottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				B62570E92B24A59B005EBC91 /* RateAppBottomSheetView.swift */,
+				B62570EB2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift */,
+			);
+			path = RateAppBottomSheet;
 			sourceTree = "<group>";
 		};
 		B63127D52A2F83CA007C124C /* ListSection */ = {
@@ -7982,6 +7996,7 @@
 				B06C083F2A73E0F700D982BC /* MainHeaderSubtitleProviderFactory.swift in Sources */,
 				65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
+				B62570EA2B24A59B005EBC91 /* RateAppBottomSheetView.swift in Sources */,
 				B0DE006C2A431BA6005A77D4 /* LocalizationIconParser.swift in Sources */,
 				B04CD33E29122C64001EA84A /* ReferralViewModel.swift in Sources */,
 				DCBC944B2993F3420050BC35 /* AnalyticsStorageKey.swift in Sources */,
@@ -8054,6 +8069,7 @@
 				B06C085A2A73FC3B00D982BC /* MultiWalletMainContentViewModel.swift in Sources */,
 				B0541DC226FB301A0043893E /* WalletOnboardingCardLayout.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
+				B62570EC2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift in Sources */,
 				DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */,
 				B06C08682A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift in Sources */,
 				DADD18F82AA7516B0044AA66 /* UITraitCollection+.swift in Sources */,
