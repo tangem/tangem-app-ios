@@ -7,11 +7,25 @@
 //
 
 import Foundation
+import Combine
 import TangemSwapping
 
-public protocol ExpressPendingTransactionRepository {
-    func didSendApproveTransaction() // Add data
-    func didSendSwapTransaction() // Add data
+protocol ExpressPendingTransactionRepository: AnyObject {
+    var pendingTransactions: [ExpressPendingTransactionRecord] { get }
+    var pendingTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> { get }
 
-    func hasPending(for network: String) -> Bool
+    func didSendApproveTransaction()
+    func didSendSwapTransaction(_ txData: SentExpressTransactionData, userWalletId: String)
+    func removeSwapTransaction(with expressTxId: String)
+}
+
+private struct ExpressPendingTransactionRepositoryKey: InjectionKey {
+    static var currentValue: ExpressPendingTransactionRepository = CommonExpressPendingTransactionRepository()
+}
+
+extension InjectedValues {
+    var expressPendingTransactionsRepository: ExpressPendingTransactionRepository {
+        get { Self[ExpressPendingTransactionRepositoryKey.self] }
+        set { Self[ExpressPendingTransactionRepositoryKey.self] = newValue }
+    }
 }
