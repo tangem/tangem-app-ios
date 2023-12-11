@@ -327,7 +327,16 @@ private extension CommonExpressManager {
             return .notEnoughAmountForSwapping(minAmount)
         }
 
-        // 2. Check Permission
+        // 2. Check Balance
+
+        let sourceBalance = try await request.pair.source.getBalance()
+        let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
+
+        if isNotEnoughBalanceForSwapping {
+            return .notEnoughBalanceForSwapping(request.amount)
+        }
+
+        // 3. Check Permission
 
         if let spender = quote.quote?.allowanceContract {
             do {
@@ -336,21 +345,11 @@ private extension CommonExpressManager {
                 if isPermissionRequired {
                     return .permissionRequired(spender: spender)
                 }
-            } catch let error as AllowanceProviderError {
-                if case .approveTransactionInProgress = error {
-                    return .approveTransactionInProgress(spender: spender)
-                }
+            } catch AllowanceProviderError.approveTransactionInProgress {
+                return .approveTransactionInProgress(spender: spender)
+            } catch {
                 throw error
             }
-        }
-
-        // 3. Check Balance
-
-        let sourceBalance = try await request.pair.source.getBalance()
-        let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
-
-        if isNotEnoughBalanceForSwapping {
-            return .notEnoughBalanceForSwapping(request.amount)
         }
 
         // No Restrictions
