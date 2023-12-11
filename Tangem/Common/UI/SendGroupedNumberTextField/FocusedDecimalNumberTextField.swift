@@ -19,6 +19,8 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
 
     private let toolbarButton: () -> ToolbarButton
 
+    @State private var presentIOS17WorkaroundSheet = false
+
     init(
         decimalValue: Binding<DecimalNumberTextField.DecimalValue?>,
         maximumFractionDigits: Int,
@@ -32,6 +34,36 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     }
 
     var body: some View {
+        // An experimental workaround for a buggy `.toolbar` modifier on iOS 17+,
+        // see https://developer.apple.com/forums/thread/736040?answerId=774135022#774135022 for details
+        if #available(iOS 17.0, *) {
+            textField
+                .onChange(of: isInputActive) { newValue in
+                    if newValue {
+                        presentIOS17WorkaroundSheet = true
+                    }
+                }
+                .sheet(isPresented: $presentIOS17WorkaroundSheet) {
+                    Color.clear
+                        .onAppear { presentIOS17WorkaroundSheet = false }
+                        .presentationConfiguration { sheetPresentationController in
+                            let detent = UISheetPresentationController.Detent.custom(
+                                identifier: .init("com.tangem.FocusedDecimalNumberTextFieldDetent")
+                            ) { _ in
+                                return 1.0
+                            }
+                            sheetPresentationController.detents = [detent]
+                            sheetPresentationController.largestUndimmedDetentIdentifier = detent.identifier
+                            sheetPresentationController.containerView?.alpha = .zero
+                        }
+                }
+        } else {
+            textField
+        }
+    }
+
+    @ViewBuilder
+    private var textField: some View {
         DecimalNumberTextField(
             decimalValue: $decimalValue,
             decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits),
