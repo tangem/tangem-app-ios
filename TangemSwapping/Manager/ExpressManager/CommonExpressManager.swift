@@ -31,6 +31,8 @@ actor CommonExpressManager {
     // 5. Here the provider with his quote which was selected from user
     private var selectedQuote: ExpectedQuote?
 
+    private var spendersAwaitingApprove = Set<String>()
+
     init(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
@@ -94,6 +96,10 @@ extension CommonExpressManager: ExpressManager {
         try await updateState()
     }
 
+    func didSendApproveTransaction(for spender: String) async {
+        spendersAwaitingApprove.insert(spender)
+    }
+
     func requestData() async throws -> ExpressTransactionData {
         guard let pair = _pair else {
             throw ExpressManagerError.pairNotFound
@@ -141,6 +147,12 @@ private extension CommonExpressManager {
 
         if let restriction = try await checkRestriction(request: request, quote: selectedQuote) {
             return .restriction(restriction, quote: selectedQuote)
+        }
+
+        // If we have only only on selectedQuote and it has an error state
+        // Then stop request's sequence
+        if let error = selectedQuote.error {
+            throw error
         }
 
         switch selectedQuote.provider.type {
@@ -201,22 +213,21 @@ private extension CommonExpressManager {
         return quotes
     }
 
-    func getSelectedQuote(
-        request: ExpressManagerSwappingPairRequest,
-        quotes: [ExpectedQuote]
-    ) async throws -> ExpectedQuote {
-        if let quote = selectedQuote {
-            return quote
-        }
-
-        let best = bestQuote(from: quotes)
-        selectedQuote = best
-
-        if let best {
+    func getSelectedQuote(request: ExpressManagerSwappingPairRequest, quotes: [ExpectedQuote]) async throws -> ExpectedQuote {
+        // If we don't have selectedQuote just update it
+        guard let selectedQuote else {
+            let best = try bestQuote(from: quotes)
+            self.selectedQuote = best
             return best
         }
 
-        throw ExpressManagerError.quotesNotFound
+        // If the new quote has same provider
+        if let quote = quotes.first(where: { $0.provider == selectedQuote.provider }) {
+            self.selectedQuote = quote
+            return quote
+        }
+
+        return selectedQuote
     }
 
     func loadQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
@@ -248,32 +259,27 @@ private extension CommonExpressManager {
             case .success(let quote):
                 let isBest = best == quote
                 return ExpectedQuote(provider: provider, state: .quote(quote), isBest: isBest)
-            case .failure(let error as ExpressDTO.ExpressAPIError):
-                if error.code == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
+            case .failure(let error as ExpressAPIError):
+                if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
                     return ExpectedQuote(provider: provider, state: .tooSmallAmount(minAmount: minAmount), isBest: false)
                 }
 
-                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+                return ExpectedQuote(provider: provider, state: .error(error), isBest: false)
             case .failure(let error):
-                return ExpectedQuote(provider: provider, state: .error(error.localizedDescription), isBest: false)
+                return ExpectedQuote(provider: provider, state: .error(error), isBest: false)
             }
         }
 
         return allQuotes
     }
 
-    func bestQuote(from quotes: [ExpectedQuote]) -> ExpectedQuote? {
-        guard !quotes.isEmpty else {
-            return nil
+    func bestQuote(from quotes: [ExpectedQuote]) throws -> ExpectedQuote {
+        // Find the best quote with provider
+        guard let bestPossibleQuote = quotes.max(by: { $0.priority < $1.priority }) else {
+            throw ExpressManagerError.quotesNotFound
         }
 
-        let availableQuotes = quotes.filter { $0.isAvailable }
-
-        guard !availableQuotes.isEmpty else {
-            return quotes.first(where: { $0.isError }) ?? quotes.first
-        }
-
-        return availableQuotes.first(where: { $0.isBest }) ?? availableQuotes.first
+        return bestPossibleQuote
     }
 
     func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [ExpressProvider.Id]) async -> [ExpressProvider.Id: Result<ExpressQuote, Error>] {
@@ -324,10 +330,17 @@ private extension CommonExpressManager {
         // 2. Check Permission
 
         if let spender = quote.quote?.allowanceContract {
-            let isPermissionRequired = try await isPermissionRequired(request: request, for: spender)
+            do {
+                let isPermissionRequired = try await isPermissionRequired(request: request, for: spender)
 
-            if isPermissionRequired {
-                return .permissionRequired(spender: spender)
+                if isPermissionRequired {
+                    return .permissionRequired(spender: spender)
+                }
+            } catch let error as AllowanceProviderError {
+                if case .approveTransactionInProgress = error {
+                    return .approveTransactionInProgress(spender: spender)
+                }
+                throw error
             }
         }
 
@@ -363,7 +376,18 @@ private extension CommonExpressManager {
 
         let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
         logger.debug("\(request.pair.source) allowance - \(allowance)")
-        return allowance < request.amount
+
+        let approveTxWasSent = spendersAwaitingApprove.contains(spender)
+        let hasEnoughAllowance = allowance >= request.amount
+        if approveTxWasSent {
+            if hasEnoughAllowance {
+                spendersAwaitingApprove.remove(spender)
+                return hasEnoughAllowance
+            } else {
+                throw AllowanceProviderError.approveTransactionInProgress
+            }
+        }
+        return !hasEnoughAllowance
     }
 }
 
