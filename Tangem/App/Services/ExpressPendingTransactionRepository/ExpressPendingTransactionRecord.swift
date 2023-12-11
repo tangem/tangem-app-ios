@@ -16,19 +16,27 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
     let transactionHash: String
     let sourceTokenTxInfo: TokenTxInfo
     let destinationTokenTxInfo: TokenTxInfo
-    let fee: Decimal
+    let feeString: String
     let provider: Provider
     let date: Date
     let externalTxId: String?
     let externalTxURL: String?
+
+    var fee: Decimal {
+        convertToDecimal(feeString)
+    }
 }
 
 extension ExpressPendingTransactionRecord {
     struct TokenTxInfo: Codable, Equatable {
         let tokenItem: TokenItem
         let blockchainNetwork: BlockchainNetwork
-        let amount: Decimal
+        let amountString: String
         let isCustom: Bool
+
+        var amount: Decimal {
+            convertToDecimal(amountString)
+        }
     }
 
     enum TransactionType: String, Codable, Equatable {
@@ -68,4 +76,10 @@ extension ExpressPendingTransactionRecord {
             }
         }
     }
+}
+
+private func convertToDecimal(_ str: String) -> Decimal {
+    let cleanedStr = str.replacingOccurrences(of: ",", with: ".")
+    let locale = Locale(identifier: "en-US")
+    return Decimal(string: cleanedStr, locale: locale) ?? 0
 }
