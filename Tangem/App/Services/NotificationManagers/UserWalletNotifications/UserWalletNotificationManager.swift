@@ -85,7 +85,7 @@ final class UserWalletNotificationManager {
             )
         }
 
-        if !AppSettings.shared.crosschainExchangeMainPromoDismissed {
+        if !AppSettings.shared.crosschainExchangeMainPromoDismissed, TangemExpressPromotionUtility().isPromotionRunning {
             inputs.append(
                 factory.buildNotificationInput(
                     for: .crosschainSwap,
