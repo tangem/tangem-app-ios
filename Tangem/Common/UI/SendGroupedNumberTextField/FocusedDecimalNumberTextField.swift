@@ -18,8 +18,6 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     private var maximumFractionDigits: Int
     private let font: Font
 
-    @State private var configuredTextFields: Set<ObjectIdentifier> = []
-
     private let toolbarButton: () -> ToolbarButton
 
     init(
@@ -46,16 +44,10 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
             isInputActive = true
         }
         .introspect { (instance: UITextField) in
-            let identifier = ObjectIdentifier(instance)
-
-            if configuredTextFields.contains(identifier) {
+            if let view = instance.inputAccessoryView, type(of: view) == InputAccessoryView.self {
                 return
             }
 
-            /// Prevents errors like "Modifying state during view update, this will cause undefined behavior."
-            DispatchQueue.main.async {
-                configuredTextFields.insert(identifier)
-            }
             instance.inputAccessoryView = Self.makeInputAccessoryView()
         }
     }
@@ -63,22 +55,23 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
 
 // MARK: - Factory methods
 
+private final class InputAccessoryView: UIToolbar {}
+
 @available(iOS 15.0, *)
 private extension FocusedDecimalNumberTextField {
     static func makeInputAccessoryView() -> some UIView {
         let image = Assets.hideKeyboard.uiImage.withRenderingMode(.alwaysTemplate)
         let temp = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        temp.tintColor = UIColor(named: "IconPrimary1")
+        let inputAccessoryView = InputAccessoryView()
 
-        let toolBar = UIToolbar()
-        toolBar.items = [
-            UIBarButtonItem(title: Localization.sendMaxAmountLabel),
+        inputAccessoryView.items = [
+            UIBarButtonItem(title: "Test"),
             UIBarButtonItem(systemItem: .flexibleSpace),
             temp,
         ]
-        toolBar.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        inputAccessoryView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
-        return toolBar
+        return inputAccessoryView
     }
 }
 
