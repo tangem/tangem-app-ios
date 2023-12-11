@@ -255,6 +255,8 @@
 "main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 48 hours";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card";
+"main_swap_promotion_message" = "Swap multiple currencies across several blockchains";
+"main_swap_promotion_title" = "Cross-chain swaps are now available";
 "main_tokens" = "Tokens";
 "manage_tokens_add" = "Add";
 "manage_tokens_edit" = "Edit";
@@ -528,6 +530,8 @@
 "token_details_unable_hide_alert_message" = "The %1$@ token is the main currency on the %2$@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
 "token_item_no_rate" = "No rate";
+"token_swap_promotion_message" = "Exchange this token for any other asset in your portfolio";
+"token_swap_promotion_title" = "Introducing cross-chain swaps";
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
