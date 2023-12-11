@@ -113,8 +113,12 @@ private extension ExpressTokensListViewModel {
     }
 
     func loadAvailablePairs(walletModels: [WalletModel]) async throws -> [ExpressCurrency] {
-        // If walletModels contains another wallets
-        guard walletModels.contains(where: { $0 != self.swapDirection.wallet }) else {
+        let walletModels = walletModels.filter { wallet in
+            !wallet.isCustom && wallet != self.swapDirection.wallet
+        }
+
+        // Do not send unnecessary request
+        guard !walletModels.isEmpty else {
             return []
         }
 
@@ -142,7 +146,8 @@ private extension ExpressTokensListViewModel {
                 guard walletModel != swapDirection.wallet else { return }
 
                 let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
-                if isAvailable {
+                let isNotCustom = !walletModel.isCustom
+                if isAvailable, isNotCustom {
                     availableWalletModels.append(walletModel)
                 } else {
                     unavailableWalletModels.append(walletModel)
