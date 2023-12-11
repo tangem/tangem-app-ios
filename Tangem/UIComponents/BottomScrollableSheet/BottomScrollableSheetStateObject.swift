@@ -93,7 +93,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         }
     }
 
-    private func updateStatusBarAppearance(to state: SheetState) {
+    private func updateStatusBarAppearance(to state: BottomScrollableSheetState) {
         switch state {
         case .bottom:
             preferredStatusBarColorScheme = nil
