@@ -363,6 +363,10 @@
 "push_additional_fee" = "額外費用";
 "push_previous_fee" = "先前費用";
 "push_tx_address_hint" = "先前交易總額包括費用";
+"rate_app_sheet_negative_response_button_title" = "Share feedback";
+"rate_app_sheet_positive_response_button_title" = "Rate the app 🙌";
+"rate_app_sheet_subtitle" = "Share your app\U00A0experience\U00A0–\U00A0every\U00A0detail counts.";
+"rate_app_sheet_title" = "Enjoying our app?";
 "receive_bottom_sheet_title" = "%1$@ %2$@ address on %3$@ network";
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) on %3$@ network";
 "receive_bottom_sheet_warning_message_full" = "Send only %@ to this address. Sending any other currency will result in its irreversible loss.";
