@@ -63,7 +63,7 @@ struct ManageTokensNetworkSelectorView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 20)
         .contentShape(Rectangle())
-        .background(Colors.Background.primary)
+        .background(Colors.Background.action)
         .cornerRadiusContinuous(Constants.cornerRadius)
         .onTapGesture {
             viewModel.selectWalletActionDidTap()
@@ -85,7 +85,7 @@ struct ManageTokensNetworkSelectorView: View {
                     ManageTokensNetworkSelectorItemView(viewModel: $0)
                 }
             }
-            .background(Colors.Background.primary)
+            .background(Colors.Background.action)
             .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
@@ -114,7 +114,7 @@ struct ManageTokensNetworkSelectorView: View {
                     ManageTokensNetworkSelectorItemView(viewModel: $0)
                 }
             }
-            .background(Colors.Background.primary)
+            .background(Colors.Background.action)
             .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
