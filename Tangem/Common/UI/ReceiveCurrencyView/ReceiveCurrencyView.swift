@@ -41,7 +41,7 @@ struct ReceiveCurrencyView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                Text(Localization.expressProviderNotAvailable)
+                Text(Localization.swappingTokenNotAvailable)
                     .style(Fonts.Regular.footnote, color: Colors.Text.disabled)
                     .fixedSize(horizontal: false, vertical: true)
             }
