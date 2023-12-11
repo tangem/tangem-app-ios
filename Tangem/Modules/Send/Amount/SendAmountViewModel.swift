@@ -73,7 +73,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .amountPublisher
             .sink { [weak self] amount in
                 self?.amount = self?.fromAmount(amount)
-                self?.objectWillChange.send()
             }
             .store(in: &bag)
 
