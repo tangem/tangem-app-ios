@@ -13,6 +13,8 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     @ViewBuilder private let content: () -> Content
     @ViewBuilder private let overlay: () -> Overlay
 
+    @Environment(\.bottomScrollableSheetStateObserver) private var bottomScrollableSheetStateObserver
+
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
     @Environment(\.statusBarStyleConfigurator) private var statusBarStyleConfigurator
@@ -54,6 +56,9 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             .ignoresSafeArea(edges: .bottom)
             .onAppear(perform: stateObject.onAppear)
             .onDisappear { statusBarStyleConfigurator.setSelectedStatusBarColorScheme(nil, animated: true) }
+            .onChange(of: stateObject.state) { newValue in
+                bottomScrollableSheetStateObserver?(newValue)
+            }
             .onChange(of: stateObject.preferredStatusBarColorScheme) { newValue in
                 statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
             }
@@ -69,7 +74,6 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     }
 
     private var headerTapGesture: some Gesture {
-        // [REDACTED_TODO_COMMENT]
         TapGesture()
             .onEnded(stateObject.onHeaderTap)
     }
