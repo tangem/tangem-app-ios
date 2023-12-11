@@ -11,18 +11,19 @@ import Foundation
 struct TokenActionListBuilder {
     func buildActionsForButtonsList(canShowBuySell: Bool, canShowSwap: Bool) -> [TokenActionType] {
         var actions: [TokenActionType] = []
+
+        actions.append(contentsOf: [.receive, .send])
+
+        if canShowSwap {
+            actions.append(.exchange)
+        }
+
         if canShowBuySell {
             actions.append(.buy)
         }
 
-        actions.append(contentsOf: [.send, .receive])
-
         if canShowBuySell {
             actions.append(.sell)
-        }
-
-        if canShowSwap {
-            actions.append(.exchange)
         }
 
         return actions
@@ -40,22 +41,24 @@ struct TokenActionListBuilder {
         let canSell = exchangeUtility.sellAvailable
 
         var availableActions: [TokenActionType] = [.copyAddress]
-        if canExchange, canBuy {
-            availableActions.append(.buy)
-        }
+
+        availableActions.append(.receive)
 
         if canSend {
             availableActions.append(.send)
         }
 
-        availableActions.append(.receive)
+        if isBlockchainReachable, canSwap {
+            availableActions.append(.exchange)
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        if canExchange, canBuy {
+            availableActions.append(.buy)
+        }
 
         if isBlockchainReachable, canExchange, canSell {
             availableActions.append(.sell)
-        }
-
-        if isBlockchainReachable, canSwap {
-            availableActions.append(.exchange)
         }
 
         if canHide {
@@ -67,9 +70,9 @@ struct TokenActionListBuilder {
 
     func buildActionsForLockedSingleWallet() -> [TokenActionType] {
         [
-            .buy,
-            .send,
             .receive,
+            .send,
+            .buy,
             .sell,
         ]
     }
