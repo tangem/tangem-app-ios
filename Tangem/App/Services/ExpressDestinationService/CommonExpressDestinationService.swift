@@ -31,7 +31,11 @@ struct CommonExpressDestinationService {
 extension CommonExpressDestinationService: ExpressDestinationService {
     func getDestination(source: WalletModel) async throws -> WalletModel? {
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
-            wallet.id != source.id && swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+            let isNotSource = wallet.id != source.id
+            let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+            let isNotCustom = !wallet.isCustom
+
+            return isNotSource && isAvailable && isNotCustom
         }
 
         if let lastTransactionWalletModel = getLastTransactionWalletModel(in: searchableWalletModels) {
