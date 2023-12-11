@@ -62,6 +62,8 @@ final class SingleTokenNotificationManager {
             events.append(.event(for: sendBlockedReason))
         }
 
+        events.append(.crosschainSwap)
+
         let inputs = events.map {
             factory.buildNotificationInput(
                 for: $0,
