@@ -56,7 +56,7 @@ class SendModel {
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
-    private var _feeValuesFormatted = CurrentValueSubject<[FeeOption: LoadingValue<String>], Never>([:])
+    private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
     private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
@@ -73,14 +73,6 @@ class SendModel {
     private let transactionSigner: TransactionSigner
     private let sendType: SendType
     private var bag: Set<AnyCancellable> = []
-
-    private var feeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
-            balanceFormatter: BalanceFormatter(),
-            balanceConverter: BalanceConverter(),
-            fiatRatesProvider: SwappingRatesProvider()
-        )
-    }
 
     // MARK: - Public interface
 
@@ -166,12 +158,12 @@ class SendModel {
             .sink { [weak self] fees in
                 guard let self else { return }
 
-                let feeOptions = feeOptions(fees)
-                let formattedFees = formatFees(feeOptions)
-                _feeValuesFormatted.send(formattedFees)
+                let feeValues = feeValues(fees)
+                _feeValues.send(feeValues)
 
-                if let marketFee = feeOptions[.market] {
-                    fee.send(marketFee)
+                if let marketFee = feeValues[.market],
+                   let marketFeeValue = marketFee.value {
+                    fee.send(marketFeeValue)
                 }
             }
             .store(in: &bag)
@@ -262,33 +254,20 @@ class SendModel {
 
     // MARK: - Fees
 
-    private func feeOptions(_ fees: [Fee]) -> [FeeOption: Fee] {
+    private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
         switch fees.count {
         case 1:
             return [
-                .market: fees[0],
+                .market: .loaded(fees[0]),
             ]
         case 3:
             return [
-                .slow: fees[0],
-                .market: fees[1],
-                .fast: fees[2],
+                .slow: .loaded(fees[0]),
+                .market: .loaded(fees[1]),
+                .fast: .loaded(fees[2]),
             ]
         default:
             return [:]
-        }
-    }
-
-    private func formatFees(_ fees: [FeeOption: Fee]) -> [FeeOption: LoadingValue<String>] {
-        let blockchainNetwork = walletModel.blockchainNetwork
-        let blockchain = blockchainNetwork.blockchain
-
-        return fees.mapValues { fee in
-            let formattedValue = self.feeFormatter.format(
-                fee: fee.amount.value,
-                tokenItem: walletModel.tokenItem
-            )
-            return .loaded(formattedValue)
         }
     }
 }
@@ -321,18 +300,24 @@ extension SendModel: SendFeeViewModelInput {
         }
     }
 
-    var feeValues: AnyPublisher<[FeeOption: LoadingValue<String>], Never> {
-        _feeValuesFormatted.eraseToAnyPublisher()
+    var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
+        _feeValues.eraseToAnyPublisher()
+    }
+
+    var blockchain: Blockchain {
+        walletModel.blockchainNetwork.blockchain
+    }
+
+    var tokenItem: TokenItem {
+        walletModel.tokenItem
     }
 }
 
 extension SendModel: SendSummaryViewModelInput {
     var feeText: AnyPublisher<String?, Never> {
-        Publishers.CombineLatest(_selectedFeeOption, _feeValuesFormatted)
-            .map { selectedFeeOption, feeValuesFormatted in
-                feeValuesFormatted[selectedFeeOption]?.value
-            }
-            .eraseToAnyPublisher()
+        #warning("TODO")
+        let text: String? = nil
+        return .just(output: text)
     }
 
     var canEditAmount: Bool {
