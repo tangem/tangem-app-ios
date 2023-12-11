@@ -32,6 +32,15 @@ class SendModel {
         .just(output: true)
     }
 
+    var transactionFinished: AnyPublisher<Bool, Never> {
+        _transactionTime
+            .map {
+                $0 != nil
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -50,6 +59,7 @@ class SendModel {
     private var _feeValuesFormatted = CurrentValueSubject<[FeeOption: LoadingValue<String>], Never>([:])
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
+    private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -121,7 +131,10 @@ class SendModel {
 
                 print("SEND FINISH ", completion)
                 #warning("[REDACTED_TODO_COMMENT]")
-            } receiveValue: { _ in
+            } receiveValue: { [weak self] result in
+                guard let self else { return }
+
+                _transactionTime.send(Date())
             }
             .store(in: &bag)
     }
