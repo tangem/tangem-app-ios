@@ -75,6 +75,12 @@ class AppSettings {
     @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
     var userDidSwipeWalletsOnMainScreen: Bool = false
 
+    @AppStorageCompat(StorageType.crosschainExchangeMainPromoDismissed)
+    var crosschainExchangeMainPromoDismissed: Bool = false
+
+    @AppStorageCompat(StorageType.crosschainExchangeTokenPromoDismissed)
+    var crosschainExchangeTokenPromoDismissed: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}
