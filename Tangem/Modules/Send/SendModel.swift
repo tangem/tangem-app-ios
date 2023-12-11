@@ -286,8 +286,7 @@ class SendModel {
         return fees.mapValues { fee in
             let formattedValue = self.feeFormatter.format(
                 fee: fee.amount.value,
-                currencySymbol: fee.amount.currencySymbol,
-                currencyId: blockchain.currencyId
+                tokenItem: walletModel.tokenItem
             )
             return .loaded(formattedValue)
         }
