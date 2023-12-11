@@ -85,7 +85,9 @@ final class SingleTokenNotificationManager {
             events.append(.event(for: sendBlockedReason))
         }
 
-        if canSwapSomeToken, !AppSettings.shared.crosschainExchangeTokenPromoDismissed {
+        if canSwapSomeToken,
+           !AppSettings.shared.crosschainExchangeTokenPromoDismissed,
+           TangemExpressPromotionUtility().isPromotionRunning {
             events.append(.crosschainSwap)
         }
 
