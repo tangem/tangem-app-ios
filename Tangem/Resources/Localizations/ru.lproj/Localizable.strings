@@ -530,6 +530,7 @@
 "token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_item_no_rate" = "Нет цены";
+"token_swap_promotion_button" = "Обменять";
 "token_swap_promotion_message" = "Обменяйте этот токен на любой другой актив в вашем портфеле";
 "token_swap_promotion_title" = "Представляем кроссчейн-своп";
 "transaction_history_contract_address" = "контракт: %@";

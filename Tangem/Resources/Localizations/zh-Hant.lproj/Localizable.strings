@@ -530,6 +530,7 @@
 "token_details_unable_hide_alert_message" = "%1$@ 代幣是 %2$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_item_no_rate" = "無費用";
+"token_swap_promotion_button" = "Exchange now";
 "token_swap_promotion_message" = "Exchange this token for any other asset in your portfolio";
 "token_swap_promotion_title" = "Introducing cross-chain swaps";
 "transaction_history_contract_address" = "contract: %@";
