@@ -25,6 +25,7 @@ final class MainViewModel: ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
+    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
