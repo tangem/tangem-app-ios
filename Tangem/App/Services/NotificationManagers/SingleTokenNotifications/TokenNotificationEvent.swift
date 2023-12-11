@@ -18,6 +18,7 @@ enum TokenNotificationEvent: Hashable {
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
     case notEnoughFeeForTokenTx(tokenName: String, blockchainCurrencySymbol: String, blockchainName: String, blockchainIconName: String)
+    case crosschainSwap
 
     static func event(for reason: WalletModel.SendBlockedReason) -> TokenNotificationEvent {
         let message = reason.description
@@ -38,6 +39,8 @@ enum TokenNotificationEvent: Hashable {
             return nil
         case .notEnoughFeeForTokenTx(_, let blockchainCurrencySymbol, _, _):
             return .openNetworkCurrency(currencySymbol: blockchainCurrencySymbol)
+        case .crosschainSwap:
+            return .exchange
         }
     }
 }
@@ -61,6 +64,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.warningSendBlockedPendingTransactionsTitle
         case .notEnoughFeeForTokenTx(_, _, let blockchainName, _):
             return Localization.warningSendBlockedFundsForFeeTitle(blockchainName)
+        case .crosschainSwap:
+            return Localization.tokenSwapPromotionTitle
         }
     }
 
@@ -82,6 +87,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .notEnoughFeeForTokenTx(let tokenName, let blockchainCurrencySymbol, let blockchainName, _):
             return Localization.warningSendBlockedFundsForFeeMessage(tokenName, blockchainName, tokenName, blockchainName, blockchainCurrencySymbol)
+        case .crosschainSwap:
+            return Localization.tokenSwapPromotionMessage
         }
     }
 
@@ -92,6 +99,8 @@ extension TokenNotificationEvent: NotificationEvent {
         // One white notification will be added later
         case .notEnoughFeeForTokenTx:
             return .primary
+        case .crosschainSwap:
+            return .swap
         }
     }
 
@@ -103,12 +112,14 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTokenTx(_, _, _, let blockchainIconName):
             return .init(iconType: .image(Image(blockchainIconName)))
+        case .crosschainSwap:
+            return .init(iconType: .image(Assets.swapBannerIcon.image))
         }
     }
 
     var isDismissable: Bool {
         switch self {
-        case .rentFee:
+        case .rentFee, .crosschainSwap:
             return true
         case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughFeeForTokenTx, .noAccount:
             return false
@@ -129,6 +140,7 @@ extension TokenNotificationEvent {
         case .longTransaction: return nil
         case .hasPendingTransactions: return nil
         case .notEnoughFeeForTokenTx: return .tokenNoticeNotEnoughtFee
+        case .crosschainSwap: return nil
         }
     }
 
