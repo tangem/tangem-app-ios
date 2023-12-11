@@ -43,7 +43,7 @@ struct SwappingApproveView: View {
                 }
             }
 
-            Text(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
+            Text(viewModel.subheader)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 .padding(.horizontal, 50)
                 .multilineTextAlignment(.center)
@@ -90,20 +90,23 @@ struct SwappingApproveView: View {
     }
 }
 
-struct SwappingApproveView_Preview: PreviewProvider {
-    static let viewModel = SwappingApproveViewModel(
-        transactionSender: TransactionSenderMock(),
-        swappingInteractor: .init(
-            swappingManager: SwappingManagerMock(),
-            userTokensManager: UserTokensManagerMock(),
-            currencyMapper: CurrencyMapper(),
-            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-        ),
-        fiatRatesProvider: FiatRatesProviderMock(),
-        coordinator: SwappingApproveRoutableMock()
-    )
+/*
+ // [REDACTED_TODO_COMMENT]
+ struct SwappingApproveView_Preview: PreviewProvider {
+     static let viewModel = SwappingApproveViewModel(
+         transactionSender: TransactionSenderMock(),
+         swappingInteractor: .init(
+             swappingManager: SwappingManagerMock(),
+             userTokensManager: UserTokensManagerMock(),
+             currencyMapper: CurrencyMapper(),
+             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+         ),
+         fiatRatesProvider: FiatRatesProviderMock(),
+         coordinator: SwappingApproveRoutableMock()
+     )
 
-    static var previews: some View {
-        SwappingApproveView(viewModel: viewModel)
-    }
-}
+     static var previews: some View {
+         SwappingApproveView(viewModel: viewModel)
+     }
+ }
+ */
