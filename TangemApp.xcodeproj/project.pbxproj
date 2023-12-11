@@ -617,6 +617,7 @@
 		DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
 		DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA28D57C290AAE2000F0C335 /* ScrollView+.swift */; };
+		DA34BDF72B27578000F606C2 /* TangemExpressPromotionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA34BDF62B27578000F606C2 /* TangemExpressPromotionUtility.swift */; };
 		DA4055252ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */; };
 		DA4055262ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */; };
 		DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */; };
@@ -1993,6 +1994,7 @@
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
 		DA28D57C290AAE2000F0C335 /* ScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+.swift"; sourceTree = "<group>"; };
+		DA34BDF62B27578000F606C2 /* TangemExpressPromotionUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExpressPromotionUtility.swift; sourceTree = "<group>"; };
 		DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
 		DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorDelegate.swift; sourceTree = "<group>"; };
@@ -3567,6 +3569,7 @@
 				B012A1162AA5CDBD0079BAB4 /* NotificationEvent.swift */,
 				B012A1182AA5CDE00079BAB4 /* NotificationButtonActionType.swift */,
 				B04090C32AF3969600DF8DD5 /* NotificationsAnalyticsService.swift */,
+				DA34BDF62B27578000F606C2 /* TangemExpressPromotionUtility.swift */,
 			);
 			path = NotificationManagers;
 			sourceTree = "<group>";
@@ -8276,6 +8279,7 @@
 				DA4055292ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift in Sources */,
 				EFD1645B2949F11C000E56C7 /* CurrencyAmount.swift in Sources */,
 				DC72548E2A02BB810003FE1B /* CardInteractorMocks.swift in Sources */,
+				DA34BDF72B27578000F606C2 /* TangemExpressPromotionUtility.swift in Sources */,
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
 				DC22535B28A4FDE90094F30C /* WarningEventsFactory.swift in Sources */,
 				65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */,
