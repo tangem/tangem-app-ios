@@ -12,6 +12,9 @@ import TangemSdk
 import BlockchainSdk
 
 final class SingleTokenNotificationManager {
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
@@ -20,6 +23,26 @@ final class SingleTokenNotificationManager {
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
+
+    private var canSwapSomeToken: Bool {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
+            return false
+        }
+
+        if !walletModel.isZeroAmount || swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem) {
+            return true
+        }
+
+        for otherWalletModel in userWalletModel.walletModelsManager.walletModels {
+            if walletModel.id != otherWalletModel.id {
+                if !otherWalletModel.isZeroAmount, swapAvailabilityProvider.canSwap(tokenItem: otherWalletModel.tokenItem) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
 
     init(walletModel: WalletModel, contextDataProvider: AnalyticsContextDataProvider?) {
         self.walletModel = walletModel
@@ -62,7 +85,9 @@ final class SingleTokenNotificationManager {
             events.append(.event(for: sendBlockedReason))
         }
 
-        events.append(.crosschainSwap)
+        if canSwapSomeToken {
+            events.append(.crosschainSwap)
+        }
 
         let inputs = events.map {
             factory.buildNotificationInput(
