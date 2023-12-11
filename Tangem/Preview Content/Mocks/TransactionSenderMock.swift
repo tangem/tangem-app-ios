@@ -10,7 +10,9 @@ import TangemSwapping
 import BlockchainSdk
 
 struct TransactionSenderMock: SwappingTransactionSender {
-    func sendTransaction(_ data: SwappingTransactionData) async throws -> TransactionSendResult { TransactionSendResult(hash: "") }
+    func sendTransaction(_ data: SwappingTransactionData) async throws -> TransactionSendResult {
+        TransactionSendResult(hash: "")
+    }
 }
 
 struct FiatRatesProviderMock: FiatRatesProviding {
@@ -26,5 +28,5 @@ struct FiatRatesProviderMock: FiatRatesProviding {
 struct SwappingFeeFormatterMock: SwappingFeeFormatter {
     func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String { "" }
     func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String { "" }
-    func format(fee: Decimal, currencySymbol: String, currencyId: String) -> String { "" }
+    func format(fee: Decimal, tokenItem: TokenItem) -> String { "" }
 }
