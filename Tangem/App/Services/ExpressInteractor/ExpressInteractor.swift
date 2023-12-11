@@ -395,48 +395,6 @@ private extension ExpressInteractor {
     }
 }
 
-// MARK: - Allowance
-
-/*
- private extension ExpressInteractor {
-     func approvePolicyDidChange() async throws -> ExpressInteractorState {
-         guard case .permissionRequired(let state, let quote) = getState() else {
-             assertionFailure("We can't update policy if we don't needed in the permission")
-             return .idle
-         }
-
-         let newState = try await getPermissionRequiredState(spender: state.spender)
-         return .permissionRequired(newState, quote: quote)
-     }
-
-     func getPermissionRequiredState(spender: String) async throws -> PermissionRequiredState {
-         let source = getSender()
-         let contractAddress = source.expressCurrency.contractAddress
-         assert(contractAddress != ExpressConstants.coinContractAddress)
-
-         let data = try await makeApproveData(wallet: source, spender: spender)
-
-         try Task.checkCancellation()
-
-         // For approve transaction value is always be 0
-         let fees = try await getFee(destination: contractAddress, value: 0, hexData: data.hexString)
-
-         return PermissionRequiredState(
-             spender: spender,
-             toContractAddress: contractAddress,
-             data: data,
-             fees: fees
-         )
-     }
-
-     func makeApproveData(wallet: ExpressWallet, spender: String) async throws -> Data {
-         let amount = try await getApproveAmount()
-         let wei = wallet.convertToWEI(value: amount)
-         return try allowanceProvider.makeApproveData(spender: spender, amount: wei)
-     }
- }
- */
-
 // MARK: - Swap
 
 private extension ExpressInteractor {
@@ -509,42 +467,6 @@ private extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
     }
-    /*
-        func getFee(destination: String, value: Decimal, hexData: String?) async throws -> [FeeOption: Fee] {
-            let sender = getSender()
-
-            let amount = Amount(
-                with: sender.blockchainNetwork.blockchain,
-                type: sender.amountType,
-                value: value
-            )
-
-            // If EVM network we should pass data in the fee calculation
-            if let ethereumNetworkProvider = sender.ethereumNetworkProvider {
-                let fees = try await ethereumNetworkProvider.getFee(
-                    destination: destination,
-                    value: amount.encodedForSend,
-                    data: hexData.map { Data(hexString: $0) }
-                ).async()
-
-                return mapFeeToDictionary(fees: fees)
-            }
-
-            let fees = try await sender.getFee(amount: amount, destination: destination).async()
-            return mapFeeToDictionary(fees: fees)
-        }
-
-        func mapFeeToDictionary(fees: [Fee]) -> [FeeOption: Fee] {
-            switch fees.count {
-            case 1:
-                return [.market: fees[0]]
-            case 3:
-                return [.market: fees[1], .fast: fees[2]]
-            default:
-                return [:]
-            }
-        }
-     */
 }
 
 // MARK: - Helpers
@@ -577,21 +499,6 @@ private extension ExpressInteractor {
             }
         }
     }
-
-    /*
-     func getApproveAmount() async throws -> Decimal {
-         switch getApprovePolicy() {
-         case .specified:
-             if let amount = await expressManager.getAmount() {
-                 return amount
-             }
-
-             throw ExpressManagerError.amountNotFound
-         case .unlimited:
-             return .greatestFiniteMagnitude
-         }
-     }
-      */
 
     func loadDestinationIfNeeded() async {
         guard getDestination() == nil else {
