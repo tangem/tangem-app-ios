@@ -42,8 +42,10 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     // Navigation
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
 
+    private unowned let pendingTransactionsManager: PendingExpressTransactionsManager
+
     private let pendingTransaction: PendingExpressTransaction
-    private let pendingTransactionsManager: PendingExpressTransactionsManager
+    private let currentTokenItem: TokenItem
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -53,9 +55,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     init(
         pendingTransaction: PendingExpressTransaction,
+        currentTokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     ) {
         self.pendingTransaction = pendingTransaction
+        self.currentTokenItem = currentTokenItem
         self.pendingTransactionsManager = pendingTransactionsManager
 
         let dateFormatter = DateFormatter()
@@ -81,7 +85,23 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         bind()
     }
 
-    func openProvider() {
+    func onAppear() {
+        Analytics.log(event: .tokenChangeNowStatusScreenOpened, params: [.token: currentTokenItem.currencySymbol])
+    }
+
+    func openProviderFromStatusHeader() {
+        Analytics.log(
+            event: .tokenChangeNowButtonGoToProvider,
+            params: [
+                .token: currentTokenItem.currencySymbol,
+                .place: Analytics.ParameterValue.status.rawValue,
+            ]
+        )
+
+        openProvider()
+    }
+
+    private func openProvider() {
         guard
             let urlString = pendingTransaction.transactionRecord.externalTxURL,
             let url = URL(string: urlString)
@@ -213,6 +233,30 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
 extension PendingExpressTxStatusBottomSheetViewModel {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
+        guard let event = notificationViewInput?.settings.event as? ExpressNotificationEvent else {
+            return
+        }
+
+        let placeValue: Analytics.ParameterValue?
+        switch event {
+        case .verificationRequired:
+            placeValue = .kyc
+        case .cexOperationFailed:
+            placeValue = .fail
+        default:
+            placeValue = nil
+        }
+
+        if let placeValue {
+            Analytics.log(
+                event: .tokenChangeNowButtonGoToProvider,
+                params: [
+                    .token: currentTokenItem.currencySymbol,
+                    .place: placeValue.rawValue,
+                ]
+            )
+        }
+
         openProvider()
     }
 }
