@@ -58,11 +58,17 @@ extension NotificationView {
     enum ColorScheme {
         case primary
         case secondary
+        case swap
 
-        var color: Color {
+        @ViewBuilder
+        var color: some View {
             switch self {
-            case .primary: return Colors.Background.primary
-            case .secondary: return Colors.Button.disabled
+            case .primary: Colors.Background.primary
+            case .secondary: Colors.Button.disabled
+            case .swap: 
+                Assets.swapBannerBackground.image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
             }
         }
     }
