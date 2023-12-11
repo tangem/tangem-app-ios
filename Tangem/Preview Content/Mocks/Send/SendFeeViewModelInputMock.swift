@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class SendFeeViewModelInputMock: SendFeeViewModelInput {
     var selectedFeeOption: FeeOption {
@@ -18,11 +19,15 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         [.slow, .market, .fast]
     }
 
-    var feeValues: AnyPublisher<[FeeOption: LoadingValue<String>], Never> {
+    var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
         .just(output: [
             .slow: .loading,
             .market: .loading,
             .fast: .loading,
         ])
     }
+
+    var blockchain: Blockchain { .ethereum(testnet: false) }
+
+    var tokenItem: TokenItem { .blockchain(blockchain) }
 }
