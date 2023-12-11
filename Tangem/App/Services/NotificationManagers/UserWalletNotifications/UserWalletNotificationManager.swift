@@ -85,15 +85,16 @@ final class UserWalletNotificationManager {
             )
         }
 
-        #warning("TODO")
-        inputs.append(
-            factory.buildNotificationInput(
-                for: .crosschainSwap,
-                action: action,
-                buttonAction: buttonAction,
-                dismissAction: dismissAction
+        if !AppSettings.shared.crosschainExchangeMainPromoDismissed {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .crosschainSwap,
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
             )
-        )
+        }
 
         notificationInputsSubject.send(inputs)
 
@@ -238,6 +239,8 @@ extension UserWalletNotificationManager: NotificationManager {
             recordDeprecationNotificationDismissal()
         case .numberOfSignedHashesIncorrect:
             recordUserWalletHashesCountValidation()
+        case .crosschainSwap:
+            AppSettings.shared.crosschainExchangeMainPromoDismissed = true
         default:
             break
         }
