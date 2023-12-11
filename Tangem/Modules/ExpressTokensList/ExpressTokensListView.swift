@@ -15,26 +15,33 @@ struct ExpressTokensListView: View {
         self.viewModel = viewModel
     }
 
-    private var isEmpty: Bool {
-        viewModel.availableTokens.isEmpty && viewModel.unavailableTokens.isEmpty
-    }
-
     var body: some View {
-        ZStack(alignment: .center) {
-            Colors.Background.secondary.ignoresSafeArea(.all)
+        NavigationView {
+            ZStack(alignment: .center) {
+                Colors.Background.secondary.ignoresSafeArea(.all)
 
-            content
+                content
+            }
+            .navigationTitle(Localization.swappingTokenListTitle)
+            .searchableCompat(text: $viewModel.searchText)
+            .autocorrectionDisabled()
         }
-        .navigationTitle(Localization.swappingTokenListTitle)
-        .searchableCompat(text: $viewModel.searchText)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 
     @ViewBuilder
     private var content: some View {
-        if isEmpty {
+        switch viewModel.viewState {
+        case .idle, .loading:
+            EmptyView()
+        case .isEmpty:
             emptyContent
-        } else {
-            listContent
+        case .loaded(let availableTokens, let unavailableTokens):
+            GroupedScrollView(spacing: 14) {
+                section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: availableTokens)
+
+                section(title: viewModel.unavailableSectionHeader, viewModels: unavailableTokens)
+            }
         }
     }
 
@@ -48,14 +55,6 @@ struct ExpressTokensListView: View {
                 .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 50)
-        }
-    }
-
-    private var listContent: some View {
-        GroupedScrollView(spacing: 14) {
-            section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: viewModel.availableTokens)
-
-            section(title: viewModel.unavailableSectionHeader, viewModels: viewModel.unavailableTokens)
         }
     }
 
@@ -85,12 +84,13 @@ struct ExpressTokensListView: View {
     }
 }
 
-struct ExpressTokensListView_Preview: PreviewProvider {
-    static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
+/*
+ // [REDACTED_TODO_COMMENT]
+ struct ExpressTokensListView_Preview: PreviewProvider {
+     static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
 
-    static var previews: some View {
-        NavigationView {
-            ExpressTokensListView(viewModel: viewModel)
-        }
-    }
-}
+     static var previews: some View {
+          ExpressTokensListView(viewModel: viewModel)
+     }
+ }
+ */

@@ -10,7 +10,11 @@ import Foundation
 import Moya
 
 public struct TangemSwappingFactory {
-    public init() {}
+    private let oneInchApiKey: String
+
+    public init(oneInchApiKey: String) {
+        self.oneInchApiKey = oneInchApiKey
+    }
 
     public func makeSwappingManager(
         walletDataProvider: SwappingWalletDataProvider,
@@ -21,7 +25,7 @@ public struct TangemSwappingFactory {
         logger: SwappingLogger? = nil
     ) -> SwappingManager {
         let swappingItems = SwappingItems(source: source, destination: destination)
-        let swappingService = OneInchAPIService(logger: logger ?? CommonSwappingLogger())
+        let swappingService = OneInchAPIService(logger: logger ?? CommonSwappingLogger(), oneInchApiKey: oneInchApiKey)
         let provider = OneInchSwappingProvider(swappingService: swappingService)
 
         return CommonSwappingManager(
@@ -37,13 +41,11 @@ public struct TangemSwappingFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
-        pendingTransactionRepository: ExpressPendingTransactionRepository,
-        logger: SwappingLogger?
+        logger: SwappingLogger? = nil
     ) -> ExpressManager {
         CommonExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
-            expressPendingTransactionRepository: pendingTransactionRepository,
             logger: logger ?? CommonSwappingLogger()
         )
     }
@@ -51,6 +53,7 @@ public struct TangemSwappingFactory {
     public func makeExpressAPIProvider(
         credential: ExpressAPICredential,
         configuration: URLSessionConfiguration,
+        isProduction: Bool,
         logger: SwappingLogger? = nil
     ) -> ExpressAPIProvider {
         let authorizationPlugin = ExpressAuthorizationPlugin(
@@ -59,14 +62,22 @@ public struct TangemSwappingFactory {
             sessionId: credential.sessionId
         )
         let provider = MoyaProvider<ExpressAPITarget>(session: Session(configuration: configuration), plugins: [authorizationPlugin])
-        let service = CommonExpressAPIService(provider: provider, logger: logger ?? CommonSwappingLogger())
+        let service = CommonExpressAPIService(provider: provider, isProduction: isProduction, logger: logger ?? CommonSwappingLogger())
         let mapper = ExpressAPIMapper()
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
     }
 }
 
+// MARK: - Credential
+
 public struct ExpressAPICredential {
-    let apiKey: String
-    let userId: String
-    let sessionId: String
+    public let apiKey: String
+    public let userId: String
+    public let sessionId: String
+
+    public init(apiKey: String, userId: String, sessionId: String) {
+        self.apiKey = apiKey
+        self.userId = userId
+        self.sessionId = sessionId
+    }
 }
