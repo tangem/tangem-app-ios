@@ -15,7 +15,12 @@ struct QuotesMapper {
                 return nil
             }
 
-            return Quote(id: key, price: price, priceChange: value.priceChange24h)
+            return Quote(
+                id: key,
+                price: price,
+                priceChange: value.priceChange24h,
+                prices24h: Array(value.prices24h.values)
+            )
         }
     }
 }
