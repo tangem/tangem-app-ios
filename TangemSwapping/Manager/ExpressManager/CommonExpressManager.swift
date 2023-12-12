@@ -181,7 +181,7 @@ private extension CommonExpressManager {
                         provider: provider,
                         isBest: false,
                         isAvailable: availableProviderIds.contains(provider.id),
-                        manager: expressProviderManagerFactory.makeExpressProviderManger(provider: provider)
+                        manager: expressProviderManagerFactory.makeExpressProviderManager(provider: provider)
                     )
                 }
         }
