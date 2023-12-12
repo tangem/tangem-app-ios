@@ -11,7 +11,7 @@ import Foundation
 public enum ExpressProviderManagerState {
     case idle
     case error(Error, quote: ExpressQuote?)
-    case restriction(_ restriction: ExpressManagerRestriction, quote: ExpressQuote?)
+    case restriction(_ restriction: ExpressRestriction, quote: ExpressQuote?)
 
     case permissionRequired(ExpressManagerState.PermissionRequired)
     case preview(ExpressManagerState.PreviewCEX)
