@@ -14,7 +14,7 @@ public enum ExpressManagerState {
     // Final states
     // Restrictions -> Notifications
     // Will be returned after the quote request
-    case restriction(_ restriction: ExpressManagerRestriction, quote: ExpressQuote?)
+    case restriction(_ restriction: ExpressRestriction, quote: ExpressQuote?)
 
     // Will be returned if there's not enough allowance
     case permissionRequired(PermissionRequired)

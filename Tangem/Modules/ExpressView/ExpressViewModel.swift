@@ -417,7 +417,7 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             updateReceiveCurrencyValue(expectAmount: quote?.expectAmount)
 
-            // restart timer for ending approve transaction
+            // restart timer for pending approve transaction
             switch restriction {
             case .hasPendingApproveTransaction:
                 restartTimer()
