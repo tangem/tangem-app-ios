@@ -439,6 +439,10 @@ class WalletModel {
             .eraseToAnyPublisher()
     }
 
+    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
+        return walletManager.estimatedFee(amount: amount)
+    }
+
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         if isDemo {
             let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
