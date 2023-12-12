@@ -18,7 +18,7 @@ final class SingleTokenNotificationManager {
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
-    private let swapPairService: SwapPairService
+    private let swapPairService: SwapPairService?
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
@@ -26,10 +26,11 @@ final class SingleTokenNotificationManager {
     private var notificationsUpdateTask: Task<Void, Never>?
 
     private var canShowCrosschainPromotion: Bool {
-        !AppSettings.shared.crosschainExchangeTokenPromoDismissed && TangemExpressPromotionUtility().isPromotionRunning
+        guard let swapPairService else { return false }
+        return !AppSettings.shared.crosschainExchangeTokenPromoDismissed && TangemExpressPromotionUtility().isPromotionRunning
     }
 
-    init(walletModel: WalletModel, swapPairService: SwapPairService, contextDataProvider: AnalyticsContextDataProvider?) {
+    init(walletModel: WalletModel, swapPairService: SwapPairService?, contextDataProvider: AnalyticsContextDataProvider?) {
         self.walletModel = walletModel
         self.swapPairService = swapPairService
 
@@ -58,7 +59,7 @@ final class SingleTokenNotificationManager {
             }
             .store(in: &bag)
 
-        if canShowCrosschainPromotion {
+        if canShowCrosschainPromotion, let swapPairService {
             swapPairService.canSwap()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] canSwap in
