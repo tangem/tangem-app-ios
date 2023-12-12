@@ -28,8 +28,6 @@ struct SwapPairService {
             .eraseToAnyPublisher()
             .async()
 
-        print(walletModels)
-
         let expressCurrencies = walletModels.map { $0.expressCurrency }
 
         let factory = ExpressAPIProviderFactory()
