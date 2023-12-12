@@ -18,13 +18,9 @@ struct ManageTokensView: View {
         VStack {
             header
 
-            if viewModel.isShowTokenList {
-                list
-            } else {
-                skeletonList
-            }
+            list
         }
-		.background(Colors.Background.primary)
+        .background(Colors.Background.primary)
         .scrollDismissesKeyboardCompat(true)
         .alert(item: $viewModel.alert, content: { $0.alert })
     }
@@ -65,38 +61,6 @@ struct ManageTokensView: View {
     private var addCutomTokenView: some View {
         ManageTokensAddCustomItemView {
             viewModel.addCustomTokenDidTapAction()
-        }
-    }
-
-    private var skeletonList: some View {
-        ForEach(1 ... 10, id: \.self) { _ in
-            VStack {
-                HStack(spacing: 12) {
-                    SkeletonView()
-                        .frame(size: .init(width: 36, height: 36))
-                        .cornerRadius(18)
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        SkeletonView()
-                            .frame(size: .init(width: 70, height: 12))
-                            .cornerRadius(3)
-
-                        SkeletonView()
-                            .frame(size: .init(width: 52, height: 12))
-                            .cornerRadius(3)
-                    }
-
-                    Spacer(minLength: 24)
-
-                    VStack(alignment: .trailing) {
-                        SkeletonView()
-                            .frame(size: .init(width: 44, height: 12))
-                            .cornerRadius(3)
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
         }
     }
 }
