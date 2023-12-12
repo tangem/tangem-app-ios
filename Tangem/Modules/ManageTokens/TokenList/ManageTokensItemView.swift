@@ -18,6 +18,7 @@ struct ManageTokensItemView: View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
                 IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
+                    .skeletonable(isShown: viewModel.isLoading, radius: iconSize.height / 2)
                     .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -25,6 +26,7 @@ struct ManageTokensItemView: View {
                         Text(viewModel.name)
                             .lineLimit(1)
                             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                            .skeletonable(isShown: viewModel.isLoading, radius: 3)
 
                         Text(viewModel.symbol)
                             .lineLimit(1)
@@ -36,6 +38,7 @@ struct ManageTokensItemView: View {
                             .lineLimit(1)
                             .truncationMode(.middle)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .skeletonable(isShown: viewModel.isLoading, radius: 3)
 
                         TokenPriceChangeView(state: viewModel.priceChangeState)
                     }
@@ -53,6 +56,7 @@ struct ManageTokensItemView: View {
                 }
 
                 manageButton(for: viewModel.action, with: viewModel.id)
+                    .skeletonable(isShown: viewModel.isLoading)
             }
         }
         .padding(.horizontal, 16)
@@ -129,6 +133,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceChangeState: .loaded(signType: .positive, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13],
                 action: .add,
+                state: .loaded,
                 didTapAction: { _, _ in }
             ))
 
@@ -143,6 +148,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceChangeState: .loaded(signType: .negative, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13].reversed(),
                 action: .add,
+                state: .loaded,
                 didTapAction: { _, _ in }
             ))
 
@@ -157,6 +163,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceChangeState: .loaded(signType: .positive, text: "1.3%"),
                 priceHistory: [1, 7, 3, 5, 13],
                 action: .add,
+                state: .loaded,
                 didTapAction: { _, _ in }
             ))
 
@@ -171,6 +178,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceChangeState: .loaded(signType: .positive, text: "0.0%"),
                 priceHistory: [4, 7, 3, 5, 4],
                 action: .edit,
+                state: .loaded,
                 didTapAction: { _, _ in }
             ))
 
@@ -185,6 +193,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceChangeState: .loaded(signType: .positive, text: "1,444,340,340.0%"),
                 priceHistory: [1, 7, 3, 5, 13],
                 action: .info,
+                state: .loaded,
                 didTapAction: { _, _ in }
             ))
 
@@ -199,6 +208,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceChangeState: .loaded(signType: .positive, text: "1.0%"),
                 priceHistory: nil,
                 action: .add,
+                state: .loaded,
                 didTapAction: { _, _ in }
             ))
 
