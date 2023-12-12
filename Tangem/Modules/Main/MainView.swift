@@ -82,9 +82,10 @@ struct MainView: View {
         ) { viewModel in
             RateAppBottomSheetView(viewModel: viewModel)
         }
-        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
+        .toast(isPresenting: $viewModel.showAddressCopiedToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
-        })
+        }
+        .requestAppStoreReviewCompat($viewModel.isAppStoreReviewRequested)
     }
 
     var detailsNavigationButton: some View {
