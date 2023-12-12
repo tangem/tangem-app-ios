@@ -96,8 +96,8 @@ extension ExpressInteractor {
         await expressManager.getApprovePolicy()
     }
 
-    func getAvailableProviders() async -> [ExpressAvailableProvider] {
-        await expressManager.getAvailableProviders()
+    func getAllProviders() async -> [ExpressAvailableProvider] {
+        await expressManager.getAllProviders()
     }
 
     func getSelectedProvider() async -> ExpressAvailableProvider? {
