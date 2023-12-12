@@ -63,9 +63,17 @@ struct RateAppBottomSheetView: View {
     @ViewBuilder
     private var buttonsSection: some View {
         VStack(spacing: Constants.interItemSpacing) {
-            MainButton(title: Localization.rateAppSheetPositiveResponseButtonTitle, style: .primary) {}
+            MainButton(
+                title: Localization.rateAppSheetPositiveResponseButtonTitle,
+                style: .primary,
+                action: viewModel.onRateAppSheetPositiveResponse
+            )
 
-            MainButton(title: Localization.rateAppSheetNegativeResponseButtonTitle, style: .secondary) {}
+            MainButton(
+                title: Localization.rateAppSheetNegativeResponseButtonTitle,
+                style: .secondary,
+                action: viewModel.onRateAppSheetNegativeResponse
+            )
         }
     }
 
@@ -89,5 +97,5 @@ private extension RateAppBottomSheetView {
 // MARK: - Previews
 
 #Preview {
-    RateAppBottomSheetView(viewModel: .init())
+    RateAppBottomSheetView(viewModel: RateAppBottomSheetViewModel(onInteraction: { print($0) }))
 }
