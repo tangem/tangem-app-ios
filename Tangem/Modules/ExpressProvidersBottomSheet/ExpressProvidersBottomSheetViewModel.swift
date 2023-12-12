@@ -74,26 +74,29 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func setupProviderRowViewModels() async {
-        var providerViewModels: [ProviderRowViewModel] = []
+        var viewModels: [ProviderRowViewModel] = []
 
         for provider in allProviders {
-            guard provider.isAvailable else {
-                await runOnMain {
-                    providerViewModels.append(unavailableProviderRowViewModel(provider: provider.provider))
+            let viewModel: ProviderRowViewModel? = await {
+                if !provider.isAvailable {
+                    return unavailableProviderRowViewModel(provider: provider.provider)
                 }
 
-                return
-            }
-
-            if await provider.getState().isAvailableToShow {
-                let viewModel = await mapToProviderRowViewModel(provider: provider)
-                await runOnMain {
-                    providerViewModels.append(viewModel)
+                if await provider.getState().isAvailableToShow {
+                    return await mapToProviderRowViewModel(provider: provider)
                 }
+
+                return nil
+            }()
+
+            if let viewModel {
+                viewModels.append(viewModel)
             }
         }
 
-        self.providerViewModels = providerViewModels
+        await runOnMain {
+            providerViewModels = viewModels
+        }
     }
 
     func mapToProviderRowViewModel(provider: ExpressAvailableProvider) async -> ProviderRowViewModel {
