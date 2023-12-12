@@ -113,7 +113,7 @@ extension WarningEvent: NotificationEvent {
         case .rateApp, .missingDerivation, .missingBackup:
             return .primary
         case .tangemExpressPromotion:
-            return .swap
+            return .tangemExpressPromotion
         default:
             return .secondary
         }
