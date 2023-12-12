@@ -12,9 +12,6 @@ import BlockchainSdk
 import TangemSwapping
 
 struct SwapPairService {
-    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
-
-    let walletModel: WalletModel
     let walletModelsManager: WalletModelsManager
     let userWalletId: String
 
@@ -30,10 +27,6 @@ struct SwapPairService {
             }
             .flatMap { walletModels -> AnyPublisher<Bool, Never> in
                 let expressCurrencies = walletModels.map { $0.expressCurrency }
-
-                if !walletModel.isZeroAmount, swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem) {
-                    return .just(output: true)
-                }
 
                 return Deferred {
                     Future<Bool, Never> { promise in
