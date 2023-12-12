@@ -83,7 +83,7 @@ extension WarningEvent {
         case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
             return defaultTitle
         case .crosschainSwapPromotion:
-            return "ASDASD"
+            return Localization.mainSwapPromotionTitle
         }
     }
 }
