@@ -58,14 +58,14 @@ extension NotificationView {
     enum ColorScheme {
         case primary
         case secondary
-        case swap
+        case tangemExpressPromotion
 
         @ViewBuilder
         var color: some View {
             switch self {
             case .primary: Colors.Background.primary
             case .secondary: Colors.Button.disabled
-            case .swap:
+            case .tangemExpressPromotion:
                 Assets.swapBannerBackground.image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -76,7 +76,7 @@ extension NotificationView {
             switch self {
             case .primary, .secondary:
                 return Colors.Icon.inactive
-            case .swap:
+            case .tangemExpressPromotion:
                 return Colors.Text.constantWhite
             }
         }
@@ -85,7 +85,7 @@ extension NotificationView {
             switch self {
             case .primary, .secondary:
                 return Colors.Text.primary1
-            case .swap:
+            case .tangemExpressPromotion:
                 return Colors.Text.constantWhite
             }
         }
@@ -94,7 +94,7 @@ extension NotificationView {
             switch self {
             case .primary, .secondary:
                 return Colors.Text.tertiary
-            case .swap:
+            case .tangemExpressPromotion:
                 return Colors.Text.constantWhite
             }
         }
