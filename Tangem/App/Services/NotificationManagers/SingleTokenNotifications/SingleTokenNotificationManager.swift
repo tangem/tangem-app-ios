@@ -21,6 +21,7 @@ final class SingleTokenNotificationManager {
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
+    private var promotionUpdateTask: Task<Void, Never>?
 
     private var canShowTangemExpressPromotion: Bool {
         guard swapPairService != nil else { return false }
@@ -53,18 +54,14 @@ final class SingleTokenNotificationManager {
                 case .idle, .noDerivation:
                     self?.setupLoadedStateNotifications()
                 }
+
+                if let self,
+                   !state.isLoading,
+                   canShowTangemExpressPromotion {
+                    setupTangemExpressPromotionNotification()
+                }
             }
             .store(in: &bag)
-
-        if canShowTangemExpressPromotion, let swapPairService {
-            swapPairService.canSwap()
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] canSwap in
-                    guard let self else { return }
-                    setupTangemExpressPromotionNotification(showPromotion: canSwap && canShowTangemExpressPromotion)
-                }
-                .store(in: &bag)
-        }
     }
 
     private func setupLoadedStateNotifications() {
@@ -125,22 +122,40 @@ final class SingleTokenNotificationManager {
             ])
     }
 
-    private func setupTangemExpressPromotionNotification(showPromotion: Bool) {
-        let factory = NotificationsFactory()
-        let input = factory.buildNotificationInput(
-            for: .tangemExpressPromotion,
-            buttonAction: { [weak self] id, actionType in
-                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-            },
-            dismissAction: { [weak self] id in
-                self?.dismissNotification(with: id)
+    private func setupTangemExpressPromotionNotification() {
+        promotionUpdateTask?.cancel()
+        promotionUpdateTask = Task { [weak self] in
+            guard
+                let self,
+                let swapPairService
+            else {
+                return
             }
-        )
 
-        if !showPromotion {
-            notificationInputsSubject.value.removeAll { $0.id == input.id }
-        } else if !notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
-            notificationInputsSubject.value.append(input)
+            if Task.isCancelled {
+                return
+            }
+
+            let canSwap = await swapPairService.canSwap()
+
+            let factory = NotificationsFactory()
+            let input = factory.buildNotificationInput(
+                for: .tangemExpressPromotion,
+                buttonAction: { [weak self] id, actionType in
+                    self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+                },
+                dismissAction: { [weak self] id in
+                    self?.dismissNotification(with: id)
+                }
+            )
+
+            await runOnMain {
+                if !canSwap {
+                    self.notificationInputsSubject.value.removeAll { $0.id == input.id }
+                } else if !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
+                    self.notificationInputsSubject.value.append(input)
+                }
+            }
         }
     }
 
