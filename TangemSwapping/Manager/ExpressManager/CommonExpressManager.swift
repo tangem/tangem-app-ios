@@ -172,6 +172,7 @@ private extension CommonExpressManager {
     func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
         let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair)
 
+        // Setup providers manager only once
         if availableProviders.isEmpty {
             let providers = try await expressRepository.providers()
             allProviders = providers
