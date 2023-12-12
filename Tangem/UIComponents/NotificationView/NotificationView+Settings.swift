@@ -77,7 +77,7 @@ extension NotificationView {
             case .primary, .secondary:
                 return Colors.Icon.inactive
             case .swap:
-                return .white
+                return Colors.Text.constantWhite
             }
         }
 
@@ -86,7 +86,7 @@ extension NotificationView {
             case .primary, .secondary:
                 return Colors.Text.primary1
             case .swap:
-                return .white
+                return Colors.Text.constantWhite
             }
         }
 
@@ -95,7 +95,7 @@ extension NotificationView {
             case .primary, .secondary:
                 return Colors.Text.tertiary
             case .swap:
-                return .white
+                return Colors.Text.constantWhite
             }
         }
     }
