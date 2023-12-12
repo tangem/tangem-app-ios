@@ -100,7 +100,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTokenTx:
             return .primary
         case .tangemExpressPromotion:
-            return .swap
+            return .tangemExpressPromotion
         }
     }
 
