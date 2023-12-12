@@ -26,6 +26,7 @@ final class MainViewModel: ObservableObject {
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
     @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
+    @Published var isAppStoreReviewRequested = false
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -406,12 +407,10 @@ final class MainViewModel: ObservableObject {
     }
 
     private func requestRateAppIfAvailable() {
-        guard let selectedPage = pages[safe: selectedCardIndex] else { return }
-
         let pageInfos = pages.map { page in
             return RateAppRequest.PageInfo(
                 isLocked: page.isLockedWallet,
-                isSelected: page.id == selectedPage.id,
+                isSelected: page.id == userWalletRepository.selectedModel?.userWalletId,
                 isBalanceLoaded: lastLoadedBalances[page.id, default: false],
                 isBalanceNonEmpty: lastNonEmptyBalances[page.id, default: false],
                 displayedNotifications: lastNotificationInputs[page.id, default: []]
@@ -462,8 +461,8 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         unlockWalletBottomSheetViewModel = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+            self?.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
         }
     }
 }
@@ -504,11 +503,42 @@ extension MainViewModel: MainNotificationsObserver {
     }
 }
 
+// MARK: - RateAppServiceDelegate protocol conformance
+
+extension MainViewModel: RateAppServiceDelegate {
+    func rateAppService(
+        _ service: RateAppService,
+        didRequestRateAppWithCompletionHandler completionHandler: @escaping (RateAppResult) -> Void
+    ) {
+        rateAppBottomSheetViewModel = RateAppBottomSheetViewModel(onInteraction: completionHandler)
+    }
+
+    func rateAppService(_ service: RateAppService, didRequestOpenMailWithEmailType emailType: EmailType) {
+        rateAppBottomSheetViewModel = nil
+
+        guard let userWallet = userWalletRepository.selectedModel else { return }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+            let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWallet.emailData)
+            let recipient = userWallet.emailConfig?.recipient ?? EmailConfig.default.recipient
+            self?.coordinator?.openMail(with: collector, emailType: emailType, recipient: recipient)
+        }
+    }
+
+    func requestAppStoreReviewForRateAppService(_ service: RateAppService) {
+        rateAppBottomSheetViewModel = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+            self?.isAppStoreReviewRequested = true
+        }
+    }
+}
+
 // MARK: - Constants
 
 private extension MainViewModel {
     private enum Constants {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
+        static let feedbackRequestDelay = 0.7
     }
 }
