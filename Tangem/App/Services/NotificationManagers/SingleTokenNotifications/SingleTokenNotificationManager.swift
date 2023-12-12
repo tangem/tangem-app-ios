@@ -88,7 +88,7 @@ final class SingleTokenNotificationManager {
         if canSwapSomeToken,
            !AppSettings.shared.crosschainExchangeTokenPromoDismissed,
            TangemExpressPromotionUtility().isPromotionRunning {
-            events.append(.crosschainSwap)
+            events.append(.crosschainSwapPromotion)
         }
 
         let inputs = events.map {
@@ -201,7 +201,7 @@ extension SingleTokenNotificationManager: NotificationManager {
         }
 
         switch event {
-        case .crosschainSwap:
+        case .crosschainSwapPromotion:
             AppSettings.shared.crosschainExchangeTokenPromoDismissed = true
         default:
             break
