@@ -231,9 +231,8 @@ extension ExpressInteractor {
         let sender = getSender()
         let transaction = try await expressTransactionBuilder.makeApproveTransaction(
             wallet: sender,
-            data: state.data.data,
-            fee: fee,
-            contractAddress: state.data.toContractAddress
+            data: state.data,
+            fee: fee
         )
 
         let result = try await sender.send(transaction, signer: signer).async()
