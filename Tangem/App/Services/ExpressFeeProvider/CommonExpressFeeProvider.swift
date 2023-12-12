@@ -31,7 +31,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
             if wallet.blockchainNetwork.blockchain == .tron(testnet: false) {
                 return ""
             }
-            
+
             return wallet.defaultAddress
         }()
 
