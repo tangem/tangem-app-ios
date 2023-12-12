@@ -81,9 +81,12 @@ private extension DEXExpressProviderManager {
                 destination: data.destinationAddress,
                 hexData: data.txData.map { Data(hexString: $0) }
             )
+
             try Task.checkCancellation()
 
-            return .ready(.init(fee: fee, data: data, quote: quote))
+            // For approve use the fastest fee
+            let fastest = fee.fastest
+            return .ready(.init(fee: .single(fastest), data: data, quote: quote))
 
         } catch let error as ExpressAPIError {
             if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
