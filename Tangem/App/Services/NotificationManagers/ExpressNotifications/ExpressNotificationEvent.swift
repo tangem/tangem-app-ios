@@ -50,7 +50,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .cexOperationFailed:
             return Localization.expressExchangeNotificationFailedTitle
         case .feeWillBeSubtractFromSendingAmount:
-            return "Network commission coverage"
+            return Localization.sendNetworkFeeWarningTitle
         }
     }
 
@@ -78,8 +78,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.expressExchangeNotificationVerificationText
         case .cexOperationFailed:
             return Localization.expressExchangeNotificationFailedText
-        case .feeWillBeSubtractFromSendingAmount(let reducedAmount):
-            return "Sending amount will be reduced on: \(reducedAmount) to cover the selected commission level."
+        case .feeWillBeSubtractFromSendingAmount:
+            return Localization.sendNetworkFeeWarningContent
         }
     }
 
