@@ -417,9 +417,9 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             updateReceiveCurrencyValue(expectAmount: quote?.expectAmount)
 
-            // restart timer for error and pending approve transaction
+            // restart timer for ending approve transaction
             switch restriction {
-            case .requiredRefresh, .hasPendingApproveTransaction:
+            case .hasPendingApproveTransaction:
                 restartTimer()
             default:
                 stopTimer()
@@ -648,7 +648,7 @@ private extension ExpressViewModel {
             .autoconnect()
             .sink { [weak self] date in
                 AppLog.shared.debug("[Express] Timer call autoupdate")
-//                self?.interactor.refresh(type: .refreshRates)
+                self?.interactor.refresh(type: .refreshRates)
             }
     }
 }

@@ -31,7 +31,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
         return fee
     }
 
-    func getFee(amount: Decimal, destination: String, hexData: String?) async throws -> ExpressFee {
+    func getFee(amount: Decimal, destination: String, hexData: Data?) async throws -> ExpressFee {
         let amount = Amount(
             with: wallet.blockchainNetwork.blockchain,
             type: wallet.amountType,
@@ -43,7 +43,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
             let fees = try await ethereumNetworkProvider.getFee(
                 destination: destination,
                 value: amount.encodedForSend,
-                data: Data(hexString: hexData)
+                data: hexData
             ).async()
 
             return try mapToExpressFee(fees: fees)
