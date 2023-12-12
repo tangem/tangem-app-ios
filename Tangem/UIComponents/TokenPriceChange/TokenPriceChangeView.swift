@@ -10,7 +10,6 @@ import SwiftUI
 
 struct TokenPriceChangeView: View {
     let state: State
-    var showSkeletonWhenLoading: Bool = true
 
     private let loaderSize = CGSize(width: 40, height: 12)
 
@@ -24,15 +23,9 @@ struct TokenPriceChangeView: View {
         case .empty:
             Text("")
         case .loading:
-            ZStack {
-                styledDashText
-                    .opacity(0.01)
-                if showSkeletonWhenLoading {
-                    SkeletonView()
-                        .frame(size: loaderSize)
-                        .cornerRadiusContinuous(3)
-                }
-            }
+            styledText("----")
+                .opacity(0.01)
+                .skeletonable(isShown: true)
         case .loaded(let signType, let text):
             HStack(spacing: 4) {
                 if let icon = signType.imageType?.image {
@@ -42,6 +35,7 @@ struct TokenPriceChangeView: View {
                 }
 
                 styledText(text, textColor: signType.textColor)
+                    .skeletonable(isShown: false)
             }
         }
     }
