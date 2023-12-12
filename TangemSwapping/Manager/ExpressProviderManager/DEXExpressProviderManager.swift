@@ -76,7 +76,11 @@ private extension DEXExpressProviderManager {
             let data = try await expressAPIProvider.exchangeData(item: item)
             try Task.checkCancellation()
 
-            let fee = try await feeProvider.getFee(amount: request.amount, destination: data.destinationAddress, hexData: data.txData)
+            let fee = try await feeProvider.getFee(
+                amount: data.value,
+                destination: data.destinationAddress,
+                hexData: data.txData.map { Data(hexString: $0) }
+            )
             try Task.checkCancellation()
 
             return .ready(.init(fee: fee, data: data, quote: quote))
@@ -135,7 +139,7 @@ private extension DEXExpressProviderManager {
         let amount: Decimal = {
             switch approvePolicy {
             case .specified:
-                return request.amount
+                return request.pair.source.convertToWEI(value: request.amount)
             case .unlimited:
                 return .greatestFiniteMagnitude
             }
@@ -143,7 +147,7 @@ private extension DEXExpressProviderManager {
 
         let contractAddress = request.pair.source.expressCurrency.contractAddress
         let data = try allowanceProvider.makeApproveData(spender: spender, amount: amount)
-        let fee = try await feeProvider.getFee(amount: 0, destination: request.pair.source.contractAddress, hexData: data.hex)
+        let fee = try await feeProvider.getFee(amount: 0, destination: request.pair.source.contractAddress, hexData: data)
         try Task.checkCancellation()
 
         return ExpressManagerState.PermissionRequired(

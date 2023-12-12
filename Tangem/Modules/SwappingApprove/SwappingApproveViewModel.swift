@@ -102,7 +102,6 @@ private extension SwappingApproveViewModel {
 
         $selectedAction
             .dropFirst()
-            .compactMap { $0 }
             .sink { [weak self] policy in
                 self?.expressInteractor.updateApprovePolicy(policy: policy)
             }
