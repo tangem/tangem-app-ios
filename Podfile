@@ -66,6 +66,7 @@ target 'Tangem' do
 end
 
 target 'TangemSwapping' do 
+  blockchain_sdk_pods
   pod 'Moya'
 
   target 'TangemSwappingTests' do
