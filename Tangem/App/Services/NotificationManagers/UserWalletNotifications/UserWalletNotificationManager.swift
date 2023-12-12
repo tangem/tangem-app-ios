@@ -88,7 +88,7 @@ final class UserWalletNotificationManager {
         if !AppSettings.shared.crosschainExchangeMainPromoDismissed, TangemExpressPromotionUtility().isPromotionRunning {
             inputs.append(
                 factory.buildNotificationInput(
-                    for: .crosschainSwap,
+                    for: .crosschainSwapPromotion,
                     action: action,
                     buttonAction: buttonAction,
                     dismissAction: dismissAction
@@ -239,7 +239,7 @@ extension UserWalletNotificationManager: NotificationManager {
             recordDeprecationNotificationDismissal()
         case .numberOfSignedHashesIncorrect:
             recordUserWalletHashesCountValidation()
-        case .crosschainSwap:
+        case .crosschainSwapPromotion:
             AppSettings.shared.crosschainExchangeMainPromoDismissed = true
         default:
             break
