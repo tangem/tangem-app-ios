@@ -75,7 +75,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             return nil
         }
 
-        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel, contextDataProvider: model)
+        let swapPairService = SwapPairService(walletModelsManager: model.walletModelsManager, userWalletId: model.userWalletId.stringValue)
+        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel, swapPairService: swapPairService, contextDataProvider: model)
         let exchangeUtility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,
             address: walletModel.wallet.address,
