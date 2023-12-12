@@ -18,7 +18,7 @@ public protocol ExpressManager: Actor {
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState
     func update(approvePolicy: SwappingApprovePolicy) async throws -> ExpressManagerState
 
-    func getAvailableProviders() -> [ExpressAvailableProvider]
+    func getAllProviders() -> [ExpressAvailableProvider]
     func getSelectedProvider() -> ExpressAvailableProvider?
     func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerState
 
