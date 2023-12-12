@@ -14,7 +14,6 @@ import CombineExt
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\._rateAppService) private var rateAppService: _CommonRateAppService
     @InjectedWritable(\.mainBottomSheetVisibility) private var bottomSheetVisibility: MainBottomSheetVisibility
 
     // MARK: - ViewState
@@ -35,6 +34,7 @@ final class MainViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+    private let rateAppService: RateAppService
     private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
     private weak var coordinator: MainRoutable?
 
@@ -69,10 +69,12 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
+        rateAppService: RateAppService,
         swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.coordinator = coordinator
+        self.rateAppService = rateAppService
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
@@ -90,11 +92,13 @@ final class MainViewModel: ObservableObject {
     convenience init(
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
+        rateAppService: RateAppService,
         swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.init(
             coordinator: coordinator,
+            rateAppService: rateAppService,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory
         )
@@ -405,7 +409,7 @@ final class MainViewModel: ObservableObject {
         guard let selectedPage = pages[safe: selectedCardIndex] else { return }
 
         let pageInfos = pages.map { page in
-            return _CommonRateAppService.RateAppRequest.PageInfo(
+            return RateAppRequest.PageInfo(
                 isLocked: page.isLockedWallet,
                 isSelected: page.id == selectedPage.id,
                 isBalanceLoaded: lastLoadedBalances[page.id, default: false],
