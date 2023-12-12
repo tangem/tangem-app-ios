@@ -11,11 +11,13 @@ import Foundation
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
     public var isBest: Bool
+    public var isAvailable: Bool
     public let manager: ExpressProviderManager
 
-    init(provider: ExpressProvider, isBest: Bool, manager: ExpressProviderManager) {
+    init(provider: ExpressProvider, isBest: Bool, isAvailable: Bool, manager: ExpressProviderManager) {
         self.provider = provider
         self.isBest = isBest
+        self.isAvailable = isAvailable
         self.manager = manager
     }
 
