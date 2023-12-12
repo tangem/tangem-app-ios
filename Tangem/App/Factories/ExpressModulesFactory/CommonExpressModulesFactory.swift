@@ -60,7 +60,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
             expressTokensListAdapter: expressTokensListAdapter,
-            expressAPIProvider: expressAPIProvider,
+            expressRepository: expressRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
