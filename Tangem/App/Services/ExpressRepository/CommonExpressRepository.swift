@@ -50,8 +50,8 @@ extension CommonExpressRepository: ExpressRepository {
         async let pairsTo = expressAPIProvider.pairs(from: [wallet.expressCurrency], to: currencies)
         async let pairsFrom = expressAPIProvider.pairs(from: currencies, to: [wallet.expressCurrency])
 
-        try await pairsTo.toSet().forEach { pairs.insert($0) }
-        try await pairsFrom.toSet().forEach { pairs.insert($0) }
+        try await pairs.formUnion(pairsTo.toSet())
+        try await pairs.formUnion(pairsFrom.toSet())
     }
 
     func getAvailableProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
