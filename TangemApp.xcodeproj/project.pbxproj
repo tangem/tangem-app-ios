@@ -517,6 +517,7 @@
 		B62570EA2B24A59B005EBC91 /* RateAppBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62570E92B24A59B005EBC91 /* RateAppBottomSheetView.swift */; };
 		B62570EC2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62570EB2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift */; };
 		B62E42512A79328A0045AB31 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E42502A79328A0045AB31 /* Collection+.swift */; };
+		B62EE31E2B28A0FE006BA412 /* AppStoreReviewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62EE31D2B28A0FE006BA412 /* AppStoreReviewModifier.swift */; };
 		B63127D42A2F52E2007C124C /* OrganizeTokensListSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */; };
 		B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */; };
 		B63140F32A808B45009CAB12 /* OrganizeTokensRoutableStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */; };
@@ -1906,6 +1907,7 @@
 		B62570E92B24A59B005EBC91 /* RateAppBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppBottomSheetView.swift; sourceTree = "<group>"; };
 		B62570EB2B24A5A9005EBC91 /* RateAppBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		B62E42502A79328A0045AB31 /* Collection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
+		B62EE31D2B28A0FE006BA412 /* AppStoreReviewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreReviewModifier.swift; sourceTree = "<group>"; };
 		B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSection.swift; sourceTree = "<group>"; };
 		B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemViewModel.swift; sourceTree = "<group>"; };
 		B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensRoutableStub.swift; sourceTree = "<group>"; };
@@ -4310,6 +4312,7 @@
 				B619800F2AB8BD5200153886 /* PreviewContentShapeModifier.swift */,
 				B61980112AB98ACE00153886 /* HighlightableViewModifier.swift */,
 				B6C957A22ACBDDBE00671B37 /* IOS15AndBelowScrollDisabledModifier.swift */,
+				B62EE31D2B28A0FE006BA412 /* AppStoreReviewModifier.swift */,
 			);
 			path = Modifiers;
 			sourceTree = "<group>";
@@ -8355,6 +8358,7 @@
 				EF48E6C32B02273800FE0072 /* ExpressTokenItemView.swift in Sources */,
 				5D4B8BBB27EDB354002CE87C /* NetworkIcon.swift in Sources */,
 				DC7127AF2897ECBB00F60F71 /* NoteConfig.swift in Sources */,
+				B62EE31E2B28A0FE006BA412 /* AppStoreReviewModifier.swift in Sources */,
 				DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */,
 				DA559C342B0261F400F59584 /* SendCoordinator.swift in Sources */,
 				DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */,
