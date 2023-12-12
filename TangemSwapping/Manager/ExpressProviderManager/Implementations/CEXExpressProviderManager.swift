@@ -118,7 +118,7 @@ private extension CEXExpressProviderManager {
         guard !request.pair.source.isToken else { return 0 }
 
         let balance = try await request.pair.source.getBalance()
-        let fullAmount = request.amount + fee.value
+        let fullAmount = request.amount + fee.fastest.amount.value
         // We have enough balance
         if fullAmount < balance {
             return 0
