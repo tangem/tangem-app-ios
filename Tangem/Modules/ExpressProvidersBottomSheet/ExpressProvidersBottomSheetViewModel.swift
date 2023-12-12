@@ -27,7 +27,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressProvidersBottomSheetRoutable
 
-    private var bag: Set<AnyCancellable> = []
+    private var stateSubscription: AnyCancellable?
 
     init(
         percentFormatter: PercentFormatter,
@@ -43,30 +43,39 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         self.coordinator = coordinator
 
         bind()
+        initialSetup()
     }
 
     func bind() {
-        expressInteractor.state
+        stateSubscription = expressInteractor.state
+            .dropFirst()
+            .compactMap { $0.quote }
+            .removeDuplicates()
             .sink { [weak self] state in
-                self?.setupView()
-            }.store(in: &bag)
+                self?.updateView()
+            }
     }
 
-    func setupView() {
+    func initialSetup() {
         runTask(in: self) { viewModel in
-            do {
-                try await viewModel.updateProviderRowViewModels()
-            } catch {
-                // [REDACTED_TODO_COMMENT]
-            }
+            try await viewModel.updateFields()
+            await viewModel.setupProviderRowViewModels()
         }
     }
 
-    func updateProviderRowViewModels() async throws {
+    func updateView() {
+        runTask(in: self) { viewModel in
+            await viewModel.setupProviderRowViewModels()
+        }
+    }
+
+    func updateFields() async throws {
         allProviders = try await expressRepository.providers()
         availableProviders = await expressInteractor.getAvailableProviders()
         selectedProvider = await expressInteractor.getSelectedProvider()
+    }
 
+    func setupProviderRowViewModels() async {
         for provider in allProviders {
             if let available = availableProviders.first(where: { $0.provider == provider }) {
                 if await available.getState().isAvailableToShow {
@@ -99,7 +108,14 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         )
 
         let isSelected = selectedProvider?.provider.id == provider.provider.id
-        let badge: ProviderRowViewModel.Badge? = state.isPermissionRequired ? .permissionNeeded : .none
+        let badge: ProviderRowViewModel.Badge? = {
+            if state.isPermissionRequired {
+                return .permissionNeeded
+            }
+
+            return provider.isBest ? .bestRate : .none
+        }()
+
         if !isSelected, let quote = state.quote, let percentSubtitle = await makePercentSubtitle(quote: quote) {
             subtitles.append(percentSubtitle)
         }
@@ -128,9 +144,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func userDidTap(provider: ExpressAvailableProvider) {
+        // Cancel subscription that view do not jump
+        stateSubscription?.cancel()
         Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
-
-        selectedProvider = provider
         expressInteractor.updateProvider(provider: provider)
         coordinator.closeExpressProvidersBottomSheet()
     }
