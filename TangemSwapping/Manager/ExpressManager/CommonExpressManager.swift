@@ -23,7 +23,11 @@ actor CommonExpressManager {
     private var _approvePolicy: SwappingApprovePolicy = .unlimited
     private var _amount: Decimal?
 
-    private var availableProviders: [ExpressAvailableProvider] = []
+    private var allProviders: [ExpressAvailableProvider] = []
+    private var availableProviders: [ExpressAvailableProvider] {
+        allProviders.filter { $0.isAvailable }
+    }
+
     private var selectedProvider: ExpressAvailableProvider?
 
     init(
@@ -54,8 +58,8 @@ extension CommonExpressManager: ExpressManager {
         return selectedProvider
     }
 
-    func getAvailableProviders() -> [ExpressAvailableProvider] {
-        return availableProviders
+    func getAllProviders() -> [ExpressAvailableProvider] {
+        return allProviders
     }
 
     func getApprovePolicy() -> SwappingApprovePolicy {
@@ -166,21 +170,24 @@ private extension CommonExpressManager {
     }
 
     func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
-        guard availableProviders.isEmpty else {
-            return
+        let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair)
+
+        if availableProviders.isEmpty {
+            let providers = try await expressRepository.providers()
+            allProviders = providers
+                .map { provider in
+                    ExpressAvailableProvider(
+                        provider: provider,
+                        isBest: false,
+                        isAvailable: availableProviderIds.contains(provider.id),
+                        manager: expressProviderManagerFactory.makeExpressProviderManger(provider: provider)
+                    )
+                }
         }
 
-        let providers = try await expressRepository.providers()
-        let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair)
-        availableProviders = providers
-            .filter { availableProviderIds.contains($0.id) }
-            .map { provider in
-                ExpressAvailableProvider(
-                    provider: provider,
-                    isBest: false,
-                    manager: expressProviderManagerFactory.makeExpressProviderManger(provider: provider)
-                )
-            }
+        allProviders.forEach { provider in
+            provider.isAvailable = availableProviderIds.contains(provider.provider.id)
+        }
     }
 
     func updateSelectedProviderIfNeeded() async throws {
@@ -264,7 +271,6 @@ private extension CommonExpressManager {
 
     func clearCache() {
         selectedProvider = nil
-        availableProviders = []
     }
 }
 
