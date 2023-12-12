@@ -24,6 +24,7 @@ struct ManageTokensView: View {
                 skeletonList
             }
         }
+		.background(Colors.Background.primary)
         .scrollDismissesKeyboardCompat(true)
         .alert(item: $viewModel.alert, content: { $0.alert })
     }
