@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import Combine
 import UIKit
 import SwiftUI
+import Combine
+import CombineExt
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -46,12 +47,17 @@ final class MainViewModel: ObservableObject {
     private var isLoggingOut = false
 
     // [REDACTED_TODO_COMMENT]
-    private var lastNotificationInputs: [Data: [NotificationViewInput]] = [:] {
+    private var lastNotificationInputs: [UserWalletId: [NotificationViewInput]] = [:] {
         didSet { requestRateAppIfAvailable() }
     }
 
     // [REDACTED_TODO_COMMENT]
-    private var lastTotalBalances: [Data: TotalBalanceProvider.TotalBalance] = [:] {
+    private var lastNonEmptyBalances: [UserWalletId: Bool] = [:] {
+        didSet { requestRateAppIfAvailable() }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private var lastLoadedBalances: [UserWalletId: Bool] = [:] {
         didSet { requestRateAppIfAvailable() }
     }
 
@@ -387,26 +393,28 @@ final class MainViewModel: ObservableObject {
             .totalBalancePublisher()
             .withWeakCaptureOf(self)
             .sink { viewModel, totalBalance in
-                viewModel.lastTotalBalances[userWalletModel.userWalletId.value] = totalBalance.value
+                let identifier = userWalletModel.userWalletId
+                let hasNonEmptyBalance = userWalletModel.walletModelsManager.walletModels.contains { !$0.wallet.isEmpty }
+                let hasLoadedBalance = totalBalance.value != nil
+                viewModel.lastNonEmptyBalances[identifier] = hasNonEmptyBalance
+                viewModel.lastLoadedBalances[identifier] = hasLoadedBalance
             }
     }
 
     private func requestRateAppIfAvailable() {
         guard let selectedPage = pages[safe: selectedCardIndex] else { return }
 
-        let userWalletIdValue = selectedPage.id.value
-        let totalBalances = Array(lastTotalBalances.values)
-        let isSelectedPageFailedToLoadTotalBalance = lastTotalBalances[userWalletIdValue]?.hasError ?? false
-        let displayedNotifications = lastNotificationInputs[userWalletIdValue, default: []]
-
-        rateAppService.requestRateAppIfAvailable(
-            with: .init(
-                totalBalances: totalBalances,
-                isSelectedPageLocked: selectedPage.isLockedWallet,
-                isSelectedPageFailedToLoadTotalBalance: isSelectedPageFailedToLoadTotalBalance,
-                selectedPageDisplayedNotifications: displayedNotifications
+        let pageInfos = pages.map { page in
+            return _CommonRateAppService.RateAppRequest.PageInfo(
+                isLocked: page.isLockedWallet,
+                isSelected: page.id == selectedPage.id,
+                isBalanceLoaded: lastLoadedBalances[page.id, default: false],
+                isBalanceNonEmpty: lastNonEmptyBalances[page.id, default: false],
+                displayedNotifications: lastNotificationInputs[page.id, default: []]
             )
-        )
+        }
+
+        rateAppService.requestRateAppIfAvailable(with: .init(pageInfos: pageInfos))
     }
 
     private func log(_ message: String) {
@@ -488,7 +496,7 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
 extension MainViewModel: MainNotificationsObserver {
     func didChangeNotificationInputs(_ inputs: [NotificationViewInput], forUserWalletWithId userWalletId: UserWalletId) {
-        lastNotificationInputs[userWalletId.value] = inputs
+        lastNotificationInputs[userWalletId] = inputs
     }
 }
 
