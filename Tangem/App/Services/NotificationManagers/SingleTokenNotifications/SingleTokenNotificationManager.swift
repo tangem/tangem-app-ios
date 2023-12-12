@@ -22,9 +22,9 @@ final class SingleTokenNotificationManager {
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
 
-    private var canShowCrosschainPromotion: Bool {
+    private var canShowTangemExpressPromotion: Bool {
         guard swapPairService != nil else { return false }
-        return !AppSettings.shared.crosschainExchangeTokenPromoDismissed && TangemExpressPromotionUtility().isPromotionRunning
+        return !AppSettings.shared.tangemExpressTokenPromotionDismissed && TangemExpressPromotionUtility().isPromotionRunning
     }
 
     init(walletModel: WalletModel, swapPairService: SwapPairService?, contextDataProvider: AnalyticsContextDataProvider?) {
@@ -56,12 +56,12 @@ final class SingleTokenNotificationManager {
             }
             .store(in: &bag)
 
-        if canShowCrosschainPromotion, let swapPairService {
+        if canShowTangemExpressPromotion, let swapPairService {
             swapPairService.canSwap()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] canSwap in
                     guard let self else { return }
-                    setupCrosschainPromotionNotification(showPromotion: canSwap && canShowCrosschainPromotion)
+                    setupTangemExpressPromotionNotification(showPromotion: canSwap && canShowTangemExpressPromotion)
                 }
                 .store(in: &bag)
         }
@@ -125,10 +125,10 @@ final class SingleTokenNotificationManager {
             ])
     }
 
-    private func setupCrosschainPromotionNotification(showPromotion: Bool) {
+    private func setupTangemExpressPromotionNotification(showPromotion: Bool) {
         let factory = NotificationsFactory()
         let input = factory.buildNotificationInput(
-            for: .crosschainSwapPromotion,
+            for: .tangemExpressPromotion,
             buttonAction: { [weak self] id, actionType in
                 self?.delegate?.didTapNotificationButton(with: id, action: actionType)
             },
@@ -208,8 +208,8 @@ extension SingleTokenNotificationManager: NotificationManager {
         }
 
         switch event {
-        case .crosschainSwapPromotion:
-            AppSettings.shared.crosschainExchangeTokenPromoDismissed = true
+        case .tangemExpressPromotion:
+            AppSettings.shared.tangemExpressTokenPromotionDismissed = true
         default:
             break
         }
