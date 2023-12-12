@@ -24,7 +24,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
-    case crosschainSwap
+    case crosschainSwapPromotion
 }
 
 // For Notifications
@@ -65,7 +65,7 @@ extension WarningEvent: NotificationEvent {
             return Localization.commonAccessDenied
         case .missingBackup:
             return Localization.warningNoBackupTitle
-        case .crosschainSwap:
+        case .crosschainSwapPromotion:
             return Localization.mainSwapPromotionTitle
         }
     }
@@ -103,7 +103,7 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
-        case .crosschainSwap:
+        case .crosschainSwapPromotion:
             return Localization.mainSwapPromotionMessage
         }
     }
@@ -112,7 +112,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
             return .primary
-        case .crosschainSwap:
+        case .crosschainSwapPromotion:
             return .swap
         default:
             return .secondary
@@ -131,7 +131,7 @@ extension WarningEvent: NotificationEvent {
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
-        case .crosschainSwap:
+        case .crosschainSwapPromotion:
             return .init(iconType: .image(Assets.swapBannerIcon.image))
         }
     }
@@ -140,7 +140,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
             return false
-        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary, .crosschainSwap:
+        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary, .crosschainSwapPromotion:
             return true
         }
     }
@@ -195,7 +195,7 @@ extension WarningEvent {
         case .missingDerivation: return .mainNoticeMissingAddress
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
-        case .crosschainSwap: return nil
+        case .crosschainSwapPromotion: return nil
         }
     }
 
