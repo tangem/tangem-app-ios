@@ -26,7 +26,15 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
     }
 
     func estimatedFee(amount: Decimal) async throws -> ExpressFee {
-        let defaultAddress = wallet.defaultAddress
+        let defaultAddress: String = {
+            // In the TRON network we received zero fee if calculating on our own address
+            if wallet.blockchainNetwork.blockchain == .tron(testnet: false) {
+                return ""
+            }
+            
+            return wallet.defaultAddress
+        }()
+
         let fee = try await getFee(amount: amount, destination: defaultAddress, hexData: nil)
         return fee
     }
