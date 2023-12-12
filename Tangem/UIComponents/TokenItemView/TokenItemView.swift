@@ -74,11 +74,8 @@ struct TokenItemView: View {
                                 loaderSize: .init(width: 52, height: 12)
                             )
 
-                            TokenPriceChangeView(
-                                state: viewModel.priceChangeState,
-                                showSkeletonWhenLoading: false
-                            )
-                            .layoutPriority(1)
+                            TokenPriceChangeView(state: viewModel.priceChangeState)
+                                .layoutPriority(1)
                         })
                         .frame(minWidth: 0.32 * textBlockSize.width, alignment: .leading)
                         .layoutPriority(2)
