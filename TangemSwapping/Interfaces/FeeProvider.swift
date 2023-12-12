@@ -17,12 +17,12 @@ public enum ExpressFee {
     case single(Fee)
     case double(market: Fee, fast: Fee)
 
-    var value: Decimal {
+    var fastest: Fee {
         switch self {
         case .single(let fee):
-            return fee.amount.value
+            return fee
         case .double(_, let fast):
-            return fast.amount.value
+            return fast
         }
     }
 }
