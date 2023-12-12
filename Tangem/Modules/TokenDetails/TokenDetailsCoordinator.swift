@@ -139,11 +139,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.tokenDetailsCoordinator = nil
         }
 
-        let swapPairService = SwapPairService(
-            walletModel: model,
-            walletModelsManager: cardViewModel.walletModelsManager,
-            userWalletId: cardViewModel.userWalletId.stringValue
-        )
+        let swapPairService = SwapPairService(walletModelsManager: cardViewModel.walletModelsManager, userWalletId: cardViewModel.userWalletId.stringValue)
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
