@@ -179,7 +179,7 @@ private extension ManageTokensViewModel {
                 priceValue: "----------",
                 action: .info,
                 state: .loading,
-                didTapAction: handle(action:with:)
+                didTapAction: { _, _ in }
             )
         }
     }
