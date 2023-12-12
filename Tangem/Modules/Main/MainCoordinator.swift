@@ -63,6 +63,7 @@ class MainCoordinator: CoordinatorObject {
         )
 
         swipeDiscoveryHelper.delegate = viewModel
+        rateAppService.delegate = viewModel
         mainViewModel = viewModel
     }
 }
