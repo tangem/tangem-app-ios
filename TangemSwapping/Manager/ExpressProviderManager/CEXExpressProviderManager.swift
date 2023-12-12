@@ -114,6 +114,9 @@ private extension CEXExpressProviderManager {
     }
 
     func subtractFee(request: ExpressManagerSwappingPairRequest, fee: ExpressFee) async throws -> Decimal {
+        // The fee's subtraction needed only for coin
+        guard !request.pair.source.isToken else { return 0 }
+
         let balance = try await request.pair.source.getBalance()
         let fullAmount = request.amount + fee.value
         // We have enough balance
