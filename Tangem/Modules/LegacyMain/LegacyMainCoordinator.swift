@@ -214,11 +214,14 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
                 return
             }
 
+            let swapPairService = SwapPairService(walletModelsManager: cardModel.walletModelsManager, userWalletId: cardModel.userWalletId.stringValue)
+
             let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
             coordinator.start(with: .init(
                 cardModel: cardModel,
                 walletModel: walletModel,
-                userTokensManager: cardModel.userTokensManager
+                userTokensManager: cardModel.userTokensManager,
+                swapPairService: swapPairService
             ))
             tokenDetailsCoordinator = coordinator
             return
