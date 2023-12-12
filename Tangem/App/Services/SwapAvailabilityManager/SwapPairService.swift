@@ -54,8 +54,6 @@ struct SwapPairService {
                                     }
                                 }
 
-                                print("ZZZ", currenciesWithBalance, canSwap)
-
                                 promise(.success(canSwap))
                             } catch {
                                 promise(.success(false))
