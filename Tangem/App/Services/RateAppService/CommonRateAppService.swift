@@ -9,6 +9,8 @@
 import Foundation
 
 final class CommonRateAppService {
+    weak var delegate: RateAppServiceDelegate?
+
     @AppStorageCompat(StorageKeys.systemReviewPromptRequestDates)
     private var systemReviewPromptRequestDates: [Date] = []
 
@@ -49,6 +51,18 @@ final class CommonRateAppService {
         }
 
         positiveBalanceAppearanceDate = Date()
+    }
+
+    private func handleRateAppResult(_ result: RateAppResult) {
+        switch result {
+        case .positiveResponse:
+            systemReviewPromptRequestDates.append(Date())
+            delegate?.requestAppStoreReviewForRateAppService(self)
+        case .negativeResponse:
+            delegate?.rateAppService(self, didRequestOpenMailWithEmailType: .negativeRateAppFeedback)
+        case .dismissed:
+            userDismissedLastRequestedReview = true
+        }
     }
 
     private func makeSystemReviewPromptReferenceDate() -> Date? {
@@ -108,6 +122,11 @@ extension CommonRateAppService: RateAppService {
         lastRequestedReviewDate = Date()
         lastRequestedReviewLaunchCount = currentLaunchCount
         userDismissedLastRequestedReview = false
+
+        delegate?.rateAppService(
+            self,
+            didRequestRateAppWithCompletionHandler: weakify(self, forFunction: CommonRateAppService.handleRateAppResult(_:))
+        )
     }
 }
 
