@@ -1,5 +1,5 @@
 //
-//  _CommonRateAppService.swift
+//  CommonRateAppService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,9 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
-final class _CommonRateAppService {
+final class CommonRateAppService {
     @AppStorageCompat(StorageKeys.systemReviewPromptRequestDates)
     private var systemReviewPromptRequestDates: [Date] = []
-
-    private var positiveBalanceAppearanceDate: Date? {
-        get { AppSettings.shared.positiveBalanceAppearanceDate }
-        set { AppSettings.shared.positiveBalanceAppearanceDate = newValue }
-    }
 
     @AppStorageCompat(StorageKeys.lastRequestedReviewDate)
     private var lastRequestedReviewDate: Date = .distantPast
@@ -26,6 +20,11 @@ final class _CommonRateAppService {
 
     @AppStorageCompat(StorageKeys.userDismissedLastRequestedReview)
     private var userDismissedLastRequestedReview: Bool = false
+
+    private var positiveBalanceAppearanceDate: Date? {
+        get { AppSettings.shared.positiveBalanceAppearanceDate }
+        set { AppSettings.shared.positiveBalanceAppearanceDate = newValue }
+    }
 
     private var currentLaunchCount: Int { AppSettings.shared.numberOfLaunches }
 
@@ -41,6 +40,32 @@ final class _CommonRateAppService {
         trimStorageIfNeeded()
     }
 
+    private func updatePositiveBalanceAppearanceDateIfNeeded(with request: RateAppRequest) {
+        guard
+            positiveBalanceAppearanceDate == nil,
+            request.pageInfos.contains(where: \.isBalanceNonEmpty)
+        else {
+            return
+        }
+
+        positiveBalanceAppearanceDate = Date()
+    }
+
+    private func makeSystemReviewPromptReferenceDate() -> Date? {
+        return calendar.date(byAdding: .year, value: -Constants.systemReviewPromptTimeWindowSize, to: Date())
+    }
+
+    private func trimStorageIfNeeded() {
+        let storageMaxSize = Constants.systemReviewPromptRequestDatesMaxSize
+        if systemReviewPromptRequestDates.count > storageMaxSize {
+            systemReviewPromptRequestDates = systemReviewPromptRequestDates.suffix(storageMaxSize)
+        }
+    }
+}
+
+// MARK: - RateAppService protocol conformance
+
+extension CommonRateAppService: RateAppService {
     func requestRateAppIfAvailable(with request: RateAppRequest) {
         updatePositiveBalanceAppearanceDateIfNeeded(with: request)
 
@@ -84,47 +109,11 @@ final class _CommonRateAppService {
         lastRequestedReviewLaunchCount = currentLaunchCount
         userDismissedLastRequestedReview = false
     }
-
-    private func updatePositiveBalanceAppearanceDateIfNeeded(with request: RateAppRequest) {
-        guard
-            positiveBalanceAppearanceDate == nil,
-            request.pageInfos.contains(where: \.isBalanceNonEmpty)
-        else {
-            return
-        }
-
-        positiveBalanceAppearanceDate = Date()
-    }
-
-    private func makeSystemReviewPromptReferenceDate() -> Date? {
-        return calendar.date(byAdding: .year, value: -Constants.systemReviewPromptTimeWindowSize, to: Date())
-    }
-
-    private func trimStorageIfNeeded() {
-        let storageMaxSize = Constants.systemReviewPromptRequestDatesMaxSize
-        if systemReviewPromptRequestDates.count > storageMaxSize {
-            systemReviewPromptRequestDates = systemReviewPromptRequestDates.suffix(storageMaxSize)
-        }
-    }
 }
 
 // MARK: - Auxiliary types
 
-extension _CommonRateAppService {
-    struct RateAppRequest {
-        struct PageInfo {
-            let isLocked: Bool
-            let isSelected: Bool
-            let isBalanceLoaded: Bool
-            let isBalanceNonEmpty: Bool
-            let displayedNotifications: [NotificationViewInput]
-        }
-
-        let pageInfos: [PageInfo]
-    }
-}
-
-private extension _CommonRateAppService {
+private extension CommonRateAppService {
     enum StorageKeys: String, RawRepresentable {
         case systemReviewPromptRequestDates = "system_review_prompt_request_dates"
         case lastRequestedReviewDate = "last_requested_review_date"
@@ -135,7 +124,7 @@ private extension _CommonRateAppService {
 
 // MARK: - Constants
 
-private extension _CommonRateAppService {
+private extension CommonRateAppService {
     enum Constants {
         // MARK: - Constants that control the behavior of the rate app sheet itself
 
@@ -159,20 +148,5 @@ private extension _CommonRateAppService {
         static let systemReviewPromptTimeWindowSize = 1
         /// For storage trimming.
         static let systemReviewPromptRequestDatesMaxSize = 5
-    }
-}
-
-// MARK: - Dependency injection
-
-// [REDACTED_TODO_COMMENT]
-private struct RateAppServiceKey: InjectionKey {
-    static var currentValue: _CommonRateAppService = .init()
-}
-
-// [REDACTED_TODO_COMMENT]
-extension InjectedValues {
-    var _rateAppService: _CommonRateAppService {
-        get { Self[RateAppServiceKey.self] }
-        set { Self[RateAppServiceKey.self] = newValue }
     }
 }
