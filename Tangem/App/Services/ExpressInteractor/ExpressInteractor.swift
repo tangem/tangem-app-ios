@@ -393,7 +393,7 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        return !getSender().outgoingPendingTransactions.isEmpty
+        return getSender().hasPendingTransactions
     }
 }
 
@@ -576,25 +576,6 @@ private extension ExpressInteractor {
 extension ExpressInteractor: CustomStringConvertible {
     var description: String {
         objectDescription(self)
-    }
-}
-
-extension ExpressFee {
-    func fee(for option: FeeOption) -> Fee {
-        switch self {
-        case .single(let fee):
-            return fee
-        case .double(let market, let priority):
-            switch option {
-            case .market:
-                return market
-            case .fast:
-                return priority
-            default:
-                assertionFailure("Not implemented")
-                return market
-            }
-        }
     }
 }
 
