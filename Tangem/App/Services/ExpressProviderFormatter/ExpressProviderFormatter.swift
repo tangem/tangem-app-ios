@@ -19,8 +19,8 @@ struct ExpressProviderFormatter {
         option: RateSubtitleFormattingOption
     ) -> ProviderRowViewModel.Subtitle {
         switch state {
-        case .error(let error, .none):
-            return .text(error.localizedDescription)
+        case .error(_, .none):
+            return .text(AppConstants.minusSign)
         case .restriction(.tooSmallAmount(let minAmount), .none):
             guard let senderCurrencyCode else {
                 return .text(CommonError.noData.localizedDescription)

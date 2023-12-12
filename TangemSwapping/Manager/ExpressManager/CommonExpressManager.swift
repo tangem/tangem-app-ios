@@ -42,11 +42,11 @@ actor CommonExpressManager {
 // MARK: - ExpressManager
 
 extension CommonExpressManager: ExpressManager {
-    func getPair() async -> ExpressManagerSwappingPair? {
+    func getPair() -> ExpressManagerSwappingPair? {
         return _pair
     }
 
-    func getAmount() async -> Decimal? {
+    func getAmount() -> Decimal? {
         return _amount
     }
 
@@ -67,16 +67,13 @@ extension CommonExpressManager: ExpressManager {
         _pair = pair
 
         // Clear for reselected the best quote
-        selectedProvider = nil
+        clearCache()
 
         return try await update()
     }
 
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState {
         _amount = amount
-
-        // Clear for reselected the best quote
-        selectedProvider = nil
 
         return try await update()
     }
@@ -88,9 +85,16 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(approvePolicy: SwappingApprovePolicy) async throws -> ExpressManagerState {
+        guard _approvePolicy != approvePolicy else {
+            log("ApprovePolicy already is \(approvePolicy)")
+            return try await selectedProviderState()
+        }
+
         _approvePolicy = approvePolicy
 
-        return try await update()
+        let request = try makeRequest()
+        await selectedProvider?.manager.update(request: request, approvePolicy: _approvePolicy)
+        return try await selectedProviderState()
     }
 
     func update() async throws -> ExpressManagerState {
@@ -142,7 +146,10 @@ private extension CommonExpressManager {
             throw ExpressManagerError.selectedProviderNotFound
         }
 
-        switch await selectedProvider.getState() {
+        let state = await selectedProvider.getState()
+        log("Selected provider state: \(state)")
+
+        switch state {
         case .idle:
             return .idle
         case .error(let error, _):
@@ -159,6 +166,10 @@ private extension CommonExpressManager {
     }
 
     func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
+        guard availableProviders.isEmpty else {
+            return
+        }
+
         let providers = try await expressRepository.providers()
         let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair)
         availableProviders = providers
@@ -226,6 +237,9 @@ private extension CommonExpressManager {
     }
 
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async {
+        let providers = availableProviders.map { $0.provider.name }.joined(separator: ", ")
+        log("Start a parallel updating in providers: \(providers) with request \(request)")
+
         // Run a parallel asynchronous tasks
         await withTaskGroup(of: Void.self) { [weak self] taskGroup in
             await self?.availableProviders.forEach { provider in
@@ -246,6 +260,11 @@ private extension CommonExpressManager {
         }
 
         return ExpressManagerSwappingPairRequest(pair: pair, amount: amount)
+    }
+
+    func clearCache() {
+        selectedProvider = nil
+        availableProviders = []
     }
 }
 
