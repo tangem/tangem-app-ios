@@ -69,14 +69,13 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func updateFields() async throws {
-        allProviders = await expressInteractor.getAllProviders().sorted(by: { lhs, rhs in
-            return lhs.isBest || lhs.isAvailable
-        })
-
+        allProviders = await expressInteractor.getAllProviders()
         selectedProvider = await expressInteractor.getSelectedProvider()
     }
 
     func setupProviderRowViewModels() async {
+        var providerViewModels: [ProviderRowViewModel] = []
+
         for provider in allProviders {
             guard provider.isAvailable else {
                 await runOnMain {
@@ -93,6 +92,8 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
                 }
             }
         }
+
+        self.providerViewModels = providerViewModels
     }
 
     func mapToProviderRowViewModel(provider: ExpressAvailableProvider) async -> ProviderRowViewModel {
