@@ -154,6 +154,7 @@ extension ExpressInteractor {
     }
 
     func updateApprovePolicy(policy: SwappingApprovePolicy) {
+        updateState(.loading(type: .refreshRates))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(approvePolicy: policy)
             return try await interactor.mapState(state: state)
@@ -318,7 +319,7 @@ private extension ExpressInteractor {
             )
             let state: ExpressInteractorState = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
 
-            guard try await hasEnoughBalanceForFee(fees: permissionRequiredState.fees) else {
+            guard try await hasEnoughBalanceForFee(fees: permissionRequiredState.fees, amount: permissionRequired.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: permissionRequired.quote)
             }
 
@@ -328,7 +329,7 @@ private extension ExpressInteractor {
             let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: mapToFees(fee: previewCEX.fee))
             let state: ExpressInteractorState = .previewCEX(previewCEXState, quote: previewCEX.quote)
 
-            guard try await hasEnoughBalanceForFee(fees: previewCEXState.fees) else {
+            guard try await hasEnoughBalanceForFee(fees: previewCEXState.fees, amount: previewCEX.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: previewCEX.quote)
             }
 
@@ -342,7 +343,7 @@ private extension ExpressInteractor {
             let readyToSwapState = ReadyToSwapState(data: ready.data, fees: mapToFees(fee: ready.fee))
             let state: ExpressInteractorState = .readyToSwap(readyToSwapState, quote: ready.quote)
 
-            guard try await hasEnoughBalanceForFee(fees: readyToSwapState.fees) else {
+            guard try await hasEnoughBalanceForFee(fees: readyToSwapState.fees, amount: ready.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: ready.quote)
             }
 
@@ -370,7 +371,7 @@ private extension ExpressInteractor {
 // MARK: - Restriction
 
 private extension ExpressInteractor {
-    func hasEnoughBalanceForFee(fees: [FeeOption: Fee]) async throws -> Bool {
+    func hasEnoughBalanceForFee(fees: [FeeOption: Fee], amount: Decimal?) async throws -> Bool {
         guard let fee = fees[getFeeOption()]?.amount.value else {
             throw ExpressInteractorError.feeNotFound
         }
@@ -382,11 +383,13 @@ private extension ExpressInteractor {
             return fee <= coinBalance
         }
 
-        guard let amount = await expressManager.getAmount() else {
+        guard let amount else {
             throw ExpressManagerError.amountNotFound
         }
 
         let balance = try await sender.getBalance()
+        log("\(#function) fee: \(fee) amount: \(amount) balance: \(balance)")
+
         return fee + amount <= balance
     }
 
@@ -436,13 +439,13 @@ private extension ExpressInteractor {
         case .permissionRequired(let state, let quote):
             let state: ExpressInteractorState = .permissionRequired(state, quote: quote)
 
-            guard try await hasEnoughBalanceForFee(fees: state.fees) else {
+            guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
             }
 
             return state
         case .restriction(.notEnoughAmountForFee(let returnState), let quote):
-            guard try await hasEnoughBalanceForFee(fees: returnState.fees) else {
+            guard try await hasEnoughBalanceForFee(fees: returnState.fees, amount: quote?.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(returnState), quote: quote)
             }
 
@@ -450,7 +453,7 @@ private extension ExpressInteractor {
         case .previewCEX(let state, let quote):
             let state: ExpressInteractorState = .previewCEX(state, quote: quote)
 
-            guard try await hasEnoughBalanceForFee(fees: state.fees) else {
+            guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
             }
 
@@ -458,7 +461,7 @@ private extension ExpressInteractor {
         case .readyToSwap(let state, let quote):
             let state: ExpressInteractorState = .readyToSwap(state, quote: quote)
 
-            guard try await hasEnoughBalanceForFee(fees: state.fees) else {
+            guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
             }
 
@@ -592,15 +595,6 @@ extension ExpressFee {
                 assertionFailure("Not implemented")
                 return market
             }
-        }
-    }
-
-    var isSelectedAvailable: Bool {
-        switch self {
-        case .single:
-            return true
-        case .double:
-            return false
         }
     }
 }
