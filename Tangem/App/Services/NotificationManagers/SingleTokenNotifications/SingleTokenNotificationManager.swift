@@ -18,34 +18,20 @@ final class SingleTokenNotificationManager {
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
+    private let swapPairService: SwapPairService
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
 
-    private var canSwapSomeToken: Bool {
-        guard let userWalletModel = userWalletRepository.selectedModel else {
-            return false
-        }
-
-        if !walletModel.isZeroAmount || swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem) {
-            return true
-        }
-
-        for otherWalletModel in userWalletModel.walletModelsManager.walletModels {
-            if walletModel.id != otherWalletModel.id {
-                if !otherWalletModel.isZeroAmount, swapAvailabilityProvider.canSwap(tokenItem: otherWalletModel.tokenItem) {
-                    return true
-                }
-            }
-        }
-
-        return false
+    private var canShowCrosschainPromotion: Bool {
+        !AppSettings.shared.crosschainExchangeTokenPromoDismissed && TangemExpressPromotionUtility().isPromotionRunning
     }
 
-    init(walletModel: WalletModel, contextDataProvider: AnalyticsContextDataProvider?) {
+    init(walletModel: WalletModel, swapPairService: SwapPairService, contextDataProvider: AnalyticsContextDataProvider?) {
         self.walletModel = walletModel
+        self.swapPairService = swapPairService
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
@@ -71,6 +57,16 @@ final class SingleTokenNotificationManager {
                 }
             }
             .store(in: &bag)
+
+        if canShowCrosschainPromotion {
+            swapPairService.canSwap()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] canSwap in
+                    guard let self else { return }
+                    setupCrosschainPromotionNotification(showPromotion: canSwap && canShowCrosschainPromotion)
+                }
+                .store(in: &bag)
+        }
     }
 
     private func setupLoadedStateNotifications() {
@@ -83,12 +79,6 @@ final class SingleTokenNotificationManager {
 
         if let sendBlockedReason = walletModel.sendBlockedReason {
             events.append(.event(for: sendBlockedReason))
-        }
-
-        if canSwapSomeToken,
-           !AppSettings.shared.crosschainExchangeTokenPromoDismissed,
-           TangemExpressPromotionUtility().isPromotionRunning {
-            events.append(.crosschainSwapPromotion)
         }
 
         let inputs = events.map {
@@ -135,6 +125,25 @@ final class SingleTokenNotificationManager {
                     dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
                 ),
             ])
+    }
+
+    private func setupCrosschainPromotionNotification(showPromotion: Bool) {
+        let factory = NotificationsFactory()
+        let input = factory.buildNotificationInput(
+            for: .crosschainSwapPromotion,
+            buttonAction: { [weak self] id, actionType in
+                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+            },
+            dismissAction: { [weak self] id in
+                self?.dismissNotification(with: id)
+            }
+        )
+
+        if !showPromotion {
+            notificationInputsSubject.value.removeAll { $0.id == input.id }
+        } else if !notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
+            notificationInputsSubject.value.append(input)
+        }
     }
 
     private func setupNoAccountNotification(with message: String) {
