@@ -13,6 +13,11 @@ final class _CommonRateAppService {
     @AppStorageCompat(StorageKeys.systemReviewPromptRequestDates)
     private var systemReviewPromptRequestDates: [Date] = []
 
+    private var positiveBalanceAppearanceDate: Date? {
+        get { AppSettings.shared.positiveBalanceAppearanceDate }
+        set { AppSettings.shared.positiveBalanceAppearanceDate = newValue }
+    }
+
     @AppStorageCompat(StorageKeys.lastRequestedReviewDate)
     private var lastRequestedReviewDate: Date = .distantPast
 
@@ -37,19 +42,23 @@ final class _CommonRateAppService {
     }
 
     func requestRateAppIfAvailable(with request: RateAppRequest) {
-        if request.isSelectedPageLocked {
+        updatePositiveBalanceAppearanceDateIfNeeded(with: request)
+
+        guard let selectedPage = request.pageInfos.first(where: \.isSelected) else { return }
+
+        if selectedPage.isLocked {
             return
         }
 
-        if request.isSelectedPageFailedToLoadTotalBalance {
+        guard selectedPage.isBalanceLoaded else {
             return
         }
 
-        if request.selectedPageDisplayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
+        if selectedPage.displayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
             return
         }
 
-        guard request.totalBalances.contains(where: { ($0.balance ?? .zero) > .zero }) else {
+        guard positiveBalanceAppearanceDate != nil else {
             return
         }
 
@@ -76,6 +85,17 @@ final class _CommonRateAppService {
         userDismissedLastRequestedReview = false
     }
 
+    private func updatePositiveBalanceAppearanceDateIfNeeded(with request: RateAppRequest) {
+        guard
+            positiveBalanceAppearanceDate == nil,
+            request.pageInfos.contains(where: \.isBalanceNonEmpty)
+        else {
+            return
+        }
+
+        positiveBalanceAppearanceDate = Date()
+    }
+
     private func makeSystemReviewPromptReferenceDate() -> Date? {
         return calendar.date(byAdding: .year, value: -Constants.systemReviewPromptTimeWindowSize, to: Date())
     }
@@ -92,10 +112,15 @@ final class _CommonRateAppService {
 
 extension _CommonRateAppService {
     struct RateAppRequest {
-        let totalBalances: [TotalBalanceProvider.TotalBalance]
-        let isSelectedPageLocked: Bool
-        let isSelectedPageFailedToLoadTotalBalance: Bool
-        let selectedPageDisplayedNotifications: [NotificationViewInput]
+        struct PageInfo {
+            let isLocked: Bool
+            let isSelected: Bool
+            let isBalanceLoaded: Bool
+            let isBalanceNonEmpty: Bool
+            let displayedNotifications: [NotificationViewInput]
+        }
+
+        let pageInfos: [PageInfo]
     }
 }
 
