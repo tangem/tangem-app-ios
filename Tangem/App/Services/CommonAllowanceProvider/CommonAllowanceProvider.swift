@@ -36,7 +36,6 @@ extension CommonExpressAllowanceProvider: ExpressAllowanceProvider {
 
     func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
         let contractAddress = request.pair.source.expressCurrency.contractAddress
-
         if contractAddress == ExpressConstants.coinContractAddress {
             return false
         }
@@ -53,16 +52,17 @@ extension CommonExpressAllowanceProvider: ExpressAllowanceProvider {
         logger.debug("\(request.pair.source) allowance - \(allowance)")
 
         let approveTxWasSent = spendersAwaitingApprove.contains(spender)
-        let hasEnoughAllowance = allowance >= request.amount
+        let isPermissionRequired = allowance < request.amount
         if approveTxWasSent {
-            if hasEnoughAllowance {
-                spendersAwaitingApprove.remove(spender)
-                return hasEnoughAllowance
-            } else {
+            if isPermissionRequired {
                 throw AllowanceProviderError.approveTransactionInProgress
             }
+
+            spendersAwaitingApprove.remove(spender)
+            return isPermissionRequired
         }
-        return !hasEnoughAllowance
+
+        return isPermissionRequired
     }
 
     func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
