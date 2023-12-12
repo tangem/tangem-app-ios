@@ -63,6 +63,14 @@ extension CommonExpressRepository: ExpressRepository {
 
         throw ExpressRepositoryError.availablePairNotFound
     }
+
+    func getPairs(to wallet: ExpressWallet) async throws -> [ExpressPair] {
+        pairs.filter { $0.destination == wallet.expressCurrency }.asArray
+    }
+
+    func getPairs(from wallet: ExpressWallet) async throws -> [ExpressPair] {
+        pairs.filter { $0.source == wallet.expressCurrency }.asArray
+    }
 }
 
 enum ExpressRepositoryError: Error {
