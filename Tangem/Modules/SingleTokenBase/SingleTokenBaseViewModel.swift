@@ -193,6 +193,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCryptoIfPossible()
+        case .exchange:
+            openExchange()
         default:
             break
         }
