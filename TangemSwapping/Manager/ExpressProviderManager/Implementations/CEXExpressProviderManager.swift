@@ -64,6 +64,10 @@ extension CEXExpressProviderManager: ExpressProviderManager {
 private extension CEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
+            if let restriction = await checkBalance(request: request) {
+                return restriction
+            }
+
             var request = request
             let estimatedFee = try await feeProvider.estimatedFee(amount: request.amount)
             let subtractFee = try await subtractFee(request: request, fee: estimatedFee)
@@ -74,10 +78,6 @@ private extension CEXExpressProviderManager {
 
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
-
-            if let restriction = await checkRestriction(request: request, quote: quote) {
-                return restriction
-            }
 
             return .preview(.init(fee: estimatedFee, subtractFee: subtractFee, quote: quote))
 
@@ -92,22 +92,16 @@ private extension CEXExpressProviderManager {
         }
     }
 
-    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote) async -> ExpressProviderManagerState? {
-        // 1. Check MinAmount
-        if request.amount < quote.minAmount {
-            return .restriction(.tooSmallAmount(quote.minAmount), quote: quote)
-        }
-
-        // 2. Check Balance
+    func checkBalance(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState? {
         do {
             let sourceBalance = try await request.pair.source.getBalance()
             let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
             if isNotEnoughBalanceForSwapping {
-                return .restriction(.insufficientBalance(request.amount), quote: quote)
+                return .restriction(.insufficientBalance(request.amount), quote: .none)
             }
         } catch {
-            return .error(error, quote: quote)
+            return .error(error, quote: .none)
         }
 
         return nil
