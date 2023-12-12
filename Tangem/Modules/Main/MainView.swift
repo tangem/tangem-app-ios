@@ -120,6 +120,7 @@ struct MainView_Preview: PreviewProvider {
         let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
         let viewModel = MainViewModel(
             coordinator: coordinator,
+            rateAppService: RateAppServiceStub(),
             swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
         )
