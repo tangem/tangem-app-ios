@@ -18,7 +18,7 @@ class LegacyMainViewModel: ObservableObject {
 
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.rateAppService) private var rateAppService: RateAppService
+    @Injected(\.rateAppService) private var rateAppService: LegacyRateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
