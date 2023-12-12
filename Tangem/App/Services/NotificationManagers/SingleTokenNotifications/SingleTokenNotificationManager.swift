@@ -12,9 +12,6 @@ import TangemSdk
 import BlockchainSdk
 
 final class SingleTokenNotificationManager {
-    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
@@ -26,7 +23,7 @@ final class SingleTokenNotificationManager {
     private var notificationsUpdateTask: Task<Void, Never>?
 
     private var canShowCrosschainPromotion: Bool {
-        guard let swapPairService else { return false }
+        guard swapPairService != nil else { return false }
         return !AppSettings.shared.crosschainExchangeTokenPromoDismissed && TangemExpressPromotionUtility().isPromotionRunning
     }
 
