@@ -69,7 +69,7 @@ struct ManageTokensView: View {
 
     private var skeletonList: some View {
         ForEach(1 ... 10, id: \.self) { _ in
-            VStack(spacing: 10) {
+            VStack {
                 HStack(spacing: 12) {
                     SkeletonView()
                         .frame(size: .init(width: 36, height: 36))
