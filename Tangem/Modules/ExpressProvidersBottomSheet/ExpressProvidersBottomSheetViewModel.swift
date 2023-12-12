@@ -17,8 +17,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     // MARK: - Dependencies
 
-    private var allProviders: [ExpressProvider] = []
-    private var availableProviders: [ExpressAvailableProvider] = []
+    private var allProviders: [ExpressAvailableProvider] = []
     private var selectedProvider: ExpressAvailableProvider?
 
     private let percentFormatter: PercentFormatter
@@ -70,23 +69,27 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func updateFields() async throws {
-        allProviders = try await expressRepository.providers()
-        availableProviders = await expressInteractor.getAvailableProviders()
+        allProviders = await expressInteractor.getAllProviders().sorted(by: { lhs, rhs in
+            return lhs.isBest || lhs.isAvailable
+        })
+
         selectedProvider = await expressInteractor.getSelectedProvider()
     }
 
     func setupProviderRowViewModels() async {
         for provider in allProviders {
-            if let available = availableProviders.first(where: { $0.provider == provider }) {
-                if await available.getState().isAvailableToShow {
-                    let viewModel = await mapToProviderRowViewModel(provider: available)
-                    await runOnMain {
-                        providerViewModels.append(viewModel)
-                    }
-                }
-            } else {
+            guard provider.isAvailable else {
                 await runOnMain {
-                    providerViewModels.append(unavailableProviderRowViewModel(provider: provider))
+                    providerViewModels.append(unavailableProviderRowViewModel(provider: provider.provider))
+                }
+
+                return
+            }
+
+            if await provider.getState().isAvailableToShow {
+                let viewModel = await mapToProviderRowViewModel(provider: provider)
+                await runOnMain {
+                    providerViewModels.append(viewModel)
                 }
             }
         }
