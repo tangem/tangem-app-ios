@@ -123,15 +123,12 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             self?.tokenDetailsCoordinator = nil
         }
 
-        let swapPairService = SwapPairService(walletModelsManager: cardViewModel.walletModelsManager, userWalletId: cardViewModel.userWalletId.stringValue)
-
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
                 cardModel: cardViewModel,
                 walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager,
-                swapPairService: swapPairService
+                userTokensManager: userWalletModel.userTokensManager
             )
         )
 
@@ -351,15 +348,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.tokenDetailsCoordinator = nil
         }
 
-        let swapPairService = SwapPairService(walletModelsManager: cardViewModel.walletModelsManager, userWalletId: cardViewModel.userWalletId.stringValue)
-
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
                 cardModel: cardViewModel,
                 walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager,
-                swapPairService: swapPairService
+                userTokensManager: userWalletModel.userTokensManager
             )
         )
 
