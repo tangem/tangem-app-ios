@@ -47,7 +47,11 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
-        let swapPairService = SwapPairService(walletModelsManager: options.cardModel.walletModelsManager, userWalletId: options.cardModel.userWalletId.stringValue)
+        let swapPairService = SwapPairService(
+            walletModel: options.walletModel,
+            walletModelsManager: options.cardModel.walletModelsManager,
+            userWalletId: options.cardModel.userWalletId.stringValue
+        )
         let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel, swapPairService: swapPairService, contextDataProvider: options.cardModel)
 
         let tokenRouter = SingleTokenRouter(
