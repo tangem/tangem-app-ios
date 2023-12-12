@@ -8,6 +8,11 @@
 
 import Foundation
 
+public protocol FeeProvider {
+    func estimatedFee(amount: Decimal) async throws -> ExpressFee
+    func getFee(amount: Decimal, destination: String, hexData: Data?) async throws -> ExpressFee
+}
+
 public enum ExpressFee {
     case single(Fee)
     case double(market: Fee, fast: Fee)
@@ -16,13 +21,8 @@ public enum ExpressFee {
         switch self {
         case .single(let fee):
             return fee.amount.value
-        case .double(let market, _):
-            return market.amount.value
+        case .double(_, let fast):
+            return fast.amount.value
         }
     }
-}
-
-public protocol FeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> ExpressFee
-    func getFee(amount: Decimal, destination: String, hexData: String?) async throws -> ExpressFee
 }
