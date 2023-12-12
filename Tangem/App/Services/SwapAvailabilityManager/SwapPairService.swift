@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemSwapping
 
 struct SwapPairService {
+    let walletModel: WalletModel
     let walletModelsManager: WalletModelsManager
     let userWalletId: String
 
@@ -49,8 +50,18 @@ struct SwapPairService {
             }
         )
 
+        let selectedWalletModelCurrency = walletModel.expressCurrency
+
         for swapPair in swapPairs {
-            if swapPair.destination != swapPair.source, currenciesWithBalance.contains(swapPair.source) || currenciesWithBalance.contains(swapPair.destination) {
+            if swapPair.destination == swapPair.source {
+                continue
+            }
+
+            if swapPair.source == selectedWalletModelCurrency, currenciesWithBalance.contains(swapPair.source) {
+                return true
+            }
+
+            if swapPair.destination == selectedWalletModelCurrency, currenciesWithBalance.contains(swapPair.destination) {
                 return true
             }
         }
