@@ -132,7 +132,7 @@ extension WarningEvent: NotificationEvent {
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
         case .tangemExpressPromotion:
-            return .init(iconType: .image(Assets.swapBannerIcon.image))
+            return .init(iconType: .image(Assets.swapBannerIcon.image), size: CGSize(bothDimensions: 34))
         }
     }
 
