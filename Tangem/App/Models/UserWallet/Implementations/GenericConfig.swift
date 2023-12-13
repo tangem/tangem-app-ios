@@ -110,12 +110,6 @@ extension GenericConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
-    var tangemSigner: TangemSigner {
-        let shouldSkipCardId = card.backupStatus?.isActive ?? false
-        let cardId = shouldSkipCardId ? nil : card.cardId
-        return .init(with: cardId, sdk: makeTangemSdk())
-    }
-
     var userWalletIdSeed: Data? {
         card.wallets.first?.publicKey
     }
@@ -132,6 +126,7 @@ extension GenericConfig: UserWalletConfig {
         if isRing {
             return nil
         }
+
         switch card.batchId {
         // Shiba cards
         case "AF02", "AF03":
@@ -152,11 +147,19 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var customOnboardingImage: ImageType? {
-        Assets.ring
+        if isRing {
+            return Assets.ring
+        }
+
+        return nil
     }
 
     var customScanImage: ImageType? {
-        Assets.ringShapeScan
+        if isRing {
+            return Assets.ringShapeScan
+        }
+
+        return nil
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {

@@ -161,6 +161,7 @@ final class WalletConnectV2Service {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionProposal, context in
                 self?.log("Session proposal: \(sessionProposal) with verify context: \(String(describing: context))")
+                Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.receiveSessionProposal(name: sessionProposal.proposer.name, dAppURL: sessionProposal.proposer.url))
                 self?.validateProposal(sessionProposal)
             }
             .store(in: &sessionSubscriptions)
@@ -225,6 +226,7 @@ final class WalletConnectV2Service {
             .asyncMap { [weak self] request, context in
                 guard let self else { return }
 
+                Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.receiveRequestFromDApp(method: request.method))
                 log("Receive message request: \(request) with verify context: \(String(describing: context))")
                 await handle(request)
             }
@@ -296,6 +298,7 @@ final class WalletConnectV2Service {
     }
 
     private func displayErrorUI(_ error: WalletConnectV2Error) {
+        Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.errorShownToTheUser(error: error.localizedDescription))
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .error,
             message: error.localizedDescription,

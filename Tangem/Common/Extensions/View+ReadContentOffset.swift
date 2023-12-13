@@ -17,7 +17,7 @@ extension View {
     ///     private let name = UUID()
     ///     [REDACTED_USERNAME] private var contentOffset: CGPoint = .zero
     ///
-    ///     func body(content: Content) -> some View {
+    ///     var body: some View {
     ///         ScrollView {
     ///             LazyVStack() {
     ///                 // Some scrollable content
@@ -30,7 +30,7 @@ extension View {
     /// ```
     func readContentOffset(
         inCoordinateSpace coordinateSpace: CoordinateSpace,
-        throttleInterval: GeometryInfo.ThrottleInterval = .standard,
+        throttleInterval: GeometryInfo.ThrottleInterval = .zero,
         bindTo contentOffset: Binding<CGPoint>
     ) -> some View {
         modifier(

@@ -66,6 +66,15 @@ class AppSettings {
     @AppStorageCompat(StorageType.hideSensitiveAvailable)
     var isHidingSensitiveAvailable: Bool = false
 
+    @AppStorageCompat(StorageType.shouldHidingSensitiveInformationSheetShowing)
+    var shouldHidingSensitiveInformationSheetShowing: Bool = true
+
+    @AppStorageCompat(StorageType.appTheme)
+    var appTheme: ThemeOption = .system
+
+    @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
+    var userDidSwipeWalletsOnMainScreen: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

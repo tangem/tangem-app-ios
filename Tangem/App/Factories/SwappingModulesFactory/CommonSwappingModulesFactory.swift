@@ -11,6 +11,8 @@ import TangemSwapping
 import BlockchainSdk
 
 class CommonSwappingModulesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     private let userTokensManager: UserTokensManager
     private let walletModel: WalletModel
     private let signer: TransactionSigner
@@ -70,12 +72,8 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
-        SwappingApproveViewModel(
-            transactionSender: transactionSender,
-            swappingInteractor: swappingInteractor,
-            fiatRatesProvider: fiatRatesProvider,
-            coordinator: coordinator
-        )
+        // [REDACTED_INFO]
+        fatalError("Will be deleted")
     }
 
     func makeSwappingSuccessViewModel(
@@ -127,7 +125,10 @@ private extension CommonSwappingModulesFactory {
     }
 
     var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(fiatRatesProvider: fiatRatesProvider)
+        CommonSwappingFeeFormatter(
+            balanceFormatter: .init(), balanceConverter: .init(),
+            fiatRatesProvider: fiatRatesProvider
+        )
     }
 
     var explorerURLService: ExplorerURLService {
@@ -148,7 +149,9 @@ private extension CommonSwappingModulesFactory {
             return interactor
         }
 
-        let swappingManager = TangemSwappingFactory().makeSwappingManager(
+        let swappingManager = TangemSwappingFactory(
+            oneInchApiKey: keysManager.oneInchApiKey
+        ).makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
