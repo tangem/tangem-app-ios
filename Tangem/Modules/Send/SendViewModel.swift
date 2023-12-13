@@ -93,7 +93,9 @@ final class SendViewModel: ObservableObject {
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
-        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
+
+        let addressService = SendAddressServiceFactory(walletModel: walletModel).make()
+        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
