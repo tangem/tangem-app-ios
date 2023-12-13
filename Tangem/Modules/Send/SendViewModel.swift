@@ -184,29 +184,11 @@ final class SendViewModel: ObservableObject {
 
     private func parseQRCode(_ code: String) {
         #warning("[REDACTED_TODO_COMMENT]")
-        let withoutPrefix = code.remove(contentsOf: walletModel.wallet.blockchain.qrPrefixes)
-        let splitted = withoutPrefix.split(separator: "?")
-        let destination = splitted.first.map { String($0) } ?? withoutPrefix
-        sendModel.setDestination(destination)
+        let parser = QRCodeParser(amountType: walletModel.amountType, blockchain: walletModel.blockchainNetwork.blockchain)
+        let result = parser.parse(code)
 
-        if splitted.count > 1 {
-            let queryItems = splitted[1].lowercased().split(separator: "&")
-            for queryItem in queryItems {
-                if queryItem.contains("amount") {
-                    let amountText = queryItem.replacingOccurrences(of: "amount=", with: "")
-
-                    if let value = Decimal(string: amountText, locale: Locale(identifier: "en_US")) {
-                        let blockchain = walletModel.blockchainNetwork.blockchain
-                        let amountType = walletModel.amountType
-                        let amount = Amount(with: blockchain, type: amountType, value: value)
-
-                        sendModel.setAmount(amount)
-                    }
-
-                    break
-                }
-            }
-        }
+        sendModel.setDestination(result.destination)
+        sendModel.setAmount(result.amount)
     }
 }
 
