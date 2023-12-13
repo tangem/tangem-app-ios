@@ -72,7 +72,6 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let sendType: SendType
-    private let additionalFieldService: SendAdditionalFieldService
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -81,7 +80,6 @@ class SendModel {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
-        additionalFieldService = CommonSendAdditionalFieldService(blockchain: walletModel.blockchainNetwork.blockchain)
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -243,7 +241,8 @@ class SendModel {
         let error: Error?
         let transactionParameters: TransactionParams?
         do {
-            transactionParameters = try additionalFieldService.transactionParameters(from: _destinationAdditionalFieldText)
+            let parametersBuilder = SendTransactionParametersBuilder(blockchain: walletModel.blockchainNetwork.blockchain)
+            transactionParameters = try parametersBuilder.transactionParameters(from: _destinationAdditionalFieldText)
             error = nil
         } catch let transactionParameterError {
             transactionParameters = nil
