@@ -17,42 +17,18 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         loadedSwapableTokenItems.eraseToAnyPublisher()
     }
 
-    private let supportedBlockchains: Set<Blockchain> = {
-        let supported: Set<SwappingBlockchain> = [
-            .ethereum,
-            .bsc,
-            .polygon,
-            .optimism,
-            .arbitrum,
-            .gnosis,
-            .avalanche,
-            .fantom,
-        ]
-
-        let mainnetBlockchains = Blockchain.allMainnetCases
-        return supported.compactMap { swappingBlockchain in
-            return mainnetBlockchains.first(where: { $0.networkId == swappingBlockchain.networkId })
-        }.toSet()
-    }()
-
     private var loadedSwapableTokenItems: CurrentValueSubject<[TokenItem: Bool], Never> = .init([:])
 
-    init() {
-        loadedSwapableTokenItems = .init(supportedBlockchains.reduce(into: [TokenItem: Bool]()) { $0[.blockchain($1)] = true })
+    func canSwap(tokenItem: TokenItem) -> Bool {
+        loadedSwapableTokenItems.value[tokenItem] ?? false
     }
 
-    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool) {
+    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String) {
         if items.isEmpty {
             return
         }
 
         let filteredItemsToRequest = items.filter {
-            // We don't need to load exchangeable state for tokens in blockchains that not supported
-            // So we filter them
-            guard supportedBlockchains.contains($0.blockchain) else {
-                return false
-            }
-
             // If `forceReload` flag is true we need to force reload state for all items
             return loadedSwapableTokenItems.value[$0] == nil || forceReload
         }
@@ -63,10 +39,19 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
             return
         }
 
-        let requestItem = convertToRequestItem(filteredItemsToRequest)
+        guard FeatureProvider.isAvailable(.express) else {
+            loadSwapableTokens(for: filteredItemsToRequest)
+            return
+        }
+
+        loadExpressAssets(for: filteredItemsToRequest, userWalletId: userWalletId)
+    }
+
+    private func loadSwapableTokens(for items: [TokenItem]) {
+        let requestItem = convertToRequestItem(items)
         var loadSubscription: AnyCancellable?
         loadSubscription = tangemApiService
-            .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.currencyIds))
+            .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.ids))
             .sink(receiveCompletion: { _ in
                 withExtendedLifetime(loadSubscription) {}
             }, receiveValue: { [weak self] models in
@@ -74,44 +59,69 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                     return
                 }
 
-                let loadedTokenItems = models.flatMap { $0.items }
+                let preparedSwapStates: [TokenItem: Bool] = models
+                    .flatMap { $0.items }
+                    .reduce(into: [:]) {
+                        guard SwappingBlockchain(networkId: $1.blockchain.networkId) != nil else {
+                            return
+                        }
 
-                let preparedSwapStates = Dictionary(uniqueKeysWithValues: loadedTokenItems.map {
-                    switch $0 {
-                    case .token(let token, _):
-                        return ($0, token.exchangeable ?? false)
-                    case .blockchain(let blockchain):
-                        return ($0, self.supportedBlockchains.contains(blockchain))
+                        $0[$1.tokenItem] = $1.exchangeable
                     }
-                })
 
-                loadedSwapableTokenItems.value.merge(preparedSwapStates, uniquingKeysWith: { $1 })
+                saveTokenItemsAvailability(for: preparedSwapStates)
             })
     }
 
-    func canSwap(tokenItem: TokenItem) -> Bool {
-        loadedSwapableTokenItems.value[tokenItem] ?? false
+    private func loadExpressAssets(for items: [TokenItem], userWalletId: String) {
+        runTask(in: self, code: { manager in
+            var requestedItems = [ExpressCurrency: TokenItem]()
+            let expressCurrencies = items.map {
+                let currency = $0.expressCurrency
+                requestedItems[currency] = $0
+                return currency
+            }
+            let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
+            let assets = try await provider.assets(with: expressCurrencies)
+            let preparedSwapStates: [TokenItem: Bool] = assets.reduce(into: [:]) { partialResult, currency in
+                guard let tokenItem = requestedItems[currency] else {
+                    return
+                }
+
+                partialResult[tokenItem] = true
+            }
+
+            manager.saveTokenItemsAvailability(for: preparedSwapStates)
+        })
+    }
+
+    private func saveTokenItemsAvailability(for tokenStates: [TokenItem: Bool]) {
+        var items = loadedSwapableTokenItems.value
+        tokenStates.forEach { key, value in
+            items.updateValue(value, forKey: key)
+        }
+        loadedSwapableTokenItems.value = items
     }
 
     private func convertToRequestItem(_ items: [TokenItem]) -> RequestItem {
         var blockchains = Set<Blockchain>()
-        var currencyIds = [String]()
+        var ids = [String]()
 
         items.forEach { item in
             blockchains.insert(item.blockchain)
-            guard let currencyId = item.currencyId else {
+            guard let id = item.id else {
                 return
             }
 
-            currencyIds.append(currencyId)
+            ids.append(id)
         }
-        return .init(blockchains: blockchains, currencyIds: currencyIds)
+        return .init(blockchains: blockchains, ids: ids)
     }
 }
 
 private extension CommonSwapAvailabilityManager {
     struct RequestItem: Hashable {
         let blockchains: Set<Blockchain>
-        let currencyIds: [String]
+        let ids: [String]
     }
 }
