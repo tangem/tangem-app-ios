@@ -321,6 +321,7 @@ final class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         userWalletRepository.eventProvider
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] event in
                 guard let self else { return }
 
@@ -348,6 +349,8 @@ final class MainViewModel: ObservableObject {
                     }
                 case .replaced(let userWallet):
                     recreatePagesIfNeeded(for: userWallet)
+                case .biometryUnlocked:
+                    break
                 }
             }
             .store(in: &bag)
