@@ -510,7 +510,7 @@ extension LegacyTokenDetailsViewModel {
         }
 
         let input = CommonSwappingModulesFactory.InputModel(
-            userWalletModel: card,
+            userTokensManager: card.userTokensManager,
             walletModel: walletModel,
             signer: card.signer,
             ethereumNetworkProvider: ethereumNetworkProvider,
