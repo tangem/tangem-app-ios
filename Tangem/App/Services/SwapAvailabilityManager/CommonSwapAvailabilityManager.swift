@@ -17,18 +17,13 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         loadedSwapableTokenItems.eraseToAnyPublisher()
     }
 
-    private let expressAPIProvider: ExpressAPIProvider
     private var loadedSwapableTokenItems: CurrentValueSubject<[TokenItem: Bool], Never> = .init([:])
-
-    init() {
-        expressAPIProvider = CommonExpressAPIFactory().makeExpressAPIProvider()
-    }
 
     func canSwap(tokenItem: TokenItem) -> Bool {
         loadedSwapableTokenItems.value[tokenItem] ?? false
     }
 
-    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool) {
+    func loadSwapAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String) {
         if items.isEmpty {
             return
         }
@@ -49,7 +44,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
             return
         }
 
-        loadExpressAssets(for: filteredItemsToRequest)
+        loadExpressAssets(for: filteredItemsToRequest, userWalletId: userWalletId)
     }
 
     private func loadSwapableTokens(for items: [TokenItem]) {
@@ -78,7 +73,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
             })
     }
 
-    private func loadExpressAssets(for items: [TokenItem]) {
+    private func loadExpressAssets(for items: [TokenItem], userWalletId: String) {
         runTask(in: self, code: { manager in
             var requestedItems = [ExpressCurrency: TokenItem]()
             let expressCurrencies = items.map {
@@ -86,7 +81,8 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                 requestedItems[currency] = $0
                 return currency
             }
-            let assets = try await manager.expressAPIProvider.assets(with: expressCurrencies)
+            let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
+            let assets = try await provider.assets(with: expressCurrencies)
             let preparedSwapStates: [TokenItem: Bool] = assets.reduce(into: [:]) { partialResult, currency in
                 guard let tokenItem = requestedItems[currency] else {
                     return
