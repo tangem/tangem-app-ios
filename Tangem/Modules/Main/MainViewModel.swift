@@ -344,11 +344,14 @@ final class MainViewModel: ObservableObject {
                 }
 
                 Analytics.log(.walletOpened)
+
                 self?.userWalletRepository.setSelectedUserWalletId(
                     userWalletId.value,
                     unlockIfNeeded: false,
                     reason: .userSelected
                 )
+
+                self?.requestRateAppIfAvailable()
             }
             .store(in: &bag)
 
