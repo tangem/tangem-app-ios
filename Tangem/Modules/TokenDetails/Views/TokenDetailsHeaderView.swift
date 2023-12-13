@@ -12,41 +12,43 @@ struct TokenDetailsHeaderView: View {
     let viewModel: TokenDetailsHeaderViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top) {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(viewModel.tokenName)
                     .lineLimit(2)
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.leading)
                     .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
 
-                Spacer()
+                HStack(spacing: 6) {
+                    Text(viewModel.networkPrefix)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-                TokenIcon(
+                    if let networkIconName = viewModel.networkIconName {
+                        Image(networkIconName)
+                            .resizable()
+                            .frame(size: .init(bothDimensions: 18))
+                    }
+
+                    if let networkSuffix = viewModel.networkSuffix {
+                        Text(networkSuffix)
+                            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    }
+                }
+            }
+
+            Spacer()
+
+            TokenIcon(
+                tokenIconInfo: .init(
                     name: "",
-                    imageURL: viewModel.imageURL,
-                    customTokenColor: viewModel.customTokenColor,
                     blockchainIconName: nil,
+                    imageURL: viewModel.imageURL,
                     isCustom: false,
-                    size: IconViewSizeSettings.tokenDetails.iconSize
-                )
-            }
-
-            HStack(spacing: 6) {
-                Text(viewModel.networkPrefix)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-                if let networkIconName = viewModel.networkIconName {
-                    Image(networkIconName)
-                        .resizable()
-                        .frame(size: .init(bothDimensions: 18))
-                }
-
-                if let networkSuffix = viewModel.networkSuffix {
-                    Text(networkSuffix)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                }
-            }
+                    customTokenColor: viewModel.customTokenColor
+                ),
+                size: IconViewSizeSettings.tokenDetails.iconSize
+            )
         }
     }
 }
@@ -59,6 +61,11 @@ struct SwiftUIView_Previews: PreviewProvider {
     }
 
     static var previews: some View {
-        TokenDetailsHeaderView(viewModel: .init(tokenItem: tokenItem))
+        VStack {
+            TokenDetailsHeaderView(viewModel: .init(tokenItem: tokenItem))
+                .padding(16)
+
+            Spacer()
+        }
     }
 }
