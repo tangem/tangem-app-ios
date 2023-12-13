@@ -25,7 +25,7 @@ struct WalletSelectorView: View {
 
             Spacer()
         }
-        .background(Colors.Background.secondary.ignoresSafeArea())
+        .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationBarTitle(Text(Localization.manageTokensWalletSelectorTitle), displayMode: .inline)
     }
 }
