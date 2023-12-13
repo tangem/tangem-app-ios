@@ -90,26 +90,27 @@ private extension CommonTokenQuotesRepository {
                     .loadAndSaveQuotes(currencyIds: ids)
                     .map { items }
             }
-            .sink(receiveCompletion: { completion in
-                guard case .failure(let error) = completion else {
-                    return
-                }
-
-                AppLog.shared.debug("Loading quotes catch error")
-                AppLog.shared.error(error: error, params: [:])
-            }, receiveValue: { items in
+            .sink(receiveValue: { items in
                 // Send the event that quotes for currencyIds have been loaded
                 items.forEach { $0.didLoadPublisher.send(()) }
             })
             .store(in: &bag)
     }
 
-    func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<Void, Error> {
+    func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<Void, Never> {
         AppLog.shared.debug("Start loading quotes for ids: \(currencyIds)")
 
         let currencyCode = AppSettings.shared.selectedCurrencyCode
+
+        // [REDACTED_TODO_COMMENT]
+        let fields: [QuotesDTO.Request.Fields] = FeatureStorage().useDevApi ? [.price, .priceChange24h, .prices24h] : [.price, .priceChange24h]
+
         // We get here currencyIds. But on in the API model we named it like coinIds
-        let request = QuotesDTO.Request(coinIds: currencyIds, currencyId: currencyCode)
+        let request = QuotesDTO.Request(
+            coinIds: currencyIds,
+            currencyId: currencyCode,
+            fields: fields
+        )
 
         return tangemApiService
             .loadQuotes(requestModel: request)
@@ -117,6 +118,11 @@ private extension CommonTokenQuotesRepository {
                 AppLog.shared.debug("Finish loading quotes for ids: \(currencyIds)")
                 self?.saveQuotes(quotes, currencyCode: currencyCode)
                 return ()
+            }
+            .catch { error in
+                AppLog.shared.debug("Loading quotes catch error")
+                AppLog.shared.error(error: error, params: [:])
+                return Just(())
             }
             .eraseToAnyPublisher()
     }
@@ -127,6 +133,7 @@ private extension CommonTokenQuotesRepository {
                 currencyId: quote.id,
                 change: quote.priceChange,
                 price: quote.price,
+                prices24h: quote.prices24h,
                 currencyCode: currencyCode
             )
         }
