@@ -97,7 +97,7 @@ extension CommonTangemApiService: TangemApiService {
 
                 return coinModels.compactMap { coinModel in
                     let items = coinModel.items.filter { item in
-                        item.contractAddress?.caseInsensitiveCompare(contractAddress) == .orderedSame
+                        item.token?.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
                     }
 
                     guard !items.isEmpty else {
@@ -185,10 +185,6 @@ extension CommonTangemApiService: TangemApiService {
         let response = try await provider.asyncRequest(for: target)
         let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
-    }
-
-    func sales(locale: String, shops: String) async throws -> SalesDetails {
-        try await request(for: .sales(locale: locale, shops: shops))
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
