@@ -18,6 +18,8 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     @Published private(set) var visibleHeight: CGFloat = .zero
 
+    @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
+
     var headerHeight: CGFloat = .zero {
         didSet {
             if oldValue != headerHeight {
@@ -71,7 +73,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
         withAnimation(.easeOut) {
             visibleHeight = height(for: state)
-            // [REDACTED_TODO_COMMENT]
+            updateStatusBarAppearance(to: state)
         }
     }
 
@@ -88,6 +90,15 @@ final class BottomScrollableSheetStateObject: ObservableObject {
             return headerHeight
         case .top:
             return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom - Constants.sheetTopInset
+        }
+    }
+
+    private func updateStatusBarAppearance(to state: BottomScrollableSheetState) {
+        switch state {
+        case .bottom:
+            preferredStatusBarColorScheme = nil
+        case .top:
+            preferredStatusBarColorScheme = .dark
         }
     }
 
