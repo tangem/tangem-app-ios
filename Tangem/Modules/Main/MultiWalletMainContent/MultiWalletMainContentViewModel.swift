@@ -477,7 +477,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
                 return
             }
 
-            tokenRouter.openExchange(walletModel: walletModel)
+            tokenRouter.openExchange(walletModel: walletModel, exchangeSource: .regular)
         case .hide:
             return
         }
