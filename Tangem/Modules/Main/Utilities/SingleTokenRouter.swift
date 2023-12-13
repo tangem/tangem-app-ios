@@ -81,8 +81,6 @@ class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openExchange(walletModel: WalletModel) {
-        sendAnalyticsEvent(.buttonExchange, for: walletModel)
-
         if FeatureProvider.isAvailable(.express) {
             let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
             coordinator.openExpress(input: input)
