@@ -12,7 +12,7 @@ import SwiftUI
 struct ManageTokensItemView: View {
     @ObservedObject var viewModel: ManageTokensItemViewModel
 
-    private let iconSize = CGSize(bothDimensions: 46)
+    private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
         VStack(spacing: 10) {
