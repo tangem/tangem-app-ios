@@ -1,5 +1,5 @@
 //
-//  SendDestinationSummaryView.swift
+//  SendDestinationAddressSummaryView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-private struct SendDestinationAddressSummaryView: View {
+struct SendDestinationAddressSummaryView: View {
     let address: String
 
     var body: some View {
