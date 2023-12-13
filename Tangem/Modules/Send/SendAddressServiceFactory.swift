@@ -17,7 +17,7 @@ struct SendAddressServiceFactory {
 
     func build() -> SendAddressService {
         if let addressResolver = walletModel.addressResolver {
-            return SendResolvedAddressService(walletModel: walletModel, addressResolver: addressResolver)
+            return SendResolvableAddressService(walletModel: walletModel, addressResolver: addressResolver)
         } else {
             return DefaultSendAddressService(walletModel: walletModel)
         }
