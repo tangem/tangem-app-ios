@@ -15,10 +15,15 @@ protocol SingleTokenRoutable {
     func openReceive(walletModel: WalletModel)
     func openBuyCryptoIfPossible(walletModel: WalletModel)
     func openSend(walletModel: WalletModel)
-    func openExchange(walletModel: WalletModel)
+    func openExchange(walletModel: WalletModel, exchangeSource: ExchangeSource)
     func openSell(for walletModel: WalletModel)
     func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel)
     func openExplorer(at url: URL, for walletModel: WalletModel)
+}
+
+enum ExchangeSource {
+    case regular
+    case promotion
 }
 
 class SingleTokenRouter: SingleTokenRoutable {
@@ -80,8 +85,13 @@ class SingleTokenRouter: SingleTokenRoutable {
         )
     }
 
-    func openExchange(walletModel: WalletModel) {
-        sendAnalyticsEvent(.buttonExchange, for: walletModel)
+    func openExchange(walletModel: WalletModel, exchangeSource: ExchangeSource) {
+        switch exchangeSource {
+        case .regular:
+            sendAnalyticsEvent(.buttonExchange, for: walletModel)
+        case .promotion:
+            sendAnalyticsEvent(.swapPromoExchangeTapped, for: walletModel)
+        }
 
         if FeatureProvider.isAvailable(.express) {
             let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
