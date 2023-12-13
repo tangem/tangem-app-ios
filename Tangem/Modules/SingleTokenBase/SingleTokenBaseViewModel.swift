@@ -194,7 +194,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         case .buyCrypto:
             openBuyCryptoIfPossible()
         case .exchange:
-            Analytics.log(event: .swapPromoExchangeTapped, params: [.token: walletModel.tokenItem.currencySymbol])
+            Analytics.log(event: .swapPromoButtonExchangeNow, params: [.token: walletModel.tokenItem.currencySymbol])
             openExchange()
         default:
             break
