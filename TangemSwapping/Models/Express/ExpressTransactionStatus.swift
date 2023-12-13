@@ -9,9 +9,13 @@
 import Foundation
 
 public enum ExpressTransactionStatus: String, Codable {
-    case processing
-    case done
+    case new
+    case waiting
+    case confirming
+    case exchanging
+    case sending
+    case finished
     case failed
     case refunded
-    case verificationRequired
+    case verifying
 }
