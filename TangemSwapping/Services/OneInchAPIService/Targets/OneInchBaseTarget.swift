@@ -12,6 +12,7 @@ import Moya
 struct OneInchBaseTarget: TargetType {
     let target: TargetType
     let blockchain: SwappingBlockchain
+    let oneInchApiKey: String
 
     var baseURL: URL {
         target.baseURL
@@ -30,10 +31,12 @@ struct OneInchBaseTarget: TargetType {
     }
 
     var headers: [String: String]? {
-        target.headers
+        var headers = target.headers ?? [:]
+        headers["Authorization"] = "Bearer \(oneInchApiKey)"
+        return headers
     }
 }
 
 extension OneInchBaseTarget {
-    static let swappingBaseURL = URL(string: "https://api-tangem.1inch.io/v5.2/")!
+    static let swappingBaseURL = URL(string: "https://api.1inch.dev/swap/v5.2/")!
 }
