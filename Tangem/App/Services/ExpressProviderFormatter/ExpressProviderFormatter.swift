@@ -13,32 +13,33 @@ struct ExpressProviderFormatter {
     let balanceFormatter: BalanceFormatter
 
     func mapToRateSubtitle(
-        quote: ExpectedQuote,
+        state: ExpressProviderManagerState,
         senderCurrencyCode: String?,
         destinationCurrencyCode: String?,
         option: RateSubtitleFormattingOption
     ) -> ProviderRowViewModel.Subtitle {
-        switch quote.state {
-        case .quote(let expressQuote):
-            return mapToRateSubtitle(
-                fromAmount: expressQuote.fromAmount,
-                toAmount: expressQuote.expectAmount,
-                senderCurrencyCode: senderCurrencyCode,
-                destinationCurrencyCode: destinationCurrencyCode,
-                option: option
-            )
-
-        case .error(let error):
-            return .text(error.localizedDescription)
-        case .notAvailable:
-            return .text(Localization.expressProviderNotAvailable)
-        case .tooSmallAmount(let minAmount):
+        switch state {
+        case .error(_, .none):
+            return .text(AppConstants.minusSign)
+        case .restriction(.tooSmallAmount(let minAmount), .none):
             guard let senderCurrencyCode else {
                 return .text(CommonError.noData.localizedDescription)
             }
 
             let formatted = balanceFormatter.formatCryptoBalance(minAmount, currencyCode: senderCurrencyCode)
             return .text(Localization.expressProviderMinAmount(formatted))
+        default:
+            guard let quote = state.quote else {
+                return .text(AppConstants.minusSign)
+            }
+
+            return mapToRateSubtitle(
+                fromAmount: quote.fromAmount,
+                toAmount: quote.expectAmount,
+                senderCurrencyCode: senderCurrencyCode,
+                destinationCurrencyCode: destinationCurrencyCode,
+                option: option
+            )
         }
     }
 
