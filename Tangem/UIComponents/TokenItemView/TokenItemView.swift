@@ -9,9 +9,16 @@
 import SwiftUI
 
 struct TokenItemView: View {
-    @ObservedObject var viewModel: TokenItemViewModel
+    @ObservedObject private var viewModel: TokenItemViewModel
 
-    @State private var viewSize: CGSize = .zero
+    /// Not used on iOS versions below iOS 16.0.
+    /// - Note: Although this property has no effect on iOS versions below iOS 16.0,
+    /// it can't be marked using `@available` declaration in Swift 5.7 and above.
+    private let roundedCornersConfiguration: RoundedCornersConfiguration?
+
+    private let previewContentShapeCornerRadius: CGFloat
+
+    @State private var textBlockSize: CGSize = .zero
 
     var body: some View {
         HStack(alignment: .center, spacing: Constants.spacerLength) {
@@ -38,7 +45,7 @@ struct TokenItemView: View {
                             Assets.pendingTxIndicator.image
                         }
                     }
-                    .frame(minWidth: 0.20 * viewSize.width, alignment: .leading)
+                    .frame(minWidth: 0.3 * textBlockSize.width, alignment: .leading)
 
                     Spacer(minLength: 8)
 
@@ -53,41 +60,69 @@ struct TokenItemView: View {
                             loaderSize: .init(width: 40, height: 12),
                             isSensitiveText: true
                         )
-                        .layoutPriority(1)
+                        .layoutPriority(3)
                     }
                 }
 
-                HStack(alignment: .center, spacing: 0) {
-                    if !viewModel.hasError {
-                        LoadableTextView(
-                            state: viewModel.balanceCrypto,
-                            font: Fonts.Regular.footnote,
-                            textColor: Colors.Text.tertiary,
-                            loaderSize: .init(width: 52, height: 12),
-                            isSensitiveText: true
-                        )
+                if !viewModel.hasError {
+                    HStack(alignment: .center, spacing: 0) {
+                        HStack(spacing: 6, content: {
+                            LoadableTextView(
+                                state: viewModel.tokenPrice,
+                                font: Fonts.Regular.caption1,
+                                textColor: Colors.Text.tertiary,
+                                loaderSize: .init(width: 52, height: 12)
+                            )
+
+                            TokenPriceChangeView(
+                                state: viewModel.priceChangeState,
+                                showSkeletonWhenLoading: false
+                            )
+                            .layoutPriority(1)
+                        })
+                        .frame(minWidth: 0.32 * textBlockSize.width, alignment: .leading)
+                        .layoutPriority(2)
 
                         Spacer(minLength: Constants.spacerLength)
 
-                        TokenPriceChangeView(state: viewModel.priceChangeState)
-                            .frame(minWidth: 0.16 * viewSize.width, alignment: .trailing)
-                            .layoutPriority(1)
+                        LoadableTextView(
+                            state: viewModel.balanceCrypto,
+                            font: Fonts.Regular.caption1,
+                            textColor: Colors.Text.tertiary,
+                            loaderSize: .init(width: 40, height: 12),
+                            isSensitiveText: true
+                        )
+                        .layoutPriority(3)
                     }
                 }
             }
+            .readGeometry(\.size, bindTo: $textBlockSize)
         }
-        .readGeometry(\.size, bindTo: $viewSize)
-        .padding(14.0)
-        .frame(minHeight: 68)
-        .background(Colors.Background.primary)
+        .padding(14)
+        .background(background)
         .onTapGesture(perform: viewModel.tapAction)
         .highlightable(color: Colors.Button.primary.opacity(0.03))
         // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
-        .previewContentShape(cornerRadius: Constants.cornerRadius)
+        .previewContentShape(cornerRadius: previewContentShapeCornerRadius)
         .contextMenu {
             ForEach(viewModel.contextActions, id: \.self) { menuAction in
                 contextMenuButton(for: menuAction)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var background: some View {
+        if #available(iOS 16.0, *), let roundedCornersConfiguration = roundedCornersConfiguration {
+            Colors.Background.primary
+                .cornerRadiusContinuous(
+                    topLeadingRadius: roundedCornersConfiguration.topLeadingRadius,
+                    bottomLeadingRadius: roundedCornersConfiguration.bottomLeadingRadius,
+                    bottomTrailingRadius: roundedCornersConfiguration.bottomTrailingRadius,
+                    topTrailingRadius: roundedCornersConfiguration.topTrailingRadius
+                )
+        } else {
+            Colors.Background.primary
         }
     }
 
@@ -118,12 +153,67 @@ struct TokenItemView: View {
     }
 }
 
+// MARK: - Initialization
+
+extension TokenItemView {
+    @available(iOS 16.0, *)
+    init(
+        viewModel: TokenItemViewModel,
+        cornerRadius: CGFloat,
+        roundedCornersVerticalEdge: RoundedCornersVerticalEdge?
+    ) {
+        self.viewModel = viewModel
+        previewContentShapeCornerRadius = cornerRadius
+
+        switch roundedCornersVerticalEdge {
+        case .topEdge:
+            roundedCornersConfiguration = RoundedCornersConfiguration(
+                topLeadingRadius: cornerRadius,
+                topTrailingRadius: cornerRadius
+            )
+        case .bottomEdge:
+            roundedCornersConfiguration = RoundedCornersConfiguration(
+                bottomLeadingRadius: cornerRadius,
+                bottomTrailingRadius: cornerRadius
+            )
+        case .none:
+            roundedCornersConfiguration = nil
+        }
+    }
+
+    @available(iOS, obsoleted: 16.0, message: "Use 'init(viewModel:cornerRadius:roundedCornersConfiguration:)' instead")
+    init(
+        viewModel: TokenItemViewModel,
+        cornerRadius: CGFloat
+    ) {
+        self.viewModel = viewModel
+        previewContentShapeCornerRadius = cornerRadius
+        roundedCornersConfiguration = RoundedCornersConfiguration()
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension TokenItemView {
+    @available(iOS 16.0, *)
+    enum RoundedCornersVerticalEdge {
+        case topEdge
+        case bottomEdge
+    }
+
+    private struct RoundedCornersConfiguration {
+        var topLeadingRadius: CGFloat = 0.0
+        var bottomLeadingRadius: CGFloat = 0.0
+        var bottomTrailingRadius: CGFloat = 0.0
+        var topTrailingRadius: CGFloat = 0.0
+    }
+}
+
 // MARK: - Constants
 
 private extension TokenItemView {
     enum Constants {
         static let spacerLength = 12.0
-        static let cornerRadius = 14.0
     }
 }
 
@@ -139,9 +229,13 @@ struct TokenItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             VStack(spacing: 0) {
+                TokenSectionView(title: "Ethereum network")
+
                 ForEach(infoProvider.viewModels, id: \.id) { model in
-                    TokenItemView(viewModel: model)
+                    TokenItemView(viewModel: model, cornerRadius: 14)
                 }
+
+                Spacer()
             }
             .background(Colors.Background.primary)
             .cornerRadiusContinuous(14)
