@@ -40,15 +40,16 @@ struct ProviderRowView: View {
 
     private var titleView: some View {
         HStack(alignment: .center, spacing: 4) {
-            Text(viewModel.provider.name)
-                .style(
-                    Fonts.Bold.subheadline,
-                    color:
-                    viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
-                )
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(viewModel.provider.name)
+                    .style(
+                        Fonts.Bold.subheadline,
+                        color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
+                    )
 
-            Text(viewModel.provider.type)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                Text(viewModel.provider.type)
+                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            }
 
             badgeView
         }
