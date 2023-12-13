@@ -15,7 +15,7 @@ struct AmountSummaryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(Localization.sendAmountLabel)
+            Text(data.title)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             HStack(spacing: 0) {
@@ -43,6 +43,7 @@ struct AmountSummaryView: View {
         GroupedSection(
             [
                 AmountSummaryViewData(
+                    title: Localization.sendAmountLabel,
                     amount: "100.00 USDT",
                     amountFiat: "99.98$",
                     tokenIconInfo: .init(
@@ -62,6 +63,7 @@ struct AmountSummaryView: View {
 
         GroupedSection([
             AmountSummaryViewData(
+                title: Localization.sendAmountLabel,
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
                 tokenIconInfo: .init(
