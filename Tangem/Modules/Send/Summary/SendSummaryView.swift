@@ -12,7 +12,7 @@ struct SendSummaryView: View {
     let height = 150.0
     let namespace: Namespace.ID
 
-    let viewModel: SendSummaryViewModel
+    @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -49,6 +49,7 @@ struct SendSummaryView: View {
                 .matchedGeometryEffect(id: "amount", in: namespace)
         }
         .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+        .disabled(!viewModel.canEditAmount)
     }
 
     @ViewBuilder
@@ -73,6 +74,7 @@ struct SendSummaryView: View {
                 .matchedGeometryEffect(id: "dest", in: namespace)
         }
         .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+        .disabled(!viewModel.canEditDestination)
     }
 
     @ViewBuilder
@@ -100,14 +102,12 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var sendButton: some View {
-        Button(action: viewModel.send) {
-            Text("Send")
-                .frame(maxWidth: .infinity)
-                .padding()
-                .foregroundColor(.white)
-                .background(Color.black)
-                .cornerRadius(10)
-        }
+        MainButton(
+            title: Localization.commonSend,
+            icon: .trailing(Assets.tangemIcon),
+            isLoading: viewModel.isSending,
+            action: viewModel.send
+        )
     }
 }
 
