@@ -70,8 +70,8 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             exchangeUtility: cryptoUtility,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
-            mainViewDelegate: nil,
-            tokenRouter: SingleTokenRoutableMock()
+            tokenRouter: SingleTokenRoutableMock(),
+            delegate: nil
         )
     }()
 
