@@ -21,9 +21,9 @@ class DefaultSendAddressService: SendAddressService {
     private let walletModel: WalletModel
     private let addressService: AddressService
 
-    init(walletModel: WalletModel) {
+    init(walletModel: WalletModel, addressService: AddressService) {
         self.walletModel = walletModel
-        addressService = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
+        self.addressService = addressService
     }
 
     func validate(address: String) async throws -> String? {
@@ -46,16 +46,16 @@ class DefaultSendAddressService: SendAddressService {
 // MARK: - Service that can resolve an address (from a user-friendly one like in NEAR protocol)
 
 class SendResolvableAddressService: SendAddressService {
-    private let defaultAddressService: DefaultSendAddressService
+    private let defaultSendAddressService: DefaultSendAddressService
     private let addressResolver: AddressResolver
 
-    init(walletModel: WalletModel, addressResolver: AddressResolver) {
-        defaultAddressService = DefaultSendAddressService(walletModel: walletModel)
+    init(defaultSendAddressService: DefaultSendAddressService, addressResolver: AddressResolver) {
+        self.defaultSendAddressService = defaultSendAddressService
         self.addressResolver = addressResolver
     }
 
     func validate(address: String) async throws -> String? {
-        guard let validatedAddress = try await defaultAddressService.validate(address: address) else {
+        guard let validatedAddress = try await defaultSendAddressService.validate(address: address) else {
             return nil
         }
 
