@@ -14,10 +14,14 @@ struct MainBottomSheetFooterView: View {
             FixedSpacer(height: Constants.spacerLength, length: Constants.spacerLength)
 
             // `MainBottomSheetHeaderInputView` is used here as a dummy noninteractive placeholder
-            MainBottomSheetHeaderInputView(searchText: .constant(""), textFieldAllowsHitTesting: false)
-                .bottomScrollableSheetCornerRadius()
-                .bottomScrollableSheetGrabber()
-                .bottomScrollableSheetShadow()
+            MainBottomSheetHeaderInputView(
+                searchText: .constant(""),
+                isTextFieldFocused: .constant(false),
+                textFieldAllowsHitTesting: false
+            )
+            .bottomScrollableSheetCornerRadius()
+            .bottomScrollableSheetGrabber()
+            .bottomScrollableSheetShadow()
         }
     }
 }
