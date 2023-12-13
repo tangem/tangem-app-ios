@@ -47,6 +47,20 @@ final class UserWalletNotificationManager {
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
         var inputs: [NotificationViewInput] = []
+
+        if !AppSettings.shared.tangemExpressMainPromotionDismissed,
+           TangemExpressPromotionUtility().isPromotionRunning,
+           userWalletModel.isMultiWallet {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .tangemExpressPromotion,
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
         inputs.append(contentsOf: factory.buildNotificationInputs(
             for: deprecationService.deprecationWarnings,
             action: action,
@@ -228,6 +242,8 @@ extension UserWalletNotificationManager: NotificationManager {
             recordDeprecationNotificationDismissal()
         case .numberOfSignedHashesIncorrect:
             recordUserWalletHashesCountValidation()
+        case .tangemExpressPromotion:
+            AppSettings.shared.tangemExpressMainPromotionDismissed = true
         default:
             break
         }
