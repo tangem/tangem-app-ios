@@ -88,6 +88,7 @@ struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier 
             // We should deinit controller to avoid unnecessary call update(item:) method
             controller = nil
             item = nil
+            stateObject.viewDidHidden = {}
         }
     }
 }
