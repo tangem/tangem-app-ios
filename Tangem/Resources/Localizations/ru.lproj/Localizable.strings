@@ -192,12 +192,13 @@
 "express_cex_status_button_title" = "Статус";
 "express_choose_providers_subtitle" = "Провайдеры проводят транзакции, обеспечивая плавный и эффективный обмен токенами";
 "express_choose_providers_title" = "Выберите провайдера";
+"express_error_code" = "Произошла ошибка. Код: %@";
 "express_estimated_amount" = "Estimated amount";
 "express_exchange_by" = "Exchange by %@";
-"express_exchange_notification_failed_text" = "Visit provider’s website to see why";
-"express_exchange_notification_failed_title" = "Operation failed by provider";
-"express_exchange_notification_verification_text" = "Visit provider’s website for verification";
-"express_exchange_notification_verification_title" = "KYC verification required by provider";
+"express_exchange_notification_failed_text" = "Чтобы вернуть ваши деньги, посетите сайт провайдера";
+"express_exchange_notification_failed_title" = "Операция не выполнена провайдером";
+"express_exchange_notification_verification_text" = "Посетите сайт провайдера для проверки";
+"express_exchange_notification_verification_title" = "Провайдер запрашивает прохождение верификации";
 "express_exchange_status_confirmed" = "Confirmed";
 "express_exchange_status_confirming" = "Confirming";
 "express_exchange_status_confirming_active" = "Confirming...";
@@ -225,6 +226,7 @@
 "express_provider_min_amount" = "Доступно с %@";
 "express_provider_not_available" = "Недоступно для этой пары";
 "express_provider_permission_needed" = "Требуется разрешение";
+"express_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
 "feedback_preface_support" = "Привет, команда поддержки,";
@@ -634,6 +636,10 @@
 "warning_developer_card_title" = "Не для пользователя!";
 "warning_existential_deposit_message" = "Cеть %1$@ использует концепцию экзистенциального депозита. Если баланс вашего счета будет ниже %2$@, то он будет деактивирован, а средства на счете уничтожены.";
 "warning_existential_deposit_title" = "Для работы с сетью необходим депозит";
+"warning_express_active_transaction_message" = "Обмен будет доступен после завершения %@ транзакции";
+"warning_express_active_transaction_title" = "У вас есть активная транзакция";
+"warning_express_approval_in_progress_message" = "Разрешение обмена в процессе и будет скоро завершено";
+"warning_express_approval_in_progress_title" = "Разрешение в процессе";
 "warning_express_no_exchangeable_coins_description" = "У вас в списке нет монет доступных для обмена с %@";
 "warning_express_no_exchangeable_coins_title" = "Нет доступных токенов для обмена";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
