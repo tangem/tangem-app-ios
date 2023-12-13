@@ -11,18 +11,19 @@ import TangemSwapping
 
 struct CommonExpressDestinationService {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+
     private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let walletModelsManager: WalletModelsManager
-    private let expressAPIProvider: ExpressAPIProvider
+    private let expressRepository: ExpressRepository
 
     init(
         pendingTransactionRepository: ExpressPendingTransactionRepository,
         walletModelsManager: WalletModelsManager,
-        expressAPIProvider: ExpressAPIProvider
+        expressRepository: ExpressRepository
     ) {
         self.pendingTransactionRepository = pendingTransactionRepository
         self.walletModelsManager = walletModelsManager
-        self.expressAPIProvider = expressAPIProvider
+        self.expressRepository = expressRepository
     }
 }
 
@@ -30,6 +31,8 @@ struct CommonExpressDestinationService {
 
 extension CommonExpressDestinationService: ExpressDestinationService {
     func getDestination(source: WalletModel) async throws -> WalletModel? {
+        try await expressRepository.updatePairs(for: source)
+
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
             let isNotSource = wallet.id != source.id
             let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
@@ -49,11 +52,14 @@ extension CommonExpressDestinationService: ExpressDestinationService {
             return first
         }
 
+        // If user has wallets with balance then sort they
         let sortedWallets = walletModelsWithPositiveBalance.sorted(by: { ($0.fiatValue ?? 0) > ($1.fiatValue ?? 0) })
 
+        // Start searching destination with available providers
         for wallet in sortedWallets {
-            let available = try await expressAPIProvider.pairs(from: [source.expressCurrency], to: [wallet.expressCurrency])
-            if let providers = available.first?.providers, !providers.isEmpty {
+            let pair = ExpressManagerSwappingPair(source: source, destination: wallet)
+            let availableProviders = try await expressRepository.getAvailableProviders(for: pair)
+            if !availableProviders.isEmpty {
                 return wallet
             }
         }
