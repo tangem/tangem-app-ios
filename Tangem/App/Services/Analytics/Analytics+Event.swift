@@ -231,8 +231,8 @@ extension Analytics {
 
         // MARK: - Swap promo
 
-        case swapPromoExchangeTapped = "[Swap Promo] Button - Exchange Now"
-        case swapPromoClosed = "[Swap Promo] Button - Close"
+        case swapPromoButtonExchangeNow = "[Swap Promo] Button - Exchange Now"
+        case swapPromoButtonClose = "[Swap Promo] Button - Close"
 
         // MARK: - BlockchainSdk exceptions
 
