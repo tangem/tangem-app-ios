@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 struct TokenIconInfo: Hashable {
     let name: String
     let blockchainIconName: String?
