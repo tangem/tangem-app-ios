@@ -45,20 +45,12 @@ final class MainViewModel: ObservableObject {
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
+    private let notificationInputsSubject: CurrentValueSubject<[Data: [NotificationViewInput]], Never> = .init([:])
+    private let loadedBalancesSubject: CurrentValueSubject<[Data: Bool], Never> = .init([:])
+
     private var isLoggingOut = false
 
-    // [REDACTED_TODO_COMMENT]
-    private var lastNotificationInputs: [UserWalletId: [NotificationViewInput]] = [:] {
-        didSet { requestRateAppIfAvailable() }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private var lastLoadedBalances: [UserWalletId: Bool] = [:] {
-        didSet { requestRateAppIfAvailable() }
-    }
-
     private var totalBalanceSubscriptions: [Data: AnyCancellable] = [:]
-
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Initializers
@@ -126,7 +118,7 @@ final class MainViewModel: ObservableObject {
             self?.swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         }
 
-        requestRateAppIfAvailable()
+        requestRateApp(notificationInputs: notificationInputsSubject.value, loadedBalances: loadedBalancesSubject.value)
     }
 
     func onViewDisappear() {
@@ -296,6 +288,8 @@ final class MainViewModel: ObservableObject {
     private func removePages(with userWalletIds: [Data]) {
         pages.removeAll { userWalletIds.contains($0.id.value) }
         totalBalanceSubscriptions.removeAll { userWalletIds.contains($0.key) }
+        notificationInputsSubject.value.removeAll { userWalletIds.contains($0.key) }
+        loadedBalancesSubject.value.removeAll { userWalletIds.contains($0.key) }
 
         guard
             let newSelectedId = userWalletRepository.selectedUserWalletId,
@@ -331,7 +325,11 @@ final class MainViewModel: ObservableObject {
     // MARK: - Private functions
 
     private func bind() {
-        $selectedCardIndex
+        let selectedCardIndexPublisher = $selectedCardIndex
+            .removeDuplicates()
+            .share(replay: 1)
+
+        selectedCardIndexPublisher
             .dropFirst()
             .sink { [weak self] newIndex in
                 guard let userWalletId = self?.pages[newIndex].id else {
@@ -345,8 +343,15 @@ final class MainViewModel: ObservableObject {
                     unlockIfNeeded: false,
                     reason: .userSelected
                 )
+            }
+            .store(in: &bag)
 
-                self?.requestRateAppIfAvailable()
+        selectedCardIndexPublisher
+            .combineLatest(notificationInputsSubject.removeDuplicates(), loadedBalancesSubject.removeDuplicates())
+            .withWeakCaptureOf(self)
+            .sink { input in
+                let (viewModel, (_, notificationInputs, loadedBalances)) = input
+                viewModel.requestRateApp(notificationInputs: notificationInputs, loadedBalances: loadedBalances)
             }
             .store(in: &bag)
 
@@ -391,26 +396,31 @@ final class MainViewModel: ObservableObject {
     }
 
     private func subscribeToTotalBalanceUpdates(userWalletModel: UserWalletModel) {
-        // [REDACTED_TODO_COMMENT]
-        totalBalanceSubscriptions[userWalletModel.userWalletId.value] = userWalletModel
+        let identifier = userWalletModel.userWalletId.value
+        totalBalanceSubscriptions[identifier] = userWalletModel
             .totalBalancePublisher()
             .withWeakCaptureOf(self)
-            .sink { viewModel, totalBalance in
+            .handleEvents(receiveOutput: { viewModel, totalBalance in
                 viewModel.rateAppService.registerBalances(of: userWalletModel.walletModelsManager.walletModels)
-                viewModel.lastLoadedBalances[userWalletModel.userWalletId] = totalBalance.value != nil
+            })
+            .map { $0.1.value != nil }
+            .withLatestFrom(loadedBalancesSubject.removeDuplicates()) { isBalanceLoaded, loadedBalances in
+                var loadedBalances = loadedBalances
+                loadedBalances[identifier] = isBalanceLoaded
+                return loadedBalances
             }
+            .subscribe(loadedBalancesSubject)
     }
 
-    private func requestRateAppIfAvailable() {
+    private func requestRateApp(notificationInputs: [Data: [NotificationViewInput]], loadedBalances: [Data: Bool]) {
         let pageInfos = pages.map { page in
             return RateAppRequest.PageInfo(
                 isLocked: page.isLockedWallet,
                 isSelected: page.id == userWalletRepository.selectedModel?.userWalletId,
-                isBalanceLoaded: lastLoadedBalances[page.id, default: false],
-                displayedNotifications: lastNotificationInputs[page.id, default: []]
+                isBalanceLoaded: loadedBalances[page.id.value, default: false],
+                displayedNotifications: notificationInputs[page.id.value, default: []]
             )
         }
-
         rateAppService.requestRateAppIfAvailable(with: .init(pageInfos: pageInfos))
     }
 
@@ -493,7 +503,7 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
 extension MainViewModel: MainNotificationsObserver {
     func didChangeNotificationInputs(_ inputs: [NotificationViewInput], forUserWalletWithId userWalletId: UserWalletId) {
-        lastNotificationInputs[userWalletId] = inputs
+        notificationInputsSubject.value[userWalletId.value] = inputs
     }
 }
 
