@@ -113,7 +113,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTokenTx(_, _, _, let blockchainIconName):
             return .init(iconType: .image(Image(blockchainIconName)))
         case .tangemExpressPromotion:
-            return .init(iconType: .image(Assets.swapBannerIcon.image))
+            return .init(iconType: .image(Assets.swapBannerIcon.image), size: CGSize(bothDimensions: 34))
         }
     }
 
