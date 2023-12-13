@@ -81,7 +81,7 @@ class SendModel {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
-        addressService = SendAddressServiceFactory(walletModel: walletModel).build()
+        addressService = SendAddressServiceFactory(walletModel: walletModel).make()
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
