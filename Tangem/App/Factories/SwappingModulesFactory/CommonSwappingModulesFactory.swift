@@ -11,6 +11,8 @@ import TangemSwapping
 import BlockchainSdk
 
 class CommonSwappingModulesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     private let userTokensManager: UserTokensManager
     private let walletModel: WalletModel
     private let signer: TransactionSigner
@@ -25,7 +27,6 @@ class CommonSwappingModulesFactory {
     // MARK: - Internal
 
     private var _swappingInteractor: SwappingInteractor?
-    private var _expressInteractor: ExpressInteractor?
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
@@ -44,19 +45,6 @@ class CommonSwappingModulesFactory {
 // MARK: - SwappingModulesFactory
 
 extension CommonSwappingModulesFactory: SwappingModulesFactory {
-    func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
-        ExpressViewModel(
-            initialSourceCurrency: source,
-            swappingInteractor: nil, // [REDACTED_TODO_COMMENT]
-            swappingDestinationService: swappingDestinationService,
-            tokenIconURLBuilder: tokenIconURLBuilder,
-            transactionSender: transactionSender,
-            fiatRatesProvider: fiatRatesProvider,
-            swappingFeeFormatter: swappingFeeFormatter,
-            coordinator: coordinator
-        )
-    }
-
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             initialSourceCurrency: source,
@@ -84,12 +72,8 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
-        SwappingApproveViewModel(
-            transactionSender: transactionSender,
-            swappingInteractor: swappingInteractor,
-            fiatRatesProvider: fiatRatesProvider,
-            coordinator: coordinator
-        )
+        // [REDACTED_INFO]
+        fatalError("Will be deleted")
     }
 
     func makeSwappingSuccessViewModel(
@@ -141,7 +125,10 @@ private extension CommonSwappingModulesFactory {
     }
 
     var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(fiatRatesProvider: fiatRatesProvider)
+        CommonSwappingFeeFormatter(
+            balanceFormatter: .init(), balanceConverter: .init(),
+            fiatRatesProvider: fiatRatesProvider
+        )
     }
 
     var explorerURLService: ExplorerURLService {
@@ -162,7 +149,9 @@ private extension CommonSwappingModulesFactory {
             return interactor
         }
 
-        let swappingManager = TangemSwappingFactory().makeSwappingManager(
+        let swappingManager = TangemSwappingFactory(
+            oneInchApiKey: keysManager.oneInchApiKey
+        ).makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
