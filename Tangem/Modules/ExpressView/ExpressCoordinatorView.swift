@@ -32,10 +32,7 @@ struct ExpressCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.expressTokensListViewModel) {
                 ExpressTokensListView(viewModel: $0)
             }
-            .bottomSheet(
-                item: $coordinator.swappingApproveViewModel,
-                settings: .init(backgroundColor: Colors.Background.tertiary)
-            ) {
+            .bottomSheet(item: $coordinator.swappingApproveViewModel) {
                 SwappingApproveView(viewModel: $0)
             }
             .bottomSheet(
