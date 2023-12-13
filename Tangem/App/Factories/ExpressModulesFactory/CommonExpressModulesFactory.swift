@@ -16,14 +16,16 @@ class CommonExpressModulesFactory {
 
     private let userWalletModel: UserWalletModel
     private let initialWalletModel: WalletModel
+    private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     // MARK: - Internal
 
     private lazy var expressInteractor = makeExpressInteractor()
-    private lazy var expressAPICredential = makeExpressAPICredential()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
     private lazy var allowanceProvider = makeAllowanceProvider()
+    private lazy var expressFeeProvider = makeExpressFeeProvider()
+    private lazy var expressRepository = makeExpressRepository()
 
     init(inputModel: InputModel) {
         userWalletModel = inputModel.userWalletModel
@@ -58,7 +60,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
             expressTokensListAdapter: expressTokensListAdapter,
-            expressAPIProvider: expressAPIProvider,
+            expressRepository: expressRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -74,9 +76,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
-            transactionSender: nil,
-            fiatRatesProvider: nil,
-            swappingInteractor: nil,
             swappingFeeFormatter: swappingFeeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
@@ -91,6 +90,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         ExpressProvidersBottomSheetViewModel(
             percentFormatter: percentFormatter,
             expressProviderFormatter: expressProviderFormatter,
+            expressRepository: expressRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -99,6 +99,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
+            initialWallet: initialWalletModel,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
@@ -148,7 +149,8 @@ private extension CommonExpressModulesFactory {
     var expressDestinationService: ExpressDestinationService {
         CommonExpressDestinationService(
             pendingTransactionRepository: pendingTransactionRepository,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            expressRepository: expressRepository
         )
     }
 
@@ -158,18 +160,25 @@ private extension CommonExpressModulesFactory {
 
     // MARK: - Methods
 
+    func makeExpressAPIProvider() -> ExpressAPIProvider {
+        expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger)
+    }
+
     func makeExpressInteractor() -> ExpressInteractor {
         let expressManager = swappingFactory.makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
+            feeProvider: expressFeeProvider,
+            expressRepository: expressRepository,
             logger: logger
         )
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            sender: initialWalletModel,
+            initialWallet: initialWalletModel,
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
+            feeProvider: expressFeeProvider,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressTransactionBuilder: expressTransactionBuilder,
@@ -181,24 +190,19 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeAllowanceProvider() -> ExpressAllowanceProvider {
-        let provider = CommonExpressAllowanceProvider()
+        let provider = CommonExpressAllowanceProvider(logger: logger)
         provider.setup(wallet: initialWalletModel)
         return provider
     }
 
-    func makeExpressAPIProvider() -> ExpressAPIProvider {
-        swappingFactory.makeExpressAPIProvider(
-            credential: expressAPICredential,
-            configuration: .defaultConfiguration,
-            logger: logger
-        )
+    func makeExpressFeeProvider() -> ExpressFeeProvider {
+        return CommonExpressFeeProvider(wallet: initialWalletModel)
     }
 
-    func makeExpressAPICredential() -> ExpressAPICredential {
-        ExpressAPICredential(
-            apiKey: keysManager.tangemExpressApiKey,
-            userId: userWalletId,
-            sessionId: UUID().uuidString
+    func makeExpressRepository() -> ExpressRepository {
+        CommonExpressRepository(
+            walletModelsManager: walletModelsManager,
+            expressAPIProvider: expressAPIProvider
         )
     }
 }
