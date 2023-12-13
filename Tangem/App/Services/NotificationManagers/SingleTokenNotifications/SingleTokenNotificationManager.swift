@@ -153,7 +153,7 @@ final class SingleTokenNotificationManager {
                 if !canSwap {
                     self.notificationInputsSubject.value.removeAll { $0.id == input.id }
                 } else if !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
-                    self.notificationInputsSubject.value.append(input)
+                    self.notificationInputsSubject.value.insert(input, at: 0)
                 }
             }
         }
