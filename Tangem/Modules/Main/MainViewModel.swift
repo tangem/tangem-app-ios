@@ -53,11 +53,6 @@ final class MainViewModel: ObservableObject {
     }
 
     // [REDACTED_TODO_COMMENT]
-    private var lastNonEmptyBalances: [UserWalletId: Bool] = [:] {
-        didSet { requestRateAppIfAvailable() }
-    }
-
-    // [REDACTED_TODO_COMMENT]
     private var lastLoadedBalances: [UserWalletId: Bool] = [:] {
         didSet { requestRateAppIfAvailable() }
     }
@@ -401,11 +396,8 @@ final class MainViewModel: ObservableObject {
             .totalBalancePublisher()
             .withWeakCaptureOf(self)
             .sink { viewModel, totalBalance in
-                let identifier = userWalletModel.userWalletId
-                let hasNonEmptyBalance = userWalletModel.walletModelsManager.walletModels.contains { !$0.wallet.isEmpty }
-                let hasLoadedBalance = totalBalance.value != nil
-                viewModel.lastNonEmptyBalances[identifier] = hasNonEmptyBalance
-                viewModel.lastLoadedBalances[identifier] = hasLoadedBalance
+                viewModel.rateAppService.registerBalances(of: userWalletModel.walletModelsManager.walletModels)
+                viewModel.lastLoadedBalances[userWalletModel.userWalletId] = totalBalance.value != nil
             }
     }
 
@@ -415,7 +407,6 @@ final class MainViewModel: ObservableObject {
                 isLocked: page.isLockedWallet,
                 isSelected: page.id == userWalletRepository.selectedModel?.userWalletId,
                 isBalanceLoaded: lastLoadedBalances[page.id, default: false],
-                isBalanceNonEmpty: lastNonEmptyBalances[page.id, default: false],
                 displayedNotifications: lastNotificationInputs[page.id, default: []]
             )
         }
