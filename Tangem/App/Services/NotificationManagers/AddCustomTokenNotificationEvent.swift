@@ -37,11 +37,34 @@ extension AddCustomTokenNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .scamWarning:
-            return .init(image: Assets.attention.image)
+            return .init(iconType: .image(Assets.attention.image))
         }
     }
 
     var isDismissable: Bool {
+        switch self {
+        case .scamWarning:
+            return false
+        }
+    }
+
+    var analyticsEvent: Analytics.Event? {
+        switch self {
+        case .scamWarning:
+
+            return nil
+        }
+    }
+
+    var analyticsParams: [Analytics.ParameterKey: String] {
+        switch self {
+        case .scamWarning:
+
+            return [:]
+        }
+    }
+
+    var isOneShotAnalyticsEvent: Bool {
         switch self {
         case .scamWarning:
             return false
