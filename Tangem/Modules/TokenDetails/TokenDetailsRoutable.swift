@@ -12,4 +12,9 @@ import BlockchainSdk
 protocol TokenDetailsRoutable: AnyObject {
     func dismiss()
     func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel)
+    func openPendingExpressTransactionDetails(
+        for pendingTransaction: PendingExpressTransaction,
+        tokenItem: TokenItem,
+        pendingTransactionsManager: PendingExpressTransactionsManager
+    )
 }
