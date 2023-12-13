@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 struct SendAddressServiceFactory {
     private let walletModel: WalletModel
@@ -16,10 +17,13 @@ struct SendAddressServiceFactory {
     }
 
     func make() -> SendAddressService {
+        let addressService = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
+        let defaultSendAddressService = DefaultSendAddressService(walletModel: walletModel, addressService: addressService)
+
         if let addressResolver = walletModel.addressResolver {
-            return SendResolvableAddressService(walletModel: walletModel, addressResolver: addressResolver)
+            return SendResolvableAddressService(defaultSendAddressService: defaultSendAddressService, addressResolver: addressResolver)
         } else {
-            return DefaultSendAddressService(walletModel: walletModel)
+            return defaultSendAddressService
         }
     }
 }
