@@ -47,7 +47,12 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
-        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel, contextDataProvider: options.cardModel)
+        let swapPairService = SwapPairService(
+            selectedExpressCurrency: options.walletModel.expressCurrency,
+            walletModelsManager: options.cardModel.walletModelsManager,
+            userWalletId: options.cardModel.userWalletId.stringValue
+        )
+        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel, swapPairService: swapPairService, contextDataProvider: options.cardModel)
 
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.cardModel,
@@ -137,6 +142,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
+
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
