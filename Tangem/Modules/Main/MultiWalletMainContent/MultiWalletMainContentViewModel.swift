@@ -477,6 +477,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
                 return
             }
 
+            Analytics.log(event: .buttonExchange, params: [.token: walletModel.tokenItem.currencySymbol])
             tokenRouter.openExchange(walletModel: walletModel)
         case .hide:
             return
