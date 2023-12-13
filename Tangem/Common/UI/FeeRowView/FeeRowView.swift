@@ -28,7 +28,7 @@ struct FeeRowView: View {
                 Text(viewModel.subtitle)
                     .style(font, color: Colors.Text.primary1)
             }
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
         }
     }
 
