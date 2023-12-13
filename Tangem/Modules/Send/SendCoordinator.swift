@@ -37,8 +37,7 @@ class SendCoordinator: CoordinatorObject {
             walletModel: options.walletModel,
             transactionSigner: options.transactionSigner,
             sendType: options.type,
-            emailData: options.userWalletModel.emailData,
-            emailConfig: options.userWalletModel.config.emailConfig ?? EmailConfig.default,
+            emailDataProvider: options.emailDataProvider,
             coordinator: self
         )
     }
@@ -48,7 +47,7 @@ class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
-        let userWalletModel: UserWalletModel
+        let emailDataProvider: EmailDataProvider
         let walletModel: WalletModel
         let transactionSigner: TransactionSigner
         let type: SendType
