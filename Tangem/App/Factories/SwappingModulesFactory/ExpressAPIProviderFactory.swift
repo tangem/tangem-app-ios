@@ -8,20 +8,23 @@
 
 import TangemSwapping
 
-struct CommonExpressAPIFactory {
+struct ExpressAPIProviderFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    func makeExpressAPIProvider(userId: String = UUID().uuidString) -> ExpressAPIProvider {
+    func makeExpressAPIProvider(userId: String, logger: SwappingLogger) -> ExpressAPIProvider {
         let factory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
+        let isProduction = !AppEnvironment.current.isDebug
+
         let credentials = ExpressAPICredential(
             apiKey: keysManager.tangemExpressApiKey,
             userId: userId,
-            sessionId: UUID().uuidString
+            sessionId: AppConstants.sessionId
         )
 
         return factory.makeExpressAPIProvider(
             credential: credentials,
             configuration: .defaultConfiguration,
+            isProduction: isProduction,
             logger: AppLog.shared
         )
     }
