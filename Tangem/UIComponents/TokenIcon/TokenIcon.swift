@@ -12,6 +12,7 @@ import Kingfisher
 struct TokenIcon: View {
     let tokenIconInfo: TokenIconInfo
     let size: CGSize
+    var isWithOverlays: Bool = true
 
     private var imageURL: URL? { tokenIconInfo.imageURL }
     private var customTokenColor: Color? { tokenIconInfo.customTokenColor }
@@ -44,7 +45,7 @@ struct TokenIcon: View {
 
     @ViewBuilder
     private var networkIcon: some View {
-        if let iconName = blockchainIconName {
+        if let iconName = blockchainIconName, isWithOverlays {
             NetworkIcon(
                 imageName: iconName,
                 isActive: true,
@@ -62,7 +63,7 @@ struct TokenIcon: View {
 
     @ViewBuilder
     private var customTokenIndicator: some View {
-        if isCustom {
+        if isCustom, isWithOverlays {
             Circle()
                 .foregroundColor(Colors.Icon.informative)
                 .frame(size: customTokenIndicatorSize)
