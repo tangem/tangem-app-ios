@@ -18,7 +18,7 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
 
     func openSend(walletModel: WalletModel) {}
 
-    func openExchange(walletModel: WalletModel, exchangeSource: ExchangeSource) {}
+    func openExchange(walletModel: WalletModel) {}
 
     func openSell(for walletModel: WalletModel) {}
 
