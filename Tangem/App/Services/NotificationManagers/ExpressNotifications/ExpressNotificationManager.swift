@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import struct TangemSwapping.ExpressAPIError
 
 class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
@@ -48,10 +49,10 @@ class ExpressNotificationManager {
 
                 return !event.removingOnFullLoadingState
             }
-        case .restriction(let restrictions, let expectedQuote):
+        case .restriction(let restrictions, let quote):
             setupNotification(for: restrictions)
 
-            guard let quote = expectedQuote?.quote else {
+            guard let quote else {
                 return
             }
 
@@ -63,11 +64,13 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
 
-        case .previewCEX(_, let quote):
+        case .previewCEX(let preview, let quote):
             notificationInputsSubject.value = []
-            if let quote = quote.quote {
-                checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
+            if preview.subtractFee > 0 {
+                setupFeeWillBeSubtractFromSendingAmountNotification(amount: preview.subtractFee)
             }
+
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
         }
     }
 
@@ -97,7 +100,9 @@ class ExpressNotificationManager {
         case .notEnoughAmountForSwapping(let minAmount):
             event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceTokenItemSymbol)")
         case .hasPendingTransaction:
-            event = .hasPendingTransaction
+            event = .hasPendingTransaction(symbol: sourceTokenItem.currencySymbol)
+        case .hasPendingApproveTransaction:
+            event = .hasPendingApproveTransaction
         case .notEnoughBalanceForSwapping(let requiredAmount):
             event = .notEnoughBalanceToSwap(maximumAmountText: "\(requiredAmount) \(sourceTokenItemSymbol)")
         case .notEnoughAmountForFee:
@@ -107,8 +112,12 @@ class ExpressNotificationManager {
             }
 
             event = .notEnoughFeeForTokenTx(mainTokenName: sourceTokenItem.blockchain.displayName, mainTokenSymbol: sourceNetworkSymbol, blockchainIconName: sourceTokenItem.blockchain.iconNameFilled)
-        case .requiredRefresh(let occurredError):
-            event = .refreshRequired(message: occurredError.localizedDescription)
+        case .requiredRefresh(let occurredError as ExpressAPIError):
+            // For only a express error we use "Service temporary unavailable"
+            let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
+            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
+        case .requiredRefresh:
+            event = .refreshRequired(title: Localization.commonError, message: Localization.expressUnknownError)
         case .noDestinationTokens:
             event = .noDestinationTokens(sourceTokenName: sourceTokenItemSymbol)
         }
@@ -123,14 +132,27 @@ class ExpressNotificationManager {
         guard let interactor = expressInteractor else { return }
 
         let sourceTokenItem = interactor.getSender().tokenItem
-        let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
-        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceNetworkSymbol)
+        let event: ExpressNotificationEvent = .permissionNeeded(currencyCode: sourceTokenItem.currencySymbol)
         let notificationsFactory = NotificationsFactory()
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
         }
         notificationInputsSubject.value = [notification]
+    }
+
+    private func setupFeeWillBeSubtractFromSendingAmountNotification(amount: Decimal) {
+        guard let interactor = expressInteractor else { return }
+
+        let sourceTokenItemSymbol = interactor.getSender().tokenItem.currencySymbol
+        let event: ExpressNotificationEvent = .feeWillBeSubtractFromSendingAmount(reducedAmount: "\(amount) \(sourceTokenItemSymbol)")
+        let notificationsFactory = NotificationsFactory()
+
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+        }
+
+        notificationInputsSubject.value.append(notification)
     }
 
     private func generateHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
