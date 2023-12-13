@@ -9,14 +9,34 @@
 import Foundation
 import Combine
 
-class ManageTokensNetworkDataSource: WalletSelectorDataSource {
+class ManageTokensNetworkDataSource {
     // MARK: - Properties
 
     private let _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
-    var userWalletModels: [UserWalletModel] { _userWalletModels.value }
+    private let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
-    let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
+    var userWalletModels: [UserWalletModel] { _userWalletModels.value }
     var selectedUserWalletModel: UserWalletModel? { _selectedUserWalletModel.value }
+
+    // MARK: - Init
+
+    init(_ dataSource: ManageTokensDataSource) {
+        let userWalletModels = dataSource.userWalletModels.filter { $0.isMultiWallet }
+
+        _userWalletModels.send(userWalletModels)
+
+        let selectedUserWalletModel = userWalletModels.first { userWalletModel in
+            userWalletModel.userWalletId == dataSource.defaultUserWalletModel?.userWalletId
+        } ?? userWalletModels.first
+
+        _selectedUserWalletModel.send(selectedUserWalletModel)
+    }
+}
+
+extension ManageTokensNetworkDataSource: WalletSelectorDataSource {
+    var selectedUserWalletModelPublisher: AnyPublisher<UserWalletId?, Never> {
+        _selectedUserWalletModel.map { $0?.userWalletId }.eraseToAnyPublisher()
+    }
 
     var itemViewModels: [WalletSelectorItemViewModel] {
         userWalletModels.map { userWalletModel in
@@ -32,19 +52,5 @@ class ManageTokensNetworkDataSource: WalletSelectorDataSource {
                 _selectedUserWalletModel.send(selectedUserWalletModel)
             }
         }
-    }
-
-    // MARK: - Init
-
-    init(_ dataSource: ManageTokensDataSource) {
-        let userWalletModels = dataSource.userWalletModels.filter { $0.isMultiWallet }
-
-        _userWalletModels.send(userWalletModels)
-
-        let selectedUserWalletModel = userWalletModels.first { userWalletModel in
-            userWalletModel.userWalletId == dataSource.defaultUserWalletModel?.userWalletId
-        } ?? userWalletModels.first
-
-        _selectedUserWalletModel.send(selectedUserWalletModel)
     }
 }
