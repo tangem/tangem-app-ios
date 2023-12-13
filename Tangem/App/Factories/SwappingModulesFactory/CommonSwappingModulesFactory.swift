@@ -22,17 +22,11 @@ class CommonSwappingModulesFactory {
     private let referrer: SwappingReferrerAccount?
     private let source: Currency
     private let walletModelTokens: [Token]
-    private let walletModelsManager: WalletModelsManager
-    private let userWalletId: String
+    private let destination: Currency?
 
     // MARK: - Internal
 
     private var _swappingInteractor: SwappingInteractor?
-
-    private lazy var expressInteractor = makeExpressInteractor()
-    private lazy var expressAPICredential = makeExpressAPICredential()
-    private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var swappingFactory = TangemSwappingFactory()
 
     init(inputModel: InputModel) {
         userTokensManager = inputModel.userTokensManager
@@ -44,27 +38,13 @@ class CommonSwappingModulesFactory {
         referrer = inputModel.referrer
         source = inputModel.source
         walletModelTokens = inputModel.walletModelTokens
-        walletModelsManager = inputModel.walletModelsManager
-        userWalletId = inputModel.userWalletId
+        destination = inputModel.destination
     }
 }
 
 // MARK: - SwappingModulesFactory
 
 extension CommonSwappingModulesFactory: SwappingModulesFactory {
-    func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
-        ExpressViewModel(
-            initialWallet: walletModel,
-            swappingInteractor: expressInteractor,
-            swappingDestinationService: swappingDestinationService,
-            tokenIconURLBuilder: tokenIconURLBuilder,
-            transactionSender: transactionSender,
-            fiatRatesProvider: fiatRatesProvider,
-            swappingFeeFormatter: swappingFeeFormatter,
-            coordinator: coordinator
-        )
-    }
-
     func makeSwappingViewModel(coordinator: SwappingRoutable) -> SwappingViewModel {
         SwappingViewModel(
             initialSourceCurrency: source,
@@ -91,34 +71,9 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
         )
     }
 
-    func makeExpressTokensListViewModel(
-        walletType: ExpressTokensListViewModel.SwapDirection,
-        coordinator: ExpressTokensListRoutable
-    ) -> ExpressTokensListViewModel {
-        ExpressTokensListViewModel(
-            swapDirection: walletType,
-            walletModels: walletModelsManager.walletModels,
-            expressAPIProvider: expressAPIProvider,
-            expressInteractor: expressInteractor,
-            coordinator: coordinator
-        )
-    }
-
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel {
-        ExpressFeeBottomSheetViewModel(
-            swappingFeeFormatter: swappingFeeFormatter,
-            expressInteractor: expressInteractor,
-            coordinator: coordinator
-        )
-    }
-
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
-        SwappingApproveViewModel(
-            transactionSender: transactionSender,
-            swappingInteractor: swappingInteractor,
-            fiatRatesProvider: fiatRatesProvider,
-            coordinator: coordinator
-        )
+        // [REDACTED_INFO]
+        fatalError("Will be deleted")
     }
 
     func makeSwappingSuccessViewModel(
@@ -171,8 +126,7 @@ private extension CommonSwappingModulesFactory {
 
     var swappingFeeFormatter: SwappingFeeFormatter {
         CommonSwappingFeeFormatter(
-            balanceFormatter: .init(),
-            balanceConverter: .init(),
+            balanceFormatter: .init(), balanceConverter: .init(),
             fiatRatesProvider: fiatRatesProvider
         )
     }
@@ -195,11 +149,13 @@ private extension CommonSwappingModulesFactory {
             return interactor
         }
 
-        let swappingManager = TangemSwappingFactory().makeSwappingManager(
+        let swappingManager = TangemSwappingFactory(
+            oneInchApiKey: keysManager.oneInchApiKey
+        ).makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
-            destination: nil,
+            destination: destination,
             logger: logger
         )
 
@@ -212,43 +168,6 @@ private extension CommonSwappingModulesFactory {
 
         _swappingInteractor = interactor
         return interactor
-    }
-
-    // MARK: - Methods
-
-    func makeExpressInteractor() -> ExpressInteractor {
-        let swappingManager = swappingFactory.makeSwappingManager(
-            walletDataProvider: walletDataProvider,
-            referrer: referrer,
-            source: source,
-            destination: nil,
-            logger: logger
-        )
-
-        let interactor = ExpressInteractor(
-            swappingManager: swappingManager,
-            userTokensManager: userTokensManager,
-            currencyMapper: currencyMapper,
-            blockchainNetwork: walletModel.blockchainNetwork
-        )
-
-        return interactor
-    }
-
-    func makeExpressAPIProvider() -> ExpressAPIProvider {
-        swappingFactory.makeExpressAPIProvider(
-            credential: expressAPICredential,
-            configuration: .defaultConfiguration,
-            logger: logger
-        )
-    }
-
-    func makeExpressAPICredential() -> ExpressAPICredential {
-        ExpressAPICredential(
-            apiKey: keysManager.tangemExpressApiKey,
-            userId: userWalletId,
-            sessionId: UUID().uuidString
-        )
     }
 }
 
@@ -263,7 +182,30 @@ extension CommonSwappingModulesFactory {
         let referrer: SwappingReferrerAccount?
         let source: Currency
         let walletModelTokens: [Token]
-        let walletModelsManager: WalletModelsManager
-        let userWalletId: String
+        let destination: Currency?
+
+        init(
+            userTokensManager: UserTokensManager,
+            walletModel: WalletModel,
+            signer: TransactionSigner,
+            ethereumNetworkProvider: EthereumNetworkProvider,
+            ethereumTransactionProcessor: EthereumTransactionProcessor,
+            logger: SwappingLogger,
+            referrer: SwappingReferrerAccount?,
+            source: Currency,
+            walletModelTokens: [Token],
+            destination: Currency? = nil
+        ) {
+            self.userTokensManager = userTokensManager
+            self.walletModel = walletModel
+            self.signer = signer
+            self.ethereumNetworkProvider = ethereumNetworkProvider
+            self.ethereumTransactionProcessor = ethereumTransactionProcessor
+            self.logger = logger
+            self.referrer = referrer
+            self.source = source
+            self.walletModelTokens = walletModelTokens
+            self.destination = destination
+        }
     }
 }
