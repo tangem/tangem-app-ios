@@ -41,12 +41,24 @@ public struct TangemSwappingFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
+        feeProvider: FeeProvider,
+        expressRepository: ExpressRepository,
         logger: SwappingLogger? = nil
     ) -> ExpressManager {
-        CommonExpressManager(
+        let logger: SwappingLogger = logger ?? CommonSwappingLogger()
+        let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
-            logger: logger ?? CommonSwappingLogger()
+            feeProvider: feeProvider,
+            logger: logger,
+            mapper: .init()
+        )
+
+        return CommonExpressManager(
+            expressAPIProvider: expressAPIProvider,
+            expressProviderManagerFactory: factory,
+            expressRepository: expressRepository,
+            logger: logger
         )
     }
 
