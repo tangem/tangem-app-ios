@@ -13,14 +13,19 @@ import BlockchainSdk
 import TangemSwapping
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
+    @Injected(\.expressPendingTransactionsRepository) private var expressPendingTxRepository: ExpressPendingTransactionRepository
+
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published var actionSheet: ActionSheetBinder?
     @Published var shouldShowNotificationsWithAnimation: Bool = false
+    @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
 
     private unowned let coordinator: TokenDetailsRoutable
+    private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+
     private var bag = Set<AnyCancellable>()
     private var notificatioChangeSubscription: AnyCancellable?
 
@@ -52,10 +57,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
+        pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         coordinator: TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable
     ) {
         self.coordinator = coordinator
+        self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         super.init(
             userWalletModel: cardModel,
             walletModel: walletModel,
@@ -66,6 +73,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
 
         prepareSelf()
+    }
+
+    deinit {
+        print("TokenDetailsViewModel deinit")
     }
 
     func onAppear() {
@@ -156,6 +167,20 @@ private extension TokenDetailsViewModel {
                 self?.updateBalance(walletModelState: newState)
             }
             .store(in: &bag)
+
+        pendingExpressTransactionsManager.pendingTransactionsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, pendingTxs in
+                let factory = PendingExpressTransactionsConverter()
+
+                return factory.convertToTokenDetailsPendingTxInfo(
+                    pendingTxs,
+                    tapAction: weakify(viewModel, forFunction: TokenDetailsViewModel.didTapPendingExpressTransaction(with:))
+                )
+            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func updateBalance(walletModelState: WalletModel.State) {
@@ -173,6 +198,20 @@ private extension TokenDetailsViewModel {
             // User can't reach this screen without derived keys
             balance = .failedToLoad(error: "")
         }
+    }
+
+    private func didTapPendingExpressTransaction(with id: String) {
+        guard
+            let pendingTransaction = pendingExpressTransactionsManager.pendingTransactions.first(where: { $0.transactionRecord.expressTransactionId == id })
+        else {
+            return
+        }
+
+        coordinator.openPendingExpressTransactionDetails(
+            for: pendingTransaction,
+            tokenItem: tokenItem,
+            pendingTransactionsManager: pendingExpressTransactionsManager
+        )
     }
 }
 
