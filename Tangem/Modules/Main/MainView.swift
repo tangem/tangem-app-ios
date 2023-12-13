@@ -16,6 +16,7 @@ struct MainView: View {
         CardsInfoPagerView(
             data: viewModel.pages,
             selectedIndex: $viewModel.selectedCardIndex,
+            discoveryAnimationTrigger: viewModel.swipeDiscoveryAnimationTrigger,
             headerFactory: { info in
                 info.header
                     .contextMenu {
@@ -34,21 +35,23 @@ struct MainView: View {
                 info.body
             },
             bottomOverlayFactory: { info, didScrollToBottom in
-                info.makeBottomOverlay(didScrollToBottom: didScrollToBottom)
+                info.makeBottomOverlay(
+                    isMainBottomSheetEnabled: viewModel.isMainBottomSheetEnabled,
+                    didScrollToBottom: didScrollToBottom
+                )
             },
             onPullToRefresh: viewModel.onPullToRefresh(completionHandler:)
         )
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
-        .pageSwitchAnimationDuration(viewModel.isPageSwitchAnimationDisabled ? .zero : nil)
         .onPageChange(viewModel.onPageChange(dueTo:))
         .onAppear(perform: viewModel.onViewAppear)
+        .onDisappear(perform: viewModel.onViewDisappear)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
-        .onAppear(perform: viewModel.onAppear)
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarLeading) {
                 Assets.newTangemLogo.image
@@ -81,7 +84,6 @@ struct MainView: View {
     var detailsNavigationButton: some View {
         Button(action: viewModel.openDetails) {
             NavbarDotsImage()
-                .offset(x: 10)
         }
         .buttonStyle(PlainButtonStyle())
         .animation(nil)
@@ -109,10 +111,15 @@ struct MainView_Preview: PreviewProvider {
     static let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
-        return .init(
+        let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
+        let viewModel = MainViewModel(
             coordinator: coordinator,
+            swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
         )
+        swipeDiscoveryHelper.delegate = viewModel
+
+        return viewModel
     }()
 
     static var previews: some View {
