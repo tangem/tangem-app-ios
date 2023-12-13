@@ -50,9 +50,14 @@ struct MultiWalletMainContentView: View {
             emptyList
                 .cornerRadiusContinuous(Constants.cornerRadius)
         } else {
-            // Don't apply `.cornerRadiusContinuous` modifier to this view
-            // This will cause clipping of iOS context menu previews in `TokenItemView` on iOS 17.0 and above
-            tokensList
+            // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 16.0 and above,
+            // this will cause clipping of iOS context menu previews in `TokenItemView` view
+            if #available(iOS 16.0, *) {
+                tokensList
+            } else {
+                tokensList
+                    .cornerRadiusContinuous(Constants.cornerRadius)
+            }
         }
     }
 
@@ -74,12 +79,34 @@ struct MultiWalletMainContentView: View {
 
     private var tokensList: some View {
         LazyVStack(spacing: 0) {
-            ForEach(viewModel.sections) { section in
-                TokenSectionView(title: section.model.title)
-                    .background(Colors.Background.primary)
+            ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, section in
+                let cornerRadius = Constants.cornerRadius
+                let hasTitle = section.model.title != nil
 
-                ForEach(section.items) { item in
-                    TokenItemView(viewModel: item)
+                if #available(iOS 16.0, *) {
+                    let isFirstVisibleSection = hasTitle && sectionIndex == 0
+                    let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
+
+                    TokenSectionView(title: section.model.title, cornerRadius: topEdgeCornerRadius)
+                } else {
+                    TokenSectionView(title: section.model.title)
+                }
+
+                ForEach(indexed: section.items.indexed()) { itemIndex, item in
+                    if #available(iOS 16.0, *) {
+                        let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
+                        let isLastItem = sectionIndex == viewModel.sections.count - 1 && itemIndex == section.items.count - 1
+
+                        if isFirstItem {
+                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .topEdge)
+                        } else if isLastItem {
+                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .bottomEdge)
+                        } else {
+                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: nil)
+                        }
+                    } else {
+                        TokenItemView(viewModel: item, cornerRadius: cornerRadius)
+                    }
                 }
             }
         }
@@ -128,6 +155,6 @@ struct MultiWalletContentView_Preview: PreviewProvider {
 
 private extension MultiWalletMainContentView {
     enum Constants {
-        static let cornerRadius = 14.0
+        static let cornerRadius: CGFloat = 14.0
     }
 }

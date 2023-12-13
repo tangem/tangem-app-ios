@@ -81,11 +81,10 @@ extension SwappingCoordinator: SwappingRoutable {
         }
 
         let coordinator = SwappingSuccessCoordinator(
-            factory: factory,
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init(inputModel: inputModel))
+        coordinator.start(with: .swapping(factory: factory, inputModel))
 
         swappingSuccessCoordinator = coordinator
     }
