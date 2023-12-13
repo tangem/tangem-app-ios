@@ -71,16 +71,16 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             sourceTokenTxInfo: .init(
                 tokenItem: txData.source.tokenItem,
                 blockchainNetwork: txData.source.blockchainNetwork,
-                amount: txData.expressTransactionData.fromAmount,
+                amountString: txData.expressTransactionData.fromAmount.stringValue,
                 isCustom: txData.source.isCustom
             ),
             destinationTokenTxInfo: .init(
                 tokenItem: txData.destination.tokenItem,
                 blockchainNetwork: txData.destination.blockchainNetwork,
-                amount: txData.expressTransactionData.toAmount,
+                amountString: txData.expressTransactionData.toAmount.stringValue,
                 isCustom: txData.destination.isCustom
             ),
-            fee: txData.fee,
+            feeString: txData.fee.stringValue,
             provider: .init(provider: txData.provider),
             date: txData.date,
             externalTxId: txData.expressTransactionData.externalTxId,
