@@ -38,11 +38,11 @@ struct MarketPriceView: View {
                         .truncationMode(.middle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
 
-                    FixedSpacer.horizontal(6)
+                    FixedSpacer(width: 6)
 
                     TokenPriceChangeView(state: priceChangeState)
 
-                    FixedSpacer.horizontal(6)
+                    FixedSpacer(width: 6)
 
                     Text(Localization.walletMarketpriceBlockUpdateTime)
                         .lineLimit(1)
