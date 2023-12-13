@@ -130,7 +130,7 @@ struct NotificationView: View {
                     .foregroundColor(Colors.Icon.informative)
             }
         }
-        .frame(size: .init(bothDimensions: 20))
+        .frame(size: settings.event.icon.size)
     }
 }
 
