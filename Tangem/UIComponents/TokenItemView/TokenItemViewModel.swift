@@ -26,6 +26,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published var balanceCrypto: LoadableTextView.State = .loading
     @Published var balanceFiat: LoadableTextView.State = .loading
     @Published var priceChangeState: TokenPriceChangeView.State = .loading
+    @Published var tokenPrice: LoadableTextView.State = .loading
     @Published var hasPendingTransactions: Bool = false
     @Published var contextActions: [TokenActionType] = []
 
@@ -58,8 +59,9 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let isTestnetToken: Bool
     private let tokenTapped: (WalletModelId) -> Void
     private let infoProvider: TokenItemInfoProvider
+    private let percentFormatter = PercentFormatter()
+    private let priceFormatter = BalanceFormatter()
 
-    private var percentFormatter = PercentFormatter()
     private var bag = Set<AnyCancellable>()
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
@@ -81,6 +83,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
 
+        setupState(infoProvider.tokenItemState)
         bind()
     }
 
@@ -95,33 +98,9 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private func bind() {
         infoProvider.tokenItemStatePublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] newState in
-                guard let self else { return }
-
-                switch newState {
-                case .noDerivation:
-                    missingDerivation = true
-                    networkUnreachable = false
-                    updateBalances()
-                    updatePriceChange()
-                case .networkError:
-                    missingDerivation = false
-                    networkUnreachable = true
-                case .notLoaded:
-                    missingDerivation = false
-                    networkUnreachable = false
-                case .loaded, .noAccount:
-                    missingDerivation = false
-                    networkUnreachable = false
-                    updateBalances()
-                    updatePriceChange()
-                case .loading:
-                    break
-                }
-
-                updatePendingTransactionsStateIfNeeded()
-                buildContextActions()
-            }
+            // We need this debounce to prevent initial sequential state updates that can skip `loading` state
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+            .sink(receiveValue: weakify(self, forFunction: TokenItemViewModel.setupState(_:)))
             .store(in: &bag)
 
         infoProvider.actionsUpdatePublisher
@@ -130,6 +109,32 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
                 self?.buildContextActions()
             }
             .store(in: &bag)
+    }
+
+    private func setupState(_ state: TokenItemViewState) {
+        switch state {
+        case .noDerivation:
+            missingDerivation = true
+            networkUnreachable = false
+            updateBalances()
+            updatePriceChange()
+        case .networkError:
+            missingDerivation = false
+            networkUnreachable = true
+        case .notLoaded:
+            missingDerivation = false
+            networkUnreachable = false
+        case .loaded, .noAccount:
+            missingDerivation = false
+            networkUnreachable = false
+            updateBalances()
+            updatePriceChange()
+        case .loading:
+            break
+        }
+
+        updatePendingTransactionsStateIfNeeded()
+        buildContextActions()
     }
 
     private func updatePendingTransactionsStateIfNeeded() {
@@ -142,14 +147,22 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func updatePriceChange() {
-        guard let change = infoProvider.quote?.change else {
-            priceChangeState = .noData
+        guard let quote = infoProvider.quote else {
+            tokenPrice = .noData
+            priceChangeState = .empty
             return
         }
 
-        let signType = ChangeSignType(from: change)
-        let percent = percentFormatter.percentFormat(value: change)
-        priceChangeState = .loaded(signType: signType, text: percent)
+        if let change = quote.change {
+            let signType = ChangeSignType(from: change)
+            let percent = percentFormatter.percentFormat(value: change)
+            priceChangeState = .loaded(signType: signType, text: percent)
+        } else {
+            priceChangeState = .noData
+        }
+
+        let priceText = priceFormatter.formatFiatBalance(quote.price)
+        tokenPrice = .loaded(text: priceText)
     }
 
     private func buildContextActions() {
