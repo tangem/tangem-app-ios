@@ -11,25 +11,12 @@ import SwiftUI
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
 
-    @State private var contentOffset: CGPoint = .zero
+    @StateObject private var scrollState = TokenDetailsScrollState(
+        tokenIconSizeSettings: Constants.tokenIconSizeSettings,
+        headerTopPadding: Constants.headerTopPadding
+    )
 
-    private let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
-    private let headerTopPadding: CGFloat = 14
-    private let coorditateSpaceName = "token_details_scroll_space"
-
-    private var toolbarIconOpacity: Double {
-        let iconSize = tokenIconSizeSettings.iconSize
-        let startAppearingOffset = headerTopPadding + iconSize.height
-
-        let fullAppearanceDistance = iconSize.height / 2
-        let fullAppearanceOffset = startAppearingOffset + fullAppearanceDistance
-
-        return clamp(
-            (contentOffset.y - startAppearingOffset) / (fullAppearanceOffset - startAppearingOffset),
-            min: 0,
-            max: 1
-        )
-    }
+    private let coorditateSpaceName = UUID()
 
     var body: some View {
         RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
@@ -72,10 +59,10 @@ struct TokenDetailsView: View {
                 )
                 .padding(.bottom, 40)
             }
-            .padding(.top, headerTopPadding)
+            .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
                 inCoordinateSpace: .named(coorditateSpaceName),
-                bindTo: $contentOffset
+                bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
         .animation(.default, value: viewModel.tokenNotificationInputs)
@@ -85,6 +72,7 @@ struct TokenDetailsView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
+        .onAppear(perform: scrollState.onViewAppear)
         .onDidAppear(viewModel.onDidAppear)
         .alert(item: $viewModel.alert) { $0.alert }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
@@ -101,7 +89,7 @@ struct TokenDetailsView: View {
                     ),
                     size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
                 )
-                .opacity(toolbarIconOpacity)
+                .opacity(scrollState.toolbarIconOpacity)
             }
 
             ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
@@ -122,5 +110,14 @@ struct TokenDetailsView: View {
                 NavbarDotsImage()
             }
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension TokenDetailsView {
+    enum Constants {
+        static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
+        static let headerTopPadding: CGFloat = 14.0
     }
 }
