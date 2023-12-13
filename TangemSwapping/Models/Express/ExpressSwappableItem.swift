@@ -12,13 +12,13 @@ public struct ExpressSwappableItem {
     public let source: ExpressWallet
     public let destination: ExpressWallet
     public let amount: Decimal
-    public let providerId: Int
+    public let providerId: ExpressProvider.Id
 
     public init(
         source: ExpressWallet,
         destination: ExpressWallet,
         amount: Decimal,
-        providerId: Int
+        providerId: ExpressProvider.Id
     ) {
         self.source = source
         self.destination = destination
