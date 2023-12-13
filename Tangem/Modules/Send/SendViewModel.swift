@@ -194,7 +194,15 @@ final class SendViewModel: ObservableObject {
             for queryItem in queryItems {
                 if queryItem.contains("amount") {
                     let amountText = queryItem.replacingOccurrences(of: "amount=", with: "")
-                    sendModel.setAmount(amountText)
+
+                    if let value = Decimal(string: amountText, locale: Locale(identifier: "en_US")) {
+                        let blockchain = walletModel.blockchainNetwork.blockchain
+                        let amountType = walletModel.amountType
+                        let amount = Amount(with: blockchain, type: amountType, value: value)
+
+                        sendModel.setAmount(amount)
+                    }
+
                     break
                 }
             }
