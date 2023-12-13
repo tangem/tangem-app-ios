@@ -32,7 +32,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let signatureCountValidator = selectSignatureCountValidator(for: model)
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
-            signatureCountValidator: signatureCountValidator
+            signatureCountValidator: signatureCountValidator,
+            contextDataProvider: model
         )
 
         if model.isUserWalletLocked {
@@ -51,7 +52,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         if isMultiWalletPage {
             let sectionsAdapter = makeSectionsAdapter(for: model)
-            let multiWalletNotificationManager = MultiWalletNotificationManager(walletModelsManager: model.walletModelsManager)
+            let multiWalletNotificationManager = MultiWalletNotificationManager(walletModelsManager: model.walletModelsManager, contextDataProvider: model)
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
@@ -74,7 +75,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             return nil
         }
 
-        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel)
+        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel, contextDataProvider: model)
         let exchangeUtility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,
             address: walletModel.wallet.address,

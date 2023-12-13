@@ -19,28 +19,28 @@ struct ExpressView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            logo1inch
-
             GroupedScrollView(spacing: 14) {
                 swappingViews
 
-                permissionInfoSection
+                providerSection
 
-                warningSections
+                feeSection
 
                 informationSection
-
-                mainButton
             }
             .scrollDismissesKeyboardCompat(true)
             // For animate button below informationSection
-            .animation(.easeInOut, value: viewModel.informationSectionViewModels.count)
+            .animation(.easeInOut, value: viewModel.providerState?.id)
+            .animation(.easeInOut, value: viewModel.expressFeeRowViewModel == nil)
+
+            mainButton
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
         .onDisappear {
             viewModel.onDisappear()
         }
+        .animation(.default, value: viewModel.notificationInputs)
     }
 
     @ViewBuilder
@@ -54,7 +54,7 @@ struct ExpressView: View {
                     )
                     .didTapMaxAmount(viewModel.userDidTapMaxAmount)
                     .didTapChangeCurrency {
-                        viewModel.userDidTapChangeCurrencyButton()
+                        viewModel.userDidTapChangeSourceButton()
                     }
                 }
 
@@ -74,7 +74,7 @@ struct ExpressView: View {
     @ViewBuilder
     private var swappingButton: some View {
         Group {
-            if viewModel.swapButtonIsLoading {
+            if viewModel.isSwapButtonLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
             } else {
@@ -97,84 +97,79 @@ struct ExpressView: View {
     }
 
     @ViewBuilder
-    private var permissionInfoSection: some View {
-        GroupedSection(viewModel.permissionInfoRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-    }
-
-    @ViewBuilder
-    private var warningSections: some View {
-        GroupedSection(viewModel.highPriceImpactWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-
-        GroupedSection(viewModel.refreshWarningRowViewModel) {
-            DefaultWarningRow(viewModel: $0)
-        }
-        .verticalPadding(0)
-    }
-
-    @ViewBuilder
     private var informationSection: some View {
-        GroupedSection(viewModel.informationSectionViewModels) { item in
-            switch item {
-            case .fee(let viewModel):
-                SwappingFeeRowView(viewModel: viewModel)
-            case .warning(let viewModel):
-                DefaultWarningRow(viewModel: viewModel)
-            case .feePolicy(let viewModel):
-                SelectableSwappingFeeRowView(viewModel: viewModel)
+        ForEach(viewModel.notificationInputs) {
+            NotificationView(input: $0)
+                .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
+                .transition(.notificationTransition)
+        }
+    }
+
+    @ViewBuilder
+    private var feeSection: some View {
+        GroupedSection(viewModel.expressFeeRowViewModel) {
+            ExpressFeeRowView(viewModel: $0)
+        }
+        .interSectionPadding(12)
+        .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var providerSection: some View {
+        GroupedSection(viewModel.providerState) { state in
+            switch state {
+            case .loading:
+                LoadingProvidersRow()
+            case .loaded(let data):
+                ProviderRowView(viewModel: data)
             }
         }
+        .interSectionPadding(12)
         .verticalPadding(0)
     }
 
     @ViewBuilder
     private var mainButton: some View {
-        MainButton(
-            title: viewModel.mainButtonState.title,
-            icon: viewModel.mainButtonState.icon,
-            isDisabled: !viewModel.mainButtonIsEnabled,
-            action: viewModel.didTapMainButton
-        )
-    }
-
-    @ViewBuilder
-    private var logo1inch: some View {
         VStack(spacing: 0) {
             Spacer()
 
-            Assets.logo1inch.image
+            MainButton(
+                title: viewModel.mainButtonState.title,
+                icon: viewModel.mainButtonState.icon,
+                isLoading: viewModel.mainButtonIsLoading,
+                isDisabled: !viewModel.mainButtonIsEnabled,
+                action: viewModel.didTapMainButton
+            )
         }
+        .padding(.horizontal, 14)
         .padding(.bottom, UIApplication.safeAreaInsets.bottom + 10)
         .edgesIgnoringSafeArea(.bottom)
         .ignoresSafeArea(.keyboard)
     }
 }
 
-struct ExpressView_Preview: PreviewProvider {
-    static let viewModel = ExpressViewModel(
-        initialSourceCurrency: .mock,
-        swappingInteractor: .init(
-            swappingManager: SwappingManagerMock(),
-            userTokensManager: UserTokensManagerMock(),
-            currencyMapper: CurrencyMapper(),
-            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-        ),
-        swappingDestinationService: SwappingDestinationServiceMock(),
-        tokenIconURLBuilder: TokenIconURLBuilder(),
-        transactionSender: TransactionSenderMock(),
-        fiatRatesProvider: FiatRatesProviderMock(),
-        swappingFeeFormatter: SwappingFeeFormatterMock(),
-        coordinator: ExpressCoordinator()
-    )
+/*
+ struct ExpressView_Preview: PreviewProvider {
+     static let viewModel = ExpressViewModel(
+         initialWallet: .mock,
+         swappingInteractor: .init(
+             swappingManager: SwappingManagerMock(),
+             userTokensManager: UserTokensManagerMock(),
+             currencyMapper: CurrencyMapper(),
+             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+         ),
+         swappingDestinationService: SwappingDestinationServiceMock(),
+         tokenIconURLBuilder: TokenIconURLBuilder(),
+         transactionSender: TransactionSenderMock(),
+         fiatRatesProvider: FiatRatesProviderMock(),
+         swappingFeeFormatter: SwappingFeeFormatterMock(),
+         coordinator: ExpressCoordinator()
+     )
 
-    static var previews: some View {
-        NavigationView {
-            ExpressView(viewModel: viewModel)
-        }
-    }
-}
+     static var previews: some View {
+         NavigationView {
+             ExpressView(viewModel: viewModel)
+         }
+     }
+ }
+ */
