@@ -42,15 +42,15 @@ final class CommonRateAppService {
         trimStorageIfNeeded()
     }
 
-    private func updatePositiveBalanceAppearanceDateIfNeeded(with request: RateAppRequest) {
-        guard
-            positiveBalanceAppearanceDate == nil,
-            request.pageInfos.contains(where: \.isBalanceNonEmpty)
-        else {
-            return
-        }
+    private func requestRateApp() {
+        lastRequestedReviewDate = Date()
+        lastRequestedReviewLaunchCount = currentLaunchCount
+        userDismissedLastRequestedReview = false
 
-        positiveBalanceAppearanceDate = Date()
+        delegate?.rateAppService(
+            self,
+            didRequestRateAppWithCompletionHandler: weakify(self, forFunction: CommonRateAppService.handleRateAppResult(_:))
+        )
     }
 
     private func handleRateAppResult(_ result: RateAppResult) {
@@ -65,10 +65,6 @@ final class CommonRateAppService {
         }
     }
 
-    private func makeSystemReviewPromptReferenceDate() -> Date? {
-        return calendar.date(byAdding: .year, value: -Constants.systemReviewPromptTimeWindowSize, to: Date())
-    }
-
     private func trimStorageIfNeeded() {
         let storageMaxSize = Constants.systemReviewPromptRequestDatesMaxSize
         if systemReviewPromptRequestDates.count > storageMaxSize {
@@ -80,9 +76,18 @@ final class CommonRateAppService {
 // MARK: - RateAppService protocol conformance
 
 extension CommonRateAppService: RateAppService {
-    func requestRateAppIfAvailable(with request: RateAppRequest) {
-        updatePositiveBalanceAppearanceDateIfNeeded(with: request)
+    func registerBalances(of walletModels: [WalletModel]) {
+        guard
+            positiveBalanceAppearanceDate == nil,
+            walletModels.contains(where: { !$0.wallet.isEmpty })
+        else {
+            return
+        }
 
+        positiveBalanceAppearanceDate = Date()
+    }
+
+    func requestRateAppIfAvailable(with request: RateAppRequest) {
         guard let selectedPage = request.pageInfos.first(where: \.isSelected) else { return }
 
         if selectedPage.isLocked {
@@ -101,7 +106,7 @@ extension CommonRateAppService: RateAppService {
             return
         }
 
-        guard lastRequestedReviewDate.timeIntervalSinceNow < -Constants.reviewRequestTimeInterval else {
+        guard abs(lastRequestedReviewDate.timeIntervalSinceNow) >= Constants.reviewRequestTimeInterval else {
             return
         }
 
@@ -109,7 +114,7 @@ extension CommonRateAppService: RateAppService {
             return
         }
 
-        guard let referenceDate = makeSystemReviewPromptReferenceDate() else {
+        guard let referenceDate = calendar.date(byAdding: .year, value: -Constants.systemReviewPromptTimeWindowSize, to: Date()) else {
             return
         }
 
@@ -119,14 +124,7 @@ extension CommonRateAppService: RateAppService {
             return
         }
 
-        lastRequestedReviewDate = Date()
-        lastRequestedReviewLaunchCount = currentLaunchCount
-        userDismissedLastRequestedReview = false
-
-        delegate?.rateAppService(
-            self,
-            didRequestRateAppWithCompletionHandler: weakify(self, forFunction: CommonRateAppService.handleRateAppResult(_:))
-        )
+        requestRateApp()
     }
 }
 
