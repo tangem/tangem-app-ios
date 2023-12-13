@@ -9,11 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-protocol SendAdditionalFieldService {
-    func transactionParameters(from value: String) throws -> TransactionParams?
-}
-
-class CommonSendAdditionalFieldService: SendAdditionalFieldService {
+struct SendTransactionParametersBuilder {
     private let blockchain: Blockchain
 
     init(blockchain: Blockchain) {
@@ -32,7 +28,7 @@ class CommonSendAdditionalFieldService: SendAdditionalFieldService {
             if let destinationTag = UInt32(value) {
                 return XRPTransactionParams(destinationTag: destinationTag)
             } else {
-                throw SendAdditionalFieldServiceError.invalidDestinationTag
+                throw SendTransactionParametersBuilderError.invalidDestinationTag
             }
         case .stellar:
             if let memoID = UInt64(value) {
@@ -50,11 +46,11 @@ class CommonSendAdditionalFieldService: SendAdditionalFieldService {
     }
 }
 
-private enum SendAdditionalFieldServiceError {
+private enum SendTransactionParametersBuilderError {
     case invalidDestinationTag
 }
 
-extension SendAdditionalFieldServiceError: LocalizedError {
+extension SendTransactionParametersBuilderError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidDestinationTag:
