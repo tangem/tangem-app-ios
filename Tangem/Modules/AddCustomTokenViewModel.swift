@@ -122,7 +122,7 @@ final class AddCustomTokenViewModel: ObservableObject {
             if case .token(_, let blockchain) = tokenItem,
                case .solana = blockchain,
                !settings.longHashesSupported {
-                throw TokenCreationErrors.tokensNotSupported
+                throw TokenCreationErrors.tokensNotSupported(network: blockchain.displayName)
             }
         } catch {
             self.error = error.alertBinder
@@ -509,7 +509,7 @@ private extension AddCustomTokenViewModel {
         case blockchainNotSelected
         case unsupportedCurve(Blockchain)
         case emptyFields
-        case tokensNotSupported
+        case tokensNotSupported(network: String)
         case invalidDecimals(precision: Int)
         case invalidContractAddress
         case invalidDerivationPath
@@ -522,8 +522,8 @@ private extension AddCustomTokenViewModel {
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchain.displayName)
             case .emptyFields:
                 return Localization.customTokenCreationErrorEmptyFields
-            case .tokensNotSupported:
-                return Localization.alertManageTokensUnsupportedMessage
+            case .tokensNotSupported(let network):
+                return Localization.alertManageTokensUnsupportedMessage(network)
             case .invalidDecimals(let precision):
                 return Localization.customTokenCreationErrorWrongDecimals(precision)
             case .invalidContractAddress:
