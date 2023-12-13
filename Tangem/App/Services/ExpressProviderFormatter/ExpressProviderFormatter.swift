@@ -20,28 +20,16 @@ struct ExpressProviderFormatter {
     ) -> ProviderRowViewModel.Subtitle {
         switch quote.state {
         case .quote(let expressQuote):
-            switch option {
-            case .exchangeRate:
-                guard let senderCurrencyCode, let destinationCurrencyCode else {
-                    return .text(CommonError.noData.localizedDescription)
-                }
+            return mapToRateSubtitle(
+                fromAmount: expressQuote.fromAmount,
+                toAmount: expressQuote.expectAmount,
+                senderCurrencyCode: senderCurrencyCode,
+                destinationCurrencyCode: destinationCurrencyCode,
+                option: option
+            )
 
-                let rate = expressQuote.expectAmount / expressQuote.fromAmount
-                let formattedSourceAmount = balanceFormatter.formatCryptoBalance(1, currencyCode: senderCurrencyCode)
-                let formattedDestinationAmount = balanceFormatter.formatCryptoBalance(rate, currencyCode: destinationCurrencyCode)
-
-                return .text("\(formattedSourceAmount) ≈ \(formattedDestinationAmount)")
-            case .exchangeReceivedAmount:
-                guard let destinationCurrencyCode else {
-                    return .text(CommonError.noData.localizedDescription)
-                }
-
-                let formatted = balanceFormatter.formatCryptoBalance(expressQuote.expectAmount, currencyCode: destinationCurrencyCode)
-                return .text(formatted)
-            }
-
-        case .error(let string):
-            return .text(string)
+        case .error(let error):
+            return .text(error.localizedDescription)
         case .notAvailable:
             return .text(Localization.expressProviderNotAvailable)
         case .tooSmallAmount(let minAmount):
@@ -54,8 +42,37 @@ struct ExpressProviderFormatter {
         }
     }
 
+    func mapToRateSubtitle(
+        fromAmount: Decimal,
+        toAmount: Decimal,
+        senderCurrencyCode: String?,
+        destinationCurrencyCode: String?,
+        option: RateSubtitleFormattingOption
+    ) -> ProviderRowViewModel.Subtitle {
+        switch option {
+        case .exchangeRate:
+            guard let senderCurrencyCode, let destinationCurrencyCode else {
+                return .text(CommonError.noData.localizedDescription)
+            }
+
+            let rate = toAmount / fromAmount
+            let formattedSourceAmount = balanceFormatter.formatCryptoBalance(1, currencyCode: senderCurrencyCode)
+            let formattedDestinationAmount = balanceFormatter.formatCryptoBalance(rate, currencyCode: destinationCurrencyCode)
+
+            return .text("\(formattedSourceAmount) ≈ \(formattedDestinationAmount)")
+        case .exchangeReceivedAmount:
+            guard let destinationCurrencyCode else {
+                return .text(CommonError.noData.localizedDescription)
+            }
+
+            let formatted = balanceFormatter.formatCryptoBalance(toAmount, currencyCode: destinationCurrencyCode)
+            return .text(formatted)
+        }
+    }
+
     func mapToProvider(provider: ExpressProvider) -> ProviderRowViewModel.Provider {
         ProviderRowViewModel.Provider(
+            id: provider.id,
             iconURL: provider.url,
             name: provider.name,
             type: provider.type.rawValue.uppercased()
