@@ -26,7 +26,7 @@ struct InformationHiddenBalancesView: View {
             buttonView
         }
         .padding(.top, 46)
-        .padding(.horizontal, 40)
+        .padding(.horizontal, 16)
     }
 
     private var textView: some View {
@@ -38,6 +38,7 @@ struct InformationHiddenBalancesView: View {
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
         }
         .multilineTextAlignment(.center)
+        .padding(.horizontal, 24)
     }
 
     private var buttonView: some View {
@@ -88,7 +89,11 @@ struct InformationHiddenBalancesView_Preview: PreviewProvider {
             }
         }
 
-        func closeInformationHiddenBalances() {
+        func hiddenBalancesSheetDidRequestClose() {
+            item = nil
+        }
+
+        func hiddenBalancesSheetDidRequestDoNotShowAgain() {
             item = nil
         }
     }

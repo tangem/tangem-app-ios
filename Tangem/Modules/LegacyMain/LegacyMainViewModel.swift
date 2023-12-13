@@ -340,7 +340,7 @@ class LegacyMainViewModel: ObservableObject {
     }
 
     func deriveEntriesWithoutDerivation() {
-        Analytics.log(.noticeScanYourCardTapped)
+        Analytics.log(.mainNoticeScanYourCardTapped)
         cardModel.userTokensManager.deriveIfNeeded(completion: { _ in })
     }
 
@@ -368,7 +368,7 @@ class LegacyMainViewModel: ObservableObject {
 
                 if promotionService.promoCode == nil {
                     coordinator.openPromotion(
-                        cardPublicKey: cardModel.cardPublicKey.hex,
+                        cardPublicKey: cardModel.cardPublicKey.hexString,
                         cardId: cardModel.cardId,
                         walletId: cardModel.userWalletId.stringValue
                     )
@@ -385,7 +385,7 @@ class LegacyMainViewModel: ObservableObject {
 
     func prepareForBackup() {
         if let input = cardModel.backupInput {
-            Analytics.log(.noticeBackupYourWalletTapped)
+            Analytics.log(.mainNoticeBackupWalletTapped)
             openOnboarding(with: input)
         }
     }

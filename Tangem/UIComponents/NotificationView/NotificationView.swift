@@ -89,7 +89,7 @@ struct NotificationView: View {
                                 buttonInfo.action(settings.id, buttonInfo.actionType)
                             }
                         )
-                        .setIsLoading(to: isLoading)
+                        .setIsLoading(to: buttonInfo.isWithLoader && isLoading)
                     }
                 }
             }
@@ -98,10 +98,7 @@ struct NotificationView: View {
 
     private var messageIconContent: some View {
         HStack(spacing: 12) {
-            settings.event.icon.image
-                .resizable()
-                .foregroundColor(settings.event.icon.color)
-                .frame(size: .init(bothDimensions: 20))
+            icon
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(settings.event.title)
@@ -110,8 +107,7 @@ struct NotificationView: View {
                 if let description = settings.event.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
-                        .lineSpacing(3)
-                        .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -119,6 +115,22 @@ struct NotificationView: View {
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.trailing, 20)
+    }
+
+    private var icon: some View {
+        Group {
+            switch settings.event.icon.iconType {
+            case .image(let image):
+                image
+                    .resizable()
+                    .foregroundColor(settings.event.icon.color)
+            case .progressView:
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .foregroundColor(Colors.Icon.informative)
+            }
+        }
+        .frame(size: .init(bothDimensions: 20))
     }
 }
 
@@ -136,10 +148,22 @@ struct NotificationView_Previews: PreviewProvider {
     class PreviewViewModel: ObservableObject {
         lazy var notificationInputs: [NotificationViewInput] = [
             .init(
-                style: .tappable(action: { [weak self] id in
-                    self?.notificationTapped(with: id)
-                }),
+                style: .withButtons([
+                    .init(action: { _, _ in
+
+                    }, actionType: .backupCard, isWithLoader: false),
+                ]),
                 settings: NotificationView.Settings(event: WarningEvent.missingBackup, dismissAction: { [weak self] id in
+                    self?.removeNotification(with: id)
+                })
+            ),
+            .init(
+                style: .withButtons([
+                    .init(action: { _, _ in
+
+                    }, actionType: .generateAddresses, isWithLoader: false),
+                ]),
+                settings: NotificationView.Settings(event: WarningEvent.missingDerivation(numberOfNetworks: 1), dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
                 })
             ),
