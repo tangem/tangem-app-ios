@@ -1,5 +1,5 @@
 //
-//  ExpressAllowanceProvider.swift
+//  ExpressFeeProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,6 @@
 import Foundation
 import TangemSwapping
 
-protocol ExpressAllowanceProvider: AllowanceProvider {
+protocol ExpressFeeProvider: FeeProvider {
     func setup(wallet: WalletModel)
-    func didSendApproveTransaction(for spender: String)
 }
