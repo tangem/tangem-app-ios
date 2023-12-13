@@ -14,6 +14,7 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
     let id: Int
     var iconName: String { selectedPublisher ? _iconNameSelected : _iconName }
     var isSelected: Binding<Bool>
+    let isAvailable: Bool
 
     let networkName: String
     let isMain: Bool
@@ -32,7 +33,8 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
         iconNameSelected: String,
         networkName: String,
         tokenTypeName: String?,
-        isSelected: Binding<Bool>
+        isSelected: Binding<Bool>,
+        isAvailable: Bool = true
     ) {
         self.id = id
         self.isMain = isMain
@@ -41,6 +43,7 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
         self.networkName = networkName
         self.tokenTypeName = tokenTypeName
         self.isSelected = isSelected
+        self.isAvailable = isAvailable
 
         selectedPublisher = isSelected.wrappedValue
 
