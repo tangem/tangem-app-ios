@@ -22,7 +22,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    private weak var mainViewDelegate: MainViewDelegate? // [REDACTED_TODO_COMMENT]
+    private weak var delegate: SingleWalletMainContentDelegate?
 
     init(
         userWalletModel: UserWalletModel,
@@ -30,11 +30,11 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
-        mainViewDelegate: MainViewDelegate?,
-        tokenRouter: SingleTokenRoutable
+        tokenRouter: SingleTokenRoutable,
+        delegate: SingleWalletMainContentDelegate?
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
-        self.mainViewDelegate = mainViewDelegate
+        self.delegate = delegate
 
         super.init(
             userWalletModel: userWalletModel,
@@ -48,7 +48,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
-        mainViewDelegate?.present(actionSheet: actionSheet)
+        delegate?.present(actionSheet: actionSheet)
     }
 
     private func bind() {
@@ -64,7 +64,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         userWalletNotificationPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, notificationInputs in
-                viewModel.mainViewDelegate?.didChangeNotificationInputs(
+                viewModel.delegate?.didChangeNotificationInputs(
                     notificationInputs,
                     forUserWalletWithId: viewModel.userWalletModel.userWalletId
                 )
