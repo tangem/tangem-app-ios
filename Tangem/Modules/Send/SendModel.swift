@@ -77,11 +77,11 @@ class SendModel {
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
-        addressService = SendAddressServiceFactory(walletModel: walletModel).make()
+        self.addressService = addressService
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
