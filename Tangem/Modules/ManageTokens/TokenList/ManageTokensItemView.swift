@@ -40,7 +40,9 @@ struct ManageTokensItemView: View {
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                             .skeletonable(isShown: viewModel.isLoading, radius: 3)
 
-                        TokenPriceChangeView(state: viewModel.priceChangeState)
+                        if !viewModel.isLoading {
+                            TokenPriceChangeView(state: viewModel.priceChangeState)
+                        }
                     }
                 }
 
