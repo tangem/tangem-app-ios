@@ -18,6 +18,10 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private var horizontalPadding: CGFloat = 16
     private var separatorPadding: CGFloat = 16
     private var separatorStyle: SeparatorStyle = .single
+    private var interItemSpacing: CGFloat = 0
+    private var interSectionPadding: CGFloat = 0
+    private var backgroundColor: Color = Colors.Background.primary
+    private var contentAlignment: HorizontalAlignment = .leading
 
     init(
         _ models: [Model],
@@ -51,7 +55,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 header()
                     .padding(.horizontal, horizontalPadding)
 
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: contentAlignment, spacing: interItemSpacing) {
                     ForEach(models) { model in
                         content(model)
                             .padding(.horizontal, horizontalPadding)
@@ -61,7 +65,8 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                         }
                     }
                 }
-                .background(Colors.Background.primary)
+                .padding(.vertical, interSectionPadding)
+                .background(backgroundColor)
                 .cornerRadius(12)
 
                 footer()
@@ -80,6 +85,9 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
                 .padding(.leading, separatorPadding)
+        case .minimum:
+            Separator(height: .minimal, color: Colors.Stroke.primary)
+                .padding(.leading, separatorPadding)
         }
     }
 }
@@ -88,6 +96,7 @@ extension GroupedSection {
     enum SeparatorStyle: Int, Hashable {
         case none
         case single
+        case minimum
     }
 }
 
@@ -106,5 +115,21 @@ extension GroupedSection: Setupable {
 
     func separatorStyle(_ style: SeparatorStyle) -> Self {
         map { $0.separatorStyle = style }
+    }
+
+    func interItemSpacing(_ spacing: CGFloat) -> Self {
+        map { $0.interItemSpacing = spacing }
+    }
+
+    func interSectionPadding(_ spacing: CGFloat) -> Self {
+        map { $0.interSectionPadding = spacing }
+    }
+
+    func backgroundColor(_ color: Color) -> Self {
+        map { $0.backgroundColor = color }
+    }
+
+    func contentAlignment(_ alignment: HorizontalAlignment) -> Self {
+        map { $0.contentAlignment = alignment }
     }
 }
