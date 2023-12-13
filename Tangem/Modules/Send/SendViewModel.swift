@@ -36,9 +36,9 @@ final class SendViewModel: ObservableObject {
 
     var showQRCodeButton: Bool {
         switch step {
-        case .amount, .destination:
+        case .destination:
             return true
-        case .fee, .summary:
+        case .amount, .fee, .summary:
             return false
         }
     }
