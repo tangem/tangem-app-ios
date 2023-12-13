@@ -9,5 +9,6 @@
 import Foundation
 
 protocol RateAppService {
+    func registerBalances(of walletModels: [WalletModel])
     func requestRateAppIfAvailable(with request: RateAppRequest)
 }
