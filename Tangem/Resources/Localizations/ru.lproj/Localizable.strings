@@ -365,7 +365,7 @@
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
 "rate_app_sheet_negative_response_button_title" = "Share feedback";
 "rate_app_sheet_positive_response_button_title" = "Rate the app 🙌";
-"rate_app_sheet_subtitle" = "Share your app\U00A0experience\U00A0–\U00A0every\U00A0detail counts.";
+"rate_app_sheet_subtitle" = "Share your app experience – every detail counts.";
 "rate_app_sheet_title" = "Enjoying our app?";
 "receive_bottom_sheet_title" = "%1$@ %2$@ адрес в сети %3$@";
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) в сети %3$@";
