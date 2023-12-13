@@ -158,35 +158,4 @@ enum ExpressDTO {
             let error: ExpressAPIError
         }
     }
-
-    struct ExpressAPIError: Decodable, LocalizedError, Error {
-        let code: Code?
-        let description: String?
-        let value: MinAmountValue?
-
-        struct MinAmountValue: Decodable {
-            let minAmount: String
-            let decimals: Int
-
-            var amount: Decimal? {
-                Decimal(string: minAmount).map { $0 / pow(10, decimals) }
-            }
-        }
-
-        var errorDescription: String? {
-            description
-        }
-
-        enum Code: Int, Decodable {
-            case badRequest = 2010
-            case exchangeProviderNotFoundError = 2210
-            case exchangeProviderNotActiveError = 2220
-            case exchangeProviderNotAvailableError = 2230
-            case exchangeNotPossibleError = 2240
-            case exchangeTooSmallAmountError = 2250
-            case exchangeInvalidAddressError = 2260
-            case exchangeNotEnoughBalanceError = 2270
-            case exchangeNotEnoughAllowanceError = 2280
-        }
-    }
 }
