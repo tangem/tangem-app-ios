@@ -11,6 +11,10 @@ import SwiftUI
 struct RateAppBottomSheetView: View {
     @ObservedObject var viewModel: RateAppBottomSheetViewModel
 
+    /// - Note: `Bool` can't be used as an element of this array because it doesn't conform to `VectorArithmetic`.
+    /// Therefore `CGFloat` in the range `0...1` is used instead.
+    @State private var ratingAnimations: [CGFloat] = Array(repeating: .zero, count: Constants.ratingSymbolsCount)
+
     var body: some View {
         VStack(spacing: 0.0) {
             FixedSpacer.vertical(82.0 - Constants.bottomSheetTopNotchHeight)
@@ -28,15 +32,34 @@ struct RateAppBottomSheetView: View {
             FixedSpacer.vertical(footerHeight)
         }
         .padding(.horizontal, Constants.horizontalPadding)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.ratingAnimationDelay) {
+                for (index, delay) in stride(
+                    from: .zero,
+                    to: Constants.ratingAnimationTotalDuration,
+                    by: Constants.ratingAnimationDuration
+                ).enumerated() {
+                    withAnimation(.linear(duration: Constants.ratingAnimationDuration).delay(delay)) {
+                        ratingAnimations[index] = 1.0
+                    }
+                }
+            }
+        }
     }
 
     @ViewBuilder
     private var ratingSection: some View {
         HStack(spacing: 4.0) {
-            ForEach(0 ..< 5) { _ in
+            ForEach(0 ..< Constants.ratingSymbolsCount, id: \.self) { index in
                 Image(systemName: Constants.sfSymbolsName)
                     .foregroundColor(Colors.Button.positive)
                     .font(.title3)
+                    .scaleEffect(.init(bothDimensions: ratingAnimations[index] == 1.0 ? 0.75 : 1.0))
+                    .onAnimationCompleted(for: ratingAnimations[index]) {
+                        withAnimation(.linear(duration: Constants.ratingAnimationDuration)) {
+                            ratingAnimations[index] = .zero
+                        }
+                    }
             }
         }
     }
@@ -91,6 +114,10 @@ private extension RateAppBottomSheetView {
         static let horizontalPadding = 16.0
         static let interItemSpacing = 10.0
         static let sfSymbolsName = "star.fill"
+        static let ratingSymbolsCount = 5
+        static let ratingAnimationDuration = 0.09
+        static var ratingAnimationTotalDuration: TimeInterval { ratingAnimationDuration * TimeInterval(ratingSymbolsCount) }
+        static let ratingAnimationDelay = 0.7
     }
 }
 
