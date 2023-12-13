@@ -13,6 +13,7 @@ enum PersistentStorageKey {
     case wallets(cid: String)
     case allWalletConnectSessions
     case walletConnectSessions(userWalletId: String)
+    case pendingExpressTransactions
 
     var path: String {
         switch self {
@@ -24,6 +25,8 @@ enum PersistentStorageKey {
             return "wc_sessions"
         case .walletConnectSessions(let userWalletId):
             return "wc_sessions_\(userWalletId)"
+        case .pendingExpressTransactions:
+            return "express_pending_transactions"
         }
     }
 }
