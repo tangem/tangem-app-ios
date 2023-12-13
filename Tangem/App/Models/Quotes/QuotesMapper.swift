@@ -15,12 +15,14 @@ struct QuotesMapper {
                 return nil
             }
 
-            return Quote(
+            let quote = Quote(
                 id: key,
                 price: price,
                 priceChange: value.priceChange24h,
-                prices24h: Array(value.prices24h.values)
+                prices24h: value.prices24h.map { Array($0.values) }
             )
+
+            return quote
         }
     }
 }
