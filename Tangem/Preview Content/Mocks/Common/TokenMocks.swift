@@ -46,8 +46,17 @@ extension Token {
             symbol: "SHIB",
             contractAddress: "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
             decimalCount: 18,
-            id: "shiba-inu",
-            exchangeable: true
+            id: "shiba-inu"
+        )
+    }
+
+    static var polygonTokenMock: Token {
+        Token(
+            name: "Polygon",
+            symbol: "MATIC",
+            contractAddress: "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+            decimalCount: 18,
+            id: "matic-network"
         )
     }
 
@@ -57,8 +66,7 @@ extension Token {
             symbol: "ATOM",
             contractAddress: "0xac51C4c48Dc3116487eD4BC16542e27B5694Da1b",
             decimalCount: 6,
-            id: "cosmos",
-            exchangeable: false
+            id: "cosmos"
         )
     }
 }

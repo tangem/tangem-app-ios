@@ -8,58 +8,97 @@
 
 import Foundation
 import SwiftUI
+import UIKit
 import Combine
 
 final class BottomScrollableSheetStateObject: ObservableObject {
-    @Published var visibleHeight: CGFloat = .zero
-    @Published var headerHeight: CGFloat = .zero
-    @Published var scrollViewIsDragging: Bool = false
+    @Published private(set) var state: BottomScrollableSheetState = .bottom
+
+    @Published private(set) var scrollViewIsDragging: Bool = false
+
+    @Published private(set) var visibleHeight: CGFloat = .zero
+
+    @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
+
+    var headerHeight: CGFloat = .zero {
+        didSet {
+            if oldValue != headerHeight {
+                updateToState(state)
+            }
+        }
+    }
+
+    var topInset: CGFloat { Constants.sheetTopInset }
 
     var geometryInfoSubject: some Subject<GeometryInfo, Never> { _geometryInfoSubject }
     private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
     private var geometryInfo: GeometryInfo { _geometryInfoSubject.value }
 
+    var contentOffsetSubject: some Subject<CGPoint, Never> { _contentOffsetSubject }
+    private let _contentOffsetSubject = CurrentValueSubject<CGPoint, Never>(.zero)
+    private var contentOffset: CGPoint { _contentOffsetSubject.value }
+
     var progress: CGFloat {
-        let maxHeight = height(for: .top)
+        let maxHeight = height(for: .top(trigger: .dragGesture))
         let minHeight = height(for: .bottom)
-        let progress = (visibleHeight - minHeight) / maxHeight
+        let progress = (visibleHeight - minHeight) / (maxHeight - minHeight)
         return clamp(progress, min: 0.0, max: 1.0)
     }
 
-    private var state: SheetState = .bottom
-    private var contentOffset: CGPoint = .zero
-    private var keyboardCancellable: AnyCancellable?
+    var scale: CGFloat {
+        let minScale = 1.0
+        let maxScale = sourceViewMinHeight / sourceViewMaxHeight
+        return minScale - (minScale - maxScale) * progress
+    }
 
-    init() {
-        bindKeyboard()
+    private var sourceViewMaxHeight: CGFloat {
+        return UIScreen.main.bounds.height
+    }
+
+    private var sourceViewMinHeight: CGFloat {
+        return height(for: .top(trigger: .dragGesture)) + Constants.sheetTopInset
     }
 
     func onAppear() {
         updateToState(state)
     }
 
+    func onHeaderTap() {
+        updateToState(.top(trigger: .tapGesture))
+    }
+
     /// Use for set and update sheet to the state
-    func updateToState(_ state: SheetState) {
+    private func updateToState(_ state: BottomScrollableSheetState) {
         self.state = state
 
         withAnimation(.easeOut) {
             visibleHeight = height(for: state)
+            updateStatusBarAppearance(to: state)
         }
     }
 
     /// Use for change height when user is dragging
-    func updateVisibleHeight(_ height: CGFloat) {
+    private func updateVisibleHeight(_ height: CGFloat) {
         withAnimation(.interactiveSpring()) {
             self.visibleHeight = height
         }
     }
 
-    func height(for state: BottomScrollableSheetStateObject.SheetState) -> CGFloat {
+    private func height(for state: BottomScrollableSheetState) -> CGFloat {
         switch state {
         case .bottom:
             return headerHeight
         case .top:
-            return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom
+            return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom - Constants.sheetTopInset
+        }
+    }
+
+    private func updateStatusBarAppearance(to state: BottomScrollableSheetState) {
+        switch state {
+        case .bottom:
+            preferredStatusBarColorScheme = nil
+        case .top:
+            preferredStatusBarColorScheme = .dark
         }
     }
 
@@ -71,13 +110,13 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     func headerDragGesture(onEnded value: DragGesture.Value) {
-        let hidingLine = height(for: .top) * Constants.hidingLineMultiplicator
+        let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
 
         // If the ended location below the hiding line
         if value.predictedEndLocation.y > hidingLine {
             updateToState(.bottom)
         } else {
-            updateToState(.top)
+            updateToState(.top(trigger: .dragGesture))
         }
     }
 
@@ -103,28 +142,19 @@ final class BottomScrollableSheetStateObject: ObservableObject {
             let isHighVelocity = value.velocity.y > geometryInfo.size.height
 
             // The user stop swipe below hiding line
-            let hidingLine = height(for: .top) * Constants.hidingLineMultiplicator
+            let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
             let isStoppedBelowHidingLine = visibleHeight < hidingLine
 
             if isHighVelocity || isStoppedBelowHidingLine {
                 updateToState(.bottom)
             } else {
-                updateToState(.top)
+                updateToState(.top(trigger: .dragGesture))
             }
         }
 
         if scrollViewIsDragging {
             scrollViewIsDragging = false
         }
-    }
-
-    private func bindKeyboard() {
-        keyboardCancellable = NotificationCenter
-            .default
-            .publisher(for: UIResponder.keyboardWillShowNotification)
-            .sink { [weak self] _ in
-                self?.updateToState(.top)
-            }
     }
 
     private func dragView(translation: CGFloat) {
@@ -148,47 +178,12 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 }
 
-// MARK: - ScrollViewRepresentableDelegate protocol conformance
-
-extension BottomScrollableSheetStateObject: ScrollViewRepresentableDelegate {
-    func getSafeAreaInsets() -> UIEdgeInsets {
-        let safeAreaInsets = geometryInfo.safeAreaInsets
-
-        return UIEdgeInsets(
-            top: safeAreaInsets.top,
-            left: safeAreaInsets.leading,
-            bottom: safeAreaInsets.bottom,
-            right: safeAreaInsets.trailing
-        )
-    }
-
-    func contentOffsetDidChanged(contentOffset: CGPoint) {
-        self.contentOffset = contentOffset
-    }
-
-    func gesture(onChanged value: UIPanGestureRecognizer.Value) {
-        scrollViewContentDragGesture(onChanged: value)
-    }
-
-    func gesture(onEnded value: UIPanGestureRecognizer.Value) {
-        scrollViewContentDragGesture(onEnded: value)
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension BottomScrollableSheetStateObject {
-    enum SheetState: String, Hashable {
-        case top
-        case bottom
-    }
-}
-
 // MARK: - Constants
 
 private extension BottomScrollableSheetStateObject {
     enum Constants {
         static let hidingLineMultiplicator: CGFloat = 0.5
         static let reduceSwipeMultiplicator: CGFloat = 10.0
+        static let sheetTopInset: CGFloat = 16.0
     }
 }

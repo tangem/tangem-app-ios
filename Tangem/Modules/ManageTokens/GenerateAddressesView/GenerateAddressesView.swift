@@ -31,18 +31,18 @@ struct GenerateAddressesView: View {
 
             MainButton(
                 title: Localization.commonGenerateAddresses,
-                subtitle: Localization.manageTokensNumberOfWallets(viewModel.currentWalletNumber, viewModel.totalWalletNumber),
+                subtitle: Localization.manageTokensNumberOfWalletsIos(viewModel.currentWalletNumber, viewModel.totalWalletNumber),
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 action: viewModel.didTapGenerate
             )
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.top, 12)
+        .padding(.bottom, 6)
         .padding(.bottom, UIApplication.safeAreaInsets.bottom)
         .background(Colors.Background.action.ignoresSafeArea())
         .cornerRadius(24, corners: [.topLeft, .topRight])
-        .offset(y: UIApplication.safeAreaInsets.bottom)
         .shadow(color: .black.opacity(0.12), radius: 32, x: 0, y: -5)
     }
 }

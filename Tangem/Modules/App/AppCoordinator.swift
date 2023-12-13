@@ -9,8 +9,11 @@
 import Foundation
 import UIKit
 import Combine
+import CombineExt
 
 class AppCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     let dismissAction: Action<Void> = { _ in }
     let popToRootAction: Action<PopToRootOptions> = { _ in }
 
@@ -18,12 +21,18 @@ class AppCoordinator: CoordinatorObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.walletConnectSessionsStorageInitializable) private var walletConnectSessionStorageInitializer: Initializable
+    @Injected(\.mainBottomSheetVisibility) private var bottomSheetVisibility: MainBottomSheetVisibility
 
     // MARK: - Child coordinators
 
     @Published var welcomeCoordinator: WelcomeCoordinator?
     @Published var uncompletedBackupCoordinator: UncompletedBackupCoordinator?
     @Published var authCoordinator: AuthCoordinator?
+    @Published var mainBottomSheetCoordinator: MainBottomSheetCoordinator?
+
+    // MARK: - View State
+
+    @Published private(set) var isMainBottomSheetShown = false
 
     // MARK: - Private
 
@@ -48,6 +57,8 @@ class AppCoordinator: CoordinatorObject {
         case .uncompletedBackup:
             setupUncompletedBackup()
         }
+
+        setupMainBottomSheetCoordinatorIfNeeded()
     }
 
     private func restart(with options: AppCoordinator.Options = .default) {
@@ -107,6 +118,27 @@ class AppCoordinator: CoordinatorObject {
         uncompletedBackupCoordinator = coordinator
     }
 
+    /// - Note: The coordinator is set up only once and only when the feature toggle is enabled.
+    private func setupMainBottomSheetCoordinatorIfNeeded() {
+        guard
+            FeatureProvider.isAvailable(.mainScreenBottomSheet),
+            mainBottomSheetCoordinator == nil
+        else {
+            return
+        }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.mainBottomSheetCoordinator = nil
+        }
+
+        let coordinator = MainBottomSheetCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start()
+        mainBottomSheetCoordinator = coordinator
+    }
+
     private func bind() {
         userWalletRepository
             .eventProvider
@@ -115,6 +147,11 @@ class AppCoordinator: CoordinatorObject {
                     self?.handleLock(reason: reason)
                 }
             }
+            .store(in: &bag)
+
+        bottomSheetVisibility
+            .isShownPublisher
+            .assign(to: \.isMainBottomSheetShown, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -158,6 +195,8 @@ class AppCoordinator: CoordinatorObject {
         }
     }
 }
+
+// MARK: - Options
 
 extension AppCoordinator {
     struct Options {
