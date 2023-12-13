@@ -49,10 +49,10 @@ class ExpressNotificationManager {
 
                 return !event.removingOnFullLoadingState
             }
-        case .restriction(let restrictions, let expectedQuote):
+        case .restriction(let restrictions, let quote):
             setupNotification(for: restrictions)
 
-            guard let quote = expectedQuote?.quote else {
+            guard let quote else {
                 return
             }
 
@@ -64,11 +64,13 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
 
-        case .previewCEX(_, let quote):
+        case .previewCEX(let preview, let quote):
             notificationInputsSubject.value = []
-            if let quote = quote.quote {
-                checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
+            if preview.subtractFee > 0 {
+                setupFeeWillBeSubtractFromSendingAmountNotification(amount: preview.subtractFee)
             }
+
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
         }
     }
 
@@ -137,6 +139,20 @@ class ExpressNotificationManager {
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
         }
         notificationInputsSubject.value = [notification]
+    }
+
+    private func setupFeeWillBeSubtractFromSendingAmountNotification(amount: Decimal) {
+        guard let interactor = expressInteractor else { return }
+
+        let sourceTokenItemSymbol = interactor.getSender().tokenItem.currencySymbol
+        let event: ExpressNotificationEvent = .feeWillBeSubtractFromSendingAmount(reducedAmount: "\(amount) \(sourceTokenItemSymbol)")
+        let notificationsFactory = NotificationsFactory()
+
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+        }
+
+        notificationInputsSubject.value.append(notification)
     }
 
     private func generateHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
