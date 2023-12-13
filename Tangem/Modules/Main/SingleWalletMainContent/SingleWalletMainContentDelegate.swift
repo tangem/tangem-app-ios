@@ -1,5 +1,5 @@
 //
-//  MainViewDelegate.swift
+//  SingleWalletMainContentDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
-protocol MainViewDelegate: MainNotificationsObserver {
+protocol SingleWalletMainContentDelegate: MainNotificationsObserver {
     func present(actionSheet: ActionSheetBinder)
 }
