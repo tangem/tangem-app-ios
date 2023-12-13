@@ -25,22 +25,23 @@ struct CustomSearchBar: View {
                 .allowsTightening(textFieldAllowsHitTesting)
                 .foregroundColor(Colors.Text.primary1)
                 .font(Fonts.Regular.subheadline)
+                .frame(height: 20.0)
                 .overlay(
                     Assets.clear.image
                         .renderingMode(.template)
+                        .frame(size: .init(width: 16, height: 16))
                         .padding()
-                        .offset(x: 10)
+                        .offset(x: 0)
                         .foregroundColor(Colors.Icon.informative)
+                        .frame(size: .init(width: 20, height: 20))
                         .opacity(searchText.isEmpty ? 0.0 : 1.0)
-                        .frame(size: .init(width: 24, height: 24))
                         .onTapGesture {
                             searchText = ""
                         },
                     alignment: .trailing
                 )
         }
-        .frame(height: 20.0)
-        .padding(.vertical, 12.0)
+        .padding(.vertical, 13.0)
         .padding(.horizontal, 12.0)
         .background(
             RoundedRectangle(cornerRadius: 14)
@@ -55,9 +56,11 @@ struct CustomSearchBar_Previews: PreviewProvider {
         CustomSearchBar(
             searchText: .constant(""),
             placeholder: Localization.commonSearch,
-            textFieldAllowsHitTesting: false
+            textFieldAllowsHitTesting: true
         )
-        .previewLayout(.sizeThatFits)
+        .padding(.top, 20)
+        .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
+        .background(Colors.Background.primary)
         .preferredColorScheme(.light)
 
         CustomSearchBar(
