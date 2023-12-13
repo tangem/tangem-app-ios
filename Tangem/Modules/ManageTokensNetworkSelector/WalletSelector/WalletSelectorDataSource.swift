@@ -11,7 +11,7 @@ import Combine
 
 protocol WalletSelectorDataSource: AnyObject {
     /// Published value selected UserWalletModel
-    var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> { get }
+    var selectedUserWalletModelPublisher: AnyPublisher<UserWalletId?, Never> { get }
 
     /// ViewModels list for wallet selector screen
     var itemViewModels: [WalletSelectorItemViewModel] { get }
