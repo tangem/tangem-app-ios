@@ -42,7 +42,9 @@ extension CommonSwappingFeeFormatter: SwappingFeeFormatter {
         return format(fee: fee, symbol: blockchain.symbol, fiatFee: fiatFee)
     }
 
-    func format(fee: Decimal, currencySymbol: String, currencyId: String) -> String {
+    func format(fee: Decimal, tokenItem: TokenItem) -> String {
+        let currencySymbol = tokenItem.blockchain.currencySymbol
+        let currencyId = tokenItem.blockchain.currencyId
         let feeFormatted = balanceFormatter.formatCryptoBalance(fee, currencyCode: currencySymbol)
 
         guard let fiatFee = balanceConverter.convertToFiat(value: fee, from: currencyId) else {
