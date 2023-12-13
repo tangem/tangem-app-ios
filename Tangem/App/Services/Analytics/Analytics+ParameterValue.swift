@@ -84,6 +84,16 @@ extension Analytics {
 
         case balance = "Balance"
 
+        // MARK: - Express
+
+        case status = "Status"
+
+        // CEX statuses
+        case inProgress = "In Progress"
+        case done = "Done"
+        case kyc = "KYC"
+        case refunded = "Refunded"
+
         // App theme
         case system = "System"
         case light = "Light"
