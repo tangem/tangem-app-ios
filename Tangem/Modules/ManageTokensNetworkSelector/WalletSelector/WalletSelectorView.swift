@@ -25,15 +25,19 @@ struct WalletSelectorView: View {
 
             Spacer()
         }
-        .background(Colors.Background.secondary.ignoresSafeArea())
+        .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationBarTitle(Text(Localization.manageTokensWalletSelectorTitle), displayMode: .inline)
     }
 }
 
 struct WalletSelectorView_Previews: PreviewProvider {
     private class PreviewWalletSelectorDataSource: WalletSelectorDataSource {
+        private var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
+
         var itemViewModels: [WalletSelectorItemViewModel] = []
-        var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
+        var selectedUserWalletModelPublisher: AnyPublisher<UserWalletId?, Never> {
+            _selectedUserWalletModel.map { $0?.userWalletId }.eraseToAnyPublisher()
+        }
     }
 
     static var previews: some View {

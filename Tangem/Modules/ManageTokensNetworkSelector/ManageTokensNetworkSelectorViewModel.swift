@@ -35,7 +35,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
     private unowned let coordinator: ManageTokensNetworkSelectorRoutable
 
-    private let parentDataSource: ManageTokensDataSource
+    /// CoinId from parent data source embedded on selected UserWalletModel
+    private let parentEmbeddedCoinId: String?
     private let dataSource: ManageTokensNetworkDataSource
 
     private let coinId: String
@@ -45,7 +46,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         dataSource.selectedUserWalletModel
     }
 
-    private var isTokenAvailableForSwitching: Bool {
+    private var canTokenItemBeToggled: Bool {
         selectedUserWalletModel != nil
     }
 
@@ -60,19 +61,17 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         self.coinId = coinId
         self.tokenItems = tokenItems
         self.coordinator = coordinator
-        self.parentDataSource = parentDataSource
+        parentEmbeddedCoinId = parentDataSource.defaultUserWalletModel?.embeddedCoinId
 
         dataSource = ManageTokensNetworkDataSource(parentDataSource)
 
         bind()
-        displayNotificationIfNeededWithCheckCondition()
+        setup()
+
+        reloadSelectorItemsFromTokenItems()
     }
 
     // MARK: - Implementation
-
-    func onAppear() {
-        reloadSelectorItemsFromTokenItems()
-    }
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
@@ -92,8 +91,12 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Private Implementation
 
     private func bind() {
-        dataSource._selectedUserWalletModel
-            .sink { [weak self] userWalletModel in
+        dataSource.selectedUserWalletModelPublisher
+            .sink { [weak self] userWalletId in
+                guard let userWalletModel = self?.dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
+                    return
+                }
+
                 self?.setNeedSelectWallet(userWalletModel)
             }
             .store(in: &bag)
@@ -113,7 +116,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: nil,
                     isSelected: bindSelection($0),
-                    isAvailable: isTokenAvailableForSwitching
+                    isAvailable: canTokenItemBeToggled
                 )
             }
 
@@ -130,17 +133,19 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
                     isSelected: bindSelection($0),
-                    isAvailable: isTokenAvailableForSwitching
+                    isAvailable: canTokenItemBeToggled
                 )
             }
     }
 
-    /// This method that shows a notification result if the condition is single currency
-    private func displayNotificationIfNeededWithCheckCondition() {
-        if isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: false) {
+    /// This method that shows a configure notification input result if the condition is single currency by coinId
+    private func setup() {
+        guard dataSource.userWalletModels.isEmpty else {
+            return
+        }
+
+        if parentEmbeddedCoinId != coinId {
             displayWarningNotification(for: .supportedOnlySingleCurrencyWallet)
-        } else {
-            notificationInput = nil
         }
     }
 
@@ -197,7 +202,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             do {
                 try self?.displayAlertWarningDeleteIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
             } catch {
-                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
+                self?.displayAlertAndUpdateSelection(for: tokenItem, error: error)
             }
         }
 
@@ -257,11 +262,11 @@ private extension ManageTokensNetworkSelectorViewModel {
     }
 
     func isAdded(_ tokenItem: TokenItem) -> Bool {
-        guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
-            return isExistOnlySingleCurrencyUserWalletModelWithCoin(contained: true)
+        if let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager {
+            return userTokensManager.contains(tokenItem, derivationPath: nil)
         }
 
-        return userTokensManager.contains(tokenItem, derivationPath: nil)
+        return parentEmbeddedCoinId == tokenItem.blockchain.coinId
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
@@ -283,35 +288,19 @@ private extension ManageTokensNetworkSelectorViewModel {
 
         return isWaitingToBeAdded || alreadyAdded
     }
-
-    /// This method that checks whether there is a single currency and contain supported the coinId parameter
-    func isExistOnlySingleCurrencyUserWalletModelWithCoin(contained condition: Bool) -> Bool {
-        guard dataSource.userWalletModels.isEmpty else {
-            return false
-        }
-
-        if let defaultUserWalletModel = parentDataSource.defaultUserWalletModel,
-           defaultUserWalletModel.config.supportedBlockchains.contains(where: {
-               return condition ? $0.coinId == coinId : $0.coinId != coinId
-           }) {
-            return true
-        }
-
-        return false
-    }
 }
 
 // MARK: - Alerts
 
 private extension ManageTokensNetworkSelectorViewModel {
-    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: LocalizedError?) {
+    func displayAlertAndUpdateSelection(for tokenItem: TokenItem, error: Error?) {
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {
             self.updateSelection(tokenItem)
         }
 
         alert = AlertBinder(alert: Alert(
             title: Text(Localization.commonAttention),
-            message: Text(error?.errorDescription ?? ""),
+            message: Text(error?.localizedDescription ?? ""),
             dismissButton: okButton
         ))
     }
@@ -371,5 +360,11 @@ private extension ManageTokensNetworkSelectorViewModel {
             buttonAction: { _, _ in },
             dismissAction: { _ in }
         )
+    }
+}
+
+private extension UserWalletModel {
+    var embeddedCoinId: String? {
+        config.embeddedBlockchain?.blockchainNetwork.blockchain.coinId
     }
 }
