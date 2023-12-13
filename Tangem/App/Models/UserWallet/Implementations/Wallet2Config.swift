@@ -132,12 +132,6 @@ extension Wallet2Config: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
-    var tangemSigner: TangemSigner {
-        let shouldSkipCardId = card.backupStatus?.isActive ?? false
-        let cardId = shouldSkipCardId ? nil : card.cardId
-        return .init(with: cardId, sdk: makeTangemSdk())
-    }
-
     var userWalletIdSeed: Data? {
         card.wallets.first?.publicKey
     }
@@ -159,7 +153,7 @@ extension Wallet2Config: UserWalletConfig {
         switch card.batchId {
         // Tron 37X cards
         case "AF07":
-            return cardsCount == 2 ? Assets.Cards.tron37xDouble : Assets.Cards.tron37xTriple
+            return cardsCount == 2 ? Assets.Cards.tronDouble : Assets.Cards.tronTriple
         // Kaspa cards
         case "AF08":
             return cardsCount == 2 ? Assets.Cards.kaspaDouble : Assets.Cards.kaspaTriple
