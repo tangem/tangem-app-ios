@@ -9,5 +9,6 @@
 import Foundation
 
 protocol InformationHiddenBalancesRoutable: AnyObject {
-    func closeInformationHiddenBalances()
+    func hiddenBalancesSheetDidRequestClose()
+    func hiddenBalancesSheetDidRequestDoNotShowAgain()
 }

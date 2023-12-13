@@ -9,10 +9,10 @@
 import Foundation
 
 public struct QuoteData: Decodable {
-    public let fromToken: TokenInfo
-    public let toToken: TokenInfo
-    public let toTokenAmount: String
-    public let fromTokenAmount: String
-    public let protocols: [[[ProtocolInfo]]]
-    public let estimatedGas: Int
+    public let toAmount: String
+
+    public let fromToken: TokenInfo?
+    public let toToken: TokenInfo?
+    public let protocols: [[[ProtocolInfo]]]?
+    public let gas: Int?
 }
