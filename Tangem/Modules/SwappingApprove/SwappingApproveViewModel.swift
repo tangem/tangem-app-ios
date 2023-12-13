@@ -16,7 +16,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<SwappingApprovePolicy>?
-    @Published var selectedAction: SwappingApprovePolicy
+    @Published var selectedAction: SwappingApprovePolicy = .unlimited
     @Published var feeRowViewModel: DefaultRowViewModel?
 
     @Published var isLoading = false
@@ -52,7 +52,6 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        selectedAction = expressInteractor.getApprovePolicy()
         setupExpressView()
         bind()
     }
@@ -149,6 +148,13 @@ private extension SwappingApproveViewModel {
     }
 
     func setupExpressView() {
+        runTask(in: self) { viewModel in
+            let approvePolicy = await viewModel.expressInteractor.getApprovePolicy()
+            await runOnMain {
+                viewModel.selectedAction = approvePolicy
+            }
+        }
+
         let currencySymbol = expressInteractor.getSender().tokenItem.currencySymbol
         menuRowViewModel = .init(
             title: Localization.swappingPermissionRowsAmount(currencySymbol),
