@@ -108,5 +108,6 @@ extension NotificationView {
     struct MessageIcon {
         let iconType: LeadingIconType
         var color: Color?
+        var size: CGSize = .init(bothDimensions: 20)
     }
 }
