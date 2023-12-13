@@ -224,7 +224,7 @@ extension SingleTokenNotificationManager: NotificationManager {
 
         switch event {
         case .tangemExpressPromotion:
-            Analytics.log(.swapPromoClosed)
+            Analytics.log(.swapPromoButtonClose)
             AppSettings.shared.tangemExpressTokenPromotionDismissed = true
         default:
             break
