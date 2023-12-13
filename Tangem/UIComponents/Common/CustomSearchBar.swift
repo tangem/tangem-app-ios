@@ -22,7 +22,6 @@ struct CustomSearchBar: View {
                 .frame(size: .init(width: 20, height: 20))
 
             TextField(placeholder, text: $searchText)
-                .allowsTightening(textFieldAllowsHitTesting)
                 .foregroundColor(Colors.Text.primary1)
                 .font(Fonts.Regular.subheadline)
                 .frame(height: 20.0)
@@ -34,12 +33,13 @@ struct CustomSearchBar: View {
                         .offset(x: 0)
                         .foregroundColor(Colors.Icon.informative)
                         .frame(size: .init(width: 20, height: 20))
-                        .opacity(searchText.isEmpty ? 0.0 : 1.0)
+                        .hidden(searchText.isEmpty)
                         .onTapGesture {
                             searchText = ""
                         },
                     alignment: .trailing
                 )
+                .allowsHitTesting(textFieldAllowsHitTesting)
         }
         .padding(.vertical, 13.0)
         .padding(.horizontal, 12.0)
