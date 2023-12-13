@@ -9,6 +9,8 @@
 import Foundation
 
 class OnboardingCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -32,8 +34,12 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
 
+    // MARK: - Helpers
+
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
+
+    // MARK: - Private
 
     private var options: OnboardingCoordinator.Options!
 
@@ -59,8 +65,12 @@ class OnboardingCoordinator: CoordinatorObject {
             onDismissalAttempt = model.backButtonAction
             walletViewModel = model
         }
+
+        Analytics.log(.onboardingStarted)
     }
 }
+
+// MARK: - Options
 
 extension OnboardingCoordinator {
     enum DestinationOnFinish {
@@ -78,6 +88,8 @@ extension OnboardingCoordinator {
         let isSuccessful: Bool
     }
 }
+
+// MARK: - OnboardingTopupRoutable
 
 extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
@@ -125,6 +137,8 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     }
 }
 
+// MARK: - WalletOnboardingRoutable
+
 extension OnboardingCoordinator: WalletOnboardingRoutable {
     func openAccessCodeView(callback: @escaping (String) -> Void) {
         accessCodeModel = .init(successHandler: { [weak self] code in
@@ -147,6 +161,8 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         )
     }
 }
+
+// MARK: - OnboardingRoutable
 
 extension OnboardingCoordinator: OnboardingRoutable {
     func onboardingDidFinish(userWallet: CardViewModel?) {
