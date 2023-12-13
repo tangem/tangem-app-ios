@@ -45,7 +45,7 @@ class DefaultSendAddressService: SendAddressService {
 
 // MARK: - Service that can resolve an address (from a user-friendly one like in NEAR protocol)
 
-class SendResolvedAddressService: SendAddressService {
+class SendResolvableAddressService: SendAddressService {
     private let defaultAddressService: DefaultSendAddressService
     private let addressResolver: AddressResolver
 
