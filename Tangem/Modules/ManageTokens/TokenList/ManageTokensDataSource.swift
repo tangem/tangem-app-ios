@@ -14,8 +14,10 @@ class ManageTokensDataSource {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
+    private let _userWalletModels: CurrentValueSubject<[UserWalletModel], Never> = .init([])
+
     var userWalletModels: [UserWalletModel] { _userWalletModels.value }
+    var userWalletModelsPublisher: AnyPublisher<[UserWalletModel], Never> { _userWalletModels.eraseToAnyPublisher() }
 
     var defaultUserWalletModel: UserWalletModel? { userWalletRepository.selectedModel }
 
