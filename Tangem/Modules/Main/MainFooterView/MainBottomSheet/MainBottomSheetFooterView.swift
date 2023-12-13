@@ -11,7 +11,7 @@ import SwiftUI
 struct MainBottomSheetFooterView: View {
     var body: some View {
         VStack(spacing: 0.0) {
-            FixedSpacer.vertical(14.0)
+            FixedSpacer(height: Constants.spacerLength, length: Constants.spacerLength)
 
             // `MainBottomSheetHeaderInputView` is used here as a dummy noninteractive placeholder
             MainBottomSheetHeaderInputView(
@@ -23,5 +23,13 @@ struct MainBottomSheetFooterView: View {
             .bottomScrollableSheetGrabber()
             .bottomScrollableSheetShadow()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension MainBottomSheetFooterView {
+    enum Constants {
+        static let spacerLength = 14.0
     }
 }
