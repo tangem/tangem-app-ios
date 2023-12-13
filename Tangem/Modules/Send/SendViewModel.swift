@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import BlockchainSdk
 
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
@@ -89,10 +90,10 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(sendType: SendType, coordinator: SendRoutable) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
-        sendModel = SendModel()
         self.sendType = sendType
+        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
@@ -101,7 +102,19 @@ final class SendViewModel: ObservableObject {
         self.steps = steps
         step = firstStep
 
-        sendAmountViewModel = SendAmountViewModel(input: sendModel)
+        #warning("[REDACTED_TODO_COMMENT]")
+        let walletName = "Wallet Name"
+        let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+        let walletInfo = SendWalletInfo(
+            walletName: walletName,
+            balance: walletModel.balance,
+            tokenIconInfo: tokenIconInfo,
+            cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
+            fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
+            amountFractionDigits: walletModel.tokenItem.decimalCount
+        )
+
+        sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
