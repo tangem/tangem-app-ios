@@ -66,8 +66,7 @@ final class SendViewModel: ObservableObject {
     private let sendType: SendType
     private let steps: [SendStep]
     private let walletModel: WalletModel
-    private let emailData: [EmailCollectedData]
-    private let emailConfig: EmailConfig
+    private let emailDataProvider: EmailDataProvider
 
     private unowned let coordinator: SendRoutable
 
@@ -94,12 +93,11 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, emailData: [EmailCollectedData], emailConfig: EmailConfig, coordinator: SendRoutable) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, emailDataProvider: EmailDataProvider, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
         self.walletModel = walletModel
-        self.emailData = emailData
-        self.emailConfig = emailConfig
+        self.emailDataProvider = emailDataProvider
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
 
         let steps = sendType.steps
@@ -205,7 +203,7 @@ final class SendViewModel: ObservableObject {
         guard let transaction = sendModel.currentTransaction() else { return }
 
         let emailDataCollector = SendScreenDataCollector(
-            userWalletEmailData: emailData,
+            userWalletEmailData: emailDataProvider.emailData,
             walletModel: walletModel,
             fee: transaction.fee.amount,
             destination: transaction.destinationAddress,
@@ -213,7 +211,8 @@ final class SendViewModel: ObservableObject {
             isFeeIncluded: sendModel.isFeeIncluded,
             lastError: error
         )
-        coordinator.openMail(with: emailDataCollector, recipient: emailConfig.recipient)
+        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: emailDataCollector, recipient: recipient)
     }
 }
 
