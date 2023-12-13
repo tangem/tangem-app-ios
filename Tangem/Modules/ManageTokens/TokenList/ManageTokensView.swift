@@ -18,6 +18,7 @@ struct ManageTokensView: View {
         list
             .scrollDismissesKeyboardCompat(true)
             .alert(item: $viewModel.alert, content: { $0.alert })
+            .background(Colors.Background.primary)
     }
 
     private var header: some View {
@@ -43,6 +44,10 @@ struct ManageTokensView: View {
                 ManageTokensItemView(viewModel: $0)
             }
 
+            if viewModel.isShowAddCustomToken {
+                addCutomTokenView
+            }
+
             if viewModel.hasNextPage {
                 HStack(alignment: .center) {
                     ActivityIndicatorView(color: .gray)
@@ -55,5 +60,11 @@ struct ManageTokensView: View {
     @ViewBuilder private var titleView: some View {
         Text(Localization.addTokensTitle)
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+    }
+
+    private var addCutomTokenView: some View {
+        ManageTokensAddCustomItemView {
+            viewModel.addCustomTokenDidTapAction()
+        }
     }
 }
