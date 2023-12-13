@@ -30,6 +30,7 @@ extension NotificationView {
     struct NotificationButton: Identifiable, Equatable {
         let action: NotificationButtonTapAction
         let actionType: NotificationButtonActionType
+        let isWithLoader: Bool
 
         var id: Int { actionType.id }
 
@@ -66,8 +67,13 @@ extension NotificationView {
         }
     }
 
+    enum LeadingIconType {
+        case image(Image)
+        case progressView
+    }
+
     struct MessageIcon {
-        let image: Image
+        let iconType: LeadingIconType
         var color: Color?
     }
 }

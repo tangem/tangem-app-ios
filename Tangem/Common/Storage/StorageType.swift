@@ -35,4 +35,7 @@ enum StorageType: String {
     case promotionQuestionnaireFinished = "promotion_questionnaire_finished"
     case hideSensitiveInformation = "hide_sensitive_information"
     case hideSensitiveAvailable = "hide_sensitive_available"
+    case shouldHidingSensitiveInformationSheetShowing = "should_hiding_sensitive_information_sheet_showing"
+    case appTheme = "app_theme"
+    case userDidSwipeWalletsOnMainScreen = "user_did_swipe_wallets_on_main_screen"
 }
