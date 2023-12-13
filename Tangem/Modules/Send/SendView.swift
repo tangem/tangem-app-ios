@@ -114,8 +114,7 @@ struct SendView_Preview: PreviewProvider {
         walletModel: WalletModelsManagerMock().walletModels.first!,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
-        emailData: [],
-        emailConfig: EmailConfig.default,
+        emailDataProvider: CardViewModel.mock!,
         coordinator: SendRoutableMock()
     )
 
