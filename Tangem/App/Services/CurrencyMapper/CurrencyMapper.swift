@@ -57,9 +57,9 @@ struct CurrencyMapper: CurrencyMapping {
     }
 
     func mapToCurrency(coinModel: CoinModel) -> Currency? {
-        let coinType = coinModel.items.first
+        let tokenItem = coinModel.items.first?.tokenItem
 
-        switch coinType {
+        switch tokenItem {
         case .blockchain(let blockchain):
             return mapToCurrency(blockchain: blockchain)
         case .token(let token, let blockchain):
