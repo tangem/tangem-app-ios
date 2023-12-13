@@ -77,7 +77,6 @@ extension ExpressCoordinator: ExpressRoutable {
 
     func presentSuccessView(data: SentExpressTransactionData) {
         UIApplication.shared.endEditing()
-        Analytics.log(.swapSwapInProgressScreenOpened)
 
         let dismissAction = { [weak self] in
             self?.swappingSuccessCoordinator = nil
