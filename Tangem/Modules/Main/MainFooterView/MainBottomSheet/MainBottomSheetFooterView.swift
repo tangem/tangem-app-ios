@@ -13,11 +13,15 @@ struct MainBottomSheetFooterView: View {
         VStack(spacing: 0.0) {
             FixedSpacer(height: Constants.spacerLength, length: Constants.spacerLength)
 
-            // `MainBottomSheetHeaderView` is used here as a dummy noninteractive placeholder
-            MainBottomSheetHeaderView(searchText: .constant(""), textFieldAllowsHitTesting: false)
-                .bottomScrollableSheetCornerRadius()
-                .bottomScrollableSheetGrabber()
-                .bottomScrollableSheetShadow()
+            // `MainBottomSheetHeaderInputView` is used here as a dummy noninteractive placeholder
+            MainBottomSheetHeaderInputView(
+                searchText: .constant(""),
+                isTextFieldFocused: .constant(false),
+                textFieldAllowsHitTesting: false
+            )
+            .bottomScrollableSheetCornerRadius()
+            .bottomScrollableSheetGrabber()
+            .bottomScrollableSheetShadow()
         }
     }
 }
