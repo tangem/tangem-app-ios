@@ -10,10 +10,12 @@ import UIKit
 
 enum UIFonts {
     enum Regular {
-        /// weight: regular, size: 17
-        static let body: UIFont = .systemFont(ofSize: 17, weight: .regular)
+        static let body: UIFont = FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .body) : .systemFont(ofSize: 17, weight: .regular)
+        static let subheadline: UIFont = FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(.subheadline) : .systemFont(ofSize: 15, weight: .regular)
 
-        /// weight: regular, size: 15
-        static let subheadline: UIFont = .systemFont(ofSize: 15, weight: .regular)
+        // Can't use a constant because of dynamic fonts
+        static var footnote: UIFont {
+            FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .footnote) : .systemFont(ofSize: 13, weight: .regular)
+        }
     }
 }

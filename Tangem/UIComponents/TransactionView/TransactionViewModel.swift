@@ -47,22 +47,18 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var formattedAmount: String? {
         switch transactionType {
-        case .approval:
+        case .approve:
             return nil
-        case .transfer, .swap, .operation:
+        case .transfer, .swap, .operation, .unknownOperation:
             return amount
         }
     }
 
-    var amountTextColor: Color {
+    var localizeDestination: String {
         if status == .failed {
-            return Colors.Text.warning
+            return Localization.commonTransactionFailed
         }
 
-        return isOutgoing ? Colors.Text.tertiary : Colors.Text.accent
-    }
-
-    var localizeDestination: String {
         switch interactionAddress {
         case .user(let address):
             if isOutgoing {
@@ -89,33 +85,29 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .transfer: return Localization.commonTransfer
         case .swap: return Localization.commonSwap
-        case .approval: return Localization.commonApproval
+        case .approve: return Localization.commonApproval
+        case .unknownOperation: return Localization.transactionHistoryOperation
         case .operation(name: let name): return name
         }
     }
 
     var icon: Image {
         if status == .failed {
-            return Assets.cross.image
+            return Assets.crossBig.image
         }
 
         switch transactionType {
-        case .transfer:
-            return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
-        case .swap:
-            return Assets.exchangeMini.image
-        case .approval:
+        case .approve:
             return Assets.approve.image
-        case .operation:
-            // [REDACTED_TODO_COMMENT]
-            return Assets.exchangeMini.image
+        case .transfer, .swap, .operation, .unknownOperation:
+            return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         }
     }
 
     var iconColor: Color {
         switch status {
         case .inProgress:
-            return Colors.Icon.attention
+            return Colors.Icon.accent
         case .confirmed:
             return Colors.Icon.informative
         case .failed:
@@ -125,7 +117,7 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var iconBackgroundColor: Color {
         switch status {
-        case .inProgress: return Colors.Icon.attention.opacity(0.1)
+        case .inProgress: return Colors.Icon.accent.opacity(0.1)
         case .confirmed: return Colors.Background.secondary
         case .failed: return Colors.Icon.warning.opacity(0.1)
         }
@@ -142,7 +134,8 @@ extension TransactionViewModel {
     enum TransactionType: Hashable {
         case transfer
         case swap
-        case approval
+        case approve
+        case unknownOperation
         case operation(name: String)
     }
 
