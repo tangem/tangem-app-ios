@@ -12,11 +12,9 @@ import BlockchainSdk
 
 struct VisaConfig: CardContainer {
     let card: CardDTO
-    private let noteData: WalletData
 
-    init(card: CardDTO, noteData: WalletData) {
+    init(card: CardDTO) {
         self.card = card
-        self.noteData = noteData
     }
 
     private var defaultBlockchain: Blockchain {
@@ -64,7 +62,7 @@ extension VisaConfig: UserWalletConfig {
     }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: noteData)
+        CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
     var userWalletIdSeed: Data? {
@@ -76,6 +74,7 @@ extension VisaConfig: UserWalletConfig {
     }
 
     var cardHeaderImage: ImageType? {
+        // [REDACTED_TODO_COMMENT]
         Assets.Cards.noteCardano
     }
 
@@ -104,7 +103,7 @@ extension VisaConfig: UserWalletConfig {
         case .multiCurrency:
             return .hidden
         case .resetToFactory:
-            return .available
+            return .hidden
         case .receive:
             return .available
         case .withdrawal:
@@ -143,6 +142,4 @@ extension VisaConfig: UserWalletConfig {
     }
 }
 
-// MARK: - NoteCardOnboardingStepsBuilderFactory
-
-extension VisaConfig: NoteCardOnboardingStepsBuilderFactory {}
+extension VisaConfig: VisaCardOnboardingStepsBuilderFactory {}
