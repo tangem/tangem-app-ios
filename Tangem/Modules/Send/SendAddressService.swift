@@ -9,9 +9,13 @@
 import Foundation
 import BlockchainSdk
 
+// MARK: - Service protocol
+
 protocol SendAddressService {
     func validate(address: String) async throws -> String?
 }
+
+// MARK: - Default implementation
 
 class DefaultSendAddressService: SendAddressService {
     private let walletModel: WalletModel
@@ -39,6 +43,8 @@ class DefaultSendAddressService: SendAddressService {
     }
 }
 
+// MARK: - Service that can resolve an address (from a user-friendly one like in NEAR protocol)
+
 class SendResolvedAddressService: SendAddressService {
     private let defaultAddressService: DefaultSendAddressService
     private let addressResolver: AddressResolver
@@ -60,6 +66,8 @@ class SendResolvedAddressService: SendAddressService {
         }
     }
 }
+
+// MARK: - Errors
 
 private enum SendAddressServiceError {
     case sameAsWalletAddress
