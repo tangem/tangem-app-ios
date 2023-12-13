@@ -15,6 +15,13 @@ final class QRCodeParserTests: XCTestCase {
         let parser = QRCodeParser(amountType: .coin, blockchain: .bitcoin(testnet: false))
 
         testPositiveCase(
+            code: "bitcoin:bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
+            destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
+            amount: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
             code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
             destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
             amount: nil,
