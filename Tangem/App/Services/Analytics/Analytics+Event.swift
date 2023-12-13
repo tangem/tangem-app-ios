@@ -55,15 +55,11 @@ extension Analytics {
         case mainScreenOpened = "[Main Screen] Screen opened"
         case buttonScanCard = "[Main Screen] Button - Scan Card"
         case buttonMyWallets = "[Main Screen] Button - My Wallets"
-        case walletUnlockTappedMain = "[Main Screen] Button - Wallet Unlock Tapped"
         case mainEnableBiometric = "[Main Screen] Enable Biometric"
         case mainScreenWalletChangedBySwipe = "[Main Screen] Wallet Swipe"
         case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
-        case noticeBackupYourWalletTapped = "[Main Screen] Notice - Backup Your Wallet Tapped"
-        case noticeScanYourCardTapped = "[Main Screen] Notice - Scan Your Card Tapped"
         case mainNoticeLearnAndEarn = "[Main Screen] Notice - Learn&Earn"
         case mainNoticeSuccessfulClaim = "[Main Screen] Notice - Successful Claim"
-        case mainNoticeWalletLocked = "[Main Screen] Notice - Wallet Locked"
         case buttonManageTokens = "[Portfolio] Button - Manage Tokens"
         case tokenIsTapped = "[Portfolio] Token is Tapped"
         case mainRefreshed = "[Portfolio] Refreshed"
@@ -99,18 +95,27 @@ extension Analytics {
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
         case withdrawScreenOpened = "[Token / Withdraw] Withdraw Screen Opened"
         case manageTokensScreenOpened = "[Manage Tokens] Manage Tokens Screen Opened"
-        case tokenSearched = "[Manage Tokens] Token Searched"
-        case tokenSwitcherChanged = "[Manage Tokens] Token Switcher Changed"
-        case buttonSaveChanges = "[Manage Tokens] Button - Save Changes"
-        case buttonCustomToken = "[Manage Tokens] Button - Custom Token"
+        case manageTokensSearched = "[Manage Tokens] Token Searched"
+        case manageTokensSwitcherChanged = "[Manage Tokens] Token Switcher Changed"
+        case manageTokensButtonSaveChanges = "[Manage Tokens] Button - Save Changes"
+        case manageTokensButtonCustomToken = "[Manage Tokens] Button - Custom Token"
+        case manageTokensButtonAdd = "[Manage Tokens] Button - Add"
+        case manageTokensButtonEdit = "[Manage Tokens] Button - Edit"
+        case manageTokensButtonGenerateAddresses = "[Manage Tokens] Button - Generate Addresses"
+        case manageTokensButtonChooseWallet = "[Manage Tokens] Button - Choose Wallet"
+        case manageTokensWalletSelected = "[Manage Tokens] Wallet Selected"
         case customTokenScreenOpened = "[Manage Tokens] Custom Token Screen Opened"
         case customTokenWasAdded = "[Manage Tokens] Custom Token Was Added"
         case myWalletsScreenOpened = "[My Wallets] My Wallets Screen Opened"
-        case buttonScanNewCardMyWallets = "[My Wallets] Button - Scan New Card"
-        case buttonUnlockAllWithFaceID = "[My Wallets] Button - Unlock all with Face ID"
+        case myWalletsButtonScanNewCardMyWallets = "[My Wallets] Button - Scan New Card"
+        case myWalletsButtonUnlockAllWithFaceID = "[My Wallets] Button - Unlock all with Face ID"
+        case buttonUnlockAllWithBiometrics = "[Main Screen] Button - Unlock All With Biometrics"
+        case buttonUnlockWithCardScan = "[Main Screen] Button - Unlock With Card Scan"
         case walletUnlockTapped = "[My Wallets] Button - Wallet Unlock Tapped"
-        case buttonEditWalletTapped = "[My Wallets] Button - Edit Wallet Tapped"
-        case buttonDeleteWalletTapped = "[My Wallets] Button - Delete Wallet Tapped"
+        case myWalletsButtonEditWalletTapped = "[My Wallets] Button - Edit Wallet Tapped"
+        case myWalletsButtonDeleteWalletTapped = "[My Wallets] Button - Delete Wallet Tapped"
+        case buttonEditWalletTapped = "[Main Screen] Button - Edit Wallet Tapped"
+        case buttonDeleteWalletTapped = "[Main Screen] Button - Delete Wallet Tapped"
         case settingsButtonChat = "[Settings] Button - Chat"
         case buttonSendFeedback = "[Settings] Button - Send Feedback"
         case buttonWalletConnect = "[Settings] Button - Wallet Connect"
@@ -129,6 +134,8 @@ extension Analytics {
         case securityModeChanged = "[Settings / Card Settings] Security Mode Changed"
         case saveUserWalletSwitcherChanged = "[Settings / App Settings] Save Wallet Switcher Changed"
         case saveAccessCodeSwitcherChanged = "[Settings / App Settings] Save Access Code Switcher Changed"
+        case hideBalanceChanged = "[Settings / App Settings] Hide Balance Changed"
+        case settingsNoticeEnableBiometrics = "[Settings / App Settings] Notice - Enable Biometric"
         case buttonEnableBiometricAuthentication = "[Settings / App Settings] Button - Enable Biometric Authentication"
         case mainCurrencyChanged = "[Settings / App Settings] Main Currency Changed"
         case walletConnectScreenOpened = "[Wallet Connect] WC Screen Opened"
@@ -146,11 +153,12 @@ extension Analytics {
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
 
-        // MARK: - Swapping
+        // MARK: - Swap
 
         case swapScreenOpenedSwap = "[Swap] Swap Screen Opened"
         case swapSendTokenBalanceClicked = "[Swap] Send Token Balance Clicked"
         case swapChooseTokenScreenOpened = "[Swap] Choose Token Screen Opened"
+        case swapChooseTokenScreenResult = "[Swap] Choose Token Screen Result"
         case swapSearchedTokenClicked = "[Swap] Searched Token Clicked"
         case swapButtonSwap = "[Swap] Button - Swap"
         case swapButtonGivePermission = "[Swap] Button - Give permission"
@@ -159,6 +167,15 @@ extension Analytics {
         case swapButtonPermitAndSwap = "[Swap] Button - Permit and Swap"
         case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
+
+        case swapProviderClicked = "[Swap] Provider Clicked"
+        case swapProviderChosen = "[Swap] Provider Chosen"
+        case swapButtonStatus = "[Swap] Button - Status"
+        case swapButtonExplore = "[Swap] Button - Explore"
+        case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
+        case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
+        case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
+        case swapNoticeExpressError = "[Swap] Notice - Express Error"
 
         // MARK: - Seed phrase
 
@@ -175,6 +192,16 @@ extension Analytics {
 
         case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen Capture"
 
+        // MARK: Express
+
+        case tokenChangeNowStatus = "[Token] - ChangeNow Status"
+        case tokenChangeNowStatusScreenOpened = "[Token] - ChangeNow Status Opened"
+        case tokenChangeNowButtonGoToProvider = "[Token] - Button - Go To Provider"
+
+        // MARK: - App settings
+
+        case appSettingsAppThemeSwitched = "[Settings / App Settings] App Theme Swithed"
+
         // MARK: - Card settings
 
         case cardSettingsButtonAccessCodeRecovery = "[Settings / Card Settings] Button - Access Code Recovery"
@@ -183,6 +210,24 @@ extension Analytics {
         fileprivate static var nfcError: String {
             "nfc_error"
         }
+
+        // MARK: - Notifications
+
+        case mainNoticeBackupWalletTapped = "[Main Screen] Notice - Backup Your Wallet Tapped"
+        case mainNoticeScanYourCardTapped = "[Main Screen] Notice - Scan Your Card Tapped"
+        case mainNoticeNetworksUnreachable = "[Main Screen] Notice - Networks  Unreachable"
+        case mainNoticeCardSignedTransactions = "[Main Screen] Notice - Card Signed Transactions"
+        case mainNoticeProductSampleCard = "[Main Screen] Notice - Product Sample Card"
+        case mainNoticeTestnetCard = "[Main Screen] Notice - Testnet Card"
+        case mainNoticeDemoCard = "[Main Screen] Notice - Demo Card"
+        case mainNoticeOldCard = "[Main Screen] Notice - Old Card"
+        case mainNoticeDevelopmentCard = "[Main Screen] Notice - Development Card"
+        case mainNoticeMissingAddress = "[Main Screen] Notice - Missing Addresses"
+        case mainNoticeWalletUnlock = "[Main Screen] Notice - Wallet Unlock"
+        case mainNoticeWalletUnlockTapped = "[Main Screen] Notice - Wallet Unlock Tapped"
+        case mainNoticeBackupYourWallet = "[Main Screen] Notice - Backup Your Wallet"
+        case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
+        case tokenNoticeNotEnoughtFee = "[Token] Notice - Not Enough Fee"
 
         // MARK: - BlockchainSdk exceptions
 
