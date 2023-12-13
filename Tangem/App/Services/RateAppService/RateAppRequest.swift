@@ -13,7 +13,6 @@ struct RateAppRequest {
         let isLocked: Bool
         let isSelected: Bool
         let isBalanceLoaded: Bool
-        let isBalanceNonEmpty: Bool
         let displayedNotifications: [NotificationViewInput]
     }
 
