@@ -194,7 +194,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         case .buyCrypto:
             openBuyCryptoIfPossible()
         case .exchange:
-            openExchangePromotion()
+            Analytics.log(event: .swapPromoExchangeTapped, params: [.token: walletModel.tokenItem.currencySymbol])
+            openExchange()
         default:
             break
         }
@@ -323,7 +324,7 @@ extension SingleTokenBaseViewModel {
         case .buy: return openBuyCryptoIfPossible
         case .send: return openSend
         case .receive: return openReceive
-        case .exchange: return openExchangeRegular
+        case .exchange: return openExchangeAndLogAnalytics
         case .sell: return openSell
         case .copyAddress, .hide: return nil
         }
@@ -350,21 +351,18 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSend(walletModel: walletModel)
     }
 
-    func openExchangeRegular() {
-        openExchange(exchangeSource: .regular)
+    func openExchangeAndLogAnalytics() {
+        Analytics.log(event: .buttonExchange, params: [.token: walletModel.tokenItem.currencySymbol])
+        openExchange()
     }
 
-    func openExchangePromotion() {
-        openExchange(exchangeSource: .promotion)
-    }
-
-    func openExchange(exchangeSource: ExchangeSource) {
+    func openExchange() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        tokenRouter.openExchange(walletModel: walletModel, exchangeSource: exchangeSource)
+        tokenRouter.openExchange(walletModel: walletModel)
     }
 
     func openSell() {
