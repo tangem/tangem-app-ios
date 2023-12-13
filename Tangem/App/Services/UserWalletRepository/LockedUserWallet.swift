@@ -35,15 +35,32 @@ class LockedUserWallet: UserWalletModel {
         return data
     }
 
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
+        let artwork: CardArtwork
+
+        if let artworkInfo = userWallet.artwork {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
+        }
+
+        return cardImageProvider.loadImage(
+            cardId: userWallet.card.cardId,
+            cardPublicKey: userWallet.card.cardPublicKey,
+            artwork: artwork
+        )
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
     private(set) var userWallet: UserWallet
+    private let cardImageProvider = CardImageProvider()
 
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
-        signer = TangemSigner(with: userWallet.card.cardId, sdk: config.makeTangemSdk())
+        signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     }
 
     func initialUpdate() {}
@@ -69,4 +86,20 @@ extension LockedUserWallet: MainHeaderInfoProvider {
     }
 
     var isTokensListEmpty: Bool { false }
+}
+
+extension LockedUserWallet: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        let cardInfo = userWallet.cardInfo()
+        let embeddedEntry = config.embeddedBlockchain
+        let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
+
+        return AnalyticsContextData(
+            id: nil,
+            productType: config.productType,
+            batchId: cardInfo.card.batchId,
+            firmware: cardInfo.card.firmwareVersion.stringValue,
+            baseCurrency: baseCurrency
+        )
+    }
 }
