@@ -625,6 +625,8 @@
 		DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */; };
 		DA070DE32ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */; };
 		DA070DE52ADD4F6600F7C0E4 /* SprinklrConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */; };
+		DA11F9882B2989510075F028 /* QRCodeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA11F9872B2989510075F028 /* QRCodeParser.swift */; };
+		DA11F98A2B2989A30075F028 /* QRCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA11F9892B2989A30075F028 /* QRCodeParserTests.swift */; };
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
 		DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
@@ -2016,6 +2018,8 @@
 		DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatView.swift; sourceTree = "<group>"; };
 		DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatViewModel.swift; sourceTree = "<group>"; };
 		DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrConfig.swift; sourceTree = "<group>"; };
+		DA11F9872B2989510075F028 /* QRCodeParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeParser.swift; sourceTree = "<group>"; };
+		DA11F9892B2989A30075F028 /* QRCodeParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeParserTests.swift; sourceTree = "<group>"; };
 		DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellViewModel.swift; sourceTree = "<group>"; };
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
@@ -3054,6 +3058,7 @@
 				EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */,
 				5D51037A27C53E6E0025EA55 /* EIP712TypedDataTests.swift */,
 				B635EE442A607422008B5F87 /* ThreadSafeContainerTests.swift */,
+				DA11F9892B2989A30075F028 /* QRCodeParserTests.swift */,
 				5D20811427D23DED00D8A970 /* EIP712Data */,
 				5D3F77DE24BF56DC00E8695B /* Info.plist */,
 			);
@@ -4968,6 +4973,14 @@
 			path = Sprinklr;
 			sourceTree = "<group>";
 		};
+		DA11F9862B2989470075F028 /* QRCodeParser */ = {
+			isa = PBXGroup;
+			children = (
+				DA11F9872B2989510075F028 /* QRCodeParser.swift */,
+			);
+			path = QRCodeParser;
+			sourceTree = "<group>";
+		};
 		DA207C212AB89F89005CC5E3 /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
@@ -5324,6 +5337,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				DA11F9862B2989470075F028 /* QRCodeParser */,
 				B0AF2DED2B1D8FD2001A8696 /* Express */,
 				EF9EA9612B10D39600AC1DA1 /* ExpressTokensListAdapter */,
 				EF5D83E02B0BC4DB00516B5F /* ExpressProviderFormatter */,
@@ -7644,6 +7658,7 @@
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				B06734392A7A988F008DE8F9 /* FakeUserTokenListManager.swift in Sources */,
+				DA11F9882B2989510075F028 /* QRCodeParser.swift in Sources */,
 				B6E932C52A2F2D860068D466 /* OrganizeTokensRoutable.swift in Sources */,
 				B012A10F2AA5A6F80079BAB4 /* WalletModel+.swift in Sources */,
 				EF9F9081299CFCE9006F638F /* WebView.swift in Sources */,
@@ -8725,6 +8740,7 @@
 			files = (
 				B635EE452A607422008B5F87 /* ThreadSafeContainerTests.swift in Sources */,
 				5D51037B27C53E6E0025EA55 /* EIP712TypedDataTests.swift in Sources */,
+				DA11F98A2B2989A30075F028 /* QRCodeParserTests.swift in Sources */,
 				DC4BF175298A4B810052EC19 /* IncomingActionsTests.swift in Sources */,
 				EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */,
 				DC7AC96A292BE2C900580668 /* TangemTests.swift in Sources */,
