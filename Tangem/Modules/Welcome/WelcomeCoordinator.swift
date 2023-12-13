@@ -11,6 +11,8 @@ import Combine
 import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -25,7 +27,6 @@ class WelcomeCoordinator: CoordinatorObject {
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
-    @Published var manageTokensCoordinator: ManageTokensCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
 
     // MARK: - Child view models
@@ -72,11 +73,15 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 }
 
+// MARK: - Options
+
 extension WelcomeCoordinator {
     struct Options {
         let shouldScan: Bool
     }
 }
+
+// MARK: - WelcomeRoutable
 
 extension WelcomeCoordinator: WelcomeRoutable {
     func openOnboarding(with input: OnboardingInput) {
@@ -88,7 +93,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
-        Analytics.log(.onboardingStarted)
     }
 
     func openMain(with cardModel: CardViewModel) {
@@ -124,7 +128,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
     func openTokensList() {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.legacyTokenListCoordinator = nil
-            self?.manageTokensCoordinator = nil
         }
 
         let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
