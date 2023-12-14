@@ -49,7 +49,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-            .sheet(item: $coordinator.expressCoordinator) {
+            .iOS17UIKitSheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
             }
 

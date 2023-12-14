@@ -1,5 +1,5 @@
 //
-//  SheetModifier.swift
+//  UIKitSheetModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,17 @@
 
 import SwiftUI
 
-struct SheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
+struct UIKitSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
     @Binding private var item: Item?
+    private var onDismiss: (() -> Void)?
     private var contentView: (Item) -> ContentView
 
     @StateObject private var delegate: DelegateKeeper = .init()
     @State private var controller: UIHostingController<ContentView>?
 
-    init(item: Binding<Item?>, contentView: @escaping (Item) -> ContentView) {
+    init(item: Binding<Item?>, onDismiss: (() -> Void)? = nil, contentView: @escaping (Item) -> ContentView) {
         _item = item
+        self.onDismiss = onDismiss
         self.contentView = contentView
     }
 
@@ -40,7 +42,7 @@ struct SheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
 
     private func hideController() {
         controller?.dismiss(animated: true) {
-            didDissmiss()
+            didDismiss()
         }
     }
 
@@ -53,7 +55,7 @@ struct SheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
         controller.transitioningDelegate = delegate
 
         delegate.controllerDidDissmiss = {
-            didDissmiss()
+            didDismiss()
         }
 
         // Save the controller for dismiss it when it will be needed
@@ -62,19 +64,22 @@ struct SheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
         return controller
     }
 
-    private func didDissmiss() {
+    private func didDismiss() {
+        onDismiss?()
         controller = nil
         item = nil
-        delegate.controllerDidDissmiss = {}
+        delegate.controllerDidDissmiss = nil
     }
 }
 
-extension SheetModifier {
+// MARK: - DelegateKeeper
+
+extension UIKitSheetModifier {
     class DelegateKeeper: NSObject, ObservableObject, UIViewControllerTransitioningDelegate {
-        var controllerDidDissmiss: () -> Void = {}
+        var controllerDidDissmiss: (() -> Void)?
 
         func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-            controllerDidDissmiss()
+            controllerDidDissmiss?()
             return nil
         }
     }
@@ -87,11 +92,15 @@ public extension View {
     /// - Strange memory leak when a view was showed as sheet
     /// https://developer.apple.com/forums/thread/738840
     @ViewBuilder
-    func sheet<Item, Content>(item: Binding<Item?>, @ViewBuilder content: @escaping (Item) -> Content) -> some View where Item: Identifiable, Content: View {
+    func iOS17UIKitSheet<Item, Content>(
+        item: Binding<Item?>,
+        onDismiss: (() -> Void)? = nil,
+        @ViewBuilder content: @escaping (Item) -> Content
+    ) -> some View where Item: Identifiable, Content: View {
         if #available(iOS 17, *) {
-            modifier(SheetModifier(item: item, contentView: content))
+            modifier(UIKitSheetModifier(item: item, onDismiss: onDismiss, contentView: content))
         } else {
-            sheet(item: item, onDismiss: {}, content: content)
+            sheet(item: item, onDismiss: onDismiss, content: content)
         }
     }
 }
