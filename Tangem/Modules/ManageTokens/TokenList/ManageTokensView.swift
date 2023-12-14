@@ -45,7 +45,7 @@ struct ManageTokensView: View {
             }
 
             if viewModel.isShowAddCustomToken {
-                addCutomTokenView
+                addCustomTokenView
             }
 
             if viewModel.hasNextPage {
@@ -62,7 +62,7 @@ struct ManageTokensView: View {
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
-    private var addCutomTokenView: some View {
+    private var addCustomTokenView: some View {
         ManageTokensAddCustomItemView {
             viewModel.addCustomTokenDidTapAction()
         }
