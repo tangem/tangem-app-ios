@@ -60,7 +60,7 @@ struct SwappingTokenListView: View {
     @ViewBuilder
     func section(title: String, items: [SwappingTokenItemViewModel]) -> some View {
         if !items.isEmpty {
-            FixedSpacer(height: 12)
+            FixedSpacer.vertical(12)
 
             Text(title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
