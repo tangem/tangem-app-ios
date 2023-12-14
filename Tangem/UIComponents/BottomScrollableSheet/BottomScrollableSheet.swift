@@ -87,12 +87,10 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     }
 
     /// - Note: Invisible and receives touches only when the sheet is in a collapsed state (`BottomScrollableSheetState.bottom`).
-    @ViewBuilder
-    private func headerGestureOverlayView(proxy: GeometryProxy) -> some View {
+    @ViewBuilder private var headerGestureOverlayView: some View {
         // The reduced hittest area is used here to prevent simultaneous recognition of the `headerDragGesture`
         // or `headerTapGesture` gestures and the system `app switcher` screen edge drag gesture.
-        let overlayViewBottomInset = stateObject.state.isBottom ? proxy.safeAreaInsets.bottom : 0.0
-        let overlayViewHeight = max(0.0, stateObject.headerHeight - overlayViewBottomInset)
+        let overlayViewHeight = max(0.0, stateObject.headerHeight - UIApplication.safeAreaInsets.bottom)
         Color.clear
             .frame(height: overlayViewHeight, alignment: .top)
             .contentShape(Rectangle())
@@ -165,7 +163,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
                 isHidden = true
             }
         }
-        .overlay(headerGestureOverlayView(proxy: proxy), alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
+        .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
         .offset(y: proxy.size.height - stateObject.visibleHeight - stateObject.topInset)
     }
 
