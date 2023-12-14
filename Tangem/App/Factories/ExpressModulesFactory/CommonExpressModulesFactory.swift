@@ -46,6 +46,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
+            expressRepository: expressRepository,
             interactor: expressInteractor,
             coordinator: coordinator
         )
