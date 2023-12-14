@@ -13,8 +13,7 @@ struct UIKitSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
     private var onDismiss: (() -> Void)?
     private var contentView: (Item) -> ContentView
 
-    @StateObject private var delegate: DelegateKeeper = .init()
-    @State private var controller: UIHostingController<ContentView>?
+    @StateObject private var stateObject: State = .init()
 
     init(item: Binding<Item?>, onDismiss: (() -> Void)? = nil, contentView: @escaping (Item) -> ContentView) {
         _item = item
@@ -41,7 +40,7 @@ struct UIKitSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
     }
 
     private func hideController() {
-        controller?.dismiss(animated: true) {
+        stateObject.controller?.dismiss(animated: true) {
             didDismiss()
         }
     }
@@ -52,14 +51,14 @@ struct UIKitSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
 
         controller.modalPresentationStyle = .automatic
         controller.overrideUserInterfaceStyle = UIApplication.topViewController?.overrideUserInterfaceStyle ?? .unspecified
-        controller.transitioningDelegate = delegate
+        controller.transitioningDelegate = stateObject
 
-        delegate.controllerDidDissmiss = {
+        stateObject.controllerDidDissmiss = {
             didDismiss()
         }
 
         // Save the controller for dismiss it when it will be needed
-        self.controller = controller
+        stateObject.controller = controller
 
         return controller
     }
@@ -69,19 +68,25 @@ struct UIKitSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
             // Set the item to nil if the controller was closed by the user gesture
             item = nil
         }
-        
+
         onDismiss?()
+
         // Just clear memory
-        controller = nil
-        delegate.controllerDidDissmiss = nil
+        stateObject.clear()
     }
 }
 
 // MARK: - DelegateKeeper
 
 extension UIKitSheetModifier {
-    class DelegateKeeper: NSObject, ObservableObject, UIViewControllerTransitioningDelegate {
+    class State: NSObject, ObservableObject, UIViewControllerTransitioningDelegate {
+        var controller: UIHostingController<ContentView>?
         var controllerDidDissmiss: (() -> Void)?
+
+        func clear() {
+            controller = nil
+            controllerDidDissmiss = nil
+        }
 
         func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
             controllerDidDissmiss?()
