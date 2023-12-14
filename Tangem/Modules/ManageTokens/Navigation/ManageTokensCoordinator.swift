@@ -50,22 +50,14 @@ extension ManageTokensCoordinator {
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
     func openAddCustomToken(dataSource: ManageTokensDataSource) {
-    #warning("[REDACTED_TODO_COMMENT]")
-        let settings = LegacyManageTokensSettings(
-            supportedBlockchains: SupportedBlockchains.all,
-            hdWalletsSupported: true,
-            longHashesSupported: true,
-            derivationStyle: .v3,
-            shouldShowLegacyDerivationAlert: false,
-            existingCurves: []
-        )
+        guard let userWalletModel = dataSource.defaultUserWalletModel else { return }
 
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.addCustomTokenCoordinator = nil
         }
 
         let addCustomTokenCoordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        addCustomTokenCoordinator.start(with: .init(settings: settings, dataSource: dataSource))
+        addCustomTokenCoordinator.start(with: .init(userWalletModel: userWalletModel, dataSource: dataSource))
         self.addCustomTokenCoordinator = addCustomTokenCoordinator
     }
 
