@@ -80,12 +80,8 @@ private extension ExpressTokensListViewModel {
         expressTokensListAdapter.walletModels()
             .withWeakCaptureOf(self)
             .asyncMap { viewModel, walletModels in
-                do {
-                    let availablePairs = try await viewModel.loadAvailablePairs()
-                    return (walletModels: walletModels, pairs: availablePairs)
-                } catch {
-                    return (walletModels: walletModels, pairs: [])
-                }
+                let availablePairs = await viewModel.loadAvailablePairs()
+                return (walletModels: walletModels, pairs: availablePairs)
             }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] walletModels, pairs in
@@ -112,13 +108,13 @@ private extension ExpressTokensListViewModel {
             .store(in: &bag)
     }
 
-    func loadAvailablePairs() async throws -> [ExpressCurrency] {
+    func loadAvailablePairs() async -> [ExpressCurrency] {
         switch swapDirection {
         case .fromSource(let wallet):
-            let pairs = try await expressRepository.getPairs(from: wallet)
+            let pairs = await expressRepository.getPairs(from: wallet)
             return pairs.map { $0.destination }
         case .toDestination(let wallet):
-            let pairs = try await expressRepository.getPairs(to: wallet)
+            let pairs = await expressRepository.getPairs(to: wallet)
             return pairs.map { $0.source }
         }
     }
