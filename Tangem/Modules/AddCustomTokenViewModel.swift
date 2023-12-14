@@ -495,6 +495,8 @@ extension AddCustomTokenViewModel {
     }
 }
 
+// MARK: - Errors
+
 private protocol DynamicValidationError {
     var preventsFromAdding: Bool { get }
 }
