@@ -100,7 +100,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
                             bindTo: stateObject.contentOffsetSubject.asWriteOnlyBinding(.zero)
                         )
 
-                    FixedSpacer(height: scrollViewBottomContentInset, length: scrollViewBottomContentInset)
+                    FixedSpacer.vertical(scrollViewBottomContentInset)
                         .fixedSize()
                 }
                 .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
