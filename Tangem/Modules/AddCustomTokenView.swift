@@ -162,6 +162,8 @@ private struct TextInputWithTitle: View {
 }
 
 struct AddCustomTokenView_Preview: PreviewProvider {
+    class PreviewManageTokensDataSource: ManageTokensDataSource {}
+
     static let settings = LegacyManageTokensSettings(
         supportedBlockchains: SupportedBlockchains.all.filter { !$0.isTestnet },
         hdWalletsSupported: true,
@@ -181,6 +183,7 @@ struct AddCustomTokenView_Preview: PreviewProvider {
 
     static let viewModel = AddCustomTokenViewModel(
         settings: settings,
+        dataSource: PreviewManageTokensDataSource(),
         coordinator: AddCustomTokenCoordinator()
     )
 
