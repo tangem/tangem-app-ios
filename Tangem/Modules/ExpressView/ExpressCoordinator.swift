@@ -62,7 +62,6 @@ extension ExpressCoordinator {
 extension ExpressCoordinator: ExpressRoutable {
     func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection) {
         UIApplication.shared.endEditing()
-        Analytics.log(.swapChooseTokenScreenOpened)
         expressTokensListViewModel = factory.makeExpressTokensListViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
