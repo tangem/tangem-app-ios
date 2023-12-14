@@ -164,15 +164,6 @@ private struct TextInputWithTitle: View {
 struct AddCustomTokenView_Preview: PreviewProvider {
     class PreviewManageTokensDataSource: ManageTokensDataSource {}
 
-    static let settings = LegacyManageTokensSettings(
-        supportedBlockchains: SupportedBlockchains.all.filter { !$0.isTestnet },
-        hdWalletsSupported: true,
-        longHashesSupported: true,
-        derivationStyle: .v1,
-        shouldShowLegacyDerivationAlert: true,
-        existingCurves: [.ed25519, .secp256k1]
-    )
-
     static let userTokensManager: UserTokensManager = {
         let fakeUserTokenListManager = FakeUserTokenListManager(walletManagers: [], isDelayed: false)
         return FakeUserTokensManager(
@@ -182,7 +173,7 @@ struct AddCustomTokenView_Preview: PreviewProvider {
     }()
 
     static let viewModel = AddCustomTokenViewModel(
-        settings: settings,
+        userWalletModel: FakeUserWalletRepository().models.first!,
         dataSource: PreviewManageTokensDataSource(),
         coordinator: AddCustomTokenCoordinator()
     )
