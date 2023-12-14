@@ -12,7 +12,7 @@ import BlockchainSdk
 import struct TangemSdk.DerivationPath
 import enum TangemSdk.TangemSdkError
 
-final class AddCustomTokenViewModel: ObservableObject {
+final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
@@ -53,7 +53,7 @@ final class AddCustomTokenViewModel: ObservableObject {
     #warning("DONT USE LEGACY SETTINGS")
     private var settings: LegacyManageTokensSettings
     private var bag: Set<AnyCancellable> = []
-
+    private let dataSource: ManageTokensNetworkDataSource
     private unowned let coordinator: AddCustomTokenRoutable
 
     private var userTokensManager: UserTokensManager? {
@@ -85,10 +85,12 @@ final class AddCustomTokenViewModel: ObservableObject {
 
     init(
         settings: LegacyManageTokensSettings,
+        dataSource: ManageTokensDataSource,
         coordinator: AddCustomTokenRoutable
     ) {
         self.settings = settings
         self.coordinator = coordinator
+        self.dataSource = ManageTokensNetworkDataSource(dataSource)
         canSelectWallet = availableWallets.count > 1
 
         let selectedUserWallet = userWalletRepository.selectedModel?.userWallet
@@ -136,10 +138,7 @@ final class AddCustomTokenViewModel: ObservableObject {
     }
 
     func didTapWalletSelector() {
-        coordinator.openWalletSelector(
-            userWallets: availableWallets,
-            currentUserWalletId: selectedUserWalletId
-        )
+        coordinator.openWalletSelector(with: dataSource)
     }
 
     func setSelectedWallet(userWalletId: Data) {
