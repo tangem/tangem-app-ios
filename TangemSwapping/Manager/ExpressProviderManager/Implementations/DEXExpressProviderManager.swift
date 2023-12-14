@@ -84,9 +84,7 @@ private extension DEXExpressProviderManager {
 
             try Task.checkCancellation()
 
-            // For approve use the fastest fee
-            let fastest = fee.fastest
-            return .ready(.init(fee: .single(fastest), data: data, quote: quote))
+            return .ready(.init(fee: fee, data: data, quote: quote))
 
         } catch let error as ExpressAPIError {
             if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
@@ -153,9 +151,11 @@ private extension DEXExpressProviderManager {
         let fee = try await feeProvider.getFee(amount: 0, destination: request.pair.source.contractAddress, hexData: data)
         try Task.checkCancellation()
 
+        // For approve use the fastest fee
+        let fastest = fee.fastest
         return ExpressManagerState.PermissionRequired(
             data: .init(spender: spender, toContractAddress: contractAddress, data: data),
-            fee: fee,
+            fee: .single(fastest),
             quote: quote
         )
     }
