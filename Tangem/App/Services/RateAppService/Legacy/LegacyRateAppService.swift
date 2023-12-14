@@ -15,3 +15,14 @@ protocol LegacyRateAppService: AnyObject {
     func dismissRateAppWarning()
     func userReactToRateAppWarning(isPositive: Bool)
 }
+
+private struct RateAppServiceKey: InjectionKey {
+    static var currentValue: LegacyRateAppService = CommonLegacyRateAppService()
+}
+
+extension InjectedValues {
+    var rateAppService: LegacyRateAppService {
+        get { Self[RateAppServiceKey.self] }
+        set { Self[RateAppServiceKey.self] = newValue }
+    }
+}
