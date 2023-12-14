@@ -13,4 +13,12 @@ public struct ExpressQuote: Hashable {
     public let expectAmount: Decimal
     public let minAmount: Decimal
     public let allowanceContract: String?
+
+    public var rate: Decimal {
+        if !fromAmount.isZero {
+            return expectAmount / fromAmount
+        }
+
+        return 0
+    }
 }
