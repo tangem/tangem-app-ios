@@ -65,9 +65,14 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 
 private extension DEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async -> ExpressProviderManagerState {
+        var loadedQuote: ExpressQuote?
+        
         do {
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
+
+            // Save the quote for use it in the next possible error case
+            loadedQuote = quote
 
             if let restriction = await checkRestriction(request: request, quote: quote, approvePolicy: approvePolicy) {
                 return restriction
@@ -81,7 +86,6 @@ private extension DEXExpressProviderManager {
                 destination: data.destinationAddress,
                 hexData: data.txData.map { Data(hexString: $0) }
             )
-
             try Task.checkCancellation()
 
             // For approve use the fastest fee
@@ -90,12 +94,12 @@ private extension DEXExpressProviderManager {
 
         } catch let error as ExpressAPIError {
             if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
-                return .restriction(.tooSmallAmount(minAmount), quote: .none)
+                return .restriction(.tooSmallAmount(minAmount), quote: loadedQuote)
             }
 
-            return .error(error, quote: .none)
+            return .error(error, quote: loadedQuote)
         } catch {
-            return .error(error, quote: .none)
+            return .error(error, quote: loadedQuote)
         }
     }
 
