@@ -36,7 +36,11 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = AddCustomTokenViewModel(settings: options.settings, coordinator: self)
+        rootViewModel = AddCustomTokenViewModel(
+            settings: options.settings,
+            dataSource: options.dataSource,
+            coordinator: self
+        )
     }
 }
 
@@ -45,18 +49,15 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 extension AddCustomTokenCoordinator {
     struct Options {
         let settings: LegacyManageTokensSettings
+        let dataSource: ManageTokensDataSource
     }
 }
 
 // MARK: - AddCustomTokenRoutable
 
 extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
-    func openWalletSelector(
-        userWallets: [UserWallet],
-        currentUserWalletId: Data?
-    ) {
-        let walletSelectorViewModel = WalletSelectorViewModel(userWallets: userWallets, currentUserWalletId: currentUserWalletId)
-        walletSelectorViewModel.delegate = self
+    func openWalletSelector(with dataSource: WalletSelectorDataSource) {
+        let walletSelectorViewModel = WalletSelectorViewModel(dataSource: dataSource)
         self.walletSelectorViewModel = walletSelectorViewModel
     }
 
@@ -77,13 +78,6 @@ extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
         )
         derivationSelectorModel.delegate = self
         self.derivationSelectorModel = derivationSelectorModel
-    }
-}
-
-extension AddCustomTokenCoordinator: WalletSelectorDelegate {
-    func didSelectWallet(with userWalletId: Data) {
-        walletSelectorViewModel = nil
-        rootViewModel?.setSelectedWallet(userWalletId: userWalletId)
     }
 }
 
