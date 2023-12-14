@@ -29,10 +29,13 @@ struct ExpressCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.expressTokensListViewModel) {
+            .iOS17UIKitSheet(item: $coordinator.expressTokensListViewModel) {
                 ExpressTokensListView(viewModel: $0)
             }
-            .bottomSheet(item: $coordinator.swappingApproveViewModel) {
+            .bottomSheet(
+                item: $coordinator.swappingApproveViewModel,
+                settings: .init(backgroundColor: Colors.Background.tertiary)
+            ) {
                 SwappingApproveView(viewModel: $0)
             }
             .bottomSheet(
