@@ -138,7 +138,7 @@
 "custom_token_creation_error_invalid_contract_address" = "Адрес контракта некорректен";
 "custom_token_creation_error_invalid_derivation_path" = "Путь деривации некорректен";
 "custom_token_creation_error_network_not_selected" = "Пожалуйста, выберите сеть";
-"custom_token_creation_error_wrong_decimals" = "Количество знаков после запятой должно быть корректным числом не больше %li";
+"custom_token_creation_error_wrong_decimals" = "Decimal must be a valid integer, up to %li";
 "custom_token_custom_derivation" = "Своя деривация";
 "custom_token_custom_derivation_placeholder" = "Например m/00'/0000'/0'/0/0";
 "custom_token_custom_derivation_title" = "Введите свою деривацию";
