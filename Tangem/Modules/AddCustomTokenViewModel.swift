@@ -201,6 +201,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
                 self.userWalletModel = userWalletModel
                 setSelectedWallet(userWalletModel: userWalletModel)
+                coordinator.closeWalletSelector()
             }
             .store(in: &bag)
 
