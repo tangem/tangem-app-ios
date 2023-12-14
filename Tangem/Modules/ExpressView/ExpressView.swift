@@ -73,20 +73,19 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var swappingButton: some View {
-        Group {
+        Button(action: viewModel.userDidTapSwapSwappingItemsButton) {
             if viewModel.isSwapButtonLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
             } else {
-                Button(action: viewModel.userDidTapSwapSwappingItemsButton) {
-                    Assets.swappingIcon.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(Colors.Icon.primary1)
-                }
+                Assets.swappingIcon.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(viewModel.isSwapButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
             }
         }
+        .disabled(viewModel.isSwapButtonLoading || viewModel.isSwapButtonDisabled)
         .frame(width: 44, height: 44)
         .background(Colors.Background.primary)
         .cornerRadius(22)
