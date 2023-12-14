@@ -259,9 +259,7 @@ private extension ExpressViewModel {
                 }
             }
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] isDisabled in
-                self?.isSwapButtonDisabled = isDisabled
-            }
+            .assign(to: \.isSwapButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
