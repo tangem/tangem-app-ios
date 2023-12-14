@@ -117,6 +117,20 @@ final class UserWalletNotificationManager {
             .removeDuplicates()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
             .store(in: &bag)
+
+        AppSettings.shared.$tangemExpressMainPromotionDismissed
+            .sink { [weak self] dismissed in
+                guard
+                    let self,
+                    dismissed
+                else {
+                    return
+                }
+
+                let promotionEvent = WarningEvent.tangemExpressPromotion
+                notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == promotionEvent.hashValue }
+            }
+            .store(in: &bag)
     }
 
     // [REDACTED_TODO_COMMENT]
