@@ -12,7 +12,7 @@ import TangemSdk
 
 protocol AddCustomTokenRoutable: AnyObject {
     func dismiss()
-    func openWalletSelector(userWallets: [UserWallet], currentUserWalletId: Data?)
+    func openWalletSelector(with dataSource: WalletSelectorDataSource)
     func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain])
     func openDerivationSelector(selectedDerivationOption: AddCustomTokenDerivationOption, defaultDerivationPath: DerivationPath, blockchainDerivationOptions: [AddCustomTokenDerivationOption])
 }
