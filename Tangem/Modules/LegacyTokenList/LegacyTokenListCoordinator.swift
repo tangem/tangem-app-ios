@@ -20,9 +20,6 @@ class LegacyTokenListCoordinator: CoordinatorObject {
 
     @Published var addCustomTokenViewModel: LegacyAddCustomTokenViewModel? = nil
 
-    #warning("[REDACTED_TODO_COMMENT]")
-    @Published var addCustomTokenCoordinator: AddCustomTokenCoordinator? = nil
-
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -41,13 +38,10 @@ extension LegacyTokenListCoordinator: LegacyAddCustomTokenRoutable {
 
 extension LegacyTokenListCoordinator: LegacyTokenListRoutable {
     func openAddCustom(settings: LegacyManageTokensSettings, userTokensManager: UserTokensManager) {
-        #warning("[REDACTED_TODO_COMMENT]")
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.addCustomTokenCoordinator = nil
-        }
-
-        let coordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        addCustomTokenCoordinator = coordinator
-        coordinator.start(with: AddCustomTokenCoordinator.Options(settings: settings))
+        addCustomTokenViewModel = .init(
+            settings: settings,
+            userTokensManager: userTokensManager,
+            coordinator: self
+        )
     }
 }
