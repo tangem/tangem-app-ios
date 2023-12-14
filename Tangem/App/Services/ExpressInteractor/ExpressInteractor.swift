@@ -258,7 +258,11 @@ extension ExpressInteractor {
             // The type is full we can receive only from
             // the "Refresh" button on the error notification
             if type == .full {
-                await interactor.updatePairsAndLoadDestinationIfNeeded()
+                // If we have a restriction with destination after "refresh button"
+                // Just show it
+                if let restriction = await interactor.updatePairsAndLoadDestinationIfNeeded() {
+                    return .restriction(restriction, quote: .none)
+                }
             }
 
             let state = try await interactor.expressManager.update()
