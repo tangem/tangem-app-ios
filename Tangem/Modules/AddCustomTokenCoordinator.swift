@@ -37,7 +37,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = AddCustomTokenViewModel(
-            settings: options.settings,
+            userWalletModel: options.userWalletModel,
             dataSource: options.dataSource,
             coordinator: self
         )
@@ -48,7 +48,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
 extension AddCustomTokenCoordinator {
     struct Options {
-        let settings: LegacyManageTokensSettings
+        let userWalletModel: UserWalletModel
         let dataSource: ManageTokensDataSource
     }
 }
