@@ -136,16 +136,6 @@ final class ExpressViewModel: ObservableObject {
     func didCloseFeeSelectorSheet() {
         restartTimer()
     }
-
-    func didTapWaringRefresh() {
-        interactor.refresh(type: .full)
-    }
-
-    // Workaround iOS 17 a sheet memory leak
-    // https://developer.apple.com/forums/thread/738840
-    func onDisappear() {
-        stopTimer()
-    }
 }
 
 // MARK: - Navigation
@@ -326,7 +316,7 @@ private extension ExpressViewModel {
                 updateReceiveCurrencyValue(expectAmount: state.quote?.expectAmount)
             }
         case .failedToLoad:
-            receiveCurrencyViewModel?.canChangeCurrency = true
+            receiveCurrencyViewModel?.canChangeCurrency = false
             receiveCurrencyViewModel?.tokenIconState = .notAvailable
             receiveCurrencyViewModel?.isAvailable = false
         }
@@ -605,7 +595,7 @@ extension ExpressViewModel: NotificationTapDelegate {
 
         switch action {
         case .refresh:
-            didTapWaringRefresh()
+            interactor.refresh(type: .full)
         case .openNetworkCurrency:
             openNetworkCurrency()
         default: return
