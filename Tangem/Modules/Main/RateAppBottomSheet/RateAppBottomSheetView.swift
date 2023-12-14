@@ -11,9 +11,7 @@ import SwiftUI
 struct RateAppBottomSheetView: View {
     @ObservedObject var viewModel: RateAppBottomSheetViewModel
 
-    /// - Note: `Bool` can't be used as an element of this array because it doesn't conform to `VectorArithmetic`.
-    /// Therefore `CGFloat` in the range `0...1` is used instead.
-    @State private var ratingAnimations: [CGFloat] = Array(repeating: .zero, count: Constants.ratingSymbolsCount)
+    @State private var ratingAnimations: [Bool] = Array(repeating: false, count: Constants.ratingSymbolsCount)
 
     var body: some View {
         VStack(spacing: 0.0) {
@@ -40,7 +38,7 @@ struct RateAppBottomSheetView: View {
                     by: Constants.ratingAnimationDuration
                 ).enumerated() {
                     withAnimation(.linear(duration: Constants.ratingAnimationDuration).delay(delay)) {
-                        ratingAnimations[index] = 1.0
+                        ratingAnimations[index] = true
                     }
                 }
             }
@@ -54,10 +52,10 @@ struct RateAppBottomSheetView: View {
                 Image(systemName: Constants.sfSymbolsName)
                     .foregroundColor(Colors.Button.positive)
                     .font(.title3)
-                    .scaleEffect(.init(bothDimensions: ratingAnimations[index] == 1.0 ? 0.75 : 1.0))
+                    .scaleEffect(.init(bothDimensions: ratingAnimations[index] ? 0.75 : 1.0))
                     .onAnimationCompleted(for: ratingAnimations[index]) {
                         withAnimation(.linear(duration: Constants.ratingAnimationDuration)) {
-                            ratingAnimations[index] = .zero
+                            ratingAnimations[index] = false
                         }
                     }
             }
