@@ -179,6 +179,7 @@ private extension CommonExpressModulesFactory {
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
+            expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressTransactionBuilder: expressTransactionBuilder,
