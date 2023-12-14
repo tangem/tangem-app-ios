@@ -59,7 +59,6 @@ extension AddCustomTokenNotificationEvent: NotificationEvent {
     var analyticsParams: [Analytics.ParameterKey: String] {
         switch self {
         case .scamWarning:
-
             return [:]
         }
     }
