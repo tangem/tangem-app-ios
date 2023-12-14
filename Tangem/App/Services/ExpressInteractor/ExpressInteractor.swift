@@ -269,30 +269,9 @@ extension ExpressInteractor {
     }
 }
 
-// MARK: - Private
+// MARK: - State
 
 private extension ExpressInteractor {
-    func swappingPairDidChange() {
-        allowanceProvider.setup(wallet: getSender())
-        feeProvider.setup(wallet: getSender())
-
-        updateTask { interactor in
-            guard let destination = interactor.getDestination() else {
-                return .restriction(.noDestinationTokens, quote: .none)
-            }
-
-            // If we have a amount to we will start the full update
-            if let amount = await interactor.expressManager.getAmount(), amount > 0 {
-                interactor.updateState(.loading(type: .full))
-            }
-
-            let sender = interactor.getSender()
-            let pair = ExpressManagerSwappingPair(source: sender, destination: destination)
-            let state = try await interactor.expressManager.updatePair(pair: pair)
-            return try await interactor.mapState(state: state)
-        }
-    }
-
     func mapState(state: ExpressManagerState) async throws -> ExpressInteractorState {
         if hasPendingTransaction() {
             return .restriction(.hasPendingTransaction, quote: state.quote)
@@ -426,9 +405,30 @@ private extension ExpressInteractor {
     }
 }
 
-// MARK: - Fee
+// MARK: - Changes
 
 private extension ExpressInteractor {
+    func swappingPairDidChange() {
+        allowanceProvider.setup(wallet: getSender())
+        feeProvider.setup(wallet: getSender())
+
+        updateTask { interactor in
+            guard let destination = interactor.getDestination() else {
+                return .restriction(.noDestinationTokens, quote: .none)
+            }
+
+            // If we have a amount to we will start the full update
+            if let amount = await interactor.expressManager.getAmount(), amount > 0 {
+                interactor.updateState(.loading(type: .full))
+            }
+
+            let sender = interactor.getSender()
+            let pair = ExpressManagerSwappingPair(source: sender, destination: destination)
+            let state = try await interactor.expressManager.updatePair(pair: pair)
+            return try await interactor.mapState(state: state)
+        }
+    }
+
     func feeOptionDidChange() async throws -> ExpressInteractorState {
         switch getState() {
         case .idle:
