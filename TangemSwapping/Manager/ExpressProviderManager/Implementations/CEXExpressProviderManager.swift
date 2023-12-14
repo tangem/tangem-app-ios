@@ -63,9 +63,17 @@ extension CEXExpressProviderManager: ExpressProviderManager {
 
 private extension CEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
+        var loadedQuote: ExpressQuote?
+
         do {
-            if let restriction = await checkBalance(request: request) {
-                return restriction
+            let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
+            let quote = try await expressAPIProvider.exchangeQuote(item: item)
+
+            // Save the quote for use it in the next possible error case
+            loadedQuote = quote
+
+            if try await isNotEnoughBalanceForSwapping(request: request) {
+                return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
 
             var request = request
@@ -76,35 +84,24 @@ private extension CEXExpressProviderManager {
                 request = ExpressManagerSwappingPairRequest(pair: request.pair, amount: request.amount - subtractFee)
             }
 
-            let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
-            let quote = try await expressAPIProvider.exchangeQuote(item: item)
-
             return .preview(.init(fee: estimatedFee, subtractFee: subtractFee, quote: quote))
 
         } catch let error as ExpressAPIError {
             if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
-                return .restriction(.tooSmallAmount(minAmount), quote: .none)
+                return .restriction(.tooSmallAmount(minAmount), quote: loadedQuote)
             }
 
-            return .error(error, quote: .none)
+            return .error(error, quote: loadedQuote)
         } catch {
-            return .error(error, quote: .none)
+            return .error(error, quote: loadedQuote)
         }
     }
 
-    func checkBalance(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState? {
-        do {
-            let sourceBalance = try await request.pair.source.getBalance()
-            let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
+    func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) async throws -> Bool {
+        let sourceBalance = try await request.pair.source.getBalance()
+        let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
-            if isNotEnoughBalanceForSwapping {
-                return .restriction(.insufficientBalance(request.amount), quote: .none)
-            }
-        } catch {
-            return .error(error, quote: .none)
-        }
-
-        return nil
+        return isNotEnoughBalanceForSwapping
     }
 
     func subtractFee(request: ExpressManagerSwappingPairRequest, fee: ExpressFee) async throws -> Decimal {
