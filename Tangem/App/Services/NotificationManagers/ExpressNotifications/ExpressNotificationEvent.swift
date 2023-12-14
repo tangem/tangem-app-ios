@@ -115,7 +115,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .refreshRequired,
              .hasPendingTransaction,
              .hasPendingApproveTransaction,
-             .verificationRequired:
+             .verificationRequired,
+             .feeWillBeSubtractFromSendingAmount:
             return .info
         case .notEnoughFeeForTokenTx,
              .notEnoughAmountToSwap,
