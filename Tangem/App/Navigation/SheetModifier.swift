@@ -64,15 +64,15 @@ struct UIKitSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
     }
 
     private func didDismiss() {
-        if item != nil {
-            // Set the item to nil if the controller was closed by the user gesture
-            item = nil
-        }
-
         onDismiss?()
 
         // Just clear memory
         stateObject.clear()
+
+        if item != nil {
+            // Set the item to nil if the controller was closed by the user gesture
+            item = nil
+        }
     }
 }
 
