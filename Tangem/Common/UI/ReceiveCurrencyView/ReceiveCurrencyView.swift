@@ -23,8 +23,7 @@ struct ReceiveCurrencyView: View {
 
             mainContent
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
+        .padding(.all, 14)
         .background(Colors.Background.primary)
         .cornerRadius(14)
     }
