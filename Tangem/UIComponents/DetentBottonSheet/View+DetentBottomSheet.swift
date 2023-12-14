@@ -14,7 +14,7 @@ extension View {
     ///   - settings: You can setup the sheet's appearance
     ///   - stateObject: You can use custom`Sheet.StateObject` for tracking the sheet changes
     ///   - sheetContent: View for `sheetContent`
-    @available(iOS 15.0, *)
+    @available(iOS 14.0, *)
     @ViewBuilder
     func detentBottomSheet<Item: Identifiable, ContentView: View>(
         item: Binding<Item?>,
