@@ -19,6 +19,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var sendCurrencyViewModel: SendCurrencyViewModel?
     @Published var sendDecimalValue: DecimalNumberTextField.DecimalValue?
     @Published var isSwapButtonLoading: Bool = false
+    @Published var isSwapButtonDisabled: Bool = false
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
 
     // Warnings
@@ -45,6 +46,7 @@ final class ExpressViewModel: ObservableObject {
     private let balanceFormatter: BalanceFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
     private let notificationManager: NotificationManager
+    private let expressRepository: ExpressRepository
     private unowned let interactor: ExpressInteractor
     private unowned let coordinator: ExpressRoutable
 
@@ -62,6 +64,7 @@ final class ExpressViewModel: ObservableObject {
         balanceFormatter: BalanceFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
         notificationManager: NotificationManager,
+        expressRepository: ExpressRepository,
         interactor: ExpressInteractor,
         coordinator: ExpressRoutable
     ) {
@@ -72,6 +75,7 @@ final class ExpressViewModel: ObservableObject {
         self.balanceFormatter = balanceFormatter
         self.expressProviderFormatter = expressProviderFormatter
         self.notificationManager = notificationManager
+        self.expressRepository = expressRepository
         self.interactor = interactor
         self.coordinator = coordinator
 
@@ -232,6 +236,24 @@ private extension ExpressViewModel {
                 self?.updateSendView(wallet: pair.sender)
                 self?.updateReceiveView(wallet: pair.destination)
             }
+            .store(in: &bag)
+
+        interactor.swappingPair
+            .withWeakCaptureOf(self)
+            .asyncMap { viewModel, pair -> Bool in
+                do {
+                    if let destination = pair.destination.value {
+                        let oppositePair = ExpressManagerSwappingPair(source: destination, destination: pair.sender)
+                        let oppositeProviders = try await viewModel.expressRepository.getAvailableProviders(for: oppositePair)
+                        return oppositeProviders.isEmpty
+                    }
+                    return true
+                } catch {
+                    return true
+                }
+            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isSwapButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
