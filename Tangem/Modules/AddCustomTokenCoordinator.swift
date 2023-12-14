@@ -61,6 +61,10 @@ extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
         self.walletSelectorViewModel = walletSelectorViewModel
     }
 
+    func closeWalletSelector() {
+        walletSelectorViewModel = nil
+    }
+
     func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain]) {
         let networkSelectorModel = AddCustomTokenNetworkSelectorViewModel(
             selectedBlockchainNetworkId: selectedBlockchainNetworkId,
