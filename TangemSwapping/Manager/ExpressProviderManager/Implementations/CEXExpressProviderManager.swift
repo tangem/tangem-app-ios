@@ -64,14 +64,14 @@ extension CEXExpressProviderManager: ExpressProviderManager {
 private extension CEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         var loadedQuote: ExpressQuote?
-        
+
         do {
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
 
             // Save the quote for use it in the next possible error case
             loadedQuote = quote
-            
+
             if try await isNotEnoughBalanceForSwapping(request: request) {
                 return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
@@ -83,7 +83,7 @@ private extension CEXExpressProviderManager {
             if subtractFee > 0 {
                 request = ExpressManagerSwappingPairRequest(pair: request.pair, amount: request.amount - subtractFee)
             }
-            
+
             return .preview(.init(fee: estimatedFee, subtractFee: subtractFee, quote: quote))
 
         } catch let error as ExpressAPIError {
@@ -100,7 +100,7 @@ private extension CEXExpressProviderManager {
     func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) async throws -> Bool {
         let sourceBalance = try await request.pair.source.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
-        
+
         return isNotEnoughBalanceForSwapping
     }
 
