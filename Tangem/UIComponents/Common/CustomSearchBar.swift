@@ -12,7 +12,6 @@ struct CustomSearchBar: View {
     @Binding var searchText: String
 
     var placeholder: String
-    var textFieldAllowsHitTesting: Bool
 
     var body: some View {
         HStack {
@@ -39,7 +38,6 @@ struct CustomSearchBar: View {
                         },
                     alignment: .trailing
                 )
-                .allowsHitTesting(textFieldAllowsHitTesting)
         }
         .padding(.vertical, 13.0)
         .padding(.horizontal, 12.0)
@@ -55,8 +53,7 @@ struct CustomSearchBar_Previews: PreviewProvider {
     static var previews: some View {
         CustomSearchBar(
             searchText: .constant(""),
-            placeholder: Localization.commonSearch,
-            textFieldAllowsHitTesting: true
+            placeholder: Localization.commonSearch
         )
         .padding(.top, 20)
         .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
@@ -65,8 +62,7 @@ struct CustomSearchBar_Previews: PreviewProvider {
 
         CustomSearchBar(
             searchText: .constant(""),
-            placeholder: Localization.commonSearch,
-            textFieldAllowsHitTesting: false
+            placeholder: Localization.commonSearch
         )
         .previewLayout(.sizeThatFits)
         .preferredColorScheme(.dark)
