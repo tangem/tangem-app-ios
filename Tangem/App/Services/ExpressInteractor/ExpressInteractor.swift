@@ -512,39 +512,40 @@ private extension ExpressInteractor {
 
     func initialLoading(wallet: WalletModel) {
         updateTask { interactor in
-            try await interactor.expressRepository.updatePairs(for: wallet)
-            return await interactor.loadDestination(wallet: wallet)
+            if let restriction = await interactor.loadDestination(wallet: wallet) {
+                return .restriction(restriction, quote: .none)
+            }
+
+            return .idle
         }
     }
 
-    func updatePairsAndLoadDestinationIfNeeded() async {
+    func updatePairsAndLoadDestinationIfNeeded() async -> RestrictionType? {
         guard getDestination() == nil else {
-            return
+            return nil
         }
 
-        updateTask { interactor in
-            let wallet = interactor.getSender()
-            try await interactor.expressRepository.updatePairs(for: wallet)
-            return await interactor.loadDestination(wallet: wallet)
-        }
+        let wallet = getSender()
+        return await loadDestination(wallet: wallet)
     }
 
-    func loadDestination(wallet: WalletModel) async -> ExpressInteractorState {
+    func loadDestination(wallet: WalletModel) async -> RestrictionType? {
         _swappingPair.value.destination = .loading
 
         do {
+            try await expressRepository.updatePairs(for: wallet)
             let destination = try await expressDestinationService.getDestination(source: wallet)
             update(destination: destination)
-            return .idle
+            return nil
         } catch ExpressDestinationServiceError.destinationNotFound {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             log("Destination not found")
             _swappingPair.value.destination = .failedToLoad(error: ExpressDestinationServiceError.destinationNotFound)
-            return .restriction(.noDestinationTokens, quote: .none)
+            return .noDestinationTokens
         } catch {
-            log("Looking for destination failed with error: \(error)")
+            log("Get destination failed with error: \(error)")
             _swappingPair.value.destination = .failedToLoad(error: error)
-            return .restriction(.requiredRefresh(occurredError: error), quote: .none)
+            return .requiredRefresh(occurredError: error)
         }
     }
 
