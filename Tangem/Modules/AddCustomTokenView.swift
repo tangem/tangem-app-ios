@@ -55,7 +55,7 @@ struct AddCustomTokenView: View {
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: true, isLoading: viewModel.isLoading)
+                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: true, isLoading: viewModel.isLoading, error: viewModel.decimalsError)
                         }
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(14)
