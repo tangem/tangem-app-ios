@@ -15,7 +15,7 @@ struct MainBottomSheetHeaderInputView: View {
 
     let isTextFieldFocused: Binding<Bool>
 
-    let textFieldAllowsHitTesting: Bool
+    let allowsHitTestingForTextField: Bool
 
     var body: some View {
         if #available(iOS 15.0, *) {
@@ -29,9 +29,9 @@ struct MainBottomSheetHeaderInputView: View {
     private var searchBar: some View {
         CustomSearchBar(
             searchText: $searchText,
-            placeholder: Localization.commonSearch,
-            textFieldAllowsHitTesting: textFieldAllowsHitTesting
+            placeholder: Localization.commonSearch
         )
+        .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.verticalInset)
         .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
         .background(Colors.Background.primary)
