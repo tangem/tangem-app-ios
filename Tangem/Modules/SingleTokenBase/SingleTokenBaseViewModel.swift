@@ -37,7 +37,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenRouter: SingleTokenRoutable
 
     private var isSwapAvailable: Bool {
-        swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+        !walletModel.isCustom && swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
     }
 
     private var percentFormatter = PercentFormatter()
