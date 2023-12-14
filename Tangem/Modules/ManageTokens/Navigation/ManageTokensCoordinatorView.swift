@@ -18,23 +18,18 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 ManageTokensView(viewModel: model)
                     .onAppear(perform: model.onAppear)
 
-                if #available(iOS 15.0, *) {
-                    ios15Sheets
-                } else {
-                    ios14Sheets
-                }
+                sheets
             }
         }
     }
 
-    @available(iOS 15.0, *)
     @ViewBuilder
-    private var ios15Sheets: some View {
+    private var sheets: some View {
         NavHolder()
             .detentBottomSheet(
                 item: $coordinator.networkSelectorViewModel,
                 settings: .init(
-                    detents: [.large],
+                    detents: [.medium, .large],
                     backgroundColor: Colors.Background.primary
                 )
             ) { viewModel in
@@ -44,22 +39,6 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 }
                 .navigationViewStyle(.stack)
             }
-    }
-
-    @ViewBuilder
-    private var ios14Sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.networkSelectorViewModel) { viewModel in
-                NavigationView {
-                    ZStack {
-                        ManageTokensNetworkSelectorView(viewModel: viewModel)
-
-                        links
-                    }
-                }
-                .navigationViewStyle(.stack)
-            }
-        // [REDACTED_TODO_COMMENT]
     }
 
     @ViewBuilder
