@@ -51,15 +51,14 @@ struct SwapPairService {
         )
 
         for swapPair in swapPairs {
-            if swapPair.destination == swapPair.source {
+            guard
+                swapPair.destination != swapPair.source,
+                currenciesWithBalance.contains(swapPair.source)
+            else {
                 continue
             }
 
-            if swapPair.source == selectedExpressCurrency, currenciesWithBalance.contains(swapPair.source) {
-                return true
-            }
-
-            if swapPair.destination == selectedExpressCurrency, currenciesWithBalance.contains(swapPair.destination) {
+            if swapPair.source == selectedExpressCurrency || swapPair.destination == selectedExpressCurrency {
                 return true
             }
         }
