@@ -32,6 +32,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Published var isLoading = false
 
     @Published var contractAddressError: Error?
+    @Published var decimalsError: Error?
 
     var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
@@ -424,6 +425,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func validate() {
         addButtonDisabled = false
         notificationInput = nil
+        decimalsError = nil
 
         do {
             let _ = try enteredTokenItem()
@@ -432,6 +434,13 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         } catch {
             let dynamicValidationError = error as? DynamicValidationError
             addButtonDisabled = dynamicValidationError?.preventsFromAdding ?? false
+
+            switch (error as? TokenCreationErrors)?.field {
+            case .decimals:
+                decimalsError = error
+            case .none:
+                break
+            }
 
             if let notificationEventProviding = error as? NotificationEventProviding,
                let notificationEvent = notificationEventProviding.notificationEvent {
@@ -502,7 +511,19 @@ private extension AddCustomTokenViewModel {
         case tokensNotSupported(network: String)
         case invalidDecimals(precision: Int)
         case invalidContractAddress
-        case invalidDerivationPath
+
+        enum Field {
+            case decimals
+        }
+
+        var field: Field? {
+            switch self {
+            case .invalidDecimals:
+                return .decimals
+            case .blockchainNotSelected, .unsupportedCurve, .emptyFields, .tokensNotSupported, .invalidContractAddress:
+                return nil
+            }
+        }
 
         var errorDescription: String? {
             switch self {
@@ -518,8 +539,6 @@ private extension AddCustomTokenViewModel {
                 return Localization.customTokenCreationErrorWrongDecimals(precision)
             case .invalidContractAddress:
                 return Localization.customTokenCreationErrorInvalidContractAddress
-            case .invalidDerivationPath:
-                return Localization.customTokenCreationErrorInvalidDerivationPath
             }
         }
 
@@ -551,24 +570,6 @@ private extension AddCustomTokenViewModel {
                 return AddCustomTokenNotificationEvent.scamWarning
             case .alreadyAdded:
                 return nil
-            }
-        }
-    }
-
-    enum DerivationPathError: DynamicValidationError, LocalizedError {
-        case invalidDerivationPath
-
-        var preventsFromAdding: Bool {
-            switch self {
-            case .invalidDerivationPath:
-                return true
-            }
-        }
-
-        var errorDescription: String? {
-            switch self {
-            case .invalidDerivationPath:
-                return Localization.customTokenInvalidDerivationPath
             }
         }
     }
