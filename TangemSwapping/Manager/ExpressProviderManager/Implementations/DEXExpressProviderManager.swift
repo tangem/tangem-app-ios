@@ -66,7 +66,7 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 private extension DEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async -> ExpressProviderManagerState {
         var loadedQuote: ExpressQuote?
-        
+
         do {
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
