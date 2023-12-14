@@ -61,7 +61,7 @@ extension CommonLegacyRateAppService: LegacyRateAppService {
         if isPositive {
             Analytics.log(.noticeRateTheAppButtonTapped)
 
-            if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+            if let scene = UIApplication.activeScene {
                 DispatchQueue.main.async {
                     SKStoreReviewController.requestReview(in: scene)
                 }
