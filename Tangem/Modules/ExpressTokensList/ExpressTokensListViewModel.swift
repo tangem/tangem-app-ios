@@ -24,7 +24,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 
     private let swapDirection: SwapDirection
     private let expressTokensListAdapter: ExpressTokensListAdapter
-    private let expressAPIProvider: ExpressAPIProvider
+    private let expressRepository: ExpressRepository
     private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressTokensListRoutable
 
@@ -40,13 +40,13 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     init(
         swapDirection: SwapDirection,
         expressTokensListAdapter: ExpressTokensListAdapter,
-        expressAPIProvider: ExpressAPIProvider,
+        expressRepository: ExpressRepository,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressTokensListRoutable
     ) {
         self.swapDirection = swapDirection
         self.expressTokensListAdapter = expressTokensListAdapter
-        self.expressAPIProvider = expressAPIProvider
+        self.expressRepository = expressRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
@@ -81,7 +81,7 @@ private extension ExpressTokensListViewModel {
             .withWeakCaptureOf(self)
             .asyncMap { viewModel, walletModels in
                 do {
-                    let availablePairs = try await viewModel.loadAvailablePairs(walletModels: walletModels)
+                    let availablePairs = try await viewModel.loadAvailablePairs()
                     return (walletModels: walletModels, pairs: availablePairs)
                 } catch {
                     return (walletModels: walletModels, pairs: [])
@@ -112,20 +112,13 @@ private extension ExpressTokensListViewModel {
             .store(in: &bag)
     }
 
-    func loadAvailablePairs(walletModels: [WalletModel]) async throws -> [ExpressCurrency] {
-        // If walletModels contains another wallets
-        guard walletModels.contains(where: { $0 != self.swapDirection.wallet }) else {
-            return []
-        }
-
-        let currencies = walletModels.map { $0.expressCurrency }
-
+    func loadAvailablePairs() async throws -> [ExpressCurrency] {
         switch swapDirection {
         case .fromSource(let wallet):
-            let pairs = try await expressAPIProvider.pairs(from: [wallet.expressCurrency], to: currencies)
+            let pairs = try await expressRepository.getPairs(from: wallet)
             return pairs.map { $0.destination }
         case .toDestination(let wallet):
-            let pairs = try await expressAPIProvider.pairs(from: currencies, to: [wallet.expressCurrency])
+            let pairs = try await expressRepository.getPairs(to: wallet)
             return pairs.map { $0.source }
         }
     }
@@ -142,7 +135,8 @@ private extension ExpressTokensListViewModel {
                 guard walletModel != swapDirection.wallet else { return }
 
                 let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
-                if isAvailable {
+                let isNotCustom = !walletModel.isCustom
+                if isAvailable, isNotCustom {
                     availableWalletModels.append(walletModel)
                 } else {
                     unavailableWalletModels.append(walletModel)
