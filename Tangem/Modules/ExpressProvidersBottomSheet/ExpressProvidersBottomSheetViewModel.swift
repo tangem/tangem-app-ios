@@ -123,9 +123,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
             return provider.isBest ? .bestRate : .none
         }()
 
-        if !provider.isBest,
-           let quote = state.quote,
-           let percentSubtitle = await makePercentSubtitle(quote: quote) {
+        if let percentSubtitle = await makePercentSubtitle(provider: provider) {
             subtitles.append(percentSubtitle)
         }
 
@@ -160,8 +158,14 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         coordinator.closeExpressProvidersBottomSheet()
     }
 
-    func makePercentSubtitle(quote: ExpressQuote) async -> ProviderRowViewModel.Subtitle? {
-        guard let selectedRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
+    func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
+        // For best we don't add percent badge
+        guard !provider.isBest else {
+            return nil
+        }
+        
+        guard let quote = await provider.getState().quote,
+            let selectedRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
             return nil
         }
 
