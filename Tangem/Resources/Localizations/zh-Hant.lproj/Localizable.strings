@@ -138,7 +138,7 @@
 "custom_token_creation_error_invalid_contract_address" = "無效地址";
 "custom_token_creation_error_invalid_derivation_path" = "衍生路徑錯誤";
 "custom_token_creation_error_network_not_selected" = "請選擇網路";
-"custom_token_creation_error_wrong_decimals" = "十進制數必須是有效整數，不大於 %li";
+"custom_token_creation_error_wrong_decimals" = "Decimal must be a valid integer, up to %li";
 "custom_token_custom_derivation" = "Custom derivation";
 "custom_token_custom_derivation_placeholder" = "E. g. m/00'/0000'/0'/0/0";
 "custom_token_custom_derivation_title" = "Enter custom derivation";
