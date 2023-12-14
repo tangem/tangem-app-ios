@@ -26,8 +26,9 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
 
     private var prefersGrabberVisible = true
 
-    /// The tap gesture is completely disabled when the sheet is expanded.
-    private var headerTapGestureMask: GestureMask { stateObject.state.isBottom ? .all : .none }
+    /// - Note: The drag gesture is enabled only when the sheet in is an expanded state (`BottomScrollableSheetState.top`).
+    /// Otherwise, a drag gesture from the `headerGestureOverlayView` view is used.
+    private var headerDragGestureMask: GestureMask { stateObject.state.isBottom ? .subviews : .all }
 
     private var scrollViewBottomContentInset: CGFloat { max(overlayHeight, UIApplication.safeAreaInsets.bottom, 6.0) }
 
@@ -78,6 +79,28 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             .onEnded(stateObject.onHeaderTap)
     }
 
+    @ViewBuilder private var headerView: some View {
+        header()
+            .gesture(headerDragGesture, including: headerDragGestureMask)
+            .if(prefersGrabberVisible) { $0.bottomScrollableSheetGrabber() }
+            .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
+    }
+
+    /// - Note: Invisible and receives touches only when the sheet is in a collapsed state (`BottomScrollableSheetState.bottom`).
+    @ViewBuilder
+    private func headerGestureOverlayView(proxy: GeometryProxy) -> some View {
+        // The reduced hittest area is used here to prevent simultaneous recognition of the `headerDragGesture`
+        // or `headerTapGesture` gestures and the system `app switcher` screen edge drag gesture.
+        let overlayViewBottomInset = stateObject.state.isBottom ? proxy.safeAreaInsets.bottom : 0.0
+        let overlayViewHeight = max(0.0, stateObject.headerHeight - overlayViewBottomInset)
+        Color.clear
+            .frame(height: overlayViewHeight, alignment: .top)
+            .contentShape(Rectangle())
+            .gesture(headerTapGesture)
+            .simultaneousGesture(headerDragGesture)
+            .allowsHitTesting(stateObject.state.isBottom)
+    }
+
     @ViewBuilder private var backgroundView: some View {
         Color.black
             .opacity(Constants.backgroundViewOpacity * stateObject.progress)
@@ -122,7 +145,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             Colors.Background.primary
 
             VStack(spacing: 0.0) {
-                headerView(proxy: proxy)
+                headerView
 
                 scrollView
             }
@@ -142,28 +165,8 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
                 isHidden = true
             }
         }
-        .overlay(headerGestureOverlayView(proxy: proxy), alignment: .top) // Mustn't be hidden (by the 'isHidden' flag)
+        .overlay(headerGestureOverlayView(proxy: proxy), alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
         .offset(y: proxy.size.height - stateObject.visibleHeight - stateObject.topInset)
-    }
-
-    @ViewBuilder
-    private func headerGestureOverlayView(proxy: GeometryProxy) -> some View {
-        // The reduced hittest area is used here to prevent simultaneous recognition of the `headerDragGesture`
-        // or `headerTapGesture` gestures and the system `app switcher` screen edge drag gesture.
-        let overlayViewBottomInset = stateObject.state.isBottom ? proxy.safeAreaInsets.bottom : 0.0
-        let overlayViewHeight = max(0.0, stateObject.headerHeight - overlayViewBottomInset)
-        Color.clear
-            .frame(height: overlayViewHeight, alignment: .top)
-            .contentShape(Rectangle())
-            .gesture(headerTapGesture, including: headerTapGestureMask)
-            .simultaneousGesture(headerDragGesture)
-    }
-
-    @ViewBuilder
-    private func headerView(proxy: GeometryProxy) -> some View {
-        header()
-            .if(prefersGrabberVisible) { $0.bottomScrollableSheetGrabber() }
-            .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
     }
 
     /// Restores default (system-driven) appearance of the status bar.
