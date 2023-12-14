@@ -77,6 +77,10 @@ class CommonPendingExpressTransactionsManager {
     private func updateTransactionsStatuses(_ records: [ExpressPendingTransactionRecord]) {
         cancelTask()
 
+        if records.isEmpty {
+            return
+        }
+
         log("Setup update pending express transactions statuses task. Number of records: \(records.count)")
         updateTask = Task { [weak self] in
             do {
@@ -165,7 +169,7 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func log<T>(_ message: @autoclosure () -> T) {
-        AppLog.shared.debug("[CommonExpressPendingTxTracker] \(message())")
+        AppLog.shared.debug("[CommonPendingExpressTransactionsManager] \(message())")
     }
 }
 
