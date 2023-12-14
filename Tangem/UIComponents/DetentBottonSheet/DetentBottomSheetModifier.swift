@@ -17,7 +17,6 @@ import SwiftUI
 /// - When we should dismiss `bottomSheet` this steps:
 /// 1. Hide `sheetContainer` with animation
 /// 2. After completion we close `UIController`
-@available(iOS 15.0, *)
 struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
     typealias Sheet = DetentBottomSheetContainer<ContentView>
 
@@ -42,35 +41,41 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
     }
 
     func body(content: Content) -> some View {
-//        if #available(iOS 16.0, *) {
+        content
+            .onChange(of: item?.id) { _ in
+                if #available(iOS 15.0, *) {
+                    iOS15SheetPresentationControllerUpdate(item: item)
+                } else {
+                    fatalError()
+                }
+            }
+//        if #available(iOS 16.4, *) {
+//            iOS16SheetUpdate(item: item, on: content)
+//        } else if #available(iOS 15.0, *) {
+//            content
+//                .onChange(of: item?.id) { _ in
+//                    iOS15SheetPresentationControllerUpdate(item: item)
+//                }
+//        } else {
 //            content
 //                .sheet(isPresented: $showBottomSheet) {
 //                    if let item = item {
 //                        DetentBottomSheetContainer(settings: settings) {
 //                            sheetContent(item)
 //                        }
-//                        .presentationDragIndicator(.hidden)
-//                        .presentationDetents([.medium, .large])
 //                    }
 //                }.onChange(of: item?.id) { _ in
 //                    showBottomSheet = true
 //                }
-//        } else {
-//            content
-//                .onChange(of: item?.id) { _ in
-//                    sheetPresentationControllerUpdate(item: item)
-//                }
 //        }
-        content
-            .onChange(of: item?.id) { _ in
-                sheetPresentationControllerUpdate(item: item)
-            }
     }
+}
 
-    // MARK: - iOS16 UIKit Implementation BottomSheet
+// MARK: - iOS_16.0 UIKit Implementation BottomSheet
 
-    @available(iOS 16.0, *)
-    func sheetUpdate(item: Item?, on content: Content) -> some View {
+@available(iOS 16.4, *)
+extension DetentBottomSheetModifier {
+    func iOS16SheetUpdate(item: Item?, on content: Content) -> some View {
         content
             .sheet(isPresented: $showBottomSheet) {
                 if let item = item {
@@ -78,14 +83,20 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
                         sheetContent(item)
                     }
                     .presentationDragIndicator(.hidden)
-                    .presentationDetents([.medium])
+                    .presentationCornerRadius(settings.cornerRadius)
+                    .presentationDetents(settings.detents.map { $0.detentsAbove_16_4 }.toSet())
                 }
+            }.onChange(of: item?.id) { _ in
+                showBottomSheet = true
             }
     }
+}
 
-    // MARK: - iOS15 UIKit Implementation BottomSheet
+// MARK: - iOS_15 UIKit Implementation BottomSheet
 
-    func sheetPresentationControllerUpdate(item: Item?) {
+@available(iOS, introduced: 15.0, obsoleted: 16.4)
+extension DetentBottomSheetModifier {
+    func iOS15SheetPresentationControllerUpdate(item: Item?) {
         if let item = item {
             let controller = updateUIController(item: item)
             showController(controller)
@@ -94,7 +105,7 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
         }
     }
 
-    func updateUIController(item: Item) -> UIHostingController<Sheet> {
+    func updateUIController(item: Item) -> UIViewController {
         let sheet = DetentBottomSheetContainer(settings: settings) {
             sheetContent(item)
         }
@@ -105,14 +116,14 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
         controller.view.backgroundColor = .clear
 
         if let sheet = controller.sheetPresentationController {
-            sheet.detents = [.large(), .medium()]
+            sheet.detents = settings.detents.map { $0.detentsAbove_15_0 }
             sheet.preferredCornerRadius = settings.cornerRadius
         }
 
         // Save the controller for dismiss it when it will be needed
         self.controller = controller
 
-        return controller
+        return UINavigationController(rootViewController: controller)
     }
 
     func showController(_ controller: UIViewController) {
