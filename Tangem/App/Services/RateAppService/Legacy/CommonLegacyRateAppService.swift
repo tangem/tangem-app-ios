@@ -44,8 +44,6 @@ class CommonLegacyRateAppService {
     }
 }
 
-// MARK: - LegacyRateAppService protocol conformance
-
 extension CommonLegacyRateAppService: LegacyRateAppService {
     var shouldCheckBalanceForRateApp: Bool {
         !(AppSettings.shared.didUserRespondToRateApp ||
@@ -76,18 +74,5 @@ extension CommonLegacyRateAppService: LegacyRateAppService {
 
         AppSettings.shared.positiveBalanceAppearanceDate = Date()
         AppSettings.shared.positiveBalanceAppearanceLaunch = AppSettings.shared.numberOfLaunches
-    }
-}
-
-// MARK: - Dependency injection
-
-private struct RateAppServiceKey: InjectionKey {
-    static var currentValue: LegacyRateAppService = CommonLegacyRateAppService()
-}
-
-extension InjectedValues {
-    var rateAppService: LegacyRateAppService {
-        get { Self[RateAppServiceKey.self] }
-        set { Self[RateAppServiceKey.self] = newValue }
     }
 }
