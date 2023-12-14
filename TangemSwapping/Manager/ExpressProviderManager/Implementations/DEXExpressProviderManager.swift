@@ -65,9 +65,14 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 
 private extension DEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async -> ExpressProviderManagerState {
+        var loadedQuote: ExpressQuote?
+
         do {
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
+
+            // Save the quote for use it in the next possible error case
+            loadedQuote = quote
 
             if let restriction = await checkRestriction(request: request, quote: quote, approvePolicy: approvePolicy) {
                 return restriction
@@ -81,21 +86,18 @@ private extension DEXExpressProviderManager {
                 destination: data.destinationAddress,
                 hexData: data.txData.map { Data(hexString: $0) }
             )
-
             try Task.checkCancellation()
 
-            // For approve use the fastest fee
-            let fastest = fee.fastest
-            return .ready(.init(fee: .single(fastest), data: data, quote: quote))
+            return .ready(.init(fee: fee, data: data, quote: quote))
 
         } catch let error as ExpressAPIError {
             if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
-                return .restriction(.tooSmallAmount(minAmount), quote: .none)
+                return .restriction(.tooSmallAmount(minAmount), quote: loadedQuote)
             }
 
-            return .error(error, quote: .none)
+            return .error(error, quote: loadedQuote)
         } catch {
-            return .error(error, quote: .none)
+            return .error(error, quote: loadedQuote)
         }
     }
 
@@ -153,9 +155,11 @@ private extension DEXExpressProviderManager {
         let fee = try await feeProvider.getFee(amount: 0, destination: request.pair.source.contractAddress, hexData: data)
         try Task.checkCancellation()
 
+        // For approve use the fastest fee
+        let fastest = fee.fastest
         return ExpressManagerState.PermissionRequired(
             data: .init(spender: spender, toContractAddress: contractAddress, data: data),
-            fee: fee,
+            fee: .single(fastest),
             quote: quote
         )
     }
