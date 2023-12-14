@@ -52,12 +52,11 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
         // If user has wallets with balance then sort they
         let sortedWallets = walletModelsWithPositiveBalance.sorted(by: { ($0.fiatValue ?? 0) > ($1.fiatValue ?? 0) })
+        let availablePairs = await expressRepository.getPairs(from: source)
 
         // Start searching destination with available providers
         for wallet in sortedWallets {
-            let pair = ExpressManagerSwappingPair(source: source, destination: wallet)
-            let availableProviders = try await expressRepository.getAvailableProviders(for: pair)
-            if !availableProviders.isEmpty {
+            if availablePairs.contains(where: { $0.destination == wallet.expressCurrency }) {
                 return wallet
             }
         }
