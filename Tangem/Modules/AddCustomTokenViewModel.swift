@@ -46,24 +46,15 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     private(set) var selectedDerivationOption: AddCustomTokenDerivationOption?
     private(set) var canSelectWallet: Bool = false
-    private var selectedUserWalletId: Data?
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var didLogScreenAnalytics = false
     private var foundStandardToken: CoinModel?
     #warning("DONT USE LEGACY SETTINGS")
     private var settings: LegacyManageTokensSettings
+    private var userWalletModel: UserWalletModel
     private var bag: Set<AnyCancellable> = []
     private let dataSource: ManageTokensNetworkDataSource
     private unowned let coordinator: AddCustomTokenRoutable
-
-    private var userTokensManager: UserTokensManager? {
-        userWalletRepository
-            .models
-            .first {
-                $0.userWalletId.value == selectedUserWalletId
-            }?
-            .userTokensManager
-    }
 
     private var supportedBlockchains: [Blockchain] {
         Array(settings.supportedBlockchains)
@@ -84,18 +75,17 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     init(
-        settings: LegacyManageTokensSettings,
+        userWalletModel: UserWalletModel,
         dataSource: ManageTokensDataSource,
         coordinator: AddCustomTokenRoutable
     ) {
-        self.settings = settings
+        settings = Self.makeSettings(userWalletModel: userWalletModel)
         self.coordinator = coordinator
         self.dataSource = ManageTokensNetworkDataSource(dataSource)
+        self.userWalletModel = userWalletModel
         canSelectWallet = availableWallets.count > 1
 
-        let selectedUserWallet = userWalletRepository.selectedModel?.userWallet
-        selectedWalletName = selectedUserWallet?.name ?? ""
-        selectedUserWalletId = selectedUserWallet?.userWalletId
+        selectedWalletName = userWalletModel.userWallet.name
 
         bind()
     }
@@ -108,8 +98,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     func createToken() {
-        guard let userTokensManager else { return }
-
         UIApplication.shared.endEditing()
 
         let tokenItem: TokenItem
@@ -131,7 +119,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             return
         }
 
-        userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem], derivationPath: derivationPath)
+        userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem], derivationPath: derivationPath)
         logSuccess(tokenItem: tokenItem, derivationPath: derivationPath)
 
         closeModule()
@@ -141,18 +129,11 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         coordinator.openWalletSelector(with: dataSource)
     }
 
-    func setSelectedWallet(userWalletId: Data) {
-        guard
-            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
-        else {
-            return
-        }
-
+    func setSelectedWallet(userWalletModel: UserWalletModel) {
         let userWallet = userWalletModel.userWallet
 
-        selectedUserWalletId = userWalletId
         selectedWalletName = userWallet.name
-        settings = makeSettings(userWalletModel: userWalletModel)
+        settings = Self.makeSettings(userWalletModel: userWalletModel)
 
         updateDefaultDerivationOption()
         validate()
@@ -208,6 +189,21 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
+        dataSource
+            .selectedUserWalletModelPublisher
+            .sink { [weak self] userWalletId in
+                guard
+                    let self,
+                    let userWalletModel = dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId })
+                else {
+                    return
+                }
+
+                self.userWalletModel = userWalletModel
+                setSelectedWallet(userWalletModel: userWalletModel)
+            }
+            .store(in: &bag)
+
         $contractAddress.removeDuplicates()
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
@@ -253,7 +249,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         .store(in: &bag)
     }
 
-    private func makeSettings(userWalletModel: UserWalletModel) -> LegacyManageTokensSettings {
+    private static func makeSettings(userWalletModel: UserWalletModel) -> LegacyManageTokensSettings {
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
         supportedBlockchains.remove(.ducatus)
@@ -366,16 +362,10 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     private func checkLocalStorage() throws {
-        guard
-            let tokenItem = try? enteredTokenItem(),
-            let userTokensManager
-        else {
-            return
-        }
+        guard let tokenItem = try? enteredTokenItem() else { return }
 
         let derivationPath = enteredDerivationPath()
-
-        if userTokensManager.contains(tokenItem, derivationPath: derivationPath) {
+        if userWalletModel.userTokensManager.contains(tokenItem, derivationPath: derivationPath) {
             throw TokenSearchError.alreadyAdded
         }
     }
