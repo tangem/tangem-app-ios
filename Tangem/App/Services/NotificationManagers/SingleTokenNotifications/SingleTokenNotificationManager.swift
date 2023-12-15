@@ -26,7 +26,7 @@ final class SingleTokenNotificationManager {
     private var canShowTangemExpressPromotion: Bool {
         guard swapPairService != nil else { return false }
 
-        let promotionId = walletModel.tokenItem.promotionId
+        let promotionId = walletModel.promotionId
         return !AppSettings.shared.tangemExpressPromotionDismissedTokens.contains(promotionId) && TangemExpressPromotionUtility().isPromotionRunning
     }
 
@@ -227,7 +227,7 @@ extension SingleTokenNotificationManager: NotificationManager {
         switch event {
         case .tangemExpressPromotion:
             Analytics.log(.swapPromoButtonClose)
-            AppSettings.shared.tangemExpressPromotionDismissedTokens.append(walletModel.tokenItem.promotionId)
+            AppSettings.shared.tangemExpressPromotionDismissedTokens.append(walletModel.promotionId)
         default:
             break
         }
@@ -236,8 +236,8 @@ extension SingleTokenNotificationManager: NotificationManager {
     }
 }
 
-private extension TokenItem {
+private extension WalletModel {
     var promotionId: String {
-        "\(blockchain.coinId)_\(id ?? "")"
+        expressCurrency.network + expressCurrency.contractAddress
     }
 }
