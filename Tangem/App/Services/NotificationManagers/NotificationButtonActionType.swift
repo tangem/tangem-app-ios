@@ -57,8 +57,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard, .buyCrypto, .openNetworkCurrency, .refresh, .goToProvider, .exchange:
+        case .backupCard, .buyCrypto, .openNetworkCurrency, .refresh, .goToProvider:
             return .secondary
+        case .exchange:
+            return .exchangePromotionWhite
         }
     }
 }
