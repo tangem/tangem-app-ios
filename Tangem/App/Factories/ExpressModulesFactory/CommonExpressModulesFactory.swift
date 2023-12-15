@@ -85,10 +85,10 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressProvidersBottomSheetViewModel(
-        coordinator: ExpressProvidersBottomSheetRoutable
-    ) -> ExpressProvidersBottomSheetViewModel {
-        ExpressProvidersBottomSheetViewModel(
+    func makeExpressProvidersSelectorViewModel(
+        coordinator: ExpressProvidersSelectorRoutable
+    ) -> ExpressProvidersSelectorViewModel {
+        ExpressProvidersSelectorViewModel(
             percentFormatter: percentFormatter,
             expressProviderFormatter: expressProviderFormatter,
             expressRepository: expressRepository,
