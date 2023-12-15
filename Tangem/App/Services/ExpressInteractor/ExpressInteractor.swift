@@ -29,6 +29,7 @@ class ExpressInteractor {
     private let expressManager: ExpressManager
     private let allowanceProvider: ExpressAllowanceProvider
     private let feeProvider: ExpressFeeProvider
+    private let expressRepository: ExpressRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressTransactionBuilder: ExpressTransactionBuilder
@@ -49,6 +50,7 @@ class ExpressInteractor {
         expressManager: ExpressManager,
         allowanceProvider: ExpressAllowanceProvider,
         feeProvider: ExpressFeeProvider,
+        expressRepository: ExpressRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressTransactionBuilder: ExpressTransactionBuilder,
@@ -60,6 +62,7 @@ class ExpressInteractor {
         self.expressManager = expressManager
         self.allowanceProvider = allowanceProvider
         self.feeProvider = feeProvider
+        self.expressRepository = expressRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressTransactionBuilder = expressTransactionBuilder
@@ -67,7 +70,7 @@ class ExpressInteractor {
         self.logger = logger
 
         _swappingPair = .init(SwappingPair(sender: initialWallet, destination: .loading))
-        Task { [weak self] in await self?.loadDestinationIfNeeded() }
+        initialLoading(wallet: initialWallet)
     }
 }
 
@@ -252,18 +255,27 @@ extension ExpressInteractor {
             interactor.log("Start refreshing task")
             interactor.updateState(.loading(type: type))
 
+            // The type is full we can receive only from
+            // the "Refresh" button on the error notification
+            if type == .full {
+                // If we have a restriction with destination after "refresh button"
+                // Just show it
+                if let restriction = await interactor.updatePairsAndLoadDestinationIfNeeded() {
+                    return .restriction(restriction, quote: .none)
+                }
+            }
+
             let state = try await interactor.expressManager.update()
             return try await interactor.mapState(state: state)
         }
     }
 
     func cancelRefresh() {
-        guard updateStateTask != nil else {
+        guard let activeTask = updateStateTask, !activeTask.isCancelled else {
             return
         }
 
         log("Cancel the refreshing task")
-
         updateStateTask?.cancel()
         updateStateTask = nil
     }
@@ -502,27 +514,42 @@ private extension ExpressInteractor {
         }
     }
 
-    func loadDestinationIfNeeded() async {
+    func initialLoading(wallet: WalletModel) {
+        updateTask { interactor in
+            if let restriction = await interactor.loadDestination(wallet: wallet) {
+                return .restriction(restriction, quote: .none)
+            }
+
+            return .idle
+        }
+    }
+
+    func updatePairsAndLoadDestinationIfNeeded() async -> RestrictionType? {
         guard getDestination() == nil else {
-            log("Swapping item destination has already set")
-            return
+            return nil
         }
 
+        let wallet = getSender()
+        return await loadDestination(wallet: wallet)
+    }
+
+    func loadDestination(wallet: WalletModel) async -> RestrictionType? {
         _swappingPair.value.destination = .loading
 
         do {
-            let sender = getSender()
-            let destination = try await expressDestinationService.getDestination(source: sender)
-            if let destination {
-                update(destination: destination)
-            } else {
-                Analytics.log(.swapNoticeNoAvailableTokensToSwap)
-                throw ExpressInteractorError.destinationNotFound
-            }
+            try await expressRepository.updatePairs(for: wallet)
+            let destination = try await expressDestinationService.getDestination(source: wallet)
+            update(destination: destination)
+            return nil
+        } catch ExpressDestinationServiceError.destinationNotFound {
+            Analytics.log(.swapNoticeNoAvailableTokensToSwap)
+            log("Destination not found")
+            _swappingPair.value.destination = .failedToLoad(error: ExpressDestinationServiceError.destinationNotFound)
+            return .noDestinationTokens
         } catch {
-            log("Looking for destination failed with error: \(error)")
+            log("Get destination failed with error: \(error)")
             _swappingPair.value.destination = .failedToLoad(error: error)
-            updateState(.restriction(.noDestinationTokens, quote: .none))
+            return .requiredRefresh(occurredError: error)
         }
     }
 
