@@ -51,7 +51,6 @@ extension AddCustomTokenNotificationEvent: NotificationEvent {
     var analyticsEvent: Analytics.Event? {
         switch self {
         case .scamWarning:
-
             return nil
         }
     }
