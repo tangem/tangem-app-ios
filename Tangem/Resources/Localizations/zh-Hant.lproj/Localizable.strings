@@ -221,7 +221,7 @@
 "express_fetch_best_rates" = "Fetching best rates...";
 "express_floating_rate" = "Floating rate";
 "express_go_to_provider" = "Go to provider";
-"express_more_ providers_soon" = "More providers are coming soon.\nStay tuned!";
+"express_more_providers_soon" = "More providers are coming soon.\nStay tuned!";
 "express_provider" = "Provider";
 "express_provider_best_rate" = "Best rate";
 "express_provider_min_amount" = "Available from %@";
