@@ -21,6 +21,7 @@ struct ExpressProvidersSelectorView: View {
                 title: Localization.expressChooseProvidersTitle,
                 subtitle: Localization.expressChooseProvidersSubtitle
             )
+            .fixedSize(horizontal: false, vertical: true)
 
             GroupedSection(viewModel.providerViewModels) {
                 ProviderRowView(viewModel: $0)
@@ -40,8 +41,9 @@ struct ExpressProvidersSelectorView: View {
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
 
-            Text("More providers are coming soon. Stay tuned!")
+            Text("More providers are coming soon.\nStay tuned!")
                 .style(Fonts.Regular.footnote, color: Colors.Icon.informative)
+                .multilineTextAlignment(.center)
         }
     }
 }
