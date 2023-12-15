@@ -81,6 +81,7 @@
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
+"common_fee_label" = "費用";
 "common_fee_selector_footer" = "Network transaction fees are used to support network security, incentivize validators, allocate resources, and determine transaction priority.";
 "common_fee_selector_option_custom" = "Custom";
 "common_fee_selector_option_fast" = "Fast";
@@ -221,11 +222,16 @@
 "express_fetch_best_rates" = "Fetching best rates...";
 "express_floating_rate" = "Floating rate";
 "express_go_to_provider" = "Go to provider";
+"express_legal_one_placeholder" = "By using swap functionality, you agree with provider’s %@";
+"express_legal_two_placeholders" = "By using swap functionality, you agree with provider’s %1$@ and %2$@";
+"express_more_providers_soon" = "More providers are coming soon.\nStay tuned!";
+"express_privacy_policy" = "Privacy Policy";
 "express_provider" = "Provider";
 "express_provider_best_rate" = "Best rate";
 "express_provider_min_amount" = "Available from %@";
 "express_provider_not_available" = "Unavailable for this pair";
 "express_provider_permission_needed" = "Permission Required";
+"express_terms_of_use" = "Terms of Use";
 "express_unknown_error" = "There was an error. Please try again.";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
@@ -422,7 +428,6 @@
 "send_extras_hint_destination_tag" = "Tag";
 "send_extras_hint_memo" = "Memo";
 "send_fee_include_description" = "包含費用";
-"send_fee_label" = "費用";
 "send_fee_picker_low" = "低";
 "send_fee_picker_normal" = "正常";
 "send_fee_picker_priority" = "優先";
@@ -441,13 +446,13 @@
 "send_network_fee_title" = "網路費";
 "send_network_fee_warning_content" = "Sending amount will be reduced to cover the selected fee level";
 "send_network_fee_warning_title" = "Network fee coverage";
-"send_notification_exceed_balance_text" = "Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance.";
+"send_notification_exceed_balance_text" = "Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance";
 "send_notification_exceed_balance_title" = "Total exceeds balance";
 "send_notification_exceed_fee_text" = "The commission fee exceeds the network balance. To continue, it is necessary to replenish the network balance.";
 "send_notification_exceed_fee_title" = "Fee exceeds balance";
 "send_notification_high_fee_text" = "The fee for transferring the entire balance is higher. To reduce the commission, you can leave 0.01.";
 "send_notification_high_fee_title" = "Fee is increased";
-"send_notification_invalid_amount_text" = "The included commission exceeds the transfer amount, leading to a negative value.";
+"send_notification_invalid_amount_text" = "The included commission exceeds the transfer amount, leading to a negative value";
 "send_notification_invalid_amount_title" = "Invalid amount";
 "send_notification_invalid_minimum_amount_text" = "The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %1$@.";
 "send_notification_invalid_reserve_amount_text" = "Please top up your balance to continue";
@@ -509,6 +514,8 @@
 "swapping_permission_subheader" = "要繼續，您需要允許 1inch 智能合約使用您的 %@";
 "swapping_permission_unlimited" = "Unlimited";
 "swapping_permit_and_swap" = "許可和交換";
+"swapping_success_from_title" = "You swap";
+"swapping_success_to_title" = "You receive";
 "swapping_success_view_explorer_button_title" = "在瀏覽器中查看";
 "swapping_success_view_title" = "進行中";
 "swapping_swap_action" = "交易";
@@ -650,7 +657,7 @@
 "warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
-"warning_express_refresh_required_title" = "Service temporary unavailable";
+"warning_express_refresh_required_title" = "Service temporarily unavailable";
 "warning_express_too_minimal_amount_description" = "Please change the amount to swap";
 "warning_express_too_minimal_amount_title" = "The amount to swap must be at least %@";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
