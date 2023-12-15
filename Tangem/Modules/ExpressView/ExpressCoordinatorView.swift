@@ -45,10 +45,10 @@ struct ExpressCoordinatorView: CoordinatorView {
                 ExpressFeeBottomSheetView(viewModel: $0)
             }
             .bottomSheet(
-                item: $coordinator.expressProvidersBottomSheetViewModel,
+                item: $coordinator.expressProvidersSelectorViewModel,
                 settings: .init(backgroundColor: Colors.Background.tertiary)
             ) {
-                ExpressProvidersBottomSheetView(viewModel: $0)
+                ExpressProvidersSelectorView(viewModel: $0)
             }
 
         NavHolder()
