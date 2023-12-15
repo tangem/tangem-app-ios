@@ -107,7 +107,7 @@ private extension ExpressSuccessSentViewModel {
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
-            title: Localization.exchangeSendViewHeader,
+            title: Localization.swappingSuccessFromTitle,
             amount: sourceAmountFormatted,
             amountFiat: sourceFiatAmountFormatted,
             tokenIconInfo: TokenIconInfoBuilder().build(from: sourceTokenItem, isCustom: false)
@@ -118,7 +118,7 @@ private extension ExpressSuccessSentViewModel {
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
-            title: Localization.exchangeReceiveViewHeader,
+            title: Localization.swappingSuccessToTitle,
             amount: destinationAmountFormatted,
             amountFiat: destinationFiatAmountFormatted,
             tokenIconInfo: TokenIconInfoBuilder().build(from: destinationTokenItem, isCustom: false)
@@ -142,7 +142,6 @@ private extension ExpressSuccessSentViewModel {
         )
 
         let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.tokenItem)
-
-        expressFee = ExpressFeeRowData(title: Localization.sendFeeLabel, subtitle: feeFormatted)
+        expressFee = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: feeFormatted)
     }
 }
