@@ -15,10 +15,14 @@ struct ManageTokensView: View {
     @ObservedObject var viewModel: ManageTokensViewModel
 
     var body: some View {
-        list
-            .scrollDismissesKeyboardCompat(true)
-            .alert(item: $viewModel.alert, content: { $0.alert })
-            .background(Colors.Background.primary)
+        VStack {
+            header
+
+            list
+        }
+        .background(Colors.Background.primary)
+        .scrollDismissesKeyboardCompat(true)
+        .alert(item: $viewModel.alert, content: { $0.alert })
     }
 
     private var header: some View {
@@ -27,9 +31,11 @@ struct ManageTokensView: View {
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            Text(Localization.manageTokensListHeaderSubtitle)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                .lineLimit(1)
+            if viewModel.isShowAddCustomToken {
+                Text(Localization.manageTokensListHeaderSubtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
@@ -38,28 +44,18 @@ struct ManageTokensView: View {
 
     private var list: some View {
         LazyVStack(spacing: 0) {
-            header
-
             ForEach(viewModel.tokenViewModels) {
                 ManageTokensItemView(viewModel: $0)
             }
 
-            if viewModel.isShowAddCustomToken {
-                addCutomTokenView
-            }
+            addCutomTokenView
 
             if viewModel.hasNextPage {
-                HStack(alignment: .center) {
-                    ActivityIndicatorView(color: .gray)
-                        .onAppear(perform: viewModel.fetchMore)
-                }
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
+                    .onAppear(perform: viewModel.fetchMore)
             }
         }
-    }
-
-    @ViewBuilder private var titleView: some View {
-        Text(Localization.addTokensTitle)
-            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
     private var addCutomTokenView: some View {
