@@ -41,7 +41,7 @@ struct ExpressProvidersSelectorView: View {
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.inactive)
 
-            Text("More providers are coming soon.\nStay tuned!")
+            Text(Localization.expressMoreProvidersSoon)
                 .style(Fonts.Regular.footnote, color: Colors.Icon.informative)
                 .multilineTextAlignment(.center)
         }
