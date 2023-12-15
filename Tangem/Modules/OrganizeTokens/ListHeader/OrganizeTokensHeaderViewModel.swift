@@ -60,14 +60,12 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
         optionsProviding
             .groupingOption
             .map(\.isGrouped)
-            .receive(on: DispatchQueue.main)
             .assign(to: \.isGroupingEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         optionsProviding
             .sortingOption
             .map(\.isSorted)
-            .receive(on: DispatchQueue.main)
             .assign(to: \.isSortByBalanceEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
