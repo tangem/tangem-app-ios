@@ -192,56 +192,62 @@ private extension CommonExpressManager {
     }
 
     func updateSelectedProviderIfNeeded() async throws {
-        // If we don't have selectedQuote just update it
-        guard selectedProvider == nil else {
-            return
-        }
+        let selectedIsError = await selectedProvider?.getState().isError
 
-        let best = await bestProvider()
-        selectedProvider = best
+        // If we don't have selectedProvider
+        // Or if selectedProvider has an error
+        // just update it
+        if selectedProvider == nil || selectedIsError == true {
+            selectedProvider = await bestProvider()
+        }
+    }
+
+    func updateIsBestFlag() async {
+        let bestRate = await bestByRateProvider()
+        availableProviders.forEach { provider in
+            provider.isBest = provider.provider == bestRate?.provider
+            log("Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
+        }
     }
 
     func bestProvider() async -> ExpressAvailableProvider? {
-        var best: (provider: ExpressAvailableProvider, amount: Decimal)?
-
+        // If we have more then one provider then selected the best
         if availableProviders.count > 1 {
-            for availableProvider in availableProviders {
-                let state = await availableProvider.getState()
-                log(
-                    """
-                    Looking for best provider
-                    Current Best \(availableProvider.provider.name) state: \(state)
-                    Attempt to Best: \(String(describing: best?.provider.provider.name)) amount: \(String(describing: best?.amount))
-                    """
-                )
-
-                if let amount = state.quote?.expectAmount {
-                    if let bestTuple = best {
-                        if amount > bestTuple.amount {
-                            best = (provider: availableProvider, amount: amount)
-                        }
-                    } else {
-                        best = (provider: availableProvider, amount: amount)
-                    }
-                }
+            // Try to find the best with expectAmount
+            if let bestByRateProvider = await bestByRateProvider() {
+                return bestByRateProvider
             }
         }
 
-        if let (manager, amount) = best {
-            log("Best provider \(manager.provider.name) with amount: \(amount)")
-            manager.isBest = true
-            return manager
+        // If all availableProviders don't have the quote and the expectAmount
+        // Just select the provider by priority
+        let provider = await availableProviders.asyncSorted(sort: >, by: { await $0.getPriority() }).first
+
+        // We don't have to select provider with the error state
+        if await provider?.getState().isError == true {
+            return nil
         }
 
-        // Workaround. Waiting for reasync keywork
-        var priorities: [(ExpressAvailableProvider, ExpressProviderManagerState.Priority)] = []
-        for availableProvider in availableProviders {
-            let priority = await availableProvider.getState().priority
-            log("Provider \(availableProvider.provider.name) has priority: \(priority)")
-            priorities.append((availableProvider, priority))
+        return provider
+    }
+
+    func bestByRateProvider() async -> ExpressAvailableProvider? {
+        var hasProviderWithQuote = false
+
+        let bests = await availableProviders.asyncSorted(sort: >, by: { provider in
+            if let expectAmount = await provider.getState().quote?.expectAmount {
+                hasProviderWithQuote = true
+                return expectAmount
+            }
+
+            return 0
+        })
+
+        if hasProviderWithQuote, let best = bests.first {
+            return best
         }
 
-        return priorities.sorted(by: { $0.1 > $1.1 }).first?.0
+        return nil
     }
 
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async {
@@ -256,6 +262,9 @@ private extension CommonExpressManager {
                 }
             }
         }
+
+        // Update "isBest" flag after each provider's state updating
+        await updateIsBestFlag()
     }
 
     func makeRequest() throws -> ExpressManagerSwappingPairRequest {
