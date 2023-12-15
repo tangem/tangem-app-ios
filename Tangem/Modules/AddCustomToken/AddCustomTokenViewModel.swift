@@ -111,9 +111,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     func setSelectedWallet(userWalletModel: UserWalletModel) {
-        let userWallet = userWalletModel.userWallet
-
-        selectedWalletName = userWallet.name
+        selectedWalletName = userWalletModel.userWallet.name
         settings = Self.makeSettings(userWalletModel: userWalletModel)
 
         updateDefaultDerivationOption()
@@ -218,7 +216,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 self?.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
-        // move to folder
 
         Publishers.CombineLatest3(
             $name.removeDuplicates(),
@@ -238,12 +235,11 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 .filter { $0.curve.supportsDerivation && $0 != .ducatus }
                 .sorted(by: \.displayName)
 
-        let settings = ManageTokensSettings(
+        return ManageTokensSettings(
             supportedBlockchains: supportedBlockchains,
             hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
             derivationStyle: userWalletModel.config.derivationStyle
         )
-        return settings
     }
 
     private func enteredTokenItem() throws -> TokenItem {
@@ -302,14 +298,11 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     private func enteredBlockchain() throws -> Blockchain {
-        guard
-            let selectedBlockchainNetworkId,
-            let blockchain = settings.supportedBlockchains.first(where: { $0.networkId == selectedBlockchainNetworkId })
-        else {
+        if let blockchain = settings.supportedBlockchains.first(where: { $0.networkId == selectedBlockchainNetworkId }) {
+            return blockchain
+        } else {
             throw TokenCreationErrors.blockchainNotSelected
         }
-
-        return blockchain
     }
 
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
@@ -519,7 +512,9 @@ private extension AddCustomTokenViewModel {
             true
         }
     }
+}
 
+private extension AddCustomTokenViewModel {
     enum TokenSearchError: DynamicValidationError, LocalizedError, NotificationEventProviding {
         case alreadyAdded
         case failedToFindToken
@@ -547,6 +542,8 @@ private extension AddCustomTokenViewModel {
         }
     }
 }
+
+// MARK: - Settings
 
 private extension AddCustomTokenViewModel {
     struct ManageTokensSettings {
