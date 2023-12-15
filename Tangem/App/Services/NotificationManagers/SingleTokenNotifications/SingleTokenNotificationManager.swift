@@ -239,6 +239,6 @@ extension SingleTokenNotificationManager: NotificationManager {
 
 private extension WalletModel {
     var promotionId: String {
-        expressCurrency.network + expressCurrency.contractAddress
+        "\(expressCurrency.network)_\(expressCurrency.contractAddress)"
     }
 }
