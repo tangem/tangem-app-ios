@@ -59,14 +59,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     private unowned let coordinator: AddCustomTokenRoutable
 
-    private var supportedBlockchains: [Blockchain] {
-        Array(settings.supportedBlockchains)
-            .filter {
-                $0.curve.supportsDerivation
-            }
-            .sorted(by: \.displayName)
-    }
-
     init(
         userWalletModel: UserWalletModel,
         dataSource: ManageTokensDataSource,
@@ -136,7 +128,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     func didTapNetworkSelector() {
         coordinator.openNetworkSelector(
             selectedBlockchainNetworkId: selectedBlockchainNetworkId,
-            blockchains: supportedBlockchains
+            blockchains: settings.supportedBlockchains
         )
     }
 
@@ -164,7 +156,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             return
         }
 
-        let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = supportedBlockchains.compactMap {
+        let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = settings.supportedBlockchains.compactMap {
             guard let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
             return AddCustomTokenDerivationOption.blockchain(name: $0.displayName, derivationPath: derivationPath)
         }
@@ -246,8 +238,10 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     private static func makeSettings(userWalletModel: UserWalletModel) -> ManageTokensSettings {
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
-        var supportedBlockchains = userWalletModel.config.supportedBlockchains
-        supportedBlockchains.remove(.ducatus)
+        let supportedBlockchains =
+            Array(userWalletModel.config.supportedBlockchains)
+                .filter { $0.curve.supportsDerivation && $0 != .ducatus }
+                .sorted(by: \.displayName)
 
         let settings = ManageTokensSettings(
             supportedBlockchains: supportedBlockchains,
@@ -373,7 +367,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
 
         let requestModel = CoinsList.Request(
-            supportedBlockchains: Set(supportedBlockchains),
+            supportedBlockchains: Set(settings.supportedBlockchains),
             contractAddress: contractAddress
         )
 
@@ -572,7 +566,7 @@ private extension AddCustomTokenViewModel {
 
 private extension AddCustomTokenViewModel {
     struct ManageTokensSettings {
-        let supportedBlockchains: Set<Blockchain>
+        let supportedBlockchains: [Blockchain]
         let hdWalletsSupported: Bool
         let longHashesSupported: Bool
         let derivationStyle: DerivationStyle?
