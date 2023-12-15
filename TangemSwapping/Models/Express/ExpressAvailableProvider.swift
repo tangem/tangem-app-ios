@@ -31,16 +31,14 @@ public class ExpressAvailableProvider {
         }
 
         switch await getState() {
-        case .permissionRequired:
+        case .permissionRequired, .preview, .ready:
             return .high
-        case .restriction(.tooSmallAmount, _):
+        case .idle, .restriction(.tooSmallAmount, _):
             return .medium
         case .restriction:
             return .low
         case .error:
             return .lowest
-        default:
-            return .low
         }
     }
 }
