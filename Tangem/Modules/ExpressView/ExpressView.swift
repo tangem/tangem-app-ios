@@ -126,8 +126,10 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var mainButton: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 12) {
             Spacer()
+
+            legalView
 
             MainButton(
                 title: viewModel.mainButtonState.title,
@@ -141,6 +143,13 @@ struct ExpressView: View {
         .padding(.bottom, UIApplication.safeAreaInsets.bottom + 10)
         .edgesIgnoringSafeArea(.bottom)
         .ignoresSafeArea(.keyboard)
+    }
+
+    @ViewBuilder
+    private var legalView: some View {
+        if let legalText = viewModel.legalText {
+            AttributedTextView(legalText).fixedSize()
+        }
     }
 }
 
