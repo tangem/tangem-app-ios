@@ -93,13 +93,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             derivationPath = enteredDerivationPath()
 
             try checkLocalStorage()
-            try validateExistingCurves(for: tokenItem)
 
-            if case .token(_, let blockchain) = tokenItem,
-               case .solana = blockchain,
-               !settings.longHashesSupported {
-                throw TokenCreationErrors.tokensNotSupported(network: blockchain.displayName)
-            }
+            try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
         } catch {
             self.error = error.alertBinder
             return
@@ -310,14 +305,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func validateExistingCurves(for tokenItem: TokenItem) throws {
-        guard settings.existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw TokenCreationErrors.unsupportedCurve(tokenItem.blockchain)
-        }
-
-        return
-    }
-
     private func enteredBlockchain() throws -> Blockchain {
         guard
             let selectedBlockchainNetworkId,
@@ -493,12 +480,16 @@ private protocol NotificationEventProviding {
     var notificationEvent: (any NotificationEvent)? { get }
 }
 
+extension CommonUserTokensManager.Error: DynamicValidationError {
+    var preventsFromAdding: Bool {
+        true
+    }
+}
+
 private extension AddCustomTokenViewModel {
     enum TokenCreationErrors: DynamicValidationError, LocalizedError {
         case blockchainNotSelected
-        case unsupportedCurve(Blockchain)
         case emptyFields
-        case tokensNotSupported(network: String)
         case invalidDecimals(precision: Int)
         case invalidContractAddress
 
@@ -510,7 +501,7 @@ private extension AddCustomTokenViewModel {
             switch self {
             case .invalidDecimals:
                 return .decimals
-            case .blockchainNotSelected, .unsupportedCurve, .emptyFields, .tokensNotSupported, .invalidContractAddress:
+            case .blockchainNotSelected, .emptyFields, .invalidContractAddress:
                 return nil
             }
         }
@@ -519,12 +510,8 @@ private extension AddCustomTokenViewModel {
             switch self {
             case .blockchainNotSelected:
                 return Localization.customTokenCreationErrorNetworkNotSelected
-            case .unsupportedCurve(let blockchain):
-                return Localization.alertManageTokensUnsupportedCurveMessage(blockchain.displayName)
             case .emptyFields:
                 return Localization.customTokenCreationErrorEmptyFields
-            case .tokensNotSupported(let network):
-                return Localization.alertManageTokensUnsupportedMessage(network)
             case .invalidDecimals(let precision):
                 return Localization.customTokenCreationErrorWrongDecimals(precision)
             case .invalidContractAddress:
