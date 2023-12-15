@@ -9,8 +9,8 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemSdk
 import struct TangemSdk.DerivationPath
-import enum TangemSdk.TangemSdkError
 
 final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -50,8 +50,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var didLogScreenAnalytics = false
     private var foundStandardToken: CoinModel?
-    #warning("DONT USE LEGACY SETTINGS")
-    private var settings: LegacyManageTokensSettings
+    private var settings: ManageTokensSettings
     private var userWalletModel: UserWalletModel
     private var bag: Set<AnyCancellable> = []
     private let dataSource: ManageTokensNetworkDataSource
@@ -251,12 +250,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         .store(in: &bag)
     }
 
-    private static func makeSettings(userWalletModel: UserWalletModel) -> LegacyManageTokensSettings {
+    private static func makeSettings(userWalletModel: UserWalletModel) -> ManageTokensSettings {
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
         supportedBlockchains.remove(.ducatus)
 
-        let settings = LegacyManageTokensSettings(
+        let settings = ManageTokensSettings(
             supportedBlockchains: supportedBlockchains,
             hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
@@ -574,5 +573,16 @@ private extension AddCustomTokenViewModel {
                 return nil
             }
         }
+    }
+}
+
+private extension AddCustomTokenViewModel {
+    struct ManageTokensSettings {
+        let supportedBlockchains: Set<Blockchain>
+        let hdWalletsSupported: Bool
+        let longHashesSupported: Bool
+        let derivationStyle: DerivationStyle?
+        let shouldShowLegacyDerivationAlert: Bool
+        let existingCurves: [EllipticCurve]
     }
 }
