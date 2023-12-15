@@ -75,7 +75,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
     var userTokensPublisher: AnyPublisher<[StorageEntry], Never> {
         let converter = StorageEntryConverter()
         return userTokensListSubject
-            .receive(on: DispatchQueue.main)
             .map { converter.convertToStorageEntries($0.entries) }
             .eraseToAnyPublisher()
     }
@@ -86,7 +85,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> {
         userTokensListSubject
-            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
