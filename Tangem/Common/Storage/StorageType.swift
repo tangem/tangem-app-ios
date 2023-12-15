@@ -39,5 +39,5 @@ enum StorageType: String {
     case appTheme = "app_theme"
     case userDidSwipeWalletsOnMainScreen = "user_did_swipe_wallets_on_main_screen"
     case tangemExpressMainPromotionDismissed = "tangem_express_main_promotion_dismissed"
-    case tangemExpressTokenPromotionDismissed = "tangem_express_token_promotion_dismissed"
+    case tangemExpressPromotionDismissedTokens = "tangem_express_promotion_dismissed_tokens"
 }
