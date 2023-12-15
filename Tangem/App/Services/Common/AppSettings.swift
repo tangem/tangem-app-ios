@@ -78,8 +78,8 @@ class AppSettings {
     @AppStorageCompat(StorageType.tangemExpressMainPromotionDismissed)
     var tangemExpressMainPromotionDismissed: Bool = false
 
-    @AppStorageCompat(StorageType.tangemExpressTokenPromotionDismissed)
-    var tangemExpressTokenPromotionDismissed: Bool = false
+    @AppStorageCompat(StorageType.tangemExpressPromotionDismissedTokens)
+    var tangemExpressPromotionDismissedTokens: [String] = []
 
     static let shared: AppSettings = .init()
 
