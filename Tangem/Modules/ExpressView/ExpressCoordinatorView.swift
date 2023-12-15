@@ -48,7 +48,7 @@ struct ExpressCoordinatorView: CoordinatorView {
                 item: $coordinator.expressProvidersBottomSheetViewModel,
                 settings: .init(backgroundColor: Colors.Background.tertiary)
             ) {
-                ExpressProvidersBottomSheetView(viewModel: $0)
+                ExpressProvidersSelectorView(viewModel: $0)
             }
 
         NavHolder()
