@@ -221,7 +221,7 @@
 "express_fetch_best_rates" = "Получение наилучших курсов...";
 "express_floating_rate" = "Плавающая ставка";
 "express_go_to_provider" = "К провайдеру";
-"express_more_ providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
+"express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider" = "Провайдер";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_min_amount" = "Доступно с %@";
