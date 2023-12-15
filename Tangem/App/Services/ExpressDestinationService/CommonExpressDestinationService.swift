@@ -7,27 +7,38 @@
 //
 
 import Foundation
+import TangemSwapping
 
 struct CommonExpressDestinationService {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+
     private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let walletModelsManager: WalletModelsManager
+    private let expressRepository: ExpressRepository
 
     init(
         pendingTransactionRepository: ExpressPendingTransactionRepository,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        expressRepository: ExpressRepository
     ) {
         self.pendingTransactionRepository = pendingTransactionRepository
         self.walletModelsManager = walletModelsManager
+        self.expressRepository = expressRepository
     }
 }
 
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getDestination(source: WalletModel) -> WalletModel? {
+    func getDestination(source: WalletModel) async throws -> WalletModel? {
+        try await expressRepository.updatePairs(for: source)
+
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
-            wallet.id != source.id && swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+            let isNotSource = wallet.id != source.id
+            let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+            let isNotCustom = !wallet.isCustom
+
+            return isNotSource && isAvailable && isNotCustom
         }
 
         if let lastTransactionWalletModel = getLastTransactionWalletModel(in: searchableWalletModels) {
@@ -41,9 +52,16 @@ extension CommonExpressDestinationService: ExpressDestinationService {
             return first
         }
 
-        // If user has wallets with balance then select with maximum
-        if let maxFiatBalance = walletModelsWithPositiveBalance.max(by: { ($0.fiatValue ?? 0) < ($1.fiatValue ?? 0) }) {
-            return maxFiatBalance
+        // If user has wallets with balance then sort they
+        let sortedWallets = walletModelsWithPositiveBalance.sorted(by: { ($0.fiatValue ?? 0) > ($1.fiatValue ?? 0) })
+
+        // Start searching destination with available providers
+        for wallet in sortedWallets {
+            let pair = ExpressManagerSwappingPair(source: source, destination: wallet)
+            let availableProviders = try await expressRepository.getAvailableProviders(for: pair)
+            if !availableProviders.isEmpty {
+                return wallet
+            }
         }
 
         return nil
