@@ -81,6 +81,7 @@
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
+"common_fee_label" = "Комиссия";
 "common_fee_selector_footer" = "Сетевые комиссии за транзакции используются для поддержки безопасности сети, поощрения валидаторов, выделения ресурсов и определения приоритета транзакции.";
 "common_fee_selector_option_custom" = "Свое";
 "common_fee_selector_option_fast" = "Быстро";
@@ -221,12 +222,16 @@
 "express_fetch_best_rates" = "Получение наилучших курсов...";
 "express_floating_rate" = "Плавающая ставка";
 "express_go_to_provider" = "К провайдеру";
+"express_legal_one_placeholder" = "Пользуясь сервисом вы соглашаетесь с %@";
+"express_legal_two_placeholders" = "Пользуясь сервисом вы соглашаетесь с %1$@ и %2$@";
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
+"express_privacy_policy" = "Политикой конфиденциальности";
 "express_provider" = "Провайдер";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_min_amount" = "Доступно с %@";
 "express_provider_not_available" = "Недоступно для этой пары";
 "express_provider_permission_needed" = "Требуется разрешение";
+"express_terms_of_use" = "Условиями использования";
 "express_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
@@ -414,6 +419,7 @@
 "send_amount_label" = "Сумма";
 "send_amount_substract" = "Вычесть из суммы отправки";
 "send_amount_substract_footer" = "Сумма к получению %@";
+"send_confirm_label" = "Подтвердить";
 "send_date_format" = "%1$@ в %2$@";
 "send_destination_hint_address" = "Адрес";
 "send_destination_tag_field" = "Код назначения";
@@ -423,7 +429,6 @@
 "send_extras_hint_destination_tag" = "Tag";
 "send_extras_hint_memo" = "Memo";
 "send_fee_include_description" = "Включая комиссию";
-"send_fee_label" = "Комиссия";
 "send_fee_picker_low" = "Низкая";
 "send_fee_picker_normal" = "Нормальная";
 "send_fee_picker_priority" = "Приоритетная";
@@ -442,13 +447,13 @@
 "send_network_fee_title" = "Сетевая комиссия";
 "send_network_fee_warning_content" = "Сумма отправки будет уменьшена для покрытия выбранного уровня комиссии";
 "send_network_fee_warning_title" = "Покрытие сетевой комиссии";
-"send_notification_exceed_balance_text" = "Недостаточно средств для перевода, так как сумма комиссии и сумма перевода в совокупности больше имеющегося баланса.";
+"send_notification_exceed_balance_text" = "Недостаточно средств для перевода, так как сумма комиссии и сумма перевода в совокупности больше имеющегося баланса";
 "send_notification_exceed_balance_title" = "Недостаточно средств";
 "send_notification_exceed_fee_text" = "Размер комиссии превышает баланс сети. Для продолжения необходимо пополнить баланс сети.";
 "send_notification_exceed_fee_title" = "Комиссия превышает баланс";
 "send_notification_high_fee_text" = "Комиссия при переводе всего баланса выше. Для того, чтобы снизить комиссию Вы можете оставить 0.01.";
 "send_notification_high_fee_title" = "Увеличение комиссии";
-"send_notification_invalid_amount_text" = "Включенная комиссия превышает сумму перевода, что приводит к отрицательному значению.";
+"send_notification_invalid_amount_text" = "Включенная комиссия превышает сумму перевода, что приводит к отрицательному значению";
 "send_notification_invalid_amount_title" = "Недопустимая сумма";
 "send_notification_invalid_minimum_amount_text" = "Минимальная сумма отправки - %1$@. Пожалуйста, убедитесь, что остаток после отправки также не будет меньше %1$@.";
 "send_notification_invalid_reserve_amount_text" = "Пожалуйста, пополните свой баланс, чтобы продолжить";
@@ -651,8 +656,8 @@
 "warning_express_approval_in_progress_title" = "Разрешение в процессе";
 "warning_express_no_exchangeable_coins_description" = "У вас в списке нет монет доступных для обмена с %@";
 "warning_express_no_exchangeable_coins_title" = "Нет доступных токенов для обмена";
-"warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
-"warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
+"warning_express_not_enough_fee_for_token_tx_description" = "Чтобы совершить транзакцию, вам необходимо внести немного %1$@ %2$@";
+"warning_express_not_enough_fee_for_token_tx_title" = "Невозможно покрыть комиссию %@";
 "warning_express_refresh_required_title" = "Cервис временно недоступен";
 "warning_express_too_minimal_amount_description" = "Пожалуйста, измените сумму для обмена";
 "warning_express_too_minimal_amount_title" = "Сумма для обмена должна быть не менее %@";
