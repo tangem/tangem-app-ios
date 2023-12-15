@@ -4986,6 +4986,11 @@
 			children = (
 				DAF59CBA2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelector */,
 				DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */,
+				DA11F98F2B29D63E0075F028 /* AddCustomTokenCoordinator.swift */,
+				DA11F9922B29D63E0075F028 /* AddCustomTokenCoordinatorView.swift */,
+				DA11F9902B29D63E0075F028 /* AddCustomTokenView.swift */,
+				DA11F9912B29D63E0075F028 /* AddCustomTokenViewModel.swift */,
+				DA11F9932B29D63E0075F028 /* AddCustomTokenRoutable.swift */,
 			);
 			path = AddCustomToken;
 			sourceTree = "<group>";
@@ -5767,11 +5772,6 @@
 				DAD98A752AB2E3240051CFBE /* ManageTokens */,
 				2D5EBA9F2ADD15EA00A25AC4 /* ManageTokensNetworkSelector */,
 				DA207C212AB89F89005CC5E3 /* AddCustomToken */,
-				DA11F98F2B29D63E0075F028 /* AddCustomTokenCoordinator.swift */,
-				DA11F9922B29D63E0075F028 /* AddCustomTokenCoordinatorView.swift */,
-				DA11F9902B29D63E0075F028 /* AddCustomTokenView.swift */,
-				DA11F9912B29D63E0075F028 /* AddCustomTokenViewModel.swift */,
-				DA11F9932B29D63E0075F028 /* AddCustomTokenRoutable.swift */,
 				DA43718D2A7D1937006215CA /* LegacyTokenList */,
 				5DA7C00A25F8FA5200B6E309 /* LegacyTokenDetails */,
 				B0DD16182A331BF300CB23AA /* TokenDetails */,
