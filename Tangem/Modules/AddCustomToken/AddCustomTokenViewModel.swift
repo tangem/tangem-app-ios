@@ -64,13 +64,13 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         dataSource: ManageTokensDataSource,
         coordinator: AddCustomTokenRoutable
     ) {
+        let networkDataSource = ManageTokensNetworkDataSource(dataSource)
+
         settings = Self.makeSettings(userWalletModel: userWalletModel)
         self.coordinator = coordinator
-        let networkDataSource = ManageTokensNetworkDataSource(dataSource)
         self.dataSource = networkDataSource
         self.userWalletModel = userWalletModel
         canSelectWallet = networkDataSource.userWalletModels.count > 1
-
         selectedWalletName = userWalletModel.userWallet.name
 
         bind()
