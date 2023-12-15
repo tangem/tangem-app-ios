@@ -142,7 +142,6 @@ private extension ExpressSuccessSentViewModel {
         )
 
         let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.tokenItem)
-
-        expressFee = ExpressFeeRowData(title: Localization.sendFeeLabel, subtitle: feeFormatted)
+        expressFee = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: feeFormatted)
     }
 }
