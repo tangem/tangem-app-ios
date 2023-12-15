@@ -116,6 +116,7 @@ private extension ManageTokensViewModel {
             .map { $0.userTokenListManager.userTokensPublisher }
 
         Publishers.MergeMany(userTokensPublishers)
+            .receive(on: DispatchQueue.main)
             .receiveValue { [weak self] value in
                 guard let self = self else { return }
 
