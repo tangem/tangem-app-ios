@@ -233,7 +233,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     private static func makeSettings(userWalletModel: UserWalletModel) -> ManageTokensSettings {
-        let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
         let supportedBlockchains =
             Array(userWalletModel.config.supportedBlockchains)
                 .filter { $0.curve.supportsDerivation && $0 != .ducatus }
@@ -242,10 +241,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         let settings = ManageTokensSettings(
             supportedBlockchains: supportedBlockchains,
             hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
-            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
-            derivationStyle: userWalletModel.config.derivationStyle,
-            shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
+            derivationStyle: userWalletModel.config.derivationStyle
         )
         return settings
     }
@@ -556,9 +552,6 @@ private extension AddCustomTokenViewModel {
     struct ManageTokensSettings {
         let supportedBlockchains: [Blockchain]
         let hdWalletsSupported: Bool
-        let longHashesSupported: Bool
         let derivationStyle: DerivationStyle?
-        let shouldShowLegacyDerivationAlert: Bool
-        let existingCurves: [EllipticCurve]
     }
 }
