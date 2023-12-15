@@ -27,7 +27,7 @@ class ExpressCoordinator: CoordinatorObject {
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
     @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
-    @Published var expressProvidersBottomSheetViewModel: ExpressProvidersBottomSheetViewModel?
+    @Published var expressProvidersBottomSheetViewModel: ExpressProvidersSelectorViewModel?
     @Published var swappingApproveViewModel: SwappingApproveViewModel?
 
     // MARK: - Properties
@@ -94,7 +94,7 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentProviderSelectorView() {
-        expressProvidersBottomSheetViewModel = factory.makeExpressProvidersBottomSheetViewModel(coordinator: self)
+        expressProvidersBottomSheetViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
     func presentNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
@@ -133,10 +133,10 @@ extension ExpressCoordinator: SwappingApproveRoutable {
     }
 }
 
-// MARK: - ExpressProvidersBottomSheetRoutable
+// MARK: - ExpressProvidersSelectorRoutable
 
-extension ExpressCoordinator: ExpressProvidersBottomSheetRoutable {
-    func closeExpressProvidersBottomSheet() {
+extension ExpressCoordinator: ExpressProvidersSelectorRoutable {
+    func closeExpressProvidersSelector() {
         expressProvidersBottomSheetViewModel = nil
     }
 }
