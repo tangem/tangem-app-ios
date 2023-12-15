@@ -223,6 +223,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 self?.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
+        // move to folder
 
         Publishers.CombineLatest3(
             $name.removeDuplicates(),
