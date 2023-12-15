@@ -30,9 +30,7 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getDestination(source: WalletModel) async throws -> WalletModel? {
-        try await expressRepository.updatePairs(for: source)
-
+    func getDestination(source: WalletModel) async throws -> WalletModel {
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
             let isNotSource = wallet.id != source.id
             let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
@@ -63,7 +61,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
             }
         }
 
-        return nil
+        throw ExpressDestinationServiceError.destinationNotFound
     }
 
     private func getLastTransactionWalletModel(in searchableWalletModels: [WalletModel]) -> WalletModel? {
