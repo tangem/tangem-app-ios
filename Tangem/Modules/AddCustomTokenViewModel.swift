@@ -34,6 +34,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Published var contractAddressError: Error?
     @Published var decimalsError: Error?
 
+    @Published var notificationInput: NotificationViewInput?
+
     var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
         return blockchain?.canHandleTokens ?? false
@@ -43,10 +45,10 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         settings.hdWalletsSupported && selectedBlockchainNetworkId != nil
     }
 
-    @Published var notificationInput: NotificationViewInput?
+    let canSelectWallet: Bool
 
     private(set) var selectedDerivationOption: AddCustomTokenDerivationOption?
-    private(set) var canSelectWallet: Bool = false
+
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var didLogScreenAnalytics = false
     private var foundStandardToken: CoinModel?
@@ -54,6 +56,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private var userWalletModel: UserWalletModel
     private var bag: Set<AnyCancellable> = []
     private let dataSource: ManageTokensNetworkDataSource
+
     private unowned let coordinator: AddCustomTokenRoutable
 
     private var supportedBlockchains: [Blockchain] {
@@ -71,9 +74,10 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     ) {
         settings = Self.makeSettings(userWalletModel: userWalletModel)
         self.coordinator = coordinator
-        self.dataSource = ManageTokensNetworkDataSource(dataSource)
+        let networkDataSource = ManageTokensNetworkDataSource(dataSource)
+        self.dataSource = networkDataSource
         self.userWalletModel = userWalletModel
-        canSelectWallet = self.dataSource.userWalletModels.count > 1
+        canSelectWallet = networkDataSource.userWalletModels.count > 1
 
         selectedWalletName = userWalletModel.userWallet.name
 
