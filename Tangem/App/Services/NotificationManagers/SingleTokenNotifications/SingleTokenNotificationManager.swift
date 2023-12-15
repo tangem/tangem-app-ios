@@ -238,6 +238,6 @@ extension SingleTokenNotificationManager: NotificationManager {
 
 private extension TokenItem {
     var promotionId: String {
-        id ?? ""
+        "\(blockchain.coinId)_\(id ?? "")"
     }
 }
