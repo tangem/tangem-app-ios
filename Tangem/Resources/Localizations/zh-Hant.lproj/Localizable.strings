@@ -225,7 +225,7 @@
 "express_provider_best_rate" = "Best rate";
 "express_provider_min_amount" = "Available from %@";
 "express_provider_not_available" = "Unavailable for this pair";
-"express_provider_permission_needed" = "Permission Needed";
+"express_provider_permission_needed" = "Permission Required";
 "express_unknown_error" = "There was an error. Please try again.";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
