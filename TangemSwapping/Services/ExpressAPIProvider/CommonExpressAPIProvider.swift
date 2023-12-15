@@ -23,16 +23,15 @@ class CommonExpressAPIProvider {
 extension CommonExpressAPIProvider: ExpressAPIProvider {
     /// Requests from Express API `exchangeAvailable` state for currencies included in filter
     /// - Returns: All `ExpressCurrency` that available to exchange specified by filter
-    func assets(with filter: [ExpressCurrency]) async throws -> [ExpressCurrency] {
+    func assets(with filter: [ExpressCurrency]) async throws -> [ExpressAsset] {
         let tokens = filter.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Assets.Request(tokensList: tokens)
         let response = try await expressAPIService.assets(request: request)
-        let assets: [ExpressCurrency] = response.compactMap {
-            guard $0.exchangeAvailable else {
-                return nil
-            }
-
-            return ExpressCurrency(response: $0)
+        let assets: [ExpressAsset] = response.map {
+            return ExpressAsset(
+                currency: ExpressCurrency(response: $0),
+                isExchangeable: $0.exchangeAvailable
+            )
         }
         return assets
     }
@@ -66,7 +65,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         )
 
         let response = try await expressAPIService.exchangeQuote(request: request)
-        let quote = try expressAPIMapper.mapToExpressQuote(response: response)
+        var quote = try expressAPIMapper.mapToExpressQuote(response: response)
+        // We have to check the "fromAmount" because sometimes we can receive it more then was sent
+        if quote.fromAmount > item.amount {
+            quote.fromAmount = item.amount
+        }
+
         return quote
     }
 
