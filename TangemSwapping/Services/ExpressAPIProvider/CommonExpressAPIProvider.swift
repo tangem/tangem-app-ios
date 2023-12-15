@@ -67,9 +67,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         let response = try await expressAPIService.exchangeQuote(request: request)
         var quote = try expressAPIMapper.mapToExpressQuote(response: response)
-        // We use this hack because we can receive the "fromAmount" from API
-        // more then was sent
-        quote.fromAmount = item.amount
+        // We have to check the "fromAmount" because sometimes we can receive it more then was sent
+        if quote.fromAmount > item.amount {
+            quote.fromAmount = item.amount
+        }
 
         return quote
     }
