@@ -145,6 +145,7 @@ final class SingleTokenNotificationManager {
                 for: .tangemExpressPromotion,
                 buttonAction: { [weak self] id, actionType in
                     self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+                    self?.dismissNotification(with: id)
                 },
                 dismissAction: { [weak self] id in
                     self?.dismissNotification(with: id)
