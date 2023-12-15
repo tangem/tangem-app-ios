@@ -1,5 +1,5 @@
 //
-//  ExpressProvidersBottomSheetViewModel.swift
+//  ExpressProvidersSelectorViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 import TangemSwapping
 
-final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable {
+final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var providerViewModels: [ProviderRowViewModel] = []
@@ -24,7 +24,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     private let expressProviderFormatter: ExpressProviderFormatter
     private let expressRepository: ExpressRepository
     private unowned let expressInteractor: ExpressInteractor
-    private unowned let coordinator: ExpressProvidersBottomSheetRoutable
+    private unowned let coordinator: ExpressProvidersSelectorRoutable
 
     private var stateSubscription: AnyCancellable?
 
@@ -33,7 +33,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         expressProviderFormatter: ExpressProviderFormatter,
         expressRepository: ExpressRepository,
         expressInteractor: ExpressInteractor,
-        coordinator: ExpressProvidersBottomSheetRoutable
+        coordinator: ExpressProvidersSelectorRoutable
     ) {
         self.percentFormatter = percentFormatter
         self.expressProviderFormatter = expressProviderFormatter
@@ -143,7 +143,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         stateSubscription?.cancel()
         Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
         expressInteractor.updateProvider(provider: provider)
-        coordinator.closeExpressProvidersBottomSheet()
+        coordinator.closeExpressProvidersSelector()
     }
 
     func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
