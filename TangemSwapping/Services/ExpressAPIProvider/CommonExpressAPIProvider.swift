@@ -65,7 +65,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         )
 
         let response = try await expressAPIService.exchangeQuote(request: request)
-        let quote = try expressAPIMapper.mapToExpressQuote(response: response)
+        var quote = try expressAPIMapper.mapToExpressQuote(response: response)
+        // We have to check the "fromAmount" because sometimes we can receive it more then was sent
+        if quote.fromAmount > item.amount {
+            quote.fromAmount = item.amount
+        }
+
         return quote
     }
 
