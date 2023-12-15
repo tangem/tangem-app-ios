@@ -64,16 +64,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             .sorted(by: \.displayName)
     }
 
-    private var availableWallets: [UserWallet] {
-        userWalletRepository.models
-            .filter {
-                $0.isMultiWallet
-            }
-            .map {
-                $0.userWallet
-            }
-    }
-
     init(
         userWalletModel: UserWalletModel,
         dataSource: ManageTokensDataSource,
@@ -83,7 +73,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
         self.dataSource = ManageTokensNetworkDataSource(dataSource)
         self.userWalletModel = userWalletModel
-        canSelectWallet = availableWallets.count > 1
+        canSelectWallet = self.dataSource.userWalletModels.count > 1
 
         selectedWalletName = userWalletModel.userWallet.name
 
