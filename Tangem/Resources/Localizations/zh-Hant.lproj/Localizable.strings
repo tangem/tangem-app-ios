@@ -221,6 +221,7 @@
 "express_fetch_best_rates" = "Fetching best rates...";
 "express_floating_rate" = "Floating rate";
 "express_go_to_provider" = "Go to provider";
+"express_more_ providers_soon" = "More providers are coming soon.\nStay tuned!";
 "express_provider" = "Provider";
 "express_provider_best_rate" = "Best rate";
 "express_provider_min_amount" = "Available from %@";
@@ -509,6 +510,8 @@
 "swapping_permission_subheader" = "要繼續，您需要允許 1inch 智能合約使用您的 %@";
 "swapping_permission_unlimited" = "Unlimited";
 "swapping_permit_and_swap" = "許可和交換";
+"swapping_success_from_title" = "You swap";
+"swapping_success_to_title" = "You receive";
 "swapping_success_view_explorer_button_title" = "在瀏覽器中查看";
 "swapping_success_view_title" = "進行中";
 "swapping_swap_action" = "交易";
@@ -650,7 +653,7 @@
 "warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
-"warning_express_refresh_required_title" = "Service temporary unavailable";
+"warning_express_refresh_required_title" = "Service temporarily unavailable";
 "warning_express_too_minimal_amount_description" = "Please change the amount to swap";
 "warning_express_too_minimal_amount_title" = "The amount to swap must be at least %@";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
