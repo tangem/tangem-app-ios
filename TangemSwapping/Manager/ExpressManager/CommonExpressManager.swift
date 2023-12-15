@@ -192,7 +192,6 @@ private extension CommonExpressManager {
     }
 
     func updateSelectedProviderIfNeeded() async throws {
-        
         let selectedIsError = await selectedProvider?.getState().isError
 
         // If we don't have selectedProvider
@@ -223,12 +222,12 @@ private extension CommonExpressManager {
         // If all availableProviders don't have the quote and the expectAmount
         // Just select the provider by priority
         let provider = await availableProviders.asyncSort(sort: >, by: { await $0.getPriority() }).first
-        
+
         // We don't have to select provider with the error state
         if await provider?.getState().isError == true {
             return nil
         }
-        
+
         return provider
     }
 
