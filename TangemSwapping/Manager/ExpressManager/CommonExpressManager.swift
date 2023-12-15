@@ -221,7 +221,7 @@ private extension CommonExpressManager {
 
         // If all availableProviders don't have the quote and the expectAmount
         // Just select the provider by priority
-        let provider = await availableProviders.asyncSort(sort: >, by: { await $0.getPriority() }).first
+        let provider = await availableProviders.asyncSorted(sort: >, by: { await $0.getPriority() }).first
 
         // We don't have to select provider with the error state
         if await provider?.getState().isError == true {
@@ -234,7 +234,7 @@ private extension CommonExpressManager {
     func bestByRateProvider() async -> ExpressAvailableProvider? {
         var hasProviderWithQuote = false
 
-        let bests = await availableProviders.asyncSort(sort: >, by: { provider in
+        let bests = await availableProviders.asyncSorted(sort: >, by: { provider in
             if let expectAmount = await provider.getState().quote?.expectAmount {
                 hasProviderWithQuote = true
                 return expectAmount
