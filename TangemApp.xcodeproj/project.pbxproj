@@ -289,6 +289,7 @@
 		B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */; };
 		B05DD9652A9F12A700B24ED9 /* TokenNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD9642A9F12A700B24ED9 /* TokenNotificationEvent.swift */; };
 		B05F1E66299CB81D00E27E32 /* TransactionViewPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */; };
+		B05FF3172B2C2D9A00F71338 /* ExpressAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05FF3162B2C2D9A00F71338 /* ExpressAsset.swift */; };
 		B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06015E429730C3D00D0F809 /* WalletConnectUIDelegate.swift */; };
 		B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0606E112684A946004004ED /* BlinkingModifier.swift */; };
 		B06243082AA9B77C00F7B9B2 /* SingleTokenRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06243072AA9B77C00F7B9B2 /* SingleTokenRouter.swift */; };
@@ -1671,6 +1672,7 @@
 		B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessCodeRecoverySettingsViewModel.swift; sourceTree = "<group>"; };
 		B05DD9642A9F12A700B24ED9 /* TokenNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenNotificationEvent.swift; sourceTree = "<group>"; };
 		B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewPlaceholder.swift; sourceTree = "<group>"; };
+		B05FF3162B2C2D9A00F71338 /* ExpressAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAsset.swift; sourceTree = "<group>"; };
 		B06015E429730C3D00D0F809 /* WalletConnectUIDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectUIDelegate.swift; sourceTree = "<group>"; };
 		B0606E112684A946004004ED /* BlinkingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkingModifier.swift; sourceTree = "<group>"; };
 		B06243072AA9B77C00F7B9B2 /* SingleTokenRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenRouter.swift; sourceTree = "<group>"; };
@@ -6220,6 +6222,7 @@
 				EF48E6AD2AFE98D500FE0072 /* ExpressRestriction.swift */,
 				EF6A8B042B27950D00CA3535 /* ExpressApproveData.swift */,
 				EF6A8B062B27954F00CA3535 /* ExpressAvailableProvider.swift */,
+				B05FF3162B2C2D9A00F71338 /* ExpressAsset.swift */,
 			);
 			path = Express;
 			sourceTree = "<group>";
@@ -8776,6 +8779,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF4661C52923B42A00346B6C /* SwappingApprovedDataModel.swift in Sources */,
+				B05FF3172B2C2D9A00F71338 /* ExpressAsset.swift in Sources */,
 				EF5FE5CF2B2729EE00C2DEA4 /* CEXExpressProviderManager.swift in Sources */,
 				EF04C5512AFBEF4E00D8853B /* CommonExpressAPIProvider.swift in Sources */,
 				EFA9854B294775B500D1FCB3 /* SwappingPreviewData.swift in Sources */,
