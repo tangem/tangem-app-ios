@@ -96,6 +96,8 @@ struct AddCustomTokenView: View {
     }
 }
 
+// MARK: - Item selector
+
 private struct ItemSelectorRow: View {
     let title: String
     let selectedItem: String?
@@ -119,6 +121,8 @@ private struct ItemSelectorRow: View {
         .padding(.vertical, 12)
     }
 }
+
+// MARK: - Text input
 
 private struct TextInputWithTitle: View {
     let title: String
@@ -160,6 +164,8 @@ private struct TextInputWithTitle: View {
         }
     }
 }
+
+// MARK: - Preview
 
 struct AddCustomTokenView_Preview: PreviewProvider {
     class PreviewManageTokensDataSource: ManageTokensDataSource {}
