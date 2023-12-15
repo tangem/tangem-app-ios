@@ -1,5 +1,5 @@
 //
-//  ExpressProvidersBottomSheetView.swift
+//  ExpressProvidersSelectorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct ExpressProvidersBottomSheetView: View {
-    @ObservedObject private var viewModel: ExpressProvidersBottomSheetViewModel
+struct ExpressProvidersSelectorView: View {
+    @ObservedObject private var viewModel: ExpressProvidersSelectorViewModel
 
-    init(viewModel: ExpressProvidersBottomSheetViewModel) {
+    init(viewModel: ExpressProvidersSelectorViewModel) {
         self.viewModel = viewModel
     }
 
@@ -21,6 +21,7 @@ struct ExpressProvidersBottomSheetView: View {
                 title: Localization.expressChooseProvidersTitle,
                 subtitle: Localization.expressChooseProvidersSubtitle
             )
+            .fixedSize(horizontal: false, vertical: true)
 
             GroupedSection(viewModel.providerViewModels) {
                 ProviderRowView(viewModel: $0)
@@ -28,12 +29,26 @@ struct ExpressProvidersBottomSheetView: View {
             .interItemSpacing(14)
             .interSectionPadding(12)
             .verticalPadding(16)
+
+            moreProvidersInformationView
         }
         .padding(.horizontal, 16)
     }
+
+    private var moreProvidersInformationView: some View {
+        VStack(alignment: .center, spacing: 4) {
+            Assets.expressMoreProvidersIcon.image
+                .renderingMode(.template)
+                .foregroundColor(Colors.Icon.inactive)
+
+            Text(Localization.expressMoreProvidersSoon)
+                .style(Fonts.Regular.footnote, color: Colors.Icon.informative)
+                .multilineTextAlignment(.center)
+        }
+    }
 }
 
-struct ExpressProvidersBottomSheetView_Preview: PreviewProvider {
+struct ExpressProvidersSelectorView_Preview: PreviewProvider {
     struct StatableContainer: View {
         @ObservedObject private var coordinator = BottomSheetCoordinator()
 
@@ -50,27 +65,27 @@ struct ExpressProvidersBottomSheetView_Preview: PreviewProvider {
 
                 NavHolder()
                     .bottomSheet(item: $coordinator.item) {
-                        ExpressProvidersBottomSheetView(viewModel: $0)
+                        ExpressProvidersSelectorView(viewModel: $0)
                     }
             }
         }
     }
 
-    class BottomSheetCoordinator: ObservableObject, ExpressProvidersBottomSheetRoutable {
-        @Published var item: ExpressProvidersBottomSheetViewModel?
+    class BottomSheetCoordinator: ObservableObject, ExpressProvidersSelectorRoutable {
+        @Published var item: ExpressProvidersSelectorViewModel?
 
         func toggleItem() {
             /*
              // [REDACTED_TODO_COMMENT]
              if item == nil {
-                 item = ExpressProvidersBottomSheetViewModel(coordinator: self)
+                 item = ExpressProvidersSelectorViewModel(coordinator: self)
              } else {
                  item = nil
              }
              */
         }
 
-        func closeExpressProvidersBottomSheet() {
+        func closeExpressProvidersSelector() {
             item = nil
         }
     }
