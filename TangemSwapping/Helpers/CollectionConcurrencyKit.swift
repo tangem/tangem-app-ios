@@ -4,6 +4,8 @@
  *  MIT license, see LICENSE.md file for details
  */
 
+// Source: https://github.com/JohnSundell/CollectionConcurrencyKit
+
 // MARK: - ForEach
 
 public extension Sequence {
