@@ -16,9 +16,4 @@ public struct ExpressCurrency: Hashable {
         self.contractAddress = contractAddress
         self.network = network
     }
-
-    internal init(response: ExpressDTO.Assets.Response) {
-        contractAddress = response.contractAddress
-        network = response.network
-    }
 }
