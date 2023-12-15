@@ -39,13 +39,17 @@ public extension Sequence {
         return values
     }
 
-    func asyncSorted<T>(sort areInIncreasingOrder: (T, T) throws -> Bool, by value: (Element) async throws -> T) async rethrows -> [Element] {
-        var values = [(Element, T)]()
+    func asyncSorted<T>(sort areInIncreasingOrder: (T, T) throws -> Bool, by value: @escaping (Element) async throws -> T) async rethrows -> [Element] {
+        let values: [(element: Element, value: T)] = try await withThrowingTaskGroup(of: (Element, T).self) { group in
+            for element in self {
+                group.addTask {
+                    try await (element, value(element))
+                }
+            }
 
-        for element in self {
-            try await values.append((element, value(element)))
+            return try await group.reduce([]) { $0 + [$1] }
         }
 
-        return try values.sorted(by: { try areInIncreasingOrder($0.1, $1.1) }).map { $0.0 }
+        return try values.sorted(by: { try areInIncreasingOrder($0.value, $1.value) }).map { $0.element }
     }
 }
