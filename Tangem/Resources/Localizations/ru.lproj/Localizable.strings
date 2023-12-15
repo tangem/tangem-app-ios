@@ -363,10 +363,10 @@
 "push_additional_fee" = "Дополнительная комиссия";
 "push_previous_fee" = "Предыдущая комиссия";
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
-"rate_app_sheet_negative_response_button_title" = "Share feedback";
-"rate_app_sheet_positive_response_button_title" = "Rate the app 🙌";
-"rate_app_sheet_subtitle" = "Share your app experience – every detail counts.";
-"rate_app_sheet_title" = "Enjoying our app?";
+"rate_app_sheet_negative_response_button_title" = "Отправить отзыв";
+"rate_app_sheet_positive_response_button_title" = "Оцените приложение 🙌";
+"rate_app_sheet_subtitle" = "Поделитесь опытом использования приложения - нам важна любая деталь.";
+"rate_app_sheet_title" = "Нравится наше приложение?";
 "receive_bottom_sheet_title" = "%1$@ %2$@ адрес в сети %3$@";
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) в сети %3$@";
 "receive_bottom_sheet_warning_message_full" = "Отправляйте только %@ на этот адрес. Использование другой сети может привести к утрате средств.";
