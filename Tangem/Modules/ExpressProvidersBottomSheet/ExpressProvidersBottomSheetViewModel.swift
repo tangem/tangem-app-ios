@@ -163,9 +163,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         guard !provider.isBest else {
             return nil
         }
-        
+
         guard let quote = await provider.getState().quote,
-            let selectedRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
+              let selectedRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
             return nil
         }
 
