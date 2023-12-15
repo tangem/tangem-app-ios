@@ -36,7 +36,9 @@ struct SwapPairService {
 
         let swapPairs: [ExpressPair]
         do {
-            swapPairs = try await provider.pairs(from: expressCurrencies, to: expressCurrencies)
+            async let swapPairsFromSelected = provider.pairs(from: [selectedExpressCurrency], to: expressCurrencies)
+            async let swapPairsToSelected = provider.pairs(from: expressCurrencies, to: [selectedExpressCurrency])
+            swapPairs = try await (swapPairsFromSelected + swapPairsToSelected)
         } catch {
             return false
         }
