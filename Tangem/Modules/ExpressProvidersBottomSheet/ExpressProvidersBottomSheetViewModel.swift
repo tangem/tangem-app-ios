@@ -75,7 +75,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     func setupProviderRowViewModels() async {
         let viewModels: [ProviderRowViewModel] = await allProviders
-            .asyncSort(sort: >, by: { await $0.getPriority() })
+            .asyncSorted(sort: >, by: { await $0.getPriority() })
             .asyncCompactMap { provider in
                 if !provider.isAvailable {
                     return unavailableProviderRowViewModel(provider: provider.provider)
