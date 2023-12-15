@@ -43,12 +43,12 @@ struct ProviderRowView: View {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(viewModel.provider.name)
                     .style(
-                        Fonts.Bold.subheadline,
+                        Fonts.Bold.footnote,
                         color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
                     )
 
                 Text(viewModel.provider.type)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
 
             badgeView
@@ -61,11 +61,11 @@ struct ProviderRowView: View {
                 switch subtitle {
                 case .text(let text):
                     Text(text)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                         .multilineTextAlignment(.leading)
                 case .percent(let text, let signType):
                     Text(text)
-                        .style(Fonts.Regular.footnote, color: signType.textColor)
+                        .style(Fonts.Regular.subheadline, color: signType.textColor)
                         .multilineTextAlignment(.leading)
                 }
             }
