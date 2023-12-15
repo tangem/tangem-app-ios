@@ -74,10 +74,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func setupProviderRowViewModels() async {
-        var viewModels: [ProviderRowViewModel] = []
-
-        for provider in allProviders {
-            let viewModel: ProviderRowViewModel? = await {
+        let viewModels: [ProviderRowViewModel] = await allProviders
+            .asyncSort(sort: >, by: { await $0.getPriority() })
+            .asyncCompactMap { provider in
                 if !provider.isAvailable {
                     return unavailableProviderRowViewModel(provider: provider.provider)
                 }
@@ -87,12 +86,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
                 }
 
                 return nil
-            }()
-
-            if let viewModel {
-                viewModels.append(viewModel)
             }
-        }
 
         await runOnMain {
             providerViewModels = viewModels
@@ -115,13 +109,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         )
 
         let isSelected = selectedProvider?.provider.id == provider.provider.id
-        let badge: ProviderRowViewModel.Badge? = {
-            if state.isPermissionRequired {
-                return .permissionNeeded
-            }
-
-            return provider.isBest ? .bestRate : .none
-        }()
+        let badge: ProviderRowViewModel.Badge? = state.isPermissionRequired ? .permissionNeeded : .none
 
         if let percentSubtitle = await makePercentSubtitle(provider: provider) {
             subtitles.append(percentSubtitle)
@@ -163,9 +151,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         guard !provider.isBest else {
             return nil
         }
-        
+
         guard let quote = await provider.getState().quote,
-            let selectedRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
+              let selectedRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
             return nil
         }
 
