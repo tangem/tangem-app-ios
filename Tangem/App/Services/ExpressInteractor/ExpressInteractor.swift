@@ -181,7 +181,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.destinationNotFound
         }
 
-        logAnalyticsEvent(.swapButtonSwap)
+        logSwapTransactionAnalyticsEvent()
 
         let result: TransactionSendResultState = try await {
             switch getState() {
@@ -229,7 +229,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.feeNotFound
         }
 
-        logAnalyticsEvent(.swapButtonPermissionApprove)
+        logApproveTransactionAnalyticsEvent(policy: state.policy)
 
         let sender = getSender()
         let transaction = try await expressTransactionBuilder.makeApproveTransaction(
@@ -304,6 +304,7 @@ private extension ExpressInteractor {
 
         case .permissionRequired(let permissionRequired):
             let permissionRequiredState = PermissionRequiredState(
+                policy: permissionRequired.policy,
                 data: permissionRequired.data,
                 fees: mapToFees(fee: permissionRequired.fee)
             )
@@ -574,14 +575,31 @@ private extension ExpressInteractor {
 // MARK: - Analytics
 
 private extension ExpressInteractor {
-    func logAnalyticsEvent(_ event: Analytics.Event) {
+    func logSwapTransactionAnalyticsEvent() {
         var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
 
         if let destination = getDestination() {
             parameters[.receiveToken] = destination.tokenItem.currencySymbol
         }
 
-        Analytics.log(event: event, params: parameters)
+        Analytics.log(event: .swapButtonSwap, params: parameters)
+    }
+
+    func logApproveTransactionAnalyticsEvent(policy: SwappingApprovePolicy) {
+        var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
+        
+        switch policy {
+        case .specified:
+            parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
+        case .unlimited:
+            parameters[.type] = Analytics.ParameterValue.oneTransactionApprove.rawValue
+        }
+
+        if let destination = getDestination() {
+            parameters[.receiveToken] = destination.tokenItem.currencySymbol
+        }
+
+        Analytics.log(event: .swapButtonPermissionApprove, params: parameters)
     }
 
     func logExpressError(_ error: ExpressAPIError) async {
@@ -683,6 +701,7 @@ extension ExpressInteractor {
     }
 
     struct PermissionRequiredState {
+        let policy: SwappingApprovePolicy
         let data: ExpressApproveData
         let fees: [FeeOption: Fee]
     }
