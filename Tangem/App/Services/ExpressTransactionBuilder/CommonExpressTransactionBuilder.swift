@@ -14,8 +14,7 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
     func makeTransaction(wallet: WalletModel, data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         let destination: Destination = {
             if let txData = data.txData {
-                let hexData = Data(hexString: txData)
-                return .contractCall(data.destinationAddress, data: hexData)
+                return .contractCall(data.destinationAddress, data: Data(hexString: txData))
             }
 
             return .send(data.destinationAddress)
