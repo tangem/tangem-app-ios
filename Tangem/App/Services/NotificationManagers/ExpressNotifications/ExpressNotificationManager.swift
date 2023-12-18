@@ -65,7 +65,9 @@ class ExpressNotificationManager {
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
 
         case .previewCEX(let preview, let quote):
-            if let notification = generateFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
+            
+            if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
+               // If this notification already showed then will not update the notifications set
                !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
                 notificationInputsSubject.value = [notification]
             } else {
@@ -78,7 +80,7 @@ class ExpressNotificationManager {
 
     private func checkHighPriceImpact(fromAmount: Decimal, toAmount: Decimal) {
         priceImpactTask = runTask(in: self, code: { manager in
-            guard let notification = try await manager.generateHighPriceImpactIfNeeded(
+            guard let notification = try await manager.makeHighPriceImpactIfNeeded(
                 fromAmount: fromAmount,
                 toAmount: toAmount
             ) else {
@@ -143,17 +145,18 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func generateFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
+    private func makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
         guard subtractFee > 0, let interactor = expressInteractor else { return nil }
         let factory = NotificationsFactory()
         let notification = factory.buildNotificationInput(for: .feeWillBeSubtractFromSendingAmount)
         return notification
     }
 
-    private func generateHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
+    private func makeHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
         guard
             let sourceCurrencyId = expressInteractor?.getSender().tokenItem.currencyId,
             let destinationCurrencyId = expressInteractor?.getDestination()?.tokenItem.currencyId,
+            // We've decided don't show the "HighPriceImpact" for CEX providers
             await expressInteractor?.getSelectedProvider()?.provider.type != .cex
         else {
             return nil
