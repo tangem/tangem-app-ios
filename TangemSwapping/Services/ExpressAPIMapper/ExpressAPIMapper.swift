@@ -29,12 +29,21 @@ struct ExpressAPIMapper {
         )
     }
 
+    func mapToExpressAsset(response: ExpressDTO.Assets.Response) -> ExpressAsset {
+        ExpressAsset(
+            currency: ExpressCurrency(contractAddress: response.contractAddress, network: response.network),
+            isExchangeable: response.exchangeAvailable
+        )
+    }
+
     func mapToExpressProvider(provider: ExpressDTO.Providers.Response) -> ExpressProvider {
         ExpressProvider(
             id: .init(provider.id),
             name: provider.name,
-            url: URL(string: provider.imageSmall),
-            type: provider.type
+            type: provider.type,
+            imageURL: provider.imageSmall.flatMap(URL.init(string:)),
+            termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
+            privacyPolicy: provider.privacyPolicy.flatMap(URL.init(string:))
         )
     }
 
