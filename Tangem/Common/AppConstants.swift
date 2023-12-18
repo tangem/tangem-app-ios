@@ -16,11 +16,12 @@ enum AppConstants {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
 
-    static let messageForWalletID = "UserWalletID"
     static let messageForTokensKey = "TokensSymmetricKey"
     static let maximumFractionDigitsForBalance = 8
 
     static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 
     static let minusSign = "−"
+
+    static let sessionId = UUID().uuidString
 }
