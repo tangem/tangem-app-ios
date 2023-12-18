@@ -513,6 +513,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                     self.loadModels()
                     self.initializeServicesForSelectedModel()
 
+                    self.sendEvent(.biometryUnlocked)
+
                     if let selectedModel = self.selectedModel {
                         if keys.count == self.userWallets.count {
                             completion(.success(selectedModel))
@@ -543,7 +545,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     userWallets = [cardModel.userWallet]
                     models = [cardModel]
                     selectedUserWalletId = cardModel.userWalletId.value
-                    sendEvent(.replaced)
+                    sendEvent(.replaced(userWallet: cardModel.userWallet))
                     completion(result)
                     return
                 }
@@ -593,7 +595,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 initializeServicesForSelectedModel()
 
                 sendEvent(.updated(userWalletModel: cardModel))
-
                 completion(.success(cardModel))
             }
             .store(in: &bag)
