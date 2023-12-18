@@ -535,10 +535,10 @@ private extension ExpressViewModel {
 
     func updateLegalText(state: ExpressInteractor.ExpressInteractorState) {
         switch state {
-        case .idle, .loading, .restriction, .permissionRequired:
+        case .idle, .loading(.full), .restriction, .permissionRequired:
             legalText = nil
 
-        case .readyToSwap, .previewCEX:
+        case .loading(.refreshRates), .readyToSwap, .previewCEX:
             runTask(in: self) { viewModel in
                 let text: NSAttributedString? = await {
                     if let provider = await viewModel.interactor.getSelectedProvider() {
