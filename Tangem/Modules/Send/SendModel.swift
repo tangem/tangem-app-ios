@@ -41,8 +41,6 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
-    private(set) var suggestedWallets: [SendSuggestedDestinationWallet] = []
-
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -75,18 +73,12 @@ class SendModel {
     private let sendType: SendType
     private var bag: Set<AnyCancellable> = []
 
-    // MARK: - Dependencies
-
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     // MARK: - Public interface
 
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
-
-        suggestedWallets = otherUserWalletDestinations()
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -255,19 +247,6 @@ class SendModel {
         _destinationAdditionalFieldError.send(error)
     }
 
-    private func otherUserWalletDestinations() -> [SendSuggestedDestinationWallet] {
-        userWalletRepository.models.compactMap { userWalletModel in
-            let walletModels = userWalletModel.walletModelsManager.walletModels
-            let walletModel = walletModels.first { walletModel in
-                walletModel.blockchainNetwork == self.walletModel.blockchainNetwork &&
-                    walletModel.wallet.publicKey != self.walletModel.wallet.publicKey
-            }
-            guard let walletModel else { return nil }
-
-            return SendSuggestedDestinationWallet(name: userWalletModel.userWallet.name, address: walletModel.defaultAddress)
-        }
-    }
-
     // MARK: - Fees
 
     private func setFee(_ feeText: String) {
@@ -316,6 +295,14 @@ extension SendModel: SendDestinationViewModelInput {
         case .none:
             return nil
         }
+    }
+
+    var blockchainNetwork: BlockchainNetwork {
+        walletModel.blockchainNetwork
+    }
+
+    var walletPublicKey: Wallet.PublicKey {
+        walletModel.wallet.publicKey
     }
 
     var currencySymbol: String {
