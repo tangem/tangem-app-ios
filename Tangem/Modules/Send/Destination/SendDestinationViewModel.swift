@@ -21,8 +21,11 @@ protocol SendDestinationViewModelInput {
 
     var additionalField: SendAdditionalFields? { get }
 
+    var currencySymbol: String { get }
+    var walletAddresses: [String] { get }
+
     var suggestedWallets: [SendSuggestedDestinationWallet] { get }
-    var recentTransactions: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
+    var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 }
 
 protocol SendDestinationViewDelegate: AnyObject {
@@ -42,9 +45,16 @@ class SendDestinationViewModel: ObservableObject {
 
     weak var delegate: SendDestinationViewDelegate?
 
+    private let transactionHistoryMapper: TransactionHistoryMapper
+
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendDestinationViewModelInput) {
+        transactionHistoryMapper = TransactionHistoryMapper(
+            currencySymbol: input.currencySymbol,
+            walletAddresses: input.walletAddresses
+        )
+
         addressViewModel = SendDestinationInputViewModel(
             name: Localization.sendRecipient,
             input: input.destinationTextPublisher,
@@ -91,7 +101,19 @@ class SendDestinationViewModel: ObservableObject {
             .store(in: &bag)
 
         input
-            .recentTransactions
+            .transactionHistoryPublisher
+            .compactMap { [weak self] state -> [SendSuggestedDestinationTransactionRecord]? in
+                guard
+                    let self,
+                    case .loaded(let records) = state
+                else {
+                    return nil
+                }
+
+                return records.compactMap { record in
+                    self.transactionHistoryMapper.mapSuggestedRecord(record)
+                }
+            }
             .sink { [weak self] recentTransactions in
                 if input.suggestedWallets.isEmpty, recentTransactions.isEmpty {
                     self?.suggestedDestinationViewModel = nil
