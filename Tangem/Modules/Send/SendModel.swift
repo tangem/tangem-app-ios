@@ -77,7 +77,7 @@ class SendModel {
 
     private lazy var transactionHistoryMapper = TransactionHistoryMapper(
         currencySymbol: walletModel.tokenItem.currencySymbol,
-        addresses: walletModel.wallet.addresses.map { $0.value }
+        walletAddresses: walletModel.wallet.addresses.map { $0.value }
     )
 
     // MARK: - Dependencies
@@ -350,6 +350,11 @@ extension SendModel: SendSummaryViewModelInput {
     #warning("TODO")
     var amountText: String {
         "100"
+    }
+
+    #warning("TODO")
+    var destinationTextBinding: Binding<String> {
+        .constant("0x1234567")
     }
 
     var canEditAmount: Bool {
