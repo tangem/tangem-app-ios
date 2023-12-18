@@ -158,6 +158,7 @@ private extension DEXExpressProviderManager {
         // For approve use the fastest fee
         let fastest = fee.fastest
         return ExpressManagerState.PermissionRequired(
+            policy: approvePolicy,
             data: .init(spender: spender, toContractAddress: contractAddress, data: data),
             fee: .single(fastest),
             quote: quote
