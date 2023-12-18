@@ -39,6 +39,8 @@ struct SwappingApproveView: View {
 
                 Button(action: viewModel.didTapInfoButton) {
                     Assets.infoIconMini.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.informative)
                         .padding(.horizontal, 16)
                 }
             }
