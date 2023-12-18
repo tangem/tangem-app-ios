@@ -126,10 +126,11 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var mainButton: some View {
-        VStack(spacing: 12) {
+        VStack(alignment: .center, spacing: 12) {
             Spacer()
 
             legalView
+                .padding(.horizontal, 18)
 
             MainButton(
                 title: viewModel.mainButtonState.title,
@@ -148,7 +149,21 @@ struct ExpressView: View {
     @ViewBuilder
     private var legalView: some View {
         if let legalText = viewModel.legalText {
-            AttributedTextView(legalText).fixedSize()
+            if #available(iOS 15, *) {
+                Text(AttributedString(legalText))
+                    .font(Fonts.Regular.footnote)
+                    .multilineTextAlignment(.center)
+            } else {
+                GeometryReader { proxy in
+                    VStack(spacing: .zero) {
+                        Spacer()
+                            .layoutPriority(1)
+
+                        // AttributedTextView(UILabel) doesn't tappable on iOS 14
+                        AttributedTextView(legalText, textAlignment: .center, maxLayoutWidth: proxy.size.width)
+                    }
+                }
+            }
         }
     }
 }
