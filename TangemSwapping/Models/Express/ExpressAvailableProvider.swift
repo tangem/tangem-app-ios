@@ -30,6 +30,10 @@ public class ExpressAvailableProvider {
             return .highest
         }
 
+        if !isAvailable {
+            return .lowest
+        }
+
         switch await getState() {
         case .permissionRequired, .preview, .ready:
             return .high
