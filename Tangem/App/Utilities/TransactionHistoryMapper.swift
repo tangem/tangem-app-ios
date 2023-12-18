@@ -12,7 +12,7 @@ struct TransactionHistoryMapper {
     @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
 
     private let currencySymbol: String
-    private let addresses: [String]
+    private let walletAddresses: [String]
 
     private let balanceFormatter = BalanceFormatter()
     private let dateFormatter: DateFormatter = {
@@ -36,9 +36,9 @@ struct TransactionHistoryMapper {
         return dateFormatter
     }()
 
-    init(currencySymbol: String, addresses: [String]) {
+    init(currencySymbol: String, walletAddresses: [String]) {
         self.currencySymbol = currencySymbol
-        self.addresses = addresses
+        self.walletAddresses = walletAddresses
     }
 
     func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
@@ -122,16 +122,16 @@ private extension TransactionHistoryMapper {
                 case .single(let source):
                     return source.amount
                 case .multiple(let sources):
-                    return sources.sum(for: addresses)
+                    return sources.sum(for: walletAddresses)
                 }
             }()
 
             let change: Decimal = {
                 switch record.destination {
                 case .single(let destination):
-                    return addresses.contains(destination.address.string) ? destination.amount : 0
+                    return walletAddresses.contains(destination.address.string) ? destination.amount : 0
                 case .multiple(let destinations):
-                    return destinations.sum(for: addresses)
+                    return destinations.sum(for: walletAddresses)
                 }
             }()
 
@@ -144,7 +144,7 @@ private extension TransactionHistoryMapper {
                 case .single(let destination):
                     return destination.amount
                 case .multiple(let destinations):
-                    return destinations.sum(for: addresses)
+                    return destinations.sum(for: walletAddresses)
                 }
             }()
 
@@ -189,9 +189,16 @@ private extension TransactionHistoryMapper {
                 return .contract(address)
             }
         case .multiple(let destinations):
-            var addresses = destinations.map { $0.address.string }.unique()
-            // Remove a change output
-            addresses.removeAll(where: addresses.contains(_:))
+            let addresses = destinations.compactMap { destination -> String? in
+                let address = destination.address.string
+
+                // Remove a change output
+                if walletAddresses.contains(address) {
+                    return nil
+                }
+
+                return address
+            }
 
             if addresses.count == 1, let address = addresses.first {
                 return .user(address)
