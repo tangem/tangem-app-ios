@@ -81,7 +81,7 @@ struct ExpressProviderFormatter {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
+    @available(iOS, obsoleted: 15, message: "Should be replaced on AttributedString + Text")
     func mapToLegalText(provider: ExpressProvider) -> NSAttributedString? {
         let tos = Localization.expressTermsOfUse
         let policy = Localization.expressPrivacyPolicy
