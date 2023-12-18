@@ -9,7 +9,14 @@
 import SwiftUI
 
 struct TokenItemView: View {
-    @ObservedObject var viewModel: TokenItemViewModel
+    @ObservedObject private var viewModel: TokenItemViewModel
+
+    /// Not used on iOS versions below iOS 16.0.
+    /// - Note: Although this property has no effect on iOS versions below iOS 16.0,
+    /// it can't be marked using `@available` declaration in Swift 5.7 and above.
+    private let roundedCornersConfiguration: RoundedCornersConfiguration?
+
+    private let previewContentShapeCornerRadius: CGFloat
 
     @State private var textBlockSize: CGSize = .zero
 
@@ -92,15 +99,30 @@ struct TokenItemView: View {
             .readGeometry(\.size, bindTo: $textBlockSize)
         }
         .padding(14)
-        .background(Colors.Background.primary)
+        .background(background)
         .onTapGesture(perform: viewModel.tapAction)
         .highlightable(color: Colors.Button.primary.opacity(0.03))
         // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
-        .previewContentShape(cornerRadius: Constants.cornerRadius)
+        .previewContentShape(cornerRadius: previewContentShapeCornerRadius)
         .contextMenu {
             ForEach(viewModel.contextActions, id: \.self) { menuAction in
                 contextMenuButton(for: menuAction)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var background: some View {
+        if #available(iOS 16.0, *), let roundedCornersConfiguration = roundedCornersConfiguration {
+            Colors.Background.primary
+                .cornerRadiusContinuous(
+                    topLeadingRadius: roundedCornersConfiguration.topLeadingRadius,
+                    bottomLeadingRadius: roundedCornersConfiguration.bottomLeadingRadius,
+                    bottomTrailingRadius: roundedCornersConfiguration.bottomTrailingRadius,
+                    topTrailingRadius: roundedCornersConfiguration.topTrailingRadius
+                )
+        } else {
+            Colors.Background.primary
         }
     }
 
@@ -131,12 +153,67 @@ struct TokenItemView: View {
     }
 }
 
+// MARK: - Initialization
+
+extension TokenItemView {
+    @available(iOS 16.0, *)
+    init(
+        viewModel: TokenItemViewModel,
+        cornerRadius: CGFloat,
+        roundedCornersVerticalEdge: RoundedCornersVerticalEdge?
+    ) {
+        self.viewModel = viewModel
+        previewContentShapeCornerRadius = cornerRadius
+
+        switch roundedCornersVerticalEdge {
+        case .topEdge:
+            roundedCornersConfiguration = RoundedCornersConfiguration(
+                topLeadingRadius: cornerRadius,
+                topTrailingRadius: cornerRadius
+            )
+        case .bottomEdge:
+            roundedCornersConfiguration = RoundedCornersConfiguration(
+                bottomLeadingRadius: cornerRadius,
+                bottomTrailingRadius: cornerRadius
+            )
+        case .none:
+            roundedCornersConfiguration = nil
+        }
+    }
+
+    @available(iOS, obsoleted: 16.0, message: "Use 'init(viewModel:cornerRadius:roundedCornersConfiguration:)' instead")
+    init(
+        viewModel: TokenItemViewModel,
+        cornerRadius: CGFloat
+    ) {
+        self.viewModel = viewModel
+        previewContentShapeCornerRadius = cornerRadius
+        roundedCornersConfiguration = RoundedCornersConfiguration()
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension TokenItemView {
+    @available(iOS 16.0, *)
+    enum RoundedCornersVerticalEdge {
+        case topEdge
+        case bottomEdge
+    }
+
+    private struct RoundedCornersConfiguration {
+        var topLeadingRadius: CGFloat = 0.0
+        var bottomLeadingRadius: CGFloat = 0.0
+        var bottomTrailingRadius: CGFloat = 0.0
+        var topTrailingRadius: CGFloat = 0.0
+    }
+}
+
 // MARK: - Constants
 
 private extension TokenItemView {
     enum Constants {
         static let spacerLength = 12.0
-        static let cornerRadius = 14.0
     }
 }
 
@@ -155,7 +232,7 @@ struct TokenItemView_Previews: PreviewProvider {
                 TokenSectionView(title: "Ethereum network")
 
                 ForEach(infoProvider.viewModels, id: \.id) { model in
-                    TokenItemView(viewModel: model)
+                    TokenItemView(viewModel: model, cornerRadius: 14)
                 }
 
                 Spacer()
