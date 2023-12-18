@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 protocol SendDestinationViewModelInput {
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
@@ -18,13 +19,14 @@ protocol SendDestinationViewModelInput {
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { get }
 
     var networkName: String { get }
+    var blockchainNetwork: BlockchainNetwork { get }
+    var walletPublicKey: Wallet.PublicKey { get }
 
     var additionalField: SendAdditionalFields? { get }
 
     var currencySymbol: String { get }
     var walletAddresses: [String] { get }
 
-    var suggestedWallets: [SendSuggestedDestinationWallet] { get }
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 }
 
@@ -46,14 +48,37 @@ class SendDestinationViewModel: ObservableObject {
     weak var delegate: SendDestinationViewDelegate?
 
     private let transactionHistoryMapper: TransactionHistoryMapper
+    private let suggestedWallets: [SendSuggestedDestinationWallet]
 
     private var bag: Set<AnyCancellable> = []
+
+    // MARK: - Dependencies
+
+    @Injected(\.userWalletRepository) private static var userWalletRepository: UserWalletRepository
+
+    // MARK: - Methods
 
     init(input: SendDestinationViewModelInput) {
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
             walletAddresses: input.walletAddresses
         )
+
+        suggestedWallets = Self.userWalletRepository
+            .models
+            .compactMap { userWalletModel in
+                let walletModels = userWalletModel.walletModelsManager.walletModels
+                let walletModel = walletModels.first { walletModel in
+                    walletModel.blockchainNetwork == input.blockchainNetwork &&
+                        walletModel.wallet.publicKey != input.walletPublicKey
+                }
+                guard let walletModel else { return nil }
+
+                return SendSuggestedDestinationWallet(
+                    name: userWalletModel.userWallet.name,
+                    address: walletModel.defaultAddress
+                )
+            }
 
         addressViewModel = SendDestinationInputViewModel(
             name: Localization.sendRecipient,
@@ -102,12 +127,12 @@ class SendDestinationViewModel: ObservableObject {
 
         input
             .transactionHistoryPublisher
-            .compactMap { [weak self] state -> [SendSuggestedDestinationTransactionRecord]? in
+            .compactMap { [weak self] state -> [SendSuggestedDestinationTransactionRecord] in
                 guard
                     let self,
                     case .loaded(let records) = state
                 else {
-                    return nil
+                    return []
                 }
 
                 return records.compactMap { record in
@@ -115,13 +140,15 @@ class SendDestinationViewModel: ObservableObject {
                 }
             }
             .sink { [weak self] recentTransactions in
-                if input.suggestedWallets.isEmpty, recentTransactions.isEmpty {
-                    self?.suggestedDestinationViewModel = nil
+                guard let self else { return }
+
+                if suggestedWallets.isEmpty, recentTransactions.isEmpty {
+                    suggestedDestinationViewModel = nil
                     return
                 }
 
-                self?.suggestedDestinationViewModel = SendSuggestedDestinationViewModel(
-                    wallets: input.suggestedWallets,
+                suggestedDestinationViewModel = SendSuggestedDestinationViewModel(
+                    wallets: suggestedWallets,
                     recentTransactions: recentTransactions
                 ) { [weak self] destination in
                     self?.delegate?.didSelectSuggestedDestination(destination)
