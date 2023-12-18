@@ -39,6 +39,7 @@ PODS:
     - SwiftyJSON (= 5.0.1)
     - TangemSdk
     - TangemWalletCore
+  - BlockiesSwift (0.1.2)
   - CombineExt (1.8.0)
   - CryptoSwift (1.8.0)
   - Firebase/Analytics (10.18.0):
@@ -221,6 +222,7 @@ DEPENDENCIES:
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.10`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
   - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-428`)
+  - BlockiesSwift
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -241,6 +243,7 @@ SPEC REPOS:
     - AnyCodable-FlightSchool
     - AppsFlyerFramework
     - BigInt
+    - BlockiesSwift
     - CombineExt
     - CryptoSwift
     - Firebase
@@ -340,6 +343,7 @@ SPEC CHECKSUMS:
   BinanceChain: 70279da50755710ebcdf0355e32ef89ebd098758
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
   BlockchainSdk: 0bd3a33dda15e1eca486c447a58564a51ee39eca
+  BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
   CryptoSwift: 52aaf3fce7337552863b1d952e408085f0e65030
   Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
@@ -375,6 +379,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: 2bf7c7a51d23f8c44307ba1f8923e0569045f73d
+PODFILE CHECKSUM: 4482804541d5cd045e0f5298fc665584e4f89606
 
 COCOAPODS: 1.14.3
