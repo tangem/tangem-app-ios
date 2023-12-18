@@ -41,9 +41,9 @@ struct ExpressAPIMapper {
             id: .init(provider.id),
             name: provider.name,
             type: provider.type,
-            imageURL: URL(string: provider.imageSmall ?? ""),
-            termsOfUse: URL(string: provider.termsOfUse ?? ""),
-            privacyPolicy: URL(string: provider.privacyPolicy ?? "")
+            imageURL: provider.imageSmall.flatMap(URL.init(string:)),
+            termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
+            privacyPolicy: provider.privacyPolicy.flatMap(URL.init(string:))
         )
     }
 
