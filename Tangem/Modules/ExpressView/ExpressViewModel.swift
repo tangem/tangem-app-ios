@@ -37,6 +37,8 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var errorAlert: AlertBinder?
 
+    @Published var legalText: NSAttributedString?
+
     // MARK: - Dependencies
 
     private let initialWallet: WalletModel
@@ -408,6 +410,7 @@ private extension ExpressViewModel {
         updateFeeValue(state: state)
         updateProviderView(state: state)
         updateMainButton(state: state)
+        updateLegalText(state: state)
 
         switch state {
         case .idle:
@@ -527,6 +530,28 @@ private extension ExpressViewModel {
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
             mainButtonIsEnabled = true
+        }
+    }
+
+    func updateLegalText(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .idle, .loading(.full), .restriction, .permissionRequired:
+            legalText = nil
+
+        case .loading(.refreshRates), .readyToSwap, .previewCEX:
+            runTask(in: self) { viewModel in
+                let text: NSAttributedString? = await {
+                    if let provider = await viewModel.interactor.getSelectedProvider() {
+                        return viewModel.expressProviderFormatter.mapToLegalText(provider: provider.provider)
+                    }
+
+                    return nil
+                }()
+
+                await runOnMain {
+                    viewModel.legalText = text
+                }
+            }
         }
     }
 }
