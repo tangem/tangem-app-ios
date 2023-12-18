@@ -32,13 +32,15 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
     func body(content: Content) -> some View {
         if #available(iOS 16.4, *) {
             aboveIOS16SheetUpdate(item: item, on: content)
+        } else if #available(iOS 15.0, *) {
+            beforeIOS116SheetUpdate(item: item, on: content)
         } else {
-            beforeIOS16SheetUpdate(item: item, on: content)
+            beforeIOS15SheetUpdate(item: item, on: content)
         }
     }
 }
 
-// MARK: - iOS_16.0 UIKit Implementation BottomSheet
+// MARK: - Above iOS_16.4 UIKit Implementation BottomSheet
 
 @available(iOS 16.4, *)
 private extension DetentBottomSheetModifier {
@@ -50,16 +52,34 @@ private extension DetentBottomSheetModifier {
                 }
                 .presentationDragIndicator(.hidden)
                 .presentationCornerRadius(settings.cornerRadius)
-                .presentationDetents(detents.map { $0.detentsAbove_16_4 }.toSet())
+                .presentationDetents(detents.map { $0.detentsAbove_16_0 }.toSet())
             }
     }
 }
 
-// MARK: - iOS_16.0 UIKit Implementation BottomSheet
+// MARK: - Before iOS_16.4 UIKit Implementation BottomSheet
+
+@available(iOS 15.0, *)
+private extension DetentBottomSheetModifier {
+    func beforeIOS116SheetUpdate(item: Item?, on content: Content) -> some View {
+        content
+            .sheet(item: $item) { item in
+                DetentBottomSheetContainer(settings: settings) {
+                    sheetContent(item)
+                }
+                .presentationConfiguration { controller in
+                    controller.detents = detents.map { $0.detentsAbove_15_0 }
+                    controller.preferredCornerRadius = settings.cornerRadius
+                }
+            }
+    }
+}
+
+// MARK: - Before iOS_15 UIKit Implementation BottomSheet
 
 @available(iOS 14.0, *)
 private extension DetentBottomSheetModifier {
-    func beforeIOS16SheetUpdate(item: Item?, on content: Content) -> some View {
+    func beforeIOS15SheetUpdate(item: Item?, on content: Content) -> some View {
         content
             .sheet(item: $item) { item in
                 DetentBottomSheetContainer(settings: settings) {
