@@ -13,6 +13,7 @@ struct TransactionHistoryMapper {
 
     private let currencySymbol: String
     private let walletAddresses: [String]
+    private let showSign: Bool
 
     private let balanceFormatter = BalanceFormatter()
     private let dateFormatter: DateFormatter = {
@@ -36,9 +37,10 @@ struct TransactionHistoryMapper {
         return dateFormatter
     }()
 
-    init(currencySymbol: String, walletAddresses: [String]) {
+    init(currencySymbol: String, walletAddresses: [String], showSign: Bool) {
         self.currencySymbol = currencySymbol
         self.walletAddresses = walletAddresses
+        self.showSign = showSign
     }
 
     func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
@@ -65,7 +67,7 @@ struct TransactionHistoryMapper {
             hash: record.hash,
             interactionAddress: interactionAddress(from: record),
             timeFormatted: timeFormatted,
-            amount: transferAmount(from: record, showSign: true),
+            amount: transferAmount(from: record),
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
             status: status(from: record)
@@ -99,7 +101,7 @@ struct TransactionHistoryMapper {
             }
         }
 
-        let amountFormatted = transferAmount(from: record, showSign: false)
+        let amountFormatted = transferAmount(from: record)
         let dateFormatted = dateTimeFormatter.string(from: record.date ?? Date())
         let description = "\(amountFormatted), \(dateFormatted)"
 
@@ -115,7 +117,7 @@ struct TransactionHistoryMapper {
 // MARK: - TransactionHistoryMapper
 
 private extension TransactionHistoryMapper {
-    func transferAmount(from record: TransactionRecord, showSign: Bool) -> String {
+    func transferAmount(from record: TransactionRecord) -> String {
         if record.isOutgoing {
             let sent: Decimal = {
                 switch record.source {
@@ -136,7 +138,7 @@ private extension TransactionHistoryMapper {
             }()
 
             let amount = sent - change
-            return formatted(amount: amount, showSign: showSign, isOutgoing: record.isOutgoing)
+            return formatted(amount: amount, isOutgoing: record.isOutgoing)
 
         } else {
             let received: Decimal = {
@@ -148,7 +150,7 @@ private extension TransactionHistoryMapper {
                 }
             }()
 
-            return formatted(amount: received, showSign: showSign, isOutgoing: record.isOutgoing)
+            return formatted(amount: received, isOutgoing: record.isOutgoing)
         }
     }
 
@@ -241,7 +243,7 @@ private extension TransactionHistoryMapper {
         }
     }
 
-    func formatted(amount: Decimal, showSign: Bool, isOutgoing: Bool) -> String {
+    func formatted(amount: Decimal, isOutgoing: Bool) -> String {
         let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
         if amount.isZero || !showSign {
             return formatted
