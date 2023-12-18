@@ -37,7 +37,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenRouter: SingleTokenRoutable
 
     private var isSwapAvailable: Bool {
-        swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+        !walletModel.isCustom && swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
     }
 
     private var percentFormatter = PercentFormatter()
@@ -83,7 +83,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
-    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, addresses: walletModel.wallet.addresses.map { $0.value })
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.wallet.addresses.map { $0.value })
     lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
 
     init(
