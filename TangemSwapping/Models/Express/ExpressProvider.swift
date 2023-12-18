@@ -13,13 +13,8 @@ public struct ExpressProvider: Hashable {
 
     public let id: Id
     public let name: String
-    public let url: URL?
     public let type: ExpressProviderType
-
-    public init(id: Id, name: String, url: URL?, type: ExpressProviderType) {
-        self.id = id
-        self.name = name
-        self.url = url
-        self.type = type
-    }
+    public let imageURL: URL?
+    public let termsOfUse: URL?
+    public let privacyPolicy: URL?
 }
