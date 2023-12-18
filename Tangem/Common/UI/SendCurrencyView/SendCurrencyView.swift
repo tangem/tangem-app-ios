@@ -28,7 +28,7 @@ struct SendCurrencyView: View {
             mainContent
         }
         .padding(.all, 14)
-        .background(Colors.Background.primary)
+        .background(Colors.Background.action)
         .cornerRadius(14)
     }
 
