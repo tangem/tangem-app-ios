@@ -153,11 +153,11 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         }
 
         guard let quote = await provider.getState().quote,
-              let selectedRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
+              let bestRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
             return nil
         }
 
-        let changePercent = 1 - selectedRate / quote.rate
+        let changePercent = quote.rate / bestRate - 1
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
