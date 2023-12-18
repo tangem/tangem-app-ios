@@ -558,10 +558,19 @@ private extension ExpressViewModel {
             option: .exchangeRate
         )
 
+        let badge: ProviderRowViewModel.Badge? = await {
+            // We should show the "bestRate" badge only when we have a choose
+            guard await interactor.getAllProviders().filter({ $0.isAvailable }).count > 1 else {
+                return .none
+            }
+
+            return selectedProvider.isBest ? .bestRate : .none
+        }()
+
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
             isDisabled: false,
-            badge: selectedProvider.isBest ? .bestRate : .none,
+            badge: badge,
             subtitles: [subtitle],
             detailsType: .chevron
         ) { [weak self] in
