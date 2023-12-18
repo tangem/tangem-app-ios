@@ -13,34 +13,32 @@ actor CommonExpressManager {
     // MARK: - Dependencies
 
     private let expressAPIProvider: ExpressAPIProvider
-    private let allowanceProvider: AllowanceProvider
-    private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
+    private let expressProviderManagerFactory: ExpressProviderManagerFactory
+    private let expressRepository: ExpressRepository
     private let logger: SwappingLogger
 
     // MARK: - State
 
-    // 1. Here we start. External values and triggers for update
     private var _pair: ExpressManagerSwappingPair?
+    private var _approvePolicy: SwappingApprovePolicy = .unlimited
     private var _amount: Decimal?
 
-    // 2. All provider in the express
-    private var providers: [ExpressProvider] = []
-    // 3. Here ids from `/pair` for each pair
-    private var availableProviders: [Int] = []
-    // 4. Here from all `providers` with filled the quote from `/quote`.
-    private var availableQuotes: [ExpectedQuote] = []
-    // 5. Here the provider with his quote which was selected from user
-    private var selectedQuote: ExpectedQuote?
+    private var allProviders: [ExpressAvailableProvider] = []
+    private var availableProviders: [ExpressAvailableProvider] {
+        allProviders.filter { $0.isAvailable }
+    }
+
+    private var selectedProvider: ExpressAvailableProvider?
 
     init(
         expressAPIProvider: ExpressAPIProvider,
-        allowanceProvider: AllowanceProvider,
-        expressPendingTransactionRepository: ExpressPendingTransactionRepository,
+        expressProviderManagerFactory: ExpressProviderManagerFactory,
+        expressRepository: ExpressRepository,
         logger: SwappingLogger
     ) {
         self.expressAPIProvider = expressAPIProvider
-        self.allowanceProvider = allowanceProvider
-        self.expressPendingTransactionRepository = expressPendingTransactionRepository
+        self.expressProviderManagerFactory = expressProviderManagerFactory
+        self.expressRepository = expressRepository
         self.logger = logger
     }
 }
@@ -49,22 +47,31 @@ actor CommonExpressManager {
 
 extension CommonExpressManager: ExpressManager {
     func getPair() -> ExpressManagerSwappingPair? {
-        _pair
+        return _pair
     }
 
     func getAmount() -> Decimal? {
-        _amount
+        return _amount
     }
 
-    func getSelectedProvider() -> ExpressProvider? {
-        selectedQuote?.provider
+    func getSelectedProvider() -> ExpressAvailableProvider? {
+        return selectedProvider
+    }
+
+    func getAllProviders() -> [ExpressAvailableProvider] {
+        return allProviders
+    }
+
+    func getApprovePolicy() -> SwappingApprovePolicy {
+        return _approvePolicy
     }
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
+        assert(pair.source.expressCurrency != pair.destination.expressCurrency, "Pair has equal currencies")
         _pair = pair
 
         // Clear for reselected the best quote
-        selectedQuote = nil
+        clearCache()
 
         return try await update()
     }
@@ -72,24 +79,39 @@ extension CommonExpressManager: ExpressManager {
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState {
         _amount = amount
 
-        // Clear for reselected the best quote
-        selectedQuote = nil
-
         return try await update()
     }
 
-    func updateSelectedProvider(provider: ExpressProvider) async throws -> ExpressManagerState {
-        guard let quote = availableQuotes.first(where: { $0.provider == provider }) else {
-            throw ExpressManagerError.availableQuotesForProviderNotFound
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerState {
+        selectedProvider = provider
+
+        return try await selectedProviderState()
+    }
+
+    func update(approvePolicy: SwappingApprovePolicy) async throws -> ExpressManagerState {
+        guard _approvePolicy != approvePolicy else {
+            log("ApprovePolicy already is \(approvePolicy)")
+            return try await selectedProviderState()
         }
 
-        selectedQuote = quote
+        _approvePolicy = approvePolicy
 
-        return try await update()
+        let request = try makeRequest()
+        await selectedProvider?.manager.update(request: request, approvePolicy: _approvePolicy)
+        return try await selectedProviderState()
     }
 
     func update() async throws -> ExpressManagerState {
-        try await getState()
+        try await updateState()
+    }
+
+    func requestData() async throws -> ExpressTransactionData {
+        guard let selectedProvider = selectedProvider else {
+            throw ExpressManagerError.selectedProviderNotFound
+        }
+
+        let request = try makeRequest()
+        return try await selectedProvider.manager.sendData(request: request)
     }
 }
 
@@ -97,250 +119,164 @@ extension CommonExpressManager: ExpressManager {
 
 private extension CommonExpressManager {
     /// Return the state which checking the all properties
-    func getState() async throws -> ExpressManagerState {
+    func updateState() async throws -> ExpressManagerState {
         guard let pair = _pair else {
-            logger.debug("ExpressManagerSwappingPair not found")
-            return .idle
+            log("ExpressManagerSwappingPair not found")
+            throw ExpressManagerError.pairNotFound
         }
 
         // Just update availableProviders for this pair
-        try await getAvailableProviders(pair: pair)
+        try await updateAvailableProviders(pair: pair)
 
         try Task.checkCancellation()
 
         guard let amount = _amount, amount > 0 else {
-            logger.debug("Amount not found or less then 0")
+            log("Amount isn't set. Return .idle state")
             return .idle
         }
 
-        let request = ExpressManagerSwappingPairRequest(pair: pair, amount: amount)
-        let quotes = try await getQuotes(request: request)
-        let selectedQuote = try await getSelectedQuote(request: request, quotes: quotes)
+        let request = try makeRequest()
+        await updateStatesInProviders(request: request, approvePolicy: _approvePolicy)
 
         try Task.checkCancellation()
 
-        if let restriction = try await checkRestriction(request: request, quote: selectedQuote) {
-            return .restriction(restriction)
-        }
+        try await updateSelectedProviderIfNeeded()
 
-        let data = try await loadSwappingData(request: request, providerId: selectedQuote.provider.id)
-
-        try Task.checkCancellation()
-
-        return .ready(data: data)
-    }
-}
-
-// MARK: - Providers
-
-private extension CommonExpressManager {
-    func getProviders() async throws -> [ExpressProvider] {
-        guard providers.isEmpty else {
-            return providers
-        }
-
-        let providers = try await expressAPIProvider.providers()
-        self.providers = providers
-
-        return providers
+        return try await selectedProviderState()
     }
 
-    @discardableResult
-    func getAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
-        let providers = try await loadAvailableProviders(pair: pair)
-        availableProviders = providers
-
-        return providers
-    }
-
-    func loadAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> [Int] {
-        let pairs = try await expressAPIProvider.pairs(
-            from: [pair.source.expressCurrency],
-            to: [pair.destination.expressCurrency]
-        )
-
-        guard let pair = pairs.first else {
-            throw ExpressManagerError.availablePairNotFound
+    func selectedProviderState() async throws -> ExpressManagerState {
+        guard let selectedProvider = selectedProvider else {
+            throw ExpressManagerError.selectedProviderNotFound
         }
 
-        return pair.providers
-    }
-}
+        let state = await selectedProvider.getState()
+        log("Selected provider state: \(state)")
 
-// MARK: - Quotes
-
-private extension CommonExpressManager {
-    /// This method will always send the request without cache
-    func getQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
-        let quotes = try await loadQuotes(request: request)
-        availableQuotes = quotes
-
-        return quotes
-    }
-
-    func getSelectedQuote(
-        request: ExpressManagerSwappingPairRequest,
-        quotes: [ExpectedQuote]
-    ) async throws -> ExpectedQuote {
-        if let quote = selectedQuote {
-            return quote
+        switch state {
+        case .idle:
+            return .idle
+        case .error(let error, _):
+            throw error
+        case .restriction(let restriction, let quote):
+            return .restriction(restriction, quote: quote)
+        case .permissionRequired(let permissionRequired):
+            return .permissionRequired(permissionRequired)
+        case .preview(let preview):
+            return .previewCEX(preview)
+        case .ready(let ready):
+            return .ready(ready)
         }
-
-        let best = try bestQuote(from: quotes)
-
-        selectedQuote = best
-        return best
     }
 
-    func loadQuotes(request: ExpressManagerSwappingPairRequest) async throws -> [ExpectedQuote] {
-        let allProviders = try await getProviders()
-        let availableProvidersIds = try await getAvailableProviders(pair: request.pair)
+    func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
+        let availableProviderIds = try await expressRepository.getAvailableProviders(for: pair)
 
-        try Task.checkCancellation()
-
-        let quotes = await loadExpectedQuotes(request: request, providerIds: availableProvidersIds)
-        let allQuotes: [ExpectedQuote] = allProviders.map { provider in
-            if let loadedQuote = quotes[provider.id] {
-                return ExpectedQuote(provider: provider, state: loadedQuote)
-            }
-
-            return ExpectedQuote(provider: provider, state: .notAvailable)
+        // Setup providers manager only once
+        if availableProviders.isEmpty {
+            let providers = try await expressRepository.providers()
+            allProviders = providers
+                .map { provider in
+                    ExpressAvailableProvider(
+                        provider: provider,
+                        isBest: false,
+                        isAvailable: availableProviderIds.contains(provider.id),
+                        manager: expressProviderManagerFactory.makeExpressProviderManager(provider: provider)
+                    )
+                }
         }
 
-        return allQuotes
+        allProviders.forEach { provider in
+            provider.isAvailable = availableProviderIds.contains(provider.provider.id)
+        }
     }
 
-    func bestQuote(from quotes: [ExpectedQuote]) throws -> ExpectedQuote {
-        guard !quotes.isEmpty else {
-            throw ExpressManagerError.quotesNotFound
+    func updateSelectedProviderIfNeeded() async throws {
+        // If we don't have selectedQuote just update it
+        guard selectedProvider == nil else {
+            return
         }
 
-        let sortedQuotes = quotes.sorted { lhs, rhs in
-            let lhsAmount = lhs.quote?.expectAmount ?? 0
-            let rhsAmount = rhs.quote?.expectAmount ?? 0
-
-            return lhsAmount > rhsAmount
-        }
-
-        guard let bestExpectedQuote = sortedQuotes.first else {
-            throw ExpressManagerError.quotesNotFound
-        }
-
-        return bestExpectedQuote
+        let best = await bestProvider()
+        selectedProvider = best
     }
 
-    func loadExpectedQuotes(request: ExpressManagerSwappingPairRequest, providerIds: [Int]) async -> [Int: ExpectedQuote.State] {
-        typealias TaskValue = (id: Int, quote: ExpectedQuote.State)
+    func bestProvider() async -> ExpressAvailableProvider? {
+        var best: (provider: ExpressAvailableProvider, amount: Decimal)?
 
-        let quotes: [Int: ExpectedQuote.State] = await withTaskGroup(of: TaskValue.self) { [weak self] taskGroup in
-            providerIds.forEach { providerId in
+        if availableProviders.count > 1 {
+            for availableProvider in availableProviders {
+                let state = await availableProvider.getState()
+                log(
+                    """
+                    Looking for best provider
+                    Current Best \(availableProvider.provider.name) state: \(state)
+                    Attempt to Best: \(String(describing: best?.provider.provider.name)) amount: \(String(describing: best?.amount))
+                    """
+                )
 
-                // Run a parallel asynchronous task and collect it into the group
-                _ = taskGroup.addTaskUnlessCancelled { [weak self] in
-                    guard let self else {
-                        return (providerId, .error("CommonError.objectReleased"))
-                    }
-
-                    do {
-                        let item = await makeExpressSwappableItem(request: request, providerId: providerId)
-                        let quote = try await expressAPIProvider.exchangeQuote(item: item)
-                        return (providerId, .quote(quote))
-                    } catch {
-                        return (providerId, .error(error.localizedDescription))
+                if let amount = state.quote?.expectAmount {
+                    if let bestTuple = best {
+                        if amount > bestTuple.amount {
+                            best = (provider: availableProvider, amount: amount)
+                        }
+                    } else {
+                        best = (provider: availableProvider, amount: amount)
                     }
                 }
             }
+        }
 
-            return await taskGroup.reduce(into: [:]) { result, tuple in
-                let (provider, quote) = tuple
-                result[provider] = quote
+        if let (manager, amount) = best {
+            log("Best provider \(manager.provider.name) with amount: \(amount)")
+            manager.isBest = true
+            return manager
+        }
+
+        // Workaround. Waiting for reasync keywork
+        var priorities: [(ExpressAvailableProvider, ExpressProviderManagerState.Priority)] = []
+        for availableProvider in availableProviders {
+            let priority = await availableProvider.getState().priority
+            log("Provider \(availableProvider.provider.name) has priority: \(priority)")
+            priorities.append((availableProvider, priority))
+        }
+
+        return priorities.sorted(by: { $0.1 > $1.1 }).first?.0
+    }
+
+    func updateStatesInProviders(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async {
+        let providers = availableProviders.map { $0.provider.name }.joined(separator: ", ")
+        log("Start a parallel updating in providers: \(providers) with request \(request)")
+
+        // Run a parallel asynchronous tasks
+        await withTaskGroup(of: Void.self) { [weak self] taskGroup in
+            await self?.availableProviders.forEach { provider in
+                taskGroup.addTask {
+                    await provider.manager.update(request: request, approvePolicy: approvePolicy)
+                }
             }
         }
+    }
 
-        return quotes
+    func makeRequest() throws -> ExpressManagerSwappingPairRequest {
+        guard let pair = _pair else {
+            throw ExpressManagerError.pairNotFound
+        }
+
+        guard let amount = _amount, amount > 0 else {
+            throw ExpressManagerError.amountNotFound
+        }
+
+        return ExpressManagerSwappingPairRequest(pair: pair, amount: amount)
+    }
+
+    func clearCache() {
+        selectedProvider = nil
     }
 }
 
-// MARK: - Restrictions
-
-private extension CommonExpressManager {
-    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpectedQuote) async throws -> ExpressManagerRestriction? {
-        // 1. Check minimal amount
-        if let minAmount = quote.quote?.minAmount, request.amount < minAmount {
-            return .notEnoughAmountForSwapping(minAmount)
-        }
-
-        // 2. Check Permission
-
-        if let spender = quote.quote?.allowanceContract {
-            let isPermissionRequired = try await isPermissionRequired(request: request, for: spender)
-
-            if isPermissionRequired {
-                return .permissionRequired(spender: spender)
-            }
-        }
-
-        // 3. Check Pending
-
-        let hasPendingTransaction = expressPendingTransactionRepository.hasPending(for: request.pair.source.expressCurrency.network)
-
-        if hasPendingTransaction {
-            return .hasPendingTransaction
-        }
-
-        // 4. Check Balance
-
-        let sourceBalance = try await request.pair.source.getBalance()
-        let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
-
-        if isNotEnoughBalanceForSwapping {
-            return .notEnoughBalanceForSwapping
-        }
-
-        // No Restrictions
-        return nil
-    }
-
-    // MARK: Permission
-
-    func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
-        let contractAddress = request.pair.source.expressCurrency.contractAddress
-
-        if contractAddress == ExpressConstants.coinContractAddress {
-            return false
-        }
-
-        assert(contractAddress != ExpressConstants.coinContractAddress)
-
-        let allowance = try await allowanceProvider.getAllowance(
-            owner: request.pair.source.defaultAddress,
-            to: spender,
-            contract: contractAddress
-        )
-
-        return allowance < request.amount
-    }
-}
-
-// MARK: - Swapping Data
-
-private extension CommonExpressManager {
-    func loadSwappingData(request: ExpressManagerSwappingPairRequest, providerId: Int) async throws -> ExpressTransactionData {
-        let item = makeExpressSwappableItem(request: request, providerId: providerId)
-        let data = try await expressAPIProvider.exchangeData(item: item)
-        return data
-    }
-}
-
-// MARK: - Mapping
-
-private extension CommonExpressManager {
-    func makeExpressSwappableItem(request: ExpressManagerSwappingPairRequest, providerId: Int) -> ExpressSwappableItem {
-        ExpressSwappableItem(
-            source: request.pair.source,
-            destination: request.pair.destination,
-            amount: request.amount,
-            providerId: providerId
-        )
+extension CommonExpressManager {
+    nonisolated func log(_ args: Any) {
+        logger.debug("\(self) \(args)")
     }
 }
