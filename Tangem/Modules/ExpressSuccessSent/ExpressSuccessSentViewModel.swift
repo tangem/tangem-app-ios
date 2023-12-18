@@ -137,8 +137,7 @@ private extension ExpressSuccessSentViewModel {
             isDisabled: false,
             badge: .none,
             subtitles: [subtitle],
-            detailsType: .none,
-            tapAction: {}
+            detailsType: .none
         )
 
         let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.tokenItem)
