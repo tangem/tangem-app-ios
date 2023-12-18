@@ -27,7 +27,5 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         ])
     }
 
-    var blockchain: Blockchain { .ethereum(testnet: false) }
-
-    var tokenItem: TokenItem { .blockchain(blockchain) }
+    var tokenItem: TokenItem { .blockchain(.ethereum(testnet: false)) }
 }
