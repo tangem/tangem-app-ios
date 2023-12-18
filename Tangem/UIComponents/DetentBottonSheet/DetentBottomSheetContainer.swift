@@ -63,7 +63,7 @@ extension DetentBottomSheetContainer {
         case fraction(CGFloat)
 
         @available(iOS 16.0, *)
-        var detentsAbove_16_4: PresentationDetent {
+        var detentsAbove_16_0: PresentationDetent {
             switch self {
             case .large:
                 return PresentationDetent.large
@@ -73,6 +73,16 @@ extension DetentBottomSheetContainer {
                 return .height(height)
             case .fraction(let value):
                 return .fraction(value)
+            }
+        }
+
+        @available(iOS 15.0, *)
+        var detentsAbove_15_0: UISheetPresentationController.Detent {
+            switch self {
+            case .large, .custom(_), .fraction:
+                return UISheetPresentationController.Detent.large()
+            case .medium:
+                return UISheetPresentationController.Detent.medium()
             }
         }
     }
