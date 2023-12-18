@@ -31,7 +31,7 @@ struct ReceiveCurrencyView: View {
     private var headerLabels: some View {
         HStack(spacing: 0) {
             Text(Localization.swappingSuccessToTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             Spacer()
 
