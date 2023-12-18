@@ -27,12 +27,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let tokens = filter.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Assets.Request(tokensList: tokens)
         let response = try await expressAPIService.assets(request: request)
-        let assets: [ExpressAsset] = response.map {
-            return ExpressAsset(
-                currency: ExpressCurrency(response: $0),
-                isExchangeable: $0.exchangeAvailable
-            )
-        }
+        let assets: [ExpressAsset] = response.map(expressAPIMapper.mapToExpressAsset(response:))
         return assets
     }
 
