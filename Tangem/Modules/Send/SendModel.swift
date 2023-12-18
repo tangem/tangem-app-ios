@@ -304,10 +304,6 @@ extension SendModel: SendFeeViewModelInput {
         _feeValues.eraseToAnyPublisher()
     }
 
-    var blockchain: Blockchain {
-        walletModel.blockchainNetwork.blockchain
-    }
-
     var tokenItem: TokenItem {
         walletModel.tokenItem
     }
