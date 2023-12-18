@@ -74,7 +74,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self,
             tokenRouter: tokenRouter
         )
-        notificationManager.setupManager(with: tokenDetailsViewModel)
     }
 }
 
