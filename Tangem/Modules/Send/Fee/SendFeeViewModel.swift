@@ -15,7 +15,6 @@ protocol SendFeeViewModelInput {
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
-    var blockchain: Blockchain { get }
     var tokenItem: TokenItem { get }
 }
 
@@ -30,7 +29,6 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
 
     private let feeOptions: [FeeOption]
-    private let blockchain: Blockchain
     private let tokenItem: TokenItem
     private var bag: Set<AnyCancellable> = []
 
@@ -45,7 +43,6 @@ class SendFeeViewModel: ObservableObject {
     init(input: SendFeeViewModelInput) {
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
-        blockchain = input.blockchain
         tokenItem = input.tokenItem
         feeRowViewModels = makeFeeRowViewModels([:])
 
