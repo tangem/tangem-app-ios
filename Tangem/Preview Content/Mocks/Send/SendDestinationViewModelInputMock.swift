@@ -34,11 +34,19 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         .memo
     }
 
-    var suggestedWallets: [SendSuggestedDestinationWallet] {
+    var currencySymbol: String {
+        "ETH"
+    }
+
+    var walletAddresses: [String] {
         []
     }
 
-    var recentTransactions: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> {
-        .just(output: [])
+    var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> {
+        .just(output: .loading)
+    }
+
+    var suggestedWallets: [SendSuggestedDestinationWallet] {
+        []
     }
 }
