@@ -18,24 +18,24 @@ struct CustomSearchBar: View {
             Assets.search.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)
-                .frame(size: .init(width: 20, height: 20))
+                .frame(size: .init(bothDimensions: 20))
 
             TextField(placeholder, text: $searchText)
                 .foregroundColor(Colors.Text.primary1)
                 .font(Fonts.Regular.subheadline)
                 .frame(height: 20.0)
                 .overlay(
-                    Assets.clear.image
-                        .renderingMode(.template)
-                        .frame(size: .init(width: 16, height: 16))
-                        .padding()
-                        .offset(x: 0)
-                        .foregroundColor(Colors.Icon.informative)
-                        .frame(size: .init(width: 20, height: 20))
-                        .hidden(searchText.isEmpty)
-                        .onTapGesture {
-                            searchText = ""
-                        },
+                    Button(action: {
+                        searchText = ""
+                    }, label: {
+                        Assets.clear.image
+                            .renderingMode(.template)
+                            .frame(size: .init(bothDimensions: 16))
+                            .padding()
+                            .foregroundColor(Colors.Icon.informative)
+                    })
+                    .frame(size: .init(bothDimensions: 44))
+                    .hidden(searchText.isEmpty),
                     alignment: .trailing
                 )
         }
