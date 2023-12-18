@@ -17,7 +17,7 @@ struct ExpressView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            Colors.Background.tertiary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView(spacing: 14) {
                 swappingViews
@@ -106,6 +106,7 @@ struct ExpressView: View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
         }
+        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .verticalPadding(0)
     }
@@ -120,6 +121,7 @@ struct ExpressView: View {
                 ProviderRowView(viewModel: data)
             }
         }
+        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .verticalPadding(0)
     }
