@@ -28,8 +28,8 @@ struct ManageTokensCoordinatorView: CoordinatorView {
         NavHolder()
             .detentBottomSheet(
                 item: $coordinator.networkSelectorViewModel,
+                detents: [.medium, .large],
                 settings: .init(
-                    detents: [.medium, .large],
                     backgroundColor: Colors.Background.primary
                 )
             ) { viewModel in
