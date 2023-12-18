@@ -61,7 +61,8 @@ class SendDestinationViewModel: ObservableObject {
     init(input: SendDestinationViewModelInput) {
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
-            walletAddresses: input.walletAddresses
+            walletAddresses: input.walletAddresses,
+            showSign: false
         )
 
         suggestedWallets = Self.userWalletRepository
