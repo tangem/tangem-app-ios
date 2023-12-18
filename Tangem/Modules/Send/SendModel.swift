@@ -32,6 +32,15 @@ class SendModel {
         .just(output: true)
     }
 
+    var transactionFinished: AnyPublisher<Bool, Never> {
+        _transactionTime
+            .map {
+                $0 != nil
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     private(set) var suggestedWallets: [SendSuggestedDestinationWallet] = []
 
     // MARK: - Data
@@ -45,12 +54,13 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var _amountText: String = ""
+    private var _amount = CurrentValueSubject<Amount?, Never>(nil)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _feeText: String = ""
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
+    private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -85,7 +95,7 @@ class SendModel {
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
-            setAmount("\(amount)")
+            setAmount(amount)
         }
 
         if let destination = sendType.predefinedDestination {
@@ -99,7 +109,12 @@ class SendModel {
     }
 
     func useMaxAmount() {
-        setAmount("1000")
+        let amountType = walletModel.amountType
+        if let amount = walletModel.wallet.amounts[amountType] {
+            setAmount(amount)
+        }
+
+        #warning("[REDACTED_TODO_COMMENT]")
     }
 
     func setDestination(_ destinationText: String) {
@@ -131,7 +146,10 @@ class SendModel {
 
                 print("SEND FINISH ", completion)
                 #warning("[REDACTED_TODO_COMMENT]")
-            } receiveValue: { _ in
+            } receiveValue: { [weak self] result in
+                guard let self else { return }
+
+                _transactionTime.send(Date())
             }
             .store(in: &bag)
     }
@@ -197,8 +215,10 @@ class SendModel {
 
     // MARK: - Amount
 
-    private func setAmount(_ amountText: String) {
-        _amountText = amountText
+    func setAmount(_ amount: Amount?) {
+        guard _amount.value != amount else { return }
+
+        _amount.send(amount)
         validateAmount()
     }
 
@@ -207,11 +227,7 @@ class SendModel {
         let error: Error?
 
         #warning("validate")
-        let blockchain = walletModel.blockchainNetwork.blockchain
-        let amountType = walletModel.amountType
-
-        let value = Decimal(string: _amountText, locale: Locale.current) ?? 0
-        amount = Amount(with: blockchain, type: amountType, value: value)
+        amount = _amount.value
         error = nil
 
         self.amount.send(amount)
@@ -268,7 +284,23 @@ class SendModel {
 // MARK: - Subview model inputs
 
 extension SendModel: SendAmountViewModelInput {
-    var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
+    var blockchain: BlockchainSdk.Blockchain {
+        walletModel.blockchainNetwork.blockchain
+    }
+
+    var amountType: BlockchainSdk.Amount.AmountType {
+        walletModel.amountType
+    }
+
+    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
+        _amount.eraseToAnyPublisher()
+    }
+
+    #warning("TODO")
+    var errorPublisher: AnyPublisher<Error?, Never> {
+        _amountError.eraseToAnyPublisher()
+    }
+
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
 }
 
@@ -315,6 +347,11 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
+    #warning("TODO")
+    var amountText: String {
+        "100"
+    }
+
     var canEditAmount: Bool {
         sendType.predefinedAmount == nil
     }
