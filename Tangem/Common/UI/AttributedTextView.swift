@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-// This view should be deleted after min version will be updated to iOS 15.0
+@available(iOS, obsoleted: 15, message: "Should be replaced on AttributedString + Text")
 struct AttributedTextView: UIViewRepresentable {
     let attributedString: NSAttributedString
     let textAlignment: NSTextAlignment?
@@ -41,5 +41,13 @@ struct AttributedTextView: UIViewRepresentable {
     func updateUIView(_ uiView: UILabel, context: Context) {
         uiView.attributedText = attributedString
         uiView.sizeToFit()
+
+        if let textAlignment {
+            uiView.textAlignment = textAlignment
+        }
+
+        if let maxLayoutWidth {
+            uiView.preferredMaxLayoutWidth = maxLayoutWidth
+        }
     }
 }

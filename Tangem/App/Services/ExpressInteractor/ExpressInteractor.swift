@@ -587,7 +587,7 @@ private extension ExpressInteractor {
 
     func logApproveTransactionAnalyticsEvent(policy: SwappingApprovePolicy) {
         var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
-        
+
         switch policy {
         case .specified:
             parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
