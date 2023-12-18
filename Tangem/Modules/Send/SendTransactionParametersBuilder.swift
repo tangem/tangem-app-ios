@@ -1,5 +1,5 @@
 //
-//  SendAdditionalFieldService.swift
+//  SendTransactionParametersBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
