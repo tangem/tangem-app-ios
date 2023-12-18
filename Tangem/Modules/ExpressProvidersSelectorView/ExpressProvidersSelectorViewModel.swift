@@ -157,7 +157,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
             return nil
         }
 
-        let changePercent = 1 - quote.rate / bestRate
+        let changePercent = quote.rate / bestRate - 1
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
