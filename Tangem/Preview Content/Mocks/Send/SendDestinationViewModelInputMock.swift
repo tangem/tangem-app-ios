@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
     var destinationTextPublisher: AnyPublisher<String, Never> {
@@ -32,6 +33,14 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
 
     var additionalField: SendAdditionalFields? {
         .memo
+    }
+
+    var blockchainNetwork: BlockchainNetwork {
+        BlockchainNetwork(.ethereum(testnet: false))
+    }
+
+    var walletPublicKey: Wallet.PublicKey {
+        .init(seedKey: Data(), derivationType: nil)
     }
 
     var currencySymbol: String {
