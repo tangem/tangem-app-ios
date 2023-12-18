@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct TangemSdk.DerivationPath
 
-enum TokenItem: Hashable {
+enum TokenItem: Hashable, Codable {
     case blockchain(Blockchain)
     case token(Token, Blockchain)
 
