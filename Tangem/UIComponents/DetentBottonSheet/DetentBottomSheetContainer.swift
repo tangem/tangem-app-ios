@@ -57,9 +57,10 @@ struct DetentBottomSheetContainer<ContentView: View>: View {
 
 extension DetentBottomSheetContainer {
     enum Detent: Hashable {
-        case medium // @available(iOS 15.0 *)
-        case large // @available(iOS 15.0 *)
-        case custom(CGFloat) // @available(iOS 16.4 *)
+        case medium
+        case large
+        case custom(CGFloat)
+        case fraction(CGFloat)
 
         @available(iOS 16.0, *)
         var detentsAbove_16_4: PresentationDetent {
@@ -70,35 +71,22 @@ extension DetentBottomSheetContainer {
                 return PresentationDetent.medium
             case .custom(let height):
                 return .height(height)
-            }
-        }
-
-        @available(iOS 15.0, *)
-        var detentsAbove_15_0: UISheetPresentationController.Detent {
-            switch self {
-            case .large:
-                return .large()
-            case .medium:
-                return .medium()
-            default:
-                return .large()
+            case .fraction(let value):
+                return .fraction(value)
             }
         }
     }
 
     struct Settings {
-        let detents: Set<Detent>
         let cornerRadius: CGFloat
         let backgroundColor: Color
         let animationDuration: Double
 
         init(
-            detents: Set<Detent> = [.large],
             cornerRadius: CGFloat = 24,
             backgroundColor: Color = Colors.Background.secondary,
             animationDuration: Double = 0.35
         ) {
-            self.detents = detents
             self.cornerRadius = cornerRadius
             self.backgroundColor = backgroundColor
             self.animationDuration = animationDuration
