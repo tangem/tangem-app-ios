@@ -187,6 +187,7 @@ private extension CommonExpressManager {
         }
 
         allProviders.forEach { provider in
+            provider.isBest = false
             provider.isAvailable = availableProviderIds.contains(provider.provider.id)
         }
     }
