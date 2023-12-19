@@ -17,7 +17,7 @@ struct ExpressView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            Colors.Background.tertiary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView(spacing: 14) {
                 swappingViews
@@ -106,6 +106,7 @@ struct ExpressView: View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
         }
+        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .verticalPadding(0)
     }
@@ -120,14 +121,18 @@ struct ExpressView: View {
                 ProviderRowView(viewModel: data)
             }
         }
+        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .verticalPadding(0)
     }
 
     @ViewBuilder
     private var mainButton: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .center, spacing: 12) {
             Spacer()
+
+            legalView
+                .padding(.horizontal, 18)
 
             MainButton(
                 title: viewModel.mainButtonState.title,
@@ -141,6 +146,27 @@ struct ExpressView: View {
         .padding(.bottom, UIApplication.safeAreaInsets.bottom + 10)
         .edgesIgnoringSafeArea(.bottom)
         .ignoresSafeArea(.keyboard)
+    }
+
+    @ViewBuilder
+    private var legalView: some View {
+        if let legalText = viewModel.legalText {
+            if #available(iOS 15, *) {
+                Text(AttributedString(legalText))
+                    .font(Fonts.Regular.footnote)
+                    .multilineTextAlignment(.center)
+            } else {
+                GeometryReader { proxy in
+                    VStack(spacing: .zero) {
+                        Spacer()
+                            .layoutPriority(1)
+
+                        // AttributedTextView(UILabel) doesn't tappable on iOS 14
+                        AttributedTextView(legalText, textAlignment: .center, maxLayoutWidth: proxy.size.width)
+                    }
+                }
+            }
+        }
     }
 }
 
