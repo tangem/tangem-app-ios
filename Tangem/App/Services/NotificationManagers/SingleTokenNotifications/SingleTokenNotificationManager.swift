@@ -234,9 +234,3 @@ extension SingleTokenNotificationManager: NotificationManager {
         notificationInputsSubject.value.removeAll(where: { $0.id == id })
     }
 }
-
-private extension WalletModel {
-    var promotionId: String {
-        "\(expressCurrency.network)_\(expressCurrency.contractAddress)"
-    }
-}
