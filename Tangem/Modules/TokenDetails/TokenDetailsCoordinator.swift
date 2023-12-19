@@ -48,7 +48,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
             amountType: options.walletModel.amountType
         )
         let swapPairService = SwapPairService(
-            selectedExpressCurrency: options.walletModel.expressCurrency,
+            tokenItem: options.walletModel.tokenItem,
             walletModelsManager: options.cardModel.walletModelsManager,
             userWalletId: options.cardModel.userWalletId.stringValue
         )
