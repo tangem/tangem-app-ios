@@ -113,7 +113,7 @@ struct ExpressView: View {
             }
         }
         .interSectionPadding(12)
-        .interItemSpacing(14)
+        .interItemSpacing(10)
         .verticalPadding(0)
     }
 
