@@ -65,7 +65,7 @@ class ExpressNotificationManager {
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
 
         case .previewCEX(let preview, let quote):
-            
+
             if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
                // If this notification already showed then will not update the notifications set
                !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
