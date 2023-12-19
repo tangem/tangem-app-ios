@@ -14,32 +14,29 @@ struct SendCurrencyPicker: View {
     let cryptoCurrencyCode: String = "USDT"
     let fiatIconURL: URL
     let fiatCurrencyCode: String = "USD"
-    
-    
-    
 
-   
-    
+    private let iconSize: CGFloat = 18
+
     var body: some View {
         HStack(spacing: 0) {
             item(with: cryptoCurrencyCode, url: cryptoIconURL, iconRadius: 6, selected: true)
 
-            item(with: fiatCurrencyCode, url: fiatIconURL, iconRadius: 9, selected: false)
+            item(with: fiatCurrencyCode, url: fiatIconURL, iconRadius: iconSize / 2, selected: false)
         }
-        
+
         .padding(2)
         .background(Colors.Button.secondary)
         .cornerRadiusContinuous(14)
     }
-    
+
     @ViewBuilder
     func item(with name: String, url: URL, iconRadius: CGFloat, selected: Bool) -> some View {
         HStack(spacing: 6) {
             KFImage(url)
                 .resizable()
-                .frame(size: CGSize(bothDimensions: 18))
+                .frame(size: CGSize(bothDimensions: iconSize))
                 .cornerRadiusContinuous(iconRadius)
-            
+
             Text(name)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
         }
