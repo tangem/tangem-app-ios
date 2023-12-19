@@ -12,11 +12,19 @@ import BlockchainSdk
 import TangemSwapping
 
 struct SwapPairService {
-    let selectedExpressCurrency: ExpressCurrency
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+
+    let tokenItem: TokenItem
     let walletModelsManager: WalletModelsManager
     let userWalletId: String
 
     func canSwap() async -> Bool {
+        guard swapAvailabilityProvider.canSwap(tokenItem: tokenItem) else {
+            return false
+        }
+
+        let selectedExpressCurrency = tokenItem.expressCurrency
+
         let walletModels = await walletModelsManager.walletModelsPublisher
             .removeDuplicates()
             .flatMap { walletModels in
