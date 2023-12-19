@@ -49,6 +49,8 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var errorAlert: AlertBinder?
 
+    @Published var legalText: NSAttributedString?
+
     // Private
     @Published private var expressFeeRowViewModel: ExpressFeeRowData?
     @Published private var expressFeeFootnote: String?
@@ -352,6 +354,7 @@ private extension ExpressViewModel {
                 receiveCurrencyViewModel?.update(fiatAmountState: .loading)
             default:
                 updateReceiveCurrencyValue(expectAmount: state.quote?.expectAmount)
+                updateHighPricePercentLabel(quote: state.quote)
             }
         case .failedToLoad:
             receiveCurrencyViewModel?.canChangeCurrency = false
@@ -418,12 +421,44 @@ private extension ExpressViewModel {
         }
     }
 
+    func updateHighPricePercentLabel(quote: ExpressQuote?) {
+        guard let fromAmount = quote?.fromAmount,
+              let expectAmount = quote?.expectAmount,
+              let sourceCurrencyId = interactor.getSender().tokenItem.currencyId,
+              let destinationCurrencyId = interactor.getDestination()?.tokenItem.currencyId else {
+            receiveCurrencyViewModel?.priceChangePercent = nil
+            return
+        }
+
+        runTask(in: self) { viewModel in
+            let priceImpactCalculator = HighPriceImpactCalculator(sourceCurrencyId: sourceCurrencyId, destinationCurrencyId: destinationCurrencyId)
+            let result = try await priceImpactCalculator.isHighPriceImpact(
+                converting: fromAmount,
+                to: expectAmount
+            )
+
+            guard result.isHighPriceImpact else {
+                await runOnMain {
+                    viewModel.receiveCurrencyViewModel?.priceChangePercent = nil
+                }
+                return
+            }
+
+            let percentFormatter = PercentFormatter()
+            let formatted = percentFormatter.expressRatePercentFormat(value: -result.lossesInPercents)
+            await runOnMain {
+                viewModel.receiveCurrencyViewModel?.priceChangePercent = formatted
+            }
+        }
+    }
+
     // MARK: - Update for state
 
     func updateState(state: ExpressInteractor.ExpressInteractorState) {
         updateFeeValue(state: state)
         updateProviderView(state: state)
         updateMainButton(state: state)
+        updateLegalText(state: state)
 
         switch state {
         case .idle:
@@ -431,6 +466,7 @@ private extension ExpressViewModel {
             stopTimer()
 
             updateReceiveCurrencyValue(expectAmount: 0)
+            updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
             isSwapButtonLoading = true
@@ -440,10 +476,12 @@ private extension ExpressViewModel {
 
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+            updateHighPricePercentLabel(quote: .none)
 
         case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
             updateReceiveCurrencyValue(expectAmount: quote?.expectAmount)
+            updateHighPricePercentLabel(quote: quote)
 
             // restart timer for pending approve transaction
             switch restriction {
@@ -458,6 +496,7 @@ private extension ExpressViewModel {
             restartTimer()
 
             updateReceiveCurrencyValue(expectAmount: quote.expectAmount)
+            updateHighPricePercentLabel(quote: quote)
         }
     }
 
@@ -545,6 +584,28 @@ private extension ExpressViewModel {
             mainButtonIsEnabled = true
         }
     }
+
+    func updateLegalText(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .idle, .loading(.full), .restriction, .permissionRequired:
+            legalText = nil
+
+        case .loading(.refreshRates), .readyToSwap, .previewCEX:
+            runTask(in: self) { viewModel in
+                let text: NSAttributedString? = await {
+                    if let provider = await viewModel.interactor.getSelectedProvider() {
+                        return viewModel.expressProviderFormatter.mapToLegalText(provider: provider.provider)
+                    }
+
+                    return nil
+                }()
+
+                await runOnMain {
+                    viewModel.legalText = text
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Mapping
@@ -584,10 +645,19 @@ private extension ExpressViewModel {
             option: .exchangeRate
         )
 
+        let badge: ProviderRowViewModel.Badge? = await {
+            // We should show the "bestRate" badge only when we have a choose
+            guard await interactor.getAllProviders().filter({ $0.isAvailable }).count > 1 else {
+                return .none
+            }
+
+            return selectedProvider.isBest ? .bestRate : .none
+        }()
+
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
             isDisabled: false,
-            badge: selectedProvider.isBest ? .bestRate : .none,
+            badge: badge,
             subtitles: [subtitle],
             detailsType: .chevron
         ) { [weak self] in
