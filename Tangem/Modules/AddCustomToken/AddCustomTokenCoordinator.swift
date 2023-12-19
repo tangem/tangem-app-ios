@@ -19,8 +19,6 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: AddCustomTokenViewModel?
 
-    // MARK: - Child coordinators
-
     // MARK: - Child view models
 
     @Published var networkSelectorModel: AddCustomTokenNetworkSelectorViewModel?
