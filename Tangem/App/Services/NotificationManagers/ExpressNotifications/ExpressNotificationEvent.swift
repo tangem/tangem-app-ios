@@ -21,7 +21,7 @@ enum ExpressNotificationEvent {
     case highPriceImpact
     case verificationRequired
     case cexOperationFailed
-    case feeWillBeSubtractFromSendingAmount(reducedAmount: String)
+    case feeWillBeSubtractFromSendingAmount
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
