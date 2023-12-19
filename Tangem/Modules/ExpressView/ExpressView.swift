@@ -29,14 +29,14 @@ struct ExpressView: View {
                 informationSection
             }
             .scrollDismissesKeyboardCompat(true)
-            // For animate button below informationSection
-            .animation(.easeInOut, value: viewModel.providerState?.id)
-            .animation(.easeInOut, value: viewModel.expressFeeRowViewModel == nil)
 
             mainButton
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
+        // For animate button below informationSection
+        .animation(.easeInOut, value: viewModel.providerState?.id)
+        .animation(.easeInOut, value: viewModel.feeSectionItems.count)
         .animation(.default, value: viewModel.notificationInputs)
     }
 
@@ -103,11 +103,18 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var feeSection: some View {
-        GroupedSection(viewModel.expressFeeRowViewModel) {
-            ExpressFeeRowView(viewModel: $0)
+        GroupedSection(viewModel.feeSectionItems) { item in
+            switch item {
+            case .fee(let data):
+                ExpressFeeRowView(viewModel: data)
+            case .footnote(let text):
+                Text(text)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
         }
         .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
+        .interItemSpacing(10)
         .verticalPadding(0)
     }
 
