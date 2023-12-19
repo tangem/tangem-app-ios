@@ -24,6 +24,7 @@ struct ProviderRowView: View {
         HStack(spacing: 12) {
             IconView(url: viewModel.provider.iconURL, size: CGSize(bothDimensions: 36))
                 .saturation(viewModel.isDisabled ? 0 : 1)
+                .opacity(viewModel.isDisabled ? 0.4 : 1)
 
             VStack(alignment: .leading, spacing: 4) {
                 titleView
@@ -92,7 +93,7 @@ struct ProviderRowView: View {
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
-                .background(Colors.Icon.accent.opacity(0.3))
+                .background(Colors.Icon.accent.opacity(0.1))
                 .cornerRadiusContinuous(8)
         }
     }
