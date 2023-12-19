@@ -52,6 +52,7 @@ final class SingleTokenNotificationManager {
                 switch state {
                 case .failed:
                     self?.setupNetworkUnreachable()
+                    return
                 case .noAccount(let message):
                     self?.setupNoAccountNotification(with: message)
                 case .loading, .created:
@@ -164,7 +165,7 @@ final class SingleTokenNotificationManager {
                     return
                 }
 
-                if self.loadedExpressPromotionBanner == nil {
+                if self.loadedExpressPromotionBanner == nil, !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
                     self.loadedExpressPromotionBanner = input
                     self.notificationInputsSubject.value.insert(input, at: 0)
                 }
