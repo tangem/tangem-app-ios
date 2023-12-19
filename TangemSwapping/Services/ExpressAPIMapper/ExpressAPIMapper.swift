@@ -96,6 +96,7 @@ struct ExpressAPIMapper {
             transactionType: response.txType,
             sourceAddress: response.txFrom,
             destinationAddress: response.txTo,
+            extraDestinationTag: response.txExtraId,
             value: txValue,
             txData: response.txData,
             externalTxId: response.externalTxId,
