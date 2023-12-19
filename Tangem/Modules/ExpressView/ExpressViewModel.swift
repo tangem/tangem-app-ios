@@ -34,10 +34,10 @@ final class ExpressViewModel: ObservableObject {
 
         if let expressFeeRowViewModel {
             items.append(.fee(expressFeeRowViewModel))
-        }
 
-        if let expressFeeFootnote {
-            items.append(.footnote(expressFeeFootnote))
+            if let expressFeeFootnote {
+                items.append(.footnote(expressFeeFootnote))
+            }
         }
 
         return items
@@ -515,7 +515,6 @@ private extension ExpressViewModel {
         }
 
         expressFeeRowViewModel = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: formattedFee, action: action)
-        expressFeeFootnote = "Additionally, the network fee for sending the exchanged funds back to your address is included in the"
     }
 
     func updateMainButton(state: ExpressInteractor.ExpressInteractorState) {
@@ -565,6 +564,16 @@ private extension ExpressViewModel {
     func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
         guard let selectedProvider = await interactor.getSelectedProvider() else {
             return nil
+        }
+
+        // Setup additional expressFeeFootnote text if needed
+        await runOnMain {
+            switch selectedProvider.provider.type {
+            case .cex:
+                expressFeeFootnote = Localization.expressCexFeeExplanation
+            case .dex:
+                expressFeeFootnote = nil
+            }
         }
 
         let state = await selectedProvider.getState()
