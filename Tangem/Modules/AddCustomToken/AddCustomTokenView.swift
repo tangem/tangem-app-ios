@@ -11,8 +11,6 @@ import SwiftUI
 struct AddCustomTokenView: View {
     @ObservedObject private var viewModel: AddCustomTokenViewModel
 
-    @Environment(\.displayScale) private var displayScale
-
     init(viewModel: AddCustomTokenViewModel) {
         self.viewModel = viewModel
     }
