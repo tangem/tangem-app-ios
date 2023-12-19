@@ -12,21 +12,31 @@ import TangemSwapping
 
 struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
     func makeTransaction(wallet: WalletModel, data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
-        let destination: Destination = {
-            if let txData = data.txData {
-                return .contractCall(data.destinationAddress, data: Data(hexString: txData))
-            }
+        let destination: Destination = try {
+            switch data.transactionType {
+            case .send:
+                return .send(data.destinationAddress)
+            case .swap:
+                if let txData = data.txData {
+                    return .contractCall(data.destinationAddress, data: Data(hexString: txData))
+                }
 
-            return .send(data.destinationAddress)
+                throw ExpressTransactionBuilderError.transactionDataForSwapOperationNotFound
+            }
         }()
 
-        let transaction = try await buildTransaction(
+        var transaction = try await buildTransaction(
             wallet: wallet,
             amount: data.value,
             fee: fee,
             sourceAddress: data.sourceAddress,
             destination: destination
         )
+
+        if let extraDestinationTag = data.extraDestinationTag, !extraDestinationTag.isEmpty {
+            // If we received a extraId then try to map it to specific TransactionParams
+            transaction.params = try mapToTransactionParams(blockchain: wallet.tokenItem.blockchain, extraDestinationTag: extraDestinationTag)
+        }
 
         return transaction
     }
@@ -40,7 +50,6 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
             wallet: wallet,
             amount: 0, // For approve value isn't needed
             fee: fee,
-            sourceAddress: wallet.defaultAddress,
             destination: .contractCall(data.toContractAddress, data: data.data)
         )
 
@@ -53,7 +62,7 @@ private extension CommonExpressTransactionBuilder {
         wallet: WalletModel,
         amount: Decimal,
         fee: Fee,
-        sourceAddress: String?,
+        sourceAddress: String? = nil,
         destination: Destination
     ) async throws -> Transaction {
         let amount = Amount(with: wallet.tokenItem.blockchain, type: wallet.amountType, value: amount)
@@ -85,6 +94,33 @@ private extension CommonExpressTransactionBuilder {
         }
     }
 
+    func mapToTransactionParams(blockchain: Blockchain, extraDestinationTag: String) throws -> TransactionParams? {
+        switch blockchain {
+        case .binance:
+            return BinanceTransactionParams(memo: extraDestinationTag)
+
+        case .xrp:
+            let destinationTag = UInt32(extraDestinationTag)
+            return XRPTransactionParams(destinationTag: destinationTag)
+
+        case .stellar:
+            if let memoId = UInt64(extraDestinationTag) {
+                return StellarTransactionParams(memo: .id(memoId))
+            }
+
+            return StellarTransactionParams(memo: .text(extraDestinationTag))
+
+        case .ton:
+            return TONTransactionParams(memo: extraDestinationTag)
+
+        case .cosmos, .terraV1, .terraV2:
+            return CosmosTransactionParams(memo: extraDestinationTag)
+
+        default:
+            throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
+        }
+    }
+
     enum Destination {
         case send(String)
         case contractCall(String, data: Data)
@@ -93,4 +129,6 @@ private extension CommonExpressTransactionBuilder {
 
 enum ExpressTransactionBuilderError: LocalizedError {
     case approveImpossibleInNotEvmBlockchain
+    case transactionDataForSwapOperationNotFound
+    case blockchainDonNotSupportedExtraId
 }
