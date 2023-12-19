@@ -29,13 +29,29 @@ final class ExpressViewModel: ObservableObject {
     @Published var providerState: ProviderState?
 
     // Fee
-    @Published var expressFeeRowViewModel: ExpressFeeRowData?
+    var feeSectionItems: [FeeSectionItem] {
+        var items: [FeeSectionItem] = []
+
+        if let expressFeeRowViewModel {
+            items.append(.fee(expressFeeRowViewModel))
+        }
+
+        if let expressFeeFootnote {
+            items.append(.footnote(expressFeeFootnote))
+        }
+
+        return items
+    }
 
     // Main button
     @Published var mainButtonIsLoading: Bool = false
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
     @Published var errorAlert: AlertBinder?
+
+    // Private
+    @Published private var expressFeeRowViewModel: ExpressFeeRowData?
+    @Published private var expressFeeFootnote: String?
 
     // MARK: - Dependencies
 
@@ -499,6 +515,7 @@ private extension ExpressViewModel {
         }
 
         expressFeeRowViewModel = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: formattedFee, action: action)
+        expressFeeFootnote = "Additionally, the network fee for sending the exchanged funds back to your address is included in the"
     }
 
     func updateMainButton(state: ExpressInteractor.ExpressInteractorState) {
@@ -666,6 +683,20 @@ private extension ExpressViewModel {
 }
 
 extension ExpressViewModel {
+    enum FeeSectionItem: Identifiable {
+        var id: String {
+            switch self {
+            case .fee(let expressFeeRowData):
+                return expressFeeRowData.id
+            case .footnote(let string):
+                return string
+            }
+        }
+
+        case fee(ExpressFeeRowData)
+        case footnote(String)
+    }
+
     enum ProviderState: Identifiable {
         var id: Int {
             switch self {
