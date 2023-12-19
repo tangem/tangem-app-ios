@@ -249,6 +249,7 @@ extension SingleTokenBaseViewModel {
         notificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
