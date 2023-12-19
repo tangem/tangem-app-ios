@@ -20,7 +20,6 @@ struct ManageTokensView: View {
 
             list
         }
-        .background(Colors.Background.primary)
         .scrollDismissesKeyboardCompat(true)
         .alert(item: $viewModel.alert, content: { $0.alert })
     }
