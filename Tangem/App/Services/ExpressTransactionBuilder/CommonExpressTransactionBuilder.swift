@@ -116,7 +116,41 @@ private extension CommonExpressTransactionBuilder {
         case .cosmos, .terraV1, .terraV2:
             return CosmosTransactionParams(memo: extraDestinationTag)
 
-        default:
+        case .bitcoin,
+             .litecoin,
+             .ethereum,
+             .ethereumPoW,
+             .ethereumFair,
+             .ethereumClassic,
+             .rsk,
+             .bitcoinCash,
+             .cardano,
+             .ducatus,
+             .tezos,
+             .dogecoin,
+             .bsc,
+             .polygon,
+             .avalanche,
+             .solana,
+             .fantom,
+             .polkadot,
+             .kusama,
+             .azero,
+             .tron,
+             .arbitrum,
+             .dash,
+             .gnosis,
+             .optimism,
+             .saltPay,
+             .kava,
+             .kaspa,
+             .ravencoin,
+             .cronos,
+             .telos,
+             .octa,
+             .chia,
+             .near,
+             .decimal:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
