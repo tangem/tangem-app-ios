@@ -20,8 +20,8 @@ final class SingleTokenNotificationManager {
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
-    private var loadedExpressPromotionBanner: NotificationViewInput?
-    private var loadedRentFeeNotification: NotificationViewInput?
+    private var expressPromotionBanner: NotificationViewInput?
+    private var rentFeeNotification: NotificationViewInput?
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
     private var promotionUpdateTask: Task<Void, Never>?
@@ -52,7 +52,6 @@ final class SingleTokenNotificationManager {
                 switch state {
                 case .failed:
                     self?.setupNetworkUnreachable()
-                    return
                 case .noAccount(let message):
                     self?.setupNoAccountNotification(with: message)
                 case .loading, .created:
@@ -63,7 +62,8 @@ final class SingleTokenNotificationManager {
 
                 if let self,
                    !state.isLoading,
-                   canShowTangemExpressPromotion {
+                   canShowTangemExpressPromotion,
+                   !state.isBlockchainUnreachable {
                     setupTangemExpressPromotionNotification()
                 }
             }
@@ -100,8 +100,8 @@ final class SingleTokenNotificationManager {
     }
 
     private func setupRentFeeNotification() {
-        if let loadedRentFeeNotification {
-            notificationInputsSubject.value.append(loadedRentFeeNotification)
+        if let rentFeeNotification {
+            notificationInputsSubject.value.append(rentFeeNotification)
         }
 
         notificationsUpdateTask?.cancel()
@@ -117,9 +117,9 @@ final class SingleTokenNotificationManager {
                 return
             }
 
-            if loadedRentFeeNotification != rentInput, !notificationInputsSubject.value.contains(where: { $0.id == rentInput.id }) {
+            if !notificationInputsSubject.value.contains(where: { $0.id == rentInput.id }) {
                 await runOnMain {
-                    self.loadedRentFeeNotification = rentInput
+                    self.rentFeeNotification = rentInput
                     self.notificationInputsSubject.value.append(rentInput)
                 }
             }
@@ -127,8 +127,8 @@ final class SingleTokenNotificationManager {
     }
 
     private func setupTangemExpressPromotionNotification() {
-        if let loadedExpressPromotionBanner {
-            notificationInputsSubject.value.insert(loadedExpressPromotionBanner, at: 0)
+        if let expressPromotionBanner {
+            notificationInputsSubject.value.insert(expressPromotionBanner, at: 0)
         }
 
         promotionUpdateTask?.cancel()
@@ -160,13 +160,13 @@ final class SingleTokenNotificationManager {
 
             await runOnMain {
                 guard canSwap else {
-                    self.loadedExpressPromotionBanner = nil
+                    self.expressPromotionBanner = nil
                     self.notificationInputsSubject.value.removeAll { $0.id == input.id }
                     return
                 }
 
-                if self.loadedExpressPromotionBanner == nil, !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
-                    self.loadedExpressPromotionBanner = input
+                if self.expressPromotionBanner == nil, !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
+                    self.expressPromotionBanner = input
                     self.notificationInputsSubject.value.insert(input, at: 0)
                 }
             }
