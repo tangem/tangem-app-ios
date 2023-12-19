@@ -26,6 +26,10 @@ public class ExpressAvailableProvider {
     }
 
     public func getPriority() async -> Priority {
+        guard isAvailable else {
+            return .lowest
+        }
+
         if isBest {
             return .highest
         }
