@@ -24,6 +24,9 @@ public struct ExpressTransactionData {
     /// CEX address for sending transaction
     public let destinationAddress: String
 
+    /// MEMO / DestinationTag or something additional id
+    public let extraDestinationTag: String?
+
     /// The value which should be in tx value
     public let value: Decimal
 
