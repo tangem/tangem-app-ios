@@ -29,7 +29,19 @@ final class ExpressViewModel: ObservableObject {
     @Published var providerState: ProviderState?
 
     // Fee
-    @Published var expressFeeRowViewModel: ExpressFeeRowData?
+    var feeSectionItems: [FeeSectionItem] {
+        var items: [FeeSectionItem] = []
+
+        if let expressFeeRowViewModel {
+            items.append(.fee(expressFeeRowViewModel))
+
+            if let expressFeeFootnote {
+                items.append(.footnote(expressFeeFootnote))
+            }
+        }
+
+        return items
+    }
 
     // Main button
     @Published var mainButtonIsLoading: Bool = false
@@ -38,6 +50,10 @@ final class ExpressViewModel: ObservableObject {
     @Published var errorAlert: AlertBinder?
 
     @Published var legalText: NSAttributedString?
+
+    // Private
+    @Published private var expressFeeRowViewModel: ExpressFeeRowData?
+    @Published private var expressFeeFootnote: String?
 
     // MARK: - Dependencies
 
@@ -611,6 +627,16 @@ private extension ExpressViewModel {
             return nil
         }
 
+        // Setup additional expressFeeFootnote text if needed
+        await runOnMain {
+            switch selectedProvider.provider.type {
+            case .cex:
+                expressFeeFootnote = Localization.expressCexFeeExplanation
+            case .dex:
+                expressFeeFootnote = nil
+            }
+        }
+
         let state = await selectedProvider.getState()
         let subtitle = expressProviderFormatter.mapToRateSubtitle(
             state: state,
@@ -736,6 +762,20 @@ private extension ExpressViewModel {
 }
 
 extension ExpressViewModel {
+    enum FeeSectionItem: Identifiable {
+        var id: String {
+            switch self {
+            case .fee(let expressFeeRowData):
+                return expressFeeRowData.id
+            case .footnote(let string):
+                return string
+            }
+        }
+
+        case fee(ExpressFeeRowData)
+        case footnote(String)
+    }
+
     enum ProviderState: Identifiable {
         var id: Int {
             switch self {
