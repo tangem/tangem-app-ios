@@ -64,8 +64,10 @@ enum ExpressDTO {
             let id: Provider.Id
             let name: String
             let type: ExpressProviderType
-            let imageLarge: String
-            let imageSmall: String
+            let imageLarge: String?
+            let imageSmall: String?
+            let termsOfUse: String?
+            let privacyPolicy: String?
         }
     }
 
