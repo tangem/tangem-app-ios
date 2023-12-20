@@ -638,6 +638,11 @@ private extension ExpressViewModel {
         }
 
         let state = await selectedProvider.getState()
+        if state.isError {
+            // Don't show a error provider
+            return nil
+        }
+
         let subtitle = expressProviderFormatter.mapToRateSubtitle(
             state: state,
             senderCurrencyCode: interactor.getSender().tokenItem.currencySymbol,
