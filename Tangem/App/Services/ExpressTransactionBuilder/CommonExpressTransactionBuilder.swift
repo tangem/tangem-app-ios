@@ -24,7 +24,7 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
         return transaction
     }
 
-    func makeApproveTransaction(wallet: WalletModel, data: Data, fee: Fee, contractAddress: String) async throws -> Transaction {
+    func makeApproveTransaction(wallet: WalletModel, data: ExpressApproveData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         guard wallet.ethereumNetworkProvider != nil else {
             throw ExpressTransactionBuilderError.approveImpossibleInNotEvmBlockchain
         }
@@ -34,8 +34,8 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
             amount: 0, // For approve value isn't needed
             fee: fee,
             sourceAddress: wallet.defaultAddress,
-            destinationAddress: contractAddress,
-            data: data
+            destinationAddress: data.toContractAddress,
+            data: data.data
         )
 
         return transaction
