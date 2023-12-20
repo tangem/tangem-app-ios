@@ -19,6 +19,9 @@ final class SingleTokenNotificationManager {
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
+
+    private var expressPromotionBanner: NotificationViewInput?
+    private var rentFeeNotification: NotificationViewInput?
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
     private var promotionUpdateTask: Task<Void, Never>?
@@ -57,7 +60,8 @@ final class SingleTokenNotificationManager {
 
                 if let self,
                    !state.isLoading,
-                   canShowTangemExpressPromotion {
+                   canShowTangemExpressPromotion,
+                   !state.isBlockchainUnreachable {
                     setupTangemExpressPromotionNotification()
                 }
             }
@@ -90,6 +94,14 @@ final class SingleTokenNotificationManager {
 
         notificationInputsSubject.send(inputs)
 
+        setupRentFeeNotification()
+    }
+
+    private func setupRentFeeNotification() {
+        if let rentFeeNotification {
+            notificationInputsSubject.value.append(rentFeeNotification)
+        }
+
         notificationsUpdateTask?.cancel()
         notificationsUpdateTask = Task { [weak self] in
             guard
@@ -105,24 +117,18 @@ final class SingleTokenNotificationManager {
 
             if !notificationInputsSubject.value.contains(where: { $0.id == rentInput.id }) {
                 await runOnMain {
+                    self.rentFeeNotification = rentInput
                     self.notificationInputsSubject.value.append(rentInput)
                 }
             }
         }
     }
 
-    private func setupNetworkUnreachable() {
-        let factory = NotificationsFactory()
-        notificationInputsSubject
-            .send([
-                factory.buildNotificationInput(
-                    for: .networkUnreachable(currencySymbol: walletModel.blockchainNetwork.blockchain.currencySymbol),
-                    dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
-                ),
-            ])
-    }
-
     private func setupTangemExpressPromotionNotification() {
+        if let expressPromotionBanner {
+            notificationInputsSubject.value.insert(expressPromotionBanner, at: 0)
+        }
+
         promotionUpdateTask?.cancel()
         promotionUpdateTask = Task { [weak self] in
             guard
@@ -151,13 +157,29 @@ final class SingleTokenNotificationManager {
             )
 
             await runOnMain {
-                if !canSwap {
+                guard canSwap else {
+                    self.expressPromotionBanner = nil
                     self.notificationInputsSubject.value.removeAll { $0.id == input.id }
-                } else if !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
+                    return
+                }
+
+                if self.expressPromotionBanner == nil, !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
+                    self.expressPromotionBanner = input
                     self.notificationInputsSubject.value.insert(input, at: 0)
                 }
             }
         }
+    }
+
+    private func setupNetworkUnreachable() {
+        let factory = NotificationsFactory()
+        notificationInputsSubject
+            .send([
+                factory.buildNotificationInput(
+                    for: .networkUnreachable(currencySymbol: walletModel.blockchainNetwork.blockchain.currencySymbol),
+                    dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
+                ),
+            ])
     }
 
     private func setupNoAccountNotification(with message: String) {
