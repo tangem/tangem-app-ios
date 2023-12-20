@@ -129,6 +129,8 @@ enum ExpressDTO {
             let txTo: String
             // transaction data
             let txData: String?
+            // Memo or tag
+            let txExtraId: String?
             // amount (same as fromAmount)
             let txValue: String
             // CEX provider transaction id
