@@ -103,7 +103,7 @@ private extension ExpressSuccessSentViewModel {
         let destinationTokenItem = data.destination.tokenItem
 
         let sourceAmountFormatted = balanceFormatter.formatCryptoBalance(fromAmount, currencyCode: sourceTokenItem.currencySymbol)
-        let sourceFiatAmount = balanceConverter.convertFromFiat(value: fromAmount, to: sourceTokenItem.currencyId ?? "")
+        let sourceFiatAmount = balanceConverter.convertToFiat(value: fromAmount, from: sourceTokenItem.currencyId ?? "")
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
@@ -114,7 +114,7 @@ private extension ExpressSuccessSentViewModel {
         )
 
         let destinationAmountFormatted = balanceFormatter.formatCryptoBalance(toAmount, currencyCode: destinationTokenItem.currencySymbol)
-        let destinationFiatAmount = balanceConverter.convertFromFiat(value: toAmount, to: destinationTokenItem.currencyId ?? "")
+        let destinationFiatAmount = balanceConverter.convertToFiat(value: toAmount, from: destinationTokenItem.currencyId ?? "")
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
