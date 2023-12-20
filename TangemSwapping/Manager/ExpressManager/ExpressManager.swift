@@ -9,20 +9,21 @@
 import Foundation
 import Combine
 
-public protocol ExpressManager {
+public protocol ExpressManager: Actor {
     func getPair() async -> ExpressManagerSwappingPair?
-    func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState
-
     func getAmount() async -> Decimal?
-    func updateAmount(amount: Decimal?) async throws -> ExpressManagerState
+    func getApprovePolicy() -> SwappingApprovePolicy
 
-    func getAllQuotes() async -> [ExpectedQuote]
-    func getSelectedQuote() async -> ExpectedQuote?
-    func updateSelectedProvider(provider: ExpressProvider) async throws -> ExpressManagerState
+    func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState
+    func updateAmount(amount: Decimal?) async throws -> ExpressManagerState
+    func update(approvePolicy: SwappingApprovePolicy) async throws -> ExpressManagerState
+
+    func getAllProviders() -> [ExpressAvailableProvider]
+    func getSelectedProvider() -> ExpressAvailableProvider?
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerState
 
     func update() async throws -> ExpressManagerState
 
-    func didSendApproveTransaction(for spender: String) async
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
 }
