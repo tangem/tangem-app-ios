@@ -37,7 +37,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenRouter: SingleTokenRoutable
 
     private var isSwapAvailable: Bool {
-        swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+        !walletModel.isCustom && swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
     }
 
     private var percentFormatter = PercentFormatter()
@@ -127,8 +127,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func fetchMoreHistory() -> FetchMore? {
-        guard let transactionHistoryService = walletModel.transactionHistoryService,
-              transactionHistoryService.canFetchMore else {
+        guard walletModel.canFetchHistory else {
             return nil
         }
 
@@ -165,7 +164,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
         // We should reset transaction history to initial state here
-        walletModel.transactionHistoryService?.reset()
+        walletModel.clearHistory()
 
         DispatchQueue.main.async {
             self.isReloadingTransactionHistory = true
