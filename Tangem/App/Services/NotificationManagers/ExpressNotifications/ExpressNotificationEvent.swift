@@ -112,7 +112,6 @@ extension ExpressNotificationEvent: NotificationEvent {
     var severity: NotificationView.Severity {
         switch self {
         case .permissionNeeded,
-             .refreshRequired,
              .hasPendingTransaction,
              .hasPendingApproveTransaction,
              .verificationRequired,
@@ -124,7 +123,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .noDestinationTokens,
              .highPriceImpact:
             return .warning
-        case .cexOperationFailed:
+        case .refreshRequired,
+             .cexOperationFailed:
             return .critical
         }
     }
