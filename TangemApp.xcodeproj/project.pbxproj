@@ -628,6 +628,8 @@
 		DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */; };
 		DA070DE32ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */; };
 		DA070DE52ADD4F6600F7C0E4 /* SprinklrConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */; };
+		DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA11F9822B2978CC0075F028 /* SendCustomFeeInputField.swift */; };
+		DA11F9852B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA11F9832B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift */; };
 		DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */; };
 		DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
@@ -2036,6 +2038,8 @@
 		DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatView.swift; sourceTree = "<group>"; };
 		DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatViewModel.swift; sourceTree = "<group>"; };
 		DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrConfig.swift; sourceTree = "<group>"; };
+		DA11F9822B2978CC0075F028 /* SendCustomFeeInputField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCustomFeeInputField.swift; sourceTree = "<group>"; };
+		DA11F9832B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCustomFeeInputFieldModel.swift; sourceTree = "<group>"; };
 		DA129DD2292B4A3D004291EC /* UserWalletListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellViewModel.swift; sourceTree = "<group>"; };
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
@@ -5076,6 +5080,8 @@
 			children = (
 				DA559C212B0261F300F59584 /* SendFeeView.swift */,
 				DA559C222B0261F300F59584 /* SendFeeViewModel.swift */,
+				DA11F9822B2978CC0075F028 /* SendCustomFeeInputField.swift */,
+				DA11F9832B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift */,
 			);
 			path = Fee;
 			sourceTree = "<group>";
@@ -7840,6 +7846,7 @@
 				B074BAC326779BC8005D641B /* PushTxViewModel.swift in Sources */,
 				EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */,
 				5D79D3152555ABE700650DD7 /* CardImageLoader.swift in Sources */,
+				DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */,
 				2DC5677B2B0E047700B0244F /* MainBottomSheetHeaderInputView.swift in Sources */,
 				EF92412F2934BB8000C28551 /* MainButton.swift in Sources */,
 				B06C084C2A73FB4D00D982BC /* MainCoordinator.swift in Sources */,
@@ -8553,6 +8560,7 @@
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				B06C083B2A73E0D400D982BC /* MainHeaderSubtitleProvider.swift in Sources */,
 				65D87499287DA0F6009D0448 /* BottomSheetSettings.swift in Sources */,
+				DA11F9852B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift in Sources */,
 				EF5D83DD2B0BBE3000516B5F /* LoadingProvidersRow.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
