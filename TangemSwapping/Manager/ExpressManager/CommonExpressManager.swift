@@ -224,11 +224,6 @@ private extension CommonExpressManager {
         // Just select the provider by priority
         let provider = await availableProviders.asyncSorted(sort: >, by: { await $0.getPriority() }).first
 
-        // We don't have to select provider with the error state
-        if await provider?.getState().isError == true {
-            return nil
-        }
-
         return provider
     }
 
