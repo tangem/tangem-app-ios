@@ -18,10 +18,11 @@ struct ExpressTokensListView: View {
     var body: some View {
         NavigationView {
             ZStack(alignment: .center) {
-                Colors.Background.secondary.ignoresSafeArea(.all)
+                Colors.Background.tertiary.ignoresSafeArea(.all)
 
                 content
             }
+            .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(Localization.swappingTokenListTitle)
             .searchableCompat(text: $viewModel.searchText)
             .autocorrectionDisabled()
