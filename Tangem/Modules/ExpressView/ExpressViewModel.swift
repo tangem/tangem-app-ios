@@ -333,6 +333,15 @@ private extension ExpressViewModel {
         }
     }
 
+    func updateSendCurrencyHeaderState(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .restriction(.notEnoughBalanceForSwapping, _):
+            sendCurrencyViewModel?.headerState = .insufficientFunds
+        default:
+            sendCurrencyViewModel?.headerState = .header
+        }
+    }
+
     // MARK: - Receive view bubble
 
     func updateReceiveView(wallet: LoadingValue<WalletModel>) {
@@ -459,6 +468,7 @@ private extension ExpressViewModel {
         updateProviderView(state: state)
         updateMainButton(state: state)
         updateLegalText(state: state)
+        updateSendCurrencyHeaderState(state: state)
 
         switch state {
         case .idle:
