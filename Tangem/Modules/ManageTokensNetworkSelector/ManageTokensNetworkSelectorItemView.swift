@@ -38,6 +38,7 @@ struct ManageTokensNetworkSelectorItemView: View {
             Toggle("", isOn: $viewModel.selectedPublisher)
                 .labelsHidden()
                 .toggleStyleCompat(Colors.Control.checked)
+                .disabled(!viewModel.isAvailable)
         }
         .padding(16)
     }
