@@ -152,23 +152,8 @@ final class ExpressViewModel: ObservableObject {
 
 private extension ExpressViewModel {
     @MainActor
-    func openSuccessView(resultState: ExpressInteractor.TransactionSendResultState) {
-        guard let destination = interactor.getDestination() else {
-            assertionFailure("Destination isn't found")
-            return
-        }
-
-        let data = SentExpressTransactionData(
-            hash: resultState.hash,
-            source: interactor.getSender(),
-            destination: destination,
-            fee: resultState.fee.amount.value,
-            provider: resultState.provider,
-            date: Date(),
-            expressTransactionData: resultState.data
-        )
-
-        coordinator.presentSuccessView(data: data)
+    func openSuccessView(sentTransactionData: SentExpressTransactionData) {
+        coordinator.presentSuccessView(data: sentTransactionData)
     }
 
     func openApproveView() {
@@ -191,6 +176,7 @@ private extension ExpressViewModel {
     }
 
     func presentProviderSelectorView() {
+        Analytics.log(.swapProviderClicked)
         coordinator.presentProviderSelectorView()
     }
 }
@@ -209,9 +195,6 @@ private extension ExpressViewModel {
             canChangeCurrency: interactor.getDestination()?.id != initialWallet.id,
             tokenIconState: .loading
         )
-
-        updateSendView(wallet: interactor.getSender())
-        updateReceiveView(wallet: interactor.getDestination())
     }
 
     func bind() {
@@ -322,26 +305,30 @@ private extension ExpressViewModel {
 
     // MARK: - Receive view bubble
 
-    func updateReceiveView(wallet: WalletModel?) {
-        guard let wallet = wallet else {
+    func updateReceiveView(wallet: LoadingValue<WalletModel>) {
+        switch wallet {
+        case .loading:
+            receiveCurrencyViewModel?.canChangeCurrency = false
+            receiveCurrencyViewModel?.tokenIconState = .loading
+            receiveCurrencyViewModel?.isAvailable = true
+        case .loaded(let wallet):
+            receiveCurrencyViewModel?.isAvailable = true
+            receiveCurrencyViewModel?.canChangeCurrency = wallet.id != initialWallet.id
+            receiveCurrencyViewModel?.tokenIconState = mapToSwappingTokenIconViewModelState(wallet: wallet)
+            updateReceiveCurrencyBalance(wallet: wallet)
+
+            let state = interactor.getState()
+            switch state {
+            case .loading:
+                receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
+                receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+            default:
+                updateReceiveCurrencyValue(expectAmount: state.quote?.expectAmount)
+            }
+        case .failedToLoad:
             receiveCurrencyViewModel?.canChangeCurrency = true
             receiveCurrencyViewModel?.tokenIconState = .notAvailable
             receiveCurrencyViewModel?.isAvailable = false
-            return
-        }
-
-        receiveCurrencyViewModel?.isAvailable = true
-        receiveCurrencyViewModel?.canChangeCurrency = wallet.id != initialWallet.id
-        receiveCurrencyViewModel?.tokenIconState = mapToSwappingTokenIconViewModelState(wallet: wallet)
-        updateReceiveCurrencyBalance(wallet: wallet)
-
-        let state = interactor.getState()
-        switch state {
-        case .loading:
-            receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
-            receiveCurrencyViewModel?.update(fiatAmountState: .loading)
-        default:
-            updateReceiveCurrencyValue(expectAmount: state.quote?.quote?.expectAmount)
         }
     }
 
@@ -426,16 +413,23 @@ private extension ExpressViewModel {
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.update(fiatAmountState: .loading)
 
-        case .restriction(_, let quote):
+        case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-            stopTimer()
-            updateReceiveCurrencyValue(expectAmount: quote?.quote?.expectAmount)
+            updateReceiveCurrencyValue(expectAmount: quote?.expectAmount)
+
+            // restart timer for pending approve transaction
+            switch restriction {
+            case .hasPendingApproveTransaction:
+                restartTimer()
+            default:
+                stopTimer()
+            }
 
         case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
             isSwapButtonLoading = false
             restartTimer()
 
-            updateReceiveCurrencyValue(expectAmount: quote.quote?.expectAmount)
+            updateReceiveCurrencyValue(expectAmount: quote.expectAmount)
         }
     }
 
@@ -447,16 +441,17 @@ private extension ExpressViewModel {
             if type == .full {
                 providerState = .loading
             }
-        case .restriction(_, let quote):
-            if let quote {
-                let data = mapToProviderRowViewModel(expectedQuote: quote)
-                providerState = .loaded(data: data)
-            } else {
-                providerState = .none
+        default:
+            runTask(in: self) { viewModel in
+                let providerRowViewModel = await viewModel.mapToProviderRowViewModel()
+                await runOnMain {
+                    if let providerRowViewModel {
+                        viewModel.providerState = .loaded(data: providerRowViewModel)
+                    } else {
+                        viewModel.providerState = .none
+                    }
+                }
             }
-
-        case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
-            providerState = .loaded(data: mapToProviderRowViewModel(expectedQuote: quote))
         }
     }
 
@@ -464,8 +459,8 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughAmountForFee(let state), _):
             updateExpressFeeRowViewModel(fees: state.fees)
-        case .previewCEX(let fees, _):
-            updateExpressFeeRowViewModel(fees: fees)
+        case .previewCEX(let state, _):
+            updateExpressFeeRowViewModel(fees: state.fees)
         case .readyToSwap(let state, _):
             updateExpressFeeRowViewModel(fees: state.fees)
         case .idle, .restriction, .loading(.full), .permissionRequired:
@@ -483,11 +478,7 @@ private extension ExpressViewModel {
         }
 
         let tokenItem = interactor.getSender().tokenItem
-        let formattedFee = swappingFeeFormatter.format(
-            fee: fee,
-            currencySymbol: tokenItem.currencySymbol,
-            currencyId: tokenItem.currencyId ?? ""
-        )
+        let formattedFee = swappingFeeFormatter.format(fee: fee, tokenItem: tokenItem)
 
         var action: (() -> Void)?
         // If fee is one option then don't open selector
@@ -508,7 +499,7 @@ private extension ExpressViewModel {
             break
         case .restriction(let type, _):
             switch type {
-            case .hasPendingTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
+            case .hasPendingTransaction, .hasPendingApproveTransaction, .requiredRefresh, .notEnoughAmountForSwapping, .noDestinationTokens:
                 mainButtonState = .swap
                 mainButtonIsEnabled = false
 
@@ -531,20 +522,6 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToMessage(error: Error) -> String {
-        AppLog.shared.debug("ExpressViewModel catch error: ")
-        AppLog.shared.error(error)
-
-        switch error {
-        case let error as ExpressManagerError:
-            return error.localizedDescription
-        case let error as ExpressInteractorError:
-            return error.localizedDescription
-        default:
-            return error.localizedDescription
-        }
-    }
-
     func mapToSwappingTokenIconViewModelState(wallet: WalletModel?) -> SwappingTokenIconView.State {
         guard let wallet = wallet else {
             return .loading
@@ -556,18 +533,23 @@ private extension ExpressViewModel {
         )
     }
 
-    func mapToProviderRowViewModel(expectedQuote: ExpectedQuote) -> ProviderRowViewModel {
+    func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
+        guard let selectedProvider = await interactor.getSelectedProvider() else {
+            return nil
+        }
+
+        let state = await selectedProvider.getState()
         let subtitle = expressProviderFormatter.mapToRateSubtitle(
-            quote: expectedQuote,
+            state: state,
             senderCurrencyCode: interactor.getSender().tokenItem.currencySymbol,
             destinationCurrencyCode: interactor.getDestination()?.tokenItem.currencySymbol,
             option: .exchangeRate
         )
 
         return ProviderRowViewModel(
-            provider: expressProviderFormatter.mapToProvider(provider: expectedQuote.provider),
+            provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
             isDisabled: false,
-            badge: expectedQuote.isBest ? .bestRate : .none,
+            badge: selectedProvider.isBest ? .bestRate : .none,
             subtitles: [subtitle],
             detailsType: .chevron
         ) { [weak self] in
@@ -588,12 +570,11 @@ private extension ExpressViewModel {
         mainButtonIsLoading = true
         runTask(in: self) { root in
             do {
-                let resultState = try await root.interactor.send()
+                let sentTransactionData = try await root.interactor.send()
 
                 try Task.checkCancellation()
 
-                await root.openSuccessView(resultState: resultState)
-
+                await root.openSuccessView(sentTransactionData: sentTransactionData)
             } catch TangemSdkError.userCancelled {
                 root.restartTimer()
             } catch {
@@ -654,7 +635,7 @@ private extension ExpressViewModel {
     }
 
     func stopTimer() {
-        AppLog.shared.debug("[Swap] Stop timer")
+        AppLog.shared.debug("[Express] Stop timer")
         refreshDataTimerBag?.cancel()
         refreshDataTimer
             .connect()
@@ -662,11 +643,11 @@ private extension ExpressViewModel {
     }
 
     func startTimer() {
-        AppLog.shared.debug("[Swap] Start timer")
+        AppLog.shared.debug("[Express] Start timer")
         refreshDataTimerBag = refreshDataTimer
             .autoconnect()
             .sink { [weak self] date in
-                AppLog.shared.debug("[Swap] Timer call autoupdate")
+                AppLog.shared.debug("[Express] Timer call autoupdate")
                 self?.interactor.refresh(type: .refreshRates)
             }
     }

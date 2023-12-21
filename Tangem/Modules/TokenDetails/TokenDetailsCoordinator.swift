@@ -31,6 +31,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
+    @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -53,11 +54,18 @@ class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self
         )
 
+        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
+            userWalletId: options.cardModel.userWalletId.stringValue,
+            blockchainNetwork: options.walletModel.blockchainNetwork,
+            tokenItem: options.walletModel.tokenItem
+        )
+
         tokenDetailsViewModel = .init(
             cardModel: options.cardModel,
             walletModel: options.walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
+            pendingExpressTransactionsManager: pendingExpressTransactionsManager,
             coordinator: self,
             tokenRouter: tokenRouter
         )
@@ -77,7 +85,19 @@ extension TokenDetailsCoordinator {
 
 // MARK: - TokenDetailsRoutable
 
-extension TokenDetailsCoordinator: TokenDetailsRoutable {}
+extension TokenDetailsCoordinator: TokenDetailsRoutable {
+    func openPendingExpressTransactionDetails(
+        for pendingTransaction: PendingExpressTransaction,
+        tokenItem: TokenItem,
+        pendingTransactionsManager: PendingExpressTransactionsManager
+    ) {
+        pendingExpressTxStatusBottomSheetViewModel = .init(
+            pendingTransaction: pendingTransaction,
+            currentTokenItem: tokenItem,
+            pendingTransactionsManager: pendingTransactionsManager
+        )
+    }
+}
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
@@ -190,7 +210,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
-            type: .sell(amount: amountToSend.value, destination: destination)
+            type: .sell(amount: amountToSend, destination: destination)
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
