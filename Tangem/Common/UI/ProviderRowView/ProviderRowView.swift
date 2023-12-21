@@ -39,16 +39,17 @@ struct ProviderRowView: View {
     }
 
     private var titleView: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text(viewModel.provider.name)
-                .style(
-                    Fonts.Bold.subheadline,
-                    color:
-                    viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
-                )
+        HStack(alignment: .center, spacing: 4) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(viewModel.provider.name)
+                    .style(
+                        Fonts.Bold.subheadline,
+                        color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
+                    )
 
-            Text(viewModel.provider.type)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                Text(viewModel.provider.type)
+                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            }
 
             badgeView
         }
@@ -155,6 +156,7 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
     ) -> ProviderRowViewModel {
         ProviderRowViewModel(
             provider: .init(
+                id: UUID().uuidString,
                 iconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/1inch_512.png")!,
                 name: "1inch",
                 type: "DEX"
