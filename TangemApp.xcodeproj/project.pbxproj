@@ -136,7 +136,7 @@
 		5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0724D850EA00E78F1C /* CircleView.swift */; };
 		5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
 		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
-		5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC20BC2500FC58007B467E /* QRScannerView.swift */; };
+		5DCC20BD2500FC58007B467E /* LegacyQRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC20BC2500FC58007B467E /* LegacyQRScannerView.swift */; };
 		5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD24B40274FAC2400BF80BE /* WalletManagerFactoryProvider.swift */; };
 		5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */; };
 		5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5324FAEE8B008F23CC /* AppCardIdFormatter.swift */; };
@@ -1518,7 +1518,7 @@
 		5DBBAB0A24D853B600E78F1C /* Color+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+.swift"; sourceTree = "<group>"; };
 		5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tangem.entitlements; sourceTree = "<group>"; };
-		5DCC20BC2500FC58007B467E /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		5DCC20BC2500FC58007B467E /* LegacyQRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyQRScannerView.swift; sourceTree = "<group>"; };
 		5DD1D62E25558975007910EF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DD24B40274FAC2400BF80BE /* WalletManagerFactoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagerFactoryProvider.swift; sourceTree = "<group>"; };
 		5DD4CB4C24FAAB1A008F23CC /* UIResponder+Current.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIResponder+Current.swift"; sourceTree = "<group>"; };
@@ -5314,7 +5314,7 @@
 				DA559C1D2B0261F300F59584 /* SendModel.swift */,
 				DA559C232B0261F300F59584 /* SendRoutable.swift */,
 				DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */,
-				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
+				5DCC20BC2500FC58007B467E /* LegacyQRScannerView.swift */,
 				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
 				DCAB57FD295ECA55005D0F4A /* SendError.swift */,
 			);
@@ -8562,7 +8562,7 @@
 				65D87499287DA0F6009D0448 /* BottomSheetSettings.swift in Sources */,
 				DA11F9852B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift in Sources */,
 				EF5D83DD2B0BBE3000516B5F /* LoadingProvidersRow.swift in Sources */,
-				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
+				5DCC20BD2500FC58007B467E /* LegacyQRScannerView.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
 				B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
