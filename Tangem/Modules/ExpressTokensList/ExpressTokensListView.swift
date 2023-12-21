@@ -64,9 +64,9 @@ struct ExpressTokensListView: View {
     }
 
     private var emptySearchContent: some View {
-        Text("No tokens found. Please try another request")
+        Text(Localization.expressTokenListEmptySearch)
             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-            .padding(.horizontal, 14)
+            .padding(.all, 14)
     }
 
     @ViewBuilder
