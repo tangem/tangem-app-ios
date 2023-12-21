@@ -9,5 +9,5 @@
 import Foundation
 
 protocol ExpressDestinationService {
-    func getDestination(source: WalletModel) -> WalletModel?
+    func getDestination(source: WalletModel) async throws -> WalletModel?
 }

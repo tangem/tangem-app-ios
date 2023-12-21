@@ -17,89 +17,175 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
 
     // MARK: - Dependencies
 
-    private var selectedProviderId: ExpressProvider.Id? = nil
-    private var quotes: [ExpectedQuote] = []
+    private var allProviders: [ExpressAvailableProvider] = []
+    private var selectedProvider: ExpressAvailableProvider?
 
     private let percentFormatter: PercentFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
+    private let expressRepository: ExpressRepository
     private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressProvidersBottomSheetRoutable
 
-    private var bag: Set<AnyCancellable> = []
+    private var stateSubscription: AnyCancellable?
 
     init(
         percentFormatter: PercentFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
+        expressRepository: ExpressRepository,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressProvidersBottomSheetRoutable
     ) {
         self.percentFormatter = percentFormatter
         self.expressProviderFormatter = expressProviderFormatter
+        self.expressRepository = expressRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
-        setupView()
+        bind()
+        initialSetup()
     }
 
-    func setupView() {
-        runTask(in: self) { viewModel in
-            viewModel.quotes = await viewModel.expressInteractor.getAllQuotes()
-            viewModel.selectedProviderId = await viewModel.expressInteractor.getSelectedProvider()?.id
-
-            await runOnMain {
-                viewModel.updateView()
+    func bind() {
+        stateSubscription = expressInteractor.state
+            .dropFirst()
+            .compactMap { $0.quote }
+            .removeDuplicates()
+            .sink { [weak self] state in
+                self?.updateView()
             }
+    }
+
+    func initialSetup() {
+        runTask(in: self) { viewModel in
+            try await viewModel.updateFields()
+            await viewModel.setupProviderRowViewModels()
         }
     }
 
     func updateView() {
-        providerViewModels = quotes.map { quote in
-            mapToProviderRowViewModel(quote: quote)
+        runTask(in: self) { viewModel in
+            await viewModel.setupProviderRowViewModels()
         }
     }
 
-    func mapToProviderRowViewModel(quote: ExpectedQuote) -> ProviderRowViewModel {
+    func updateFields() async throws {
+        allProviders = await expressInteractor.getAllProviders()
+        selectedProvider = await expressInteractor.getSelectedProvider()
+    }
+
+    func setupProviderRowViewModels() async {
+        var viewModels: [ProviderRowViewModel] = []
+
+        for provider in allProviders {
+            let viewModel: ProviderRowViewModel? = await {
+                if !provider.isAvailable {
+                    return unavailableProviderRowViewModel(provider: provider.provider)
+                }
+
+                if await provider.getState().isAvailableToShow {
+                    return await mapToProviderRowViewModel(provider: provider)
+                }
+
+                return nil
+            }()
+
+            if let viewModel {
+                viewModels.append(viewModel)
+            }
+        }
+
+        await runOnMain {
+            providerViewModels = viewModels
+        }
+    }
+
+    func mapToProviderRowViewModel(provider: ExpressAvailableProvider) async -> ProviderRowViewModel {
         let senderCurrencyCode = expressInteractor.getSender().tokenItem.currencySymbol
         let destinationCurrencyCode = expressInteractor.getDestination()?.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
+        let state = await provider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
-                quote: quote,
+                state: state,
                 senderCurrencyCode: senderCurrencyCode,
                 destinationCurrencyCode: destinationCurrencyCode,
                 option: .exchangeReceivedAmount
             )
         )
 
-        if !quote.isBest, let percentSubtitle = makePercentSubtitle(quote: quote) {
+        let isSelected = selectedProvider?.provider.id == provider.provider.id
+        let badge: ProviderRowViewModel.Badge? = {
+            if state.isPermissionRequired {
+                return .permissionNeeded
+            }
+
+            return provider.isBest ? .bestRate : .none
+        }()
+
+        if !isSelected, let quote = state.quote, let percentSubtitle = await makePercentSubtitle(quote: quote) {
             subtitles.append(percentSubtitle)
         }
 
-        let provider = quote.provider
-
         return ProviderRowViewModel(
-            provider: expressProviderFormatter.mapToProvider(provider: provider),
-            isDisabled: !quote.isAvailable,
-            badge: provider.type == .dex ? .permissionNeeded : .none,
+            provider: expressProviderFormatter.mapToProvider(provider: provider.provider),
+            isDisabled: false,
+            badge: badge,
             subtitles: subtitles,
-            detailsType: selectedProviderId == provider.id ? .selected : .none,
+            detailsType: isSelected ? .selected : .none,
             tapAction: { [weak self] in
-                self?.selectedProviderId = provider.id
-                self?.expressInteractor.updateProvider(provider: provider)
-                self?.coordinator.closeExpressProvidersBottomSheet()
+                self?.userDidTap(provider: provider)
             }
         )
     }
 
-    func makePercentSubtitle(quote: ExpectedQuote) -> ProviderRowViewModel.Subtitle? {
-        guard let bestRate = quotes.first(where: { $0.isBest })?.rate, !quote.rate.isZero else {
+    func unavailableProviderRowViewModel(provider: ExpressProvider) -> ProviderRowViewModel {
+        ProviderRowViewModel(
+            provider: expressProviderFormatter.mapToProvider(provider: provider),
+            isDisabled: true,
+            badge: .none,
+            subtitles: [.text(Localization.expressProviderNotAvailable)],
+            detailsType: .none,
+            tapAction: {}
+        )
+    }
+
+    func userDidTap(provider: ExpressAvailableProvider) {
+        // Cancel subscription that view do not jump
+        stateSubscription?.cancel()
+        Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
+        expressInteractor.updateProvider(provider: provider)
+        coordinator.closeExpressProvidersBottomSheet()
+    }
+
+    func makePercentSubtitle(quote: ExpressQuote) async -> ProviderRowViewModel.Subtitle? {
+        guard let selectedRate = await selectedProvider?.getState().quote?.rate else {
             return nil
         }
 
-        let changePercent = 1 - bestRate / quote.rate
+        let changePercent = 1 - selectedRate / quote.rate
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
+    }
+}
+
+private extension ExpressProviderManagerState {
+    var isPermissionRequired: Bool {
+        switch self {
+        case .permissionRequired:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isAvailableToShow: Bool {
+        switch self {
+        case .error:
+            return false
+        default:
+            return true
+        }
     }
 }
