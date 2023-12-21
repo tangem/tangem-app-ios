@@ -1,5 +1,5 @@
 //
-//  QRScanner.swift
+//  LegacyQRScanner.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
