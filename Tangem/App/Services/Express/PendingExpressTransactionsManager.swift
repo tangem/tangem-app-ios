@@ -50,7 +50,7 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func bind() {
-        expressPendingTransactionsRepository.pendingTransactionsPublisher
+        expressPendingTransactionsRepository.pendingCEXTransactionsPublisher
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
@@ -101,7 +101,7 @@ class CommonPendingExpressTransactionsManager {
                     // We need to send finished transaction one more time to properly update status on bottom sheet
                     transactionsInProgress.append(pendingTransaction)
                     guard pendingTransaction.currentStatus.isTransactionInProgress else {
-                        self?.removeTransactionFromRepository(record)
+                        self?.swapTransactionDidComplete(record)
                         continue
                     }
 
@@ -164,8 +164,8 @@ class CommonPendingExpressTransactionsManager {
         }
     }
 
-    private func removeTransactionFromRepository(_ record: ExpressPendingTransactionRecord) {
-        expressPendingTransactionsRepository.removeSwapTransaction(with: record.expressTransactionId)
+    private func swapTransactionDidComplete(_ record: ExpressPendingTransactionRecord) {
+        expressPendingTransactionsRepository.swapTransactionDidComplete(with: record.expressTransactionId)
     }
 
     private func log<T>(_ message: @autoclosure () -> T) {
