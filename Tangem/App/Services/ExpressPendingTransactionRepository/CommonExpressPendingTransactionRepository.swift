@@ -49,24 +49,24 @@ class CommonExpressPendingTransactionRepository {
 }
 
 extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRepository {
-    var pendingTransactions: [ExpressPendingTransactionRecord] {
+    var allExpressTransactions: [ExpressPendingTransactionRecord] {
         pendingTransactionSubject.value
     }
 
-    var pendingTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
-        pendingTransactionSubject.eraseToAnyPublisher()
+    var pendingCEXTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
+        pendingTransactionSubject
+            .map { transactions in
+                transactions.filter { $0.transactionStatus == .processing && $0.provider.type == .cex }
+            }
+            .eraseToAnyPublisher()
     }
 
-    func didSendSwapTransaction(_ txData: SentExpressTransactionData, userWalletId: String) {
-        guard case .send = txData.expressTransactionData.transactionType else {
-            log("No need to store DEX transactions. Skipping")
-            return
-        }
-
+    func swapTransactionDidSend(_ txData: SentExpressTransactionData, userWalletId: String) {
         let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
             userWalletId: userWalletId,
             expressTransactionId: txData.expressTransactionData.expressTransactionId,
             transactionType: .type(from: txData.expressTransactionData.transactionType),
+            transactionStatus: .processing,
             transactionHash: txData.hash,
             sourceTokenTxInfo: .init(
                 tokenItem: txData.source.tokenItem,
@@ -92,9 +92,7 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
         }
     }
 
-    func didSendApproveTransaction() {}
-
-    func removeSwapTransaction(with expressTxId: String) {
+    func swapTransactionDidComplete(with expressTxId: String) {
         lockQueue.async { [weak self] in
             guard let self else { return }
 
@@ -103,8 +101,14 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
                 return
             }
 
-            pendingTransactionSubject.value.remove(at: index)
+            pendingTransactionSubject.value[index].transactionStatus = .finished
             saveChanges()
         }
+    }
+}
+
+extension CommonExpressPendingTransactionRepository: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
