@@ -100,6 +100,7 @@ enum ExpressDTO {
 
     enum ExchangeData {
         struct Request: Encodable {
+            let requestId: String
             let fromContractAddress: String
             let fromNetwork: String
             let toContractAddress: String
@@ -113,30 +114,14 @@ enum ExpressDTO {
         }
 
         struct Response: Decodable {
+            // inner tangem-express transaction id
+            let txId: String
             let fromAmount: String
             let fromDecimals: Int
             let toAmount: String
             let toDecimals: Int
-
-            let txType: ExpressTransactionType
-            // inner tangem-express transaction id
-            let txId: String
-            // account for debiting tokens (same as toAddress)
-            // for CEX doesn't matter from wich address send
-            let txFrom: String?
-            // swap smart-contract address
-            // CEX address for sending transaction
-            let txTo: String
-            // transaction data
-            let txData: String?
-            // Memo or tag
-            let txExtraId: String?
-            // amount (same as fromAmount)
-            let txValue: String
-            // CEX provider transaction id
-            let externalTxId: String?
-            // url of CEX porider exchange status page
-            let externalTxUrl: String?
+            let txDetailsJson: String
+            let signature: String
         }
     }
 
