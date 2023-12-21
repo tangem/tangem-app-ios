@@ -14,7 +14,7 @@ private typealias GetBlockCredentials = BlockchainSdkConfig.GetBlockCredentials
 extension GetBlockCredentials {
     init(_ json: [String: [String: String]]) {
         var credentials: [GetBlockCredentials.Credential] = []
-        
+
         Blockchain.allMainnetCases.forEach { blockchain in
             if let accessTokens = json[blockchain.codingKey] {
                 GetBlockCredentials.TypeValue.allCases.forEach { type in
