@@ -70,7 +70,9 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     }
 
     func exchangeData(item: ExpressSwappableItem) async throws -> ExpressTransactionData {
+        let requestId: String = UUID().uuidString
         let request = ExpressDTO.ExchangeData.Request(
+            requestId: requestId,
             fromContractAddress: item.source.contractAddress,
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
@@ -84,7 +86,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         )
 
         let response = try await expressAPIService.exchangeData(request: request)
-        let data = try expressAPIMapper.mapToExpressTransactionData(response: response)
+        let data = try expressAPIMapper.mapToExpressTransactionData(requestId: requestId, response: response)
         return data
     }
 
