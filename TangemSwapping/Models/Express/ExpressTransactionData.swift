@@ -9,6 +9,7 @@
 import Foundation
 
 public struct ExpressTransactionData {
+    public let requestId: String
     public let fromAmount: Decimal
     public let toAmount: Decimal
 
@@ -25,7 +26,7 @@ public struct ExpressTransactionData {
     public let destinationAddress: String
 
     /// MEMO / DestinationTag or something additional id
-    public let extraDestinationTag: String?
+    public let extraDestinationId: String?
 
     /// The value which should be in tx value
     public let value: Decimal
