@@ -700,6 +700,11 @@ private extension ExpressViewModel {
                 await root.openSuccessView(sentTransactionData: sentTransactionData)
             } catch TangemSdkError.userCancelled {
                 root.restartTimer()
+            } catch let error as ExpressAPIError {
+                await runOnMain {
+                    let message = Localization.expressErrorCode(error.errorCode.localizedDescription)
+                    root.errorAlert = AlertBinder(title: Localization.commonError, message: message)
+                }
             } catch {
                 await runOnMain {
                     root.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
