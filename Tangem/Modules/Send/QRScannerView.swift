@@ -54,7 +54,7 @@ struct QRScanView: View {
             presentationMode.wrappedValue.dismiss()
         }
         .padding()
-        .style(Fonts.Bold.body, color: .white)
+        .style(Fonts.Regular.body, color: .white)
     }
 
     private func viewfinderCrosshair(screenSize: CGSize) -> some View {
