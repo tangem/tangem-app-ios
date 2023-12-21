@@ -14,20 +14,17 @@ struct CommonExpressExchangeDataDecoder: ExpressExchangeDataDecoder {
     let publicKey: String
 
     func decode(txDetailsJson: String, signature: String) throws -> DecodedTransactionDetails {
-        let data = Data(txDetailsJson.utf8)
-        let signature = try Secp256k1Signature(with: Data(signature.utf8))
-        print("->> signature", signature)
-        let keySDK = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZZd0VBWUhLb1pJemowQ0FRWUZLNEVFQUFvRFFnQUU1SEVvbTlyT1lDUmpVeCtGTzJRMmJ3ZHdYYW5lSlYxegpsQVlSb1d2QS9zWSswVldoOUNiUjdaUFNYSWVXOEhlbEZtNlIwa3d3WkxQcVAvWktpbXNQWVE9PQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0K"
-//        let key = try Secp256k1Key(with: Data(publicKey.utf8))
-//        print("->> key", key)
-        let hexString = "4d465977454159484b6f5a497a6a3043415159464b34454541416f44516741453236663567497334642b74707476337a33626177346555347445352f66776b6c71336133516455306d784d3477522f7843552f7733686d44414967345368455a5255652b53426d575942473976727574327661544d413d3d"
+        let txDetailsData = Data(txDetailsJson.utf8)
+        let signatureData = Data(hexString: signature)
+        let publicKeyData = Data(hexString: publicKey).suffix(65)
+        let isVerified = try CryptoUtils.verify(curve: .secp256k1, publicKey: publicKeyData, message: txDetailsData, signature: signatureData)
 
-        guard try signature.verify(with: Data(publicKey.utf8), message: data) else {
+        guard isVerified else {
             throw ExpressExchangeDataDecoderError.invalidSignature
         }
-//        print("->> signature verify", key)
 
-        let details = try JSONDecoder().decode(DecodedTransactionDetails.self, from: data)
+        AppLog.shared.debug("[Express] The signature verified")
+        let details = try JSONDecoder().decode(DecodedTransactionDetails.self, from: txDetailsData)
         return details
     }
 }
