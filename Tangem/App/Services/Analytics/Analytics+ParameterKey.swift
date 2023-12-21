@@ -14,7 +14,7 @@ extension Analytics {
         case firmware = "Firmware"
         case action
         case errorDescription = "error_description"
-        case errorCode = "error_code"
+        case errorCode = "Error Code"
         case newSecOption = "new_security_option"
         case errorKey = "Tangem SDK error key"
         case walletConnectAction = "wallet_connect_action"
@@ -65,5 +65,10 @@ extension Analytics {
         case methodName = "Method Name"
         case groupType = "Group"
         case sortType = "Sort"
+        case tokenChosen = "Token Chosen"
+        case availableTokens = "Available tokens"
+        case provider = "Provider"
+        case commission = "Commission"
+        case place = "Place"
     }
 }
