@@ -50,7 +50,7 @@ struct QRScanView: View {
 
     @ViewBuilder
     private func cancelButton() -> some View {
-        Button(Localization.commonCancel) {
+        Button(Localization.commonClose) {
             presentationMode.wrappedValue.dismiss()
         }
         .padding()
