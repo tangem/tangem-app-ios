@@ -192,6 +192,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             userWalletId: userWalletId,
             expressTransactionId: "1bd298ee-2e99-406e-a25f-a715bb87e806",
             transactionType: .send,
+            transactionStatus: .processing,
             transactionHash: "13213124321",
             sourceTokenTxInfo: .init(
                 tokenItem: tokenItem,
