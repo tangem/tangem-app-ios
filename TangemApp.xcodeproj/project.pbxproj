@@ -1185,7 +1185,7 @@
 		EF92413929354C7C00C28551 /* SwappingTokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */; };
 		EF92E2B029952BB800DD9B06 /* SwappingReferrerAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2AF29952BB800DD9B06 /* SwappingReferrerAccount.swift */; };
 		EF92E2B829954B3200DD9B06 /* config_beta.json in Resources */ = {isa = PBXBuildFile; fileRef = EF92E2B729954B3100DD9B06 /* config_beta.json */; };
-		EF92E2BA29963E7400DD9B06 /* SwapReferrerAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2B929963E7400DD9B06 /* SwapReferrerAccount.swift */; };
+		EF92E2BA29963E7400DD9B06 /* ExpressKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */; };
 		EF92E2BC29964CFE00DD9B06 /* SwappingManagerRefreshType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2BB29964CFE00DD9B06 /* SwappingManagerRefreshType.swift */; };
 		EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */; };
 		EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DC2ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift */; };
@@ -2607,7 +2607,7 @@
 		EF92413829354C7C00C28551 /* SwappingTokenIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingTokenIconView.swift; sourceTree = "<group>"; };
 		EF92E2AF29952BB800DD9B06 /* SwappingReferrerAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingReferrerAccount.swift; sourceTree = "<group>"; };
 		EF92E2B729954B3100DD9B06 /* config_beta.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_beta.json; path = "tangem-app-config/config_beta.json"; sourceTree = SOURCE_ROOT; };
-		EF92E2B929963E7400DD9B06 /* SwapReferrerAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapReferrerAccount.swift; sourceTree = "<group>"; };
+		EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressKeys.swift; sourceTree = "<group>"; };
 		EF92E2BB29964CFE00DD9B06 /* SwappingManagerRefreshType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingManagerRefreshType.swift; sourceTree = "<group>"; };
 		EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesView.swift; sourceTree = "<group>"; };
 		EF9448DC2ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesViewModel.swift; sourceTree = "<group>"; };
@@ -5430,7 +5430,7 @@
 				B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */,
 				DC0A5807282501CA0031BECC /* MoonPayKeys.swift */,
 				DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */,
-				EF92E2B929963E7400DD9B06 /* SwapReferrerAccount.swift */,
+				EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */,
 				B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */,
 			);
 			path = KeysManager;
@@ -8488,7 +8488,7 @@
 				EF04C53B2AFBBF4000D8853B /* SwappingInteractor.swift in Sources */,
 				B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
-				EF92E2BA29963E7400DD9B06 /* SwapReferrerAccount.swift in Sources */,
+				EF92E2BA29963E7400DD9B06 /* ExpressKeys.swift in Sources */,
 				EFF034AF28B6522500F70FF7 /* WalletModelsManager.swift in Sources */,
 				B65C07A92AE2973E00127CCE /* OrganizeTokensPreviewConfiguration.swift in Sources */,
 				DA4055282ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift in Sources */,
