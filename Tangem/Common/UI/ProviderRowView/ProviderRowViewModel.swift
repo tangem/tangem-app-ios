@@ -37,6 +37,7 @@ struct ProviderRowViewModel: Identifiable {
 
 extension ProviderRowViewModel {
     struct Provider: Hashable {
+        let id: String
         let iconURL: URL?
         let name: String
         let type: String
