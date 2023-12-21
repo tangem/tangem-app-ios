@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SwapReferrerAccount: Decodable {
-    let address: String
-    let fee: Decimal
+struct ExpressKeys: Decodable {
+    let apiKey: String
+    let signVerifierPublicKey: String
 }
