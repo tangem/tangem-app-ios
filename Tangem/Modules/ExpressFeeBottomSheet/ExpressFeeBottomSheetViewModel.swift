@@ -50,10 +50,8 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     private func makeFeeRowViewModel(option: FeeOption, fee: Fee) -> FeeRowViewModel {
-        let blockchain = expressInteractor.getSender().tokenItem.blockchain
-        let currencySymbol = blockchain.currencySymbol
-        let currencyId = blockchain.currencyId
-        let formatedFee = swappingFeeFormatter.format(fee: fee.amount.value, currencySymbol: currencySymbol, currencyId: currencyId)
+        let tokenItem = expressInteractor.getSender().tokenItem
+        let formatedFee = swappingFeeFormatter.format(fee: fee.amount.value, tokenItem: tokenItem)
 
         return FeeRowViewModel(
             option: option,
