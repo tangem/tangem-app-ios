@@ -11,13 +11,13 @@ import UIKit
 import AVFoundation
 import SwiftUI
 
-struct QRScanViewModel: Identifiable {
+struct LegacyQRScanViewModel: Identifiable {
     let id: UUID = .init()
     let code: Binding<String>
 }
 
-struct QRScanView: View {
-    let viewModel: QRScanViewModel
+struct LegacyQRScanView: View {
+    let viewModel: LegacyQRScanViewModel
 
     @Environment(\.presentationMode) var presentationMode
 
@@ -26,37 +26,37 @@ struct QRScanView: View {
             Button(Localization.commonDone) {
                 presentationMode.wrappedValue.dismiss()
             }.padding()
-            QRScannerView(code: viewModel.code)
+            LegacyQRScannerView(code: viewModel.code)
                 .edgesIgnoringSafeArea(.bottom)
         }
     }
 }
 
-struct QRScanView_Previews: PreviewProvider {
+struct LegacyQRScanView_Previews: PreviewProvider {
     @State static var code: String = ""
 
     static var previews: some View {
-        QRScanView(viewModel: .init(code: $code))
+        LegacyQRScanView(viewModel: .init(code: $code))
     }
 }
 
-struct QRScannerView: UIViewRepresentable {
+struct LegacyQRScannerView: UIViewRepresentable {
     @Binding var code: String
     @Environment(\.presentationMode) var presentationMode
 
-    func makeUIView(context: Context) -> UIQRScannerView {
-        let view = UIQRScannerView()
+    func makeUIView(context: Context) -> LegacyUIQRScannerView {
+        let view = LegacyUIQRScannerView()
         view.delegate = context.coordinator
         return view
     }
 
-    func updateUIView(_ uiView: UIQRScannerView, context: Context) {}
+    func updateUIView(_ uiView: LegacyUIQRScannerView, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
         Coordinator(code: $code, presentationMode: presentationMode)
     }
 
-    class Coordinator: NSObject, QRScannerViewDelegate {
+    class Coordinator: NSObject, LegacyQRScannerViewDelegate {
         @Binding var code: String
         @Binding var presentationMode: PresentationMode
 
@@ -86,14 +86,14 @@ struct QRScannerView: UIViewRepresentable {
 }
 
 /// Delegate callback for the QRScannerView.
-protocol QRScannerViewDelegate: AnyObject {
+protocol LegacyQRScannerViewDelegate: AnyObject {
     func qrScanningDidFail()
     func qrScanningSucceededWithCode(_ str: String?)
     func qrScanningDidStop()
 }
 
-class UIQRScannerView: UIView {
-    weak var delegate: QRScannerViewDelegate?
+class LegacyUIQRScannerView: UIView {
+    weak var delegate: LegacyQRScannerViewDelegate?
 
     /// capture settion which allows us to start and stop scanning.
     var captureSession: AVCaptureSession?
@@ -120,7 +120,7 @@ class UIQRScannerView: UIView {
     }
 }
 
-extension UIQRScannerView {
+extension LegacyUIQRScannerView {
     var isRunning: Bool {
         return captureSession?.isRunning ?? false
     }
@@ -202,7 +202,7 @@ extension UIQRScannerView {
     }
 }
 
-extension UIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
+extension LegacyUIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(
         _ output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
