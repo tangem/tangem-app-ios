@@ -153,11 +153,12 @@ extension Analytics {
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
 
-        // MARK: - Swapping
+        // MARK: - Swap
 
         case swapScreenOpenedSwap = "[Swap] Swap Screen Opened"
         case swapSendTokenBalanceClicked = "[Swap] Send Token Balance Clicked"
         case swapChooseTokenScreenOpened = "[Swap] Choose Token Screen Opened"
+        case swapChooseTokenScreenResult = "[Swap] Choose Token Screen Result"
         case swapSearchedTokenClicked = "[Swap] Searched Token Clicked"
         case swapButtonSwap = "[Swap] Button - Swap"
         case swapButtonGivePermission = "[Swap] Button - Give permission"
@@ -166,6 +167,15 @@ extension Analytics {
         case swapButtonPermitAndSwap = "[Swap] Button - Permit and Swap"
         case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
+
+        case swapProviderClicked = "[Swap] Provider Clicked"
+        case swapProviderChosen = "[Swap] Provider Chosen"
+        case swapButtonStatus = "[Swap] Button - Status"
+        case swapButtonExplore = "[Swap] Button - Explore"
+        case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
+        case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
+        case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
+        case swapNoticeExpressError = "[Swap] Notice - Express Error"
 
         // MARK: - Seed phrase
 
@@ -181,6 +191,12 @@ extension Analytics {
         case onboardingSeedImportScreenOpened = "[Onboarding / Seed Phrase] Import Seed Phrase Screen Opened"
 
         case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen Capture"
+
+        // MARK: Express
+
+        case tokenChangeNowStatus = "[Token] - ChangeNow Status"
+        case tokenChangeNowStatusScreenOpened = "[Token] - ChangeNow Status Opened"
+        case tokenChangeNowButtonGoToProvider = "[Token] - Button - Go To Provider"
 
         // MARK: - App settings
 
