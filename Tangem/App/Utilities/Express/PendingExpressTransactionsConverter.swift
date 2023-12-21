@@ -15,6 +15,8 @@ struct PendingExpressTransactionsConverter {
 
         return records.compactMap {
             let record = $0.transactionRecord
+            assert(record.transactionStatus != .finished, "We don't have to show the finished express transaction")
+
             let sourceTokenItem = record.sourceTokenTxInfo.tokenItem
             let destinationTokenItem = record.destinationTokenTxInfo.tokenItem
             let state: PendingExpressTransactionView.State
