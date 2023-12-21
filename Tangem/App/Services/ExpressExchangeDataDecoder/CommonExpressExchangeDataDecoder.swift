@@ -23,7 +23,7 @@ struct CommonExpressExchangeDataDecoder: ExpressExchangeDataDecoder {
             throw ExpressExchangeDataDecoderError.invalidSignature
         }
 
-        AppLog.shared.debug("[Express] The signature verified")
+        AppLog.shared.debug("[Express] The signature is verified")
         let details = try JSONDecoder().decode(DecodedTransactionDetails.self, from: txDetailsData)
         return details
     }
