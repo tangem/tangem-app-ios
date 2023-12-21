@@ -9,36 +9,19 @@
 import Foundation
 import BlockchainSdk
 
-struct GetBlockAccessToken: Decodable {
-    let blockBookRest: String?
-    let jsonRpc: String?
-    let rest: String?
-    let rosetta: String?
-}
+private typealias GetBlockCredentials = BlockchainSdkConfig.GetBlockCredentials
 
-extension BlockchainSdkConfig.GetBlockCredentials {
-    init(_ json: [String: GetBlockAccessToken]) {
-        var credentials: [BlockchainSdkConfig.GetBlockCredentials.Credential] = []
-
-        json.forEach { key, values in
-            guard let blockchain = Blockchain.allMainnetCases.first(where: { $0.codingKey == key }) else {
-                return
-            }
-
-            if let key = values.blockBookRest {
-                credentials.append(.init(blockchain: blockchain, type: .blockBook, key: key))
-            }
-
-            if let key = values.jsonRpc {
-                credentials.append(.init(blockchain: blockchain, type: .jsonRpc, key: key))
-            }
-
-            if let key = values.rosetta {
-                credentials.append(.init(blockchain: blockchain, type: .rosseta, key: key))
-            }
-
-            if let key = values.rest {
-                credentials.append(.init(blockchain: blockchain, type: .rest, key: key))
+extension GetBlockCredentials {
+    init(_ json: [String: [String: String]]) {
+        var credentials: [GetBlockCredentials.Credential] = []
+        
+        Blockchain.allMainnetCases.forEach { blockchain in
+            if let accessTokens = json[blockchain.codingKey] {
+                GetBlockCredentials.TypeValue.allCases.forEach { type in
+                    if let token = accessTokens[type.rawValue] {
+                        credentials.append(.init(blockchain: blockchain, type: type, key: token))
+                    }
+                }
             }
         }
 
