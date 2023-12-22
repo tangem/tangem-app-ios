@@ -75,6 +75,12 @@ class AppSettings {
     @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
     var userDidSwipeWalletsOnMainScreen: Bool = false
 
+    @AppStorageCompat(StorageType.tangemExpressMainPromotionDismissed)
+    var tangemExpressMainPromotionDismissed: Bool = false
+
+    @AppStorageCompat(StorageType.tangemExpressTokenPromotionDismissed)
+    var tangemExpressTokenPromotionDismissed: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}
