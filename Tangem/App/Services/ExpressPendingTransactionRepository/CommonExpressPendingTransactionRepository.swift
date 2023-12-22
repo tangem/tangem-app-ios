@@ -84,11 +84,41 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             provider: .init(provider: txData.provider),
             date: txData.date,
             externalTxId: txData.expressTransactionData.externalTxId,
-            externalTxURL: txData.expressTransactionData.externalTxUrl
+            externalTxURL: txData.expressTransactionData.externalTxUrl,
+            transactionStatus: .awaitingDeposit
         )
 
         lockQueue.async { [weak self] in
             self?.addRecordIfNeeded(expressPendingTransactionRecord)
+        }
+    }
+
+    func updateItems(_ items: [ExpressPendingTransactionRecord]) {
+        if items.isEmpty {
+            return
+        }
+
+        lockQueue.async { [weak self] in
+            guard let self else { return }
+
+            let transactionsToUpdate = items.toDictionary(keyedBy: \.expressTransactionId)
+            var hasChanges = false
+            var pendingTransactions = pendingTransactionSubject.value
+            for (index, item) in pendingTransactions.indexed() {
+                guard let updatedTransaction = transactionsToUpdate[item.expressTransactionId] else {
+                    continue
+                }
+
+                pendingTransactions[index] = updatedTransaction
+                hasChanges = true
+            }
+
+            guard hasChanges else {
+                return
+            }
+
+            pendingTransactionSubject.value = pendingTransactions
+            saveChanges()
         }
     }
 
