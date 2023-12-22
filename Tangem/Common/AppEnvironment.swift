@@ -58,7 +58,7 @@ extension AppEnvironment {
         FeatureStorage().isTestnet
     }
 
-    var isDebug: Bool { return false
+    var isDebug: Bool {
         #if DEBUG
         return true
         #else
