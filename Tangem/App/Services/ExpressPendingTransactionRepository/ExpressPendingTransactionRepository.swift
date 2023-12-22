@@ -14,6 +14,7 @@ protocol ExpressPendingTransactionRepository: AnyObject {
     var allExpressTransactions: [ExpressPendingTransactionRecord] { get }
     var pendingCEXTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> { get }
 
+    func updateItems(_ items: [ExpressPendingTransactionRecord])
     func swapTransactionDidSend(_ txData: SentExpressTransactionData, userWalletId: String)
     func swapTransactionDidComplete(with expressTxId: String)
 }
