@@ -88,12 +88,6 @@ class SingleTokenRouter: SingleTokenRoutable {
         } else if let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: walletModel.amountType, in: walletModel.blockchainNetwork.blockchain),
                   let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
                   let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor {
-            var referrer: SwappingReferrerAccount?
-
-            if let account = keysManager.swapReferrerAccount {
-                referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
-            }
-
             let input = CommonSwappingModulesFactory.InputModel(
                 userTokensManager: userWalletModel.userTokensManager,
                 walletModel: walletModel,
@@ -101,7 +95,7 @@ class SingleTokenRouter: SingleTokenRoutable {
                 ethereumNetworkProvider: ethereumNetworkProvider,
                 ethereumTransactionProcessor: ethereumTransactionProcessor,
                 logger: AppLog.shared,
-                referrer: referrer,
+                referrer: nil,
                 source: sourceCurrency,
                 walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
             )
