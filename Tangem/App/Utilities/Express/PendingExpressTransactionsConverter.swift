@@ -20,7 +20,7 @@ struct PendingExpressTransactionsConverter {
             let sourceTokenItem = record.sourceTokenTxInfo.tokenItem
             let destinationTokenItem = record.destinationTokenTxInfo.tokenItem
             let state: PendingExpressTransactionView.State
-            switch $0.currentStatus {
+            switch $0.transactionRecord.transactionStatus {
             case .done, .refunded:
                 return nil
             case .awaitingDeposit, .confirming, .exchanging, .sendingToUser:
@@ -46,14 +46,14 @@ struct PendingExpressTransactionsConverter {
 
     func convertToStatusRowDataList(for pendingTransaction: PendingExpressTransaction) -> (list: [PendingExpressTransactionStatusRow.StatusRowData], currentIndex: Int) {
         let statuses = pendingTransaction.statuses
-        let currentStatusIndex = statuses.firstIndex(of: pendingTransaction.currentStatus) ?? 0
+        let currentStatusIndex = statuses.firstIndex(of: pendingTransaction.transactionRecord.transactionStatus) ?? 0
 
         return (statuses.indexed().map { index, status in
             convertToStatusRowData(
                 index: index,
                 status: status,
                 currentStatusIndex: currentStatusIndex,
-                currentStatus: pendingTransaction.currentStatus,
+                currentStatus: pendingTransaction.transactionRecord.transactionStatus,
                 lastStatusIndex: statuses.count - 1
             )
         }, currentStatusIndex)
