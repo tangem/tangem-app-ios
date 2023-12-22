@@ -119,7 +119,7 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .info
         case .notEnoughFeeForTokenTx,
              .notEnoughAmountToSwap,
-             .notEnoughBalanceToSwap,
+             .notEnoughReserveToSwap,
              .noDestinationTokens,
              .highPriceImpact:
             return .warning
