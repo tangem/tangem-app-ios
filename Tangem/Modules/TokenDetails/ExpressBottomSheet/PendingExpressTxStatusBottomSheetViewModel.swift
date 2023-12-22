@@ -179,7 +179,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         updateUI(
             statusesList: list,
             currentIndex: currentIndex,
-            currentStatus: pendingTransaction.currentStatus,
+            currentStatus: pendingTransaction.transactionRecord.transactionStatus,
             delay: delay
         )
     }
