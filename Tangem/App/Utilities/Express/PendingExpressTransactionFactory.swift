@@ -11,10 +11,13 @@ import TangemSwapping
 
 struct PendingExpressTransactionFactory {
     private let defaultStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .exchanging, .sendingToUser]
+    private let failedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .failed, .refunded]
+    private let verifyingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]
 
     func buildPendingExpressTransaction(currentExpressStatus: ExpressTransactionStatus, for transactionRecord: ExpressPendingTransactionRecord) -> PendingExpressTransaction {
         let currentStatus: PendingExpressTransactionStatus
         var statusesList: [PendingExpressTransactionStatus] = defaultStatusesList
+        var transactionRecord = transactionRecord
         switch currentExpressStatus {
         case .new, .waiting:
             currentStatus = .awaitingDeposit
@@ -28,18 +31,35 @@ struct PendingExpressTransactionFactory {
             currentStatus = .done
         case .failed:
             currentStatus = .failed
-            statusesList = [.awaitingDeposit, .confirming, .failed, .refunded]
+            statusesList = failedStatusesList
         case .refunded:
             currentStatus = .refunded
-            statusesList = [.awaitingDeposit, .confirming, .failed, .refunded]
+            statusesList = failedStatusesList
         case .verifying:
             currentStatus = .verificationRequired
-            statusesList = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]
+            statusesList = verifyingStatusesList
+        }
+
+        transactionRecord.transactionStatus = currentStatus
+        return .init(
+            transactionRecord: transactionRecord,
+            statuses: statusesList
+        )
+    }
+
+    func buildPendingExpressTransaction(for transactionRecord: ExpressPendingTransactionRecord) -> PendingExpressTransaction {
+        var statusesList = defaultStatusesList
+        switch transactionRecord.transactionStatus {
+        case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done:
+            break
+        case .failed, .refunded:
+            statusesList = failedStatusesList
+        case .verificationRequired:
+            statusesList = verifyingStatusesList
         }
 
         return .init(
             transactionRecord: transactionRecord,
-            currentStatus: currentStatus,
             statuses: statusesList
         )
     }
