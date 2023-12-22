@@ -75,20 +75,12 @@ extension CommonKeysManager: KeysManager {
         keys.infuraProjectId
     }
 
-    var swapReferrerAccount: SwapReferrerAccount? {
-        keys.swapReferrerAccount
+    var expressKeys: ExpressKeys {
+        keys.express
     }
 
     var walletConnectProjectId: String {
         keys.walletConnectProjectId
-    }
-
-    var oneInchApiKey: String {
-        keys.oneInchApiKey
-    }
-
-    var tangemExpressApiKey: String {
-        keys.tangemExpressApiKey
     }
 }
 
@@ -115,10 +107,8 @@ extension CommonKeysManager {
         let bscQuiknodeApiKey: String
         let bscQuiknodeSubdomain: String
         let tangemComAuthorization: String?
-        let swapReferrerAccount: SwapReferrerAccount?
         let walletConnectProjectId: String
         let sprinklr: SprinklrConfig
-        let oneInchApiKey: String
-        let tangemExpressApiKey: String
+        let express: ExpressKeys
     }
 }
