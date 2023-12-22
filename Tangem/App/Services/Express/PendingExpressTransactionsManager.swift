@@ -30,6 +30,7 @@ class CommonPendingExpressTransactionsManager {
 
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Never>?
+    private var transactionsScheduledForUpdate: [PendingExpressTransaction] = []
 
     init(
         userWalletId: String,
@@ -60,9 +61,18 @@ class CommonPendingExpressTransactionsManager {
 
         transactionsToUpdateStatusSubject
             .removeDuplicates()
+            .map { transactions in
+                let factory = PendingExpressTransactionFactory()
+                let savedPendingTransactions = transactions.map(factory.buildPendingExpressTransaction(for:))
+                return savedPendingTransactions
+            }
             .withWeakCaptureOf(self)
-            .sink { tracker, transactions in
-                tracker.updateTransactionsStatuses(transactions)
+            .handleEvents(receiveOutput: { manager, transactions in
+                manager.transactionsScheduledForUpdate = transactions
+                manager.transactionsInProgressSubject.send(transactions)
+            })
+            .sink { manager, transactions in
+                manager.updateTransactionsStatuses()
             }
             .store(in: &bag)
     }
@@ -74,42 +84,59 @@ class CommonPendingExpressTransactionsManager {
         }
     }
 
-    private func updateTransactionsStatuses(_ records: [ExpressPendingTransactionRecord]) {
+    private func updateTransactionsStatuses() {
         cancelTask()
 
-        if records.isEmpty {
+        if transactionsScheduledForUpdate.isEmpty {
             return
         }
+        let pendingTransactionsToRequest = transactionsScheduledForUpdate
+        transactionsScheduledForUpdate = []
 
-        log("Setup update pending express transactions statuses task. Number of records: \(records.count)")
+        log("Setup update pending express transactions statuses task. Number of records: \(pendingTransactionsToRequest.count)")
         updateTask = Task { [weak self] in
             do {
-                self?.log("Start loading pending transactions status. Number of records to request: \(records.count)")
-                var recordsToRequest = [ExpressPendingTransactionRecord]()
+                self?.log("Start loading pending transactions status. Number of records to request: \(pendingTransactionsToRequest.count)")
+                var transactionsToSchedule = [PendingExpressTransaction]()
                 var transactionsInProgress = [PendingExpressTransaction]()
-                for record in records {
-                    guard let pendingTransaction = await self?.loadPendingTransactionStatus(for: record) else {
+                var transactionsToUpdateInRepository = [ExpressPendingTransactionRecord]()
+                for pendingTransaction in pendingTransactionsToRequest {
+                    let record = pendingTransaction.transactionRecord
+                    guard let loadedPendingTransaction = await self?.loadPendingTransactionStatus(for: record) else {
                         // If received error from backend and transaction was already displayed on TokenDetails screen
                         // we need to send previously received transaction, otherwise it will hide on TokenDetails
                         if let previousResult = self?.transactionsInProgressSubject.value.first(where: { $0.transactionRecord.expressTransactionId == record.expressTransactionId }) {
                             transactionsInProgress.append(previousResult)
                         }
-                        recordsToRequest.append(record)
+                        transactionsToSchedule.append(pendingTransaction)
                         continue
                     }
 
                     // We need to send finished transaction one more time to properly update status on bottom sheet
-                    transactionsInProgress.append(pendingTransaction)
-                    guard pendingTransaction.currentStatus.isTransactionInProgress else {
+                    transactionsInProgress.append(loadedPendingTransaction)
+                    guard loadedPendingTransaction.transactionRecord.transactionStatus.isTransactionInProgress else {
                         self?.removeTransactionFromRepository(record)
                         continue
                     }
 
-                    recordsToRequest.append(record)
+                    if record.transactionStatus != loadedPendingTransaction.transactionRecord.transactionStatus {
+                        transactionsToUpdateInRepository.append(loadedPendingTransaction.transactionRecord)
+                    }
+
+                    transactionsToSchedule.append(loadedPendingTransaction)
                     try Task.checkCancellation()
                 }
 
+                try Task.checkCancellation()
+
+                self?.transactionsScheduledForUpdate = transactionsToSchedule
                 self?.transactionsInProgressSubject.send(transactionsInProgress)
+
+                guard transactionsToUpdateInRepository.isEmpty else {
+                    // No need to continue execution, because after update new request will be performed
+                    self?.expressPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
+                    return
+                }
 
                 try Task.checkCancellation()
 
@@ -117,16 +144,17 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
-                self?.log("Not all pending transactions finished. Requesting after status update after timeout for \(recordsToRequest.count) transaction(s)")
-                self?.updateTransactionsStatuses(recordsToRequest)
+                self?.log("Not all pending transactions finished. Requesting after status update after timeout for \(transactionsToSchedule.count) transaction(s)")
+                self?.updateTransactionsStatuses()
             } catch {
                 if error is CancellationError || Task.isCancelled {
                     self?.log("Pending express txs status check task was cancelled")
                     return
                 }
 
-                self?.log("Catch error: \(error.localizedDescription). Attempting to repeat exchange status updates. Number of requests: \(records.count)")
-                self?.updateTransactionsStatuses(records)
+                self?.log("Catch error: \(error.localizedDescription). Attempting to repeat exchange status updates. Number of requests: \(pendingTransactionsToRequest.count)")
+                self?.transactionsScheduledForUpdate = pendingTransactionsToRequest
+                self?.updateTransactionsStatuses()
             }
         }
     }
@@ -153,9 +181,9 @@ class CommonPendingExpressTransactionsManager {
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(currentExpressStatus: expressTransaction.externalStatus, for: transactionRecord)
             log("Transaction external status: \(expressTransaction.externalStatus.rawValue)")
             pendingExpressTransactionAnalyticsTracker.trackStatusForTransaction(
-                with: transactionRecord.expressTransactionId,
+                with: pendingTransaction.transactionRecord.expressTransactionId,
                 tokenSymbol: tokenItem.currencySymbol,
-                status: pendingTransaction.currentStatus
+                status: pendingTransaction.transactionRecord.transactionStatus
             )
             return pendingTransaction
         } catch {
@@ -186,5 +214,32 @@ extension CommonPendingExpressTransactionsManager: PendingExpressTransactionsMan
 extension CommonPendingExpressTransactionsManager {
     enum Constants {
         static let statusUpdateTimeout: Double = 10
+    }
+}
+
+extension CommonPendingExpressTransactionsManager {
+    enum StatusUpdateResult {
+        case repeatRequest(PendingExpressTransaction)
+        case requestFailed(ExpressPendingTransactionRecord)
+        case txsFinished(PendingExpressTransaction)
+        case statusUpdated(PendingExpressTransaction)
+
+        var pendingTransaction: PendingExpressTransaction? {
+            switch self {
+            case .repeatRequest(let pendingExpressTransaction), .txsFinished(let pendingExpressTransaction), .statusUpdated(let pendingExpressTransaction):
+                return pendingExpressTransaction
+            case .requestFailed:
+                return nil
+            }
+        }
+
+        var requestTransactionRecord: ExpressPendingTransactionRecord {
+            switch self {
+            case .repeatRequest(let pendingExpressTransaction), .txsFinished(let pendingExpressTransaction), .statusUpdated(let pendingExpressTransaction):
+                return pendingExpressTransaction.transactionRecord
+            case .requestFailed(let record):
+                return record
+            }
+        }
     }
 }
