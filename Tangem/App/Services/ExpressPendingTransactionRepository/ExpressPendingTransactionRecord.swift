@@ -23,6 +23,8 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
     let externalTxId: String?
     let externalTxURL: String?
 
+    var transactionStatus: PendingExpressTransactionStatus
+
     var fee: Decimal {
         convertToDecimal(feeString)
     }
