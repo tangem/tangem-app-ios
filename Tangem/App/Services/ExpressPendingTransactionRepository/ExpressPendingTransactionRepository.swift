@@ -16,6 +16,7 @@ protocol ExpressPendingTransactionRepository: AnyObject {
 
     func didSendApproveTransaction()
     func didSendSwapTransaction(_ txData: SentExpressTransactionData, userWalletId: String)
+    func updateItems(_ items: [ExpressPendingTransactionRecord])
     func removeSwapTransaction(with expressTxId: String)
 }
 
