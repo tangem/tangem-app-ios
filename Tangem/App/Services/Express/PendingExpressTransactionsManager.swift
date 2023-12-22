@@ -13,6 +13,8 @@ import TangemSwapping
 protocol PendingExpressTransactionsManager: AnyObject {
     var pendingTransactions: [PendingExpressTransaction] { get }
     var pendingTransactionsPublisher: AnyPublisher<[PendingExpressTransaction], Never> { get }
+
+    func removeTransaction(with id: String)
 }
 
 class CommonPendingExpressTransactionsManager {
@@ -110,6 +112,12 @@ class CommonPendingExpressTransactionsManager {
                 var transactionsToUpdateInRepository = [ExpressPendingTransactionRecord]()
                 for pendingTransaction in pendingTransactionsToRequest {
                     let record = pendingTransaction.transactionRecord
+                    guard record.transactionStatus.isTransactionInProgress else {
+                        transactionsInProgress.append(pendingTransaction)
+                        transactionsToSchedule.append(pendingTransaction)
+                        continue
+                    }
+
                     guard let loadedPendingTransaction = await self?.loadPendingTransactionStatus(for: record) else {
                         // If received error from backend and transaction was already displayed on TokenDetails screen
                         // we need to send previously received transaction, otherwise it will hide on TokenDetails
@@ -122,10 +130,6 @@ class CommonPendingExpressTransactionsManager {
 
                     // We need to send finished transaction one more time to properly update status on bottom sheet
                     transactionsInProgress.append(loadedPendingTransaction)
-                    guard loadedPendingTransaction.transactionRecord.transactionStatus.isTransactionInProgress else {
-                        self?.removeTransactionFromRepository(record)
-                        continue
-                    }
 
                     if record.transactionStatus != loadedPendingTransaction.transactionRecord.transactionStatus {
                         transactionsToUpdateInRepository.append(loadedPendingTransaction.transactionRecord)
@@ -200,10 +204,6 @@ class CommonPendingExpressTransactionsManager {
         }
     }
 
-    private func removeTransactionFromRepository(_ record: ExpressPendingTransactionRecord) {
-        expressPendingTransactionsRepository.removeSwapTransaction(with: record.expressTransactionId)
-    }
-
     private func log<T>(_ message: @autoclosure () -> T) {
         AppLog.shared.debug("[CommonPendingExpressTransactionsManager] \(message())")
     }
@@ -216,6 +216,11 @@ extension CommonPendingExpressTransactionsManager: PendingExpressTransactionsMan
 
     var pendingTransactionsPublisher: AnyPublisher<[PendingExpressTransaction], Never> {
         transactionsInProgressSubject.eraseToAnyPublisher()
+    }
+
+    func removeTransaction(with id: String) {
+        log("Removing transaction from repository. Transaction id: \(id)")
+        expressPendingTransactionsRepository.removeSwapTransaction(with: id)
     }
 }
 
