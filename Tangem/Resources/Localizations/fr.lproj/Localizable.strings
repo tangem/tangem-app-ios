@@ -216,7 +216,7 @@
 "express_exchange_status_sending" = "Sending to you";
 "express_exchange_status_sending_active" = "Sending to you...";
 "express_exchange_status_sent" = "Sent";
-"express_exchange_status_subtitle" = "Provider-sourced data. Estimated amount subject to change.";
+"express_exchange_status_subtitle" = "Provider-sourced data. Estimated amount subject to change due to market conditions.";
 "express_exchange_status_title" = "Exchange status";
 "express_exchange_status_verified" = "Verified";
 "express_exchange_status_verifying" = "Verification required";
@@ -233,6 +233,7 @@
 "express_provider_not_available" = "Unavailable for this pair";
 "express_provider_permission_needed" = "Permission Required";
 "express_terms_of_use" = "Terms of Use";
+"express_token_list_empty_search" = "No tokens found. Please try another request";
 "express_unknown_error" = "There was an error. Please try again.";
 "feedback_preface_rate_negative" = "Tell us what functions you are missing, and we will try to help you.";
 "feedback_preface_scan_failed" = "Please tell us what card do you have";

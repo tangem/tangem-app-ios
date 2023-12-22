@@ -9,6 +9,8 @@
 import Foundation
 
 struct ExpressAPIMapper {
+    let exchangeDataDecoder: ExpressExchangeDataDecoder
+
     // MARK: - Map to DTO
 
     func mapToDTOCurrency(currency: ExpressCurrency) -> ExpressDTO.Currency {
@@ -72,7 +74,13 @@ struct ExpressAPIMapper {
         )
     }
 
-    func mapToExpressTransactionData(response: ExpressDTO.ExchangeData.Response) throws -> ExpressTransactionData {
+    func mapToExpressTransactionData(requestId: String, response: ExpressDTO.ExchangeData.Response) throws -> ExpressTransactionData {
+        let txDetails = try exchangeDataDecoder.decode(txDetailsJson: response.txDetailsJson, signature: response.signature)
+
+        guard requestId == txDetails.requestId else {
+            throw ExpressAPIMapperError.requestIdNotEqual
+        }
+
         guard var fromAmount = Decimal(string: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
@@ -81,8 +89,8 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
-        guard var txValue = Decimal(string: response.txValue) else {
-            throw ExpressAPIMapperError.mapToDecimalError(response.txValue)
+        guard var txValue = Decimal(string: txDetails.txValue) else {
+            throw ExpressAPIMapperError.mapToDecimalError(txDetails.txValue)
         }
 
         fromAmount /= pow(10, response.fromDecimals)
@@ -90,17 +98,18 @@ struct ExpressAPIMapper {
         txValue /= pow(10, response.fromDecimals)
 
         return ExpressTransactionData(
+            requestId: txDetails.requestId,
             fromAmount: fromAmount,
             toAmount: toAmount,
             expressTransactionId: response.txId,
-            transactionType: response.txType,
-            sourceAddress: response.txFrom,
-            destinationAddress: response.txTo,
-            extraDestinationTag: response.txExtraId,
+            transactionType: txDetails.txType,
+            sourceAddress: txDetails.txFrom,
+            destinationAddress: txDetails.txTo,
+            extraDestinationId: txDetails.txExtraId,
             value: txValue,
-            txData: response.txData,
-            externalTxId: response.externalTxId,
-            externalTxUrl: response.externalTxUrl
+            txData: txDetails.txData,
+            externalTxId: txDetails.externalTxId,
+            externalTxUrl: txDetails.externalTxUrl
         )
     }
 
@@ -116,4 +125,5 @@ struct ExpressAPIMapper {
 
 enum ExpressAPIMapperError: Error {
     case mapToDecimalError(_ string: String)
+    case requestIdNotEqual
 }
