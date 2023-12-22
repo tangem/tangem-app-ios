@@ -19,9 +19,7 @@ struct PendingExpressTransactionsConverter {
             let destinationTokenItem = record.destinationTokenTxInfo.tokenItem
             let state: PendingExpressTransactionView.State
             switch $0.transactionRecord.transactionStatus {
-            case .done, .refunded:
-                return nil
-            case .awaitingDeposit, .confirming, .exchanging, .sendingToUser:
+            case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done, .refunded:
                 state = .inProgress
             case .failed:
                 state = .error
