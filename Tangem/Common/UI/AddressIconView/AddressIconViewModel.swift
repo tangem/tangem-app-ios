@@ -10,12 +10,9 @@ import Foundation
 import BlockiesSwift
 
 class AddressIconViewModel {
-    let image: UIImage
     let size: CGFloat
 
-    init(address: String) {
-        let numberOfBlocks = 9
-        let scale = 4
+    lazy var image: UIImage = {
         let blockies = Blockies(
             seed: address.lowercased(),
             size: numberOfBlocks,
@@ -24,7 +21,16 @@ class AddressIconViewModel {
             bgColor: nil,
             spotColor: nil
         )
-        image = blockies.createImage() ?? UIImage()
+
+        return blockies.createImage() ?? UIImage()
+    }()
+
+    private let address: String
+    private let numberOfBlocks = 12
+    private let scale = 3
+
+    init(address: String) {
         size = CGFloat(numberOfBlocks * scale)
+        self.address = address
     }
 }
