@@ -61,7 +61,7 @@ extension Analytics {
 
         case errorCode = "Error Code"
 
-        case oneTransactionApprove = "Transaction"
+        case oneTransactionApprove = "Current Transaction"
         case unlimitedApprove = "Unlimited"
 
         // destination address entered

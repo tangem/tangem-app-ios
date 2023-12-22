@@ -19,7 +19,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     var providerType: String {
-        pendingTransaction.transactionRecord.provider.type.rawValue.capitalized
+        pendingTransaction.transactionRecord.provider.type.rawValue.uppercased()
     }
 
     var animationDuration: TimeInterval {
