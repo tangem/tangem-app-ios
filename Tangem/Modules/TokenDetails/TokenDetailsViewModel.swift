@@ -17,7 +17,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
     @Published var actionSheet: ActionSheetBinder?
-    @Published var shouldShowNotificationsWithAnimation: Bool = false
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
@@ -70,6 +69,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             notificationManager: notificationManager,
             tokenRouter: tokenRouter
         )
+        notificationManager.setupManager(with: self)
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
 
         prepareSelf()
@@ -81,10 +81,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func onAppear() {
         Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: tokenItem.currencySymbol])
-    }
-
-    func onDidAppear() {
-        shouldShowNotificationsWithAnimation = true
     }
 
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
