@@ -56,7 +56,7 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
     var pendingCEXTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
         pendingTransactionSubject
             .map { transactions in
-                transactions.filter { $0.transactionStatus == .processing && $0.provider.type == .cex }
+                transactions.filter { $0.transactionStatus.isTransactionInProgress && $0.provider.type == .cex }
             }
             .eraseToAnyPublisher()
     }
@@ -66,7 +66,6 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             userWalletId: userWalletId,
             expressTransactionId: txData.expressTransactionData.expressTransactionId,
             transactionType: .type(from: txData.expressTransactionData.transactionType),
-            transactionStatus: .processing,
             transactionHash: txData.hash,
             sourceTokenTxInfo: .init(
                 tokenItem: txData.source.tokenItem,
@@ -118,20 +117,6 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             }
 
             pendingTransactionSubject.value = pendingTransactions
-            saveChanges()
-        }
-    }
-
-    func swapTransactionDidComplete(with expressTxId: String) {
-        lockQueue.async { [weak self] in
-            guard let self else { return }
-
-            guard let index = pendingTransactionSubject.value.firstIndex(where: { $0.expressTransactionId == expressTxId }) else {
-                log("Trying to remove transaction that not in repository.")
-                return
-            }
-
-            pendingTransactionSubject.value[index].transactionStatus = .finished
             saveChanges()
         }
     }
