@@ -12,11 +12,14 @@ struct ExpressAPIProviderFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     func makeExpressAPIProvider(userId: String, logger: SwappingLogger) -> ExpressAPIProvider {
-        let factory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
+        let factory = TangemSwappingFactory(oneInchApiKey: "")
         let isProduction = !AppEnvironment.current.isDebug
+        let exchangeDataDecoder = CommonExpressExchangeDataDecoder(
+            publicKey: keysManager.expressKeys.signVerifierPublicKey
+        )
 
         let credentials = ExpressAPICredential(
-            apiKey: keysManager.tangemExpressApiKey,
+            apiKey: keysManager.expressKeys.apiKey,
             userId: userId,
             sessionId: AppConstants.sessionId
         )
@@ -25,6 +28,7 @@ struct ExpressAPIProviderFactory {
             credential: credentials,
             configuration: .defaultConfiguration,
             isProduction: isProduction,
+            exchangeDataDecoder: exchangeDataDecoder,
             logger: AppLog.shared
         )
     }
