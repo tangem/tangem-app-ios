@@ -149,9 +149,7 @@ private extension CommonSwappingModulesFactory {
             return interactor
         }
 
-        let swappingManager = TangemSwappingFactory(
-            oneInchApiKey: keysManager.oneInchApiKey
-        ).makeSwappingManager(
+        let swappingManager = TangemSwappingFactory(oneInchApiKey: "").makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,
