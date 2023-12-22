@@ -13,7 +13,6 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
     let userWalletId: String
     let expressTransactionId: String
     let transactionType: TransactionType
-    var transactionStatus: TransactionStatus
     let transactionHash: String
     let sourceTokenTxInfo: TokenTxInfo
     let destinationTokenTxInfo: TokenTxInfo
@@ -52,11 +51,6 @@ extension ExpressPendingTransactionRecord {
             case .swap: return .swap
             }
         }
-    }
-
-    enum TransactionStatus: String, Codable, Equatable {
-        case processing
-        case finished
     }
 
     struct Provider: Codable, Equatable {
