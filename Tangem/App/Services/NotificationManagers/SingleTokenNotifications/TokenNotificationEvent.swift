@@ -120,16 +120,16 @@ extension TokenNotificationEvent: NotificationEvent {
     var severity: NotificationView.Severity {
         switch self {
         case .noAccount,
-             .longTransaction,
-             .hasPendingTransactions:
-            return .info
-        case .someNetworksUnreachable,
              .rentFee,
              .existentialDepositWarning,
-             .notEnoughFeeForTokenTx:
+             .hasPendingTransactions,
+             .tangemExpressPromotion:
+            return .info
+        case .networkUnreachable,
+             .someNetworksUnreachable,
+             .notEnoughFeeForTokenTx,
+             .longTransaction:
             return .warning
-        case .networkUnreachable:
-            return .critical
         }
     }
 
