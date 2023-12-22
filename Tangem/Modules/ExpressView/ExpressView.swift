@@ -17,7 +17,7 @@ struct ExpressView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            Colors.Background.tertiary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView(spacing: 14) {
                 swappingViews
@@ -29,17 +29,14 @@ struct ExpressView: View {
                 informationSection
             }
             .scrollDismissesKeyboardCompat(true)
-            // For animate button below informationSection
-            .animation(.easeInOut, value: viewModel.providerState?.id)
-            .animation(.easeInOut, value: viewModel.expressFeeRowViewModel == nil)
 
             mainButton
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
-        .onDisappear {
-            viewModel.onDisappear()
-        }
+        // For animate button below informationSection
+        .animation(.easeInOut, value: viewModel.providerState?.id)
+        .animation(.easeInOut, value: viewModel.feeSectionItems.count)
         .animation(.default, value: viewModel.notificationInputs)
     }
 
@@ -73,20 +70,19 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var swappingButton: some View {
-        Group {
+        Button(action: viewModel.userDidTapSwapSwappingItemsButton) {
             if viewModel.isSwapButtonLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
             } else {
-                Button(action: viewModel.userDidTapSwapSwappingItemsButton) {
-                    Assets.swappingIcon.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(Colors.Icon.primary1)
-                }
+                Assets.swappingIcon.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(viewModel.isSwapButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
             }
         }
+        .disabled(viewModel.isSwapButtonLoading || viewModel.isSwapButtonDisabled)
         .frame(width: 44, height: 44)
         .background(Colors.Background.primary)
         .cornerRadius(22)
@@ -107,10 +103,18 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var feeSection: some View {
-        GroupedSection(viewModel.expressFeeRowViewModel) {
-            ExpressFeeRowView(viewModel: $0)
+        GroupedSection(viewModel.feeSectionItems) { item in
+            switch item {
+            case .fee(let data):
+                ExpressFeeRowView(viewModel: data)
+            case .footnote(let text):
+                Text(text)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
         }
+        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
+        .interItemSpacing(10)
         .verticalPadding(0)
     }
 
@@ -124,14 +128,18 @@ struct ExpressView: View {
                 ProviderRowView(viewModel: data)
             }
         }
+        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .verticalPadding(0)
     }
 
     @ViewBuilder
     private var mainButton: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .center, spacing: 12) {
             Spacer()
+
+            legalView
+                .padding(.horizontal, 18)
 
             MainButton(
                 title: viewModel.mainButtonState.title,
@@ -145,6 +153,27 @@ struct ExpressView: View {
         .padding(.bottom, UIApplication.safeAreaInsets.bottom + 10)
         .edgesIgnoringSafeArea(.bottom)
         .ignoresSafeArea(.keyboard)
+    }
+
+    @ViewBuilder
+    private var legalView: some View {
+        if let legalText = viewModel.legalText {
+            if #available(iOS 15, *) {
+                Text(AttributedString(legalText))
+                    .font(Fonts.Regular.footnote)
+                    .multilineTextAlignment(.center)
+            } else {
+                GeometryReader { proxy in
+                    VStack(spacing: .zero) {
+                        Spacer()
+                            .layoutPriority(1)
+
+                        // AttributedTextView(UILabel) doesn't tappable on iOS 14
+                        AttributedTextView(legalText, textAlignment: .center, maxLayoutWidth: proxy.size.width)
+                    }
+                }
+            }
+        }
     }
 }
 
