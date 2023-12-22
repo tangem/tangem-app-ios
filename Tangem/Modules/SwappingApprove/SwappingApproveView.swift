@@ -25,7 +25,7 @@ struct SwappingApproveView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 4)
-        .background(Colors.Background.secondary)
+        .background(Colors.Background.tertiary)
         .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
@@ -39,6 +39,8 @@ struct SwappingApproveView: View {
 
                 Button(action: viewModel.didTapInfoButton) {
                     Assets.infoIconMini.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.informative)
                         .padding(.horizontal, 16)
                 }
             }
@@ -57,6 +59,7 @@ struct SwappingApproveView: View {
             } footer: {
                 DefaultFooterView(Localization.swappingPermissionPolicyTypeFooter)
             }
+            .backgroundColor(Colors.Background.action)
             .padding(.horizontal, 16)
 
             GroupedSection(viewModel.feeRowViewModel) {
@@ -64,6 +67,7 @@ struct SwappingApproveView: View {
             } footer: {
                 DefaultFooterView(Localization.swappingPermissionFeeFooter)
             }
+            .backgroundColor(Colors.Background.action)
             .padding(.horizontal, 16)
         }
     }

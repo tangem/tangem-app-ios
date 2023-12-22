@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSwapping
+import UIKit
 
 struct ExpressProviderFormatter {
     let balanceFormatter: BalanceFormatter
@@ -74,10 +75,53 @@ struct ExpressProviderFormatter {
     func mapToProvider(provider: ExpressProvider) -> ProviderRowViewModel.Provider {
         ProviderRowViewModel.Provider(
             id: provider.id,
-            iconURL: provider.url,
+            iconURL: provider.imageURL,
             name: provider.name,
             type: provider.type.rawValue.uppercased()
         )
+    }
+
+    @available(iOS, obsoleted: 15, message: "Should be replaced on AttributedString + Text")
+    func mapToLegalText(provider: ExpressProvider) -> NSAttributedString? {
+        let tos = Localization.expressTermsOfUse
+        let policy = Localization.expressPrivacyPolicy
+
+        if let termsOfUse = provider.termsOfUse, let privacyPolicy = provider.privacyPolicy {
+            let text = Localization.expressLegalTwoPlaceholders(tos, policy)
+            let attributedString = NSMutableAttributedString(string: text, attributes: [.font: UIFonts.Regular.footnote])
+
+            if let range = text.range(of: tos) {
+                attributedString.addAttributes([.link: termsOfUse], range: NSRange(range, in: text))
+            }
+
+            if let range = text.range(of: policy) {
+                attributedString.addAttributes([.link: privacyPolicy], range: NSRange(range, in: text))
+            }
+
+            return attributedString
+        }
+
+        if let termsOfUse = provider.termsOfUse {
+            let text = Localization.expressLegalOnePlaceholder(tos)
+            let attributedString = NSMutableAttributedString(string: text, attributes: [.font: UIFonts.Regular.footnote])
+            if let range = text.range(of: tos) {
+                attributedString.addAttributes([.link: termsOfUse], range: NSRange(range, in: text))
+            }
+
+            return attributedString
+        }
+
+        if let privacyPolicy = provider.privacyPolicy {
+            let text = Localization.expressLegalOnePlaceholder(policy)
+            let attributedString = NSMutableAttributedString(string: text, attributes: [.font: UIFonts.Regular.footnote])
+            if let range = text.range(of: policy) {
+                attributedString.addAttributes([.link: privacyPolicy], range: NSRange(range, in: text))
+            }
+
+            return attributedString
+        }
+
+        return nil
     }
 }
 
