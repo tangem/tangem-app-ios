@@ -67,27 +67,35 @@ class CommonPendingExpressTransactionsManager {
                 return savedPendingTransactions
             }
             .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { manager, transactions in
+            .sink { manager, transactions in
+                manager.log("Receive new transactions to update: \(transactions.count). Number of already scheduled transactions: \(manager.transactionsScheduledForUpdate.count)")
+                // If transactions updated their statuses only no need to cancel currently scheduled task and force reload it
+                let shouldForceReload = manager.transactionsScheduledForUpdate.count != transactions.count
                 manager.transactionsScheduledForUpdate = transactions
                 manager.transactionsInProgressSubject.send(transactions)
-            })
-            .sink { manager, transactions in
-                manager.updateTransactionsStatuses()
+                manager.updateTransactionsStatuses(forceReload: shouldForceReload)
             }
             .store(in: &bag)
     }
 
     private func cancelTask() {
+        log("Attempt to cancel update task")
         if updateTask != nil {
             updateTask?.cancel()
             updateTask = nil
         }
     }
 
-    private func updateTransactionsStatuses() {
+    private func updateTransactionsStatuses(forceReload: Bool) {
+        if !forceReload, updateTask != nil {
+            log("Receive update tx status request but not force reload. Update task is still in progress. Skipping update request. Scheduled to update: \(transactionsScheduledForUpdate.count). Force reload: \(forceReload)")
+            return
+        }
+
         cancelTask()
 
         if transactionsScheduledForUpdate.isEmpty {
+            log("No transactions scheduled for update. Skipping update request. Force reload: \(forceReload)")
             return
         }
         let pendingTransactionsToRequest = transactionsScheduledForUpdate
@@ -132,10 +140,10 @@ class CommonPendingExpressTransactionsManager {
                 self?.transactionsScheduledForUpdate = transactionsToSchedule
                 self?.transactionsInProgressSubject.send(transactionsInProgress)
 
-                guard transactionsToUpdateInRepository.isEmpty else {
+                if !transactionsToUpdateInRepository.isEmpty {
+                    self?.log("Some transactions updated state. Recording changes to repository. Number of updated transactions: \(transactionsToUpdateInRepository.count)")
                     // No need to continue execution, because after update new request will be performed
                     self?.expressPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
-                    return
                 }
 
                 try Task.checkCancellation()
@@ -145,7 +153,7 @@ class CommonPendingExpressTransactionsManager {
                 try Task.checkCancellation()
 
                 self?.log("Not all pending transactions finished. Requesting after status update after timeout for \(transactionsToSchedule.count) transaction(s)")
-                self?.updateTransactionsStatuses()
+                self?.updateTransactionsStatuses(forceReload: true)
             } catch {
                 if error is CancellationError || Task.isCancelled {
                     self?.log("Pending express txs status check task was cancelled")
@@ -154,7 +162,7 @@ class CommonPendingExpressTransactionsManager {
 
                 self?.log("Catch error: \(error.localizedDescription). Attempting to repeat exchange status updates. Number of requests: \(pendingTransactionsToRequest.count)")
                 self?.transactionsScheduledForUpdate = pendingTransactionsToRequest
-                self?.updateTransactionsStatuses()
+                self?.updateTransactionsStatuses(forceReload: false)
             }
         }
     }
