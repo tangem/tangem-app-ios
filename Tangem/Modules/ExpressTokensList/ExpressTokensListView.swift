@@ -18,10 +18,11 @@ struct ExpressTokensListView: View {
     var body: some View {
         NavigationView {
             ZStack(alignment: .center) {
-                Colors.Background.secondary.ignoresSafeArea(.all)
+                Colors.Background.tertiary.ignoresSafeArea(.all)
 
                 content
             }
+            .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(Localization.swappingTokenListTitle)
             .searchableCompat(text: $viewModel.searchText)
             .autocorrectionDisabled()
@@ -37,10 +38,14 @@ struct ExpressTokensListView: View {
         case .isEmpty:
             emptyContent
         case .loaded(let availableTokens, let unavailableTokens):
-            GroupedScrollView(spacing: 14) {
-                section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: availableTokens)
+            GroupedScrollView(alignment: .leading, spacing: 14) {
+                if availableTokens.isEmpty, unavailableTokens.isEmpty {
+                    emptySearchContent
+                } else {
+                    section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: availableTokens)
 
-                section(title: viewModel.unavailableSectionHeader, viewModels: unavailableTokens)
+                    section(title: viewModel.unavailableSectionHeader, viewModels: unavailableTokens)
+                }
             }
         }
     }
@@ -56,6 +61,12 @@ struct ExpressTokensListView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.horizontal, 50)
         }
+    }
+
+    private var emptySearchContent: some View {
+        Text(Localization.expressTokenListEmptySearch)
+            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            .padding(.all, 14)
     }
 
     @ViewBuilder
