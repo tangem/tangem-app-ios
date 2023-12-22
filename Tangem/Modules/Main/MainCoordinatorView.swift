@@ -51,7 +51,7 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.swappingCoordinator) {
                 SwappingCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.expressCoordinator) {
+            .iOS17UIKitSheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
