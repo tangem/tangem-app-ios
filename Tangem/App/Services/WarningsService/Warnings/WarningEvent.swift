@@ -143,20 +143,23 @@ extension WarningEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .numberOfSignedHashesIncorrect,
-             .rateApp,
+        case .walletLocked,
              .failedToVerifyCard,
-             .testnetCard,
-             .demoCard,
-             .oldDeviceOldCard,
-             .oldCard,
-             .devCard,
-             .lowSignatures,
+             .devCard:
+            return .critical
+        case .demoCard,
              .legacyDerivation,
              .systemDeprecationTemporary,
-             .systemDeprecationPermanent,
              .missingDerivation,
-             .walletLocked,
+             .rateApp,
+             .tangemExpressPromotion:
+            return .info
+        case .numberOfSignedHashesIncorrect,
+             .testnetCard,
+             .oldDeviceOldCard,
+             .oldCard,
+             .lowSignatures,
+             .systemDeprecationPermanent,
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
             return .warning
