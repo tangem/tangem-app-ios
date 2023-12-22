@@ -224,30 +224,3 @@ extension CommonPendingExpressTransactionsManager {
         static let statusUpdateTimeout: Double = 10
     }
 }
-
-extension CommonPendingExpressTransactionsManager {
-    enum StatusUpdateResult {
-        case repeatRequest(PendingExpressTransaction)
-        case requestFailed(ExpressPendingTransactionRecord)
-        case txsFinished(PendingExpressTransaction)
-        case statusUpdated(PendingExpressTransaction)
-
-        var pendingTransaction: PendingExpressTransaction? {
-            switch self {
-            case .repeatRequest(let pendingExpressTransaction), .txsFinished(let pendingExpressTransaction), .statusUpdated(let pendingExpressTransaction):
-                return pendingExpressTransaction
-            case .requestFailed:
-                return nil
-            }
-        }
-
-        var requestTransactionRecord: ExpressPendingTransactionRecord {
-            switch self {
-            case .repeatRequest(let pendingExpressTransaction), .txsFinished(let pendingExpressTransaction), .statusUpdated(let pendingExpressTransaction):
-                return pendingExpressTransaction.transactionRecord
-            case .requestFailed(let record):
-                return record
-            }
-        }
-    }
-}
