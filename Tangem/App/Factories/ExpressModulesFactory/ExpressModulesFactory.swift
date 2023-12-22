@@ -17,7 +17,7 @@ protocol ExpressModulesFactory {
 
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel
-    func makeExpressProvidersBottomSheetViewModel(coordinator: ExpressProvidersBottomSheetRoutable) -> ExpressProvidersBottomSheetViewModel
+    func makeExpressProvidersSelectorViewModel(coordinator: ExpressProvidersSelectorRoutable) -> ExpressProvidersSelectorViewModel
 
     func makeExpressSuccessSentViewModel(
         data: SentExpressTransactionData,
