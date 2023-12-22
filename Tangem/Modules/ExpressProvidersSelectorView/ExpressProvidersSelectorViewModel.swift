@@ -1,5 +1,5 @@
 //
-//  ExpressProvidersBottomSheetViewModel.swift
+//  ExpressProvidersSelectorViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 import TangemSwapping
 
-final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable {
+final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var providerViewModels: [ProviderRowViewModel] = []
@@ -24,7 +24,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     private let expressProviderFormatter: ExpressProviderFormatter
     private let expressRepository: ExpressRepository
     private unowned let expressInteractor: ExpressInteractor
-    private unowned let coordinator: ExpressProvidersBottomSheetRoutable
+    private unowned let coordinator: ExpressProvidersSelectorRoutable
 
     private var stateSubscription: AnyCancellable?
 
@@ -33,7 +33,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         expressProviderFormatter: ExpressProviderFormatter,
         expressRepository: ExpressRepository,
         expressInteractor: ExpressInteractor,
-        coordinator: ExpressProvidersBottomSheetRoutable
+        coordinator: ExpressProvidersSelectorRoutable
     ) {
         self.percentFormatter = percentFormatter
         self.expressProviderFormatter = expressProviderFormatter
@@ -74,10 +74,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func setupProviderRowViewModels() async {
-        var viewModels: [ProviderRowViewModel] = []
-
-        for provider in allProviders {
-            let viewModel: ProviderRowViewModel? = await {
+        let viewModels: [ProviderRowViewModel] = await allProviders
+            .asyncSorted(sort: >, by: { await $0.getPriority() })
+            .asyncCompactMap { provider in
                 if !provider.isAvailable {
                     return unavailableProviderRowViewModel(provider: provider.provider)
                 }
@@ -87,12 +86,7 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
                 }
 
                 return nil
-            }()
-
-            if let viewModel {
-                viewModels.append(viewModel)
             }
-        }
 
         await runOnMain {
             providerViewModels = viewModels
@@ -115,15 +109,9 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         )
 
         let isSelected = selectedProvider?.provider.id == provider.provider.id
-        let badge: ProviderRowViewModel.Badge? = {
-            if state.isPermissionRequired {
-                return .permissionNeeded
-            }
+        let badge: ProviderRowViewModel.Badge? = state.isPermissionRequired ? .permissionNeeded : .none
 
-            return provider.isBest ? .bestRate : .none
-        }()
-
-        if !isSelected, let quote = state.quote, let percentSubtitle = await makePercentSubtitle(quote: quote) {
+        if let percentSubtitle = await makePercentSubtitle(provider: provider) {
             subtitles.append(percentSubtitle)
         }
 
@@ -155,15 +143,21 @@ final class ExpressProvidersBottomSheetViewModel: ObservableObject, Identifiable
         stateSubscription?.cancel()
         Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
         expressInteractor.updateProvider(provider: provider)
-        coordinator.closeExpressProvidersBottomSheet()
+        coordinator.closeExpressProvidersSelector()
     }
 
-    func makePercentSubtitle(quote: ExpressQuote) async -> ProviderRowViewModel.Subtitle? {
-        guard let selectedRate = await selectedProvider?.getState().quote?.rate else {
+    func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
+        // For best we don't add percent badge
+        guard !provider.isBest else {
             return nil
         }
 
-        let changePercent = 1 - selectedRate / quote.rate
+        guard let quote = await provider.getState().quote,
+              let bestRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
+            return nil
+        }
+
+        let changePercent = quote.rate / bestRate - 1
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
