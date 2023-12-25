@@ -49,10 +49,10 @@ class ExpressNotificationManager {
 
                 return !event.removingOnFullLoadingState
             }
-        case .restriction(let restrictions, let expectedQuote):
+        case .restriction(let restrictions, let quote):
             setupNotification(for: restrictions)
 
-            guard let quote = expectedQuote?.quote else {
+            guard let quote else {
                 return
             }
 
@@ -64,17 +64,23 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
 
-        case .previewCEX(_, let quote):
-            notificationInputsSubject.value = []
-            if let quote = quote.quote {
-                checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
+        case .previewCEX(let preview, let quote):
+
+            if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
+               // If this notification already showed then will not update the notifications set
+               !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
+                notificationInputsSubject.value = [notification]
+            } else {
+                notificationInputsSubject.value = []
             }
+
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
         }
     }
 
     private func checkHighPriceImpact(fromAmount: Decimal, toAmount: Decimal) {
         priceImpactTask = runTask(in: self, code: { manager in
-            guard let notification = try await manager.generateHighPriceImpactIfNeeded(
+            guard let notification = try await manager.makeHighPriceImpactIfNeeded(
                 fromAmount: fromAmount,
                 toAmount: toAmount
             ) else {
@@ -102,7 +108,8 @@ class ExpressNotificationManager {
         case .hasPendingApproveTransaction:
             event = .hasPendingApproveTransaction
         case .notEnoughBalanceForSwapping(let requiredAmount):
-            event = .notEnoughBalanceToSwap(maximumAmountText: "\(requiredAmount) \(sourceTokenItemSymbol)")
+            notificationInputsSubject.value = []
+            return
         case .notEnoughAmountForFee:
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
@@ -139,26 +146,31 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func generateHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
+    private func makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
+        guard subtractFee > 0, let interactor = expressInteractor else { return nil }
+        let factory = NotificationsFactory()
+        let notification = factory.buildNotificationInput(for: .feeWillBeSubtractFromSendingAmount)
+        return notification
+    }
+
+    private func makeHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
         guard
             let sourceCurrencyId = expressInteractor?.getSender().tokenItem.currencyId,
-            let destinationCurrencyId = expressInteractor?.getDestination()?.tokenItem.currencyId
+            let destinationCurrencyId = expressInteractor?.getDestination()?.tokenItem.currencyId,
+            // We've decided don't show the "HighPriceImpact" for CEX providers
+            await expressInteractor?.getSelectedProvider()?.provider.type != .cex
         else {
             return nil
         }
 
         let priceImpactCalculator = HighPriceImpactCalculator(sourceCurrencyId: sourceCurrencyId, destinationCurrencyId: destinationCurrencyId)
-
-        let isHighPriceImpact = try await priceImpactCalculator.isHighPriceImpact(
-            converting: fromAmount,
-            to: toAmount
-        )
+        let result = try await priceImpactCalculator.isHighPriceImpact(converting: fromAmount, to: toAmount)
 
         if Task.isCancelled {
             return nil
         }
 
-        guard isHighPriceImpact else {
+        guard result.isHighPriceImpact else {
             return nil
         }
 
