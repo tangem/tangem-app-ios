@@ -109,13 +109,13 @@ struct SendDestinationTextView: View {
 
 #Preview {
     GroupedScrollView {
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Recipient", input: .just(output: ""), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Recipient", input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Memo", input: .just(output: ""), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Memo", input: .just(output: "123456789"), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), errorText: .just(output: nil), didEnterDestination: { _ in }))
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
