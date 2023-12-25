@@ -13,16 +13,56 @@ import BlockchainSdk
 class CommonExpressAllowanceProvider {
     private var ethereumNetworkProvider: EthereumNetworkProvider?
     private var ethereumTransactionProcessor: EthereumTransactionProcessor?
+    private let logger: SwappingLogger
 
-    init() {}
+    private var spendersAwaitingApprove = Set<String>()
+
+    init(logger: SwappingLogger) {
+        self.logger = logger
+    }
 }
 
-// MARK: - AllowanceProvider
+// MARK: - ExpressAllowanceProvider
 
 extension CommonExpressAllowanceProvider: ExpressAllowanceProvider {
     func setup(wallet: WalletModel) {
         ethereumNetworkProvider = wallet.ethereumNetworkProvider
         ethereumTransactionProcessor = wallet.ethereumTransactionProcessor
+    }
+
+    func didSendApproveTransaction(for spender: String) {
+        spendersAwaitingApprove.insert(spender)
+    }
+
+    func isPermissionRequired(request: ExpressManagerSwappingPairRequest, for spender: String) async throws -> Bool {
+        let contractAddress = request.pair.source.expressCurrency.contractAddress
+        if contractAddress == ExpressConstants.coinContractAddress {
+            return false
+        }
+
+        assert(contractAddress != ExpressConstants.coinContractAddress)
+
+        let allowanceWEI = try await getAllowance(
+            owner: request.pair.source.defaultAddress,
+            to: spender,
+            contract: contractAddress
+        )
+
+        let allowance = request.pair.source.convertFromWEI(value: allowanceWEI)
+        logger.debug("\(request.pair.source) allowance - \(allowance)")
+
+        let approveTxWasSent = spendersAwaitingApprove.contains(spender)
+        let isPermissionRequired = allowance < request.amount
+        if approveTxWasSent {
+            if isPermissionRequired {
+                throw AllowanceProviderError.approveTransactionInProgress
+            }
+
+            spendersAwaitingApprove.remove(spender)
+            return isPermissionRequired
+        }
+
+        return isPermissionRequired
     }
 
     func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
