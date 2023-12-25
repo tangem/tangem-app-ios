@@ -8,8 +8,8 @@
 
 import Foundation
 
-public struct ExpressPair {
+public struct ExpressPair: Hashable {
     public let source: ExpressCurrency
     public let destination: ExpressCurrency
-    public let providers: [Int]
+    public let providers: [ExpressProvider.Id]
 }

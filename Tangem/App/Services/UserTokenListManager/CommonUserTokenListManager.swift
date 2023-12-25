@@ -84,7 +84,8 @@ extension CommonUserTokenListManager: UserTokenListManager {
     }
 
     var userTokensListPublisher: AnyPublisher<StoredUserTokenList, Never> {
-        userTokensListSubject.eraseToAnyPublisher()
+        userTokensListSubject
+            .eraseToAnyPublisher()
     }
 
     func update(with userTokenList: StoredUserTokenList) {
@@ -135,9 +136,9 @@ extension CommonUserTokenListManager: UserTokenListManager {
 private extension CommonUserTokenListManager {
     func notifyAboutTokenListUpdates(with userTokenList: StoredUserTokenList? = nil) {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
-        DispatchQueue.main.async {
-            self.userTokensListSubject.send(updatedUserTokenList)
+        userTokensListSubject.send(updatedUserTokenList)
 
+        DispatchQueue.main.async {
             if !self.initialized, self.tokenItemsRepository.containsFile {
                 self.initializedSubject.send(true)
             }
