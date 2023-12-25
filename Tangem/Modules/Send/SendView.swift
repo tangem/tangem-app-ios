@@ -34,11 +34,11 @@ struct SendView: View {
 
     @ViewBuilder
     private var header: some View {
-        if let title = viewModel.title {
-            VStack {
-                SheetDragHandler()
-                    .padding(.bottom, 4)
+        VStack {
+            SheetDragHandler()
+                .padding(.bottom, 4)
 
+            if let title = viewModel.title {
                 Text(title)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
                     .animation(nil)
