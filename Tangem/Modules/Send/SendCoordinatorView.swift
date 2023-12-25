@@ -33,6 +33,10 @@ struct SendCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.qrScanViewModel) {
+                QRScanView(viewModel: $0)
+                    .edgesIgnoringSafeArea(.all)
+            }
     }
 }
