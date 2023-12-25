@@ -49,15 +49,12 @@ class CommonExpressPendingTransactionRepository {
 }
 
 extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRepository {
-    var allExpressTransactions: [ExpressPendingTransactionRecord] {
+    var transactions: [ExpressPendingTransactionRecord] {
         pendingTransactionSubject.value
     }
 
-    var pendingCEXTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
+    var transactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
         pendingTransactionSubject
-            .map { transactions in
-                transactions.filter { $0.transactionStatus.isTransactionInProgress && $0.provider.type == .cex }
-            }
             .eraseToAnyPublisher()
     }
 
@@ -84,11 +81,25 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             date: txData.date,
             externalTxId: txData.expressTransactionData.externalTxId,
             externalTxURL: txData.expressTransactionData.externalTxUrl,
+            isHidden: false,
             transactionStatus: .awaitingDeposit
         )
 
         lockQueue.async { [weak self] in
             self?.addRecordIfNeeded(expressPendingTransactionRecord)
+        }
+    }
+
+    func hideSwapTransaction(with id: String) {
+        lockQueue.async { [weak self] in
+            guard let self else { return }
+
+            guard let index = pendingTransactionSubject.value.firstIndex(where: { $0.expressTransactionId == id }) else {
+                return
+            }
+
+            pendingTransactionSubject.value[index].isHidden = true
+            saveChanges()
         }
     }
 
