@@ -15,11 +15,11 @@ struct SendDestinationView: View {
     var body: some View {
         GroupedScrollView {
             if let addressViewModel = viewModel.addressViewModel {
-                SendDestinationInputView(viewModel: addressViewModel)
+                SendDestinationTextView(viewModel: addressViewModel)
             }
 
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
-                SendDestinationInputView(viewModel: additionalFieldViewModel)
+                SendDestinationTextView(viewModel: additionalFieldViewModel)
             }
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
