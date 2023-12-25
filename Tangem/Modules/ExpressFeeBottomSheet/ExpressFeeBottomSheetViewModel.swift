@@ -37,13 +37,11 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     private func setupView() {
-        guard case .readyToSwap(let state, _) = expressInteractor.getState() else {
-            return
-        }
+        let fees = expressInteractor.getState().fees
 
         // Should use the option's array for the correct order
         feeRowViewModels = [FeeOption.market, .fast].compactMap { option in
-            guard let fee = state.fees[option] else {
+            guard let fee = fees[option] else {
                 return nil
             }
 
@@ -52,10 +50,8 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     private func makeFeeRowViewModel(option: FeeOption, fee: Fee) -> FeeRowViewModel {
-        let blockchain = expressInteractor.getSender().tokenItem.blockchain
-        let currencySymbol = blockchain.currencySymbol
-        let currencyId = blockchain.currencyId
-        let formatedFee = swappingFeeFormatter.format(fee: fee.amount.value, currencySymbol: currencySymbol, currencyId: currencyId)
+        let tokenItem = expressInteractor.getSender().tokenItem
+        let formatedFee = swappingFeeFormatter.format(fee: fee.amount.value, tokenItem: tokenItem)
 
         return FeeRowViewModel(
             option: option,
