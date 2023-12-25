@@ -7,7 +7,10 @@
 //
 
 import Foundation
+import SwiftUI
 
 class SendRoutableMock: SendRoutable {
     init() {}
+
+    func openQRScanner(with codeBinding: Binding<String>) {}
 }
