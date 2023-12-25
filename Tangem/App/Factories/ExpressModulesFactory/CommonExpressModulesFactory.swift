@@ -22,7 +22,7 @@ class CommonExpressModulesFactory {
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
+    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: "")
     private lazy var allowanceProvider = makeAllowanceProvider()
     private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
@@ -46,6 +46,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
+            expressRepository: expressRepository,
             interactor: expressInteractor,
             coordinator: coordinator
         )
@@ -84,10 +85,10 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressProvidersBottomSheetViewModel(
-        coordinator: ExpressProvidersBottomSheetRoutable
-    ) -> ExpressProvidersBottomSheetViewModel {
-        ExpressProvidersBottomSheetViewModel(
+    func makeExpressProvidersSelectorViewModel(
+        coordinator: ExpressProvidersSelectorRoutable
+    ) -> ExpressProvidersSelectorViewModel {
+        ExpressProvidersSelectorViewModel(
             percentFormatter: percentFormatter,
             expressProviderFormatter: expressProviderFormatter,
             expressRepository: expressRepository,
@@ -179,6 +180,7 @@ private extension CommonExpressModulesFactory {
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
+            expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressTransactionBuilder: expressTransactionBuilder,
