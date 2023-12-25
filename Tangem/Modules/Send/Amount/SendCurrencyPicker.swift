@@ -20,7 +20,6 @@ struct SendCurrencyPicker: View {
 
     private let iconSize: CGFloat = 18
 
-    
     private static var defaultLowContrastBackgroundColor: UIColor {
         UIColor.backgroundPrimary.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
     }
