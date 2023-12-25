@@ -18,11 +18,11 @@ protocol SendAddressService {
 // MARK: - Default implementation
 
 class DefaultSendAddressService: SendAddressService {
-    private let walletModel: WalletModel
+    private let walletAddresses: [Address]
     private let addressService: AddressService
 
-    init(walletModel: WalletModel, addressService: AddressService) {
-        self.walletModel = walletModel
+    init(walletAddresses: [Address], addressService: AddressService) {
+        self.walletAddresses = walletAddresses
         self.addressService = addressService
     }
 
@@ -31,7 +31,7 @@ class DefaultSendAddressService: SendAddressService {
             return nil
         }
 
-        if walletModel.wallet.addresses.contains(where: { $0.value == address }) {
+        if walletAddresses.contains(where: { $0.value == address }) {
             throw SendAddressServiceError.sameAsWalletAddress
         }
 
