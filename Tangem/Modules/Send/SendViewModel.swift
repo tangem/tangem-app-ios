@@ -36,7 +36,6 @@ final class SendViewModel: ObservableObject {
     let sendDestinationViewModel: SendDestinationViewModel
     let sendFeeViewModel: SendFeeViewModel
     let sendSummaryViewModel: SendSummaryViewModel
-    let sendFinishViewModel: SendFinishViewModel
 
     // MARK: - Dependencies
 
@@ -119,11 +118,9 @@ final class SendViewModel: ObservableObject {
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
-        sendFinishViewModel = SendFinishViewModel(input: sendModel)
 
         sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
-        sendFinishViewModel.router = coordinator
 
         bind()
     }
@@ -158,10 +155,16 @@ final class SendViewModel: ObservableObject {
             .transactionFinished
             .sink { [weak self] transactionFinished in
                 if transactionFinished {
-                    self?.openStep(.finish)
+                    self?.openFinishPage()
                 }
             }
             .store(in: &bag)
+    }
+
+    private func openFinishPage() {
+        let sendFinishViewModel = SendFinishViewModel(input: sendModel)
+        sendFinishViewModel.router = coordinator
+        openStep(.finish(model: sendFinishViewModel))
     }
 }
 
