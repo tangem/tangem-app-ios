@@ -1,5 +1,5 @@
 //
-//  SendDestinationInputViewModel.swift
+//  SendDestinationTextViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-class SendDestinationInputViewModel: ObservableObject, Identifiable {
+class SendDestinationTextViewModel: ObservableObject, Identifiable {
     let name: String
     let showAddressIcon: Bool
     let placeholder: String
