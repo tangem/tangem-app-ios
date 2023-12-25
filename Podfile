@@ -56,7 +56,7 @@ target 'Tangem' do
 
   # Helpers
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
-  pod 'BlockiesSwift'
+  pod 'BlockiesSwift', '~> 0.1.2'
   pod 'CombineExt', '~> 1.8.0'
 
   # Debug and development pods
