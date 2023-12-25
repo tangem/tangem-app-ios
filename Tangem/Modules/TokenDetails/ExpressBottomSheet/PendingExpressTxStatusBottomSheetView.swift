@@ -215,6 +215,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             date: Date(),
             externalTxId: "a34883e049a416",
             externalTxURL: "https://changenow.io/exchange/txs/a34883e049a416",
+            isHidden: false,
             transactionStatus: .awaitingDeposit
         )
         let pendingTransaction = factory.buildPendingExpressTransaction(currentExpressStatus: .sending, for: record)
