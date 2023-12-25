@@ -53,7 +53,7 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func bind() {
-        expressPendingTransactionsRepository.pendingTransactionsPublisher
+        expressPendingTransactionsRepository.pendingCEXTransactionsPublisher
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
