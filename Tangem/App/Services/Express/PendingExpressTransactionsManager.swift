@@ -77,8 +77,14 @@ class CommonPendingExpressTransactionsManager {
     private func updateTransactionsStatuses(_ records: [ExpressPendingTransactionRecord]) {
         cancelTask()
 
+        if records.isEmpty {
+            return
+        }
+
+        log("Setup update pending express transactions statuses task. Number of records: \(records.count)")
         updateTask = Task { [weak self] in
             do {
+                self?.log("Start loading pending transactions status. Number of records to request: \(records.count)")
                 var recordsToRequest = [ExpressPendingTransactionRecord]()
                 var transactionsInProgress = [PendingExpressTransaction]()
                 for record in records {
@@ -111,6 +117,7 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
+                self?.log("Not all pending transactions finished. Requesting after status update after timeout for \(recordsToRequest.count) transaction(s)")
                 self?.updateTransactionsStatuses(recordsToRequest)
             } catch {
                 if error is CancellationError || Task.isCancelled {
@@ -118,6 +125,7 @@ class CommonPendingExpressTransactionsManager {
                     return
                 }
 
+                self?.log("Catch error: \(error.localizedDescription). Attempting to repeat exchange status updates. Number of requests: \(records.count)")
                 self?.updateTransactionsStatuses(records)
             }
         }
@@ -140,8 +148,10 @@ class CommonPendingExpressTransactionsManager {
 
     private func loadPendingTransactionStatus(for transactionRecord: ExpressPendingTransactionRecord) async -> PendingExpressTransaction? {
         do {
+            log("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
             let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(currentExpressStatus: expressTransaction.externalStatus, for: transactionRecord)
+            log("Transaction external status: \(expressTransaction.externalStatus.rawValue)")
             pendingExpressTransactionAnalyticsTracker.trackStatusForTransaction(
                 with: transactionRecord.expressTransactionId,
                 tokenSymbol: tokenItem.currencySymbol,
@@ -159,7 +169,7 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func log<T>(_ message: @autoclosure () -> T) {
-        AppLog.shared.debug("[CommonExpressPendingTxTracker] \(message())")
+        AppLog.shared.debug("[CommonPendingExpressTransactionsManager] \(message())")
     }
 }
 
