@@ -9,6 +9,7 @@
 import Foundation
 
 public struct ExpressTransactionData {
+    public let requestId: String
     public let fromAmount: Decimal
     public let toAmount: Decimal
 
@@ -23,6 +24,9 @@ public struct ExpressTransactionData {
     /// swap smart-contract address as `spender` or `router`
     /// CEX address for sending transaction
     public let destinationAddress: String
+
+    /// MEMO / DestinationTag or something additional id
+    public let extraDestinationId: String?
 
     /// The value which should be in tx value
     public let value: Decimal
