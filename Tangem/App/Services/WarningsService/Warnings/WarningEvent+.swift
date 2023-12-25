@@ -49,20 +49,20 @@ extension WarningEvent {
             return .info
         case .failedToVerifyCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .critical
-        case .systemDeprecationTemporary:
+        case .systemDeprecationTemporary, .supportedOnlySingleCurrencyWallet:
             return .warning
-        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
+        case .missingDerivation, .walletLocked, .missingBackup, .tangemExpressPromotion: // New cases won't be displayed in new design
             return .info
         }
     }
 
     private var type: WarningType {
         switch self {
-        case .numberOfSignedHashesIncorrect, .rateApp, .systemDeprecationTemporary:
+        case .numberOfSignedHashesIncorrect, .rateApp, .systemDeprecationTemporary, .supportedOnlySingleCurrencyWallet:
             return .temporary
         case .failedToVerifyCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .permanent
-        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
+        case .missingDerivation, .walletLocked, .missingBackup, .tangemExpressPromotion: // New cases won't be displayed in new design
             return .temporary
         }
     }
@@ -80,8 +80,11 @@ extension WarningEvent {
             return Localization.warningSystemDeprecationTitle
         case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect, .legacyDerivation:
             return defaultTitle
-        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
+        case .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
+            // New cases won't be displayed in new design
             return defaultTitle
+        case .tangemExpressPromotion:
+            return Localization.mainSwapPromotionTitle
         }
     }
 }

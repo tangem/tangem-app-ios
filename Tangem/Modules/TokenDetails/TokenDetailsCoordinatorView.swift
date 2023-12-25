@@ -49,7 +49,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-            .sheet(item: $coordinator.expressCoordinator) {
+            .iOS17UIKitSheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
             }
 
@@ -66,6 +66,12 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 settings: .init(backgroundColor: Colors.Background.primary)
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
+            }
+            .bottomSheet(
+                item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
+                settings: .init(backgroundColor: Colors.Background.tertiary)
+            ) {
+                PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
     }
 }

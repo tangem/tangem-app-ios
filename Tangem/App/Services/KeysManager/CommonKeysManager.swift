@@ -55,10 +55,6 @@ extension CommonKeysManager: KeysManager {
         )
     }
 
-    var shopifyShop: ShopifyShop {
-        keys.shopifyShop
-    }
-
     var tangemComAuthorization: String? {
         keys.tangemComAuthorization
     }
@@ -79,16 +75,12 @@ extension CommonKeysManager: KeysManager {
         keys.infuraProjectId
     }
 
-    var swapReferrerAccount: SwapReferrerAccount? {
-        keys.swapReferrerAccount
+    var expressKeys: ExpressKeys {
+        keys.express
     }
 
     var walletConnectProjectId: String {
         keys.walletConnectProjectId
-    }
-
-    var tangemExpressApiKey: String {
-        keys.tangemExpressApiKey
     }
 }
 
@@ -114,11 +106,9 @@ extension CommonKeysManager {
         let quiknodeSubdomain: String
         let bscQuiknodeApiKey: String
         let bscQuiknodeSubdomain: String
-        let shopifyShop: ShopifyShop
         let tangemComAuthorization: String?
-        let swapReferrerAccount: SwapReferrerAccount?
         let walletConnectProjectId: String
         let sprinklr: SprinklrConfig
-        let tangemExpressApiKey: String
+        let express: ExpressKeys
     }
 }
