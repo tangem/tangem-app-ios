@@ -116,6 +116,7 @@ class SendModel {
 
     func send() {
         guard var transaction = transaction.value else {
+            AppLog.shared.debug("Transaction object hasn't been created")
             return
         }
 
@@ -187,11 +188,17 @@ class SendModel {
                 }
 
                 #warning("[REDACTED_TODO_COMMENT]")
-                return try? walletModel.createTransaction(
-                    amountToSend: amount,
-                    fee: fee,
-                    destinationAddress: destination
-                )
+                do {
+                    return try walletModel.createTransaction(
+                        amountToSend: amount,
+                        fee: fee,
+                        destinationAddress: destination
+                    )
+                } catch {
+                    AppLog.shared.debug("Failed to create transaction")
+                    AppLog.shared.error(error)
+                    return nil
+                }
             }
             .sink { transaction in
                 self.transaction.send(transaction)
