@@ -18,22 +18,35 @@ struct ExpressTokensListView: View {
     var body: some View {
         NavigationView {
             ZStack(alignment: .center) {
-                Colors.Background.secondary.ignoresSafeArea(.all)
+                Colors.Background.tertiary.ignoresSafeArea(.all)
 
                 content
             }
+            .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(Localization.swappingTokenListTitle)
             .searchableCompat(text: $viewModel.searchText)
+            .autocorrectionDisabled()
         }
-        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 
     @ViewBuilder
     private var content: some View {
-        if viewModel.isEmptyView {
+        switch viewModel.viewState {
+        case .idle, .loading:
+            EmptyView()
+        case .isEmpty:
             emptyContent
-        } else {
-            listContent
+        case .loaded(let availableTokens, let unavailableTokens):
+            GroupedScrollView(alignment: .leading, spacing: 14) {
+                if availableTokens.isEmpty, unavailableTokens.isEmpty {
+                    emptySearchContent
+                } else {
+                    section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: availableTokens)
+
+                    section(title: viewModel.unavailableSectionHeader, viewModels: unavailableTokens)
+                }
+            }
         }
     }
 
@@ -50,12 +63,10 @@ struct ExpressTokensListView: View {
         }
     }
 
-    private var listContent: some View {
-        GroupedScrollView(spacing: 14) {
-            section(title: Localization.exchangeTokensAvailableTokensHeader, viewModels: viewModel.availableTokens)
-
-            section(title: viewModel.unavailableSectionHeader, viewModels: viewModel.unavailableTokens)
-        }
+    private var emptySearchContent: some View {
+        Text(Localization.expressTokenListEmptySearch)
+            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            .padding(.all, 14)
     }
 
     @ViewBuilder
@@ -85,6 +96,7 @@ struct ExpressTokensListView: View {
 }
 
 /*
+ // [REDACTED_TODO_COMMENT]
  struct ExpressTokensListView_Preview: PreviewProvider {
      static let viewModel = ExpressTokensListViewModel(coordinator: ExpressTokensListRoutableMock())
 
