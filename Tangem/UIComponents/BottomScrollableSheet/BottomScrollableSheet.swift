@@ -8,30 +8,42 @@
 
 import SwiftUI
 
-struct BottomScrollableSheet<Header: View, Content: View>: View {
+struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     @ViewBuilder private let header: () -> Header
     @ViewBuilder private let content: () -> Content
+    @ViewBuilder private let overlay: () -> Overlay
+
+    @Environment(\.bottomScrollableSheetStateObserver) private var bottomScrollableSheetStateObserver
 
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
+
+    @Environment(\.statusBarStyleConfigurator) private var statusBarStyleConfigurator
+
+    @State private var overlayHeight: CGFloat = .zero
 
     @State private var isHidden = true
     private var isHiddenWhenCollapsed = false
 
     private var prefersGrabberVisible = true
 
-    /// The tap gesture is completely disabled when the sheet is expanded.
-    private var headerTapGestureMask: GestureMask { stateObject.state.isBottom ? .all : .none }
+    /// - Note: The drag gesture is enabled only when the sheet in is an expanded state (`BottomScrollableSheetState.top`).
+    /// Otherwise, a drag gesture from the `headerGestureOverlayView` view is used.
+    private var headerDragGestureMask: GestureMask { stateObject.state.isBottom ? .subviews : .all }
+
+    private var scrollViewBottomContentInset: CGFloat { max(overlayHeight, UIApplication.safeAreaInsets.bottom, 6.0) }
 
     private let coordinateSpaceName = UUID()
 
     init(
         stateObject: BottomScrollableSheetStateObject,
         @ViewBuilder header: @escaping () -> Header,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: @escaping () -> Content,
+        @ViewBuilder overlay: @escaping () -> Overlay
     ) {
         self.stateObject = stateObject
         self.header = header
         self.content = content
+        self.overlay = overlay
     }
 
     var body: some View {
@@ -44,9 +56,16 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             }
             .ignoresSafeArea(edges: .bottom)
             .onAppear(perform: stateObject.onAppear)
+            .onDisappear(perform: restoreStatusBarColorScheme)
+            .onChange(of: stateObject.state) { newValue in
+                bottomScrollableSheetStateObserver?(newValue)
+            }
+            .onChange(of: stateObject.preferredStatusBarColorScheme) { newValue in
+                statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
+            }
             .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
         }
-        .ignoresSafeArea(.keyboard)
+        .ignoresSafeArea(edges: .bottom)
     }
 
     private var headerDragGesture: some Gesture {
@@ -56,9 +75,28 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
     }
 
     private var headerTapGesture: some Gesture {
-        // [REDACTED_TODO_COMMENT]
         TapGesture()
             .onEnded(stateObject.onHeaderTap)
+    }
+
+    @ViewBuilder private var headerView: some View {
+        header()
+            .gesture(headerDragGesture, including: headerDragGestureMask)
+            .if(prefersGrabberVisible) { $0.bottomScrollableSheetGrabber() }
+            .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
+    }
+
+    /// - Note: Invisible and receives touches only when the sheet is in a collapsed state (`BottomScrollableSheetState.bottom`).
+    @ViewBuilder private var headerGestureOverlayView: some View {
+        // The reduced hittest area is used here to prevent simultaneous recognition of the `headerDragGesture`
+        // or `headerTapGesture` gestures and the system `app switcher` screen edge drag gesture.
+        let overlayViewHeight = max(0.0, stateObject.headerHeight - UIApplication.safeAreaInsets.bottom)
+        Color.clear
+            .frame(height: overlayViewHeight, alignment: .top)
+            .contentShape(Rectangle())
+            .gesture(headerTapGesture)
+            .simultaneousGesture(headerDragGesture)
+            .allowsHitTesting(stateObject.state.isBottom)
     }
 
     @ViewBuilder private var backgroundView: some View {
@@ -75,16 +113,27 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
                     onEnded: stateObject.scrollViewContentDragGesture(onEnded:)
                 )
 
-                content()
-                    .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
-                    .readContentOffset(
-                        inCoordinateSpace: .named(coordinateSpaceName),
-                        bindTo: stateObject.contentOffsetSubject.asWriteOnlyBinding(.zero)
-                    )
+                VStack(spacing: 0.0) {
+                    content()
+                        .readContentOffset(
+                            inCoordinateSpace: .named(coordinateSpaceName),
+                            throttleInterval: .standard,
+                            bindTo: stateObject.contentOffsetSubject.asWriteOnlyBinding(.zero)
+                        )
+
+                    FixedSpacer(height: scrollViewBottomContentInset, length: scrollViewBottomContentInset)
+                        .fixedSize()
+                }
+                .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
             }
             .ios15AndBelowScrollDisabledCompat(stateObject.scrollViewIsDragging)
         }
         .ios16AndAboveScrollDisabledCompat(stateObject.scrollViewIsDragging)
+        .overlay(
+            overlay()
+                .readGeometry(\.size.height, bindTo: $overlayHeight)
+                .infinityFrame(alignment: .bottom)
+        )
         .coordinateSpace(name: coordinateSpaceName)
     }
 
@@ -94,13 +143,13 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
             Colors.Background.primary
 
             VStack(spacing: 0.0) {
-                headerView(proxy: proxy)
+                headerView
 
                 scrollView
             }
             .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
         }
-        .frame(height: stateObject.visibleHeight)
+        .frame(height: proxy.size.height - stateObject.topInset)
         .bottomScrollableSheetCornerRadius()
         .bottomScrollableSheetShadow()
         .hidden(isHiddenWhenCollapsed ? isHidden : false)
@@ -114,27 +163,13 @@ struct BottomScrollableSheet<Header: View, Content: View>: View {
                 isHidden = true
             }
         }
-        .overlay(headerGestureOverlayView(proxy: proxy), alignment: .top) // Mustn't be hidden (by the 'isHidden' flag)
+        .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
+        .offset(y: proxy.size.height - stateObject.visibleHeight - stateObject.topInset)
     }
 
-    @ViewBuilder
-    private func headerGestureOverlayView(proxy: GeometryProxy) -> some View {
-        // The reduced hittest area is used here to prevent simultaneous recognition of the `headerDragGesture`
-        // or `headerTapGesture` gestures and the system `app switcher` screen edge drag gesture.
-        let overlayViewBottomInset = stateObject.state.isBottom ? proxy.safeAreaInsets.bottom : 0.0
-        let overlayViewHeight = max(0.0, stateObject.headerHeight - overlayViewBottomInset)
-        Color.clear
-            .frame(height: overlayViewHeight, alignment: .top)
-            .contentShape(Rectangle())
-            .gesture(headerTapGesture, including: headerTapGestureMask)
-            .simultaneousGesture(headerDragGesture)
-    }
-
-    @ViewBuilder
-    private func headerView(proxy: GeometryProxy) -> some View {
-        header()
-            .if(prefersGrabberVisible) { $0.bottomScrollableSheetGrabber() }
-            .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
+    /// Restores default (system-driven) appearance of the status bar.
+    private func restoreStatusBarColorScheme() {
+        statusBarStyleConfigurator.setSelectedStatusBarColorScheme(nil, animated: true)
     }
 }
 
