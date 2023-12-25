@@ -19,7 +19,7 @@ struct PendingExpressTransactionsConverter {
             let destinationTokenItem = record.destinationTokenTxInfo.tokenItem
             let state: PendingExpressTransactionView.State
             switch $0.transactionRecord.transactionStatus {
-            case .done, .refunded:
+            case .done, .refunded, .expired:
                 return nil
             case .awaitingDeposit, .confirming, .exchanging, .sendingToUser:
                 state = .inProgress
@@ -76,9 +76,8 @@ struct PendingExpressTransactionsConverter {
             )
         }
         let title: String = isCurrentStatus ? status.activeStatusTitle : isPendingStatus ? status.pendingStatusTitle : status.passedStatusTitle
+        var state: PendingExpressTransactionStatusRow.State = isCurrentStatus ? .loader : isPendingStatus ? .empty : .checkmark
 
-        var state: PendingExpressTransactionStatusRow.State =
-            isCurrentStatus ? .loader : isPendingStatus ? .empty : .checkmark
         switch status {
         case .failed:
             state = .cross(passed: false)
@@ -87,7 +86,7 @@ struct PendingExpressTransactionsConverter {
             state = isFinished ? .checkmark : .empty
         case .verificationRequired:
             state = .exclamationMark
-        case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done:
+        case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done, .expired:
             break
         }
 
