@@ -74,7 +74,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
 private extension CommonExpressDestinationService {
     func isLastTransactionWith(walletModel: WalletModel) -> Bool {
-        let transactions = pendingTransactionRepository.allExpressTransactions
+        let transactions = pendingTransactionRepository.transactions
         let lastCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency
 
         return walletModel.expressCurrency == lastCurrency
