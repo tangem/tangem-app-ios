@@ -88,14 +88,23 @@ struct ExpressProviderFormatter {
 
         if let termsOfUse = provider.termsOfUse, let privacyPolicy = provider.privacyPolicy {
             let text = Localization.expressLegalTwoPlaceholders(tos, policy)
-            let attributedString = NSMutableAttributedString(string: text, attributes: [.font: UIFonts.Regular.footnote])
+            let attributedString = NSMutableAttributedString(string: text, attributes: [
+                .font: UIFonts.Regular.footnote,
+                .foregroundColor: UIColor(Colors.Text.tertiary),
+            ])
 
             if let range = text.range(of: tos) {
-                attributedString.addAttributes([.link: termsOfUse], range: NSRange(range, in: text))
+                attributedString.addAttributes(
+                    [.link: termsOfUse, .foregroundColor: UIColor(Colors.Text.accent)],
+                    range: NSRange(range, in: text)
+                )
             }
 
             if let range = text.range(of: policy) {
-                attributedString.addAttributes([.link: privacyPolicy], range: NSRange(range, in: text))
+                attributedString.addAttributes(
+                    [.link: privacyPolicy, .foregroundColor: UIColor(Colors.Text.accent)],
+                    range: NSRange(range, in: text)
+                )
             }
 
             return attributedString
@@ -103,9 +112,15 @@ struct ExpressProviderFormatter {
 
         if let termsOfUse = provider.termsOfUse {
             let text = Localization.expressLegalOnePlaceholder(tos)
-            let attributedString = NSMutableAttributedString(string: text, attributes: [.font: UIFonts.Regular.footnote])
+            let attributedString = NSMutableAttributedString(string: text, attributes: [
+                .font: UIFonts.Regular.footnote,
+                .foregroundColor: UIColor(Colors.Text.tertiary),
+            ])
             if let range = text.range(of: tos) {
-                attributedString.addAttributes([.link: termsOfUse], range: NSRange(range, in: text))
+                attributedString.addAttributes(
+                    [.link: termsOfUse, .foregroundColor: UIColor(Colors.Text.accent)],
+                    range: NSRange(range, in: text)
+                )
             }
 
             return attributedString
@@ -113,9 +128,16 @@ struct ExpressProviderFormatter {
 
         if let privacyPolicy = provider.privacyPolicy {
             let text = Localization.expressLegalOnePlaceholder(policy)
-            let attributedString = NSMutableAttributedString(string: text, attributes: [.font: UIFonts.Regular.footnote])
+            let attributedString = NSMutableAttributedString(string: text, attributes: [
+                .font: UIFonts.Regular.footnote,
+                .foregroundColor: UIColor(Colors.Text.tertiary),
+            ])
+
             if let range = text.range(of: policy) {
-                attributedString.addAttributes([.link: privacyPolicy], range: NSRange(range, in: text))
+                attributedString.addAttributes(
+                    [.link: privacyPolicy, .foregroundColor: UIColor(Colors.Text.accent)],
+                    range: NSRange(range, in: text)
+                )
             }
 
             return attributedString
