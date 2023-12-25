@@ -319,15 +319,19 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
-    var amountTextBinding: Binding<String> {
-        .constant("100")
+    var destinationText: String? {
+        destination.value
     }
 
-    var transactionURL: AnyPublisher<URL?, Never> {
-        _transactionURL.eraseToAnyPublisher()
+    var feeText: String {
+        _feeText
     }
 
-    var transactionTime: AnyPublisher<Date?, Never> {
-        _transactionTime.eraseToAnyPublisher()
+    var transactionTime: Date? {
+        _transactionTime.value
+    }
+
+    var transactionURL: URL? {
+        _transactionURL.value
     }
 }
