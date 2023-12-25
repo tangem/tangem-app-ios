@@ -66,10 +66,11 @@ class ExpressNotificationManager {
 
         case .previewCEX(let preview, let quote):
 
-            if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
-               // If this notification already showed then will not update the notifications set
-               !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
-                notificationInputsSubject.value = [notification]
+            if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
+                // If this notification already showed then will not update the notifications set
+                if !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
+                    notificationInputsSubject.value = [notification]
+                }
             } else {
                 notificationInputsSubject.value = []
             }
