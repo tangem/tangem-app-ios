@@ -27,16 +27,21 @@ struct SendCurrencyView: View {
 
             mainContent
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
-        .background(Colors.Background.primary)
+        .padding(.all, 14)
+        .background(Colors.Background.action)
         .cornerRadius(14)
     }
 
     private var headerLabels: some View {
         HStack(spacing: 0) {
-            Text(Localization.exchangeSendViewHeader)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            switch viewModel.headerState {
+            case .header:
+                Text(Localization.exchangeSendViewHeader)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+            case .insufficientFunds:
+                Text(Localization.swappingInsufficientFunds)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+            }
 
             Spacer()
 
