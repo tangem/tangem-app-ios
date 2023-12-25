@@ -216,7 +216,7 @@ extension ExpressInteractor {
             expressTransactionData: result.data
         )
 
-        expressPendingTransactionRepository.didSendSwapTransaction(sentTransactionData, userWalletId: userWalletId)
+        expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
         return sentTransactionData
     }
 
