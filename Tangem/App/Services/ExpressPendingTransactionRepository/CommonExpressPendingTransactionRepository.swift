@@ -49,20 +49,19 @@ class CommonExpressPendingTransactionRepository {
 }
 
 extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRepository {
-    var pendingTransactions: [ExpressPendingTransactionRecord] {
+    var allExpressTransactions: [ExpressPendingTransactionRecord] {
         pendingTransactionSubject.value
     }
 
-    var pendingTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
-        pendingTransactionSubject.eraseToAnyPublisher()
+    var pendingCEXTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> {
+        pendingTransactionSubject
+            .map { transactions in
+                transactions.filter { $0.transactionStatus.isTransactionInProgress && $0.provider.type == .cex }
+            }
+            .eraseToAnyPublisher()
     }
 
-    func didSendSwapTransaction(_ txData: SentExpressTransactionData, userWalletId: String) {
-        guard case .send = txData.expressTransactionData.transactionType else {
-            log("No need to store DEX transactions. Skipping")
-            return
-        }
-
+    func swapTransactionDidSend(_ txData: SentExpressTransactionData, userWalletId: String) {
         let expressPendingTransactionRecord = ExpressPendingTransactionRecord(
             userWalletId: userWalletId,
             expressTransactionId: txData.expressTransactionData.expressTransactionId,
@@ -93,8 +92,6 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
         }
     }
 
-    func didSendApproveTransaction() {}
-
     func updateItems(_ items: [ExpressPendingTransactionRecord]) {
         if items.isEmpty {
             return
@@ -123,18 +120,10 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             saveChanges()
         }
     }
+}
 
-    func removeSwapTransaction(with expressTxId: String) {
-        lockQueue.async { [weak self] in
-            guard let self else { return }
-
-            guard let index = pendingTransactionSubject.value.firstIndex(where: { $0.expressTransactionId == expressTxId }) else {
-                log("Trying to remove transaction that not in repository.")
-                return
-            }
-
-            pendingTransactionSubject.value.remove(at: index)
-            saveChanges()
-        }
+extension CommonExpressPendingTransactionRepository: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
