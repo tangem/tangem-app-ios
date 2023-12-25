@@ -705,6 +705,7 @@
 		DA74441E2A27739200F926A9 /* LearnAndEarnAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA74441D2A27739100F926A9 /* LearnAndEarnAlertView.swift */; };
 		DA7444242A27889600F926A9 /* PromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444222A27889600F926A9 /* PromotionService.swift */; };
 		DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */; };
+		DA78444C2B3080AF002281B8 /* SendAmountChangedToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA78444B2B3080AF002281B8 /* SendAmountChangedToast.swift */; };
 		DA7859E12AB0451F004FAE04 /* GenerateAddressesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */; };
 		DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */; };
 		DA81CF2F2B060A5D008877F1 /* SendSuggestedDestinationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */; };
@@ -2127,6 +2128,7 @@
 		DA74441D2A27739100F926A9 /* LearnAndEarnAlertView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnAndEarnAlertView.swift; sourceTree = "<group>"; };
 		DA7444222A27889600F926A9 /* PromotionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionService.swift; sourceTree = "<group>"; };
 		DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionServiceProtocol.swift; sourceTree = "<group>"; };
+		DA78444B2B3080AF002281B8 /* SendAmountChangedToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountChangedToast.swift; sourceTree = "<group>"; };
 		DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesView.swift; sourceTree = "<group>"; };
 		DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeSignType.swift; sourceTree = "<group>"; };
 		DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSuggestedDestinationView.swift; sourceTree = "<group>"; };
@@ -5135,6 +5137,7 @@
 				DA559C512B0265E700F59584 /* SendDestinationInputViewModel.swift */,
 				DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */,
 				DA81CF2E2B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift */,
+				DA78444B2B3080AF002281B8 /* SendAmountChangedToast.swift */,
 			);
 			path = Destination;
 			sourceTree = "<group>";
@@ -8512,6 +8515,7 @@
 				DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				B62E42512A79328A0045AB31 /* Collection+.swift in Sources */,
+				DA78444C2B3080AF002281B8 /* SendAmountChangedToast.swift in Sources */,
 				EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */,
 				DAF59CC32ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorView.swift in Sources */,
 				EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */,
