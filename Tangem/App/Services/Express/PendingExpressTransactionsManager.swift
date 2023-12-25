@@ -13,6 +13,8 @@ import TangemSwapping
 protocol PendingExpressTransactionsManager: AnyObject {
     var pendingTransactions: [PendingExpressTransaction] { get }
     var pendingTransactionsPublisher: AnyPublisher<[PendingExpressTransaction], Never> { get }
+
+    func hideTransaction(with id: String)
 }
 
 class CommonPendingExpressTransactionsManager {
@@ -51,7 +53,9 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func bind() {
-        expressPendingTransactionsRepository.pendingTransactionsPublisher
+        expressPendingTransactionsRepository.transactionsPublisher
+            // We should show only CEX transaction on UI
+
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
@@ -110,6 +114,12 @@ class CommonPendingExpressTransactionsManager {
                 var transactionsToUpdateInRepository = [ExpressPendingTransactionRecord]()
                 for pendingTransaction in pendingTransactionsToRequest {
                     let record = pendingTransaction.transactionRecord
+                    guard record.transactionStatus.isTransactionInProgress else {
+                        transactionsInProgress.append(pendingTransaction)
+                        transactionsToSchedule.append(pendingTransaction)
+                        continue
+                    }
+
                     guard let loadedPendingTransaction = await self?.loadPendingTransactionStatus(for: record) else {
                         // If received error from backend and transaction was already displayed on TokenDetails screen
                         // we need to send previously received transaction, otherwise it will hide on TokenDetails
@@ -122,10 +132,6 @@ class CommonPendingExpressTransactionsManager {
 
                     // We need to send finished transaction one more time to properly update status on bottom sheet
                     transactionsInProgress.append(loadedPendingTransaction)
-                    guard loadedPendingTransaction.transactionRecord.transactionStatus.isTransactionInProgress else {
-                        self?.removeTransactionFromRepository(record)
-                        continue
-                    }
 
                     if record.transactionStatus != loadedPendingTransaction.transactionRecord.transactionStatus {
                         transactionsToUpdateInRepository.append(loadedPendingTransaction.transactionRecord)
@@ -168,7 +174,15 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func filterRelatedTokenTransactions(list: [ExpressPendingTransactionRecord]) -> [ExpressPendingTransactionRecord] {
-        return list.filter { record in
+        list.filter { record in
+            guard !record.isHidden else {
+                return false
+            }
+
+            guard record.provider.type == .cex else {
+                return false
+            }
+
             guard record.userWalletId == userWalletId else {
                 return false
             }
@@ -200,10 +214,6 @@ class CommonPendingExpressTransactionsManager {
         }
     }
 
-    private func removeTransactionFromRepository(_ record: ExpressPendingTransactionRecord) {
-        expressPendingTransactionsRepository.removeSwapTransaction(with: record.expressTransactionId)
-    }
-
     private func log<T>(_ message: @autoclosure () -> T) {
         AppLog.shared.debug("[CommonPendingExpressTransactionsManager] \(message())")
     }
@@ -216,6 +226,11 @@ extension CommonPendingExpressTransactionsManager: PendingExpressTransactionsMan
 
     var pendingTransactionsPublisher: AnyPublisher<[PendingExpressTransaction], Never> {
         transactionsInProgressSubject.eraseToAnyPublisher()
+    }
+
+    func hideTransaction(with id: String) {
+        log("Hide transaction in the repository. Transaction id: \(id)")
+        expressPendingTransactionsRepository.hideSwapTransaction(with: id)
     }
 }
 
