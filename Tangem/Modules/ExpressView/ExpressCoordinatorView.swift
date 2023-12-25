@@ -29,7 +29,7 @@ struct ExpressCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .iOS17UIKitSheet(item: $coordinator.expressTokensListViewModel) {
+            .iOS16UIKitSheet(item: $coordinator.expressTokensListViewModel) {
                 ExpressTokensListView(viewModel: $0)
             }
             .bottomSheet(
