@@ -82,11 +82,8 @@ class SendDestinationViewModel: ObservableObject {
             }
 
         addressViewModel = SendDestinationTextViewModel(
-            name: Localization.sendRecipient,
+            style: .address(networkName: input.networkName),
             input: input.destinationTextPublisher,
-            showAddressIcon: true,
-            placeholder: Localization.sendEnterAddressField,
-            description: Localization.sendRecipientAddressFooter(input.networkName),
             errorText: input.destinationError
         ) { [weak self] in
             self?.delegate?.didEnterAddress($0)
@@ -95,11 +92,8 @@ class SendDestinationViewModel: ObservableObject {
         if let additionalField = input.additionalField,
            let name = additionalField.name {
             additionalFieldViewModel = SendDestinationTextViewModel(
-                name: name,
+                style: .additionalField(name: name),
                 input: input.destinationAdditionalFieldTextPublisher,
-                showAddressIcon: false,
-                placeholder: Localization.sendOptionalField,
-                description: Localization.sendRecipientMemoFooter,
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.delegate?.didEnterAdditionalField($0)
