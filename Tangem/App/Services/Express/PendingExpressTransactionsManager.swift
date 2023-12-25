@@ -14,7 +14,7 @@ protocol PendingExpressTransactionsManager: AnyObject {
     var pendingTransactions: [PendingExpressTransaction] { get }
     var pendingTransactionsPublisher: AnyPublisher<[PendingExpressTransaction], Never> { get }
 
-    func removeTransaction(with id: String)
+    func hideTransaction(with id: String)
 }
 
 class CommonPendingExpressTransactionsManager {
@@ -53,7 +53,9 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func bind() {
-        expressPendingTransactionsRepository.pendingCEXTransactionsPublisher
+        expressPendingTransactionsRepository.transactionsPublisher
+            // We should show only CEX transaction on UI
+
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
@@ -172,7 +174,15 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func filterRelatedTokenTransactions(list: [ExpressPendingTransactionRecord]) -> [ExpressPendingTransactionRecord] {
-        return list.filter { record in
+        list.filter { record in
+            guard !record.isHidden else {
+                return false
+            }
+
+            guard record.provider.type == .cex else {
+                return false
+            }
+
             guard record.userWalletId == userWalletId else {
                 return false
             }
@@ -218,9 +228,9 @@ extension CommonPendingExpressTransactionsManager: PendingExpressTransactionsMan
         transactionsInProgressSubject.eraseToAnyPublisher()
     }
 
-    func removeTransaction(with id: String) {
-        log("Removing transaction from repository. Transaction id: \(id)")
-        expressPendingTransactionsRepository.removeSwapTransaction(with: id)
+    func hideTransaction(with id: String) {
+        log("Hide transaction in the repository. Transaction id: \(id)")
+        expressPendingTransactionsRepository.hideSwapTransaction(with: id)
     }
 }
 
