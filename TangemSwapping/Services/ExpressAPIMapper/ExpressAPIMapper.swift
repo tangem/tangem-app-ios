@@ -9,6 +9,8 @@
 import Foundation
 
 struct ExpressAPIMapper {
+    let exchangeDataDecoder: ExpressExchangeDataDecoder
+
     // MARK: - Map to DTO
 
     func mapToDTOCurrency(currency: ExpressCurrency) -> ExpressDTO.Currency {
@@ -21,33 +23,29 @@ struct ExpressAPIMapper {
         ExpressCurrency(contractAddress: currency.contractAddress, network: currency.network)
     }
 
-    func mapToExpressAsset(currency: ExpressDTO.Assets.Response) -> ExpressAsset {
-        ExpressAsset(
-            currency: .init(contractAddress: currency.contractAddress, network: currency.network),
-            token: currency.token,
-            name: currency.name,
-            symbol: currency.symbol,
-            decimals: currency.decimals,
-            exchangeAvailable: currency.exchangeAvailable,
-            onrampAvailable: currency.onrampAvailable,
-            offrampAvailable: currency.offrampAvailable
-        )
-    }
-
     func mapToExpressPair(response: ExpressDTO.Pairs.Response) -> ExpressPair {
         ExpressPair(
             source: mapToExpressCurrency(currency: response.from),
             destination: mapToExpressCurrency(currency: response.to),
-            providers: response.providers.map { $0.providerId }
+            providers: response.providers.map { .init($0.providerId) }
+        )
+    }
+
+    func mapToExpressAsset(response: ExpressDTO.Assets.Response) -> ExpressAsset {
+        ExpressAsset(
+            currency: ExpressCurrency(contractAddress: response.contractAddress, network: response.network),
+            isExchangeable: response.exchangeAvailable
         )
     }
 
     func mapToExpressProvider(provider: ExpressDTO.Providers.Response) -> ExpressProvider {
         ExpressProvider(
-            id: provider.id,
+            id: .init(provider.id),
             name: provider.name,
-            url: URL(string: provider.imageSmall),
-            type: provider.type
+            type: provider.type,
+            imageURL: provider.imageSmall.flatMap(URL.init(string:)),
+            termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
+            privacyPolicy: provider.privacyPolicy.flatMap(URL.init(string:))
         )
     }
 
@@ -60,12 +58,13 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
-        guard let minAmount = Decimal(string: response.minAmount) else {
+        guard var minAmount = Decimal(string: response.minAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.minAmount)
         }
 
         fromAmount /= pow(10, response.fromDecimals)
         toAmount /= pow(10, response.toDecimals)
+        minAmount /= pow(10, response.fromDecimals)
 
         return ExpressQuote(
             fromAmount: fromAmount,
@@ -75,7 +74,13 @@ struct ExpressAPIMapper {
         )
     }
 
-    func mapToExpressTransactionData(response: ExpressDTO.ExchangeData.Response) throws -> ExpressTransactionData {
+    func mapToExpressTransactionData(requestId: String, response: ExpressDTO.ExchangeData.Response) throws -> ExpressTransactionData {
+        let txDetails = try exchangeDataDecoder.decode(txDetailsJson: response.txDetailsJson, signature: response.signature)
+
+        guard requestId == txDetails.requestId else {
+            throw ExpressAPIMapperError.requestIdNotEqual
+        }
+
         guard var fromAmount = Decimal(string: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
@@ -84,8 +89,8 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
-        guard var txValue = Decimal(string: response.txValue) else {
-            throw ExpressAPIMapperError.mapToDecimalError(response.txValue)
+        guard var txValue = Decimal(string: txDetails.txValue) else {
+            throw ExpressAPIMapperError.mapToDecimalError(txDetails.txValue)
         }
 
         fromAmount /= pow(10, response.fromDecimals)
@@ -93,29 +98,32 @@ struct ExpressAPIMapper {
         txValue /= pow(10, response.fromDecimals)
 
         return ExpressTransactionData(
+            requestId: txDetails.requestId,
             fromAmount: fromAmount,
             toAmount: toAmount,
             expressTransactionId: response.txId,
-            transactionType: response.txType,
-            sourceAddress: response.txFrom,
-            destinationAddress: response.txTo,
+            transactionType: txDetails.txType,
+            sourceAddress: txDetails.txFrom,
+            destinationAddress: txDetails.txTo,
+            extraDestinationId: txDetails.txExtraId,
             value: txValue,
-            txData: response.txData,
-            externalTxId: response.externalTxId,
-            externalTxUrl: response.externalTxUrl
+            txData: txDetails.txData,
+            externalTxId: txDetails.externalTxId,
+            externalTxUrl: txDetails.externalTxUrl
         )
     }
 
-    func mapToExpressTransaction(response: ExpressDTO.ExchangeResult.Response) -> ExpressTransaction {
+    func mapToExpressTransaction(response: ExpressDTO.ExchangeStatus.Response) -> ExpressTransaction {
         ExpressTransaction(
-            status: response.status,
-            externalStatus: response.externalStatus,
-            externalTxUrl: response.externalTxUrl,
-            errorCode: response.errorCode
+            providerId: .init(response.providerId),
+            externalStatus: response.externalTxStatus,
+            externalTxId: response.externalTxId,
+            externalTxUrl: response.externalTxUrl
         )
     }
 }
 
 enum ExpressAPIMapperError: Error {
     case mapToDecimalError(_ string: String)
+    case requestIdNotEqual
 }

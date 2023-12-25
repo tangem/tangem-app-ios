@@ -1,5 +1,5 @@
 //
-//  ExpressManagerRestriction.swift
+//  ExpressRestriction.swift
 //  TangemSwapping
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import Foundation
 
-public enum ExpressManagerRestriction {
-    case notEnoughAmountForSwapping(_ minAmount: Decimal)
-    case permissionRequired(spender: String)
-    case notEnoughBalanceForSwapping
+public enum ExpressRestriction {
+    case tooSmallAmount(_ minAmount: Decimal)
+    case approveTransactionInProgress(spender: String)
+    case insufficientBalance(_ requiredAmount: Decimal)
 }

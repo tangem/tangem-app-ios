@@ -13,10 +13,12 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
     @Published var balance: State
     @Published var cryptoAmountState: State
     @Published var fiatAmountState: State
+    @Published var priceChangePercent: String?
     @Published var tokenIconState: SwappingTokenIconView.State
+    @Published var isAvailable: Bool = true
 
     var balanceString: String {
-        switch cryptoAmountState {
+        switch balance {
         case .idle:
             return ""
         case .loading:
