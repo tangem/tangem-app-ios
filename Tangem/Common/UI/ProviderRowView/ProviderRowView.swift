@@ -24,6 +24,7 @@ struct ProviderRowView: View {
         HStack(spacing: 12) {
             IconView(url: viewModel.provider.iconURL, size: CGSize(bothDimensions: 36))
                 .saturation(viewModel.isDisabled ? 0 : 1)
+                .opacity(viewModel.isDisabled ? 0.4 : 1)
 
             VStack(alignment: .leading, spacing: 4) {
                 titleView
@@ -43,12 +44,12 @@ struct ProviderRowView: View {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(viewModel.provider.name)
                     .style(
-                        Fonts.Bold.subheadline,
+                        Fonts.Bold.footnote,
                         color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
                     )
 
                 Text(viewModel.provider.type)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
 
             badgeView
@@ -61,11 +62,11 @@ struct ProviderRowView: View {
                 switch subtitle {
                 case .text(let text):
                     Text(text)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                         .multilineTextAlignment(.leading)
                 case .percent(let text, let signType):
                     Text(text)
-                        .style(Fonts.Regular.footnote, color: signType.textColor)
+                        .style(Fonts.Regular.subheadline, color: signType.textColor)
                         .multilineTextAlignment(.leading)
                 }
             }
@@ -92,7 +93,7 @@ struct ProviderRowView: View {
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
-                .background(Colors.Icon.accent.opacity(0.3))
+                .background(Colors.Icon.accent.opacity(0.1))
                 .cornerRadiusContinuous(8)
         }
     }
