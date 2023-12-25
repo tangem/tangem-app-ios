@@ -136,6 +136,6 @@ struct SendFinishView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock()))
+        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock())!)
     }
 }
