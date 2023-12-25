@@ -208,14 +208,6 @@ class WalletModel {
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         swapAvailabilityProvider
             .tokenItemsAvailableToSwapPublisher
-            .contains { [weak self] itemsAvailableToSwap in
-                guard let self else {
-                    return false
-                }
-
-                return itemsAvailableToSwap[tokenItem] ?? false
-            }
-            .removeDuplicates()
             .mapToVoid()
             .eraseToAnyPublisher()
     }
