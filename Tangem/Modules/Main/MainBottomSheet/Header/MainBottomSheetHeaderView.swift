@@ -15,7 +15,7 @@ struct MainBottomSheetHeaderView: View {
         MainBottomSheetHeaderInputView(
             searchText: $viewModel.enteredSearchText,
             isTextFieldFocused: $viewModel.inputShouldBecomeFocused,
-            textFieldAllowsHitTesting: true
+            allowsHitTestingForTextField: true
         )
     }
 }
