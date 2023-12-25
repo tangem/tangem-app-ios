@@ -28,10 +28,9 @@ struct BackupStoryPage: View {
                     .multilineTextAlignment(.center)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
 
-                Text(TangemRichTextFormatter().format(Localization.storyBackupDescription, fontSize: descriptionFontSize))
-                    .font(.system(size: descriptionFontSize))
+                Text(Localization.storyBackupDescription)
+                    .style(Fonts.Regular.callout, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(Colors.Text.tertiary)
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
             .padding(.horizontal, 28)
