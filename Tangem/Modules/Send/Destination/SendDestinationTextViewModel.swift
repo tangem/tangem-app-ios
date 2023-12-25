@@ -25,18 +25,15 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        name: String,
+        style: Style,
         input: AnyPublisher<String, Never>,
-        showAddressIcon: Bool,
-        placeholder: String,
-        description: String,
         errorText: AnyPublisher<Error?, Never>,
         didEnterDestination: @escaping (String) -> Void
     ) {
-        self.name = name
-        self.showAddressIcon = showAddressIcon
-        self.placeholder = placeholder
-        self.description = description
+        name = style.name
+        showAddressIcon = style.showAddressIcon
+        placeholder = style.placeholder
+        description = style.description
         self.didEnterDestination = didEnterDestination
 
         bind(input: input, errorText: errorText)
@@ -102,6 +99,53 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     private func updatePasteButton() {
         if #unavailable(iOS 16.0) {
             hasTextInClipboard = UIPasteboard.general.hasStrings
+        }
+    }
+}
+
+// MARK: - Text style
+
+extension SendDestinationTextViewModel {
+    enum Style {
+        case address(networkName: String)
+        case additionalField(name: String)
+    }
+}
+
+private extension SendDestinationTextViewModel.Style {
+    var name: String {
+        switch self {
+        case .address:
+            Localization.sendRecipient
+        case .additionalField(let additionalFieldName):
+            additionalFieldName
+        }
+    }
+
+    var showAddressIcon: Bool {
+        switch self {
+        case .address:
+            true
+        case .additionalField:
+            false
+        }
+    }
+
+    var placeholder: String {
+        switch self {
+        case .address:
+            Localization.sendEnterAddressField
+        case .additionalField:
+            Localization.sendOptionalField
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .address(let networkName):
+            Localization.sendRecipientAddressFooter(networkName)
+        case .additionalField:
+            Localization.sendRecipientMemoFooter
         }
     }
 }
