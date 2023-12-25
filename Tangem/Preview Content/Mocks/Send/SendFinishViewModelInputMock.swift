@@ -11,9 +11,9 @@ import SwiftUI
 import Combine
 
 class SendFinishViewModelInputMock: SendFinishViewModelInput {
-    var amountTextBinding: Binding<String> { .constant("100,00") }
-    var destinationTextBinding: Binding<String> { .constant("0x0123123") }
-    var feeTextBinding: Binding<String> { .constant("Fee") }
-    var transactionURL: AnyPublisher<URL?, Never> { .just(output: nil) }
-    var transactionTime: AnyPublisher<Date?, Never> { .just(output: Date()) }
+    var amountText: String { "100,00" }
+    var destinationText: String? { "0x123123123" }
+    var feeText: String { "Fee" }
+    var transactionTime: Date? { Date() }
+    var transactionURL: URL? { URL(string: "google.com")! }
 }
