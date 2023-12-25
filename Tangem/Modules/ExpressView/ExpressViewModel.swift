@@ -335,7 +335,8 @@ private extension ExpressViewModel {
 
     func updateSendCurrencyHeaderState(state: ExpressInteractor.ExpressInteractorState) {
         switch state {
-        case .restriction(.notEnoughBalanceForSwapping, _):
+        case .restriction(.notEnoughBalanceForSwapping, _),
+             .restriction(.notEnoughAmountForFee, _):
             sendCurrencyViewModel?.headerState = .insufficientFunds
         default:
             sendCurrencyViewModel?.headerState = .header
