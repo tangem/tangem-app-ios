@@ -271,7 +271,7 @@ extension ExpressInteractor {
     }
 
     func cancelRefresh() {
-        guard let activeTask = updateStateTask, !activeTask.isCancelled else {
+        guard let activeTask = updateStateTask else {
             return
         }
 
