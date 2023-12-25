@@ -65,9 +65,13 @@ class ExpressNotificationManager {
             checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
 
         case .previewCEX(let preview, let quote):
-            notificationInputsSubject.value = []
-            if preview.subtractFee > 0 {
-                setupFeeWillBeSubtractFromSendingAmountNotification(amount: preview.subtractFee)
+
+            if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
+               // If this notification already showed then will not update the notifications set
+               !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
+                notificationInputsSubject.value = [notification]
+            } else {
+                notificationInputsSubject.value = []
             }
 
             checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
@@ -76,7 +80,7 @@ class ExpressNotificationManager {
 
     private func checkHighPriceImpact(fromAmount: Decimal, toAmount: Decimal) {
         priceImpactTask = runTask(in: self, code: { manager in
-            guard let notification = try await manager.generateHighPriceImpactIfNeeded(
+            guard let notification = try await manager.makeHighPriceImpactIfNeeded(
                 fromAmount: fromAmount,
                 toAmount: toAmount
             ) else {
@@ -104,7 +108,8 @@ class ExpressNotificationManager {
         case .hasPendingApproveTransaction:
             event = .hasPendingApproveTransaction
         case .notEnoughBalanceForSwapping(let requiredAmount):
-            event = .notEnoughBalanceToSwap(maximumAmountText: "\(requiredAmount) \(sourceTokenItemSymbol)")
+            notificationInputsSubject.value = []
+            return
         case .notEnoughAmountForFee:
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
@@ -141,40 +146,31 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func setupFeeWillBeSubtractFromSendingAmountNotification(amount: Decimal) {
-        guard let interactor = expressInteractor else { return }
-
-        let sourceTokenItemSymbol = interactor.getSender().tokenItem.currencySymbol
-        let event: ExpressNotificationEvent = .feeWillBeSubtractFromSendingAmount(reducedAmount: "\(amount) \(sourceTokenItemSymbol)")
-        let notificationsFactory = NotificationsFactory()
-
-        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
-            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-        }
-
-        notificationInputsSubject.value.append(notification)
+    private func makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
+        guard subtractFee > 0, let interactor = expressInteractor else { return nil }
+        let factory = NotificationsFactory()
+        let notification = factory.buildNotificationInput(for: .feeWillBeSubtractFromSendingAmount)
+        return notification
     }
 
-    private func generateHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
+    private func makeHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
         guard
             let sourceCurrencyId = expressInteractor?.getSender().tokenItem.currencyId,
-            let destinationCurrencyId = expressInteractor?.getDestination()?.tokenItem.currencyId
+            let destinationCurrencyId = expressInteractor?.getDestination()?.tokenItem.currencyId,
+            // We've decided don't show the "HighPriceImpact" for CEX providers
+            await expressInteractor?.getSelectedProvider()?.provider.type != .cex
         else {
             return nil
         }
 
         let priceImpactCalculator = HighPriceImpactCalculator(sourceCurrencyId: sourceCurrencyId, destinationCurrencyId: destinationCurrencyId)
-
-        let isHighPriceImpact = try await priceImpactCalculator.isHighPriceImpact(
-            converting: fromAmount,
-            to: toAmount
-        )
+        let result = try await priceImpactCalculator.isHighPriceImpact(converting: fromAmount, to: toAmount)
 
         if Task.isCancelled {
             return nil
         }
 
-        guard isHighPriceImpact else {
+        guard result.isHighPriceImpact else {
             return nil
         }
 
