@@ -169,6 +169,10 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                     return
                 }
 
+                if !pendingTx.transactionRecord.transactionStatus.isTransactionInProgress {
+                    viewModel.pendingTransactionsManager.hideTransaction(with: pendingTx.transactionRecord.expressTransactionId)
+                }
+
                 viewModel.updateUI(with: pendingTx, delay: Constants.notificationAnimationDelay)
             }
     }
