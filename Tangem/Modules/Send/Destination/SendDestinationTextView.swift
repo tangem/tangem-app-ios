@@ -1,5 +1,5 @@
 //
-//  SendDestinationInputView.swift
+//  SendDestinationTextView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct SendDestinationInputView: View {
-    @ObservedObject var viewModel: SendDestinationInputViewModel
+struct SendDestinationTextView: View {
+    @ObservedObject var viewModel: SendDestinationTextViewModel
 
     var body: some View {
         GroupedSection(viewModel) { _ in
@@ -84,6 +84,7 @@ struct SendDestinationInputView: View {
                 PasteButton(payloadType: String.self) { strings in
                     guard let string = strings.first else { return }
 
+                    // We receive the value on the non-GUI thread
                     DispatchQueue.main.async {
                         viewModel.didEnterDestination(string)
                     }
@@ -108,13 +109,13 @@ struct SendDestinationInputView: View {
 
 #Preview {
     GroupedScrollView {
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .just(output: ""), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Recipient", input: .just(output: ""), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Recipient", input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Recipient", input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), showAddressIcon: true, placeholder: "Enter address", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .just(output: ""), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Memo", input: .just(output: ""), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationInputView(viewModel: SendDestinationInputViewModel(name: "Memo", input: .just(output: "123456789"), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(name: "Memo", input: .just(output: "123456789"), showAddressIcon: false, placeholder: "Optional", description: "Description", errorText: .just(output: nil), didEnterDestination: { _ in }))
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
