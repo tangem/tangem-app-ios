@@ -58,11 +58,44 @@ extension NotificationView {
     enum ColorScheme {
         case primary
         case secondary
+        case tangemExpressPromotion
 
-        var color: Color {
+        @ViewBuilder
+        var color: some View {
             switch self {
-            case .primary: return Colors.Background.primary
-            case .secondary: return Colors.Button.disabled
+            case .primary: Colors.Background.primary
+            case .secondary: Colors.Button.disabled
+            case .tangemExpressPromotion:
+                Assets.swapBannerBackground.image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
+        }
+
+        var dismissButtonColor: Color {
+            switch self {
+            case .primary, .secondary:
+                return Colors.Icon.inactive
+            case .tangemExpressPromotion:
+                return Colors.Text.constantWhite
+            }
+        }
+
+        var titleColor: Color {
+            switch self {
+            case .primary, .secondary:
+                return Colors.Text.primary1
+            case .tangemExpressPromotion:
+                return Colors.Text.constantWhite
+            }
+        }
+
+        var messageColor: Color {
+            switch self {
+            case .primary, .secondary:
+                return Colors.Text.tertiary
+            case .tangemExpressPromotion:
+                return Colors.Text.constantWhite
             }
         }
     }
@@ -75,5 +108,6 @@ extension NotificationView {
     struct MessageIcon {
         let iconType: LeadingIconType
         var color: Color?
+        var size: CGSize = .init(bothDimensions: 20)
     }
 }

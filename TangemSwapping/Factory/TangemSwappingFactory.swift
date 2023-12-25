@@ -41,12 +41,24 @@ public struct TangemSwappingFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
+        feeProvider: FeeProvider,
+        expressRepository: ExpressRepository,
         logger: SwappingLogger? = nil
     ) -> ExpressManager {
-        CommonExpressManager(
+        let logger: SwappingLogger = logger ?? CommonSwappingLogger()
+        let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
-            logger: logger ?? CommonSwappingLogger()
+            feeProvider: feeProvider,
+            logger: logger,
+            mapper: .init()
+        )
+
+        return CommonExpressManager(
+            expressAPIProvider: expressAPIProvider,
+            expressProviderManagerFactory: factory,
+            expressRepository: expressRepository,
+            logger: logger
         )
     }
 
@@ -54,6 +66,7 @@ public struct TangemSwappingFactory {
         credential: ExpressAPICredential,
         configuration: URLSessionConfiguration,
         isProduction: Bool,
+        exchangeDataDecoder: ExpressExchangeDataDecoder,
         logger: SwappingLogger? = nil
     ) -> ExpressAPIProvider {
         let authorizationPlugin = ExpressAuthorizationPlugin(
@@ -63,7 +76,7 @@ public struct TangemSwappingFactory {
         )
         let provider = MoyaProvider<ExpressAPITarget>(session: Session(configuration: configuration), plugins: [authorizationPlugin])
         let service = CommonExpressAPIService(provider: provider, isProduction: isProduction, logger: logger ?? CommonSwappingLogger())
-        let mapper = ExpressAPIMapper()
+        let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
     }
 }
