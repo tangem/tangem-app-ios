@@ -111,7 +111,7 @@ struct SendFinishView: View {
         VStack(spacing: 10) {
             HStack(spacing: 8) {
                 MainButton(
-                    title: Localization.sendExplore,
+                    title: Localization.commonExplore,
                     icon: .leading(Assets.globe),
                     style: .secondary,
                     action: viewModel.explore
