@@ -34,7 +34,7 @@ class WalletModel {
     }
 
     var isSupportedTransactionHistory: Bool {
-        transactionHistoryService != nil
+        _transactionHistoryService != nil
     }
 
     var shoudShowFeeSelector: Bool {
@@ -180,15 +180,16 @@ class WalletModel {
             return .cantSignLongTransactions
         }
 
-        guard
-            let currentAmount = wallet.amounts[amountType],
-            let token = amountType.token
-        else {
+        guard let currentAmount = wallet.amounts[amountType] else {
             return nil
         }
 
-        if wallet.hasPendingTx, !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
+        if wallet.hasPendingTx { // has pending tx for fee
             return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
+        }
+
+        guard let token = amountType.token else {
+            return nil
         }
 
         // no fee
@@ -207,14 +208,6 @@ class WalletModel {
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         swapAvailabilityProvider
             .tokenItemsAvailableToSwapPublisher
-            .contains { [weak self] itemsAvailableToSwap in
-                guard let self else {
-                    return false
-                }
-
-                return itemsAvailableToSwap[tokenItem] ?? false
-            }
-            .removeDuplicates()
             .mapToVoid()
             .eraseToAnyPublisher()
     }
@@ -293,7 +286,7 @@ class WalletModel {
     // MARK: - Update wallet model
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        transactionHistoryService?.reset()
+        _transactionHistoryService?.clearHistory()
 
         return Publishers
             .CombineLatest(update(silent: silent), updateTransactionsHistory())
@@ -438,6 +431,10 @@ class WalletModel {
             .eraseToAnyPublisher()
     }
 
+    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
+        return walletManager.estimatedFee(amount: amount)
+    }
+
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         if isDemo {
             let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
@@ -488,29 +485,30 @@ extension WalletModel {
 
 extension WalletModel {
     func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        guard let transactionHistoryService else {
+        guard let _transactionHistoryService else {
             AppLog.shared.debug("TransactionsHistory for \(self) not supported")
             return .just(output: ())
         }
 
-        return transactionHistoryService.update()
+        return _transactionHistoryService.update()
     }
 
     private func transactionHistoryState() -> AnyPublisher<WalletModel.TransactionHistoryState, Never> {
-        guard let transactionHistoryService else {
+        guard let _transactionHistoryService else {
             return .just(output: .notSupported)
         }
 
-        return transactionHistoryService
+        return _transactionHistoryService
             .statePublisher
-            .map { [weak transactionHistoryService] state -> WalletModel.TransactionHistoryState in
+            .map { [weak _transactionHistoryService] state -> WalletModel.TransactionHistoryState in
                 switch state {
                 case .initial:
                     return .notLoaded
                 case .loading:
                     return .loading
                 case .loaded:
-                    return .loaded(items: transactionHistoryService?.items ?? [])
+                    // [REDACTED_TODO_COMMENT]
+                    return .loaded(items: _transactionHistoryService?.items ?? [])
                 case .failedToLoad(let error):
                     return .error(error)
                 }
@@ -599,10 +597,6 @@ extension WalletModel {
         walletManager as? EthereumTransactionProcessor
     }
 
-    var transactionHistoryService: TransactionHistoryService? {
-        _transactionHistoryService
-    }
-
     var signatureCountValidator: SignatureCountValidator? {
         walletManager as? SignatureCountValidator
     }
@@ -613,5 +607,15 @@ extension WalletModel {
 
     var hasRent: Bool {
         walletManager is RentProvider
+    }
+}
+
+extension WalletModel: TransactionHistoryFetcher {
+    var canFetchHistory: Bool {
+        _transactionHistoryService?.canFetchHistory ?? false
+    }
+
+    func clearHistory() {
+        _transactionHistoryService?.clearHistory()
     }
 }
