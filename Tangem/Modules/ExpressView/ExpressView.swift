@@ -113,6 +113,7 @@ struct ExpressView: View {
             }
         }
         .backgroundColor(Colors.Background.action)
+        .separatorStyle(.minimum)
         .interSectionPadding(12)
         .interItemSpacing(10)
         .verticalPadding(0)
