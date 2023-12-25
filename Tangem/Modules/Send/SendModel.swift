@@ -127,7 +127,9 @@ class SendModel {
             } receiveValue: { [weak self] result in
                 guard let self else { return }
 
-                _transactionURL.send(explorerUrl(from: result.hash))
+                if let transactionURL = explorerUrl(from: result.hash) {
+                    _transactionURL.send(transactionURL)
+                }
                 _transactionTime.send(Date())
             }
             .store(in: &bag)
@@ -192,7 +194,7 @@ class SendModel {
             .store(in: &bag)
     }
 
-    private func explorerUrl(from hash: String) -> URL {
+    private func explorerUrl(from hash: String) -> URL? {
         let factory = ExternalLinkProviderFactory()
         let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
         return provider.url(transaction: hash)
@@ -317,6 +319,10 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
+    var amountTextBinding: Binding<String> {
+        .constant("100")
+    }
+
     var transactionURL: AnyPublisher<URL?, Never> {
         _transactionURL.eraseToAnyPublisher()
     }
