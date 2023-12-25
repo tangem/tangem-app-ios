@@ -30,6 +30,7 @@ struct SendView: View {
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
+        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
 
     @ViewBuilder
@@ -38,11 +39,30 @@ struct SendView: View {
             SheetDragHandler()
                 .padding(.bottom, 4)
 
-            Text(viewModel.title)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                .animation(nil)
-                .padding(.vertical, 8)
+            HStack {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: 1)
+
+                Text(viewModel.title)
+                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .animation(nil)
+                    .padding(.vertical, 8)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+
+                if viewModel.showQRCodeButton {
+                    Button(action: viewModel.scanQRCode) {
+                        Assets.qrCode.image
+                            .foregroundColor(Colors.Icon.primary1)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                } else {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: 1)
+                }
+            }
         }
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -110,7 +130,7 @@ private struct SendViewBackButton: View {
 
 struct SendView_Preview: PreviewProvider {
     static let viewModel = SendViewModel(
-        walletModel: WalletModelsManagerMock().walletModels.first!,
+        walletModel: FakeUserWalletModel.wallet3Cards.walletModelsManager.walletModels.first!,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         coordinator: SendRoutableMock()
