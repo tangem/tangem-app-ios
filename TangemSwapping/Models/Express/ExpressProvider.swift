@@ -9,15 +9,12 @@
 import Foundation
 
 public struct ExpressProvider: Hashable {
-    public let id: Int
-    public let name: String
-    public let url: URL?
-    public let type: ExpressProviderType
+    public typealias Id = String
 
-    public init(id: Int, name: String, url: URL?, type: ExpressProviderType) {
-        self.id = id
-        self.name = name
-        self.url = url
-        self.type = type
-    }
+    public let id: Id
+    public let name: String
+    public let type: ExpressProviderType
+    public let imageURL: URL?
+    public let termsOfUse: URL?
+    public let privacyPolicy: URL?
 }

@@ -503,12 +503,6 @@ extension LegacyTokenDetailsViewModel {
             return
         }
 
-        var referrer: SwappingReferrerAccount?
-
-        if let account = keysManager.swapReferrerAccount {
-            referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
-        }
-
         let input = CommonSwappingModulesFactory.InputModel(
             userTokensManager: card.userTokensManager,
             walletModel: walletModel,
@@ -516,11 +510,9 @@ extension LegacyTokenDetailsViewModel {
             ethereumNetworkProvider: ethereumNetworkProvider,
             ethereumTransactionProcessor: ethereumTransactionProcessor,
             logger: AppLog.shared,
-            referrer: referrer,
+            referrer: nil,
             source: source,
-            walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork),
-            walletModelsManager: card.walletModelsManager,
-            userWalletId: card.userWalletId.stringValue
+            walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
         )
 
         coordinator.openSwapping(input: input)
