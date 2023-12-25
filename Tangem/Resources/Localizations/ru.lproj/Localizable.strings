@@ -201,6 +201,7 @@
 "express_exchange_notification_failed_title" = "Операция не выполнена провайдером";
 "express_exchange_notification_verification_text" = "Посетите сайт провайдера для проверки";
 "express_exchange_notification_verification_title" = "Провайдер запрашивает прохождение верификации";
+"express_exchange_status_canceled" = "Отменен";
 "express_exchange_status_confirmed" = "Подтверждено";
 "express_exchange_status_confirming" = "Подтверждение";
 "express_exchange_status_confirming_active" = "Подтверждение...";
