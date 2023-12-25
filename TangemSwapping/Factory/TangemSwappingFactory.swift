@@ -66,6 +66,7 @@ public struct TangemSwappingFactory {
         credential: ExpressAPICredential,
         configuration: URLSessionConfiguration,
         isProduction: Bool,
+        exchangeDataDecoder: ExpressExchangeDataDecoder,
         logger: SwappingLogger? = nil
     ) -> ExpressAPIProvider {
         let authorizationPlugin = ExpressAuthorizationPlugin(
@@ -75,7 +76,7 @@ public struct TangemSwappingFactory {
         )
         let provider = MoyaProvider<ExpressAPITarget>(session: Session(configuration: configuration), plugins: [authorizationPlugin])
         let service = CommonExpressAPIService(provider: provider, isProduction: isProduction, logger: logger ?? CommonSwappingLogger())
-        let mapper = ExpressAPIMapper()
+        let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
     }
 }
