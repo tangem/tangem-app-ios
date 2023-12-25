@@ -38,8 +38,8 @@ protocol SendDestinationViewDelegate: AnyObject {
 }
 
 class SendDestinationViewModel: ObservableObject {
-    var addressViewModel: SendDestinationInputViewModel?
-    var additionalFieldViewModel: SendDestinationInputViewModel?
+    var addressViewModel: SendDestinationTextViewModel?
+    var additionalFieldViewModel: SendDestinationTextViewModel?
     var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
     @Published var destinationErrorText: String?
@@ -81,7 +81,7 @@ class SendDestinationViewModel: ObservableObject {
                 )
             }
 
-        addressViewModel = SendDestinationInputViewModel(
+        addressViewModel = SendDestinationTextViewModel(
             name: Localization.sendRecipient,
             input: input.destinationTextPublisher,
             showAddressIcon: true,
@@ -94,7 +94,7 @@ class SendDestinationViewModel: ObservableObject {
 
         if let additionalField = input.additionalField,
            let name = additionalField.name {
-            additionalFieldViewModel = SendDestinationInputViewModel(
+            additionalFieldViewModel = SendDestinationTextViewModel(
                 name: name,
                 input: input.destinationAdditionalFieldTextPublisher,
                 showAddressIcon: false,
