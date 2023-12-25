@@ -222,7 +222,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
-            type: .sell(amount: amountToSend.value, destination: destination)
+            type: .sell(amount: amountToSend, destination: destination)
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
