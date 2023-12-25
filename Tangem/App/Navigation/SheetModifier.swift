@@ -102,12 +102,12 @@ public extension View {
     /// - Strange memory leak when a view was showed as sheet
     /// https://developer.apple.com/forums/thread/738840
     @ViewBuilder
-    func iOS17UIKitSheet<Item, Content>(
+    func iOS16UIKitSheet<Item, Content>(
         item: Binding<Item?>,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping (Item) -> Content
     ) -> some View where Item: Identifiable, Content: View {
-        if #available(iOS 17, *) {
+        if #available(iOS 16, *) {
             modifier(UIKitSheetModifier(item: item, onDismiss: onDismiss, contentView: content))
         } else {
             sheet(item: item, onDismiss: onDismiss, content: content)
