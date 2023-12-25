@@ -13,16 +13,29 @@ struct ManageTokensNetworkSelectorView: View {
 
     var body: some View {
         GroupedScrollView {
-            walletSelectorContent
+            if let notificationInput = viewModel.notificationInput {
+                NotificationView(input: notificationInput)
+                    .transition(.notificationTransition)
+
+                Spacer(minLength: 10)
+            }
+
+            if !viewModel.currentWalletName.isEmpty {
+                walletSelectorContent
+
+                Spacer(minLength: 10)
+            }
 
             if !viewModel.nativeSelectorItems.isEmpty {
-                Spacer(minLength: 24)
+                Spacer(minLength: 14)
 
                 nativeNetworksContent
+
+                Spacer(minLength: 10)
             }
 
             if !viewModel.nonNativeSelectorItems.isEmpty {
-                Spacer(minLength: 24)
+                Spacer(minLength: 14)
 
                 noneNativeNetworksContent
             }
@@ -30,7 +43,6 @@ struct ManageTokensNetworkSelectorView: View {
         .alert(item: $viewModel.alert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
-        .onAppear(perform: viewModel.onAppear)
     }
 
     private var walletSelectorContent: some View {
@@ -51,7 +63,7 @@ struct ManageTokensNetworkSelectorView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 20)
         .contentShape(Rectangle())
-        .background(Colors.Background.primary)
+        .background(Colors.Background.action)
         .cornerRadiusContinuous(Constants.cornerRadius)
         .onTapGesture {
             viewModel.selectWalletActionDidTap()
@@ -73,7 +85,7 @@ struct ManageTokensNetworkSelectorView: View {
                     ManageTokensNetworkSelectorItemView(viewModel: $0)
                 }
             }
-            .background(Colors.Background.primary)
+            .background(Colors.Background.action)
             .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
@@ -102,7 +114,7 @@ struct ManageTokensNetworkSelectorView: View {
                     ManageTokensNetworkSelectorItemView(viewModel: $0)
                 }
             }
-            .background(Colors.Background.primary)
+            .background(Colors.Background.action)
             .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
