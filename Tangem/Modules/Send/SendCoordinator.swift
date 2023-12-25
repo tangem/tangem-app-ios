@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import BlockchainSdk
 
 class SendCoordinator: CoordinatorObject {
@@ -21,6 +22,8 @@ class SendCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     // MARK: - Child view models
+
+    @Published var qrScanViewModel: QRScanViewModel? = nil
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -52,4 +55,8 @@ extension SendCoordinator {
 
 // MARK: - SendRoutable
 
-extension SendCoordinator: SendRoutable {}
+extension SendCoordinator: SendRoutable {
+    func openQRScanner(with codeBinding: Binding<String>) {
+        qrScanViewModel = .init(code: codeBinding)
+    }
+}
