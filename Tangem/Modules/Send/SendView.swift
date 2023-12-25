@@ -58,8 +58,8 @@ struct SendView: View {
             SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel)
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel)
-        case .finish:
-            SendFinishView(namespace: namespace, viewModel: viewModel.sendFinishViewModel)
+        case .finish(let sendFinishViewModel):
+            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel)
         }
     }
 
