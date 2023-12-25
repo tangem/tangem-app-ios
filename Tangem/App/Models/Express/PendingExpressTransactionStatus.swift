@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum PendingExpressTransactionStatus: String, Equatable {
+enum PendingExpressTransactionStatus: String, Equatable, Codable {
     case awaitingDeposit
     case confirming
     case exchanging
