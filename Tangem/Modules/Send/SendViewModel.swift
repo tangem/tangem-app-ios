@@ -162,7 +162,11 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        let sendFinishViewModel = SendFinishViewModel(input: sendModel)
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel) else {
+            assertionFailure("WHY?")
+            return
+        }
+
         sendFinishViewModel.router = coordinator
         openStep(.finish(model: sendFinishViewModel))
     }
