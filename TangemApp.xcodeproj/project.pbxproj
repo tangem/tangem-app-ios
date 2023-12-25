@@ -44,6 +44,7 @@
 		2DC567802B0E047700B0244F /* MainBottomSheetContentCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC567782B0E047700B0244F /* MainBottomSheetContentCoordinatorView.swift */; };
 		2DC567812B0E047700B0244F /* MainBottomSheetVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5677A2B0E047700B0244F /* MainBottomSheetVisibility.swift */; };
 		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
+		2DCAEE4B2B13E4F800C87E09 /* GetBlockAccessTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */; };
 		2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		2DF5A81D2B13C33800AA5E73 /* WalletSelectorDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */; };
@@ -1416,6 +1417,7 @@
 		2DC567782B0E047700B0244F /* MainBottomSheetContentCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainBottomSheetContentCoordinatorView.swift; sourceTree = "<group>"; };
 		2DC5677A2B0E047700B0244F /* MainBottomSheetVisibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainBottomSheetVisibility.swift; sourceTree = "<group>"; };
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
+		2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBlockAccessTokens.swift; sourceTree = "<group>"; };
 		2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesViewModel.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
@@ -5508,6 +5510,7 @@
 				DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */,
 				EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */,
 				B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */,
+				2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */,
 			);
 			path = KeysManager;
 			sourceTree = "<group>";
@@ -8685,6 +8688,7 @@
 				EFEC5F782970369D009C0E5F /* SwappingTransactionSender.swift in Sources */,
 				DA8C67292B0B44EF00E1C9B8 /* SendDestinationSummaryViewType.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
+				2DCAEE4B2B13E4F800C87E09 /* GetBlockAccessTokens.swift in Sources */,
 				DC3DCAEF2A49C6E600F72554 /* CommonWalletManagersRepository.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
 				EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */,
