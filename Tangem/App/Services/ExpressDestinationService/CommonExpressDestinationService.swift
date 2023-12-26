@@ -42,9 +42,10 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         }
 
         AppLog.shared.debug("[Express] \(self) has searchableWalletModels: \(searchableWalletModels.map { ($0.expressCurrency, $0.fiatBalance) })")
-        if let lastTransactionWalletModel = getLastTransactionWalletModel(in: searchableWalletModels) {
-            AppLog.shared.debug("[Express] \(self) selected lastTransactionWalletModel: \(lastTransactionWalletModel.expressCurrency)")
-            return lastTransactionWalletModel
+
+        if let lastSwappedWallet = searchableWalletModels.first(where: { isLastTransactionWith(walletModel: $0) }) {
+            AppLog.shared.debug("[Express] \(self) selected lastSwappedWallet: \(lastSwappedWallet.expressCurrency)")
+            return lastSwappedWallet
         }
 
         let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatValue ?? 0) > 0 }
@@ -67,18 +68,16 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         AppLog.shared.debug("[Express] \(self) couldn't find acceptable wallet")
         throw ExpressDestinationServiceError.destinationNotFound
     }
+}
 
-    private func getLastTransactionWalletModel(in searchableWalletModels: [WalletModel]) -> WalletModel? {
-        let transactions = pendingTransactionRepository.pendingTransactions
+// MARK: - Private
 
-        guard
-            let lastTransactionCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency,
-            let lastWallet = searchableWalletModels.first(where: { $0.expressCurrency == lastTransactionCurrency })
-        else {
-            return nil
-        }
+private extension CommonExpressDestinationService {
+    func isLastTransactionWith(walletModel: WalletModel) -> Bool {
+        let transactions = pendingTransactionRepository.transactions
+        let lastCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency
 
-        return lastWallet
+        return walletModel.expressCurrency == lastCurrency
     }
 }
 
