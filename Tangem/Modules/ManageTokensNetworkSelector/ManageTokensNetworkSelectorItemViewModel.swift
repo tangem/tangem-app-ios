@@ -35,10 +35,10 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
         iconNameSelected: String,
         networkName: String,
         tokenTypeName: String?,
-        contractAddress: String? = nil,
+        contractAddress: String?,
         isSelected: Binding<Bool>,
         isAvailable: Bool = true,
-        isCopied: Binding<Bool> = .constant(false)
+        isCopied: Binding<Bool>
     ) {
         self.id = id
         self.isMain = isMain
@@ -69,11 +69,13 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
     }
 
     func onCopy() {
-        if let contractAddress = contractAddress {
-            UIPasteboard.general.string = contractAddress
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
-            isCopied.wrappedValue = true
+        guard let contractAddress else {
+            return
         }
+
+        UIPasteboard.general.string = contractAddress
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        isCopied.wrappedValue = true
     }
 }
