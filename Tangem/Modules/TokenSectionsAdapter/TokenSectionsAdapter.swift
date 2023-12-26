@@ -256,13 +256,13 @@ final class TokenSectionsAdapter {
 
 // MARK: - Convenience extensions
 
-private extension TokenSectionsAdapter.SectionItem {
-    var blockchainNetwork: BlockchainNetwork {
+extension TokenSectionsAdapter.SectionItem {
+    var walletModel: WalletModel? {
         switch self {
         case .default(let walletModel):
-            return walletModel.blockchainNetwork
-        case .withoutDerivation(let userToken):
-            return userToken.blockchainNetwork
+            return walletModel
+        case .withoutDerivation:
+            return nil
         }
     }
 
@@ -272,6 +272,17 @@ private extension TokenSectionsAdapter.SectionItem {
             return walletModel.id
         case .withoutDerivation(let userToken):
             return userToken.walletModelId
+        }
+    }
+}
+
+private extension TokenSectionsAdapter.SectionItem {
+    var blockchainNetwork: BlockchainNetwork {
+        switch self {
+        case .default(let walletModel):
+            return walletModel.blockchainNetwork
+        case .withoutDerivation(let userToken):
+            return userToken.blockchainNetwork
         }
     }
 }
