@@ -11,6 +11,7 @@ import SwiftUI
 
 struct SuccessToast: View {
     let text: String
+
     var body: some View {
         HStack(spacing: 6) {
             Assets.check.image
