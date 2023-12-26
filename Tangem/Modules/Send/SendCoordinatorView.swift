@@ -37,5 +37,9 @@ struct SendCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+            .sheet(item: $coordinator.qrScanViewModel) {
+                QRScanView(viewModel: $0)
+                    .edgesIgnoringSafeArea(.all)
+            }
     }
 }
