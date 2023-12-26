@@ -16,12 +16,12 @@ enum ExpressNotificationEvent {
     case hasPendingApproveTransaction
     case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconName: String)
     case notEnoughAmountToSwap(minimumAmountText: String)
-    case notEnoughBalanceToSwap(maximumAmountText: String)
+    case notEnoughReserveToSwap(maximumAmountText: String)
     case noDestinationTokens(sourceTokenName: String)
     case highPriceImpact
     case verificationRequired
     case cexOperationFailed
-    case feeWillBeSubtractFromSendingAmount(reducedAmount: String)
+    case feeWillBeSubtractFromSendingAmount
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -39,7 +39,7 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName)
         case .notEnoughAmountToSwap(let minimumAmountText):
             return Localization.warningExpressTooMinimalAmountTitle(minimumAmountText)
-        case .notEnoughBalanceToSwap(let maximumAmountText):
+        case .notEnoughReserveToSwap(let maximumAmountText):
             return Localization.sendNotificationInvalidReserveAmountTitle(maximumAmountText)
         case .noDestinationTokens:
             return Localization.warningExpressNoExchangeableCoinsTitle
@@ -68,7 +68,7 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .notEnoughAmountToSwap:
             return Localization.warningExpressTooMinimalAmountDescription
-        case .notEnoughBalanceToSwap:
+        case .notEnoughReserveToSwap:
             return Localization.sendNotificationInvalidReserveAmountText
         case .noDestinationTokens(let sourceTokenName):
             return Localization.warningExpressNoExchangeableCoinsDescription(sourceTokenName)
@@ -85,7 +85,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .permissionNeeded, .hasPendingTransaction, .hasPendingApproveTransaction, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .noDestinationTokens, .highPriceImpact, .feeWillBeSubtractFromSendingAmount:
+        case .permissionNeeded, .hasPendingTransaction, .hasPendingApproveTransaction, .notEnoughAmountToSwap, .notEnoughReserveToSwap, .noDestinationTokens, .highPriceImpact, .feeWillBeSubtractFromSendingAmount:
             return .secondary
         case .notEnoughFeeForTokenTx, .refreshRequired, .verificationRequired, .cexOperationFailed:
             return .primary
@@ -102,10 +102,30 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .init(iconType: .progressView)
         case .notEnoughFeeForTokenTx(_, _, let blockchainIconName):
             return .init(iconType: .image(Image(blockchainIconName)))
-        case .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .cexOperationFailed:
+        case .notEnoughAmountToSwap, .notEnoughReserveToSwap, .cexOperationFailed:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .hasPendingTransaction:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
+        }
+    }
+
+    var severity: NotificationView.Severity {
+        switch self {
+        case .permissionNeeded,
+             .hasPendingTransaction,
+             .hasPendingApproveTransaction,
+             .verificationRequired,
+             .feeWillBeSubtractFromSendingAmount:
+            return .info
+        case .notEnoughFeeForTokenTx,
+             .notEnoughAmountToSwap,
+             .notEnoughReserveToSwap,
+             .noDestinationTokens,
+             .highPriceImpact:
+            return .warning
+        case .refreshRequired,
+             .cexOperationFailed:
+            return .critical
         }
     }
 
@@ -135,7 +155,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .noDestinationTokens, .refreshRequired, .verificationRequired, .cexOperationFailed:
             return false
-        case .permissionNeeded, .hasPendingTransaction, .hasPendingApproveTransaction, .notEnoughFeeForTokenTx, .notEnoughAmountToSwap, .notEnoughBalanceToSwap, .highPriceImpact, .feeWillBeSubtractFromSendingAmount:
+        case .permissionNeeded, .hasPendingTransaction, .hasPendingApproveTransaction, .notEnoughFeeForTokenTx, .notEnoughAmountToSwap, .notEnoughReserveToSwap, .highPriceImpact, .feeWillBeSubtractFromSendingAmount:
             return true
         }
     }
