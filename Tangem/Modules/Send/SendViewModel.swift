@@ -169,7 +169,8 @@ final class SendViewModel: ObservableObject {
                 }
             )
 
-            coordinator.openQRScanner(with: binding)
+            let networkName = walletModel.blockchainNetwork.blockchain.displayName
+            coordinator.openQRScanner(with: binding, networkName: networkName)
         }
     }
 
