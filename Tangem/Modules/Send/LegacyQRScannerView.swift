@@ -1,9 +1,9 @@
 //
-//  QRScannerView.swift
+//  LegacyQRScanner.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -11,148 +11,52 @@ import UIKit
 import AVFoundation
 import SwiftUI
 
-struct QRScanViewModel: Identifiable {
+struct LegacyQRScanViewModel: Identifiable {
     let id: UUID = .init()
     let code: Binding<String>
-    let text: String
 }
 
-struct QRScanView: View {
-    let viewModel: QRScanViewModel
+struct LegacyQRScanView: View {
+    let viewModel: LegacyQRScanViewModel
 
     @Environment(\.presentationMode) var presentationMode
 
-    private let viewfinderCornerRadius: CGFloat = 2
-    private let viewfinderPadding: CGFloat = 55
-
     var body: some View {
-        GeometryReader { geometry in
-            QRScannerView(code: viewModel.code)
-                .overlay(viewfinder(screenSize: geometry.size))
-                .overlay(
-                    Color.clear
-                        .overlay(viewfinderCrosshair(screenSize: geometry.size))
-                        .overlay(textView(screenSize: geometry.size), alignment: .top)
-                )
-                .overlay(cancelButton(), alignment: .topLeading)
+        VStack(alignment: .leading, spacing: 0) {
+            Button(Localization.commonDone) {
+                presentationMode.wrappedValue.dismiss()
+            }.padding()
+            LegacyQRScannerView(code: viewModel.code)
+                .edgesIgnoringSafeArea(.bottom)
         }
-        .ignoresSafeArea(edges: .bottom)
-    }
-
-    private func viewfinder(screenSize: CGSize) -> some View {
-        Color.black.opacity(0.6)
-            .reverseMask {
-                RoundedRectangle(cornerRadius: viewfinderCornerRadius)
-                    .aspectRatio(1, contentMode: .fit)
-                    .frame(width: max(100, screenSize.width - viewfinderPadding * 2))
-            }
-    }
-
-    @ViewBuilder
-    private func cancelButton() -> some View {
-        Button(Localization.commonClose) {
-            presentationMode.wrappedValue.dismiss()
-        }
-        .padding()
-        .style(Fonts.Regular.body, color: .white)
-    }
-
-    private func viewfinderCrosshair(screenSize: CGSize) -> some View {
-        RoundedRectangle(cornerRadius: viewfinderCornerRadius)
-            .stroke(.white, lineWidth: 4)
-            .aspectRatio(1, contentMode: .fit)
-            .frame(width: max(100, screenSize.width - viewfinderPadding * 2))
-            .clipShape(CrosshairShape())
-    }
-
-    private func textView(screenSize: CGSize) -> some View {
-        Text(viewModel.text)
-            .style(Fonts.Regular.footnote, color: .white)
-            .multilineTextAlignment(.center)
-            .padding(.top, 24)
-            .padding(.horizontal, viewfinderPadding)
-            .offset(y: screenSize.height / 2 + screenSize.width / 2 - viewfinderPadding)
     }
 }
 
-private struct CrosshairShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.addPath(cornerPath(rotation: 0, in: rect))
-        path.addPath(cornerPath(rotation: 90, in: rect))
-        path.addPath(cornerPath(rotation: 180, in: rect))
-        path.addPath(cornerPath(rotation: 270, in: rect))
-        return path
-    }
-
-    private func cornerPath(rotation: Double, in rect: CGRect) -> Path {
-        // Top-left corner part of a crosshair
-        var path = Path()
-        path.move(to: CGPoint(x: -10, y: -10))
-        path.addLine(to: CGPoint(x: -10, y: 20))
-        path.addLine(to: CGPoint(x: 20, y: 20))
-        path.addLine(to: CGPoint(x: 20, y: -10))
-        path.closeSubpath()
-        return path.rotation(.degrees(rotation)).path(in: rect)
-    }
-}
-
-private extension View {
-    func reverseMask<Mask: View>(
-        alignment: Alignment = .center,
-        @ViewBuilder _ mask: () -> Mask
-    ) -> some View {
-        self.mask(
-            Rectangle()
-                .overlay(mask().blendMode(.destinationOut), alignment: alignment)
-        )
-    }
-}
-
-struct QRScanView_Previews_Sheet: PreviewProvider {
+struct LegacyQRScanView_Previews: PreviewProvider {
     @State static var code: String = ""
 
     static var previews: some View {
-        Text("A")
-            .sheet(isPresented: .constant(true)) {
-                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address."))
-                    .background(
-                        Image("qr_code_example")
-                    )
-            }
-            .previewDisplayName("Sheet")
+        LegacyQRScanView(viewModel: .init(code: $code))
     }
 }
 
-struct QRScanView_Previews_Inline: PreviewProvider {
-    @State static var code: String = ""
-
-    static var previews: some View {
-        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address."))
-            .background(
-                Image("qr_code_example")
-            )
-            .previewDisplayName("Inline")
-    }
-}
-
-struct QRScannerView: UIViewRepresentable {
+struct LegacyQRScannerView: UIViewRepresentable {
     @Binding var code: String
     @Environment(\.presentationMode) var presentationMode
 
-    func makeUIView(context: Context) -> UIQRScannerView {
-        let view = UIQRScannerView()
+    func makeUIView(context: Context) -> LegacyUIQRScannerView {
+        let view = LegacyUIQRScannerView()
         view.delegate = context.coordinator
         return view
     }
 
-    func updateUIView(_ uiView: UIQRScannerView, context: Context) {}
+    func updateUIView(_ uiView: LegacyUIQRScannerView, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
         Coordinator(code: $code, presentationMode: presentationMode)
     }
 
-    class Coordinator: NSObject, QRScannerViewDelegate {
+    class Coordinator: NSObject, LegacyQRScannerViewDelegate {
         @Binding var code: String
         @Binding var presentationMode: PresentationMode
 
@@ -182,14 +86,14 @@ struct QRScannerView: UIViewRepresentable {
 }
 
 /// Delegate callback for the QRScannerView.
-protocol QRScannerViewDelegate: AnyObject {
+protocol LegacyQRScannerViewDelegate: AnyObject {
     func qrScanningDidFail()
     func qrScanningSucceededWithCode(_ str: String?)
     func qrScanningDidStop()
 }
 
-class UIQRScannerView: UIView {
-    weak var delegate: QRScannerViewDelegate?
+class LegacyUIQRScannerView: UIView {
+    weak var delegate: LegacyQRScannerViewDelegate?
 
     /// capture settion which allows us to start and stop scanning.
     var captureSession: AVCaptureSession?
@@ -216,7 +120,7 @@ class UIQRScannerView: UIView {
     }
 }
 
-extension UIQRScannerView {
+extension LegacyUIQRScannerView {
     var isRunning: Bool {
         return captureSession?.isRunning ?? false
     }
@@ -298,7 +202,7 @@ extension UIQRScannerView {
     }
 }
 
-extension UIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
+extension LegacyUIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(
         _ output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
