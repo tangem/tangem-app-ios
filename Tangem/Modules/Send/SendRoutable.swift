@@ -7,5 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
 
-protocol SendRoutable: SendFinishRoutable, AnyObject {}
+protocol SendRoutable: SendFinishRoutable, AnyObject {
+    func openQRScanner(with codeBinding: Binding<String>)
+}
