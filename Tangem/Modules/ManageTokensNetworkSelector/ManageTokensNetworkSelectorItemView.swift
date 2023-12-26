@@ -40,6 +40,7 @@ struct ManageTokensNetworkSelectorItemView: View {
                 .toggleStyleCompat(Colors.Control.checked)
                 .disabled(!viewModel.isAvailable)
         }
+        .onLongPressGesture(perform: viewModel.onCopy)
         .padding(16)
     }
 }
