@@ -59,6 +59,7 @@ class SendModel {
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
     private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
+    private let _transactionURL = CurrentValueSubject<URL?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -126,6 +127,9 @@ class SendModel {
             } receiveValue: { [weak self] result in
                 guard let self else { return }
 
+                if let transactionURL = explorerUrl(from: result.hash) {
+                    _transactionURL.send(transactionURL)
+                }
                 _transactionTime.send(Date())
             }
             .store(in: &bag)
@@ -188,6 +192,12 @@ class SendModel {
                 print("TX built", transaction != nil)
             }
             .store(in: &bag)
+    }
+
+    private func explorerUrl(from hash: String) -> URL? {
+        let factory = ExternalLinkProviderFactory()
+        let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
+        return provider.url(transaction: hash)
     }
 
     // MARK: - Amount
@@ -305,5 +315,23 @@ extension SendModel: SendSummaryViewModelInput {
 
     var isSending: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
+    }
+}
+
+extension SendModel: SendFinishViewModelInput {
+    var destinationText: String? {
+        destination.value
+    }
+
+    var feeText: String {
+        _feeText
+    }
+
+    var transactionTime: Date? {
+        _transactionTime.value
+    }
+
+    var transactionURL: URL? {
+        _transactionURL.value
     }
 }
