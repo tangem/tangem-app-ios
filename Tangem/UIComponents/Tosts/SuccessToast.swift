@@ -32,7 +32,7 @@ struct SuccessToast: View {
 
 #Preview("Figma") {
     VStack {
-        SendAmountChangedToast(text: "Dummy success tost text")
+        SuccessToast(text: "Dummy success toast text")
 
         Spacer()
     }
