@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 class SendRoutableMock: SendRoutable {
     init() {}
@@ -14,4 +15,5 @@ class SendRoutableMock: SendRoutable {
     func explore(url: URL) {}
     func share(url: URL) {}
     func dismiss() {}
+    func openQRScanner(with codeBinding: Binding<String>) {}
 }
