@@ -164,7 +164,7 @@ private extension SwappingApproveViewModel {
             ]
         )
 
-        feeRowViewModel = DefaultRowViewModel(title: Localization.sendFeeLabel, detailsType: .none)
+        feeRowViewModel = DefaultRowViewModel(title: Localization.commonFeeLabel, detailsType: .none)
         updateView(for: expressInteractor.getState())
     }
 
