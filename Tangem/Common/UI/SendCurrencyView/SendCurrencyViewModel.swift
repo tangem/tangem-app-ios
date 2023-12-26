@@ -9,6 +9,7 @@
 import Foundation
 
 class SendCurrencyViewModel: ObservableObject, Identifiable {
+    @Published var headerState: HeaderState = .header
     @Published var maximumFractionDigits: Int
     @Published var canChangeCurrency: Bool
     @Published var balance: State
@@ -73,6 +74,11 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
 }
 
 extension SendCurrencyViewModel {
+    enum HeaderState {
+        case header
+        case insufficientFunds
+    }
+
     enum State: Hashable {
         case idle
         case loading
