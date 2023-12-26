@@ -17,12 +17,12 @@ public enum ExpressProviderManagerState {
     case preview(ExpressManagerState.PreviewCEX)
     case ready(ExpressManagerState.Ready)
 
-    public var error: Error? {
+    public var isError: Bool {
         switch self {
         case .idle, .permissionRequired, .restriction, .preview, .ready:
-            return nil
-        case .error(let error, _):
-            return error
+            return false
+        case .error:
+            return true
         }
     }
 
@@ -40,39 +40,6 @@ public enum ExpressProviderManagerState {
             return state.quote
         case .ready(let state):
             return state.quote
-        }
-    }
-
-    public var priority: Priority {
-        if quote != nil {
-            return .highest
-        }
-
-        switch self {
-        case .permissionRequired:
-            return .high
-        case .restriction(.tooSmallAmount, _):
-            return .medium
-        case .restriction:
-            return .low
-        case .error:
-            return .lowest
-        default:
-            return .low
-        }
-    }
-}
-
-public extension ExpressProviderManagerState {
-    enum Priority: Int, Comparable {
-        case lowest
-        case low
-        case medium
-        case high
-        case highest
-
-        public static func < (lhs: Self, rhs: Self) -> Bool {
-            lhs.rawValue < rhs.rawValue
         }
     }
 }
