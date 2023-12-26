@@ -173,7 +173,6 @@ private extension ExpressViewModel {
             return
         }
 
-        stopTimer()
         coordinator.presentApproveView()
     }
 
@@ -183,7 +182,6 @@ private extension ExpressViewModel {
             return
         }
 
-        stopTimer()
         coordinator.presentFeeSelectorView()
     }
 
