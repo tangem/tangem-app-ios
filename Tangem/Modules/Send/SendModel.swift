@@ -223,7 +223,7 @@ class SendModel {
 
     // MARK: - Destination and memo
 
-    private func setDestination(_ destinationText: String) {
+    func setDestination(_ destinationText: String) {
         _destinationText = destinationText
         validateDestination()
     }
