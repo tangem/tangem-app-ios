@@ -39,26 +39,28 @@ struct SendView: View {
             SheetDragHandler()
                 .padding(.bottom, 4)
 
-            HStack {
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: 1)
-
-                Text(viewModel.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                    .animation(nil)
-                    .padding(.vertical, 8)
-                    .lineLimit(1)
-                    .layoutPriority(1)
-
-                if viewModel.showQRCodeButton {
-                    Button(action: viewModel.scanQRCode) {
-                        Assets.qrCode.image
-                            .foregroundColor(Colors.Icon.primary1)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                } else {
+            if let title = viewModel.title {
+                HStack {
                     Color.clear
                         .frame(maxWidth: .infinity, maxHeight: 1)
+
+                    Text(title)
+                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                        .animation(nil)
+                        .padding(.vertical, 8)
+                        .lineLimit(1)
+                        .layoutPriority(1)
+
+                    if viewModel.showQRCodeButton {
+                        Button(action: viewModel.scanQRCode) {
+                            Assets.qrCode.image
+                                .foregroundColor(Colors.Icon.primary1)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        }
+                    } else {
+                        Color.clear
+                            .frame(maxWidth: .infinity, maxHeight: 1)
+                    }
                 }
             }
         }
@@ -76,6 +78,8 @@ struct SendView: View {
             SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel)
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel)
+        case .finish(let sendFinishViewModel):
+            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel)
         }
     }
 
