@@ -9,6 +9,7 @@
 import Foundation
 import TangemSwapping
 import BlockchainSdk
+import BigInt
 
 class CommonExpressFeeProvider {
     var wallet: WalletModel
@@ -27,7 +28,20 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
 
     func estimatedFee(amount: Decimal) async throws -> ExpressFee {
         let amount = makeAmount(amount: amount)
-        let fees = try await wallet.estimatedFee(amount: amount).async()
+        var fees = try await wallet.estimatedFee(amount: amount).async()
+
+        // For EVM networks we've decided increase gas limit for estimatedFee just in case
+        fees = fees.map { fee in
+            guard let parameters = fee.parameters as? EthereumFeeParameters else {
+                return fee
+            }
+
+            let gasLimit = parameters.gasLimit * BigUInt(105) / BigUInt(100)
+            let feeValue = gasLimit * parameters.gasPrice
+            let fee = Decimal(Int(feeValue)) / wallet.tokenItem.blockchain.decimalValue
+            let amount = Amount(with: wallet.tokenItem.blockchain, value: fee)
+            return Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: parameters.gasPrice))
+        }
 
         return try mapToExpressFee(fees: fees)
     }
