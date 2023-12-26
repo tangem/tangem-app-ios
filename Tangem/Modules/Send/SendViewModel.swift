@@ -18,7 +18,7 @@ final class SendViewModel: ObservableObject {
     @Published var currentStepInvalid: Bool = false
     @Published var showCameraDeniedAlert = false
 
-    var title: String {
+    var title: String? {
         step.name
     }
 
@@ -38,7 +38,7 @@ final class SendViewModel: ObservableObject {
         switch step {
         case .destination:
             return true
-        case .amount, .fee, .summary:
+        case .amount, .fee, .summary, .finish:
             return false
         }
     }
@@ -95,7 +95,7 @@ final class SendViewModel: ObservableObject {
                     return sendModel.destinationValid
                 case .fee:
                     return sendModel.feeValid
-                case .summary:
+                case .summary, .finish:
                     return .just(output: true)
                 }
             }
@@ -180,6 +180,25 @@ final class SendViewModel: ObservableObject {
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
             .store(in: &bag)
+
+        sendModel
+            .transactionFinished
+            .sink { [weak self] transactionFinished in
+                if transactionFinished {
+                    self?.openFinishPage()
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func openFinishPage() {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel) else {
+            assertionFailure("WHY?")
+            return
+        }
+
+        sendFinishViewModel.router = coordinator
+        openStep(.finish(model: sendFinishViewModel))
     }
 
     private func parseQRCode(_ code: String) {
