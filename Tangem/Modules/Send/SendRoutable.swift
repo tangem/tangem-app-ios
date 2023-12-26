@@ -10,5 +10,5 @@ import Foundation
 import SwiftUI
 
 protocol SendRoutable: SendFinishRoutable, AnyObject {
-    func openQRScanner(with codeBinding: Binding<String>)
+    func openQRScanner(with codeBinding: Binding<String>, networkName: String)
 }
