@@ -41,6 +41,13 @@ extension AddCustomTokenNotificationEvent: NotificationEvent {
         }
     }
 
+    var severity: NotificationView.Severity {
+        switch self {
+        case .scamWarning:
+            return .warning
+        }
+    }
+
     var isDismissable: Bool {
         switch self {
         case .scamWarning:
