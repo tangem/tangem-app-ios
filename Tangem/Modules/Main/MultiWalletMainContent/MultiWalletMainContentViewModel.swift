@@ -401,17 +401,6 @@ extension MultiWalletMainContentViewModel {
 
 // MARK: - Convenience extensions
 
-private extension TokenSectionsAdapter.SectionItem {
-    var walletModel: WalletModel? {
-        switch self {
-        case .default(let walletModel):
-            return walletModel
-        case .withoutDerivation:
-            return nil
-        }
-    }
-}
-
 private extension TokenSectionsAdapter.Section {
     var walletModels: [WalletModel] {
         return items.compactMap(\.walletModel)
