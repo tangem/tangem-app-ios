@@ -22,6 +22,10 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
     let externalTxId: String?
     let externalTxURL: String?
 
+    // Flag for hide transaction from UI. But keep saving in the storage
+    var isHidden: Bool
+    var transactionStatus: PendingExpressTransactionStatus
+
     var fee: Decimal {
         convertToDecimal(feeString)
     }
