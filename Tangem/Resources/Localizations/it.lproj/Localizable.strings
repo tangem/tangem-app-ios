@@ -201,6 +201,7 @@
 "express_exchange_notification_failed_title" = "Operation failed by provider";
 "express_exchange_notification_verification_text" = "Visit provider’s website for verification";
 "express_exchange_notification_verification_title" = "KYC verification required by provider";
+"express_exchange_status_canceled" = "Canceled";
 "express_exchange_status_confirmed" = "Confirmed";
 "express_exchange_status_confirming" = "Confirming";
 "express_exchange_status_confirming_active" = "Confirming...";
