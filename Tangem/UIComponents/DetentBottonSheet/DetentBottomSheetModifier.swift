@@ -33,7 +33,7 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
         if #available(iOS 16.4, *) {
             aboveIOS16SheetUpdate(item: item, on: content)
         } else if #available(iOS 15.0, *) {
-            beforeIOS116SheetUpdate(item: item, on: content)
+            beforeIOS16SheetUpdate(item: item, on: content)
         } else {
             beforeIOS15SheetUpdate(item: item, on: content)
         }
@@ -61,7 +61,7 @@ private extension DetentBottomSheetModifier {
 
 @available(iOS 15.0, *)
 private extension DetentBottomSheetModifier {
-    func beforeIOS116SheetUpdate(item: Item?, on content: Content) -> some View {
+    func beforeIOS16SheetUpdate(item: Item?, on content: Content) -> some View {
         content
             .sheet(item: $item) { item in
                 DetentBottomSheetContainer(settings: settings) {
