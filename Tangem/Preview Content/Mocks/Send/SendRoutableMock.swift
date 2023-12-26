@@ -15,5 +15,5 @@ class SendRoutableMock: SendRoutable {
     func explore(url: URL) {}
     func share(url: URL) {}
     func dismiss() {}
-    func openQRScanner(with codeBinding: Binding<String>) {}
+    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
 }
