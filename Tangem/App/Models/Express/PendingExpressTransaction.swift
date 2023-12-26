@@ -10,6 +10,5 @@ import Foundation
 
 struct PendingExpressTransaction: Equatable {
     let transactionRecord: ExpressPendingTransactionRecord
-    let currentStatus: PendingExpressTransactionStatus
     let statuses: [PendingExpressTransactionStatus]
 }
