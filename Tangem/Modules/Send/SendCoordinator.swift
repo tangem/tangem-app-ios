@@ -23,6 +23,7 @@ class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var qrScanViewModel: QRScanViewModel? = nil
 
     required init(
@@ -56,6 +57,14 @@ extension SendCoordinator {
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
+    func explore(url: URL) {
+        modalWebViewModel = WebViewContainerViewModel(url: url, title: Localization.commonExplorer, withCloseButton: true)
+    }
+
+    func share(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
     func openQRScanner(with codeBinding: Binding<String>) {
         qrScanViewModel = .init(code: codeBinding)
     }
