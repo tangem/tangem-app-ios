@@ -40,7 +40,7 @@ extension CommonKeysManager: KeysManager {
             blockcypherTokens: keys.blockcypherTokens,
             infuraProjectId: keys.infuraProjectId,
             nowNodesApiKey: keys.nowNodesApiKey,
-            getBlockApiKey: keys.getBlockApiKey,
+            getBlockCredentials: .init(keys.getBlockAccessTokens),
             kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
             tronGridApiKey: keys.tronGridApiKey,
             tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
@@ -75,20 +75,12 @@ extension CommonKeysManager: KeysManager {
         keys.infuraProjectId
     }
 
-    var swapReferrerAccount: SwapReferrerAccount? {
-        keys.swapReferrerAccount
+    var expressKeys: ExpressKeys {
+        keys.express
     }
 
     var walletConnectProjectId: String {
         keys.walletConnectProjectId
-    }
-
-    var oneInchApiKey: String {
-        keys.oneInchApiKey
-    }
-
-    var tangemExpressApiKey: String {
-        keys.tangemExpressApiKey
     }
 }
 
@@ -103,6 +95,7 @@ extension CommonKeysManager {
         let infuraProjectId: String
         let nowNodesApiKey: String
         let getBlockApiKey: String
+        let getBlockAccessTokens: [String: [String: String]]
         let kaspaSecondaryApiUrl: String
         let tonCenterApiKey: TonCenterApiKeys
         let chiaFireAcademyApiKey: String
@@ -115,10 +108,8 @@ extension CommonKeysManager {
         let bscQuiknodeApiKey: String
         let bscQuiknodeSubdomain: String
         let tangemComAuthorization: String?
-        let swapReferrerAccount: SwapReferrerAccount?
         let walletConnectProjectId: String
         let sprinklr: SprinklrConfig
-        let oneInchApiKey: String
-        let tangemExpressApiKey: String
+        let express: ExpressKeys
     }
 }
