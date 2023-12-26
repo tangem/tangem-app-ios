@@ -17,7 +17,7 @@ struct ExpressSuccessSentView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            Colors.Background.tertiary.edgesIgnoringSafeArea(.all)
 
             VStack(spacing: .zero) {
                 titleView
@@ -26,24 +26,28 @@ struct ExpressSuccessSentView: View {
                     GroupedSection(viewModel.sourceData) {
                         AmountSummaryView(data: $0)
                     }
+                    .backgroundColor(Colors.Background.action)
                     .interSectionPadding(12)
                     .verticalPadding(0)
 
                     GroupedSection(viewModel.destinationData) {
                         AmountSummaryView(data: $0)
                     }
+                    .backgroundColor(Colors.Background.action)
                     .interSectionPadding(12)
                     .verticalPadding(0)
 
                     GroupedSection(viewModel.provider) {
                         ProviderRowView(viewModel: $0)
                     }
+                    .backgroundColor(Colors.Background.action)
                     .interSectionPadding(12)
                     .verticalPadding(0)
 
                     GroupedSection(viewModel.expressFee) {
                         ExpressFeeRowView(viewModel: $0)
                     }
+                    .backgroundColor(Colors.Background.action)
                     .interSectionPadding(12)
                     .verticalPadding(0)
                 }
