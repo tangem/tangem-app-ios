@@ -769,6 +769,10 @@
 		DAF59CC52ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CBF2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift */; };
 		DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */; };
 		DAF59CC82ACC4E37004FCA86 /* AlertFieldValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */; };
+		DAF72F422B0F480A0006B44F /* SendFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF72F3F2B0F480A0006B44F /* SendFinishViewModel.swift */; };
+		DAF72F432B0F480A0006B44F /* SendFinishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF72F402B0F480A0006B44F /* SendFinishView.swift */; };
+		DAF72F442B0F480A0006B44F /* SendFinishRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF72F412B0F480A0006B44F /* SendFinishRoutable.swift */; };
+		DAF72F462B0F49800006B44F /* SendFinishViewModelInputMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF72F452B0F49800006B44F /* SendFinishViewModelInputMock.swift */; };
 		DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */; };
 		DC01329E299A786700B95145 /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
 		DC0132A0299A7B8E00B95145 /* notReferralMock.json in Resources */ = {isa = PBXBuildFile; fileRef = B0332D3229251A4A00553AD9 /* notReferralMock.json */; };
@@ -2197,6 +2201,10 @@
 		DAF59CBF2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorViewModel.swift; sourceTree = "<group>"; };
 		DAF59CC02ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenDerivationPathSelectorItemView.swift; sourceTree = "<group>"; };
 		DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertFieldValidator.swift; sourceTree = "<group>"; };
+		DAF72F3F2B0F480A0006B44F /* SendFinishViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFinishViewModel.swift; sourceTree = "<group>"; };
+		DAF72F402B0F480A0006B44F /* SendFinishView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFinishView.swift; sourceTree = "<group>"; };
+		DAF72F412B0F480A0006B44F /* SendFinishRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFinishRoutable.swift; sourceTree = "<group>"; };
+		DAF72F452B0F49800006B44F /* SendFinishViewModelInputMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFinishViewModelInputMock.swift; sourceTree = "<group>"; };
 		DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombinedExchangeService.swift; sourceTree = "<group>"; };
 		DBAD97B12E17861F00858ECD /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		DC0A57D42822A3C80031BECC /* InjectionKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectionKey.swift; sourceTree = "<group>"; };
@@ -5172,6 +5180,7 @@
 				DA559C472B02622600F59584 /* SendDestinationViewModelInputMock.swift */,
 				DA559C482B02622600F59584 /* SendAmountViewModelInputMock.swift */,
 				DA559C492B02622600F59584 /* SendSummaryRoutableMock.swift */,
+				DAF72F452B0F49800006B44F /* SendFinishViewModelInputMock.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -5339,6 +5348,16 @@
 			path = AddCustomTokenDerivationPathSelector;
 			sourceTree = "<group>";
 		};
+		DAF72F3E2B0F480A0006B44F /* Finish */ = {
+			isa = PBXGroup;
+			children = (
+				DAF72F402B0F480A0006B44F /* SendFinishView.swift */,
+				DAF72F3F2B0F480A0006B44F /* SendFinishViewModel.swift */,
+				DAF72F412B0F480A0006B44F /* SendFinishRoutable.swift */,
+			);
+			path = Finish;
+			sourceTree = "<group>";
+		};
 		DAFC3E002AA8A50000D1013F /* Send */ = {
 			isa = PBXGroup;
 			children = (
@@ -5346,6 +5365,7 @@
 				DA559C2E2B0261F400F59584 /* Destination */,
 				DA559C202B0261F300F59584 /* Fee */,
 				DA559C272B0261F400F59584 /* Summary */,
+				DAF72F3E2B0F480A0006B44F /* Finish */,
 				DA559C1F2B0261F300F59584 /* SendCoordinator.swift */,
 				DA559C1E2B0261F300F59584 /* SendCoordinatorView.swift */,
 				DA559C262B0261F400F59584 /* SendView.swift */,
@@ -7931,6 +7951,7 @@
 				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
 				DA559C4F2B02622600F59584 /* SendSummaryRoutableMock.swift in Sources */,
 				EFBA17E62987B0C200C23955 /* BlockchainNetworkNavigationTitleViewModel.swift in Sources */,
+				DAF72F422B0F480A0006B44F /* SendFinishViewModel.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
 				B06C084E2A73FB4D00D982BC /* MainView.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
@@ -8100,6 +8121,7 @@
 				EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */,
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				B0A948FF2ACD999C00C80B0A /* WeakifyFuncion.swift in Sources */,
+				DAF72F442B0F480A0006B44F /* SendFinishRoutable.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
 				DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */,
@@ -8476,6 +8498,7 @@
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */,
 				B06A828029C81E3A00B6160E /* SeedPhraseTextView.swift in Sources */,
+				DAF72F432B0F480A0006B44F /* SendFinishView.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				B60275292A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift in Sources */,
@@ -8637,6 +8660,7 @@
 				B02B74B229879E3C006473F2 /* WalletConnectSigner.swift in Sources */,
 				B6AA13782A2A37B100B53937 /* CardInfoPageTransactionDefaultCellPreviewView.swift in Sources */,
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
+				DAF72F462B0F49800006B44F /* SendFinishViewModelInputMock.swift in Sources */,
 				B04CD34429122C8D001EA84A /* ReferralCoordinatorView.swift in Sources */,
 				B6AA136A2A2A373600B53937 /* CardInfoPagePreviewSection.swift in Sources */,
 				DA559C382B0261F400F59584 /* SendType.swift in Sources */,
