@@ -52,13 +52,14 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var _amountText: String = ""
+    private var _amount = CurrentValueSubject<Amount?, Never>(nil)
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
     private var _feeText: String = ""
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
     private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
+    private let _transactionURL = CurrentValueSubject<URL?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -82,7 +83,7 @@ class SendModel {
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
-            setAmount("\(amount)")
+            setAmount(amount)
         }
 
         if let destination = sendType.predefinedDestination {
@@ -96,7 +97,12 @@ class SendModel {
     }
 
     func useMaxAmount() {
-        setAmount("1000")
+        let amountType = walletModel.amountType
+        if let amount = walletModel.wallet.amounts[amountType] {
+            setAmount(amount)
+        }
+
+        #warning("[REDACTED_TODO_COMMENT]")
     }
 
     func send() {
@@ -121,6 +127,9 @@ class SendModel {
             } receiveValue: { [weak self] result in
                 guard let self else { return }
 
+                if let transactionURL = explorerUrl(from: result.hash) {
+                    _transactionURL.send(transactionURL)
+                }
                 _transactionTime.send(Date())
             }
             .store(in: &bag)
@@ -185,10 +194,18 @@ class SendModel {
             .store(in: &bag)
     }
 
+    private func explorerUrl(from hash: String) -> URL? {
+        let factory = ExternalLinkProviderFactory()
+        let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
+        return provider.url(transaction: hash)
+    }
+
     // MARK: - Amount
 
-    private func setAmount(_ amountText: String) {
-        _amountText = amountText
+    func setAmount(_ amount: Amount?) {
+        guard _amount.value != amount else { return }
+
+        _amount.send(amount)
         validateAmount()
     }
 
@@ -197,11 +214,7 @@ class SendModel {
         let error: Error?
 
         #warning("validate")
-        let blockchain = walletModel.blockchainNetwork.blockchain
-        let amountType = walletModel.amountType
-
-        let value = Decimal(string: _amountText, locale: Locale.current) ?? 0
-        amount = Amount(with: blockchain, type: amountType, value: value)
+        amount = _amount.value
         error = nil
 
         self.amount.send(amount)
@@ -210,7 +223,7 @@ class SendModel {
 
     // MARK: - Destination and memo
 
-    private func setDestination(_ destinationText: String) {
+    func setDestination(_ destinationText: String) {
         _destinationText = destinationText
         validateDestination()
     }
@@ -255,7 +268,23 @@ class SendModel {
 // MARK: - Subview model inputs
 
 extension SendModel: SendAmountViewModelInput {
-    var amountTextBinding: Binding<String> { Binding(get: { self._amountText }, set: { self.setAmount($0) }) }
+    var blockchain: BlockchainSdk.Blockchain {
+        walletModel.blockchainNetwork.blockchain
+    }
+
+    var amountType: BlockchainSdk.Amount.AmountType {
+        walletModel.amountType
+    }
+
+    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
+        _amount.eraseToAnyPublisher()
+    }
+
+    #warning("TODO")
+    var errorPublisher: AnyPublisher<Error?, Never> {
+        _amountError.eraseToAnyPublisher()
+    }
+
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
 }
 
@@ -271,6 +300,11 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
+    #warning("TODO")
+    var amountText: String {
+        "100"
+    }
+
     var canEditAmount: Bool {
         sendType.predefinedAmount == nil
     }
@@ -281,5 +315,23 @@ extension SendModel: SendSummaryViewModelInput {
 
     var isSending: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
+    }
+}
+
+extension SendModel: SendFinishViewModelInput {
+    var destinationText: String? {
+        destination.value
+    }
+
+    var feeText: String {
+        _feeText
+    }
+
+    var transactionTime: Date? {
+        _transactionTime.value
+    }
+
+    var transactionURL: URL? {
+        _transactionURL.value
     }
 }
