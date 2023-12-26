@@ -30,25 +30,29 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getDestination(source: WalletModel) async throws -> WalletModel? {
-        try await expressRepository.updatePairs(for: source)
-
+    func getDestination(source: WalletModel) async throws -> WalletModel {
+        let availablePairs = await expressRepository.getPairs(from: source)
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
             let isNotSource = wallet.id != source.id
             let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.isCustom
+            let hasPair = availablePairs.contains(where: { $0.destination == wallet.expressCurrency })
 
-            return isNotSource && isAvailable && isNotCustom
+            return isNotSource && isAvailable && isNotCustom && hasPair
         }
 
-        if let lastTransactionWalletModel = getLastTransactionWalletModel(in: searchableWalletModels) {
-            return lastTransactionWalletModel
+        AppLog.shared.debug("[Express] \(self) has searchableWalletModels: \(searchableWalletModels.map { ($0.expressCurrency, $0.fiatBalance) })")
+
+        if let lastSwappedWallet = searchableWalletModels.first(where: { isLastTransactionWith(walletModel: $0) }) {
+            AppLog.shared.debug("[Express] \(self) selected lastSwappedWallet: \(lastSwappedWallet.expressCurrency)")
+            return lastSwappedWallet
         }
 
         let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatValue ?? 0) > 0 }
 
         // If all wallets without balance
         if walletModelsWithPositiveBalance.isEmpty, let first = searchableWalletModels.first {
+            AppLog.shared.debug("[Express] \(self) has a zero wallets with positive balance then selected: \(first.expressCurrency)")
             return first
         }
 
@@ -56,27 +60,29 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         let sortedWallets = walletModelsWithPositiveBalance.sorted(by: { ($0.fiatValue ?? 0) > ($1.fiatValue ?? 0) })
 
         // Start searching destination with available providers
-        for wallet in sortedWallets {
-            let pair = ExpressManagerSwappingPair(source: source, destination: wallet)
-            let availableProviders = try await expressRepository.getAvailableProviders(for: pair)
-            if !availableProviders.isEmpty {
-                return wallet
-            }
+        if let maxBalanceWallet = sortedWallets.first {
+            AppLog.shared.debug("[Express] \(self) selected maxBalanceWallet: \(maxBalanceWallet.expressCurrency)")
+            return maxBalanceWallet
         }
 
-        return nil
+        AppLog.shared.debug("[Express] \(self) couldn't find acceptable wallet")
+        throw ExpressDestinationServiceError.destinationNotFound
     }
+}
 
-    private func getLastTransactionWalletModel(in searchableWalletModels: [WalletModel]) -> WalletModel? {
-        let transactions = pendingTransactionRepository.pendingTransactions
+// MARK: - Private
 
-        guard
-            let lastTransactionCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency,
-            let lastWallet = searchableWalletModels.first(where: { $0.expressCurrency == lastTransactionCurrency })
-        else {
-            return nil
-        }
+private extension CommonExpressDestinationService {
+    func isLastTransactionWith(walletModel: WalletModel) -> Bool {
+        let transactions = pendingTransactionRepository.transactions
+        let lastCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency
 
-        return lastWallet
+        return walletModel.expressCurrency == lastCurrency
+    }
+}
+
+extension CommonExpressDestinationService: CustomStringConvertible {
+    var description: String {
+        "ExpressDestinationService"
     }
 }

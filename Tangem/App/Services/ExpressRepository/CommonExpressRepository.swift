@@ -59,18 +59,18 @@ extension CommonExpressRepository: ExpressRepository {
             return availablePair.providers
         }
 
-        throw ExpressRepositoryError.availablePairNotFound
+        throw ExpressRepositoryError.availableProvidersDoesNotFound
     }
 
-    func getPairs(to wallet: ExpressWallet) async throws -> [ExpressPair] {
+    func getPairs(to wallet: ExpressWallet) async -> [ExpressPair] {
         pairs.filter { $0.destination == wallet.expressCurrency }.asArray
     }
 
-    func getPairs(from wallet: ExpressWallet) async throws -> [ExpressPair] {
+    func getPairs(from wallet: ExpressWallet) async -> [ExpressPair] {
         pairs.filter { $0.source == wallet.expressCurrency }.asArray
     }
 }
 
 enum ExpressRepositoryError: Error {
-    case availablePairNotFound
+    case availableProvidersDoesNotFound
 }
