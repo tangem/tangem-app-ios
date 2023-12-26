@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import AlertToast
 
 struct ManageTokensNetworkSelectorView: View {
     @ObservedObject var viewModel: ManageTokensNetworkSelectorViewModel
