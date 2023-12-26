@@ -11,8 +11,8 @@ import SwiftUI
 extension View {
     /// - Parameters:
     ///   - item: It'ill be used for create the content
+    ///   - detents: Map detents list for any ios version
     ///   - settings: You can setup the sheet's appearance
-    ///   - stateObject: You can use custom`Sheet.StateObject` for tracking the sheet changes
     ///   - sheetContent: View for `sheetContent`
     @available(iOS 14.0, *)
     @ViewBuilder
