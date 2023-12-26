@@ -22,7 +22,7 @@ final class TokenSectionsAdapter {
         case group(by: BlockchainNetwork)
     }
 
-    enum SectionItem {
+    enum SectionItem: Equatable {
         /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
         case `default`(WalletModel)
         case withoutDerivation(TokenSectionsAdapter.UserToken)
