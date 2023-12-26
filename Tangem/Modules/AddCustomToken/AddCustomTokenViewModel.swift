@@ -410,6 +410,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                let notificationEvent = notificationEventProviding.notificationEvent {
                 notificationInput = NotificationViewInput(
                     style: .plain,
+                    severity: .warning,
                     settings: NotificationView.Settings(
                         event: notificationEvent,
                         dismissAction: nil
