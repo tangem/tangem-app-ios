@@ -156,6 +156,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        organizedTokensSectionsPublisher
+            .map { $0.flatMap(\.items) }
+            .removeDuplicates()
+            .map { $0.map(\.walletModelId) }
+            .withWeakCaptureOf(self)
+            .flatMapLatest { viewModel, walletModelIds in
+                return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds)
+            }
+            .sink()
+            .store(in: &bag)
+
         userWalletNotificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
