@@ -203,7 +203,7 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
-        loadSwapAvailbilityStateIfNeeded(forceReload: false)
+        loadSwapAvailbilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
 
