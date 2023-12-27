@@ -134,7 +134,6 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
 
         sendAmountViewModel.delegate = self
-        sendDestinationViewModel.delegate = self
         sendSummaryViewModel.router = self
 
         bind()
