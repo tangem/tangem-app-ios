@@ -58,7 +58,7 @@ final class ManageTokensViewModel: ObservableObject {
     }
 
     func addCustomTokenDidTapAction() {
-        coordinator.openAddCustomToken()
+        coordinator.openAddCustomToken(dataSource: dataSource)
     }
 }
 
