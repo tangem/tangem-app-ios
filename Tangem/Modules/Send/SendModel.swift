@@ -53,8 +53,8 @@ class SendModel {
     // MARK: - Raw data
 
     private var _amount = CurrentValueSubject<Amount?, Never>(nil)
-    private var _destinationText: String = ""
-    private var _destinationAdditionalFieldText: String = ""
+    private var _destinationText = CurrentValueSubject<String, Never>("")
+    private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
 
@@ -108,6 +108,7 @@ class SendModel {
 
     func send() {
         guard var transaction = transaction.value else {
+            AppLog.shared.debug("Transaction object hasn't been created")
             return
         }
 
@@ -185,11 +186,17 @@ class SendModel {
                 }
 
                 #warning("[REDACTED_TODO_COMMENT]")
-                return try? walletModel.createTransaction(
-                    amountToSend: amount,
-                    fee: fee,
-                    destinationAddress: destination
-                )
+                do {
+                    return try walletModel.createTransaction(
+                        amountToSend: amount,
+                        fee: fee,
+                        destinationAddress: destination
+                    )
+                } catch {
+                    AppLog.shared.debug("Failed to create transaction")
+                    AppLog.shared.error(error)
+                    return nil
+                }
             }
             .sink { transaction in
                 self.transaction.send(transaction)
@@ -227,9 +234,14 @@ class SendModel {
 
     // MARK: - Destination and memo
 
-    func setDestination(_ destinationText: String) {
-        _destinationText = destinationText
+    func setDestination(_ address: String) {
+        _destinationText.send(address)
         validateDestination()
+    }
+
+    func setDestinationAdditionalField(_ additionalField: String) {
+        _destinationAdditionalFieldText.send(additionalField)
+        validateDestinationAdditionalField()
     }
 
     private func validateDestination() {
@@ -237,16 +249,11 @@ class SendModel {
         let error: Error?
 
         #warning("validate")
-        destination = _destinationText
+        destination = _destinationText.value
         error = nil
 
         self.destination.send(destination)
         _destinationError.send(error)
-    }
-
-    private func setDestinationAdditionalField(_ destinationAdditionalFieldText: String) {
-        _destinationAdditionalFieldText = destinationAdditionalFieldText
-        validateDestinationAdditionalField()
     }
 
     private func validateDestinationAdditionalField() {
@@ -254,7 +261,7 @@ class SendModel {
         let error: Error?
 
         #warning("validate")
-        destinationAdditionalField = _destinationAdditionalFieldText
+        destinationAdditionalField = _destinationAdditionalFieldText.value
         error = nil
 
         self.destinationAdditionalField.send(destinationAdditionalField)
@@ -309,10 +316,43 @@ extension SendModel: SendAmountViewModelInput {
 }
 
 extension SendModel: SendDestinationViewModelInput {
-    var destinationTextBinding: Binding<String> { Binding(get: { self._destinationText }, set: { self.setDestination($0) }) }
-    var destinationAdditionalFieldTextBinding: Binding<String> { Binding(get: { self._destinationAdditionalFieldText }, set: { self.setDestinationAdditionalField($0) }) }
+    var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
+    var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
+
     var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
+
+    var networkName: String { walletModel.blockchainNetwork.blockchain.displayName }
+
+    var additionalField: SendAdditionalFields? {
+        let field = SendAdditionalFields.fields(for: walletModel.blockchainNetwork.blockchain)
+        switch field {
+        case .destinationTag, .memo:
+            return field
+        case .none:
+            return nil
+        }
+    }
+
+    var blockchainNetwork: BlockchainNetwork {
+        walletModel.blockchainNetwork
+    }
+
+    var walletPublicKey: Wallet.PublicKey {
+        walletModel.wallet.publicKey
+    }
+
+    var currencySymbol: String {
+        walletModel.tokenItem.currencySymbol
+    }
+
+    var walletAddresses: [String] {
+        walletModel.wallet.addresses.map { $0.value }
+    }
+
+    var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> {
+        walletModel.transactionHistoryPublisher
+    }
 }
 
 extension SendModel: SendFeeViewModelInput {
@@ -342,6 +382,11 @@ extension SendModel: SendSummaryViewModelInput {
     #warning("TODO")
     var amountText: String {
         "100"
+    }
+
+    #warning("TODO")
+    var destinationTextBinding: Binding<String> {
+        .constant("0x1234567")
     }
 
     var feeTextPublisher: AnyPublisher<String?, Never> {
