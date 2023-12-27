@@ -36,7 +36,9 @@ struct SendDestinationAddressSummaryView: View {
             case .address(let address):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
-                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+                if let name = type.name {
+                    DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                }
             }
         }
 
@@ -45,7 +47,9 @@ struct SendDestinationAddressSummaryView: View {
             case .address(let address):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
-                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+                if let name = type.name {
+                    DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                }
             }
         }
 
@@ -59,7 +63,9 @@ struct SendDestinationAddressSummaryView: View {
             case .address(let address):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
-                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+                if let name = type.name {
+                    DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                }
             }
         }
         .backgroundColor(Colors.Button.disabled)
@@ -74,7 +80,9 @@ struct SendDestinationAddressSummaryView: View {
             case .address(let address):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
-                DefaultTextWithTitleRowView(data: .init(title: type.name, text: value))
+                if let name = type.name {
+                    DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                }
             }
         }
     }
