@@ -16,7 +16,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditDestination: Bool { get }
 
     var destinationTextBinding: Binding<String> { get }
-    var feeText: AnyPublisher<String?, Never> { get }
+    var feeTextPublisher: AnyPublisher<String?, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
@@ -66,7 +66,7 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
 
         input
-            .feeText
+            .feeTextPublisher
             .map {
                 $0 ?? ""
             }
