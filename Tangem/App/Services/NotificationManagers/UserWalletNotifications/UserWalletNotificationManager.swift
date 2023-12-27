@@ -47,6 +47,20 @@ final class UserWalletNotificationManager {
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
         var inputs: [NotificationViewInput] = []
+
+        if !AppSettings.shared.tangemExpressMainPromotionDismissed,
+           TangemExpressPromotionUtility().isPromotionRunning,
+           userWalletModel.isMultiWallet {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .tangemExpressPromotion,
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
         inputs.append(contentsOf: factory.buildNotificationInputs(
             for: deprecationService.deprecationWarnings,
             action: action,
@@ -102,6 +116,20 @@ final class UserWalletNotificationManager {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
+            .store(in: &bag)
+
+        AppSettings.shared.$tangemExpressMainPromotionDismissed
+            .sink { [weak self] dismissed in
+                guard
+                    let self,
+                    dismissed
+                else {
+                    return
+                }
+
+                let promotionEvent = WarningEvent.tangemExpressPromotion
+                notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == promotionEvent.hashValue }
+            }
             .store(in: &bag)
     }
 
@@ -228,6 +256,8 @@ extension UserWalletNotificationManager: NotificationManager {
             recordDeprecationNotificationDismissal()
         case .numberOfSignedHashesIncorrect:
             recordUserWalletHashesCountValidation()
+        case .tangemExpressPromotion:
+            AppSettings.shared.tangemExpressMainPromotionDismissed = true
         default:
             break
         }
