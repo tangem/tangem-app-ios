@@ -28,13 +28,9 @@ protocol SendDestinationViewModelInput {
     var walletAddresses: [String] { get }
 
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
-}
 
-protocol SendDestinationViewDelegate: AnyObject {
-    func didEnterAddress(_ address: String)
-    func didEnterAdditionalField(_ additionalField: String)
-
-    func didSelectSuggestedDestination(_ destination: SendSuggestedDestination)
+    func setDestination(_ address: String)
+    func setDestinationAdditionalField(_ additionalField: String)
 }
 
 class SendDestinationViewModel: ObservableObject {
@@ -45,8 +41,7 @@ class SendDestinationViewModel: ObservableObject {
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
 
-    weak var delegate: SendDestinationViewDelegate?
-
+    private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
@@ -59,6 +54,8 @@ class SendDestinationViewModel: ObservableObject {
     // MARK: - Methods
 
     init(input: SendDestinationViewModelInput) {
+        self.input = input
+
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
             walletAddresses: input.walletAddresses,
@@ -86,7 +83,7 @@ class SendDestinationViewModel: ObservableObject {
             input: input.destinationTextPublisher,
             errorText: input.destinationError
         ) { [weak self] in
-            self?.delegate?.didEnterAddress($0)
+            self?.input.setDestination($0)
         }
 
         if let additionalField = input.additionalField,
@@ -96,14 +93,14 @@ class SendDestinationViewModel: ObservableObject {
                 input: input.destinationAdditionalFieldTextPublisher,
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
-                self?.delegate?.didEnterAdditionalField($0)
+                self?.input.setDestinationAdditionalField($0)
             }
         }
 
-        bind(from: input)
+        bind()
     }
 
-    private func bind(from input: SendDestinationViewModelInput) {
+    private func bind() {
         input
             .destinationError
             .map {
@@ -146,7 +143,12 @@ class SendDestinationViewModel: ObservableObject {
                     wallets: suggestedWallets,
                     recentTransactions: recentTransactions
                 ) { [weak self] destination in
-                    self?.delegate?.didSelectSuggestedDestination(destination)
+                    self?.input.setDestination(destination.address)
+                    if let additionalField = destination.additionalField {
+                        self?.input.setDestinationAdditionalField(additionalField)
+                    }
+
+                    #warning("[REDACTED_TODO_COMMENT]")
                 }
             }
             .store(in: &bag)
