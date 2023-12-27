@@ -109,13 +109,12 @@ class ExpressNotificationManager {
         guard let interactor = expressInteractor else { return }
 
         let sourceTokenItem = interactor.getSender().tokenItem
-        let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
-        let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
         let event: ExpressNotificationEvent
         let notificationsFactory = NotificationsFactory()
 
         switch restrictions {
         case .notEnoughAmountForSwapping(let minAmount):
+            let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
             event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceTokenItemSymbol)")
         case .hasPendingTransaction:
             event = .hasPendingTransaction(symbol: sourceTokenItem.currencySymbol)
@@ -130,6 +129,7 @@ class ExpressNotificationManager {
                 return
             }
 
+            let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
             event = .notEnoughFeeForTokenTx(mainTokenName: sourceTokenItem.blockchain.displayName, mainTokenSymbol: sourceNetworkSymbol, blockchainIconName: sourceTokenItem.blockchain.iconNameFilled)
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
@@ -138,7 +138,8 @@ class ExpressNotificationManager {
         case .requiredRefresh:
             event = .refreshRequired(title: Localization.commonError, message: Localization.expressUnknownError)
         case .noDestinationTokens:
-            event = .noDestinationTokens(sourceTokenName: sourceTokenItemSymbol)
+            let sourceTokenItemName = sourceTokenItem.name
+            event = .noDestinationTokens(sourceTokenName: sourceTokenItemName)
         }
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
