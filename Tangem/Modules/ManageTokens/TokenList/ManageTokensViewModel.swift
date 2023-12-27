@@ -16,8 +16,8 @@ final class ManageTokensViewModel: ObservableObject {
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
 
     @Published var alert: AlertBinder?
+    @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
-    @Published var isShowAddCustomToken: Bool = true
 
     // MARK: - Properties
 
@@ -66,7 +66,6 @@ final class ManageTokensViewModel: ObservableObject {
 
 private extension ManageTokensViewModel {
     func fetch(with searchText: String = "") {
-        isShowAddCustomToken = false
         loader.fetch(searchText)
     }
 
@@ -95,6 +94,7 @@ private extension ManageTokensViewModel {
                     Analytics.log(.manageTokensSearched)
                 }
 
+                self?.setNeedDisplayTokensListSkeletonView()
                 self?.fetch(with: value)
             }
             .store(in: &bag)
@@ -136,6 +136,7 @@ private extension ManageTokensViewModel {
             .map { $0.userTokenListManager.userTokensPublisher }
 
         Publishers.MergeMany(userTokensPublishers)
+            .receive(on: DispatchQueue.main)
             .receiveValue { [weak self] value in
                 guard let self = self else { return }
 
@@ -154,14 +155,15 @@ private extension ManageTokensViewModel {
 
         loader.$items
             .receive(on: DispatchQueue.main)
+            .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [weak self] items in
                 guard let self = self else {
                     return
                 }
 
-                isShowAddCustomToken = true
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
+                isShowAddCustomToken = tokenViewModels.isEmpty
             })
             .store(in: &bag)
 
@@ -169,6 +171,19 @@ private extension ManageTokensViewModel {
     }
 
     // MARK: - Private Implementation
+
+    /// Need for display list skeleton view
+    private func setNeedDisplayTokensListSkeletonView() {
+        tokenViewModels = [Int](0 ... 10).map { _ in
+            ManageTokensItemViewModel(
+                coinModel: .dummy,
+                priceValue: "----------",
+                action: .info,
+                state: .loading,
+                didTapAction: { _, _ in }
+            )
+        }
+    }
 
     private func actionType(for coinId: String) -> ManageTokensItemViewModel.Action {
         let isAlreadyExistToken = cacheExistListCoinId.contains(coinId)
@@ -179,6 +194,7 @@ private extension ManageTokensViewModel {
         ManageTokensItemViewModel(
             coinModel: coinModel,
             action: actionType(for: coinModel.id),
+            state: .loaded,
             didTapAction: handle(action:with:)
         )
     }
