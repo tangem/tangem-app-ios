@@ -16,18 +16,15 @@ protocol SendFeeViewModelInput {
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var tokenItem: TokenItem { get }
-}
 
-protocol SendFeeViewModelDelegate: AnyObject {
     func didSelectFeeOption(_ feeOption: FeeOption)
 }
 
 class SendFeeViewModel: ObservableObject {
-    weak var delegate: SendFeeViewModelDelegate?
-
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
 
+    private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let tokenItem: TokenItem
     private var bag: Set<AnyCancellable> = []
@@ -41,15 +38,16 @@ class SendFeeViewModel: ObservableObject {
     }
 
     init(input: SendFeeViewModelInput) {
+        self.input = input
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
         tokenItem = input.tokenItem
         feeRowViewModels = makeFeeRowViewModels([:])
 
-        bind(from: input)
+        bind()
     }
 
-    private func bind(from input: SendFeeViewModelInput) {
+    private func bind() {
         input.feeValues
             .sink { [weak self] feeValues in
                 guard let self else { return }
@@ -85,7 +83,7 @@ class SendFeeViewModel: ObservableObject {
                 }, set: { root, newValue in
                     if newValue {
                         root.selectedFeeOption = option
-                        root.delegate?.didSelectFeeOption(option)
+                        root.input.didSelectFeeOption(option)
                     }
                 })
             )
