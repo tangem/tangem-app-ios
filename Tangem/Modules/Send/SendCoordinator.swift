@@ -65,7 +65,8 @@ extension SendCoordinator: SendRoutable {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
-    func openQRScanner(with codeBinding: Binding<String>) {
-        qrScanViewModel = .init(code: codeBinding)
+    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
+        let text = Localization.sendQrcodeScanInfo(networkName)
+        qrScanViewModel = .init(code: codeBinding, text: text)
     }
 }
