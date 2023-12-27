@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum PendingExpressTransactionStatus: String, Equatable {
+enum PendingExpressTransactionStatus: String, Equatable, Codable {
     case awaitingDeposit
     case confirming
     case exchanging
@@ -17,6 +17,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
     case failed
     case refunded
     case verificationRequired
+    case expired
 
     var pendingStatusTitle: String {
         switch self {
@@ -24,7 +25,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         case .confirming: return Localization.expressExchangeStatusConfirming
         case .exchanging: return Localization.expressExchangeStatusExchanging
         case .sendingToUser: return Localization.expressExchangeStatusSending
-        case .done: return Localization.commonDone
+        case .done, .expired: return Localization.commonDone
         case .failed: return Localization.expressExchangeStatusFailed
         case .refunded: return Localization.expressExchangeStatusRefunded
         case .verificationRequired: return Localization.expressExchangeStatusVerifying
@@ -37,7 +38,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         case .confirming: return Localization.expressExchangeStatusConfirmingActive
         case .exchanging: return Localization.expressExchangeStatusExchangingActive
         case .sendingToUser: return Localization.expressExchangeStatusSendingActive
-        case .done: return Localization.commonDone
+        case .done, .expired: return Localization.commonDone
         case .failed: return Localization.expressExchangeStatusFailed
         case .refunded: return Localization.expressExchangeStatusRefundedActive
         case .verificationRequired: return Localization.expressExchangeStatusVerifying
@@ -50,7 +51,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         case .confirming: return Localization.expressExchangeStatusConfirmed
         case .exchanging: return Localization.expressExchangeStatusExchanged
         case .sendingToUser: return Localization.expressExchangeStatusSent
-        case .done: return Localization.commonDone
+        case .done, .expired: return Localization.commonDone
         case .failed: return Localization.expressExchangeStatusFailed
         case .refunded: return Localization.expressExchangeStatusRefunded
         case .verificationRequired: return Localization.expressExchangeStatusVerified
@@ -61,7 +62,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         switch self {
         case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .failed, .verificationRequired:
             return true
-        case .done, .refunded:
+        case .done, .refunded, .expired:
             return false
         }
     }
