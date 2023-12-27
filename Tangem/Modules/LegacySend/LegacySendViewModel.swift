@@ -44,11 +44,11 @@ class LegacySendViewModel: ObservableObject {
 
     // MARK: UI
 
-    var shoudShowFeeSelector: Bool {
-        walletModel.shoudShowFeeSelector
+    var shouldShowFeeSelector: Bool {
+        walletModel.shouldShowFeeSelector
     }
 
-    var shoudShowFeeIncludeSelector: Bool {
+    var shouldShowFeeIncludeSelector: Bool {
         if isSellingCrypto {
             return false
         }
@@ -64,7 +64,7 @@ class LegacySendViewModel: ObservableObject {
     }
 
     var shouldShowNetworkBlock: Bool {
-        shoudShowFeeSelector || shoudShowFeeIncludeSelector
+        shouldShowFeeSelector || shouldShowFeeIncludeSelector
     }
 
     var hasAdditionalInputFields: Bool {
@@ -780,7 +780,7 @@ class LegacySendViewModel: ObservableObject {
 
 private extension LegacySendViewModel {
     var analyticsFeeType: Analytics.ParameterValue {
-        if shoudShowFeeSelector {
+        if shouldShowFeeSelector {
             let feeLevels: [Analytics.ParameterValue] = [
                 .transactionFeeMin,
                 .transactionFeeNormal,
