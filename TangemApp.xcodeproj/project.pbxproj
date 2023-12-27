@@ -741,6 +741,12 @@
 		DAA5E31A28D214BF003C0E80 /* UserWalletFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E31928D214BF003C0E80 /* UserWalletFactory.swift */; };
 		DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA8F8892888397700F14B9A /* ShopWebHelper.swift */; };
 		DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAADD5B327EB5A180046DEC3 /* SafariView.swift */; };
+		DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */; };
+		DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */; };
+		DAB19D4A2B2C72A100DD08C4 /* AddCustomTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */; };
+		DAB19D4B2B2C72A100DD08C4 /* AddCustomTokenCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D462B2C72A100DD08C4 /* AddCustomTokenCoordinatorView.swift */; };
+		DAB19D4C2B2C72A100DD08C4 /* AddCustomTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D472B2C72A100DD08C4 /* AddCustomTokenRoutable.swift */; };
+		DAB19D4E2B2C72C400DD08C4 /* AddCustomTokenNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D4D2B2C72C400DD08C4 /* AddCustomTokenNotificationEvent.swift */; };
 		DAB5E334297E8CBF00A4E9CF /* AmountRoundingType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB5E332297E8CBF00A4E9CF /* AmountRoundingType.swift */; };
 		DAB5E335297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB5E333297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift */; };
 		DAB88FF92938B17100100725 /* UserWalletListSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB88FF82938B17100100725 /* UserWalletListSeparatorView.swift */; };
@@ -2175,6 +2181,12 @@
 		DAA5E31928D214BF003C0E80 /* UserWalletFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletFactory.swift; sourceTree = "<group>"; };
 		DAA8F8892888397700F14B9A /* ShopWebHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopWebHelper.swift; sourceTree = "<group>"; };
 		DAADD5B327EB5A180046DEC3 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
+		DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenCoordinator.swift; sourceTree = "<group>"; };
+		DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenViewModel.swift; sourceTree = "<group>"; };
+		DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenView.swift; sourceTree = "<group>"; };
+		DAB19D462B2C72A100DD08C4 /* AddCustomTokenCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenCoordinatorView.swift; sourceTree = "<group>"; };
+		DAB19D472B2C72A100DD08C4 /* AddCustomTokenRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenRoutable.swift; sourceTree = "<group>"; };
+		DAB19D4D2B2C72C400DD08C4 /* AddCustomTokenNotificationEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNotificationEvent.swift; sourceTree = "<group>"; };
 		DAB5E332297E8CBF00A4E9CF /* AmountRoundingType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountRoundingType.swift; sourceTree = "<group>"; };
 		DAB5E333297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignificantFractionDigitRounder.swift; sourceTree = "<group>"; };
 		DAB88FF82938B17100100725 /* UserWalletListSeparatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListSeparatorView.swift; sourceTree = "<group>"; };
@@ -3685,6 +3697,7 @@
 				B018FE642B0CE54900D8D31E /* ExpressNotifications */,
 				B012A11A2AA617000079BAB4 /* NotificationManager.swift */,
 				B012A1162AA5CDBD0079BAB4 /* NotificationEvent.swift */,
+				DAB19D4D2B2C72C400DD08C4 /* AddCustomTokenNotificationEvent.swift */,
 				B012A1182AA5CDE00079BAB4 /* NotificationButtonActionType.swift */,
 				B04090C32AF3969600DF8DD5 /* NotificationsAnalyticsService.swift */,
 				DA34BDF62B27578000F606C2 /* TangemExpressPromotionUtility.swift */,
@@ -5071,6 +5084,11 @@
 		DA207C212AB89F89005CC5E3 /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
+				DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */,
+				DAB19D462B2C72A100DD08C4 /* AddCustomTokenCoordinatorView.swift */,
+				DAB19D472B2C72A100DD08C4 /* AddCustomTokenRoutable.swift */,
+				DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */,
+				DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */,
 				DAF59CBA2ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelector */,
 				DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */,
 			);
@@ -7819,6 +7837,7 @@
 				5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */,
 				5DB862B8252396CD00566AA0 /* TangemSigner.swift in Sources */,
 				B61980102AB8BD5200153886 /* PreviewContentShapeModifier.swift in Sources */,
+				DAB19D4B2B2C72A100DD08C4 /* AddCustomTokenCoordinatorView.swift in Sources */,
 				DC0A5844282BFDFC0031BECC /* UserWalletRepository.swift in Sources */,
 				DC7127B32897ECEE00F60F71 /* GenericConfig.swift in Sources */,
 				DC66BBED2859B68100CDF765 /* ShopCoordinator.swift in Sources */,
@@ -8046,6 +8065,7 @@
 				B09BB863259A075600B92000 /* NavigationConfigurator.swift in Sources */,
 				EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */,
 				2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */,
+				DAB19D4C2B2C72A100DD08C4 /* AddCustomTokenRoutable.swift in Sources */,
 				DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */,
 				DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */,
 				DA5CD0982A25F4F2008FD876 /* PromotionViewModel.swift in Sources */,
@@ -8290,6 +8310,7 @@
 				EF130EBC28E1D34500D37EFC /* LegacyMultiWalletContentView.swift in Sources */,
 				DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
+				DAB19D4A2B2C72A100DD08C4 /* AddCustomTokenView.swift in Sources */,
 				B0DCC81B2A8A1B4900D85E53 /* NotificationsFactory.swift in Sources */,
 				B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */,
 				2DC5677D2B0E047700B0244F /* MainBottomSheetHeaderView.swift in Sources */,
@@ -8310,6 +8331,7 @@
 				DC2CD3432B0FE3D600C0D677 /* SendCurrencyViewModel.swift in Sources */,
 				B09409932A3B7E9800787432 /* NavbarDotsImage.swift in Sources */,
 				B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */,
+				DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */,
 				DC3B49F42893E50700C207EA /* UserWallet.swift in Sources */,
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
 				DC66BC06285B6C7300CDF765 /* LegacySendCoordinatorView.swift in Sources */,
@@ -8380,6 +8402,7 @@
 				B63127D42A2F52E2007C124C /* OrganizeTokensListSection.swift in Sources */,
 				DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */,
 				DA559C3A2B0261F400F59584 /* SendView.swift in Sources */,
+				DAB19D4E2B2C72C400DD08C4 /* AddCustomTokenNotificationEvent.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
 				DC7D39F729E00635007BCD23 /* TwinOnboardingStepsBulder.swift in Sources */,
 				DA559C4D2B02622600F59584 /* SendDestinationViewModelInputMock.swift in Sources */,
@@ -8869,6 +8892,7 @@
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				EF862715297182B6007EBFF9 /* SwappingSuccessCoordinatorView.swift in Sources */,
 				B02B74AE29879DA5006473F2 /* WalletConnectV2PersonalSignHandler.swift in Sources */,
+				DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */,
 				DA559C332B0261F400F59584 /* SendCoordinatorView.swift in Sources */,
 				EFD32AED29EE7F540026353E /* FeatureState.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
