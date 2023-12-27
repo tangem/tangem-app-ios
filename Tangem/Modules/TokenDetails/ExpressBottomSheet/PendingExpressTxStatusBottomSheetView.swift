@@ -206,10 +206,17 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
                 isCustom: false
             ),
             feeString: "0.021351",
-            provider: ExpressPendingTransactionRecord.Provider(provider: .init(id: "changenow", name: "ChangeNow", url: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png"), type: .cex)),
+            provider: ExpressPendingTransactionRecord.Provider(
+                id: "changenow",
+                name: "ChangeNow",
+                iconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png"),
+                type: .cex
+            ),
             date: Date(),
             externalTxId: "a34883e049a416",
-            externalTxURL: "https://changenow.io/exchange/txs/a34883e049a416"
+            externalTxURL: "https://changenow.io/exchange/txs/a34883e049a416",
+            isHidden: false,
+            transactionStatus: .awaitingDeposit
         )
         let pendingTransaction = factory.buildPendingExpressTransaction(currentExpressStatus: .sending, for: record)
         return .init(
