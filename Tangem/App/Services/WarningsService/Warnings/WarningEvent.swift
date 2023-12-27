@@ -141,6 +141,31 @@ extension WarningEvent: NotificationEvent {
         }
     }
 
+    var severity: NotificationView.Severity {
+        switch self {
+        case .walletLocked,
+             .failedToVerifyCard,
+             .devCard:
+            return .critical
+        case .demoCard,
+             .legacyDerivation,
+             .systemDeprecationTemporary,
+             .missingDerivation,
+             .rateApp,
+             .tangemExpressPromotion:
+            return .info
+        case .numberOfSignedHashesIncorrect,
+             .testnetCard,
+             .oldDeviceOldCard,
+             .oldCard,
+             .lowSignatures,
+             .systemDeprecationPermanent,
+             .missingBackup,
+             .supportedOnlySingleCurrencyWallet:
+            return .warning
+        }
+    }
+
     var isDismissable: Bool {
         switch self {
         case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
