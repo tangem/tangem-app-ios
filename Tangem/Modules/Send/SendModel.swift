@@ -97,10 +97,6 @@ class SendModel {
         bind()
     }
 
-    func setSelectedFeeOption(_ feeOption: FeeOption) {
-        _selectedFeeOption.send(feeOption)
-    }
-
     func useMaxAmount() {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
@@ -266,6 +262,10 @@ class SendModel {
     }
 
     // MARK: - Fees
+
+    func didSelectFeeOption(_ feeOption: FeeOption) {
+        _selectedFeeOption.send(feeOption)
+    }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
         switch fees.count {
