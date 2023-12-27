@@ -54,10 +54,12 @@ class LegacySendViewModel: ObservableObject {
         }
 
         switch amountToSend.type {
-        case .coin, .reserve:
-            return true
+        case .coin:
+            return blockchainNetwork.blockchain.coinTransactionFeePaidInNetworkCurrency
         case .token:
             return !blockchainNetwork.blockchain.tokenTransactionFeePaidInNetworkCurrency
+        case .reserve:
+            return true
         }
     }
 
