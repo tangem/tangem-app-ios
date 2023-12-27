@@ -344,6 +344,14 @@ extension SendModel: SendSummaryViewModelInput {
         "100"
     }
 
+    var feeTextPublisher: AnyPublisher<String?, Never> {
+        fee
+            .map {
+                $0?.amount.string()
+            }
+            .eraseToAnyPublisher()
+    }
+
     var canEditAmount: Bool {
         sendType.predefinedAmount == nil
     }
@@ -363,7 +371,7 @@ extension SendModel: SendFinishViewModelInput {
     }
 
     var feeText: String {
-        _feeText
+        fee.value?.amount.string() ?? ""
     }
 
     var transactionTime: Date? {
