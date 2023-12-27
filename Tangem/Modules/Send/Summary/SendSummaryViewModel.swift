@@ -11,10 +11,10 @@ import SwiftUI
 import Combine
 
 protocol SendSummaryViewModelInput: AnyObject {
+    var amountText: String { get }
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
-    var amountTextBinding: Binding<String> { get }
     var destinationTextBinding: Binding<String> { get }
     var feeText: AnyPublisher<String?, Never> { get }
 
@@ -39,10 +39,11 @@ class SendSummaryViewModel: ObservableObject {
     private weak var input: SendSummaryViewModelInput?
 
     init(input: SendSummaryViewModelInput) {
+        amountText = input.amountText
+
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
 
-        amountText = input.amountTextBinding.wrappedValue
         destinationText = input.destinationTextBinding.wrappedValue
 
         self.input = input
