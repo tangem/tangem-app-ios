@@ -234,13 +234,13 @@ class SendModel {
 
     // MARK: - Destination and memo
 
-    func setDestination(_ destinationText: String) {
-        _destinationText.send(destinationText)
+    func setDestination(_ address: String) {
+        _destinationText.send(address)
         validateDestination()
     }
 
-    func setDestinationAdditionalField(_ destinationAdditionalFieldText: String) {
-        _destinationAdditionalFieldText.send(destinationAdditionalFieldText)
+    func setDestinationAdditionalField(_ additionalField: String) {
+        _destinationAdditionalFieldText.send(additionalField)
         validateDestinationAdditionalField()
     }
 
