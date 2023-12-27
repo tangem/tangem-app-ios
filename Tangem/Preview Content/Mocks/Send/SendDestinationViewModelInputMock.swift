@@ -58,4 +58,7 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
     var suggestedWallets: [SendSuggestedDestinationWallet] {
         []
     }
+
+    func setDestination(_ address: String) {}
+    func setDestinationAdditionalField(_ additionalField: String) {}
 }
