@@ -122,6 +122,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
+
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
@@ -257,7 +258,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
-            type: .sell(amount: amountToSend.value, destination: destination)
+            type: .sell(amount: amountToSend, destination: destination)
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -346,6 +347,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
+
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
