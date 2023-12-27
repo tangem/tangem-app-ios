@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
+import AVFoundation
 
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
@@ -16,8 +17,9 @@ final class SendViewModel: ObservableObject {
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
+    @Published var showCameraDeniedAlert = false
 
-    var title: String {
+    var title: String? {
         step.name
     }
 
@@ -31,6 +33,15 @@ final class SendViewModel: ObservableObject {
 
     var showNextButton: Bool {
         nextStep != nil
+    }
+
+    var showQRCodeButton: Bool {
+        switch step {
+        case .destination:
+            return true
+        case .amount, .fee, .summary, .finish:
+            return false
+        }
     }
 
     let sendAmountViewModel: SendAmountViewModel
@@ -64,6 +75,7 @@ final class SendViewModel: ObservableObject {
 
     private let sendModel: SendModel
     private let sendType: SendType
+    private let walletModel: WalletModel
     private let steps: [SendStep]
 
     private unowned let coordinator: SendRoutable
@@ -84,7 +96,7 @@ final class SendViewModel: ObservableObject {
                     return sendModel.destinationValid
                 case .fee:
                     return sendModel.feeValid
-                case .summary:
+                case .summary, .finish:
                     return .just(output: true)
                 }
             }
@@ -94,6 +106,7 @@ final class SendViewModel: ObservableObject {
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
+        self.walletModel = walletModel
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
 
         let steps = sendType.steps
@@ -145,6 +158,24 @@ final class SendViewModel: ObservableObject {
         step = previousStep
     }
 
+    func scanQRCode() {
+        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+            showCameraDeniedAlert = true
+        } else {
+            let binding = Binding<String>(
+                get: {
+                    ""
+                },
+                set: { [weak self] in
+                    self?.parseQRCode($0)
+                }
+            )
+
+            let networkName = walletModel.blockchainNetwork.blockchain.displayName
+            coordinator.openQRScanner(with: binding, networkName: networkName)
+        }
+    }
+
     private func bind() {
         currentStepValid
             .map {
@@ -152,6 +183,34 @@ final class SendViewModel: ObservableObject {
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
             .store(in: &bag)
+
+        sendModel
+            .transactionFinished
+            .sink { [weak self] transactionFinished in
+                if transactionFinished {
+                    self?.openFinishPage()
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func openFinishPage() {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel) else {
+            assertionFailure("WHY?")
+            return
+        }
+
+        sendFinishViewModel.router = coordinator
+        openStep(.finish(model: sendFinishViewModel))
+    }
+
+    private func parseQRCode(_ code: String) {
+        #warning("[REDACTED_TODO_COMMENT]")
+        let parser = QRCodeParser(amountType: walletModel.amountType, blockchain: walletModel.blockchainNetwork.blockchain)
+        let result = parser.parse(code)
+
+        sendModel.setDestination(result.destination)
+        sendModel.setAmount(result.amount)
     }
 }
 
