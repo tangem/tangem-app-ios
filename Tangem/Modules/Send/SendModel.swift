@@ -55,7 +55,8 @@ class SendModel {
     private var _amount = CurrentValueSubject<Amount?, Never>(nil)
     private var _destinationText: String = ""
     private var _destinationAdditionalFieldText: String = ""
-    private var _feeText: String = ""
+    private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
+    private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
     private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
@@ -162,10 +163,13 @@ class SendModel {
             .sink { [weak self] fees in
                 guard let self else { return }
 
-                #warning("[REDACTED_TODO_COMMENT]")
-                fee.send(fees.first)
+                let feeValues = feeValues(fees)
+                _feeValues.send(feeValues)
 
-                print("fetched fees:", fees)
+                if let marketFee = feeValues[.market],
+                   let marketFeeValue = marketFee.value {
+                    fee.send(marketFeeValue)
+                }
             }
             .store(in: &bag)
 
@@ -259,9 +263,25 @@ class SendModel {
 
     // MARK: - Fees
 
-    private func setFee(_ feeText: String) {
-        #warning("set and validate")
-        _feeText = feeText
+    func didSelectFeeOption(_ feeOption: FeeOption) {
+        _selectedFeeOption.send(feeOption)
+    }
+
+    private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
+        switch fees.count {
+        case 1:
+            return [
+                .market: .loaded(fees[0]),
+            ]
+        case 3:
+            return [
+                .slow: .loaded(fees[0]),
+                .market: .loaded(fees[1]),
+                .fast: .loaded(fees[2]),
+            ]
+        default:
+            return [:]
+        }
     }
 }
 
@@ -296,13 +316,40 @@ extension SendModel: SendDestinationViewModelInput {
 }
 
 extension SendModel: SendFeeViewModelInput {
-    var feeTextBinding: Binding<String> { Binding(get: { self._feeText }, set: { self.setFee($0) }) }
+    var selectedFeeOption: FeeOption {
+        _selectedFeeOption.value
+    }
+
+    #warning("TODO")
+    var feeOptions: [FeeOption] {
+        if walletModel.shoudShowFeeSelector {
+            return [.slow, .market, .fast]
+        } else {
+            return [.market]
+        }
+    }
+
+    var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
+        _feeValues.eraseToAnyPublisher()
+    }
+
+    var tokenItem: TokenItem {
+        walletModel.tokenItem
+    }
 }
 
 extension SendModel: SendSummaryViewModelInput {
     #warning("TODO")
     var amountText: String {
         "100"
+    }
+
+    var feeTextPublisher: AnyPublisher<String?, Never> {
+        fee
+            .map {
+                $0?.amount.string()
+            }
+            .eraseToAnyPublisher()
     }
 
     var canEditAmount: Bool {
@@ -324,7 +371,7 @@ extension SendModel: SendFinishViewModelInput {
     }
 
     var feeText: String {
-        _feeText
+        fee.value?.amount.string() ?? ""
     }
 
     var transactionTime: Date? {
