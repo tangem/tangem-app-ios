@@ -229,23 +229,3 @@ extension SendViewModel: SendAmountViewModelDelegate {
         sendModel.useMaxAmount()
     }
 }
-
-extension SendViewModel: SendDestinationViewDelegate {
-    func didEnterAddress(_ address: String) {
-        sendModel.setDestination(address)
-    }
-
-    func didEnterAdditionalField(_ additionalField: String) {
-        sendModel.setDestinationAdditionalField(additionalField)
-    }
-
-    func didSelectSuggestedDestination(_ destination: SendSuggestedDestination) {
-        sendModel.setDestination(destination.address)
-        if let additionalField = destination.additionalField {
-            sendModel.setDestinationAdditionalField(additionalField)
-        }
-
-        #warning("[REDACTED_TODO_COMMENT]")
-        alert = AlertBuilder.makeSuccessAlert(message: "Address copied")
-    }
-}
