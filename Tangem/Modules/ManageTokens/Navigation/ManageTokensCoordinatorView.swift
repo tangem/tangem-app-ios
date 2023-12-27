@@ -36,7 +36,9 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 }
                 .navigationViewStyle(.stack)
             }
-        // [REDACTED_TODO_COMMENT]
+            .sheet(item: $coordinator.addCustomTokenCoordinator) { coordinator in
+                AddCustomTokenCoordinatorView(coordinator: coordinator)
+            }
     }
 
     @ViewBuilder
