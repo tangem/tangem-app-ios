@@ -30,7 +30,7 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 item: $coordinator.networkSelectorViewModel,
                 detents: [.medium, .large],
                 settings: .init(
-                    backgroundColor: Colors.Background.primary
+                    backgroundColor: Colors.Background.tertiary
                 )
             ) { viewModel in
                 NavigationView {
@@ -39,7 +39,13 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 }
                 .navigationViewStyle(.stack)
             }
-            .sheet(item: $coordinator.addCustomTokenCoordinator) { coordinator in
+            .detentBottomSheet(
+                item: $coordinator.addCustomTokenCoordinator,
+                detents: [.large],
+                settings: .init(
+                    backgroundColor: Colors.Background.tertiary
+                )
+            ) { coordinator in
                 AddCustomTokenCoordinatorView(coordinator: coordinator)
             }
     }
