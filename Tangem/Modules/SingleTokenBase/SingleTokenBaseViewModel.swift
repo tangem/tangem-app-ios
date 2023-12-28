@@ -37,7 +37,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenRouter: SingleTokenRoutable
 
     private var isSwapAvailable: Bool {
-        swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+        !walletModel.isCustom && swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
     }
 
     private var percentFormatter = PercentFormatter()
@@ -83,7 +83,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
-    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.wallet.addresses.map { $0.value })
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.wallet.addresses.map { $0.value }, showSign: true)
     lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
 
     init(
@@ -127,8 +127,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func fetchMoreHistory() -> FetchMore? {
-        guard let transactionHistoryService = walletModel.transactionHistoryService,
-              transactionHistoryService.canFetchMore else {
+        guard walletModel.canFetchHistory else {
             return nil
         }
 
@@ -165,7 +164,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
         // We should reset transaction history to initial state here
-        walletModel.transactionHistoryService?.reset()
+        walletModel.clearHistory()
 
         DispatchQueue.main.async {
             self.isReloadingTransactionHistory = true
@@ -193,6 +192,9 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCryptoIfPossible()
+        case .exchange:
+            Analytics.log(event: .swapPromoButtonExchangeNow, params: [.token: walletModel.tokenItem.currencySymbol])
+            openExchange()
         default:
             break
         }
@@ -246,6 +248,9 @@ extension SingleTokenBaseViewModel {
         notificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
+            // Fix for reappearing banner notifications.
+            // [REDACTED_TODO_COMMENT]
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
@@ -321,7 +326,7 @@ extension SingleTokenBaseViewModel {
         case .buy: return openBuyCryptoIfPossible
         case .send: return openSend
         case .receive: return openReceive
-        case .exchange: return openExchange
+        case .exchange: return openExchangeAndLogAnalytics
         case .sell: return openSell
         case .copyAddress, .hide: return nil
         }
@@ -346,6 +351,11 @@ extension SingleTokenBaseViewModel {
 
     func openSend() {
         tokenRouter.openSend(walletModel: walletModel)
+    }
+
+    func openExchangeAndLogAnalytics() {
+        Analytics.log(event: .buttonExchange, params: [.token: walletModel.tokenItem.currencySymbol])
+        openExchange()
     }
 
     func openExchange() {
