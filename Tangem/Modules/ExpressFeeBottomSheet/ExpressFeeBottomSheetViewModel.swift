@@ -55,7 +55,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
 
         return FeeRowViewModel(
             option: option,
-            subtitle: formatedFee,
+            subtitle: .loaded(formatedFee),
             isSelected: .init(root: self, default: false, get: { root in
                 root.selectedFeeOption == option
             }, set: { root, newValue in
