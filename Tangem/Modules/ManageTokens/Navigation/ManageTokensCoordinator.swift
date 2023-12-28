@@ -25,9 +25,7 @@ class ManageTokensCoordinator: CoordinatorObject {
 
     @Published var networkSelectorViewModel: ManageTokensNetworkSelectorViewModel? = nil
     @Published var walletSelectorViewModel: WalletSelectorViewModel? = nil
-
-    // [REDACTED_TODO_COMMENT]
-//    [REDACTED_USERNAME] var addCustomTokenViewModel: AddCustomTokenViewModel? = nil
+    @Published var addCustomTokenCoordinator: AddCustomTokenCoordinator?
 
     // MARK: - Init
 
@@ -51,8 +49,16 @@ extension ManageTokensCoordinator {
 }
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
-    func openAddCustomToken() {
-        // [REDACTED_TODO_COMMENT]
+    func openAddCustomToken(dataSource: ManageTokensDataSource) {
+        guard let userWalletModel = dataSource.defaultUserWalletModel else { return }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.addCustomTokenCoordinator = nil
+        }
+
+        let addCustomTokenCoordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        addCustomTokenCoordinator.start(with: .init(userWalletModel: userWalletModel, dataSource: dataSource))
+        self.addCustomTokenCoordinator = addCustomTokenCoordinator
     }
 
     func openTokenSelector(dataSource: ManageTokensDataSource, coinId: String, tokenItems: [TokenItem]) {
