@@ -32,6 +32,14 @@ class SendModel {
         .just(output: true)
     }
 
+    var sendError: AnyPublisher<Error?, Never> {
+        _sendError.eraseToAnyPublisher()
+    }
+
+    var isFeeIncluded: Bool {
+        _isFeeIncluded.value
+    }
+
     var transactionFinished: AnyPublisher<Bool, Never> {
         _transactionTime
             .map {
@@ -57,10 +65,13 @@ class SendModel {
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
+    private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
     private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
     private let _transactionURL = CurrentValueSubject<URL?, Never>(nil)
+
+    private let _sendError = PassthroughSubject<Error?, Never>()
 
     // MARK: - Errors (raw implementation)
 
@@ -106,13 +117,16 @@ class SendModel {
         #warning("[REDACTED_TODO_COMMENT]")
     }
 
+    func currentTransaction() -> BlockchainSdk.Transaction? {
+        transaction.value
+    }
+
     func send() {
         guard var transaction = transaction.value else {
             AppLog.shared.debug("Transaction object hasn't been created")
             return
         }
 
-        #warning("[REDACTED_TODO_COMMENT]")
         #warning("[REDACTED_TODO_COMMENT]")
         #warning("[REDACTED_TODO_COMMENT]")
 
@@ -124,8 +138,10 @@ class SendModel {
 
                 _isSending.send(false)
 
-                print("SEND FINISH ", completion)
-                #warning("[REDACTED_TODO_COMMENT]")
+                if case .failure(let error) = completion,
+                   !error.toTangemSdkError().isUserCancelled {
+                    _sendError.send(error)
+                }
             } receiveValue: { [weak self] result in
                 guard let self else { return }
 
