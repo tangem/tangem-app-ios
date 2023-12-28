@@ -138,6 +138,7 @@ struct SendView_Preview: PreviewProvider {
         walletModel: FakeUserWalletModel.wallet3Cards.walletModelsManager.walletModels.first!,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
+        emailDataProvider: CardViewModel.mock!,
         coordinator: SendRoutableMock()
     )
 
