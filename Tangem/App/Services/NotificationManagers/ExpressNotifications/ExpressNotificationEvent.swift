@@ -120,7 +120,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .hasPendingTransaction,
              .hasPendingApproveTransaction,
              .verificationRequired,
-             .feeWillBeSubtractFromSendingAmount:
+             .feeWillBeSubtractFromSendingAmount,
+             .existentialDepositWarning:
             return .info
         case .notEnoughFeeForTokenTx,
              .notEnoughAmountToSwap,
