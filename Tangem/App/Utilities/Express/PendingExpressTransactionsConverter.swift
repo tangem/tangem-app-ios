@@ -18,10 +18,8 @@ struct PendingExpressTransactionsConverter {
             let sourceTokenItem = record.sourceTokenTxInfo.tokenItem
             let destinationTokenItem = record.destinationTokenTxInfo.tokenItem
             let state: PendingExpressTransactionView.State
-            switch $0.currentStatus {
-            case .done, .refunded:
-                return nil
-            case .awaitingDeposit, .confirming, .exchanging, .sendingToUser:
+            switch $0.transactionRecord.transactionStatus {
+            case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done, .refunded, .expired:
                 state = .inProgress
             case .failed:
                 state = .error
@@ -44,14 +42,14 @@ struct PendingExpressTransactionsConverter {
 
     func convertToStatusRowDataList(for pendingTransaction: PendingExpressTransaction) -> (list: [PendingExpressTransactionStatusRow.StatusRowData], currentIndex: Int) {
         let statuses = pendingTransaction.statuses
-        let currentStatusIndex = statuses.firstIndex(of: pendingTransaction.currentStatus) ?? 0
+        let currentStatusIndex = statuses.firstIndex(of: pendingTransaction.transactionRecord.transactionStatus) ?? 0
 
         return (statuses.indexed().map { index, status in
             convertToStatusRowData(
                 index: index,
                 status: status,
                 currentStatusIndex: currentStatusIndex,
-                currentStatus: pendingTransaction.currentStatus,
+                currentStatus: pendingTransaction.transactionRecord.transactionStatus,
                 lastStatusIndex: statuses.count - 1
             )
         }, currentStatusIndex)
@@ -76,9 +74,8 @@ struct PendingExpressTransactionsConverter {
             )
         }
         let title: String = isCurrentStatus ? status.activeStatusTitle : isPendingStatus ? status.pendingStatusTitle : status.passedStatusTitle
+        var state: PendingExpressTransactionStatusRow.State = isCurrentStatus ? .loader : isPendingStatus ? .empty : .checkmark
 
-        var state: PendingExpressTransactionStatusRow.State =
-            isCurrentStatus ? .loader : isPendingStatus ? .empty : .checkmark
         switch status {
         case .failed:
             state = .cross(passed: false)
@@ -87,7 +84,7 @@ struct PendingExpressTransactionsConverter {
             state = isFinished ? .checkmark : .empty
         case .verificationRequired:
             state = .exclamationMark
-        case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done:
+        case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done, .expired:
             break
         }
 
