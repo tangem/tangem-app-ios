@@ -59,12 +59,12 @@ struct SendAmountView: View {
             .matchedGeometryEffect(id: "amount", in: namespace)
 
             HStack {
-                Picker("", selection: $viewModel.currencyOption) {
+                Picker("", selection: $viewModel.isFiatCalculation) {
                     Text(viewModel.cryptoCurrencyCode)
-                        .tag(SendAmountViewModel.CurrencyOption.crypto)
+                        .tag(false)
 
                     Text(viewModel.fiatCurrencyCode)
-                        .tag(SendAmountViewModel.CurrencyOption.fiat)
+                        .tag(true)
                 }
                 .pickerStyle(.segmented)
 
@@ -90,6 +90,7 @@ struct SendAmountView_Previews: PreviewProvider {
         walletName: "Wallet",
         balance: "12013",
         tokenIconInfo: tokenIconInfo,
+        cryptoCurrencyId: "tether",
         cryptoCurrencyCode: "USDT",
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6

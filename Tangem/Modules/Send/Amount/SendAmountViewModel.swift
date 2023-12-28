@@ -31,18 +31,22 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let walletName: String
     let balance: String
     let tokenIconInfo: TokenIconInfo
+    let cryptoCurrencyId: String?
     let cryptoCurrencyCode: String
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
 
     @Published var amount: DecimalNumberTextField.DecimalValue? = nil
-    @Published var currencyOption: CurrencyOption = .fiat
+    @Published var isFiatCalculation = false
     @Published var amountAlternative: String = ""
     @Published var error: String?
+
+    private var cryptoAmount: Decimal? = nil
 
     weak var delegate: SendAmountViewModelDelegate?
 
     private let input: SendAmountViewModelInput
+    private var doingFiatCryptoConversion = false // [REDACTED_TODO_COMMENT]
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
@@ -52,6 +56,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
 
+        cryptoCurrencyId = walletInfo.cryptoCurrencyId
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
@@ -72,46 +77,107 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         input
             .amountPublisher
             .sink { [weak self] amount in
-                self?.amount = self?.fromAmount(amount)
+                guard let self else { return }
+
+                if doingFiatCryptoConversion {
+                    doingFiatCryptoConversion = false
+                    return
+                }
+
+                print("zzz input amount changed", amount?.value, isFiatCalculation)
+
+                let newAmount = fromAmount(amount)
+                if self.amount != newAmount {
+                    self.amount = newAmount
+                }
             }
             .store(in: &bag)
 
         $amount
+            .debounce(for: 0.1, scheduler: RunLoop.main)
             .sink { [weak self] amount in
                 guard let self else { return }
-                input.setAmount(toAmount(amount))
+
+                if doingFiatCryptoConversion {
+                    doingFiatCryptoConversion = false
+                    return
+                }
+                print("zzz entered amount changed", amount?.value, isFiatCalculation)
+
+                let newAmount = toAmount(amount)
+                input.setAmount(newAmount)
             }
             .store(in: &bag)
 
-        $currencyOption
-            .sink { [weak self] _ in
+        $isFiatCalculation
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: 0.1, scheduler: RunLoop.main)
+            .sink { [weak self] isFiatCalculation in
+
+                guard let self else { return }
                 #warning("[REDACTED_TODO_COMMENT]")
+
+                print(isFiatCalculation)
+                doingFiatCryptoConversion = true
+                amount = convert(input: amount, isFiatCalculation: isFiatCalculation)
+//                input.setAmount(convert(input: amount, isFiatCalculation: isFiatCalculation))
             }
             .store(in: &bag)
     }
 
-    private func fromAmount(_ amount: Amount?) -> DecimalNumberTextField.DecimalValue? {
-        if let amount {
-            return DecimalNumberTextField.DecimalValue.external(amount.value)
+    private func convert(input: DecimalNumberTextField.DecimalValue?, isFiatCalculation: Bool) -> DecimalNumberTextField.DecimalValue? {
+//    private func convert(input: DecimalNumberTextField.DecimalValue?, isFiatCalculation: Bool) -> Amount? {
+        guard let cryptoCurrencyId else { return nil }
+
+        guard let input else { return nil }
+
+        let inputValue = input.value
+        let output: Decimal?
+        if isFiatCalculation {
+            output = BalanceConverter().convertToFiat(value: inputValue, from: cryptoCurrencyId)
         } else {
-            return nil
+            output = BalanceConverter().convertFromFiat(value: inputValue, to: cryptoCurrencyId)
         }
+
+        guard let output else { return nil }
+
+//        return Amount(with: self.input.blockchain, type: self.input.amountType, value: output)
+
+        return DecimalNumberTextField.DecimalValue.external(output)
     }
 
-    private func toAmount(_ decimalValue: DecimalNumberTextField.DecimalValue?) -> Amount? {
-        if let decimalValue {
-            return Amount(with: input.blockchain, type: input.amountType, value: decimalValue.value)
+    private func fromAmount(_ cryptoAmount: Amount?) -> DecimalNumberTextField.DecimalValue? {
+        guard let cryptoCurrencyId else { return nil }
+        guard let cryptoAmount else { return nil }
+
+        let decimal: Decimal
+        if isFiatCalculation {
+            guard let convertedDecimal = BalanceConverter().convertToFiat(value: cryptoAmount.value, from: cryptoCurrencyId) else {
+                return nil
+            }
+            decimal = convertedDecimal
         } else {
-            return nil
+            decimal = cryptoAmount.value
         }
+
+        return DecimalNumberTextField.DecimalValue.external(decimal)
     }
-}
 
-extension SendAmountViewModel {
-    enum CurrencyOption: String, CaseIterable, Identifiable {
-        case crypto
-        case fiat
+    private func toAmount(_ enteredDecimalValue: DecimalNumberTextField.DecimalValue?) -> Amount? {
+        guard let cryptoCurrencyId else { return nil }
+        guard let enteredDecimalValue else { return nil }
 
-        var id: Self { self }
+        let decimal: Decimal
+        if isFiatCalculation {
+            guard let convertedDecimal = BalanceConverter().convertFromFiat(value: enteredDecimalValue.value, to: cryptoCurrencyId) else {
+                return nil
+            }
+            decimal = convertedDecimal
+        } else {
+            decimal = enteredDecimalValue.value
+        }
+
+        return Amount(with: input.blockchain, type: input.amountType, value: decimal)
     }
 }
