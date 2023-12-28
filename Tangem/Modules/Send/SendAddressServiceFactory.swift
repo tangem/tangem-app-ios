@@ -16,7 +16,7 @@ struct SendAddressServiceFactory {
         self.walletModel = walletModel
     }
 
-    func make() -> SendAddressService {
+    func makeService() -> SendAddressService {
         let addressService = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
         let defaultSendAddressService = DefaultSendAddressService(walletAddresses: walletModel.wallet.addresses, addressService: addressService)
 
