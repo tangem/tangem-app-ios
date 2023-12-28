@@ -16,7 +16,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditDestination: Bool { get }
 
     var destinationTextBinding: Binding<String> { get }
-    var feeTextBinding: Binding<String> { get }
+    var feeTextPublisher: AnyPublisher<String?, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
@@ -29,9 +29,9 @@ class SendSummaryViewModel: ObservableObject {
 
     let amountText: String
     let destinationText: String
-    let feeText: String
 
     @Published var isSending = false
+    @Published var feeText: String = ""
 
     weak var router: SendSummaryRoutable?
 
@@ -45,7 +45,6 @@ class SendSummaryViewModel: ObservableObject {
         canEditDestination = input.canEditDestination
 
         destinationText = input.destinationTextBinding.wrappedValue
-        feeText = input.feeTextBinding.wrappedValue
 
         self.input = input
 
@@ -64,6 +63,14 @@ class SendSummaryViewModel: ObservableObject {
         input
             .isSending
             .assign(to: \.isSending, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input
+            .feeTextPublisher
+            .map {
+                $0 ?? ""
+            }
+            .assign(to: \.feeText, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
