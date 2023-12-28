@@ -14,9 +14,10 @@ import BlockchainSdk
 #warning("[REDACTED_TODO_COMMENT]")
 
 protocol SendAmountViewModelInput {
-    var amountPublisher: AnyPublisher<Amount?, Never> { get }
+    var amountPublisher: AnyPublisher<SendAmount?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
+    var currentAmount: SendAmount? { get }
     var blockchain: Blockchain { get }
     var amountType: Amount.AmountType { get }
 
@@ -76,17 +77,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         input
             .amountPublisher
+            .removeDuplicates()
             .sink { [weak self] amount in
-                guard let self else { return }
-
-                if doingFiatCryptoConversion {
-                    doingFiatCryptoConversion = false
+                guard
+                    let self,
+                    case .internal = amount
+                else {
                     return
                 }
 
-                print("zzz input amount changed", amount?.value, isFiatCalculation)
-
-                let newAmount = fromAmount(amount)
+                let newAmount = fromAmount(amount?.amount)
                 if self.amount != newAmount {
                     self.amount = newAmount
                 }
@@ -94,15 +94,11 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         $amount
-            .debounce(for: 0.1, scheduler: RunLoop.main)
+            .removeDuplicates()
             .sink { [weak self] amount in
                 guard let self else { return }
 
-                if doingFiatCryptoConversion {
-                    doingFiatCryptoConversion = false
-                    return
-                }
-                print("zzz entered amount changed", amount?.value, isFiatCalculation)
+                guard !doingFiatCryptoConversion else { return }
 
                 let newAmount = toAmount(amount)
                 input.setAmount(newAmount)
@@ -112,44 +108,47 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         $isFiatCalculation
             .dropFirst()
             .removeDuplicates()
-            .debounce(for: 0.1, scheduler: RunLoop.main)
             .sink { [weak self] isFiatCalculation in
-
                 guard let self else { return }
-                #warning("[REDACTED_TODO_COMMENT]")
 
-                print(isFiatCalculation)
-                doingFiatCryptoConversion = true
                 amount = convert(input: amount, isFiatCalculation: isFiatCalculation)
-//                input.setAmount(convert(input: amount, isFiatCalculation: isFiatCalculation))
             }
             .store(in: &bag)
     }
 
     private func convert(input: DecimalNumberTextField.DecimalValue?, isFiatCalculation: Bool) -> DecimalNumberTextField.DecimalValue? {
-//    private func convert(input: DecimalNumberTextField.DecimalValue?, isFiatCalculation: Bool) -> Amount? {
-        guard let cryptoCurrencyId else { return nil }
+        guard
+            let input,
+            let cryptoCurrencyId else {
+            return nil
+        }
 
-        guard let input else { return nil }
+        doingFiatCryptoConversion = true
 
         let inputValue = input.value
         let output: Decimal?
         if isFiatCalculation {
             output = BalanceConverter().convertToFiat(value: inputValue, from: cryptoCurrencyId)
         } else {
-            output = BalanceConverter().convertFromFiat(value: inputValue, to: cryptoCurrencyId)
+            if case .external(let currentCryptoAmount) = self.input.currentAmount {
+                output = currentCryptoAmount?.value
+            } else {
+                output = BalanceConverter().convertFromFiat(value: inputValue, to: cryptoCurrencyId)
+            }
         }
 
         guard let output else { return nil }
-
-//        return Amount(with: self.input.blockchain, type: self.input.amountType, value: output)
 
         return DecimalNumberTextField.DecimalValue.external(output)
     }
 
     private func fromAmount(_ cryptoAmount: Amount?) -> DecimalNumberTextField.DecimalValue? {
-        guard let cryptoCurrencyId else { return nil }
-        guard let cryptoAmount else { return nil }
+        guard
+            let cryptoAmount,
+            let cryptoCurrencyId
+        else {
+            return nil
+        }
 
         let decimal: Decimal
         if isFiatCalculation {
@@ -165,8 +164,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     private func toAmount(_ enteredDecimalValue: DecimalNumberTextField.DecimalValue?) -> Amount? {
-        guard let cryptoCurrencyId else { return nil }
-        guard let enteredDecimalValue else { return nil }
+        guard
+            let enteredDecimalValue,
+            let cryptoCurrencyId
+        else {
+            return nil
+        }
 
         let decimal: Decimal
         if isFiatCalculation {
