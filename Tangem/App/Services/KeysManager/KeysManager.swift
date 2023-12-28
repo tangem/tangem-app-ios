@@ -18,11 +18,9 @@ protocol KeysManager {
     var tangemComAuthorization: String? { get }
     var sprinklr: SprinklrConfig { get }
     var infuraProjectId: String { get }
-    var swapReferrerAccount: SwapReferrerAccount? { get }
     var utorgSID: String { get }
     var walletConnectProjectId: String { get }
-    var oneInchApiKey: String { get }
-    var tangemExpressApiKey: String { get }
+    var expressKeys: ExpressKeys { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
