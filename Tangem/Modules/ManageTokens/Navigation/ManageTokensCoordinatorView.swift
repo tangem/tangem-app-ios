@@ -36,6 +36,9 @@ struct ManageTokensCoordinatorView: CoordinatorView {
                 }
                 .navigationViewStyle(.stack)
             }
+            .sheet(item: $coordinator.addCustomTokenCoordinator) { coordinator in
+                AddCustomTokenCoordinatorView(coordinator: coordinator)
+            }
     }
 
     @ViewBuilder
