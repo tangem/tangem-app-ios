@@ -22,6 +22,10 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
     let externalTxId: String?
     let externalTxURL: String?
 
+    // Flag for hide transaction from UI. But keep saving in the storage
+    var isHidden: Bool
+    var transactionStatus: PendingExpressTransactionStatus
+
     var fee: Decimal {
         convertToDecimal(feeString)
     }
@@ -57,10 +61,17 @@ extension ExpressPendingTransactionRecord {
         let iconURL: URL?
         let type: ProviderType
 
+        init(id: String, name: String, iconURL: URL?, type: ProviderType) {
+            self.id = id
+            self.name = name
+            self.iconURL = iconURL
+            self.type = type
+        }
+
         init(provider: ExpressProvider) {
             id = provider.id
             name = provider.name
-            iconURL = provider.url
+            iconURL = provider.imageURL
             type = .type(from: provider.type)
         }
     }
