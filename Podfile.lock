@@ -180,7 +180,7 @@ PODS:
   - Sodium (0.9.1)
   - Solana.Swift (1.1):
     - secp256k1.swift
-    - Starscream (~> 4.0.0)
+    - Starscream (= 4.0.4)
     - TweetNacl (~> 1.0.2)
   - SPRMessengerClient (3.6.2)
   - Starscream (4.0.4)
@@ -256,7 +256,7 @@ DEPENDENCIES:
   - HDWalletKit (from `https://github.com/tangem/hdwallet.git`, tag `0.3.12`)
   - Kingfisher (~> 7.9.0)
   - Moya
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-9`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-11`)
   - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-273`)
   - TangemWalletCore (from `https://github.com/tangem/wallet-core-binaries-ios.git`, tag `3.2.4-tangem1`)
@@ -321,7 +321,7 @@ EXTERNAL SOURCES:
     :tag: 0.3.12
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-9
+    :tag: add-external-signer-11
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -356,7 +356,7 @@ CHECKOUT OPTIONS:
     :tag: 0.3.12
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-9
+    :tag: add-external-signer-11
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -408,7 +408,7 @@ SPEC CHECKSUMS:
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
-  Solana.Swift: 81d52fee263fded11b0d4e7859863ae489fe753e
+  Solana.Swift: 29d4d692702c8b598f8fa54d268542d5f8aeb246
   SPRMessengerClient: 6c1ab0a60e254ef17515f1433f95c9ee951f0395
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   stellar-ios-mac-sdk: d8ab1ff49ac48e25ac3097da4deebcef77af6047
@@ -423,6 +423,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 2f498f91ffb144eae73870dfa43ab4c0f82ea5cc
+PODFILE CHECKSUM: ac39f6985515f04d9d3ef4550f3162b31f7dbb51
 
 COCOAPODS: 1.14.3
