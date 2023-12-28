@@ -127,6 +127,7 @@ final class SendViewModel: ObservableObject {
             walletName: walletName,
             balance: walletModel.balance,
             tokenIconInfo: tokenIconInfo,
+            cryptoCurrencyId: walletModel.tokenItem.currencyId,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount
@@ -141,6 +142,11 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         bind()
+
+        // REMOVE !!!!!!!!!!
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.sendModel.setDestination("TGPz1VgfdRMMDhyeQDtNi9xZjFpQacHGzH")
+        }
     }
 
     func next() {
