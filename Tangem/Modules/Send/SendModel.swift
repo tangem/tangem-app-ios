@@ -11,6 +11,20 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
+enum SendAmount: Equatable {
+    case external(Amount?)
+    case `internal`(Amount?)
+
+    var amount: Amount? {
+        switch self {
+        case .external(let amount):
+            return amount
+        case .internal(let amount):
+            return amount
+        }
+    }
+}
+
 class SendModel {
     var amountValid: AnyPublisher<Bool, Never> {
         amount
@@ -51,7 +65,7 @@ class SendModel {
 
     // MARK: - Data
 
-    private let amount = CurrentValueSubject<Amount?, Never>(nil)
+    private let amount = CurrentValueSubject<SendAmount?, Never>(nil)
     private let destination = CurrentValueSubject<String?, Never>(nil)
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
 
@@ -61,7 +75,7 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var _amount = CurrentValueSubject<Amount?, Never>(nil)
+    private var _amount = CurrentValueSubject<SendAmount?, Never>(nil)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
@@ -165,7 +179,7 @@ class SendModel {
             .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Never> in
                 guard
                     let self,
-                    let amount,
+                    let amount = amount?.amount,
                     let destination
                 else {
                     return .just(output: [])
@@ -201,7 +215,7 @@ class SendModel {
             .map { [weak self] amount, destination, fee -> BlockchainSdk.Transaction? in
                 guard
                     let self,
-                    let amount,
+                    let amount = amount?.amount,
                     let destination,
                     let fee
                 else {
@@ -237,14 +251,16 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        guard _amount.value != amount else { return }
+        guard _amount.value?.amount != amount else { return }
 
-        _amount.send(amount)
+        print("ZZZ new amount set", amount)
+
+        _amount.send(.external(amount))
         validateAmount()
     }
 
     private func validateAmount() {
-        let amount: Amount?
+        let amount: SendAmount?
         let error: Error?
 
         #warning("validate")
@@ -344,8 +360,12 @@ extension SendModel: SendAmountViewModelInput {
         walletModel.amountType
     }
 
-    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
+    var amountPublisher: AnyPublisher<SendAmount?, Never> {
         _amount.eraseToAnyPublisher()
+    }
+
+    var currentAmount: SendAmount? {
+        _amount.value
     }
 
     #warning("TODO")
