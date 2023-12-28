@@ -540,13 +540,17 @@ extension WalletModel {
 // MARK: - ExistentialDepositProvider
 
 extension WalletModel {
+    var existentialDeposit: Amount? {
+        existentialDepositProvider?.existentialDeposit
+    }
+
     var existentialDepositWarning: String? {
-        guard let existentialDepositProvider = walletManager as? ExistentialDepositProvider else {
+        guard let existentialDeposit = existentialDeposit else {
             return nil
         }
 
         let blockchainName = blockchainNetwork.blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
+        let existentialDepositAmount = existentialDeposit.string(roundingMode: .plain)
         return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
     }
 }
@@ -627,6 +631,10 @@ extension WalletModel {
 
     var hasRent: Bool {
         walletManager is RentProvider
+    }
+
+    var existentialDepositProvider: ExistentialDepositProvider? {
+        walletManager as? ExistentialDepositProvider
     }
 }
 
