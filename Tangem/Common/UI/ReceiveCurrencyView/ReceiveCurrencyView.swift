@@ -23,16 +23,15 @@ struct ReceiveCurrencyView: View {
 
             mainContent
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
-        .background(Colors.Background.primary)
+        .padding(.all, 14)
+        .background(Colors.Background.action)
         .cornerRadius(14)
     }
 
     private var headerLabels: some View {
         HStack(spacing: 0) {
-            Text(Localization.exchangeReceiveViewHeader)
-                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+            Text(Localization.swappingSuccessToTitle)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             Spacer()
 
@@ -62,48 +61,76 @@ struct ReceiveCurrencyView: View {
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            switch viewModel.cryptoAmountState {
-            case .idle:
-                EmptyView()
-            case .loading:
-                SkeletonView()
-                    .frame(width: 102, height: 24)
-                    .cornerRadius(6)
-                    .padding(.vertical, 6)
+            cryptoAmountView
 
-            case .loaded:
-                Text(viewModel.cryptoAmountFormatted)
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
-            case .formatted(let value):
-                Text(value)
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 2) {
+                fiatAmountView
+
+                priceChangeView
             }
+        }
+    }
 
-            switch viewModel.fiatAmountState {
-            case .idle:
-                EmptyView()
-            case .loading:
-                SkeletonView()
-                    .frame(width: 40, height: 13)
-                    .cornerRadius(6)
-            case .loaded:
-                Text(viewModel.fiatAmountFormatted)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
-            case .formatted(let value):
-                Text(value)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
+    @ViewBuilder
+    private var cryptoAmountView: some View {
+        switch viewModel.cryptoAmountState {
+        case .idle:
+            EmptyView()
+        case .loading:
+            SkeletonView()
+                .frame(width: 102, height: 24)
+                .cornerRadius(6)
+                .padding(.vertical, 6)
+
+        case .loaded:
+            Text(viewModel.cryptoAmountFormatted)
+                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        case .formatted(let value):
+            Text(value)
+                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
+    private var fiatAmountView: some View {
+        switch viewModel.fiatAmountState {
+        case .idle:
+            EmptyView()
+        case .loading:
+            SkeletonView()
+                .frame(width: 40, height: 13)
+                .cornerRadius(6)
+        case .loaded:
+            Text(viewModel.fiatAmountFormatted)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        case .formatted(let value):
+            Text(value)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
+    private var priceChangeView: some View {
+        if let priceChangePercent = viewModel.priceChangePercent {
+            HStack(spacing: 4) {
+                Text("(\(priceChangePercent))")
+                    .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+
+                Assets.attention.image
+                    .resizable()
+                    .frame(width: 16, height: 16)
             }
         }
     }
