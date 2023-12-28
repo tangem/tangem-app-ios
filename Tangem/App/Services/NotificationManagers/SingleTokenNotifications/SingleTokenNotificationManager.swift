@@ -15,14 +15,25 @@ final class SingleTokenNotificationManager {
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
+    private let swapPairService: SwapPairService?
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
+
+    private var expressPromotionBanner: NotificationViewInput?
+    private var rentFeeNotification: NotificationViewInput?
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
+    private var promotionUpdateTask: Task<Void, Never>?
 
-    init(walletModel: WalletModel, contextDataProvider: AnalyticsContextDataProvider?) {
+    private var canShowTangemExpressPromotion: Bool {
+        guard swapPairService != nil else { return false }
+        return !AppSettings.shared.tangemExpressTokenPromotionDismissed && TangemExpressPromotionUtility().isPromotionRunning
+    }
+
+    init(walletModel: WalletModel, swapPairService: SwapPairService?, contextDataProvider: AnalyticsContextDataProvider?) {
         self.walletModel = walletModel
+        self.swapPairService = swapPairService
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
@@ -45,6 +56,13 @@ final class SingleTokenNotificationManager {
                     break
                 case .idle, .noDerivation:
                     self?.setupLoadedStateNotifications()
+                }
+
+                if let self,
+                   !state.isLoading,
+                   canShowTangemExpressPromotion,
+                   !state.isBlockchainUnreachable {
+                    setupTangemExpressPromotionNotification()
                 }
             }
             .store(in: &bag)
@@ -76,6 +94,14 @@ final class SingleTokenNotificationManager {
 
         notificationInputsSubject.send(inputs)
 
+        setupRentFeeNotification()
+    }
+
+    private func setupRentFeeNotification() {
+        if let rentFeeNotification {
+            notificationInputsSubject.value.append(rentFeeNotification)
+        }
+
         notificationsUpdateTask?.cancel()
         notificationsUpdateTask = Task { [weak self] in
             guard
@@ -91,7 +117,55 @@ final class SingleTokenNotificationManager {
 
             if !notificationInputsSubject.value.contains(where: { $0.id == rentInput.id }) {
                 await runOnMain {
+                    self.rentFeeNotification = rentInput
                     self.notificationInputsSubject.value.append(rentInput)
+                }
+            }
+        }
+    }
+
+    private func setupTangemExpressPromotionNotification() {
+        if let expressPromotionBanner {
+            notificationInputsSubject.value.insert(expressPromotionBanner, at: 0)
+        }
+
+        promotionUpdateTask?.cancel()
+        promotionUpdateTask = Task { [weak self] in
+            guard
+                let self,
+                let swapPairService
+            else {
+                return
+            }
+
+            if Task.isCancelled {
+                return
+            }
+
+            let canSwap = await swapPairService.canSwap()
+
+            let factory = NotificationsFactory()
+            let input = factory.buildNotificationInput(
+                for: .tangemExpressPromotion,
+                buttonAction: { [weak self] id, actionType in
+                    self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+                    self?.dismissNotification(with: id)
+                },
+                dismissAction: { [weak self] id in
+                    self?.dismissNotification(with: id)
+                }
+            )
+
+            await runOnMain {
+                guard canSwap else {
+                    self.expressPromotionBanner = nil
+                    self.notificationInputsSubject.value.removeAll { $0.id == input.id }
+                    return
+                }
+
+                if self.expressPromotionBanner == nil, !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
+                    self.expressPromotionBanner = input
+                    self.notificationInputsSubject.value.insert(input, at: 0)
                 }
             }
         }
@@ -163,6 +237,22 @@ extension SingleTokenNotificationManager: NotificationManager {
     }
 
     func dismissNotification(with id: NotificationViewId) {
+        guard let notification = notificationInputsSubject.value.first(where: { $0.id == id }) else {
+            return
+        }
+
+        guard let event = notification.settings.event as? TokenNotificationEvent else {
+            return
+        }
+
+        switch event {
+        case .tangemExpressPromotion:
+            Analytics.log(.swapPromoButtonClose)
+            AppSettings.shared.tangemExpressTokenPromotionDismissed = true
+        default:
+            break
+        }
+
         notificationInputsSubject.value.removeAll(where: { $0.id == id })
     }
 }
