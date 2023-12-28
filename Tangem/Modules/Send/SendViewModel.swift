@@ -75,8 +75,9 @@ final class SendViewModel: ObservableObject {
 
     private let sendModel: SendModel
     private let sendType: SendType
-    private let walletModel: WalletModel
     private let steps: [SendStep]
+    private let walletModel: WalletModel
+    private let emailDataProvider: EmailDataProvider
 
     private unowned let coordinator: SendRoutable
 
@@ -103,10 +104,11 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, emailDataProvider: EmailDataProvider, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
         self.walletModel = walletModel
+        self.emailDataProvider = emailDataProvider
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
 
         let steps = sendType.steps
@@ -184,13 +186,64 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
 
         sendModel
+            .isSending
+            .removeDuplicates()
+            .sink { [weak self] isSending in
+                self?.setLoadingViewVisibile(isSending)
+            }
+            .store(in: &bag)
+
+        sendModel
+            .sendError
+            .compactMap { $0 }
+            .sink { [weak self] sendError in
+                guard let self else { return }
+
+                alert = SendError(sendError, openMailAction: openMail).alertBinder
+            }
+            .store(in: &bag)
+
+        sendModel
             .transactionFinished
+            .removeDuplicates()
             .sink { [weak self] transactionFinished in
-                if transactionFinished {
-                    self?.openFinishPage()
+                guard let self, transactionFinished else { return }
+
+                openFinishPage()
+
+                if walletModel.isDemo {
+                    let button = Alert.Button.default(Text(Localization.commonOk)) {
+                        self.coordinator.dismiss()
+                    }
+                    alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
                 }
             }
             .store(in: &bag)
+    }
+
+    private func setLoadingViewVisibile(_ visible: Bool) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if visible {
+            appDelegate.addLoadingView()
+        } else {
+            appDelegate.removeLoadingView()
+        }
+    }
+
+    private func openMail(with error: Error) {
+        guard let transaction = sendModel.currentTransaction() else { return }
+
+        let emailDataCollector = SendScreenDataCollector(
+            userWalletEmailData: emailDataProvider.emailData,
+            walletModel: walletModel,
+            fee: transaction.fee.amount,
+            destination: transaction.destinationAddress,
+            amount: transaction.amount,
+            isFeeIncluded: sendModel.isFeeIncluded,
+            lastError: error
+        )
+        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     private func openFinishPage() {
