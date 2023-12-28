@@ -614,3 +614,5 @@ extension CardViewModel: AnalyticsContextDataProvider {
         )
     }
 }
+
+extension CardViewModel: EmailDataProvider {}
