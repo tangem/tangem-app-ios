@@ -24,6 +24,7 @@ struct ExpressFeeBottomSheetView: View {
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
+            .backgroundColor(Colors.Background.action)
             .interItemSpacing(0)
             .verticalPadding(10)
             .horizontalPadding(14)
