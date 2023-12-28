@@ -11,6 +11,7 @@ import SwiftUI
 
 struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
+    @ObservedObject var sensitiveTextVisibilityViewModel = SensitiveTextVisibilityViewModel.shared
 
     var body: some View {
         NavigationView {
@@ -46,6 +47,12 @@ struct AppCoordinatorView: CoordinatorView {
                     allowsHitTesting: coordinator.isMainBottomSheetShown
                 )
                 .onBottomScrollableSheetStateChange(mainBottomSheetCoordinator.onBottomScrollableSheetStateChange(_:))
+        }
+        .bottomSheet(
+            item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
+            settings: .init(backgroundColor: Colors.Background.primary)
+        ) {
+            InformationHiddenBalancesView(viewModel: $0)
         }
     }
 }
