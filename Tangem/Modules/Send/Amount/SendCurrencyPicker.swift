@@ -10,10 +10,10 @@ import SwiftUI
 import Kingfisher
 
 struct SendCurrencyPicker: View {
-    let cryptoIconURL: URL
+    let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
 
-    let fiatIconURL: URL
+    let fiatIconURL: URL?
     let fiatCurrencyCode: String
 
     @Binding var useFiatCalculation: Bool
@@ -50,7 +50,7 @@ struct SendCurrencyPicker: View {
         .cornerRadiusContinuous(14)
     }
 
-    private func selectorItem(with name: String, url: URL, iconRadius: CGFloat, selected: Bool) -> some View {
+    private func selectorItem(with name: String, url: URL?, iconRadius: CGFloat, selected: Bool) -> some View {
         ZStack {
             HStack(spacing: 6) {
                 KFImage(url)
@@ -63,6 +63,7 @@ struct SendCurrencyPicker: View {
 
                 Text(name)
                     .style(selected ? Fonts.Bold.footnote : Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity)
