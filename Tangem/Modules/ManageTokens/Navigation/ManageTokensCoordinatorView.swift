@@ -28,10 +28,7 @@ struct ManageTokensCoordinatorView: CoordinatorView {
         NavHolder()
             .detentBottomSheet(
                 item: $coordinator.networkSelectorViewModel,
-                detents: [.medium, .large],
-                settings: .init(
-                    backgroundColor: Colors.Background.tertiary
-                )
+                detents: [.medium, .large]
             ) { viewModel in
                 NavigationView {
                     ManageTokensNetworkSelectorView(viewModel: viewModel)
@@ -41,10 +38,7 @@ struct ManageTokensCoordinatorView: CoordinatorView {
             }
             .detentBottomSheet(
                 item: $coordinator.addCustomTokenCoordinator,
-                detents: [.large],
-                settings: .init(
-                    backgroundColor: Colors.Background.tertiary
-                )
+                detents: [.large]
             ) { coordinator in
                 AddCustomTokenCoordinatorView(coordinator: coordinator)
             }
