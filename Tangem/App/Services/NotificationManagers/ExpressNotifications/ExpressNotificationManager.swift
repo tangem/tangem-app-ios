@@ -61,11 +61,11 @@ class ExpressNotificationManager {
         case .permissionRequired:
             setupPermissionRequiredNotification()
 
-        case .readyToSwap(let swapData, _):
+        case .readyToSwap(_, let quote):
             notificationInputsSubject.value = []
-            checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
             // We have not the subtractFee on DEX
-            setupExistentialDepositWarning(amount: swapData.data.fromAmount, subtractFee: 0)
+            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: 0)
 
         case .previewCEX(let preview, let quote):
             if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
