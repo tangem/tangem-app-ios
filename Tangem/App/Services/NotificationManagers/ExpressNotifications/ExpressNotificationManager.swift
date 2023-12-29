@@ -58,9 +58,8 @@ class ExpressNotificationManager {
             }
 
             checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
-        case .permissionRequired(_, let quote):
+        case .permissionRequired:
             setupPermissionRequiredNotification()
-            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
 
         case .readyToSwap(_, let quote):
             notificationInputsSubject.value = []
