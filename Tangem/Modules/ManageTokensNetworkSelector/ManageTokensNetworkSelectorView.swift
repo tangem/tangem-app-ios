@@ -107,6 +107,9 @@ struct ManageTokensNetworkSelectorView: View {
                 }
             }
 
+            Text(Localization.manageTokensNetworkSelectorNonNativeSubtitle)
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
             Spacer(minLength: 10)
 
             LazyVStack(spacing: 0) {
