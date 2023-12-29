@@ -32,6 +32,14 @@ class SendModel {
         .just(output: true)
     }
 
+    var sendError: AnyPublisher<Error?, Never> {
+        _sendError.eraseToAnyPublisher()
+    }
+
+    var isFeeIncluded: Bool {
+        _isFeeIncluded.value
+    }
+
     var transactionFinished: AnyPublisher<Bool, Never> {
         _transactionTime
             .map {
@@ -45,8 +53,9 @@ class SendModel {
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
     private let destination = CurrentValueSubject<String?, Never>(nil)
-    private let destinationAdditionalField = CurrentValueSubject<String?, Never>(nil)
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
+
+    private var transactionParameters: TransactionParams?
 
     private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
@@ -57,10 +66,13 @@ class SendModel {
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
+    private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
     private let _transactionTime = CurrentValueSubject<Date?, Never>(nil)
     private let _transactionURL = CurrentValueSubject<URL?, Never>(nil)
+
+    private let _sendError = PassthroughSubject<Error?, Never>()
 
     // MARK: - Errors (raw implementation)
 
@@ -72,15 +84,18 @@ class SendModel {
 
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
+    private let addressService: SendAddressService
     private let sendType: SendType
+    private var destinationResolutionRequest: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
+        self.addressService = addressService
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -106,6 +121,10 @@ class SendModel {
         #warning("[REDACTED_TODO_COMMENT]")
     }
 
+    func currentTransaction() -> BlockchainSdk.Transaction? {
+        transaction.value
+    }
+
     func send() {
         guard var transaction = transaction.value else {
             AppLog.shared.debug("Transaction object hasn't been created")
@@ -114,7 +133,8 @@ class SendModel {
 
         #warning("[REDACTED_TODO_COMMENT]")
         #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
+
+        transaction.params = transactionParameters
 
         _isSending.send(true)
         walletModel.send(transaction, signer: transactionSigner)
@@ -124,8 +144,10 @@ class SendModel {
 
                 _isSending.send(false)
 
-                print("SEND FINISH ", completion)
-                #warning("[REDACTED_TODO_COMMENT]")
+                if case .failure(let error) = completion,
+                   !error.toTangemSdkError().isUserCancelled {
+                    _sendError.send(error)
+                }
             } receiveValue: { [weak self] result in
                 guard let self else { return }
 
@@ -174,8 +196,9 @@ class SendModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest4(amount, destination, destinationAdditionalField, fee)
-            .map { [weak self] amount, destination, destinationAdditionalField, fee -> BlockchainSdk.Transaction? in
+        #warning("[REDACTED_TODO_COMMENT]")
+        Publishers.CombineLatest3(amount, destination, fee)
+            .map { [weak self] amount, destination, fee -> BlockchainSdk.Transaction? in
                 guard
                     let self,
                     let amount,
@@ -245,26 +268,46 @@ class SendModel {
     }
 
     private func validateDestination() {
-        let destination: String?
-        let error: Error?
+        #warning("[REDACTED_TODO_COMMENT]")
+        destinationResolutionRequest?.cancel()
 
-        #warning("validate")
-        destination = _destinationText.value
-        error = nil
+        destination.send(nil)
+        destinationResolutionRequest = runTask(in: self) { `self` in
+            let destination: String?
+            let error: Error?
+            do {
+                destination = try await self.addressService.validate(address: self._destinationText.value)
 
-        self.destination.send(destination)
-        _destinationError.send(error)
+                guard !Task.isCancelled else { return }
+
+                error = nil
+            } catch let addressError {
+                guard !Task.isCancelled else { return }
+
+                destination = nil
+                error = addressError
+            }
+
+            DispatchQueue.main.async {
+                self.destination.send(destination)
+                self._destinationError.send(error)
+            }
+        }
     }
 
     private func validateDestinationAdditionalField() {
-        let destinationAdditionalField: String?
         let error: Error?
+        let transactionParameters: TransactionParams?
+        do {
+            let parametersBuilder = SendTransactionParametersBuilder(blockchain: walletModel.blockchainNetwork.blockchain)
+            transactionParameters = try parametersBuilder.transactionParameters(from: _destinationAdditionalFieldText.value)
+            error = nil
+        } catch let transactionParameterError {
+            transactionParameters = nil
+            error = transactionParameterError
+        }
 
-        #warning("validate")
-        destinationAdditionalField = _destinationAdditionalFieldText.value
-        error = nil
-
-        self.destinationAdditionalField.send(destinationAdditionalField)
+        self.transactionParameters = transactionParameters
         _destinationAdditionalFieldError.send(error)
     }
 
