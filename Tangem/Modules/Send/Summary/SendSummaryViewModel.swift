@@ -33,6 +33,8 @@ class SendSummaryViewModel: ObservableObject {
     @Published var isSending = false
     @Published var feeText: String = ""
 
+    var amountSummaryViewData: AmountSummaryViewData
+
     weak var router: SendSummaryRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -45,6 +47,19 @@ class SendSummaryViewModel: ObservableObject {
         canEditDestination = input.canEditDestination
 
         destinationText = input.destinationTextBinding.wrappedValue
+
+        amountSummaryViewData = AmountSummaryViewData(
+            title: Localization.sendAmountLabel,
+            amount: "100.00 USDT",
+            amountFiat: "99.98$",
+            tokenIconInfo: .init(
+                name: "tether",
+                blockchainIconName: "ethereum.fill",
+                imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+                isCustom: false,
+                customTokenColor: nil
+            )
+        )
 
         self.input = input
 

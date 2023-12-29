@@ -15,41 +15,62 @@ struct SendSummaryView: View {
     @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
-        VStack(spacing: 20) {
-            amountSummary
+        VStack {
+            GroupedScrollView {
+                GroupedSection(SendWalletSummaryViewModel(walletName: "Family Wallet", totalBalance: "2 130,88 USDT (2 129,92 $)")) { viewModel in
+                    SendWalletSummaryView(viewModel: viewModel)
+                }
+                .backgroundColor(Colors.Button.disabled)
 
-            destinationSummary
-            feeSummary
+                Button {
+                    viewModel.didTapSummary(for: .amount)
+                } label: {
+                    GroupedSection(viewModel.amountSummaryViewData) {
+                        AmountSummaryView(data: $0)
+                    }
+                    .interSectionPadding(12)
+                    .backgroundColor(Colors.Background.action)
+                }
+                .matchedGeometryEffect(id: "amount", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .disabled(!viewModel.canEditAmount)
 
-            Spacer()
-
-            sendButton
-        }
-        .padding(.horizontal)
-    }
-
-    @ViewBuilder
-    private var amountSummary: some View {
-        Button {
-            viewModel.didTapSummary(for: .amount)
-        } label: {
-            Color.clear
-                .frame(maxHeight: height)
-                .border(Color.green, width: 5)
-                .overlay(
-                    VStack {
-                        HStack {
-                            Text(viewModel.amountText)
-                                .foregroundColor(.black)
-                            Spacer()
+                Button {
+                    viewModel.didTapSummary(for: .destination)
+                } label: {
+                    GroupedSection(
+                        [
+                            SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+                            SendDestinationSummaryViewType.additionalField(type: .memo, value: "123456789"),
+                        ]
+                    ) { type in
+                        switch type {
+                        case .address(let address):
+                            SendDestinationAddressSummaryView(address: address)
+                        case .additionalField(let type, let value):
+                            if let name = type.name {
+                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                            }
                         }
                     }
-                    .padding()
-                )
-                .matchedGeometryEffect(id: "amount", in: namespace)
+                    .backgroundColor(Colors.Background.action)
+                }
+                .matchedGeometryEffect(id: "dest", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+                .disabled(!viewModel.canEditDestination)
+
+                GroupedSection(DefaultTextWithTitleRowViewData(title: "Network fee", text: "0.159817 MATIC (0.22 $)")) { data in
+                    DefaultTextWithTitleRowView(data: data)
+                }
+                .backgroundColor(Colors.Background.action)
+                .matchedGeometryEffect(id: "fee", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+            }
+
+            sendButton
+                .padding(.horizontal, 16)
         }
-        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-        .disabled(!viewModel.canEditAmount)
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 
     @ViewBuilder
