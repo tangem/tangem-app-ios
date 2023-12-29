@@ -17,7 +17,7 @@ struct SendSummaryView: View {
     var body: some View {
         VStack {
             GroupedScrollView {
-                GroupedSection(SendWalletSummaryViewModel(walletName: "Family Wallet", totalBalance: "2 130,88 USDT (2 129,92 $)")) { viewModel in
+                GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
                     SendWalletSummaryView(viewModel: viewModel)
                 }
                 .backgroundColor(Colors.Button.disabled)
@@ -25,12 +25,7 @@ struct SendSummaryView: View {
                 Button {
                     viewModel.didTapSummary(for: .destination)
                 } label: {
-                    GroupedSection(
-                        [
-                            SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
-                            SendDestinationSummaryViewType.additionalField(type: .memo, value: "123456789"),
-                        ]
-                    ) { type in
+                    GroupedSection(viewModel.dest) { type in
                         switch type {
                         case .address(let address):
                             SendDestinationAddressSummaryView(address: address)
@@ -135,7 +130,24 @@ struct SendSummaryView: View {
 struct SendSummaryView_Previews: PreviewProvider {
     @Namespace static var namespace
 
+    static let tokenIconInfo = TokenIconInfo(
+        name: "Tether",
+        blockchainIconName: "ethereum.fill",
+        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        isCustom: false,
+        customTokenColor: nil
+    )
+
+    static let walletInfo = SendWalletInfo(
+        walletName: "Wallet",
+        balance: "12013",
+        tokenIconInfo: tokenIconInfo,
+        cryptoCurrencyCode: "USDT",
+        fiatCurrencyCode: "USD",
+        amountFractionDigits: 6
+    )
+
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock()))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), walletInfo: walletInfo))
     }
 }
