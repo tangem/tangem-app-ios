@@ -1,5 +1,5 @@
 //
-//  SendAmountChangedToast.swift
+//  SuccessToast.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct SendAmountChangedToast: View {
+struct SuccessToast: View {
     let text: String
 
     var body: some View {
@@ -32,7 +32,7 @@ struct SendAmountChangedToast: View {
 
 #Preview("Figma") {
     VStack {
-        SendAmountChangedToast(text: "Sending amount was changed")
+        SuccessToast(text: "Dummy success toast text")
 
         Spacer()
     }
