@@ -23,19 +23,6 @@ struct SendSummaryView: View {
                 .backgroundColor(Colors.Button.disabled)
 
                 Button {
-                    viewModel.didTapSummary(for: .amount)
-                } label: {
-                    GroupedSection(viewModel.amountSummaryViewData) {
-                        AmountSummaryView(data: $0)
-                    }
-                    .interSectionPadding(12)
-                    .backgroundColor(Colors.Background.action)
-                }
-                .matchedGeometryEffect(id: "amount", in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-                .disabled(!viewModel.canEditAmount)
-
-                Button {
                     viewModel.didTapSummary(for: .destination)
                 } label: {
                     GroupedSection(
@@ -58,6 +45,19 @@ struct SendSummaryView: View {
                 .matchedGeometryEffect(id: "dest", in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
                 .disabled(!viewModel.canEditDestination)
+
+                Button {
+                    viewModel.didTapSummary(for: .amount)
+                } label: {
+                    GroupedSection(viewModel.amountSummaryViewData) {
+                        AmountSummaryView(data: $0)
+                    }
+                    .interSectionPadding(12)
+                    .backgroundColor(Colors.Background.action)
+                }
+                .matchedGeometryEffect(id: "amount", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .disabled(!viewModel.canEditAmount)
 
                 GroupedSection(DefaultTextWithTitleRowViewData(title: "Network fee", text: "0.159817 MATIC (0.22 $)")) { data in
                     DefaultTextWithTitleRowView(data: data)
