@@ -20,14 +20,6 @@ struct SendFinishView: View {
                 header
                     .padding(.bottom, 24)
 
-                GroupedSection(viewModel.amountSummaryViewData) {
-                    AmountSummaryView(data: $0)
-                }
-                .interSectionPadding(12)
-                .backgroundColor(Colors.Background.action)
-                .matchedGeometryEffect(id: "amount", in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-
                 GroupedSection(
                     [
                         SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
@@ -37,15 +29,25 @@ struct SendFinishView: View {
                     switch type {
                     case .address(let address):
                         SendDestinationAddressSummaryView(address: address)
+                            .matchedGeometryEffect(id: "dest", in: namespace)
                     case .additionalField(let type, let value):
                         if let name = type.name {
                             DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                .matchedGeometryEffect(id: "dest2", in: namespace)
                         }
                     }
                 }
                 .backgroundColor(Colors.Background.action)
-                .matchedGeometryEffect(id: "dest", in: namespace)
+
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+
+                GroupedSection(viewModel.amountSummaryViewData) {
+                    AmountSummaryView(data: $0)
+                }
+                .interSectionPadding(12)
+                .backgroundColor(Colors.Background.action)
+                .matchedGeometryEffect(id: "amount", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
                 GroupedSection(DefaultTextWithTitleRowViewData(title: "Network fee", text: "0.159817 MATIC (0.22 $)")) { data in
                     DefaultTextWithTitleRowView(data: data)
