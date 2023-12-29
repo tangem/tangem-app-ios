@@ -24,6 +24,8 @@ class SendFinishViewModel: ObservableObject {
     let feeText: String
     let transactionTime: String
 
+    var amountSummaryViewData: AmountSummaryViewData
+
     weak var router: SendFinishRoutable?
 
     private let transactionURL: URL
@@ -41,6 +43,19 @@ class SendFinishViewModel: ObservableObject {
         else {
             return nil
         }
+
+        amountSummaryViewData = AmountSummaryViewData(
+            title: Localization.sendAmountLabel,
+            amount: "100.00 USDT",
+            amountFiat: "99.98$",
+            tokenIconInfo: .init(
+                name: "tether",
+                blockchainIconName: "ethereum.fill",
+                imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+                isCustom: false,
+                customTokenColor: nil
+            )
+        )
 
         amountText = input.amountText
         self.destinationText = destinationText
