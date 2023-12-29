@@ -23,6 +23,8 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     private unowned let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressFeeBottomSheetRoutable
 
+    private var bag: Set<AnyCancellable> = []
+
     init(
         swappingFeeFormatter: SwappingFeeFormatter,
         expressInteractor: ExpressInteractor,
@@ -33,19 +35,32 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         selectedFeeOption = expressInteractor.getFeeOption()
-        setupView()
+        bind()
     }
 
-    private func setupView() {
-        let fees = expressInteractor.getState().fees
-
-        // Should use the option's array for the correct order
-        feeRowViewModels = [FeeOption.market, .fast].compactMap { option in
-            guard let fee = fees[option] else {
-                return nil
+    private func bind() {
+        expressInteractor.state
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, state in
+                viewModel.setupView(state: state)
             }
+            .store(in: &bag)
+    }
 
-            return makeFeeRowViewModel(option: option, fee: fee)
+    private func setupView(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .idle, .loading, .restriction:
+            break
+        case .permissionRequired, .previewCEX, .readyToSwap:
+            // Should use the option's array for the correct order
+            feeRowViewModels = [FeeOption.market, .fast].compactMap { option in
+                guard let fee = state.fees[option] else {
+                    return nil
+                }
+
+                return makeFeeRowViewModel(option: option, fee: fee)
+            }
         }
     }
 
@@ -55,7 +70,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
 
         return FeeRowViewModel(
             option: option,
-            subtitle: formatedFee,
+            subtitle: .loaded(formatedFee),
             isSelected: .init(root: self, default: false, get: { root in
                 root.selectedFeeOption == option
             }, set: { root, newValue in
