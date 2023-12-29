@@ -59,16 +59,16 @@ struct SendAmountView: View {
             .matchedGeometryEffect(id: "amount", in: namespace)
 
             HStack {
-                Picker("", selection: $viewModel.currencyOption) {
-                    Text(viewModel.cryptoCurrencyCode)
-                        .tag(SendAmountViewModel.CurrencyOption.crypto)
-
-                    Text(viewModel.fiatCurrencyCode)
-                        .tag(SendAmountViewModel.CurrencyOption.fiat)
-                }
-                .pickerStyle(.segmented)
+                SendCurrencyPicker(
+                    cryptoIconURL: viewModel.cryptoIconURL,
+                    cryptoCurrencyCode: viewModel.cryptoCurrencyCode,
+                    fiatIconURL: viewModel.fiatIconURL,
+                    fiatCurrencyCode: viewModel.fiatCurrencyCode,
+                    useFiatCalculation: $viewModel.useFiatCalculation
+                )
 
                 MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
+                    .frame(width: viewModel.windowWidth / 3)
             }
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -90,7 +90,9 @@ struct SendAmountView_Previews: PreviewProvider {
         walletName: "Wallet",
         balance: "12013",
         tokenIconInfo: tokenIconInfo,
+        cryptoIconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
         cryptoCurrencyCode: "USDT",
+        fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6
     )
