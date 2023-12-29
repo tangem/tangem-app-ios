@@ -30,6 +30,7 @@ struct SendView: View {
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
+        .alert(item: $viewModel.alert) { $0.alert }
         .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
 
@@ -137,6 +138,7 @@ struct SendView_Preview: PreviewProvider {
         walletModel: FakeUserWalletModel.wallet3Cards.walletModelsManager.walletModels.first!,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
+        emailDataProvider: CardViewModel.mock!,
         coordinator: SendRoutableMock()
     )
 
