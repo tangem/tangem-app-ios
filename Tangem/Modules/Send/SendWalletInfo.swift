@@ -12,7 +12,9 @@ struct SendWalletInfo {
     let walletName: String
     let balance: String
     let tokenIconInfo: TokenIconInfo
+    let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
+    let fiatIconURL: URL?
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
 }
