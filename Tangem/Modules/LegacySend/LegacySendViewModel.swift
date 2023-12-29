@@ -53,14 +53,23 @@ class LegacySendViewModel: ObservableObject {
             return false
         }
 
-        switch amountToSend.type {
-        case .coin:
-            return blockchainNetwork.blockchain.coinTransactionFeePaidInNetworkCurrency
-        case .token:
-            return !blockchainNetwork.blockchain.tokenTransactionFeePaidInNetworkCurrency
-        case .reserve:
-            return true
+        if fees.isEmpty {
+            return false
         }
+
+        let feesAmountTypes = fees.map(\.amount.type).toSet()
+
+        guard feesAmountTypes.count == 1, let feesAmountType = feesAmountTypes.first else {
+            let message = """
+            Fees can be charged in multiple denominations '\(feesAmountTypes)',
+            unable to determine if such fees can be included or not for currency '\(amountToSend.type)'
+            """
+            assertionFailure(message)
+            Log.error(message)
+            return false
+        }
+
+        return feesAmountType == amountToSend.type
     }
 
     var shouldShowNetworkBlock: Bool {
