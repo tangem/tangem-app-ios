@@ -102,6 +102,7 @@ private extension SwappingApproveViewModel {
 
         $selectedAction
             .dropFirst()
+            .removeDuplicates()
             .sink { [weak self] policy in
                 self?.expressInteractor.updateApprovePolicy(policy: policy)
             }
