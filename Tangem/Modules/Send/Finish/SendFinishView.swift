@@ -15,20 +15,50 @@ struct SendFinishView: View {
     @ObservedObject var viewModel: SendFinishViewModel
 
     var body: some View {
-        VStack(spacing: 20) {
-            header
+        VStack {
+            GroupedScrollView {
+                header
+                    .padding(.bottom, 24)
 
-            amountSummary
+                GroupedSection(viewModel.amountSummaryViewData) {
+                    AmountSummaryView(data: $0)
+                }
+                .interSectionPadding(12)
+                .backgroundColor(Colors.Background.action)
+                .matchedGeometryEffect(id: "amount", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
-            destinationSummary
+                GroupedSection(
+                    [
+                        SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+                        SendDestinationSummaryViewType.additionalField(type: .memo, value: "123456789"),
+                    ]
+                ) { type in
+                    switch type {
+                    case .address(let address):
+                        SendDestinationAddressSummaryView(address: address)
+                    case .additionalField(let type, let value):
+                        if let name = type.name {
+                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                        }
+                    }
+                }
+                .backgroundColor(Colors.Background.action)
+                .matchedGeometryEffect(id: "dest", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
 
-            feeSummary
-
-            Spacer()
+                GroupedSection(DefaultTextWithTitleRowViewData(title: "Network fee", text: "0.159817 MATIC (0.22 $)")) { data in
+                    DefaultTextWithTitleRowView(data: data)
+                }
+                .backgroundColor(Colors.Background.action)
+                .matchedGeometryEffect(id: "fee", in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+            }
 
             bottomButtons
+                .padding(.horizontal, 16)
         }
-        .padding(.horizontal)
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 
     @ViewBuilder
@@ -41,7 +71,7 @@ struct SendFinishView: View {
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .padding(.top, 18)
 
-            Text(viewModel.transactionTime ?? "")
+            Text(viewModel.transactionTime)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
                 .padding(.top, 6)
@@ -50,21 +80,22 @@ struct SendFinishView: View {
 
     @ViewBuilder
     private var amountSummary: some View {
-        Color.clear
-            .frame(maxHeight: height)
-            .border(Color.green, width: 5)
-            .overlay(
-                VStack {
-                    HStack {
-                        Text(viewModel.amountText)
-                            .foregroundColor(.black)
-                        Spacer()
-                    }
-                }
-                .padding()
+        AmountSummaryView(data:
+            AmountSummaryViewData(
+                title: Localization.sendAmountLabel,
+                amount: "100.00 USDT",
+                amountFiat: "99.98$",
+                tokenIconInfo: .init(
+                    name: "tether",
+                    blockchainIconName: "ethereum.fill",
+                    imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+                    isCustom: false,
+                    customTokenColor: nil
+                )
             )
-            .matchedGeometryEffect(id: "amount", in: namespace)
-            .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+        )
+        .matchedGeometryEffect(id: "amount", in: namespace)
+        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
     }
 
     @ViewBuilder
