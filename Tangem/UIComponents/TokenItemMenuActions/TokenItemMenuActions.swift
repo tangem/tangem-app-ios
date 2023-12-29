@@ -56,7 +56,7 @@ public extension TokenItemMenuActions {
             case .send:
                 return Localization.commonSend
             case .exchange:
-                return Localization.commonExchange
+                return Localization.commonSwap
             case .stake:
                 return Localization.commonStake
             }
