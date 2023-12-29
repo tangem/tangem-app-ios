@@ -47,12 +47,12 @@ private extension DetentBottomSheetModifier {
     func aboveIOS16SheetUpdate(item: Item?, on content: Content) -> some View {
         content
             .sheet(item: $item) { item in
-                DetentBottomSheetContainer(settings: settings) {
+                DetentBottomSheetContainer {
                     sheetContent(item)
                 }
                 .presentationDragIndicator(.hidden)
                 .presentationCornerRadius(settings.cornerRadius)
-                .presentationDetents(detents.map { $0.detentsAbove_16_0 }.toSet())
+                .presentationDetents(detents.map { $0.detentsAboveIOS16 }.toSet())
             }
     }
 }
@@ -64,11 +64,11 @@ private extension DetentBottomSheetModifier {
     func beforeIOS16SheetUpdate(item: Item?, on content: Content) -> some View {
         content
             .sheet(item: $item) { item in
-                DetentBottomSheetContainer(settings: settings) {
+                DetentBottomSheetContainer {
                     sheetContent(item)
                 }
                 .presentationConfiguration { controller in
-                    controller.detents = detents.map { $0.detentsAbove_15_0 }
+                    controller.detents = detents.map { $0.detentsAboveIOS15 }
                     controller.preferredCornerRadius = settings.cornerRadius
                 }
             }
@@ -82,7 +82,7 @@ private extension DetentBottomSheetModifier {
     func beforeIOS15SheetUpdate(item: Item?, on content: Content) -> some View {
         content
             .sheet(item: $item) { item in
-                DetentBottomSheetContainer(settings: settings) {
+                DetentBottomSheetContainer {
                     sheetContent(item)
                 }
             }
