@@ -11,18 +11,13 @@ import SwiftUI
 import UIKit
 
 struct DetentBottomSheetContainer<ContentView: View>: View {
-    private let settings: Settings
     private let content: () -> ContentView
 
     // MARK: - Internal
 
     private let indicatorSize = CGSize(width: 32, height: 4)
 
-    init(
-        settings: Settings,
-        content: @escaping () -> ContentView
-    ) {
-        self.settings = settings
+    init(content: @escaping () -> ContentView) {
         self.content = content
     }
 
@@ -31,13 +26,9 @@ struct DetentBottomSheetContainer<ContentView: View>: View {
     }
 
     private var sheetView: some View {
-        VStack(spacing: 0) {
-            indicator
-
-            content()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(settings.backgroundColor)
+        content()
+            .overlay(indicator, alignment: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var indicator: some View {
@@ -49,7 +40,7 @@ struct DetentBottomSheetContainer<ContentView: View>: View {
                 .padding(.bottom, 10)
         }
         .frame(maxWidth: .infinity)
-        .background(settings.backgroundColor)
+        .frame(height: 20)
     }
 }
 
@@ -63,7 +54,7 @@ extension DetentBottomSheetContainer {
         case fraction(CGFloat)
 
         @available(iOS 16.0, *)
-        var detentsAbove_16_0: PresentationDetent {
+        var detentsAboveIOS16: PresentationDetent {
             switch self {
             case .large:
                 return PresentationDetent.large
@@ -77,7 +68,7 @@ extension DetentBottomSheetContainer {
         }
 
         @available(iOS 15.0, *)
-        var detentsAbove_15_0: UISheetPresentationController.Detent {
+        var detentsAboveIOS15: UISheetPresentationController.Detent {
             switch self {
             case .large, .custom(_), .fraction:
                 return UISheetPresentationController.Detent.large()
@@ -89,17 +80,9 @@ extension DetentBottomSheetContainer {
 
     struct Settings {
         let cornerRadius: CGFloat
-        let backgroundColor: Color
-        let animationDuration: Double
 
-        init(
-            cornerRadius: CGFloat = 24,
-            backgroundColor: Color = Colors.Background.secondary,
-            animationDuration: Double = 0.35
-        ) {
+        init(cornerRadius: CGFloat = 24) {
             self.cornerRadius = cornerRadius
-            self.backgroundColor = backgroundColor
-            self.animationDuration = animationDuration
         }
     }
 }
