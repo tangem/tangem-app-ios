@@ -74,11 +74,15 @@ struct ExpressAPIMapper {
         )
     }
 
-    func mapToExpressTransactionData(requestId: String, response: ExpressDTO.ExchangeData.Response) throws -> ExpressTransactionData {
+    func mapToExpressTransactionData(request: ExpressDTO.ExchangeData.Request, response: ExpressDTO.ExchangeData.Response) throws -> ExpressTransactionData {
         let txDetails = try exchangeDataDecoder.decode(txDetailsJson: response.txDetailsJson, signature: response.signature)
 
-        guard requestId == txDetails.requestId else {
+        guard request.requestId == txDetails.requestId else {
             throw ExpressAPIMapperError.requestIdNotEqual
+        }
+
+        guard request.toAddress.caseInsensitiveCompare(txDetails.payoutAddress) == .orderedSame else {
+            throw ExpressAPIMapperError.payoutAddressNotEqual
         }
 
         guard var fromAmount = Decimal(string: response.fromAmount) else {
@@ -126,4 +130,5 @@ struct ExpressAPIMapper {
 enum ExpressAPIMapperError: Error {
     case mapToDecimalError(_ string: String)
     case requestIdNotEqual
+    case payoutAddressNotEqual
 }
