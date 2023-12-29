@@ -944,6 +944,7 @@
 		DCBC945D299404510050BC35 /* CommonAnalyticsContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC945C299404510050BC35 /* CommonAnalyticsContext.swift */; };
 		DCBC945F2994F9BF0050BC35 /* AnalyticsContextScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC945E2994F9BF0050BC35 /* AnalyticsContextScope.swift */; };
 		DCC91C6B2A55B1E200CB7C81 /* FiatRatesProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBFD5702979991100B20C2E /* FiatRatesProviding.swift */; };
+		DCD221F72B3EF6C100F4FF6A /* InitializedCardValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD221F62B3EF6C100F4FF6A /* InitializedCardValidator.swift */; };
 		DCD2D5BA2A1BA5A800AB00B6 /* CardInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD2D5B92A1BA5A800AB00B6 /* CardInitializer.swift */; };
 		DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */; };
 		DCD9CBA529F7F4EF00440C93 /* LogFileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */; };
@@ -2392,6 +2393,7 @@
 		DCBC94562993FF330050BC35 /* Analytics+ProductType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+ProductType.swift"; sourceTree = "<group>"; };
 		DCBC945C299404510050BC35 /* CommonAnalyticsContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAnalyticsContext.swift; sourceTree = "<group>"; };
 		DCBC945E2994F9BF0050BC35 /* AnalyticsContextScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContextScope.swift; sourceTree = "<group>"; };
+		DCD221F62B3EF6C100F4FF6A /* InitializedCardValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitializedCardValidator.swift; sourceTree = "<group>"; };
 		DCD2D5B92A1BA5A800AB00B6 /* CardInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInitializer.swift; sourceTree = "<group>"; };
 		DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsComposer.swift; sourceTree = "<group>"; };
 		DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileProvider.swift; sourceTree = "<group>"; };
@@ -3471,6 +3473,7 @@
 				DCD2D5B92A1BA5A800AB00B6 /* CardInitializer.swift */,
 				DC0CC5B12B0D3B0900E32CAC /* UserWalletIdPreflightReadFilter.swift */,
 				DC0CC5B32B0D3F0E00E32CAC /* TwinPreflightReadFilter.swift */,
+				DCD221F62B3EF6C100F4FF6A /* InitializedCardValidator.swift */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -7878,6 +7881,7 @@
 				B0BE30652A7BA74000B3AD13 /* MultiWalletTokenItemsSectionFactory.swift in Sources */,
 				EF5A5AD728D86094002544AC /* CardArtwork.swift in Sources */,
 				EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */,
+				DCD221F72B3EF6C100F4FF6A /* InitializedCardValidator.swift in Sources */,
 				EFBA17E42987B0B500C23955 /* BlockchainNetworkNavigationTitleView.swift in Sources */,
 				DA559C3F2B0261F400F59584 /* SendAmountViewModel.swift in Sources */,
 				5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */,
