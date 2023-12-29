@@ -15,10 +15,12 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
     var iconName: String { selectedPublisher ? _iconNameSelected : _iconName }
     var isSelected: Binding<Bool>
     let isAvailable: Bool
+    var isCopied: Binding<Bool>
 
     let networkName: String
     let isMain: Bool
     let tokenTypeName: String?
+    let contractAddress: String?
 
     @Published var selectedPublisher: Bool
 
@@ -33,8 +35,10 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
         iconNameSelected: String,
         networkName: String,
         tokenTypeName: String?,
+        contractAddress: String?,
         isSelected: Binding<Bool>,
-        isAvailable: Bool = true
+        isAvailable: Bool = true,
+        isCopied: Binding<Bool>
     ) {
         self.id = id
         self.isMain = isMain
@@ -42,8 +46,10 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
         _iconNameSelected = iconNameSelected
         self.networkName = networkName
         self.tokenTypeName = tokenTypeName
+        self.contractAddress = contractAddress
         self.isSelected = isSelected
         self.isAvailable = isAvailable
+        self.isCopied = isCopied
 
         selectedPublisher = isSelected.wrappedValue
 
@@ -60,5 +66,16 @@ final class ManageTokensNetworkSelectorItemViewModel: Identifiable, ObservableOb
     func updateSelection(with isSelected: Binding<Bool>) {
         self.isSelected = isSelected
         selectedPublisher = isSelected.wrappedValue
+    }
+
+    func onCopy() {
+        guard let contractAddress else {
+            return
+        }
+
+        UIPasteboard.general.string = contractAddress
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        isCopied.wrappedValue = true
     }
 }
