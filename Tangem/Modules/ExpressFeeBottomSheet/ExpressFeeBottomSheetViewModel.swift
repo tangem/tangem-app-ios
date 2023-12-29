@@ -41,6 +41,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     private func bind() {
         expressInteractor.state
             .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
             .sink { viewModel, state in
                 viewModel.setupView(state: state)
             }
