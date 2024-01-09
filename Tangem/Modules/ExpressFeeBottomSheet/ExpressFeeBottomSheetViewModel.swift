@@ -20,7 +20,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let swappingFeeFormatter: SwappingFeeFormatter
-    private unowned let expressInteractor: ExpressInteractor
+    private let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressFeeBottomSheetRoutable
 
     private var bag: Set<AnyCancellable> = []
