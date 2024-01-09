@@ -472,6 +472,10 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
+    var amountValue: Amount? {
+        amount.value
+    }
+
     var destinationText: String? {
         destination.value
     }
