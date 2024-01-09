@@ -459,6 +459,10 @@ extension SendModel: SendSummaryViewModelInput {
             .eraseToAnyPublisher()
     }
 
+    var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
+        fee.eraseToAnyPublisher()
+    }
+
     var canEditAmount: Bool {
         sendType.predefinedAmount == nil
     }
