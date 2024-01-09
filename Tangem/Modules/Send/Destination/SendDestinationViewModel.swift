@@ -22,7 +22,7 @@ protocol SendDestinationViewModelInput {
     var blockchainNetwork: BlockchainNetwork { get }
     var walletPublicKey: Wallet.PublicKey { get }
 
-    var additionalField: SendAdditionalFields? { get }
+    var additionalFieldType: SendAdditionalFields? { get }
 
     var currencySymbol: String { get }
     var walletAddresses: [String] { get }
@@ -86,7 +86,7 @@ class SendDestinationViewModel: ObservableObject {
             self?.input.setDestination($0)
         }
 
-        if let additionalField = input.additionalField,
+        if let additionalField = input.additionalFieldType,
            let name = additionalField.name {
             additionalFieldViewModel = SendDestinationTextViewModel(
                 style: .additionalField(name: name),
