@@ -12,12 +12,13 @@ import Combine
 import BlockchainSdk
 
 protocol SendSummaryViewModelInput: AnyObject {
-    var amountText: String { get }
+    var amountText: String { get } // remove
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
     var tokenItem: TokenItem { get }
 
+    var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var destination2: AnyPublisher<String, Never> { get }
     var additionalField2: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var destinationTextBinding: Binding<String> { get }
@@ -42,7 +43,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var dest: [SendDestinationSummaryViewType] = []
 
     let walletSummaryViewModel: SendWalletSummaryViewModel
-    var amountSummaryViewData: AmountSummaryViewData
+    var amountSummaryViewData: AmountSummaryViewData?
     var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
     weak var router: SendSummaryRoutable?
@@ -78,19 +79,6 @@ class SendSummaryViewModel: ObservableObject {
 
         destinationText = input.destinationTextBinding.wrappedValue
 
-        amountSummaryViewData = AmountSummaryViewData(
-            title: Localization.sendAmountLabel,
-            amount: "100.00 USDT",
-            amountFiat: "99.98$",
-            tokenIconInfo: .init(
-                name: "tether",
-                blockchainIconName: "ethereum.fill",
-                imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
-                isCustom: false,
-                customTokenColor: nil
-            )
-        )
-
         self.input = input
 
         Publishers.CombineLatest(input.destination2, input.additionalField2)
@@ -110,7 +98,7 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.dest, on: self)
             .store(in: &bag)
 
-        bind(from: input)
+        bind(from: input, walletInfo: walletInfo)
     }
 
     func didTapSummary(for step: SendStep) {
@@ -121,7 +109,7 @@ class SendSummaryViewModel: ObservableObject {
         input?.send()
     }
 
-    private func bind(from input: SendSummaryViewModelInput) {
+    private func bind(from input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
         input
             .isSending
             .assign(to: \.isSending, on: self, ownership: .weak)
@@ -135,7 +123,32 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.feeText, on: self, ownership: .weak)
             .store(in: &bag)
 
-        input.feeValuePublisher
+        input
+            .amountPublisher
+            .compactMap { amount in
+                guard let amount else { return nil }
+
+                let formattedAmount = amount.description
+
+                let amountFiat: String?
+                if let currencyId = walletInfo.currencyId,
+                   let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
+                    amountFiat = fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode, maximumFractionDigits: 2)
+                } else {
+                    amountFiat = nil
+                }
+                return AmountSummaryViewData(
+                    title: Localization.sendAmountLabel,
+                    amount: formattedAmount,
+                    amountFiat: amountFiat ?? "",
+                    tokenIconInfo: walletInfo.tokenIconInfo
+                )
+            }
+            .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input
+            .feeValuePublisher
             .map { value in
                 guard let value else { return nil }
 
