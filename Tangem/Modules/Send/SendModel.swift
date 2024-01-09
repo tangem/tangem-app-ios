@@ -476,6 +476,10 @@ extension SendModel: SendFinishViewModelInput {
         destination.value
     }
 
+    var feeValue: Fee? {
+        fee.value
+    }
+
     var feeText: String {
         fee.value?.amount.string() ?? ""
     }
