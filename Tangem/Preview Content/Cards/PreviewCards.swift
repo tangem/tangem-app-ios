@@ -29,6 +29,10 @@ extension Card {
         return decodeFromURL(xlmBirdURL)!
     }
 
+    static var visa: Card {
+        return decodeFromURL(visaURL)!
+    }
+
     private static var walletWithBackupURL: URL {
         url(fileName: "walletWithBackup")
     }
@@ -47,6 +51,10 @@ extension Card {
 
     private static var xlmBirdURL: URL {
         url(fileName: "xlmBird")
+    }
+
+    private static var visaURL: URL {
+        url(fileName: "visa")
     }
 
     private static func url(fileName: String) -> URL {
