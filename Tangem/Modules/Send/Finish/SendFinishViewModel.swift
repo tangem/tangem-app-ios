@@ -14,7 +14,8 @@ import BlockchainSdk
 protocol SendFinishViewModelInput: AnyObject {
     var tokenItem: TokenItem { get }
 
-    var amountText: String { get }
+    var amountValue: Amount? { get }
+    var amountText: String { get } // remove
     var destinationText: String? { get }
     var feeText: String { get } // remvoe?>
     var feeValue: Fee? { get }
@@ -28,16 +29,20 @@ class SendFinishViewModel: ObservableObject {
     let feeText: String
     let transactionTime: String
 
-    var amountSummaryViewData: AmountSummaryViewData
+    var amountSummaryViewData: AmountSummaryViewData?
     var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
     weak var router: SendFinishRoutable?
 
     private let transactionURL: URL
 
-    init?(input: SendFinishViewModelInput) {
-        let sectionViewModelFactory = SendSummarySectionViewModelFactory(tokenItem: input.tokenItem)
-        
+    init?(input: SendFinishViewModelInput, walletInfo: SendWalletInfo) {
+        let sectionViewModelFactory = SendSummarySectionViewModelFactory(
+            tokenItem: input.tokenItem,
+            currencyId: walletInfo.currencyId,
+            tokenIconInfo: walletInfo.tokenIconInfo
+        )
+
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .short
@@ -51,19 +56,8 @@ class SendFinishViewModel: ObservableObject {
             return nil
         }
 
-        amountSummaryViewData = AmountSummaryViewData(
-            title: Localization.sendAmountLabel,
-            amount: "100.00 USDT",
-            amountFiat: "99.98$",
-            tokenIconInfo: .init(
-                name: "tether",
-                blockchainIconName: "ethereum.fill",
-                imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
-                isCustom: false,
-                customTokenColor: nil
-            )
-        )
-        
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewModel(from: input.amountValue)
+
         feeSummaryViewModel = sectionViewModelFactory.makeFeeViewModel(from: input.feeValue)
 
         amountText = input.amountText
