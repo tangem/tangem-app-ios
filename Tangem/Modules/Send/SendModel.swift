@@ -422,12 +422,7 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
-    var destination2: AnyPublisher<String, Never> {
-        _destinationText
-            .eraseToAnyPublisher()
-    }
-
-    var additionalField2: AnyPublisher<(SendAdditionalFields, String)?, Never> {
+    var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> {
         self._destinationAdditionalFieldText
             .map { [weak self] in
                 guard
@@ -441,12 +436,12 @@ extension SendModel: SendSummaryViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    #warning("TODO")
+    #warning("TODO") // remove
     var amountText: String {
         "100"
     }
 
-    #warning("TODO")
+    #warning("TODO") // remove
     var destinationTextBinding: Binding<String> {
         .constant("0x1234567")
     }
