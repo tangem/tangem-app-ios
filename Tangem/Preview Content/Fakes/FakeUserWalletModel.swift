@@ -119,6 +119,19 @@ extension FakeUserWalletModel {
         userWallet: UserWalletStubs.walletV2Stub
     )
 
+    static let visa = FakeUserWalletModel(
+        userWalletName: "Tangem Visa",
+        isMultiWallet: false,
+        isUserWalletLocked: false,
+        isDelayed: false,
+        cardsCount: 1,
+        userWalletId: .init(with: Data.randomData(count: 32)),
+        walletManagers: [
+            .visaWalletManager,
+        ],
+        userWallet: UserWalletStubs.visaStub
+    )
+
     static let walletWithoutDelay = FakeUserWalletModel(
         userWalletName: "Just A Wallet",
         isMultiWallet: true,
