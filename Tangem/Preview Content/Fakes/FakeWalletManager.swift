@@ -150,4 +150,11 @@ extension FakeWalletManager {
         wallet.add(coinValue: 390192)
         return FakeWalletManager(wallet: wallet)
     }()
+
+    static let visaWalletManager: FakeWalletManager = {
+        var wallet = Wallet.polygonWalletStub
+        wallet.add(coinValue: 0)
+        wallet.add(tokenValue: 354.123, for: VisaUtilities().visaToken)
+        return FakeWalletManager(wallet: wallet)
+    }()
 }

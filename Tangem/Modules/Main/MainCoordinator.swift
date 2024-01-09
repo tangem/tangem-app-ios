@@ -57,7 +57,7 @@ class MainCoordinator: CoordinatorObject {
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
-            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self, visaCoordinator: self)
         )
 
         swipeDiscoveryHelper.delegate = viewModel
@@ -374,3 +374,7 @@ extension MainCoordinator: OrganizeTokensRoutable {
         organizeTokensViewModel = nil
     }
 }
+
+// MARK: - VisaWalletRoutable
+
+extension MainCoordinator: VisaWalletRoutable {}
