@@ -57,7 +57,7 @@ struct SendSummaryView: View {
                 Button {
                     viewModel.didTapSummary(for: .fee)
                 } label: {
-                    GroupedSection(viewModel.feeSummaryViewModel) { data in
+                    GroupedSection(viewModel.feeSummaryViewData) { data in
                         DefaultTextWithTitleRowView(data: data)
                     }
                     .backgroundColor(Colors.Background.action)
