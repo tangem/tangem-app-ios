@@ -165,10 +165,11 @@ struct SendFinishView: View {
     }
 }
 
-struct SendFinishView_Previews: PreviewProvider {
-    @Namespace static var namespace
-
-    static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock())!)
-    }
-}
+//
+// struct SendFinishView_Previews: PreviewProvider {
+//    [REDACTED_USERNAME] static var namespace
+//
+//    static var previews: some View {
+//        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock())!)
+//    }
+// }
