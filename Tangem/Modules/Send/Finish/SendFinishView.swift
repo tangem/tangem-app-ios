@@ -49,7 +49,7 @@ struct SendFinishView: View {
                 .matchedGeometryEffect(id: "amount", in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
-                GroupedSection(DefaultTextWithTitleRowViewData(title: "Network fee", text: "0.159817 MATIC (0.22 $)")) { data in
+                GroupedSection(DefaultTextWithTitleRowViewData(title: Localization.sendNetworkFeeTitle, text: "0.159817 MATIC (0.22 $)")) { data in
                     DefaultTextWithTitleRowView(data: data)
                 }
                 .backgroundColor(Colors.Background.action)

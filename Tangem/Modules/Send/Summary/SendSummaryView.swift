@@ -54,10 +54,14 @@ struct SendSummaryView: View {
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditAmount)
 
-                GroupedSection(DefaultTextWithTitleRowViewData(title: "Network fee", text: "0.159817 MATIC (0.22 $)")) { data in
-                    DefaultTextWithTitleRowView(data: data)
+                Button {
+                    viewModel.didTapSummary(for: .fee)
+                } label: {
+                    GroupedSection(viewModel.feeSummaryViewModel) { data in
+                        DefaultTextWithTitleRowView(data: data)
+                    }
+                    .backgroundColor(Colors.Background.action)
                 }
-                .backgroundColor(Colors.Background.action)
                 .matchedGeometryEffect(id: "fee", in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
             }
