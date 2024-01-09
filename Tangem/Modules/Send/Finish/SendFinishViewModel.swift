@@ -15,19 +15,15 @@ protocol SendFinishViewModelInput: AnyObject {
     var tokenItem: TokenItem { get }
 
     var amountValue: Amount? { get }
-    var amountText: String { get } // remove
     var destinationText: String? { get }
     var additionalField: (SendAdditionalFields, String)? { get }
-    var feeText: String { get } // remvoe?>
     var feeValue: Fee? { get }
+
     var transactionTime: Date? { get }
     var transactionURL: URL? { get }
 }
 
 class SendFinishViewModel: ObservableObject {
-    let amountText: String
-    let destinationText: String
-    let feeText: String
     let transactionTime: String
 
     let destinationViewTypes: [SendDestinationSummaryViewType]
@@ -39,34 +35,30 @@ class SendFinishViewModel: ObservableObject {
     private let transactionURL: URL
 
     init?(input: SendFinishViewModelInput, walletInfo: SendWalletInfo) {
+        guard
+            let destinationText = input.destinationText,
+            let transactionTime = input.transactionTime,
+            let transactionURL = input.transactionURL
+        else {
+            return nil
+        }
+
         let sectionViewModelFactory = SendSummarySectionViewModelFactory(
             tokenItem: input.tokenItem,
             currencyId: walletInfo.currencyId,
             tokenIconInfo: walletInfo.tokenIconInfo
         )
 
+        destinationViewTypes = sectionViewModelFactory.makeDestinationViewTypes(
+            address: destinationText,
+            additionalField: input.additionalField
+        )
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewModel(from: input.amountValue)
+        feeSummaryViewModel = sectionViewModelFactory.makeFeeViewModel(from: input.feeValue)
+
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .short
-
-        guard
-            let destinationText = input.destinationText,
-            let transactionTime = input.transactionTime,
-            let transactionURL = input.transactionURL
-
-        else {
-            return nil
-        }
-
-        destinationViewTypes = sectionViewModelFactory.makeDestinationViewTypes(address: destinationText, additionalField: input.additionalField)
-
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewModel(from: input.amountValue)
-
-        feeSummaryViewModel = sectionViewModelFactory.makeFeeViewModel(from: input.feeValue)
-
-        amountText = input.amountText
-        self.destinationText = destinationText
-        feeText = input.feeText
         self.transactionTime = formatter.string(from: transactionTime)
         self.transactionURL = transactionURL
     }
