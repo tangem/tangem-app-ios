@@ -9,16 +9,20 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 protocol SendSummaryViewModelInput: AnyObject {
     var amountText: String { get }
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
+    var tokenItem: TokenItem { get }
+
     var destination2: AnyPublisher<String, Never> { get }
     var additionalField2: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var destinationTextBinding: Binding<String> { get }
-    var feeTextPublisher: AnyPublisher<String?, Never> { get }
+    var feeTextPublisher: AnyPublisher<String?, Never> { get } // remove
+    var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
@@ -39,8 +43,17 @@ class SendSummaryViewModel: ObservableObject {
 
     let walletSummaryViewModel: SendWalletSummaryViewModel
     var amountSummaryViewData: AmountSummaryViewData
+    var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
     weak var router: SendSummaryRoutable?
+
+    private var feeFormatter: SwappingFeeFormatter {
+        CommonSwappingFeeFormatter(
+            balanceFormatter: BalanceFormatter(),
+            balanceConverter: BalanceConverter(),
+            fiatRatesProvider: SwappingRatesProvider()
+        )
+    }
 
     private var bag: Set<AnyCancellable> = []
     private weak var input: SendSummaryViewModelInput?
@@ -120,6 +133,20 @@ class SendSummaryViewModel: ObservableObject {
                 $0 ?? ""
             }
             .assign(to: \.feeText, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input.feeValuePublisher
+            .map { value in
+                guard let value else { return nil }
+
+                let formattedValue = self.feeFormatter.format(
+                    fee: value.amount.value,
+                    tokenItem: input.tokenItem
+                )
+
+                return DefaultTextWithTitleRowViewData(title: Localization.sendNetworkFeeTitle, text: formattedValue)
+            }
+            .assign(to: \.feeSummaryViewModel, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
