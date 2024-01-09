@@ -52,7 +52,7 @@ class SendSummaryViewModel: ObservableObject {
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
     private let walletInfo: SendWalletInfo
     private var bag: Set<AnyCancellable> = []
-    private weak var input: SendSummaryViewModelInput?
+    private let input: SendSummaryViewModelInput
 
     init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
@@ -80,12 +80,10 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func send() {
-        input?.send()
+        input.send()
     }
 
     private func bind() {
-        guard let input else { return }
-
         input
             .isSending
             .assign(to: \.isSending, on: self, ownership: .weak)
