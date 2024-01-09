@@ -62,7 +62,11 @@ class SendSummaryViewModel: ObservableObject {
     private weak var input: SendSummaryViewModelInput?
 
     init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
-        sectionViewModelFactory = SendSummarySectionViewModelFactory(tokenItem: input.tokenItem)
+        sectionViewModelFactory = SendSummarySectionViewModelFactory(
+            tokenItem: input.tokenItem,
+            currencyId: walletInfo.currencyId,
+            tokenIconInfo: walletInfo.tokenIconInfo
+        )
 
         walletSummaryViewModel = SendWalletSummaryViewModel(
             walletName: walletInfo.walletName,
@@ -120,24 +124,8 @@ class SendSummaryViewModel: ObservableObject {
 
         input
             .amountPublisher
-            .compactMap { amount in
-                guard let amount else { return nil }
-
-                let formattedAmount = amount.description
-
-                let amountFiat: String?
-                if let currencyId = walletInfo.currencyId,
-                   let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
-                    amountFiat = fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode, maximumFractionDigits: 2)
-                } else {
-                    amountFiat = nil
-                }
-                return AmountSummaryViewData(
-                    title: Localization.sendAmountLabel,
-                    amount: formattedAmount,
-                    amountFiat: amountFiat ?? "",
-                    tokenIconInfo: walletInfo.tokenIconInfo
-                )
+            .compactMap { [weak self] amount in
+                self?.sectionViewModelFactory.makeAmountViewModel(from: amount)
             }
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
