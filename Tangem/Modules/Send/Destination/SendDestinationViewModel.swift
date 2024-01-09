@@ -86,8 +86,8 @@ class SendDestinationViewModel: ObservableObject {
             self?.input.setDestination($0)
         }
 
-        if let additionalField = input.additionalFieldType,
-           let name = additionalField.name {
+        if let additionalFieldType = input.additionalFieldType,
+           let name = additionalFieldType.name {
             additionalFieldViewModel = SendDestinationTextViewModel(
                 style: .additionalField(name: name),
                 input: input.destinationAdditionalFieldTextPublisher,
