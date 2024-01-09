@@ -78,6 +78,7 @@ final class SendViewModel: ObservableObject {
     private let steps: [SendStep]
     private let walletModel: WalletModel
     private let emailDataProvider: EmailDataProvider
+    private let walletInfo: SendWalletInfo
 
     private unowned let coordinator: SendRoutable
 
@@ -123,7 +124,7 @@ final class SendViewModel: ObservableObject {
         #warning("[REDACTED_TODO_COMMENT]")
         let walletName = "Wallet Name"
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
-        let walletInfo = SendWalletInfo(
+        walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: walletModel.balance,
             currencyId: walletModel.currencyId,
@@ -254,7 +255,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
