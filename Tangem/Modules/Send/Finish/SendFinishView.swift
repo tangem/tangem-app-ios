@@ -24,11 +24,11 @@ struct SendFinishView: View {
                     switch type {
                     case .address(let address):
                         SendDestinationAddressSummaryView(address: address)
-                            .matchedGeometryEffect(id: "dest", in: namespace)
+                            .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
                     case .additionalField(let type, let value):
                         if let name = type.name {
                             DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                .matchedGeometryEffect(id: "dest2", in: namespace)
+                                .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
                         }
                     }
                 }
@@ -41,14 +41,14 @@ struct SendFinishView: View {
                 }
                 .interSectionPadding(12)
                 .backgroundColor(Colors.Background.action)
-                .matchedGeometryEffect(id: "amount", in: namespace)
+                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
                 GroupedSection(viewModel.feeSummaryViewModel) { data in
                     DefaultTextWithTitleRowView(data: data)
                 }
                 .backgroundColor(Colors.Background.action)
-                .matchedGeometryEffect(id: "fee", in: namespace)
+                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
             }
 
@@ -73,65 +73,6 @@ struct SendFinishView: View {
                 .lineLimit(1)
                 .padding(.top, 6)
         }
-    }
-
-    @ViewBuilder
-    private var amountSummary: some View {
-        AmountSummaryView(data:
-            AmountSummaryViewData(
-                title: Localization.sendAmountLabel,
-                amount: "100.00 USDT",
-                amountFiat: "99.98$",
-                tokenIconInfo: .init(
-                    name: "tether",
-                    blockchainIconName: "ethereum.fill",
-                    imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
-                    isCustom: false,
-                    customTokenColor: nil
-                )
-            )
-        )
-        .matchedGeometryEffect(id: "amount", in: namespace)
-        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-    }
-
-    @ViewBuilder
-    private var destinationSummary: some View {
-        Color.clear
-            .frame(maxHeight: height)
-            .border(Color.purple, width: 5)
-            .overlay(
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text(viewModel.destinationText)
-                            .lineLimit(1)
-                            .foregroundColor(.black)
-                        Spacer()
-                    }
-                }
-                .padding()
-            )
-            .matchedGeometryEffect(id: "dest", in: namespace)
-            .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
-    }
-
-    @ViewBuilder
-    private var feeSummary: some View {
-        Color.clear
-            .frame(maxHeight: height)
-            .border(Color.blue, width: 5)
-            .overlay(
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text(viewModel.feeText)
-                            .foregroundColor(.black)
-                        Spacer()
-                    }
-                }
-                .padding()
-            )
-            .transition(.identity)
-            .matchedGeometryEffect(id: "fee", in: namespace)
     }
 
     @ViewBuilder
