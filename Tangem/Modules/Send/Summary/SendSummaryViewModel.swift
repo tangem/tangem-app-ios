@@ -19,8 +19,8 @@ protocol SendSummaryViewModelInput: AnyObject {
     var tokenItem: TokenItem { get }
 
     var amountPublisher: AnyPublisher<Amount?, Never> { get }
-    var destination2: AnyPublisher<String, Never> { get }
-    var additionalField2: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
+    var destinationTextPublisher: AnyPublisher<String, Never> { get }
+    var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var destinationTextBinding: Binding<String> { get }
     var feeTextPublisher: AnyPublisher<String?, Never> { get } // remove
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
@@ -56,10 +56,14 @@ class SendSummaryViewModel: ObservableObject {
         )
     }
 
+    private let sectionViewModelFactory: SendSummarySectionViewModelFactory
+
     private var bag: Set<AnyCancellable> = []
     private weak var input: SendSummaryViewModelInput?
 
     init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
+        sectionViewModelFactory = SendSummarySectionViewModelFactory(tokenItem: input.tokenItem)
+
         walletSummaryViewModel = SendWalletSummaryViewModel(
             walletName: walletInfo.walletName,
             totalBalance: walletInfo.balance
@@ -140,15 +144,8 @@ class SendSummaryViewModel: ObservableObject {
 
         input
             .feeValuePublisher
-            .map { value in
-                guard let value else { return nil }
-
-                let formattedValue = self.feeFormatter.format(
-                    fee: value.amount.value,
-                    tokenItem: input.tokenItem
-                )
-
-                return DefaultTextWithTitleRowViewData(title: Localization.sendNetworkFeeTitle, text: formattedValue)
+            .map { [weak self] fee in
+                self?.sectionViewModelFactory.makeFeeViewModel(from: fee)
             }
             .assign(to: \.feeSummaryViewModel, on: self, ownership: .weak)
             .store(in: &bag)
