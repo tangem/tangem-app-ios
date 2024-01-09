@@ -1,24 +1,29 @@
-////
-////  SendSummaryViewModelInputMock.swift
-////  Tangem
-////
-////  Created by [REDACTED_AUTHOR]
-////  Copyright © 2023 Tangem AG. All rights reserved.
-////
 //
-// import SwiftUI
-// import Combine
+//  SendSummaryViewModelInputMock.swift
+//  Tangem
 //
-// class SendSummaryViewModelInputMock: SendSummaryViewModelInput {
-//    var destination2: AnyPublisher<String, Never> { .just(output: "") }
-//    var additionalField2: AnyPublisher<(SendAdditionalFields, String)?, Never> { .just(output: (SendAdditionalFields.memo, "")) }
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
 //
-//    var amountText: String { "100,00" }
-//    var canEditAmount: Bool { true }
-//    var canEditDestination: Bool { true }
-//    var destinationTextBinding: Binding<String> { .constant("0x0123123") }
-//    var feeTextPublisher: AnyPublisher<String?, Never> { .just(output: "0.1 ETH") }
-//    var isSending: AnyPublisher<Bool, Never> { .just(output: false) }
-//
-//    func send() {}
-// }
+
+import SwiftUI
+import Combine
+import BlockchainSdk
+
+class SendSummaryViewModelInputMock: SendSummaryViewModelInput {
+    var tokenItem: TokenItem { .blockchain(.ethereum(testnet: false)) }
+    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> { .just(output: Amount(with: .ethereum(testnet: false), value: 1)) }
+    var destinationTextPublisher: AnyPublisher<String, Never> { .just(output: "0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326") }
+    var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { .just(output: (.memo, "123123")) }
+    var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> { .just(output: Fee(Amount(with: .ethereum(testnet: false), value: 0.003))) }
+    var destination2: AnyPublisher<String, Never> { .just(output: "") }
+    var additionalField2: AnyPublisher<(SendAdditionalFields, String)?, Never> { .just(output: (SendAdditionalFields.memo, "")) }
+    var amountText: String { "100,00" }
+    var canEditAmount: Bool { true }
+    var canEditDestination: Bool { true }
+    var destinationTextBinding: Binding<String> { .constant("0x0123123") }
+    var feeTextPublisher: AnyPublisher<String?, Never> { .just(output: "0.1 ETH") }
+    var isSending: AnyPublisher<Bool, Never> { .just(output: false) }
+
+    func send() {}
+}
