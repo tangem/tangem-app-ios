@@ -100,16 +100,8 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
 
         Publishers.CombineLatest(input.destinationTextPublisher, input.additionalFieldPublisher)
-            .map { destination, additionalField in
-                var destinationViewTypes: [SendDestinationSummaryViewType] = [
-                    .address(address: destination),
-                ]
-
-                if let (additionalFieldType, additionalFieldValue) = additionalField {
-                    destinationViewTypes.append(.additionalField(type: additionalFieldType, value: additionalFieldValue))
-                }
-
-                return destinationViewTypes
+            .map { [weak self] destination, additionalField in
+                self?.sectionViewModelFactory.makeDestinationViewTypes(address: destination, additionalField: additionalField) ?? []
             }
             .assign(to: \.destinationViewTypes, on: self)
             .store(in: &bag)
