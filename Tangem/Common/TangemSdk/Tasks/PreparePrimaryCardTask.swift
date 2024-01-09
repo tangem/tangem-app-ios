@@ -61,20 +61,20 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         command.run(in: session) { result in
             switch result {
             case .success:
-                self.selfcheck(in: session, completion: completion)
+                self.checkIfAllWalletsCreated(in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
         }
     }
 
-    private func selfcheck(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+    private func checkIfAllWalletsCreated(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         let command = ReadWalletsListCommand()
         commandBag = command
         command.run(in: session) { result in
             switch result {
             case .success(let response):
-                let validator = InitializedCardValidator(expectedCurves: self.curves)
+                let validator = CardInitializationValidator(expectedCurves: self.curves)
 
                 if validator.validateWallets(response.wallets) {
                     self.readPrimaryCardIfNeeded(in: session, completion: completion)
