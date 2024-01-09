@@ -142,10 +142,6 @@ final class SendViewModel: ObservableObject {
         sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.sendModel.setDestination("TGPz1VgfdRMMDhyeQDtNi9xZjFpQacHGzH")
-        }
-
         bind()
     }
 
