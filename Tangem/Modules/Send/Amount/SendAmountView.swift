@@ -75,29 +75,28 @@ struct SendAmountView: View {
     }
 }
 
-//
-// struct SendAmountView_Previews: PreviewProvider {
-//    [REDACTED_USERNAME] static var namespace
-//
-//    static let tokenIconInfo = TokenIconInfo(
-//        name: "Tether",
-//        blockchainIconName: "ethereum.fill",
-//        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
-//        isCustom: false,
-//        customTokenColor: nil
-//    )
-//
-//    static let walletInfo = SendWalletInfo(
-//        walletName: "Wallet",
-//        balance: "12013",
-//
-//        tokenIconInfo: tokenIconInfo,
-//        cryptoCurrencyCode: "USDT",
-//        fiatCurrencyCode: "USD",
-//        amountFractionDigits: 6
-//    )
-//
-//    static var previews: some View {
-//        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), walletInfo: walletInfo))
-//    }
-// }
+struct SendAmountView_Previews: PreviewProvider {
+    @Namespace static var namespace
+
+    static let tokenIconInfo = TokenIconInfo(
+        name: "Tether",
+        blockchainIconName: "ethereum.fill",
+        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        isCustom: false,
+        customTokenColor: nil
+    )
+
+    static let walletInfo = SendWalletInfo(
+        walletName: "Wallet",
+        balance: "12013",
+        currencyId: "tether",
+        tokenIconInfo: tokenIconInfo,
+        cryptoCurrencyCode: "USDT",
+        fiatCurrencyCode: "USD",
+        amountFractionDigits: 6
+    )
+
+    static var previews: some View {
+        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), walletInfo: walletInfo))
+    }
+}
