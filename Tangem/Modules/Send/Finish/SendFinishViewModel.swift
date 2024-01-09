@@ -17,6 +17,7 @@ protocol SendFinishViewModelInput: AnyObject {
     var amountValue: Amount? { get }
     var amountText: String { get } // remove
     var destinationText: String? { get }
+    var additionalField: (SendAdditionalFields, String)? { get }
     var feeText: String { get } // remvoe?>
     var feeValue: Fee? { get }
     var transactionTime: Date? { get }
@@ -29,8 +30,9 @@ class SendFinishViewModel: ObservableObject {
     let feeText: String
     let transactionTime: String
 
-    var amountSummaryViewData: AmountSummaryViewData?
-    var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
+    let destinationViewTypes: [SendDestinationSummaryViewType]
+    let amountSummaryViewData: AmountSummaryViewData?
+    let feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
     weak var router: SendFinishRoutable?
 
@@ -55,6 +57,8 @@ class SendFinishViewModel: ObservableObject {
         else {
             return nil
         }
+
+        destinationViewTypes = sectionViewModelFactory.makeDestinationViewTypes(address: destinationText, additionalField: input.additionalField)
 
         amountSummaryViewData = sectionViewModelFactory.makeAmountViewModel(from: input.amountValue)
 
