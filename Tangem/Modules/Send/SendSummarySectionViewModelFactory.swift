@@ -40,7 +40,7 @@ struct SendSummarySectionViewModelFactory {
         return destinationViewTypes
     }
 
-    func makeAmountViewModel(from amount: Amount?) -> AmountSummaryViewData? {
+    func makeAmountViewData(from amount: Amount?) -> AmountSummaryViewData? {
         guard let amount else { return nil }
 
         let formattedAmount = amount.description
@@ -60,7 +60,7 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    func makeFeeViewModel(from value: Fee?) -> DefaultTextWithTitleRowViewData? {
+    func makeFeeViewData(from value: Fee?) -> DefaultTextWithTitleRowViewData? {
         guard let value else { return nil }
 
         let formattedValue = feeFormatter.format(
