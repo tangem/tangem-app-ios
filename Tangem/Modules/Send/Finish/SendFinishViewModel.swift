@@ -9,11 +9,15 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 protocol SendFinishViewModelInput: AnyObject {
+    var tokenItem: TokenItem { get }
+
     var amountText: String { get }
     var destinationText: String? { get }
-    var feeText: String { get }
+    var feeText: String { get } // remvoe?>
+    var feeValue: Fee? { get }
     var transactionTime: Date? { get }
     var transactionURL: URL? { get }
 }
@@ -25,12 +29,15 @@ class SendFinishViewModel: ObservableObject {
     let transactionTime: String
 
     var amountSummaryViewData: AmountSummaryViewData
+    var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
     weak var router: SendFinishRoutable?
 
     private let transactionURL: URL
 
     init?(input: SendFinishViewModelInput) {
+        let sectionViewModelFactory = SendSummarySectionViewModelFactory(tokenItem: input.tokenItem)
+        
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .short
@@ -56,6 +63,8 @@ class SendFinishViewModel: ObservableObject {
                 customTokenColor: nil
             )
         )
+        
+        feeSummaryViewModel = sectionViewModelFactory.makeFeeViewModel(from: input.feeValue)
 
         amountText = input.amountText
         self.destinationText = destinationText
