@@ -60,6 +60,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardSessionFilter: SessionFilter { get }
 
+    var hasDefaultToken: Bool { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func makeWalletModelsFactory() -> WalletModelsFactory
@@ -104,6 +106,10 @@ extension UserWalletConfig {
     var customOnboardingImage: ImageType? { nil }
 
     var customScanImage: ImageType? { nil }
+
+    var hasDefaultToken: Bool {
+        (defaultBlockchains.first?.tokens.count ?? 0) > 0
+    }
 }
 
 struct EmailConfig {
