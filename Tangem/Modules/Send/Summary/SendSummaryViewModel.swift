@@ -36,7 +36,7 @@ class SendSummaryViewModel: ObservableObject {
     let walletSummaryViewModel: SendWalletSummaryViewModel
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: AmountSummaryViewData?
-    @Published var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
+    @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
 
     weak var router: SendSummaryRoutable?
 
@@ -88,7 +88,7 @@ class SendSummaryViewModel: ObservableObject {
         input
             .amountPublisher
             .compactMap { [weak self] amount in
-                self?.sectionViewModelFactory.makeAmountViewModel(from: amount)
+                self?.sectionViewModelFactory.makeAmountViewData(from: amount)
             }
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
@@ -96,9 +96,9 @@ class SendSummaryViewModel: ObservableObject {
         input
             .feeValuePublisher
             .map { [weak self] fee in
-                self?.sectionViewModelFactory.makeFeeViewModel(from: fee)
+                self?.sectionViewModelFactory.makeFeeViewData(from: fee)
             }
-            .assign(to: \.feeSummaryViewModel, on: self, ownership: .weak)
+            .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
