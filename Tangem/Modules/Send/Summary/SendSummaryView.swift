@@ -29,15 +29,16 @@ struct SendSummaryView: View {
                         switch type {
                         case .address(let address):
                             SendDestinationAddressSummaryView(address: address)
+                                .matchedGeometryEffect(id: "dest", in: namespace)
                         case .additionalField(let type, let value):
                             if let name = type.name {
                                 DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                    .matchedGeometryEffect(id: "dest2", in: namespace)
                             }
                         }
                     }
                     .backgroundColor(Colors.Background.action)
                 }
-                .matchedGeometryEffect(id: "dest", in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
                 .disabled(!viewModel.canEditDestination)
 
