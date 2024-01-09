@@ -56,7 +56,7 @@ struct SendAmountView: View {
                 }
             }
             .contentAlignment(.center)
-            .matchedGeometryEffect(id: "amount", in: namespace)
+            .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
 
             HStack {
                 Picker("", selection: $viewModel.currencyOption) {
