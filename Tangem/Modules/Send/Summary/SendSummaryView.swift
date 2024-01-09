@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct SendSummaryView: View {
-    let height = 150.0
     let namespace: Namespace.ID
 
     @ObservedObject var viewModel: SendSummaryViewModel
@@ -39,7 +38,7 @@ struct SendSummaryView: View {
                     }
                     .backgroundColor(Colors.Background.action)
                 }
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditDestination)
 
                 Button {
@@ -64,7 +63,7 @@ struct SendSummaryView: View {
                     .backgroundColor(Colors.Background.action)
                 }
                 .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
             }
 
             sendButton
