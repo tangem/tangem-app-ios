@@ -12,7 +12,6 @@ import Combine
 import BlockchainSdk
 
 protocol SendSummaryViewModelInput: AnyObject {
-    var amountText: String { get } // remove
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
@@ -21,8 +20,6 @@ protocol SendSummaryViewModelInput: AnyObject {
     var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
-    var destinationTextBinding: Binding<String> { get }
-    var feeTextPublisher: AnyPublisher<String?, Never> { get } // remove
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
@@ -34,11 +31,7 @@ class SendSummaryViewModel: ObservableObject {
     let canEditAmount: Bool
     let canEditDestination: Bool
 
-    let amountText: String
-    let destinationText: String
-
     @Published var isSending = false
-    @Published var feeText: String = ""
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: AmountSummaryViewData?
@@ -57,11 +50,14 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
-
+    private let walletInfo: SendWalletInfo
     private var bag: Set<AnyCancellable> = []
     private weak var input: SendSummaryViewModelInput?
 
     init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
+        self.input = input
+        self.walletInfo = walletInfo
+
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             tokenItem: input.tokenItem,
             currencyId: walletInfo.currencyId,
@@ -73,16 +69,10 @@ class SendSummaryViewModel: ObservableObject {
             totalBalance: walletInfo.balance
         )
 
-        amountText = input.amountText
-
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
 
-        destinationText = input.destinationTextBinding.wrappedValue
-
-        self.input = input
-
-        bind(from: input, walletInfo: walletInfo)
+        bind()
     }
 
     func didTapSummary(for step: SendStep) {
@@ -93,7 +83,9 @@ class SendSummaryViewModel: ObservableObject {
         input?.send()
     }
 
-    private func bind(from input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
+    private func bind() {
+        guard let input else { return }
+
         input
             .isSending
             .assign(to: \.isSending, on: self, ownership: .weak)
@@ -104,14 +96,6 @@ class SendSummaryViewModel: ObservableObject {
                 self?.sectionViewModelFactory.makeDestinationViewTypes(address: destination, additionalField: additionalField) ?? []
             }
             .assign(to: \.destinationViewTypes, on: self)
-            .store(in: &bag)
-
-        input
-            .feeTextPublisher
-            .map {
-                $0 ?? ""
-            }
-            .assign(to: \.feeText, on: self, ownership: .weak)
             .store(in: &bag)
 
         input
