@@ -16,12 +16,12 @@ struct SendDestinationView: View {
         GroupedScrollView {
             if let addressViewModel = viewModel.addressViewModel {
                 SendDestinationTextView(viewModel: addressViewModel)
-                    .matchedGeometryEffect(id: "dest", in: namespace)
+                    .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
             }
 
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
                 SendDestinationTextView(viewModel: additionalFieldViewModel)
-                    .matchedGeometryEffect(id: "dest2", in: namespace)
+                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
             }
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
