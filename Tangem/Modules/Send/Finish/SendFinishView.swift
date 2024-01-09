@@ -43,7 +43,7 @@ struct SendFinishView: View {
                 .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
-                GroupedSection(viewModel.feeSummaryViewModel) { data in
+                GroupedSection(viewModel.feeSummaryViewData) { data in
                     DefaultTextWithTitleRowView(data: data)
                 }
                 .backgroundColor(Colors.Background.action)
