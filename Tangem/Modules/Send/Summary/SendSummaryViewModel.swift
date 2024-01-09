@@ -40,11 +40,11 @@ class SendSummaryViewModel: ObservableObject {
     @Published var isSending = false
     @Published var feeText: String = ""
 
-    @Published var dest: [SendDestinationSummaryViewType] = []
+    @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
+    @Published var amountSummaryViewData: AmountSummaryViewData?
+    @Published var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
     let walletSummaryViewModel: SendWalletSummaryViewModel
-    var amountSummaryViewData: AmountSummaryViewData?
-    var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
     weak var router: SendSummaryRoutable?
 
@@ -59,7 +59,6 @@ class SendSummaryViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private weak var input: SendSummaryViewModelInput?
 
-    let ddd: AnyPublisher<[SendDestinationSummaryViewType], Never>
     init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
         walletSummaryViewModel = SendWalletSummaryViewModel(
             walletName: walletInfo.walletName,
@@ -68,35 +67,12 @@ class SendSummaryViewModel: ObservableObject {
 
         amountText = input.amountText
 
-        ddd =
-            .just(output: [
-                SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
-                SendDestinationSummaryViewType.additionalField(type: .memo, value: "123456789"),
-            ])
-
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
 
         destinationText = input.destinationTextBinding.wrappedValue
 
         self.input = input
-
-        Publishers.CombineLatest(input.destination2, input.additionalField2)
-            .map {
-                destination, add in
-
-                var v: [SendDestinationSummaryViewType] = [
-                    .address(address: destination),
-                ]
-
-                if let add {
-                    v.append(.additionalField(type: add.0, value: add.1))
-                }
-
-                return v
-            }
-            .assign(to: \.dest, on: self)
-            .store(in: &bag)
 
         bind(from: input, walletInfo: walletInfo)
     }
@@ -113,6 +89,21 @@ class SendSummaryViewModel: ObservableObject {
         input
             .isSending
             .assign(to: \.isSending, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        Publishers.CombineLatest(input.destinationTextPublisher, input.additionalFieldPublisher)
+            .map { destination, additionalField in
+                var destinationViewTypes: [SendDestinationSummaryViewType] = [
+                    .address(address: destination),
+                ]
+
+                if let (additionalFieldType, additionalFieldValue) = additionalField {
+                    destinationViewTypes.append(.additionalField(type: additionalFieldType, value: additionalFieldValue))
+                }
+
+                return destinationViewTypes
+            }
+            .assign(to: \.destinationViewTypes, on: self)
             .store(in: &bag)
 
         input
