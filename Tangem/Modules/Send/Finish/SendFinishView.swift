@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct SendFinishView: View {
-    let height = 150.0
     let namespace: Namespace.ID
 
     @ObservedObject var viewModel: SendFinishViewModel
@@ -34,7 +33,7 @@ struct SendFinishView: View {
                 }
                 .backgroundColor(Colors.Background.action)
 
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
                 GroupedSection(viewModel.amountSummaryViewData) {
                     AmountSummaryView(data: $0)
@@ -49,7 +48,7 @@ struct SendFinishView: View {
                 }
                 .backgroundColor(Colors.Background.action)
                 .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
             }
 
             bottomButtons

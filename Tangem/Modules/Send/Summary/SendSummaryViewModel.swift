@@ -33,30 +33,19 @@ class SendSummaryViewModel: ObservableObject {
 
     @Published var isSending = false
 
+    let walletSummaryViewModel: SendWalletSummaryViewModel
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: AmountSummaryViewData?
     @Published var feeSummaryViewModel: DefaultTextWithTitleRowViewData?
 
-    let walletSummaryViewModel: SendWalletSummaryViewModel
-
     weak var router: SendSummaryRoutable?
 
-    private var feeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
-            balanceFormatter: BalanceFormatter(),
-            balanceConverter: BalanceConverter(),
-            fiatRatesProvider: SwappingRatesProvider()
-        )
-    }
-
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
-    private let walletInfo: SendWalletInfo
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
 
     init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
-        self.walletInfo = walletInfo
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             tokenItem: input.tokenItem,
