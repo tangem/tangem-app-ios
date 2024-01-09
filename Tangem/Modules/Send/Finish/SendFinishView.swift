@@ -20,12 +20,7 @@ struct SendFinishView: View {
                 header
                     .padding(.bottom, 24)
 
-                GroupedSection(
-                    [
-                        SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
-                        SendDestinationSummaryViewType.additionalField(type: .memo, value: "123456789"),
-                    ]
-                ) { type in
+                GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address):
                         SendDestinationAddressSummaryView(address: address)
