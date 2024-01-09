@@ -27,9 +27,16 @@ struct SendCurrencyPicker: View {
     // Can't use buttons because that interferes with the drag gesture
     var body: some View {
         HStack(spacing: 0) {
-            selectorItem(with: cryptoCurrencyCode, url: cryptoIconURL, iconRadius: 2, selected: !useFiatCalculation)
+            selectorItem(with: cryptoCurrencyCode, url: cryptoIconURL, iconRadius: 2, selected: !useFiatCalculation) {
+                Colors.Button.secondary
+            }
 
-            selectorItem(with: fiatCurrencyCode, url: fiatIconURL, iconRadius: iconSize / 2, selected: useFiatCalculation)
+            selectorItem(with: fiatCurrencyCode, url: fiatIconURL, iconRadius: iconSize / 2, selected: useFiatCalculation) {
+                Assets.fiatIconPlaceholder
+                    .image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
+            }
         }
         .overlay(
             GeometryReader { reader in
@@ -50,25 +57,28 @@ struct SendCurrencyPicker: View {
         .cornerRadiusContinuous(14)
     }
 
-    private func selectorItem(with name: String, url: URL?, iconRadius: CGFloat, selected: Bool) -> some View {
+    private func selectorItem(with name: String, url: URL?, iconRadius: CGFloat, selected: Bool, @ViewBuilder placeholder: @escaping () -> some View) -> some View {
         ZStack {
             HStack(spacing: 6) {
-                KFImage(url)
-                    .placeholder { Assets.fiatIconPlaceholder.image }
-                    .appendProcessor(ContrastBackgroundImageProcessor(backgroundColor: Self.defaultLowContrastBackgroundColor))
-                    .cancelOnDisappear(true)
-                    .cacheOriginalImage()
-                    .resizable()
-                    .frame(size: CGSize(bothDimensions: iconSize))
-                    .cornerRadiusContinuous(iconRadius)
+                IconView(url: url, size: CGSize(bothDimensions: iconSize), cornerRadius: iconRadius, forceKingfisher: true, placeholder: placeholder)
 
-                Text(name)
-                    .style(selected ? Fonts.Bold.footnote : Fonts.Regular.footnote, color: Colors.Text.primary1)
-                    .lineLimit(1)
+                ZStack {
+                    selectorItemText(with: name, selected: selected)
+                    
+                    // To make sure that the text doesn't jump when switching between bold/regular fonts
+                    selectorItemText(with: name, selected: true)
+                        .opacity(0)
+                }
             }
         }
         .frame(maxWidth: .infinity)
         .padding(12)
+    }
+    
+    private func selectorItemText(with name: String, selected: Bool) -> some View {
+        Text(name)
+            .style(selected ? Fonts.Bold.footnote : Fonts.Regular.footnote, color: Colors.Text.primary1)
+            .lineLimit(1)
     }
 
     private func selectorItemHitBox(fiatItem: Bool) -> some View {
