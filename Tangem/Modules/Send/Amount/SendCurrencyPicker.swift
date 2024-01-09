@@ -54,6 +54,7 @@ struct SendCurrencyPicker: View {
         ZStack {
             HStack(spacing: 6) {
                 KFImage(url)
+                    .placeholder { Assets.fiatIconPlaceholder.image }
                     .appendProcessor(ContrastBackgroundImageProcessor(backgroundColor: Self.defaultLowContrastBackgroundColor))
                     .cancelOnDisappear(true)
                     .cacheOriginalImage()
@@ -133,6 +134,15 @@ struct PickerExample: View {
                 cryptoIconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
                 cryptoCurrencyCode: "USDT",
                 fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
+                fiatCurrencyCode: "USD",
+                useFiatCalculation: $useFiatCalculation
+            )
+            .frame(maxWidth: 227)
+
+            SendCurrencyPicker(
+                cryptoIconURL: URL(string: "XXX://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
+                cryptoCurrencyCode: "USDT",
+                fiatIconURL: URL(string: "XXX://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
                 fiatCurrencyCode: "USD",
                 useFiatCalculation: $useFiatCalculation
             )
