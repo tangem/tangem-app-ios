@@ -1,5 +1,5 @@
 //
-//  InitializedCardValidator.swift
+//  CardInitializationValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct InitializedCardValidator {
+struct CardInitializationValidator {
     let expectedCurves: [EllipticCurve]
 
     func validateWallets(_ wallets: [Card.Wallet]) -> Bool {
