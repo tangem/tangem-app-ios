@@ -49,18 +49,13 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     private func setupView(state: ExpressInteractor.ExpressInteractorState) {
-        switch state {
-        case .idle, .loading, .restriction:
-            break
-        case .permissionRequired, .previewCEX, .readyToSwap:
-            // Should use the option's array for the correct order
-            feeRowViewModels = [FeeOption.market, .fast].compactMap { option in
-                guard let fee = state.fees[option] else {
-                    return nil
-                }
-
-                return makeFeeRowViewModel(option: option, fee: fee)
+        // Should use the option's array for the correct order
+        feeRowViewModels = [FeeOption.market, .fast].compactMap { option in
+            guard let fee = state.fees[option] else {
+                return nil
             }
+
+            return makeFeeRowViewModel(option: option, fee: fee)
         }
     }
 
