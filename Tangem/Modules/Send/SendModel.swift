@@ -367,7 +367,7 @@ extension SendModel: SendDestinationViewModelInput {
 
     var networkName: String { walletModel.blockchainNetwork.blockchain.displayName }
 
-    var additionalField: SendAdditionalFields? {
+    var additionalFieldType: SendAdditionalFields? {
         let field = SendAdditionalFields.fields(for: walletModel.blockchainNetwork.blockchain)
         switch field {
         case .destinationTag, .memo:
@@ -427,7 +427,7 @@ extension SendModel: SendSummaryViewModelInput {
             .map { [weak self] in
                 guard
                     !$0.isEmpty,
-                    let additionalFields = self?.additionalField
+                    let additionalFields = self?.additionalFieldType
                 else {
                     return nil
                 }
@@ -478,6 +478,12 @@ extension SendModel: SendFinishViewModelInput {
 
     var destinationText: String? {
         destination.value
+    }
+
+    var additionalField: (SendAdditionalFields, String)? {
+        guard let additionalFieldType else { return nil }
+
+        return (additionalFieldType, _destinationAdditionalFieldText.value)
     }
 
     var feeValue: Fee? {
