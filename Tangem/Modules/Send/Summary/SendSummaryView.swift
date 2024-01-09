@@ -25,7 +25,7 @@ struct SendSummaryView: View {
                 Button {
                     viewModel.didTapSummary(for: .destination)
                 } label: {
-                    GroupedSection(viewModel.dest) { type in
+                    GroupedSection(viewModel.destinationViewTypes) { type in
                         switch type {
                         case .address(let address):
                             SendDestinationAddressSummaryView(address: address)
