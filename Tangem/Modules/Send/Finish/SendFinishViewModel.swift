@@ -28,7 +28,7 @@ class SendFinishViewModel: ObservableObject {
 
     let destinationViewTypes: [SendDestinationSummaryViewType]
     let amountSummaryViewData: AmountSummaryViewData?
-    let feeSummaryViewModel: DefaultTextWithTitleRowViewData?
+    let feeSummaryViewData: DefaultTextWithTitleRowViewData?
 
     weak var router: SendFinishRoutable?
 
@@ -53,8 +53,8 @@ class SendFinishViewModel: ObservableObject {
             address: destinationText,
             additionalField: input.additionalField
         )
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewModel(from: input.amountValue)
-        feeSummaryViewModel = sectionViewModelFactory.makeFeeViewModel(from: input.feeValue)
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.amountValue)
+        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
 
         let formatter = DateFormatter()
         formatter.dateStyle = .long
