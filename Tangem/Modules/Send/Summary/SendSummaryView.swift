@@ -29,11 +29,11 @@ struct SendSummaryView: View {
                         switch type {
                         case .address(let address):
                             SendDestinationAddressSummaryView(address: address)
-                                .matchedGeometryEffect(id: "dest", in: namespace)
+                                .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
                         case .additionalField(let type, let value):
                             if let name = type.name {
                                 DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                    .matchedGeometryEffect(id: "dest2", in: namespace)
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
                             }
                         }
                     }
@@ -51,7 +51,7 @@ struct SendSummaryView: View {
                     .interSectionPadding(12)
                     .backgroundColor(Colors.Background.action)
                 }
-                .matchedGeometryEffect(id: "amount", in: namespace)
+                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditAmount)
 
@@ -63,7 +63,7 @@ struct SendSummaryView: View {
                     }
                     .backgroundColor(Colors.Background.action)
                 }
-                .matchedGeometryEffect(id: "fee", in: namespace)
+                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
             }
 
@@ -71,54 +71,6 @@ struct SendSummaryView: View {
                 .padding(.horizontal, 16)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
-    }
-
-    @ViewBuilder
-    private var destinationSummary: some View {
-        Button {
-            viewModel.didTapSummary(for: .destination)
-        } label: {
-            Color.clear
-                .frame(maxHeight: height)
-                .border(Color.purple, width: 5)
-                .overlay(
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(viewModel.destinationText)
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
-                    }
-                    .padding()
-                )
-                .matchedGeometryEffect(id: "dest", in: namespace)
-        }
-        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
-        .disabled(!viewModel.canEditDestination)
-    }
-
-    @ViewBuilder
-    private var feeSummary: some View {
-        Button {
-            viewModel.didTapSummary(for: .fee)
-        } label: {
-            Color.clear
-                .frame(maxHeight: height)
-                .border(Color.blue, width: 5)
-                .overlay(
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(viewModel.feeText)
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
-                    }
-                    .padding()
-                )
-                .transition(.identity)
-                .matchedGeometryEffect(id: "fee", in: namespace)
-        }
     }
 
     @ViewBuilder
