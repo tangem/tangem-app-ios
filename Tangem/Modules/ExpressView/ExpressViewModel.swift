@@ -65,7 +65,7 @@ final class ExpressViewModel: ObservableObject {
     private let expressProviderFormatter: ExpressProviderFormatter
     private let notificationManager: NotificationManager
     private let expressRepository: ExpressRepository
-    private unowned let interactor: ExpressInteractor
+    private let interactor: ExpressInteractor
     private unowned let coordinator: ExpressRoutable
 
     // MARK: - Private
