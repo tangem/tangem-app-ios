@@ -126,6 +126,7 @@ final class SendViewModel: ObservableObject {
         let walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: walletModel.balance,
+            currencyId: walletModel.currencyId,
             tokenIconInfo: tokenIconInfo,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
@@ -281,5 +282,18 @@ extension SendViewModel: SendSummaryRoutable {
 extension SendViewModel: SendAmountViewModelDelegate {
     func didTapMaxAmount() {
         sendModel.useMaxAmount()
+    }
+}
+
+// MARK: - WalletModel
+
+private extension WalletModel {
+    var currencyId: String? {
+        switch amountType {
+        case .coin, .reserve:
+            return blockchainNetwork.blockchain.currencyId
+        case .token:
+            return tokenItem.currencyId
+        }
     }
 }
