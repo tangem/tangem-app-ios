@@ -135,7 +135,7 @@ final class SendViewModel: ObservableObject {
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
+        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
         sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
