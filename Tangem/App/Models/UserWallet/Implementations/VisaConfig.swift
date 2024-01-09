@@ -45,7 +45,7 @@ extension VisaConfig: UserWalletConfig {
 
     var defaultBlockchains: [StorageEntry] {
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        let entry = StorageEntry(blockchainNetwork: network, tokens: [VisaUtilities().visaToken])
         return [entry]
     }
 
@@ -76,6 +76,11 @@ extension VisaConfig: UserWalletConfig {
     var cardHeaderImage: ImageType? {
         // [REDACTED_TODO_COMMENT]
         Assets.Cards.noteCardano
+    }
+
+    var hasDefaultToken: Bool {
+        // Visa wallet must be recognized as single wallet cards, therefore they shouldn't have a default token
+        false
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -138,7 +143,7 @@ extension VisaConfig: UserWalletConfig {
     }
 
     func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
-        return SimpleWalletManagerFactory()
+        return VisaWalletManagerFactory()
     }
 }
 
