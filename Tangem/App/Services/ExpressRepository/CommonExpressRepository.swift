@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 
 actor CommonExpressRepository {
     private let walletModelsManager: WalletModelsManager
@@ -30,7 +30,7 @@ actor CommonExpressRepository {
 }
 
 extension CommonExpressRepository: ExpressRepository {
-    func providers() async throws -> [TangemSwapping.ExpressProvider] {
+    func providers() async throws -> [TangemExpress.ExpressProvider] {
         if !providers.isEmpty {
             return providers
         }
@@ -40,7 +40,7 @@ extension CommonExpressRepository: ExpressRepository {
         return providers
     }
 
-    func updatePairs(for wallet: TangemSwapping.ExpressWallet) async throws {
+    func updatePairs(for wallet: TangemExpress.ExpressWallet) async throws {
         let currencies = walletModels
             .filter { $0.expressCurrency != wallet.expressCurrency }
             .map { $0.expressCurrency }
