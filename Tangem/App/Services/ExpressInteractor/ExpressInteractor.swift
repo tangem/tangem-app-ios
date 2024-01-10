@@ -216,7 +216,7 @@ extension ExpressInteractor {
             expressTransactionData: result.data
         )
 
-        expressPendingTransactionRepository.didSendSwapTransaction(sentTransactionData, userWalletId: userWalletId)
+        expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
         return sentTransactionData
     }
 
@@ -271,7 +271,7 @@ extension ExpressInteractor {
     }
 
     func cancelRefresh() {
-        guard let activeTask = updateStateTask, !activeTask.isCancelled else {
+        guard updateStateTask != nil else {
             return
         }
 
@@ -424,6 +424,8 @@ private extension ExpressInteractor {
     func swappingPairDidChange() {
         allowanceProvider.setup(wallet: getSender())
         feeProvider.setup(wallet: getSender())
+        // Reset feeOption
+        feeOption.mutate { $0 = .market }
 
         updateTask { interactor in
             guard let destination = interactor.getDestination() else {
@@ -590,9 +592,9 @@ private extension ExpressInteractor {
 
         switch policy {
         case .specified:
-            parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
-        case .unlimited:
             parameters[.type] = Analytics.ParameterValue.oneTransactionApprove.rawValue
+        case .unlimited:
+            parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
         }
 
         if let destination = getDestination() {
