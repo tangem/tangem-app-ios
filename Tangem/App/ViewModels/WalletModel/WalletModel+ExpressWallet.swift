@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import BlockchainSdk
 
 extension WalletModel: ExpressWallet {
-    var expressCurrency: TangemSwapping.ExpressCurrency {
+    var expressCurrency: TangemExpress.ExpressCurrency {
         tokenItem.expressCurrency
     }
 
