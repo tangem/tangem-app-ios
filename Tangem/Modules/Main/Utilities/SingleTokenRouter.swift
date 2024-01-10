@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 protocol SingleTokenRoutable {
     func openReceive(walletModel: WalletModel)
