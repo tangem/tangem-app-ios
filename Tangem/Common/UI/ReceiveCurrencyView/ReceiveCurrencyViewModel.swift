@@ -7,15 +7,17 @@
 //
 
 import Foundation
+import Combine
+import TangemSwapping
 
 class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
-    @Published var canChangeCurrency: Bool
-    @Published var balance: State
-    @Published var cryptoAmountState: State
-    @Published var fiatAmountState: State
-    @Published var priceChangePercent: String?
-    @Published var tokenIconState: SwappingTokenIconView.State
-    @Published var isAvailable: Bool = true
+    @Published private(set) var canChangeCurrency: Bool
+    @Published private(set) var balance: State
+    @Published private(set) var cryptoAmountState: State
+    @Published private(set) var fiatAmountState: State
+    @Published private(set) var priceChangePercent: String?
+    @Published private(set) var tokenIconState: SwappingTokenIconView.State
+    @Published private(set) var isAvailable: Bool = true
 
     var balanceString: String {
         switch balance {
@@ -57,6 +59,9 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
+    private var walletDidChangeSubscription: AnyCancellable?
+    private var highPriceTask: Task<Void, Error>?
+
     init(
         balance: State = .idle,
         canChangeCurrency: Bool,
@@ -69,6 +74,105 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
         self.cryptoAmountState = cryptoAmountState
         self.fiatAmountState = fiatAmountState
         self.tokenIconState = tokenIconState
+    }
+
+    func update(wallet: LoadingValue<WalletModel>, initialWalletId: Int) {
+        switch wallet {
+        case .loading:
+            canChangeCurrency = false
+            tokenIconState = .loading
+            isAvailable = true
+        case .loaded(let wallet):
+            isAvailable = true
+            canChangeCurrency = wallet.id != initialWalletId
+            tokenIconState = .icon(
+                TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom),
+                symbol: wallet.tokenItem.currencySymbol
+            )
+
+            walletDidChangeSubscription = wallet.walletDidChangePublisher.sink { [weak self] state in
+                switch state {
+                case .created, .loading:
+                    self?.balance = .loading
+                case .idle:
+                    self?.balance = .formatted(wallet.balanceValue?.groupedFormatted(maximumFractionDigits: wallet.decimalCount) ?? "0")
+                case .noAccount, .failed, .noDerivation:
+                    self?.balance = .formatted(BalanceFormatter.defaultEmptyBalanceString)
+                }
+            }
+        case .failedToLoad:
+            canChangeCurrency = true
+            tokenIconState = .notAvailable
+            isAvailable = false
+        }
+    }
+    
+    func updateReceiveCurrencyValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
+        guard let expectAmount else {
+            update(cryptoAmountState: .formatted("0"))
+            update(fiatAmountState: .formatted(BalanceFormatter().formatFiatBalance(0)))
+            return
+        }
+
+        let decimals = tokenItem?.decimalCount ?? 8
+        let formatter = DecimalNumberFormatter(maximumFractionDigits: decimals)
+        let formatted = formatter.format(value: expectAmount)
+        update(cryptoAmountState: .formatted(formatted))
+
+        guard let currencyId = tokenItem?.currencyId else {
+            update(fiatAmountState: .formatted(BalanceFormatter().formatFiatBalance(0)))
+            return
+        }
+
+        if let fiatValue = BalanceConverter().convertToFiat(value: expectAmount, from: currencyId) {
+            let formatted = BalanceFormatter().formatFiatBalance(fiatValue)
+            update(fiatAmountState: .formatted(formatted))
+            return
+        }
+
+        update(fiatAmountState: .loading)
+
+        runTask(in: self) { [currencyId] viewModel in
+            let fiatValue = try await BalanceConverter().convertToFiat(value: expectAmount, from: currencyId)
+            let formatted = BalanceFormatter().formatFiatBalance(fiatValue)
+
+            try Task.checkCancellation()
+
+            await runOnMain {
+                viewModel.update(fiatAmountState: .formatted(formatted))
+            }
+        }
+    }
+
+    func updateHighPricePercentLabel(quote: ExpressQuote?, sourceCurrencyId: String?, destinationCurrencyId: String?) {
+        guard let fromAmount = quote?.fromAmount,
+              let expectAmount = quote?.expectAmount,
+              let sourceCurrencyId,
+              let destinationCurrencyId else {
+            priceChangePercent = nil
+            return
+        }
+
+        highPriceTask = runTask(in: self) { viewModel in
+            let priceImpactCalculator = HighPriceImpactCalculator(sourceCurrencyId: sourceCurrencyId, destinationCurrencyId: destinationCurrencyId)
+            let result = try await priceImpactCalculator.isHighPriceImpact(
+                converting: fromAmount,
+                to: expectAmount
+            )
+
+            guard result.isHighPriceImpact else {
+                await runOnMain {
+                    viewModel.priceChangePercent = nil
+                }
+                return
+            }
+
+            let percentFormatter = PercentFormatter()
+            let formatted = percentFormatter.expressRatePercentFormat(value: -result.lossesInPercents)
+            await runOnMain {
+                viewModel.priceChangePercent = formatted
+            }
+        }
     }
 
     func update(cryptoAmountState: State) {
