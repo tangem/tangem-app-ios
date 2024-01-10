@@ -11,7 +11,6 @@ import BlockchainSdk
 import Combine
 import CombineExt
 import TangemSdk
-import TangemSwapping
 
 class LegacyTokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService

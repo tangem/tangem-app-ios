@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import TangemSwapping
+import TangemExpress
 import UIKit
 
 class ExpressCoordinator: CoordinatorObject {
