@@ -17,7 +17,6 @@ protocol SendAmountViewModelInput {
     var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
-    var currentAmount: Amount? { get }
     var blockchain: Blockchain { get }
     var amountType: Amount.AmountType { get }
 
