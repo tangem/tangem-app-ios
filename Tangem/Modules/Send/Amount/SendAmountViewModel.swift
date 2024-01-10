@@ -14,10 +14,10 @@ import BlockchainSdk
 #warning("[REDACTED_TODO_COMMENT]")
 
 protocol SendAmountViewModelInput {
-    var amountPublisher: AnyPublisher<SendAmount?, Never> { get }
+    var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
-    var currentAmount: SendAmount? { get }
+    var currentAmount: Amount? { get }
     var blockchain: Blockchain { get }
     var amountType: Amount.AmountType { get }
 
@@ -83,7 +83,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .sink { [weak self] amount in
                 guard let self else { return }
 
-                setViewAmount(amount?.amount?.value, inputTrigger: inputTrigger)
+                setViewAmount(amount?.value, inputTrigger: inputTrigger)
             }
             .store(in: &bag)
 
