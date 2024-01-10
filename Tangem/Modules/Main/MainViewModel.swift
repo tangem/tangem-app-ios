@@ -502,7 +502,7 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 // MARK: - MainNotificationsObserver protocol conformance
 
 extension MainViewModel: MainNotificationsObserver {
-    func didChangeNotificationInputs(_ inputs: [NotificationViewInput], forUserWalletWithId userWalletId: UserWalletId) {
+    func didChangeNotificationInputs(_ inputs: [NotificationViewInput], for userWalletId: UserWalletId) {
         notificationInputsSubject.value[userWalletId.value] = inputs
     }
 }
