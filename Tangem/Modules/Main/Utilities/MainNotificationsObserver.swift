@@ -9,5 +9,5 @@
 import Foundation
 
 protocol MainNotificationsObserver: AnyObject {
-    func didChangeNotificationInputs(_ inputs: [NotificationViewInput], forUserWalletWithId userWalletId: UserWalletId)
+    func didChangeNotificationInputs(_ inputs: [NotificationViewInput], for userWalletId: UserWalletId)
 }
