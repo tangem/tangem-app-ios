@@ -370,7 +370,7 @@ private extension ExpressInteractor {
         let sender = getSender()
 
         if sender.isToken {
-            let coinBalance = try await sender.getCoinBalance()
+            let coinBalance = try sender.getCoinBalance()
             return fee <= coinBalance
         }
 
@@ -378,7 +378,7 @@ private extension ExpressInteractor {
             throw ExpressManagerError.amountNotFound
         }
 
-        let balance = try await sender.getBalance()
+        let balance = try sender.getBalance()
         log("\(#function) fee: \(fee) amount: \(amount) balance: \(balance)")
 
         return fee + amount <= balance

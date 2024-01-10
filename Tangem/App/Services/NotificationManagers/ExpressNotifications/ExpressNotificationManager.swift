@@ -167,7 +167,7 @@ class ExpressNotificationManager {
             return nil
         }
 
-        let balance = try await sender.getBalance()
+        let balance = try sender.getBalance()
         let remainBalance = balance - (amount + subtractFee)
 
         guard remainBalance < provider.existentialDeposit.value, let warning = sender.existentialDepositWarning else {
