@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import struct TangemSwapping.ExpressAPIError
+import struct TangemExpress.ExpressAPIError
 
 class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
