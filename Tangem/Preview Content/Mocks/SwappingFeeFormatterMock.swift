@@ -9,6 +9,6 @@
 import TangemSwapping
 import BlockchainSdk
 
-struct SwappingFeeFormatterMock: SwappingFeeFormatter {
+struct FeeFormatterMock: FeeFormatter {
     func format(fee: Decimal, tokenItem: TokenItem) -> String { "" }
 }
