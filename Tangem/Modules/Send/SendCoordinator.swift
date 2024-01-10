@@ -23,6 +23,8 @@ class SendCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var mailViewModel: MailViewModel? = nil
+    @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var qrScanViewModel: QRScanViewModel? = nil
 
     required init(
@@ -38,6 +40,7 @@ class SendCoordinator: CoordinatorObject {
             walletModel: options.walletModel,
             transactionSigner: options.transactionSigner,
             sendType: options.type,
+            emailDataProvider: options.emailDataProvider,
             coordinator: self
         )
     }
@@ -47,6 +50,7 @@ class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
+        let emailDataProvider: EmailDataProvider
         let walletModel: WalletModel
         let transactionSigner: TransactionSigner
         let type: SendType
@@ -56,7 +60,21 @@ extension SendCoordinator {
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
-    func openQRScanner(with codeBinding: Binding<String>) {
-        qrScanViewModel = .init(code: codeBinding)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+    }
+
+    func explore(url: URL) {
+        modalWebViewModel = WebViewContainerViewModel(url: url, title: Localization.commonExplorer, withCloseButton: true)
+    }
+
+    func share(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
+        let text = Localization.sendQrcodeScanInfo(networkName)
+        qrScanViewModel = .init(code: codeBinding, text: text)
     }
 }
