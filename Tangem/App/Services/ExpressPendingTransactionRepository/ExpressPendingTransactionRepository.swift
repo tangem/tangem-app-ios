@@ -11,12 +11,12 @@ import Combine
 import TangemSwapping
 
 protocol ExpressPendingTransactionRepository: AnyObject {
-    var pendingTransactions: [ExpressPendingTransactionRecord] { get }
-    var pendingTransactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> { get }
+    var transactions: [ExpressPendingTransactionRecord] { get }
+    var transactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> { get }
 
-    func didSendApproveTransaction()
-    func didSendSwapTransaction(_ txData: SentExpressTransactionData, userWalletId: String)
-    func removeSwapTransaction(with expressTxId: String)
+    func updateItems(_ items: [ExpressPendingTransactionRecord])
+    func swapTransactionDidSend(_ txData: SentExpressTransactionData, userWalletId: String)
+    func hideSwapTransaction(with id: String)
 }
 
 private struct ExpressPendingTransactionRepositoryKey: InjectionKey {
