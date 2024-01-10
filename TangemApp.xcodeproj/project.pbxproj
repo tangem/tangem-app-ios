@@ -1072,9 +1072,9 @@
 		EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */; };
 		EF7000812A94BE7300C56E8A /* CardanoWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */; };
 		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
-		EF729B492AF1091900D80205 /* ExpressFeeBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B442AF1091900D80205 /* ExpressFeeBottomSheetView.swift */; };
-		EF729B4A2AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B452AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift */; };
-		EF729B4B2AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift */; };
+		EF729B492AF1091900D80205 /* ExpressFeeSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */; };
+		EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */; };
+		EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */; };
 		EF729B4F2AF10DD900D80205 /* FeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B4E2AF10DD900D80205 /* FeeRowView.swift */; };
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
@@ -2465,9 +2465,9 @@
 		EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextField.swift; sourceTree = "<group>"; };
 		EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoWalletManagerFactory.swift; sourceTree = "<group>"; };
 		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
-		EF729B442AF1091900D80205 /* ExpressFeeBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetView.swift; sourceTree = "<group>"; };
-		EF729B452AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetViewModel.swift; sourceTree = "<group>"; };
-		EF729B462AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeBottomSheetRoutable.swift; sourceTree = "<group>"; };
+		EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorView.swift; sourceTree = "<group>"; };
+		EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorViewModel.swift; sourceTree = "<group>"; };
+		EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorRoutable.swift; sourceTree = "<group>"; };
 		EF729B4E2AF10DD900D80205 /* FeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowView.swift; sourceTree = "<group>"; };
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
@@ -5730,7 +5730,7 @@
 				EF842DE22AFA58A5006E472E /* ExpressTokensList */,
 				EF48E6CC2B023EC900FE0072 /* ExpressView */,
 				EF729B672AF3E82C00D80205 /* ExpressProvidersSelectorView */,
-				EF729B412AF108E200D80205 /* ExpressFeeBottomSheet */,
+				EF729B412AF108E200D80205 /* ExpressFeeSelector */,
 				EF0DC1132A0CE291007E3DA7 /* ExpressApprove */,
 				EF9448D82ADFD19D00F4AFAC /* InformationHiddenBalances */,
 				EFD39C8F2A6A8A640055D215 /* SupportedBlockchainsPreferences */,
@@ -6220,14 +6220,14 @@
 			path = SendGroupedNumberTextField;
 			sourceTree = "<group>";
 		};
-		EF729B412AF108E200D80205 /* ExpressFeeBottomSheet */ = {
+		EF729B412AF108E200D80205 /* ExpressFeeSelector */ = {
 			isa = PBXGroup;
 			children = (
-				EF729B442AF1091900D80205 /* ExpressFeeBottomSheetView.swift */,
-				EF729B452AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift */,
-				EF729B462AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift */,
+				EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */,
+				EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */,
+				EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */,
 			);
-			path = ExpressFeeBottomSheet;
+			path = ExpressFeeSelector;
 			sourceTree = "<group>";
 		};
 		EF729B4D2AF10DCF00D80205 /* FeeRowView */ = {
@@ -7792,7 +7792,7 @@
 				B0F318F42A738A30009F131E /* LockedWalletModelsManager.swift in Sources */,
 				DC261CAB292CF56600875E64 /* AuthViewModel.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
-				EF729B4A2AF1091900D80205 /* ExpressFeeBottomSheetViewModel.swift in Sources */,
+				EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */,
 				EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */,
 				B03574C82B1F876300118786 /* PendingExpressTransactionStatusRow.swift in Sources */,
 				B61980122AB98ACE00153886 /* HighlightableViewModifier.swift in Sources */,
@@ -8149,7 +8149,7 @@
 				B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */,
 				DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */,
 				B018FE662B0CE55E00D8D31E /* ExpressNotificationEvent.swift in Sources */,
-				EF729B4B2AF1091900D80205 /* ExpressFeeBottomSheetRoutable.swift in Sources */,
+				EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */,
 				DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				B62E42512A79328A0045AB31 /* Collection+.swift in Sources */,
@@ -8377,7 +8377,7 @@
 				B61B14CD2A25DD33001AF997 /* Lock.swift in Sources */,
 				EF130EB428E1C47C00D37EFC /* LegacySingleWalletContentViewModel.swift in Sources */,
 				DA81CF302B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift in Sources */,
-				EF729B492AF1091900D80205 /* ExpressFeeBottomSheetView.swift in Sources */,
+				EF729B492AF1091900D80205 /* ExpressFeeSelectorView.swift in Sources */,
 				DAF59CC42ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift in Sources */,
 				EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */,
 				DAC3D57A2B0518C900C55B4C /* TransactionSignerMock.swift in Sources */,
