@@ -253,8 +253,6 @@ class SendModel {
     func setAmount(_ amount: Amount?) {
         guard _amount.value?.amount != amount else { return }
 
-        print("ZZZ new amount set", amount)
-
         _amount.send(.external(amount))
         validateAmount()
     }
