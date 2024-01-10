@@ -52,4 +52,4 @@ class AppLog {
     }
 }
 
-extension AppLog: SwappingLogger {}
+extension AppLog: Logger {}
