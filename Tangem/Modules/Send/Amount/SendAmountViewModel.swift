@@ -111,7 +111,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .sink { [weak self] isFiatCalculation in
                 guard let self else { return }
 
-                amount = convert(input: amount, isFiatCalculation: isFiatCalculation)
+                let newAmount = convert(input: amount, isFiatCalculation: isFiatCalculation)
+                if amount != newAmount {
+                    amount = newAmount
+                }
             }
             .store(in: &bag)
     }
