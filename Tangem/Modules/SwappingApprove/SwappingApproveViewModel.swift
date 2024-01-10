@@ -15,8 +15,8 @@ import struct BlockchainSdk.Fee
 final class SwappingApproveViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
-    @Published var menuRowViewModel: DefaultMenuRowViewModel<SwappingApprovePolicy>?
-    @Published var selectedAction: SwappingApprovePolicy = .unlimited
+    @Published var menuRowViewModel: DefaultMenuRowViewModel<ExpressApprovePolicy>?
+    @Published var selectedAction: ExpressApprovePolicy = .unlimited
     @Published var feeRowViewModel: DefaultRowViewModel?
 
     @Published var isLoading = false
@@ -32,7 +32,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
 
     private let swappingFeeFormatter: SwappingFeeFormatter
     private let pendingTransactionRepository: ExpressPendingTransactionRepository
-    private let logger: SwappingLogger
+    private let logger: Logger
     private let expressInteractor: ExpressInteractor
     private unowned let coordinator: SwappingApproveRoutable
 
@@ -42,7 +42,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     init(
         swappingFeeFormatter: SwappingFeeFormatter,
         pendingTransactionRepository: ExpressPendingTransactionRepository,
-        logger: SwappingLogger,
+        logger: Logger,
         expressInteractor: ExpressInteractor,
         coordinator: SwappingApproveRoutable
     ) {
@@ -160,8 +160,8 @@ private extension SwappingApproveViewModel {
         menuRowViewModel = .init(
             title: Localization.swappingPermissionRowsAmount(currencySymbol),
             actions: [
-                SwappingApprovePolicy.unlimited,
-                SwappingApprovePolicy.specified,
+                ExpressApprovePolicy.unlimited,
+                ExpressApprovePolicy.specified,
             ]
         )
 
@@ -186,7 +186,7 @@ private extension SwappingApproveViewModel {
     }
 }
 
-extension SwappingApprovePolicy: DefaultMenuRowViewModelAction {
+extension ExpressApprovePolicy: DefaultMenuRowViewModelAction {
     public var id: Int { hashValue }
 
     public var title: String {
