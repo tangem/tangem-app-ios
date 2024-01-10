@@ -30,7 +30,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    private let swappingFeeFormatter: SwappingFeeFormatter
+    private let feeFormatter: FeeFormatter
     private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let logger: Logger
     private let expressInteractor: ExpressInteractor
@@ -40,13 +40,13 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        swappingFeeFormatter: SwappingFeeFormatter,
+        feeFormatter: FeeFormatter,
         pendingTransactionRepository: ExpressPendingTransactionRepository,
         logger: Logger,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressApproveRoutable
     ) {
-        self.swappingFeeFormatter = swappingFeeFormatter
+        self.feeFormatter = feeFormatter
         self.pendingTransactionRepository = pendingTransactionRepository
         self.logger = logger
         self.expressInteractor = expressInteractor
@@ -140,7 +140,7 @@ private extension ExpressApproveViewModel {
             return
         }
 
-        let formatted = swappingFeeFormatter.format(
+        let formatted = feeFormatter.format(
             fee: fee.amount.value,
             tokenItem: expressInteractor.getSender().tokenItem
         )
