@@ -28,7 +28,7 @@ class ExpressCoordinator: CoordinatorObject {
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
     @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
-    @Published var swappingApproveViewModel: SwappingApproveViewModel?
+    @Published var expressApproveViewModel: ExpressApproveViewModel?
 
     // MARK: - Properties
 
@@ -72,7 +72,7 @@ extension ExpressCoordinator: ExpressRoutable {
 
     func presentApproveView() {
         UIApplication.shared.endEditing()
-        swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
+        expressApproveViewModel = factory.makeExpressApproveViewModel(coordinator: self)
     }
 
     func presentSuccessView(data: SentExpressTransactionData) {
@@ -121,16 +121,16 @@ extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
     }
 }
 
-// MARK: - SwappingApproveRoutable
+// MARK: - ExpressApproveRoutable
 
-extension ExpressCoordinator: SwappingApproveRoutable {
+extension ExpressCoordinator: ExpressApproveRoutable {
     func didSendApproveTransaction() {
-        swappingApproveViewModel = nil
+        expressApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
     }
 
     func userDidCancel() {
-        swappingApproveViewModel = nil
+        expressApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
     }
 }
