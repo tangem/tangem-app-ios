@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemSdk
-import TangemSwapping
+import TangemExpress
 
 class AppLog {
     static let shared = AppLog()

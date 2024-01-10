@@ -6,7 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import TangemSwapping
+import TangemExpress
 
 protocol ExpressApproveRoutable: AnyObject {
     func didSendApproveTransaction()
