@@ -106,7 +106,7 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
             isAvailable = false
         }
     }
-    
+
     func updateReceiveCurrencyValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
         guard let expectAmount else {
             update(cryptoAmountState: .formatted("0"))
