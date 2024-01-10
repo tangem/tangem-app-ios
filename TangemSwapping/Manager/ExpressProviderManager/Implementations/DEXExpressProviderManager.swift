@@ -101,7 +101,7 @@ private extension DEXExpressProviderManager {
     func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, approvePolicy: SwappingApprovePolicy) async -> ExpressProviderManagerState? {
         // 1. Check Balance
         do {
-            let sourceBalance = try await request.pair.source.getBalance()
+            let sourceBalance = try request.pair.source.getBalance()
             let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
             if isNotEnoughBalanceForSwapping {
