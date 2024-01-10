@@ -680,9 +680,3 @@ extension ExpressViewModel {
         }
     }
 }
-
-extension ExpressViewModel {
-    private enum Constants {
-        static let highPriceImpactWarningLimit: Decimal = 10
-    }
-}
