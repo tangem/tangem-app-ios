@@ -11,10 +11,10 @@ import Moya
 struct CommonExpressAPIService {
     private let provider: MoyaProvider<ExpressAPITarget>
     private let isProduction: Bool
-    private let logger: SwappingLogger
+    private let logger: Logger
     private let decoder = JSONDecoder()
 
-    init(provider: MoyaProvider<ExpressAPITarget>, isProduction: Bool, logger: SwappingLogger) {
+    init(provider: MoyaProvider<ExpressAPITarget>, isProduction: Bool, logger: Logger) {
         assert(
             provider.plugins.contains(where: { $0 is ExpressAuthorizationPlugin }),
             "Should contains ExpressHeaderMoyaPlugin"
