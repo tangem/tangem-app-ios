@@ -42,7 +42,7 @@ struct ExpressCoordinatorView: CoordinatorView {
                 item: $coordinator.expressFeeSelectorViewModel,
                 settings: .init(backgroundColor: Colors.Background.tertiary)
             ) {
-                ExpressFeeBottomSheetView(viewModel: $0)
+                ExpressFeeSelectorView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.expressProvidersSelectorViewModel,
