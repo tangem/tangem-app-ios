@@ -8,7 +8,7 @@
 
 import Foundation
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 protocol SingleTokenBaseRoutable: AnyObject {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
