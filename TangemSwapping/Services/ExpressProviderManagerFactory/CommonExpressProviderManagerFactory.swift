@@ -12,14 +12,14 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
     private let expressAPIProvider: ExpressAPIProvider
     private let allowanceProvider: AllowanceProvider
     private let feeProvider: FeeProvider
-    private let logger: SwappingLogger
+    private let logger: Logger
     private let mapper: ExpressManagerMapper
 
     init(
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
         feeProvider: FeeProvider,
-        logger: SwappingLogger,
+        logger: Logger,
         mapper: ExpressManagerMapper
     ) {
         self.expressAPIProvider = expressAPIProvider
