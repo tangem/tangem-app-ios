@@ -33,10 +33,10 @@ struct ExpressCoordinatorView: CoordinatorView {
                 ExpressTokensListView(viewModel: $0)
             }
             .bottomSheet(
-                item: $coordinator.swappingApproveViewModel,
+                item: $coordinator.expressApproveViewModel,
                 settings: .init(backgroundColor: Colors.Background.tertiary)
             ) {
-                SwappingApproveView(viewModel: $0)
+                ExpressApproveView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.expressFeeSelectorViewModel,
