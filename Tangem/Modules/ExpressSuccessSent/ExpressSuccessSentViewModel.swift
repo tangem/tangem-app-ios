@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-import TangemSwapping
+import TangemExpress
 
 final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState

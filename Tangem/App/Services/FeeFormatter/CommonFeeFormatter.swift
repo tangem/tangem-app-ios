@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 
 struct CommonFeeFormatter {
     private let balanceFormatter: BalanceFormatter
