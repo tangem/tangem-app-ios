@@ -1,5 +1,5 @@
 //
-//  CommonSwappingFeeFormatter.swift
+//  CommonFeeFormatter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSwapping
 
-struct CommonSwappingFeeFormatter {
+struct CommonFeeFormatter {
     private let balanceFormatter: BalanceFormatter
     private let balanceConverter: BalanceConverter
 
@@ -22,9 +22,9 @@ struct CommonSwappingFeeFormatter {
     }
 }
 
-// MARK: - SwappingFeeFormatter
+// MARK: - FeeFormatter
 
-extension CommonSwappingFeeFormatter: SwappingFeeFormatter {
+extension CommonFeeFormatter: FeeFormatter {
     func format(fee: Decimal, tokenItem: TokenItem) -> String {
         let currencySymbol = tokenItem.blockchain.currencySymbol
         let currencyId = tokenItem.blockchain.currencyId
