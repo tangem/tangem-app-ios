@@ -32,8 +32,7 @@ class SendFeeViewModel: ObservableObject {
     private var feeFormatter: SwappingFeeFormatter {
         CommonSwappingFeeFormatter(
             balanceFormatter: BalanceFormatter(),
-            balanceConverter: BalanceConverter(),
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: BalanceConverter()
         )
     }
 
