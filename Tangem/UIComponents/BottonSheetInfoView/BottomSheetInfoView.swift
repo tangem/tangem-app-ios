@@ -69,7 +69,7 @@ struct BottomSheetInfoView_Previews: PreviewProvider {
                 .offset(y: -200)
 
                 NavHolder()
-                    .bottomSheet(item: $item) {
+                    .bottomSheet(item: $item, backgroundColor: Colors.Background.tertiary) {
                         BottomSheetInfoView(viewModel: $0)
                     }
             }
