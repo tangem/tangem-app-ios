@@ -247,7 +247,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         case .sell:
             openSellCrypto()
         case .swap:
-            openSwapping()
+            fatalError("Swapping was deleted")
         }
     }
 
