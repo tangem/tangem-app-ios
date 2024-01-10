@@ -64,7 +64,7 @@ struct SendCurrencyPicker: View {
 
                 ZStack {
                     selectorItemText(with: name, selected: selected)
-                    
+
                     // To make sure that the text doesn't jump when switching between bold/regular fonts
                     selectorItemText(with: name, selected: true)
                         .opacity(0)
@@ -74,7 +74,7 @@ struct SendCurrencyPicker: View {
         .frame(maxWidth: .infinity)
         .padding(12)
     }
-    
+
     private func selectorItemText(with name: String, selected: Bool) -> some View {
         Text(name)
             .style(selected ? Fonts.Bold.footnote : Fonts.Regular.footnote, color: Colors.Text.primary1)
