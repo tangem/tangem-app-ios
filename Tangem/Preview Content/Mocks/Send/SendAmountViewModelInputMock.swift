@@ -13,8 +13,6 @@ import BlockchainSdk
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
     var amountPublisher: AnyPublisher<Amount?, Never> { .just(output: nil) }
 
-    var currentAmount: Amount? { nil }
-
     func setAmount(_ amount: BlockchainSdk.Amount?) {}
 
     var amountType: Amount.AmountType { .coin }
