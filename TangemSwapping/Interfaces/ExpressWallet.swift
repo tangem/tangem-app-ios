@@ -13,8 +13,8 @@ public protocol ExpressWallet {
     var defaultAddress: String { get }
     var decimalCount: Int { get }
 
-    func getBalance() async throws -> Decimal
-    func getCoinBalance() async throws -> Decimal
+    func getBalance() throws -> Decimal
+    func getCoinBalance() throws -> Decimal
 }
 
 public extension ExpressWallet {
