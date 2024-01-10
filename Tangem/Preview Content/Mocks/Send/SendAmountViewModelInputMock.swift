@@ -11,9 +11,9 @@ import Combine
 import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
-    var amountPublisher: AnyPublisher<SendAmount?, Never> { .just(output: nil) }
+    var amountPublisher: AnyPublisher<Amount?, Never> { .just(output: nil) }
 
-    var currentAmount: SendAmount? { nil }
+    var currentAmount: Amount? { nil }
 
     func setAmount(_ amount: BlockchainSdk.Amount?) {}
 
