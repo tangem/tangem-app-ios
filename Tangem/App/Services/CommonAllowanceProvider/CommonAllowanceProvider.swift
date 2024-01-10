@@ -13,11 +13,11 @@ import BlockchainSdk
 class CommonExpressAllowanceProvider {
     private var ethereumNetworkProvider: EthereumNetworkProvider?
     private var ethereumTransactionProcessor: EthereumTransactionProcessor?
-    private let logger: SwappingLogger
+    private let logger: Logger
 
     private var spendersAwaitingApprove = Set<String>()
 
-    init(logger: SwappingLogger) {
+    init(logger: Logger) {
         self.logger = logger
     }
 }
