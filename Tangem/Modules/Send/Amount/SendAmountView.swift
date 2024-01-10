@@ -89,8 +89,8 @@ struct SendAmountView_Previews: PreviewProvider {
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
         balance: "12013",
+        currencyId: "tether",
         tokenIconInfo: tokenIconInfo,
-        cryptoCurrencyId: "tether",
         cryptoCurrencyCode: "USDT",
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6
