@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 import Combine
-import class TangemSwapping.ThreadSafeContainer
+import class TangemExpress.ThreadSafeContainer
 
 class FakeTransactionHistoryService {
     private let blockchain: Blockchain
