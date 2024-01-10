@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-import TangemSwapping
+import TangemExpress
 import struct BlockchainSdk.Fee
 
 final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
