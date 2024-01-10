@@ -1,5 +1,5 @@
 //
-//  SwappingApproveRoutableMock.swift
+//  ExpressApproveRoutableMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemSwapping
 
-class SwappingApproveRoutableMock: SwappingApproveRoutable {
+class ExpressApproveRoutableMock: ExpressApproveRoutable {
     func didSendApproveTransaction() {}
     func userDidCancel() {}
 }
