@@ -15,6 +15,8 @@ protocol VisaWalletRoutable: AnyObject {
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
+    @Published var balancesAndLimitsViewModel: VisaBalancesLimitsBottomSheetViewModel?
+
     @Published private(set) var transactionListViewState: TransactionsListView.State = .loading
     @Published private(set) var isTransactoinHistoryReloading: Bool = true
     @Published private(set) var cryptoLimitText: String = "400.00 USDT"
@@ -35,7 +37,9 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
     func openDeposit() {}
 
-    func openBalancesAndLimits() {}
+    func openBalancesAndLimits() {
+        balancesAndLimitsViewModel = .init()
+    }
 
     func openExplorer() {
         guard
