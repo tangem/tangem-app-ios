@@ -8,7 +8,7 @@
 
 import Combine
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 class CommonSwapAvailabilityManager: SwapAvailabilityManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
