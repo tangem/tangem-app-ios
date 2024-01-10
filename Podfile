@@ -82,7 +82,7 @@ target 'Tangem' do
     # Pods for testing
   end
 
-  target 'TangemUITests' do 
+  target 'TangemUITests' do
     # Pods for testing
   end
 end
