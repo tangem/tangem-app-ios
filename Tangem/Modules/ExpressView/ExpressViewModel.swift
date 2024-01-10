@@ -7,7 +7,7 @@
 //
 
 import Combine
-import TangemSwapping
+import TangemExpress
 import UIKit
 import enum TangemSdk.TangemSdkError
 import struct BlockchainSdk.Fee
