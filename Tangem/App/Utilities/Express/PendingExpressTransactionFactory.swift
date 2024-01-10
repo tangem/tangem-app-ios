@@ -11,10 +11,14 @@ import TangemSwapping
 
 struct PendingExpressTransactionFactory {
     private let defaultStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .exchanging, .sendingToUser]
+    private let failedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .failed, .refunded]
+    private let verifyingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]
+    private let canceledStatusesList: [PendingExpressTransactionStatus] = [.canceled]
 
     func buildPendingExpressTransaction(currentExpressStatus: ExpressTransactionStatus, for transactionRecord: ExpressPendingTransactionRecord) -> PendingExpressTransaction {
         let currentStatus: PendingExpressTransactionStatus
         var statusesList: [PendingExpressTransactionStatus] = defaultStatusesList
+        var transactionRecord = transactionRecord
         switch currentExpressStatus {
         case .new, .waiting:
             currentStatus = .awaitingDeposit
@@ -28,19 +32,39 @@ struct PendingExpressTransactionFactory {
             currentStatus = .done
         case .failed:
             currentStatus = .failed
-            statusesList = [.awaitingDeposit, .confirming, .failed, .refunded]
+            statusesList = failedStatusesList
         case .refunded:
             currentStatus = .refunded
-            statusesList = [.awaitingDeposit, .confirming, .failed, .refunded]
+            statusesList = failedStatusesList
         case .verifying:
             currentStatus = .verificationRequired
-            statusesList = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]
+            statusesList = verifyingStatusesList
+        case .expired:
+            currentStatus = .canceled
+            statusesList = canceledStatusesList
         }
 
+        transactionRecord.transactionStatus = currentStatus
         return .init(
             transactionRecord: transactionRecord,
-            currentStatus: currentStatus,
             statuses: statusesList
         )
+    }
+
+    func buildPendingExpressTransaction(for transactionRecord: ExpressPendingTransactionRecord) -> PendingExpressTransaction {
+        let statusesList: [PendingExpressTransactionStatus] = {
+            switch transactionRecord.transactionStatus {
+            case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .done:
+                return defaultStatusesList
+            case .canceled:
+                return canceledStatusesList
+            case .failed, .refunded:
+                return failedStatusesList
+            case .verificationRequired:
+                return verifyingStatusesList
+            }
+        }()
+
+        return .init(transactionRecord: transactionRecord, statuses: statusesList)
     }
 }
