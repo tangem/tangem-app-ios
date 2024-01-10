@@ -95,7 +95,8 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
                 case .created, .loading:
                     self?.balance = .loading
                 case .idle:
-                    self?.balance = .formatted(wallet.balanceValue?.groupedFormatted(maximumFractionDigits: wallet.decimalCount) ?? "0")
+                    let formatted = wallet.balanceValue.map { BalanceFormatter().formatDecimal($0) }
+                    self?.balance = .formatted(formatted ?? BalanceFormatter.defaultEmptyBalanceString)
                 case .noAccount, .failed, .noDerivation:
                     self?.balance = .formatted(BalanceFormatter.defaultEmptyBalanceString)
                 }
