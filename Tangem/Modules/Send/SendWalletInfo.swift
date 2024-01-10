@@ -11,8 +11,8 @@ import Foundation
 struct SendWalletInfo {
     let walletName: String
     let balance: String
+    let currencyId: String?
     let tokenIconInfo: TokenIconInfo
-    let cryptoCurrencyId: String?
     let cryptoCurrencyCode: String
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
