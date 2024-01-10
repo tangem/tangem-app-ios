@@ -26,7 +26,7 @@ class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
-    @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
+    @Published var expressFeeSelectorViewModel: ExpressFeeSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
 
@@ -114,8 +114,8 @@ extension ExpressCoordinator: ExpressTokensListRoutable {
 
 // MARK: - ExpressRoutable
 
-extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
-    func closeExpressFeeBottomSheet() {
+extension ExpressCoordinator: ExpressFeeSelectorRoutable {
+    func closeExpressFeeSelector() {
         expressFeeSelectorViewModel = nil
         rootViewModel?.didCloseFeeSelectorSheet()
     }
