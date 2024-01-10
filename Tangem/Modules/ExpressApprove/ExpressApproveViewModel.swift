@@ -109,7 +109,7 @@ private extension ExpressApproveViewModel {
             .store(in: &bag)
     }
 
-    func updateView(for state: ExpressInteractor.ExpressInteractorState) {
+    func updateView(for state: ExpressInteractor.State) {
         switch state {
         case .permissionRequired(let state, _):
             updateFeeAmount(fees: state.fees)
