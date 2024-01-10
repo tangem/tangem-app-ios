@@ -12,11 +12,11 @@ import Combine
 public protocol ExpressManager: Actor {
     func getPair() async -> ExpressManagerSwappingPair?
     func getAmount() async -> Decimal?
-    func getApprovePolicy() -> SwappingApprovePolicy
+    func getApprovePolicy() -> ExpressApprovePolicy
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState
     func updateAmount(amount: Decimal?) async throws -> ExpressManagerState
-    func update(approvePolicy: SwappingApprovePolicy) async throws -> ExpressManagerState
+    func update(approvePolicy: ExpressApprovePolicy) async throws -> ExpressManagerState
 
     func getAllProviders() -> [ExpressAvailableProvider]
     func getSelectedProvider() -> ExpressAvailableProvider?
