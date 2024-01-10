@@ -350,10 +350,6 @@ extension SendModel: SendAmountViewModelInput {
         _amount.eraseToAnyPublisher()
     }
 
-    var currentAmount: Amount? {
-        _amount.value
-    }
-
     #warning("TODO")
     var errorPublisher: AnyPublisher<Error?, Never> {
         _amountError.eraseToAnyPublisher()
