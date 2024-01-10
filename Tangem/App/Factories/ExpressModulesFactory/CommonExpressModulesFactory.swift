@@ -66,8 +66,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel {
-        ExpressFeeBottomSheetViewModel(
+    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
+        ExpressFeeSelectorViewModel(
             feeFormatter: feeFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
