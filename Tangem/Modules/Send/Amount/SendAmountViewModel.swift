@@ -31,6 +31,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let walletName: String
     let balance: String
     let tokenIconInfo: TokenIconInfo
+    let showCurrencyPicker: Bool
     let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
     let fiatIconURL: URL?
@@ -56,6 +57,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         amountFractionDigits = walletInfo.amountFractionDigits
         windowWidth = UIApplication.shared.windows.first?.frame.width ?? 400
 
+        showCurrencyPicker = walletInfo.currencyId != nil
         cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
         fiatIconURL = walletInfo.fiatIconURL
