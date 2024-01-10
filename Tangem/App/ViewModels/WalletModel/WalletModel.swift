@@ -500,33 +500,57 @@ extension WalletModel {
 
         return _transactionHistoryService
             .statePublisher
-            .map { [weak _transactionHistoryService] state -> WalletModel.TransactionHistoryState in
+            .map { [weak self] state -> WalletModel.TransactionHistoryState in
                 switch state {
                 case .initial:
                     return .notLoaded
                 case .loading:
                     return .loading
                 case .loaded:
-                    // [REDACTED_TODO_COMMENT]
-                    return .loaded(items: _transactionHistoryService?.items ?? [])
+                    var items = self?._transactionHistoryService?.items ?? []
+                    self?.insertPendingTransactionRecordIfNeeded(into: &items)
+                    return .loaded(items: items)
                 case .failedToLoad(let error):
                     return .error(error)
                 }
             }
             .eraseToAnyPublisher()
     }
+
+    private func insertPendingTransactionRecordIfNeeded(into items: inout [TransactionRecord]) {
+        guard !pendingTransactions.isEmpty else {
+            return
+        }
+
+        AppLog.shared.debug("\(self) has pending local transactions \(pendingTransactions.map { $0.hash }). Try to insert it to transaction history")
+        let mapper = PendingTransactionRecordMapper(formatter: formatter)
+
+        pendingTransactions.forEach { pending in
+            if !items.contains(where: { $0.hash != pending.hash }) {
+                let record = mapper.mapToTransactionRecord(pending: pending)
+                AppLog.shared.debug("\(self) Inserted to transaction history \(record.hash)")
+                items.insert(record, at: 0)
+            } else {
+                AppLog.shared.debug("\(self) Transaction history already contains \(pending.hash)")
+            }
+        }
+    }
 }
 
 // MARK: - ExistentialDepositProvider
 
 extension WalletModel {
+    var existentialDeposit: Amount? {
+        existentialDepositProvider?.existentialDeposit
+    }
+
     var existentialDepositWarning: String? {
-        guard let existentialDepositProvider = walletManager as? ExistentialDepositProvider else {
+        guard let existentialDeposit = existentialDeposit else {
             return nil
         }
 
         let blockchainName = blockchainNetwork.blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
+        let existentialDepositAmount = existentialDeposit.string(roundingMode: .plain)
         return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
     }
 }
@@ -607,6 +631,10 @@ extension WalletModel {
 
     var hasRent: Bool {
         walletManager is RentProvider
+    }
+
+    var existentialDepositProvider: ExistentialDepositProvider? {
+        walletManager as? ExistentialDepositProvider
     }
 }
 
