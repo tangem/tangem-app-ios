@@ -16,9 +16,10 @@ final class SendViewModel: ObservableObject {
 
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
+    @Published var alert: AlertBinder?
     @Published var showCameraDeniedAlert = false
 
-    var title: String {
+    var title: String? {
         step.name
     }
 
@@ -38,7 +39,7 @@ final class SendViewModel: ObservableObject {
         switch step {
         case .destination:
             return true
-        case .amount, .fee, .summary:
+        case .amount, .fee, .summary, .finish:
             return false
         }
     }
@@ -74,8 +75,9 @@ final class SendViewModel: ObservableObject {
 
     private let sendModel: SendModel
     private let sendType: SendType
-    private let walletModel: WalletModel
     private let steps: [SendStep]
+    private let walletModel: WalletModel
+    private let emailDataProvider: EmailDataProvider
 
     private unowned let coordinator: SendRoutable
 
@@ -95,18 +97,21 @@ final class SendViewModel: ObservableObject {
                     return sendModel.destinationValid
                 case .fee:
                     return sendModel.feeValid
-                case .summary:
+                case .summary, .finish:
                     return .just(output: true)
                 }
             }
             .eraseToAnyPublisher()
     }
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, coordinator: SendRoutable) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, emailDataProvider: EmailDataProvider, coordinator: SendRoutable) {
         self.coordinator = coordinator
         self.sendType = sendType
         self.walletModel = walletModel
-        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, sendType: sendType)
+        self.emailDataProvider = emailDataProvider
+
+        let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
+        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
@@ -169,7 +174,8 @@ final class SendViewModel: ObservableObject {
                 }
             )
 
-            coordinator.openQRScanner(with: binding)
+            let networkName = walletModel.blockchainNetwork.blockchain.displayName
+            coordinator.openQRScanner(with: binding, networkName: networkName)
         }
     }
 
@@ -180,6 +186,76 @@ final class SendViewModel: ObservableObject {
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
             .store(in: &bag)
+
+        sendModel
+            .isSending
+            .removeDuplicates()
+            .sink { [weak self] isSending in
+                self?.setLoadingViewVisibile(isSending)
+            }
+            .store(in: &bag)
+
+        sendModel
+            .sendError
+            .compactMap { $0 }
+            .sink { [weak self] sendError in
+                guard let self else { return }
+
+                alert = SendError(sendError, openMailAction: openMail).alertBinder
+            }
+            .store(in: &bag)
+
+        sendModel
+            .transactionFinished
+            .removeDuplicates()
+            .sink { [weak self] transactionFinished in
+                guard let self, transactionFinished else { return }
+
+                openFinishPage()
+
+                if walletModel.isDemo {
+                    let button = Alert.Button.default(Text(Localization.commonOk)) {
+                        self.coordinator.dismiss()
+                    }
+                    alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func setLoadingViewVisibile(_ visible: Bool) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if visible {
+            appDelegate.addLoadingView()
+        } else {
+            appDelegate.removeLoadingView()
+        }
+    }
+
+    private func openMail(with error: Error) {
+        guard let transaction = sendModel.currentTransaction() else { return }
+
+        let emailDataCollector = SendScreenDataCollector(
+            userWalletEmailData: emailDataProvider.emailData,
+            walletModel: walletModel,
+            fee: transaction.fee.amount,
+            destination: transaction.destinationAddress,
+            amount: transaction.amount,
+            isFeeIncluded: sendModel.isFeeIncluded,
+            lastError: error
+        )
+        let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: emailDataCollector, recipient: recipient)
+    }
+
+    private func openFinishPage() {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel) else {
+            assertionFailure("WHY?")
+            return
+        }
+
+        sendFinishViewModel.router = coordinator
+        openStep(.finish(model: sendFinishViewModel))
     }
 
     private func parseQRCode(_ code: String) {

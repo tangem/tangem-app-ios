@@ -107,7 +107,7 @@ struct NotificationView: View {
                 if let description = settings.event.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
-                        .style(Fonts.Regular.caption1, color: settings.event.colorScheme.messageColor)
+                        .style(Fonts.Regular.footnote, color: settings.event.colorScheme.messageColor)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
