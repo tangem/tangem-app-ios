@@ -22,7 +22,6 @@ class CommonExpressModulesFactory {
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: "")
     private lazy var allowanceProvider = makeAllowanceProvider()
     private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
@@ -116,8 +115,7 @@ private extension CommonExpressModulesFactory {
     var swappingFeeFormatter: SwappingFeeFormatter {
         CommonSwappingFeeFormatter(
             balanceFormatter: balanceFormatter,
-            balanceConverter: balanceConverter,
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: balanceConverter
         )
     }
 
@@ -129,10 +127,6 @@ private extension CommonExpressModulesFactory {
         ExpressNotificationManager(expressInteractor: expressInteractor)
     }
 
-    var explorerURLService: ExplorerURLService {
-        CommonExplorerURLService()
-    }
-
     var percentFormatter: PercentFormatter { .init() }
     var balanceConverter: BalanceConverter { .init() }
     var balanceFormatter: BalanceFormatter { .init() }
@@ -140,7 +134,7 @@ private extension CommonExpressModulesFactory {
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TransactionSigner { userWalletModel.signer }
-    var logger: SwappingLogger { AppLog.shared }
+    var logger: Logger { AppLog.shared }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
@@ -166,7 +160,7 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let expressManager = swappingFactory.makeExpressManager(
+        let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
