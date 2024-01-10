@@ -50,7 +50,7 @@ struct ExpressFeeBottomSheetView_Preview: PreviewProvider {
                 .offset(y: -200)
 
                 NavHolder()
-                    .bottomSheet(item: $coordinator.item) {
+                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
                         ExpressFeeBottomSheetView(viewModel: $0)
                     }
             }
