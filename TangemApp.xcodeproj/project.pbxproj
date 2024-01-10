@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0790546DD7D84EA886A5CA2B /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0496FCB163C6C7B695D32344 /* Pods_Tangem.framework */; };
-		0CEF02C43D35ED41AF57E4F8 /* Pods_TangemSwappingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 571A42D6D60E902EB5EEA7D6 /* Pods_TangemSwappingTests.framework */; };
+		08D1BFE63ED4C8460B515074 /* Pods_TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EEAA84A3A777019AA95E14D /* Pods_TangemExpress.framework */; };
 		2D0E4F532A8D114E00001D8E /* GenericWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0E4F522A8D114E00001D8E /* GenericWalletManagerFactory.swift */; };
 		2D1146A62ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1146A42ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift */; };
 		2D1146A72ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1146A52ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift */; };
@@ -53,7 +53,6 @@
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		2DF5A81D2B13C33800AA5E73 /* WalletSelectorDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */; };
 		2DF5A81F2B13C33D00AA5E73 /* ManageTokensNetworkDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81E2B13C33C00AA5E73 /* ManageTokensNetworkDataSource.swift */; };
-		3551CBEE3BF9C64732381DE1 /* Pods_TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4FA25F5907DF59F2318F4DE /* Pods_TangemSwapping.framework */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
 		5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09380925E6AEB10049B8F0 /* BalanceAddressView.swift */; };
@@ -297,7 +296,6 @@
 		B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */; };
 		B05DD9652A9F12A700B24ED9 /* TokenNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD9642A9F12A700B24ED9 /* TokenNotificationEvent.swift */; };
 		B05F1E66299CB81D00E27E32 /* TransactionViewPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */; };
-		B05FF3172B2C2D9A00F71338 /* ExpressAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05FF3162B2C2D9A00F71338 /* ExpressAsset.swift */; };
 		B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06015E429730C3D00D0F809 /* WalletConnectUIDelegate.swift */; };
 		B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0606E112684A946004004ED /* BlinkingModifier.swift */; };
 		B06243082AA9B77C00F7B9B2 /* SingleTokenRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06243072AA9B77C00F7B9B2 /* SingleTokenRouter.swift */; };
@@ -505,6 +503,7 @@
 		B0FE0B3529712C170046EE2C /* WalletConnectV2Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B3429712C170046EE2C /* WalletConnectV2Utils.swift */; };
 		B0FE0B37297138CC0046EE2C /* WalletConnectSavedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B36297138CC0046EE2C /* WalletConnectSavedSession.swift */; };
 		B0FE0B3A297140D10046EE2C /* WalletConnectV2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FE0B39297140D10046EE2C /* WalletConnectV2Error.swift */; };
+		B2DA76CC5888EDCC2B545A98 /* Pods_TangemExpressTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40B8F6D27FF7480F2AA35B0D /* Pods_TangemExpressTests.framework */; };
 		B60275292A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60275282A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift */; };
 		B602752B2A7A651000865EA7 /* ShadowAnimatableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602752A2A7A651000865EA7 /* ShadowAnimatableModifier.swift */; };
 		B605224B2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B605224A2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift */; };
@@ -597,9 +596,6 @@
 		B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */; };
 		B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */; };
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
-		B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */; };
-		B6C358652A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358642A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */; };
-		B6C358672A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C358662A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */; };
@@ -929,8 +925,6 @@
 		DC89B71029FAD00E000F1A80 /* CardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC89B70F29FAD00E000F1A80 /* CardInteractor.swift */; };
 		DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FD295ECA55005D0F4A /* SendError.swift */; };
 		DCAB5800295EE820005D0F4A /* AppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FF295EE820005D0F4A /* AppLog.swift */; };
-		DCAB5806295F45AA005D0F4A /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB5805295F45AA005D0F4A /* Logger.swift */; };
-		DCAB5808295F47A7005D0F4A /* CommonLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB5807295F47A7005D0F4A /* CommonLogger.swift */; };
 		DCBAF6992A4AEEDD0029480A /* AnyWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBAF6982A4AEEDD0029480A /* AnyWalletManagerFactory.swift */; };
 		DCBAF69B2A4AEF3C0029480A /* HDWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBAF69A2A4AEF3C0029480A /* HDWalletManagerFactory.swift */; };
 		DCBAF69D2A4AF0500029480A /* SimpleWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBAF69C2A4AF0500029480A /* SimpleWalletManagerFactory.swift */; };
@@ -960,22 +954,9 @@
 		DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFE143D294B31C00053106B /* AppPresenter.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
-		EF02A0A82B052A8800D01E1E /* ExpressWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A62B0393C40099527D /* ExpressWallet.swift */; };
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
 		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
-		EF04C5432AFBEEA000D8853B /* ExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */; };
-		EF04C5452AFBEEB000D8853B /* ExpressTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */; };
-		EF04C5472AFBEEBD00D8853B /* ExpressTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */; };
-		EF04C5492AFBEED600D8853B /* ExpressQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5482AFBEED600D8853B /* ExpressQuote.swift */; };
-		EF04C54B2AFBEEDE00D8853B /* ExpressSwappableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C54A2AFBEEDE00D8853B /* ExpressSwappableItem.swift */; };
-		EF04C54D2AFBEEE600D8853B /* ExpressPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C54C2AFBEEE600D8853B /* ExpressPair.swift */; };
-		EF04C54F2AFBEEEF00D8853B /* ExpressCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C54E2AFBEEEF00D8853B /* ExpressCurrency.swift */; };
-		EF04C5512AFBEF4E00D8853B /* CommonExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5502AFBEF4E00D8853B /* CommonExpressAPIProvider.swift */; };
-		EF04C5532AFC0F8800D8853B /* ExpressTransactionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5522AFC0F8800D8853B /* ExpressTransactionStatus.swift */; };
-		EF04C5552AFC12C300D8853B /* ExpressProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5542AFC12C300D8853B /* ExpressProviderType.swift */; };
-		EF04C5572AFC184800D8853B /* ExpressTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C5562AFC184800D8853B /* ExpressTransactionType.swift */; };
-		EF04C55C2AFC1AD300D8853B /* ExpressAPIMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04C55B2AFC1AD300D8853B /* ExpressAPIMapper.swift */; };
 		EF053DF12938D4BC006FD13A /* UserWalletListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */; };
 		EF053DF22938D4BC006FD13A /* UserWalletListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */; };
 		EF053DF32938D4BC006FD13A /* UserWalletListOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */; };
@@ -992,10 +973,8 @@
 		EF0DD7902B026A840099527D /* WalletModel+ExpressWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD78F2B026A840099527D /* WalletModel+ExpressWallet.swift */; };
 		EF0DD7952B026B3A0099527D /* ExpressDestinationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7942B026B3A0099527D /* ExpressDestinationService.swift */; };
 		EF0DD7982B026B690099527D /* CommonAllowanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7972B026B690099527D /* CommonAllowanceProvider.swift */; };
-		EF0DD79E2B028E130099527D /* Publisher+AsyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD79D2B028E130099527D /* Publisher+AsyncMap.swift */; };
 		EF0DD7A12B02B3230099527D /* ExpressFeeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A02B02B3230099527D /* ExpressFeeRow.swift */; };
 		EF0DD7A32B02B5C00099527D /* ExpressFeeRowData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A22B02B5C00099527D /* ExpressFeeRowData.swift */; };
-		EF0DD7A92B0393DD0099527D /* ExpressConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0DD7A82B0393DD0099527D /* ExpressConstants.swift */; };
 		EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */; };
 		EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A6289028F8008B01DF /* AppSettingsCoordinatorView.swift */; };
 		EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */; };
@@ -1011,21 +990,11 @@
 		EF1339B12AB2522200B78BA3 /* LegacyTransactionMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1339B02AB2522200B78BA3 /* LegacyTransactionMapper.swift */; };
 		EF193C032A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF193C022A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift */; };
 		EF1E97FD2B03F93300D4B511 /* CommonExpressDestinationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E97FC2B03F93300D4B511 /* CommonExpressDestinationService.swift */; };
-		EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */; };
-		EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF29BEF329349F4200D7C782 /* Moya.Task+.swift */; };
 		EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */; };
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
-		EF44873D2B2B71900029D118 /* Sequence+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF44873C2B2B71900029D118 /* Sequence+Async.swift */; };
 		EF4535372976C1D80030639A /* FixedSpacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4535362976C1D80030639A /* FixedSpacer.swift */; };
-		EF4661962923AFC400346B6C /* TangemSwapping.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF4661952923AFC400346B6C /* TangemSwapping.docc */; };
-		EF46619C2923AFC500346B6C /* TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemSwapping.framework */; };
-		EF4661A32923AFC500346B6C /* TangemSwappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661A22923AFC500346B6C /* TangemSwappingTests.swift */; };
-		EF4661A42923AFC500346B6C /* TangemSwapping.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4661942923AFC400346B6C /* TangemSwapping.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EF4661A72923AFC500346B6C /* TangemSwapping.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemSwapping.framework */; };
-		EF4661A82923AFC500346B6C /* TangemSwapping.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF4661922923AFC400346B6C /* TangemSwapping.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		EF4661CF2923B9CD00346B6C /* TangemExpressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4661CE2923B9CD00346B6C /* TangemExpressFactory.swift */; };
 		EF46621B2924DEEE00346B6C /* DefaultHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662102924DEEE00346B6C /* DefaultHeaderView.swift */; };
 		EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662112924DEEE00346B6C /* DefaultFooterView.swift */; };
 		EF46621D2924DEEE00346B6C /* DefaultRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662132924DEEE00346B6C /* DefaultRowView.swift */; };
@@ -1040,14 +1009,6 @@
 		EF46623B2924E02A00346B6C /* Binding+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46623A2924E02A00346B6C /* Binding+.swift */; };
 		EF46624029250F6000346B6C /* ReceiveCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF46623F29250F6000346B6C /* ReceiveCurrencyView.swift */; };
 		EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EF48288D28D1C99D002809C6 /* Localizable.stringsdict */; };
-		EF48E6992AFCF49B00FE0072 /* CommonExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6962AFCF49B00FE0072 /* CommonExpressManager.swift */; };
-		EF48E69A2AFCF49B00FE0072 /* ExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6972AFCF49B00FE0072 /* ExpressManager.swift */; };
-		EF48E6A12AFE6B2A00FE0072 /* AllowanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6A02AFE6B2A00FE0072 /* AllowanceProvider.swift */; };
-		EF48E6AA2AFE98A000FE0072 /* ExpressManagerSwappingPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6A92AFE98A000FE0072 /* ExpressManagerSwappingPair.swift */; };
-		EF48E6AC2AFE98B000FE0072 /* ExpressManagerSwappingPairRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6AB2AFE98B000FE0072 /* ExpressManagerSwappingPairRequest.swift */; };
-		EF48E6AE2AFE98D500FE0072 /* ExpressRestriction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6AD2AFE98D500FE0072 /* ExpressRestriction.swift */; };
-		EF48E6B02AFE98E400FE0072 /* ExpressManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6AF2AFE98E400FE0072 /* ExpressManagerState.swift */; };
-		EF48E6B22AFE98F700FE0072 /* ExpressManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6B12AFE98F700FE0072 /* ExpressManagerError.swift */; };
 		EF48E6C32B02273800FE0072 /* ExpressTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6C12B02273800FE0072 /* ExpressTokenItemView.swift */; };
 		EF48E6C42B02273800FE0072 /* ExpressTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6C22B02273800FE0072 /* ExpressTokenItemViewModel.swift */; };
 		EF48E6CB2B02279600FE0072 /* ExpressTokensListRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6CA2B02279600FE0072 /* ExpressTokensListRoutableMock.swift */; };
@@ -1070,9 +1031,6 @@
 		EF5769402A8BAF7900901571 /* TransactionHistoryServiceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF57693F2A8BAF7900901571 /* TransactionHistoryServiceState.swift */; };
 		EF5769422A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5769412A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift */; };
 		EF5769442A8BB90100901571 /* FakeTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5769432A8BB90100901571 /* FakeTransactionHistoryService.swift */; };
-		EF5812092AF42ACF00A65AA3 /* ExpressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5812082AF42ACF00A65AA3 /* ExpressProvider.swift */; };
-		EF5820432B3333A100940387 /* DecodedTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5820422B3333A100940387 /* DecodedTransactionDetails.swift */; };
-		EF5820452B33344800940387 /* ExpressExchangeDataDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5820442B33344800940387 /* ExpressExchangeDataDecoder.swift */; };
 		EF5820482B33349300940387 /* CommonExpressExchangeDataDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5820472B33349300940387 /* CommonExpressExchangeDataDecoder.swift */; };
 		EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */; };
 		EF5903A42909285E00C527C9 /* FeaturesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5903A32909285E00C527C9 /* FeaturesStorage.swift */; };
@@ -1092,14 +1050,6 @@
 		EF5D83E62B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */; };
 		EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */; };
 		EF5F1BB429D5A19E0093307B /* SelectableGropedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */; };
-		EF5FE5CD2B27296E00C2DEA4 /* ExpressProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5CC2B27296E00C2DEA4 /* ExpressProviderManager.swift */; };
-		EF5FE5CF2B2729EE00C2DEA4 /* CEXExpressProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5CE2B2729EE00C2DEA4 /* CEXExpressProviderManager.swift */; };
-		EF5FE5D32B272A5900C2DEA4 /* DEXExpressProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5D22B272A5900C2DEA4 /* DEXExpressProviderManager.swift */; };
-		EF5FE5D72B272B6300C2DEA4 /* ExpressManagerMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5D62B272B6300C2DEA4 /* ExpressManagerMapper.swift */; };
-		EF5FE5DA2B272F3400C2DEA4 /* ExpressProviderManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5D92B272F3400C2DEA4 /* ExpressProviderManagerFactory.swift */; };
-		EF5FE5DC2B272F6D00C2DEA4 /* FeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5DB2B272F6D00C2DEA4 /* FeeProvider.swift */; };
-		EF5FE5DE2B272F8000C2DEA4 /* ExpressProviderManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5DD2B272F8000C2DEA4 /* ExpressProviderManagerState.swift */; };
-		EF5FE5E22B275C0E00C2DEA4 /* ExpressRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5E12B275C0E00C2DEA4 /* ExpressRepository.swift */; };
 		EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */; };
 		EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837E2B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift */; };
 		EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */; };
@@ -1114,10 +1064,6 @@
 		EF6A8AFE2B2786E400CA3535 /* ExpressFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6A8AFD2B2786E400CA3535 /* ExpressFeeProvider.swift */; };
 		EF6A8B002B2786F900CA3535 /* CommonExpressFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6A8AFF2B2786F900CA3535 /* CommonExpressFeeProvider.swift */; };
 		EF6A8B032B278A6200CA3535 /* CommonExpressRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6A8B022B278A6200CA3535 /* CommonExpressRepository.swift */; };
-		EF6A8B052B27950D00CA3535 /* ExpressApproveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6A8B042B27950D00CA3535 /* ExpressApproveData.swift */; };
-		EF6A8B072B27954F00CA3535 /* ExpressAvailableProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6A8B062B27954F00CA3535 /* ExpressAvailableProvider.swift */; };
-		EF6A8B092B27CAB600CA3535 /* CommonExpressProviderManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6A8B082B27CAB600CA3535 /* CommonExpressProviderManagerFactory.swift */; };
-		EF6A8B0B2B27CB0400CA3535 /* ExpressProviderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6A8B0A2B27CB0400CA3535 /* ExpressProviderError.swift */; };
 		EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */; };
 		EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7C296C0D40001B21A3 /* CommonIncomingActionManager.swift */; };
 		EF6EDD7F296C0D40001B21A3 /* IncomingActionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7D296C0D40001B21A3 /* IncomingActionManager.swift */; };
@@ -1133,11 +1079,6 @@
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
-		EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */; };
-		EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */; };
-		EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */; };
-		EF729B622AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */; };
-		EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */; };
 		EF729B712AF3E86300D80205 /* ExpressProvidersSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6C2AF3E86300D80205 /* ExpressProvidersSelectorView.swift */; };
 		EF729B722AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6D2AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift */; };
 		EF729B732AF3E86300D80205 /* ExpressProvidersSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6E2AF3E86300D80205 /* ExpressProvidersSelectorRoutable.swift */; };
@@ -1156,7 +1097,6 @@
 		EF842DEB2AFA58C5006E472E /* ExpressTokensListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */; };
 		EF842DEC2AFA58C5006E472E /* ExpressTokensListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE72AFA58C5006E472E /* ExpressTokensListRoutable.swift */; };
 		EF842DEE2AFA6D07006E472E /* ProviderRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */; };
-		EF87AECE2B1F8DC800ACDBD3 /* ExpressAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF87AECD2B1F8DC800ACDBD3 /* ExpressAPIError.swift */; };
 		EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
 		EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4B2A603F2F001F00B2 /* Quote.swift */; };
@@ -1176,6 +1116,67 @@
 		EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */; };
 		EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */; };
 		EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */; };
+		EF9E29972B4F0C8C00418559 /* TangemExpress.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29962B4F0C8C00418559 /* TangemExpress.docc */; };
+		EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; };
+		EF9E29A42B4F0C9800418559 /* TangemExpressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29A32B4F0C9800418559 /* TangemExpressTests.swift */; };
+		EF9E29A52B4F0C9800418559 /* TangemExpress.h in Headers */ = {isa = PBXBuildFile; fileRef = EF9E29952B4F0C8C00418559 /* TangemExpress.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; };
+		EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EF9E2A052B4F0CCF00418559 /* Publisher+AsyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */; };
+		EF9E2A062B4F0CD100418559 /* Moya.Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */; };
+		EF9E2A072B4F0CD100418559 /* MoyaProvider+AsyncRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BC2B4F0CCE00418559 /* MoyaProvider+AsyncRequest.swift */; };
+		EF9E2A082B4F0CD100418559 /* Sequence+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */; };
+		EF9E2A092B4F0CD100418559 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */; };
+		EF9E2A0A2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */; };
+		EF9E2A0B2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C12B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */; };
+		EF9E2A0C2B4F0CD100418559 /* ExpressConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C22B4F0CCE00418559 /* ExpressConstants.swift */; };
+		EF9E2A0D2B4F0CD100418559 /* ExpressManagerMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C52B4F0CCE00418559 /* ExpressManagerMapper.swift */; };
+		EF9E2A0E2B4F0CD100418559 /* ExpressProviderManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C72B4F0CCE00418559 /* ExpressProviderManagerFactory.swift */; };
+		EF9E2A0F2B4F0CD100418559 /* CommonExpressProviderManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C82B4F0CCE00418559 /* CommonExpressProviderManagerFactory.swift */; };
+		EF9E2A102B4F0CD100418559 /* CommonExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CA2B4F0CCE00418559 /* CommonExpressAPIProvider.swift */; };
+		EF9E2A112B4F0CD100418559 /* ExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CB2B4F0CCE00418559 /* ExpressAPIProvider.swift */; };
+		EF9E2A122B4F0CD100418559 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CD2B4F0CCE00418559 /* Logger.swift */; };
+		EF9E2A132B4F0CD100418559 /* CommonLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CE2B4F0CCE00418559 /* CommonLogger.swift */; };
+		EF9E2A152B4F0CD100418559 /* ExpressAPIMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D32B4F0CCE00418559 /* ExpressAPIMapper.swift */; };
+		EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D62B4F0CCE00418559 /* ExpressDTO.swift */; };
+		EF9E2A172B4F0CD100418559 /* ExpressAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D72B4F0CCE00418559 /* ExpressAuthorizationPlugin.swift */; };
+		EF9E2A182B4F0CD100418559 /* ExpressAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D82B4F0CCE00418559 /* ExpressAPITarget.swift */; };
+		EF9E2A192B4F0CD100418559 /* ExpressAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D92B4F0CCE00418559 /* ExpressAPIError.swift */; };
+		EF9E2A1A2B4F0CD100418559 /* ExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29DA2B4F0CCE00418559 /* ExpressAPIService.swift */; };
+		EF9E2A1B2B4F0CD100418559 /* CommonExpressAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29DB2B4F0CCE00418559 /* CommonExpressAPIService.swift */; };
+		EF9E2A1C2B4F0CD100418559 /* ExpressTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29DD2B4F0CCE00418559 /* ExpressTransactionType.swift */; };
+		EF9E2A1D2B4F0CD100418559 /* ExpressPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29DE2B4F0CCE00418559 /* ExpressPair.swift */; };
+		EF9E2A1E2B4F0CD100418559 /* ExpressQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29DF2B4F0CCE00418559 /* ExpressQuote.swift */; };
+		EF9E2A1F2B4F0CD100418559 /* ExpressApproveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E02B4F0CCE00418559 /* ExpressApproveData.swift */; };
+		EF9E2A202B4F0CD100418559 /* ExpressRestriction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E12B4F0CCE00418559 /* ExpressRestriction.swift */; };
+		EF9E2A212B4F0CD100418559 /* ExpressApprovePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E22B4F0CCE00418559 /* ExpressApprovePolicy.swift */; };
+		EF9E2A222B4F0CD100418559 /* ExpressTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E32B4F0CCE00418559 /* ExpressTransactionData.swift */; };
+		EF9E2A232B4F0CD100418559 /* ExpressCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E42B4F0CCE00418559 /* ExpressCurrency.swift */; };
+		EF9E2A242B4F0CD100418559 /* DecodedTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E52B4F0CCE00418559 /* DecodedTransactionDetails.swift */; };
+		EF9E2A252B4F0CD100418559 /* ExpressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E62B4F0CCE00418559 /* ExpressProvider.swift */; };
+		EF9E2A262B4F0CD100418559 /* ExpressTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E72B4F0CCE00418559 /* ExpressTransaction.swift */; };
+		EF9E2A272B4F0CD100418559 /* ExpressProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E82B4F0CCE00418559 /* ExpressProviderType.swift */; };
+		EF9E2A282B4F0CD100418559 /* ExpressAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29E92B4F0CCE00418559 /* ExpressAsset.swift */; };
+		EF9E2A292B4F0CD100418559 /* ExpressAvailableProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29EA2B4F0CCE00418559 /* ExpressAvailableProvider.swift */; };
+		EF9E2A2A2B4F0CD100418559 /* ExpressTransactionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29EB2B4F0CCE00418559 /* ExpressTransactionStatus.swift */; };
+		EF9E2A2B2B4F0CD100418559 /* ExpressSwappableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29EC2B4F0CCE00418559 /* ExpressSwappableItem.swift */; };
+		EF9E2A2C2B4F0CD100418559 /* TangemExpressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29EE2B4F0CCF00418559 /* TangemExpressFactory.swift */; };
+		EF9E2A2D2B4F0CD100418559 /* ExpressWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F02B4F0CCF00418559 /* ExpressWallet.swift */; };
+		EF9E2A2E2B4F0CD100418559 /* FeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F12B4F0CCF00418559 /* FeeProvider.swift */; };
+		EF9E2A2F2B4F0CD100418559 /* AllowanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F22B4F0CCF00418559 /* AllowanceProvider.swift */; };
+		EF9E2A302B4F0CD100418559 /* ExpressExchangeDataDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F32B4F0CCF00418559 /* ExpressExchangeDataDecoder.swift */; };
+		EF9E2A312B4F0CD100418559 /* ExpressRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F42B4F0CCF00418559 /* ExpressRepository.swift */; };
+		EF9E2A322B4F0CD100418559 /* ExpressProviderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F72B4F0CCF00418559 /* ExpressProviderError.swift */; };
+		EF9E2A332B4F0CD100418559 /* ExpressProviderManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F82B4F0CCF00418559 /* ExpressProviderManagerState.swift */; };
+		EF9E2A342B4F0CD100418559 /* ExpressProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29F92B4F0CCF00418559 /* ExpressProviderManager.swift */; };
+		EF9E2A352B4F0CD100418559 /* CEXExpressProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29FB2B4F0CCF00418559 /* CEXExpressProviderManager.swift */; };
+		EF9E2A362B4F0CD100418559 /* DEXExpressProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29FC2B4F0CCF00418559 /* DEXExpressProviderManager.swift */; };
+		EF9E2A372B4F0CD100418559 /* ExpressManagerSwappingPairRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29FE2B4F0CCF00418559 /* ExpressManagerSwappingPairRequest.swift */; };
+		EF9E2A382B4F0CD100418559 /* ExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29FF2B4F0CCF00418559 /* ExpressManager.swift */; };
+		EF9E2A392B4F0CD100418559 /* ExpressManagerSwappingPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A002B4F0CCF00418559 /* ExpressManagerSwappingPair.swift */; };
+		EF9E2A3B2B4F0CD100418559 /* CommonExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A022B4F0CCF00418559 /* CommonExpressManager.swift */; };
+		EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */; };
+		EF9E2A3D2B4F0CD100418559 /* ExpressManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */; };
 		EF9EA9632B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9EA9622B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift */; };
 		EF9EA9652B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9EA9642B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift */; };
 		EF9EA9682B110EEB00AC1DA1 /* ExpressModulesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9EA9672B110EEB00AC1DA1 /* ExpressModulesFactory.swift */; };
@@ -1210,8 +1211,6 @@
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */; };
 		EFC6846D2A0FA3C600660690 /* BindingValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC6846C2A0FA3C600660690 /* BindingValue.swift */; };
-		EFC684702A0FA88600660690 /* SelectableSwappingFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC6846F2A0FA88600660690 /* SelectableSwappingFeeRowView.swift */; };
-		EFC684722A0FAB1300660690 /* SelectableSwappingFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC684712A0FAB1300660690 /* SelectableSwappingFeeRowViewModel.swift */; };
 		EFD32AE729ED93F20026353E /* FeatureStateRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AE629ED93F20026353E /* FeatureStateRowView.swift */; };
 		EFD32AE929ED94030026353E /* FeatureStateRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */; };
 		EFD32AEB29EE7F390026353E /* Feature.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AEA29EE7F390026353E /* Feature.swift */; };
@@ -1223,7 +1222,6 @@
 		EFD39C982A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */; };
 		EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */; };
 		EFD39C9D2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */; };
-		EFDDE5262A04379300899812 /* ExpressApprovePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDDE5252A04379300899812 /* ExpressApprovePolicy.swift */; };
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
 		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		EFE503592A727A100086A1B1 /* BottomScrollableSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE503582A727A100086A1B1 /* BottomScrollableSheet.swift */; };
@@ -1238,8 +1236,6 @@
 		EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */; };
 		EFF034AF28B6522500F70FF7 /* WalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */; };
 		EFF034B128B6523F00F70FF7 /* CommonWalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */; };
-		EFF253B3293DCAA900AEF302 /* SwappingFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */; };
-		EFF253B4293DCAAA00AEF302 /* SwappingFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */; };
 		EFF466E22AC709BE00ACC3EA /* BalanceTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */; };
 		EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01178482AC1B86200C5AD07 /* FakeTokenQuotesRepository.swift */; };
 		EFF466EA2ACD928800ACC3EA /* PendingTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */; };
@@ -1264,26 +1260,33 @@
 			remoteGlobalIDString = 5D3F77C124BF56D800E8695B;
 			remoteInfo = "Tangem Tap";
 		};
-		EF46619D2923AFC500346B6C /* PBXContainerItemProxy */ = {
+		EF9E297C2B4F0C4900418559 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EF4661912923AFC400346B6C;
-			remoteInfo = TExchange;
+			remoteGlobalIDString = EF9E29922B4F0C8800418559;
+			remoteInfo = TangemExpress;
 		};
-		EF46619F2923AFC500346B6C /* PBXContainerItemProxy */ = {
+		EF9E299E2B4F0C9100418559 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF9E29922B4F0C8800418559;
+			remoteInfo = TangemExpress;
+		};
+		EF9E29A02B4F0C9600418559 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5D3F77C124BF56D800E8695B;
 			remoteInfo = Tangem;
 		};
-		EF4661A52923AFC500346B6C /* PBXContainerItemProxy */ = {
+		EF9E29A62B4F0C9900418559 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EF4661912923AFC400346B6C;
-			remoteInfo = TExchange;
+			remoteGlobalIDString = EF9E29922B4F0C8800418559;
+			remoteInfo = TangemExpress;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1298,13 +1301,13 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF4661B02923AFC500346B6C /* Embed Frameworks */ = {
+		EF9E29632B4F0BB500418559 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				EF4661A82923AFC500346B6C /* TangemSwapping.framework in Embed Frameworks */,
+				EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1315,9 +1318,11 @@
 		015D6DEE4627C4F5CA839A5A /* Pods-Tangem.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		0496FCB163C6C7B695D32344 /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B4ED5E2880744768F9A4451 /* Pods-TangemSwapping.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(alpha).xcconfig"; sourceTree = "<group>"; };
+		173A8A87B1DFAACD93EBF493 /* Pods-TangemExpress.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.release(beta).xcconfig"; sourceTree = "<group>"; };
 		187DB39FEB3E514F0C172A42 /* Pods-TangemTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		1EBD417ABE67BAC4A999BCF7 /* Pods-TangemSwapping.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(production).xcconfig"; sourceTree = "<group>"; };
 		2224D1E70296ADA1AD9F2E08 /* Pods-Tangem-TangemUITests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(production).xcconfig"; sourceTree = "<group>"; };
+		2B3884B87B218CBC2D1C6843 /* Pods-TangemExpressTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		2D0E4F522A8D114E00001D8E /* GenericWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericWalletManagerFactory.swift; sourceTree = "<group>"; };
 		2D1146A42ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		2D1146A52ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
@@ -1365,9 +1370,11 @@
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
 		2DF5A81E2B13C33C00AA5E73 /* ManageTokensNetworkDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkDataSource.swift; sourceTree = "<group>"; };
+		312309F588D6E26BA0F793DB /* Pods-TangemExpressTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		33ADD77262A88FB18703D47F /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
+		40B8F6D27FF7480F2AA35B0D /* Pods_TangemExpressTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemExpressTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		425937FE1F8F15AA6A30D2CB /* Pods-Tangem-TangemUITests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(production).xcconfig"; sourceTree = "<group>"; };
-		571A42D6D60E902EB5EEA7D6 /* Pods_TangemSwappingTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemSwappingTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		57BFFF25B906DB6F72EAFE64 /* Pods-TangemExpress.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		5A7C9D60893F2D582271600D /* Pods-TangemSwappingTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectEthTransaction.swift; sourceTree = "<group>"; };
 		5D011A262530E76000758010 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1523,6 +1530,8 @@
 		65C9FCB02864507600FDE63E /* LegacyMainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyMainView.swift; sourceTree = "<group>"; };
 		65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatViewModel.swift; sourceTree = "<group>"; };
 		65D87498287DA0F6009D0448 /* BottomSheetSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetSettings.swift; sourceTree = "<group>"; };
+		6A5EDD54FFF1FB0C14D29C29 /* Pods-TangemExpress.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.debug(alpha).xcconfig"; sourceTree = "<group>"; };
+		6EEAA84A3A777019AA95E14D /* Pods_TangemExpress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemExpress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F8576D25357E9065454C8B8 /* Pods-Tangem-TangemUITests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		7780A56D10C48A025B75F276 /* Pods-TangemSwappingTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		8199B604575CC104C6709FED /* Pods-Tangem.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(beta).xcconfig"; sourceTree = "<group>"; };
@@ -1531,7 +1540,10 @@
 		8CED5CCF1CC0741D1A51F7E7 /* Pods-TangemTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		8D2D1639D7CE4E08554C739B /* Pods-TangemSwapping.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(production).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(production).xcconfig"; sourceTree = "<group>"; };
 		9CC2AA18343C123E8B7EBEE2 /* Pods-TangemSwappingTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
+		A152C0FD12A4FBCCAFCA9603 /* Pods-TangemExpressTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		A440C7993F122962DFADF8D9 /* Pods-TangemSwapping.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.debug(beta).xcconfig"; sourceTree = "<group>"; };
+		A81424F4DF28987CBF1494D7 /* Pods-TangemExpress.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.release(alpha).xcconfig"; sourceTree = "<group>"; };
+		AE25DC957F12A412F8800143 /* Pods-TangemExpressTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		B00307032AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+WalletConnectDebugEvent.swift"; sourceTree = "<group>"; };
 		B00371BD2A8A5E5900D77A4B /* FakeUserTokensManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeUserTokensManager.swift; sourceTree = "<group>"; };
 		B00371BF2A8A5ECE00D77A4B /* FakeTangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTangemApiService.swift; sourceTree = "<group>"; };
@@ -1643,7 +1655,6 @@
 		B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessCodeRecoverySettingsViewModel.swift; sourceTree = "<group>"; };
 		B05DD9642A9F12A700B24ED9 /* TokenNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenNotificationEvent.swift; sourceTree = "<group>"; };
 		B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewPlaceholder.swift; sourceTree = "<group>"; };
-		B05FF3162B2C2D9A00F71338 /* ExpressAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAsset.swift; sourceTree = "<group>"; };
 		B06015E429730C3D00D0F809 /* WalletConnectUIDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectUIDelegate.swift; sourceTree = "<group>"; };
 		B0606E112684A946004004ED /* BlinkingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkingModifier.swift; sourceTree = "<group>"; };
 		B06243072AA9B77C00F7B9B2 /* SingleTokenRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenRouter.swift; sourceTree = "<group>"; };
@@ -1949,9 +1960,6 @@
 		B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemViewLeadingComponent.swift; sourceTree = "<group>"; };
 		B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionsAdapter.swift; sourceTree = "<group>"; };
 		B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScrollState.swift; sourceTree = "<group>"; };
-		B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainer.swift; sourceTree = "<group>"; };
-		B6C358642A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift"; sourceTree = "<group>"; };
-		B6C358662A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ThreadSafeContainer+ExpressibleByArrayLiteral.swift"; sourceTree = "<group>"; };
 		B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListItemLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListSectionLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerScrollState.swift; sourceTree = "<group>"; };
@@ -1986,9 +1994,11 @@
 		B6FB04EA2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StatusBarStyleConfigurator+Environment.swift"; sourceTree = "<group>"; };
 		B6FF1EFD2A57E59100B208E4 /* Subject+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Subject+.swift"; sourceTree = "<group>"; };
 		B92CC5C46156E71BFBFF97A5 /* Pods-TangemSwappingTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
+		BDA8FCF6A5558BAD5F1FB12A /* Pods-TangemExpress.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.release(production).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.release(production).xcconfig"; sourceTree = "<group>"; };
 		C022BAFAF750ACD50AF690E4 /* Pods-TangemTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		CC72A51924645F4D6F105583 /* Pods-Tangem-TangemUITests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(beta).xcconfig"; sourceTree = "<group>"; };
-		D4FA25F5907DF59F2318F4DE /* Pods_TangemSwapping.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemSwapping.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCB86CBD9BBD630EDD2FA5A8 /* Pods-TangemExpressTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.debug(production).xcconfig"; sourceTree = "<group>"; };
+		D2C7B26A91D18117383CB132 /* Pods-TangemExpressTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		D612C92AE2B99EE97031B064 /* Pods-Tangem.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		D6FE28D8D383F3A0A9C2DC36 /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatView.swift; sourceTree = "<group>"; };
@@ -2290,8 +2300,6 @@
 		DC89B70F29FAD00E000F1A80 /* CardInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInteractor.swift; sourceTree = "<group>"; };
 		DCAB57FD295ECA55005D0F4A /* SendError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendError.swift; sourceTree = "<group>"; };
 		DCAB57FF295EE820005D0F4A /* AppLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLog.swift; sourceTree = "<group>"; };
-		DCAB5805295F45AA005D0F4A /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		DCAB5807295F47A7005D0F4A /* CommonLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLogger.swift; sourceTree = "<group>"; };
 		DCBAF6982A4AEEDD0029480A /* AnyWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyWalletManagerFactory.swift; sourceTree = "<group>"; };
 		DCBAF69A2A4AEF3C0029480A /* HDWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HDWalletManagerFactory.swift; sourceTree = "<group>"; };
 		DCBAF69C2A4AF0500029480A /* SimpleWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleWalletManagerFactory.swift; sourceTree = "<group>"; };
@@ -2324,18 +2332,6 @@
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
 		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
-		EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIProvider.swift; sourceTree = "<group>"; };
-		EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransaction.swift; sourceTree = "<group>"; };
-		EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionData.swift; sourceTree = "<group>"; };
-		EF04C5482AFBEED600D8853B /* ExpressQuote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressQuote.swift; sourceTree = "<group>"; };
-		EF04C54A2AFBEEDE00D8853B /* ExpressSwappableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSwappableItem.swift; sourceTree = "<group>"; };
-		EF04C54C2AFBEEE600D8853B /* ExpressPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPair.swift; sourceTree = "<group>"; };
-		EF04C54E2AFBEEEF00D8853B /* ExpressCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrency.swift; sourceTree = "<group>"; };
-		EF04C5502AFBEF4E00D8853B /* CommonExpressAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIProvider.swift; sourceTree = "<group>"; };
-		EF04C5522AFC0F8800D8853B /* ExpressTransactionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionStatus.swift; sourceTree = "<group>"; };
-		EF04C5542AFC12C300D8853B /* ExpressProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderType.swift; sourceTree = "<group>"; };
-		EF04C5562AFC184800D8853B /* ExpressTransactionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionType.swift; sourceTree = "<group>"; };
-		EF04C55B2AFC1AD300D8853B /* ExpressAPIMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIMapper.swift; sourceTree = "<group>"; };
 		EF053DEE2938D4BC006FD13A /* UserWalletListCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinatorView.swift; sourceTree = "<group>"; };
 		EF053DEF2938D4BC006FD13A /* UserWalletListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinator.swift; sourceTree = "<group>"; };
 		EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListOutput.swift; sourceTree = "<group>"; };
@@ -2352,11 +2348,8 @@
 		EF0DD78F2B026A840099527D /* WalletModel+ExpressWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "WalletModel+ExpressWallet.swift"; sourceTree = "<group>"; };
 		EF0DD7942B026B3A0099527D /* ExpressDestinationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressDestinationService.swift; sourceTree = "<group>"; };
 		EF0DD7972B026B690099527D /* CommonAllowanceProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonAllowanceProvider.swift; sourceTree = "<group>"; };
-		EF0DD79D2B028E130099527D /* Publisher+AsyncMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+AsyncMap.swift"; sourceTree = "<group>"; };
 		EF0DD7A02B02B3230099527D /* ExpressFeeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeRow.swift; sourceTree = "<group>"; };
 		EF0DD7A22B02B5C00099527D /* ExpressFeeRowData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeRowData.swift; sourceTree = "<group>"; };
-		EF0DD7A62B0393C40099527D /* ExpressWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressWallet.swift; sourceTree = "<group>"; };
-		EF0DD7A82B0393DD0099527D /* ExpressConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressConstants.swift; sourceTree = "<group>"; };
 		EF0F99A5289028F8008B01DF /* AppSettingsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF0F99A6289028F8008B01DF /* AppSettingsCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsCoordinatorView.swift; sourceTree = "<group>"; };
 		EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -2373,22 +2366,13 @@
 		EF1339B02AB2522200B78BA3 /* LegacyTransactionMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTransactionMapper.swift; sourceTree = "<group>"; };
 		EF193C022A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetStateObject.swift; sourceTree = "<group>"; };
 		EF1E97FC2B03F93300D4B511 /* CommonExpressDestinationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressDestinationService.swift; sourceTree = "<group>"; };
-		EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoyaProvider+AsyncRequest.swift"; sourceTree = "<group>"; };
-		EF29BEF329349F4200D7C782 /* Moya.Task+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya.Task+.swift"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF39A6552AD5A90300AAB518 /* contract_methods.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = contract_methods.json; sourceTree = "<group>"; };
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
-		EF44873C2B2B71900029D118 /* Sequence+Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+Async.swift"; sourceTree = "<group>"; };
 		EF4535362976C1D80030639A /* FixedSpacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedSpacer.swift; sourceTree = "<group>"; };
-		EF4661922923AFC400346B6C /* TangemSwapping.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemSwapping.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EF4661942923AFC400346B6C /* TangemSwapping.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemSwapping.h; sourceTree = "<group>"; };
-		EF4661952923AFC400346B6C /* TangemSwapping.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemSwapping.docc; sourceTree = "<group>"; };
-		EF46619B2923AFC400346B6C /* TangemSwappingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSwappingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EF4661A22923AFC500346B6C /* TangemSwappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSwappingTests.swift; sourceTree = "<group>"; };
-		EF4661CE2923B9CD00346B6C /* TangemExpressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExpressFactory.swift; sourceTree = "<group>"; };
 		EF4662102924DEEE00346B6C /* DefaultHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultHeaderView.swift; sourceTree = "<group>"; };
 		EF4662112924DEEE00346B6C /* DefaultFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultFooterView.swift; sourceTree = "<group>"; };
 		EF4662132924DEEE00346B6C /* DefaultRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultRowView.swift; sourceTree = "<group>"; };
@@ -2414,14 +2398,6 @@
 		EF48289128D1C9A3002809C6 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289228D1C9A5002809C6 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = it; path = it.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289328D1C9A6002809C6 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
-		EF48E6962AFCF49B00FE0072 /* CommonExpressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressManager.swift; sourceTree = "<group>"; };
-		EF48E6972AFCF49B00FE0072 /* ExpressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManager.swift; sourceTree = "<group>"; };
-		EF48E6A02AFE6B2A00FE0072 /* AllowanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllowanceProvider.swift; sourceTree = "<group>"; };
-		EF48E6A92AFE98A000FE0072 /* ExpressManagerSwappingPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressManagerSwappingPair.swift; sourceTree = "<group>"; };
-		EF48E6AB2AFE98B000FE0072 /* ExpressManagerSwappingPairRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressManagerSwappingPairRequest.swift; sourceTree = "<group>"; };
-		EF48E6AD2AFE98D500FE0072 /* ExpressRestriction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressRestriction.swift; sourceTree = "<group>"; };
-		EF48E6AF2AFE98E400FE0072 /* ExpressManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressManagerState.swift; sourceTree = "<group>"; };
-		EF48E6B12AFE98F700FE0072 /* ExpressManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressManagerError.swift; sourceTree = "<group>"; };
 		EF48E6C12B02273800FE0072 /* ExpressTokenItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemView.swift; sourceTree = "<group>"; };
 		EF48E6C22B02273800FE0072 /* ExpressTokenItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTokenItemViewModel.swift; sourceTree = "<group>"; };
 		EF48E6CA2B02279600FE0072 /* ExpressTokensListRoutableMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutableMock.swift; sourceTree = "<group>"; };
@@ -2443,9 +2419,6 @@
 		EF57693F2A8BAF7900901571 /* TransactionHistoryServiceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryServiceState.swift; sourceTree = "<group>"; };
 		EF5769412A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryFactoryProvider.swift; sourceTree = "<group>"; };
 		EF5769432A8BB90100901571 /* FakeTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTransactionHistoryService.swift; sourceTree = "<group>"; };
-		EF5812082AF42ACF00A65AA3 /* ExpressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvider.swift; sourceTree = "<group>"; };
-		EF5820422B3333A100940387 /* DecodedTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedTransactionDetails.swift; sourceTree = "<group>"; };
-		EF5820442B33344800940387 /* ExpressExchangeDataDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressExchangeDataDecoder.swift; sourceTree = "<group>"; };
 		EF5820472B33349300940387 /* CommonExpressExchangeDataDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressExchangeDataDecoder.swift; sourceTree = "<group>"; };
 		EF59039529091CFB00C527C9 /* EnvironmentSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupView.swift; sourceTree = "<group>"; };
 		EF5903A32909285E00C527C9 /* FeaturesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesStorage.swift; sourceTree = "<group>"; };
@@ -2465,14 +2438,6 @@
 		EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressTransactionBuilder.swift; sourceTree = "<group>"; };
 		EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderMock.swift; sourceTree = "<group>"; };
 		EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableGropedSection.swift; sourceTree = "<group>"; };
-		EF5FE5CC2B27296E00C2DEA4 /* ExpressProviderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderManager.swift; sourceTree = "<group>"; };
-		EF5FE5CE2B2729EE00C2DEA4 /* CEXExpressProviderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEXExpressProviderManager.swift; sourceTree = "<group>"; };
-		EF5FE5D22B272A5900C2DEA4 /* DEXExpressProviderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DEXExpressProviderManager.swift; sourceTree = "<group>"; };
-		EF5FE5D62B272B6300C2DEA4 /* ExpressManagerMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressManagerMapper.swift; sourceTree = "<group>"; };
-		EF5FE5D92B272F3400C2DEA4 /* ExpressProviderManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderManagerFactory.swift; sourceTree = "<group>"; };
-		EF5FE5DB2B272F6D00C2DEA4 /* FeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeProvider.swift; sourceTree = "<group>"; };
-		EF5FE5DD2B272F8000C2DEA4 /* ExpressProviderManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderManagerState.swift; sourceTree = "<group>"; };
-		EF5FE5E12B275C0E00C2DEA4 /* ExpressRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressRepository.swift; sourceTree = "<group>"; };
 		EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinator.swift; sourceTree = "<group>"; };
 		EF61837E2B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinatorView.swift; sourceTree = "<group>"; };
 		EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalNumberFormatterTests.swift; sourceTree = "<group>"; };
@@ -2490,10 +2455,6 @@
 		EF6A8AFD2B2786E400CA3535 /* ExpressFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeProvider.swift; sourceTree = "<group>"; };
 		EF6A8AFF2B2786F900CA3535 /* CommonExpressFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressFeeProvider.swift; sourceTree = "<group>"; };
 		EF6A8B022B278A6200CA3535 /* CommonExpressRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressRepository.swift; sourceTree = "<group>"; };
-		EF6A8B042B27950D00CA3535 /* ExpressApproveData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressApproveData.swift; sourceTree = "<group>"; };
-		EF6A8B062B27954F00CA3535 /* ExpressAvailableProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAvailableProvider.swift; sourceTree = "<group>"; };
-		EF6A8B082B27CAB600CA3535 /* CommonExpressProviderManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressProviderManagerFactory.swift; sourceTree = "<group>"; };
-		EF6A8B0A2B27CB0400CA3535 /* ExpressProviderError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressProviderError.swift; sourceTree = "<group>"; };
 		EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupViewModel.swift; sourceTree = "<group>"; };
 		EF6EDD7C296C0D40001B21A3 /* CommonIncomingActionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonIncomingActionManager.swift; sourceTree = "<group>"; };
 		EF6EDD7D296C0D40001B21A3 /* IncomingActionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingActionManager.swift; sourceTree = "<group>"; };
@@ -2511,11 +2472,6 @@
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetHeaderView.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
-		EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIService.swift; sourceTree = "<group>"; };
-		EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
-		EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPITarget.swift; sourceTree = "<group>"; };
-		EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAuthorizationPlugin.swift; sourceTree = "<group>"; };
-		EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIService.swift; sourceTree = "<group>"; };
 		EF729B6C2AF3E86300D80205 /* ExpressProvidersSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersSelectorView.swift; sourceTree = "<group>"; };
 		EF729B6D2AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersSelectorViewModel.swift; sourceTree = "<group>"; };
 		EF729B6E2AF3E86300D80205 /* ExpressProvidersSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersSelectorRoutable.swift; sourceTree = "<group>"; };
@@ -2535,7 +2491,6 @@
 		EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListViewModel.swift; sourceTree = "<group>"; };
 		EF842DE72AFA58C5006E472E /* ExpressTokensListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutable.swift; sourceTree = "<group>"; };
 		EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderRowViewModel.swift; sourceTree = "<group>"; };
-		EF87AECD2B1F8DC800ACDBD3 /* ExpressAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIError.swift; sourceTree = "<group>"; };
 		EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManagerMock.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
 		EF914D4B2A603F2F001F00B2 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
@@ -2554,6 +2509,66 @@
 		EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsView.swift; sourceTree = "<group>"; };
 		EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsViewModel.swift; sourceTree = "<group>"; };
 		EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsRoutable.swift; sourceTree = "<group>"; };
+		EF9E29932B4F0C8800418559 /* TangemExpress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExpress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF9E29952B4F0C8C00418559 /* TangemExpress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemExpress.h; sourceTree = "<group>"; };
+		EF9E29962B4F0C8C00418559 /* TangemExpress.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemExpress.docc; sourceTree = "<group>"; };
+		EF9E299C2B4F0C8D00418559 /* TangemExpressTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemExpressTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF9E29A32B4F0C9800418559 /* TangemExpressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExpressTests.swift; sourceTree = "<group>"; };
+		EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Publisher+AsyncMap.swift"; sourceTree = "<group>"; };
+		EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Moya.Task+.swift"; sourceTree = "<group>"; };
+		EF9E29BC2B4F0CCE00418559 /* MoyaProvider+AsyncRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MoyaProvider+AsyncRequest.swift"; sourceTree = "<group>"; };
+		EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+Async.swift"; sourceTree = "<group>"; };
+		EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainer.swift; sourceTree = "<group>"; };
+		EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift"; sourceTree = "<group>"; };
+		EF9E29C12B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ThreadSafeContainer+ExpressibleByArrayLiteral.swift"; sourceTree = "<group>"; };
+		EF9E29C22B4F0CCE00418559 /* ExpressConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressConstants.swift; sourceTree = "<group>"; };
+		EF9E29C52B4F0CCE00418559 /* ExpressManagerMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerMapper.swift; sourceTree = "<group>"; };
+		EF9E29C72B4F0CCE00418559 /* ExpressProviderManagerFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressProviderManagerFactory.swift; sourceTree = "<group>"; };
+		EF9E29C82B4F0CCE00418559 /* CommonExpressProviderManagerFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressProviderManagerFactory.swift; sourceTree = "<group>"; };
+		EF9E29CA2B4F0CCE00418559 /* CommonExpressAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIProvider.swift; sourceTree = "<group>"; };
+		EF9E29CB2B4F0CCE00418559 /* ExpressAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAPIProvider.swift; sourceTree = "<group>"; };
+		EF9E29CD2B4F0CCE00418559 /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		EF9E29CE2B4F0CCE00418559 /* CommonLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonLogger.swift; sourceTree = "<group>"; };
+		EF9E29D32B4F0CCE00418559 /* ExpressAPIMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAPIMapper.swift; sourceTree = "<group>"; };
+		EF9E29D62B4F0CCE00418559 /* ExpressDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
+		EF9E29D72B4F0CCE00418559 /* ExpressAuthorizationPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAuthorizationPlugin.swift; sourceTree = "<group>"; };
+		EF9E29D82B4F0CCE00418559 /* ExpressAPITarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAPITarget.swift; sourceTree = "<group>"; };
+		EF9E29D92B4F0CCE00418559 /* ExpressAPIError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAPIError.swift; sourceTree = "<group>"; };
+		EF9E29DA2B4F0CCE00418559 /* ExpressAPIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAPIService.swift; sourceTree = "<group>"; };
+		EF9E29DB2B4F0CCE00418559 /* CommonExpressAPIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIService.swift; sourceTree = "<group>"; };
+		EF9E29DD2B4F0CCE00418559 /* ExpressTransactionType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTransactionType.swift; sourceTree = "<group>"; };
+		EF9E29DE2B4F0CCE00418559 /* ExpressPair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressPair.swift; sourceTree = "<group>"; };
+		EF9E29DF2B4F0CCE00418559 /* ExpressQuote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressQuote.swift; sourceTree = "<group>"; };
+		EF9E29E02B4F0CCE00418559 /* ExpressApproveData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressApproveData.swift; sourceTree = "<group>"; };
+		EF9E29E12B4F0CCE00418559 /* ExpressRestriction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressRestriction.swift; sourceTree = "<group>"; };
+		EF9E29E22B4F0CCE00418559 /* ExpressApprovePolicy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressApprovePolicy.swift; sourceTree = "<group>"; };
+		EF9E29E32B4F0CCE00418559 /* ExpressTransactionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTransactionData.swift; sourceTree = "<group>"; };
+		EF9E29E42B4F0CCE00418559 /* ExpressCurrency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressCurrency.swift; sourceTree = "<group>"; };
+		EF9E29E52B4F0CCE00418559 /* DecodedTransactionDetails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodedTransactionDetails.swift; sourceTree = "<group>"; };
+		EF9E29E62B4F0CCE00418559 /* ExpressProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressProvider.swift; sourceTree = "<group>"; };
+		EF9E29E72B4F0CCE00418559 /* ExpressTransaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTransaction.swift; sourceTree = "<group>"; };
+		EF9E29E82B4F0CCE00418559 /* ExpressProviderType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressProviderType.swift; sourceTree = "<group>"; };
+		EF9E29E92B4F0CCE00418559 /* ExpressAsset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAsset.swift; sourceTree = "<group>"; };
+		EF9E29EA2B4F0CCE00418559 /* ExpressAvailableProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAvailableProvider.swift; sourceTree = "<group>"; };
+		EF9E29EB2B4F0CCE00418559 /* ExpressTransactionStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressTransactionStatus.swift; sourceTree = "<group>"; };
+		EF9E29EC2B4F0CCE00418559 /* ExpressSwappableItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressSwappableItem.swift; sourceTree = "<group>"; };
+		EF9E29EE2B4F0CCF00418559 /* TangemExpressFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemExpressFactory.swift; sourceTree = "<group>"; };
+		EF9E29F02B4F0CCF00418559 /* ExpressWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressWallet.swift; sourceTree = "<group>"; };
+		EF9E29F12B4F0CCF00418559 /* FeeProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeeProvider.swift; sourceTree = "<group>"; };
+		EF9E29F22B4F0CCF00418559 /* AllowanceProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllowanceProvider.swift; sourceTree = "<group>"; };
+		EF9E29F32B4F0CCF00418559 /* ExpressExchangeDataDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressExchangeDataDecoder.swift; sourceTree = "<group>"; };
+		EF9E29F42B4F0CCF00418559 /* ExpressRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressRepository.swift; sourceTree = "<group>"; };
+		EF9E29F72B4F0CCF00418559 /* ExpressProviderError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressProviderError.swift; sourceTree = "<group>"; };
+		EF9E29F82B4F0CCF00418559 /* ExpressProviderManagerState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressProviderManagerState.swift; sourceTree = "<group>"; };
+		EF9E29F92B4F0CCF00418559 /* ExpressProviderManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressProviderManager.swift; sourceTree = "<group>"; };
+		EF9E29FB2B4F0CCF00418559 /* CEXExpressProviderManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CEXExpressProviderManager.swift; sourceTree = "<group>"; };
+		EF9E29FC2B4F0CCF00418559 /* DEXExpressProviderManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DEXExpressProviderManager.swift; sourceTree = "<group>"; };
+		EF9E29FE2B4F0CCF00418559 /* ExpressManagerSwappingPairRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerSwappingPairRequest.swift; sourceTree = "<group>"; };
+		EF9E29FF2B4F0CCF00418559 /* ExpressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManager.swift; sourceTree = "<group>"; };
+		EF9E2A002B4F0CCF00418559 /* ExpressManagerSwappingPair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerSwappingPair.swift; sourceTree = "<group>"; };
+		EF9E2A022B4F0CCF00418559 /* CommonExpressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressManager.swift; sourceTree = "<group>"; };
+		EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerError.swift; sourceTree = "<group>"; };
+		EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerState.swift; sourceTree = "<group>"; };
 		EF9EA9622B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListAdapter.swift; sourceTree = "<group>"; };
 		EF9EA9642B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressTokensListAdapter.swift; sourceTree = "<group>"; };
 		EF9EA9672B110EEB00AC1DA1 /* ExpressModulesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressModulesFactory.swift; sourceTree = "<group>"; };
@@ -2587,8 +2602,6 @@
 		EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenQuotesRepository.swift; sourceTree = "<group>"; };
 		EFC6846C2A0FA3C600660690 /* BindingValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindingValue.swift; sourceTree = "<group>"; };
-		EFC6846F2A0FA88600660690 /* SelectableSwappingFeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSwappingFeeRowView.swift; sourceTree = "<group>"; };
-		EFC684712A0FAB1300660690 /* SelectableSwappingFeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSwappingFeeRowViewModel.swift; sourceTree = "<group>"; };
 		EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenList.swift; sourceTree = "<group>"; };
 		EFD32AE629ED93F20026353E /* FeatureStateRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureStateRowView.swift; sourceTree = "<group>"; };
 		EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureStateRowViewModel.swift; sourceTree = "<group>"; };
@@ -2601,7 +2614,6 @@
 		EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupCoordinatorView.swift; sourceTree = "<group>"; };
 		EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupRoutable.swift; sourceTree = "<group>"; };
 		EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupRoutableMock.swift; sourceTree = "<group>"; };
-		EFDDE5252A04379300899812 /* ExpressApprovePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressApprovePolicy.swift; sourceTree = "<group>"; };
 		EFE503582A727A100086A1B1 /* BottomScrollableSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheet.swift; sourceTree = "<group>"; };
 		EFE5EC522AEC1BB100C5ADC3 /* UndoToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoToastView.swift; sourceTree = "<group>"; };
 		EFE5EC542AEC2AF400C5ADC3 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
@@ -2614,8 +2626,6 @@
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
 		EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelsManager.swift; sourceTree = "<group>"; };
 		EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletModelsManager.swift; sourceTree = "<group>"; };
-		EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowViewModel.swift; sourceTree = "<group>"; };
-		EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingFeeRowView.swift; sourceTree = "<group>"; };
 		EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceTitleView.swift; sourceTree = "<group>"; };
 		EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EFF466EC2ACEB84C00ACC3EA /* PendingTransactionsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionsListView.swift; sourceTree = "<group>"; };
@@ -2626,6 +2636,7 @@
 		F90E59661F107D2C0FA0A056 /* Pods-Tangem.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		F9B08290B365259A1A1A10E9 /* Pods-TangemSwapping.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwapping.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwapping/Pods-TangemSwapping.release(beta).xcconfig"; sourceTree = "<group>"; };
 		FBDE239B0009448AD39245C8 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD201C410E0686B6F260B797 /* Pods-TangemExpress.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.debug(production).xcconfig"; sourceTree = "<group>"; };
 		FE89229C8C2587A244BE9191 /* Pods-TangemSwappingTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSwappingTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemSwappingTests/Pods-TangemSwappingTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		FF6ABEA01A10CCDECD05E370 /* Pods-Tangem-TangemUITests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		FFF10B895AAEAF8525C79E45 /* Pods-Tangem-TangemUITests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(alpha).xcconfig"; sourceTree = "<group>"; };
@@ -2636,8 +2647,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
-				EF4661A72923AFC500346B6C /* TangemSwapping.framework in Frameworks */,
 				0790546DD7D84EA886A5CA2B /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2658,20 +2669,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF46618F2923AFC400346B6C /* Frameworks */ = {
+		EF9E29902B4F0C8800418559 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3551CBEE3BF9C64732381DE1 /* Pods_TangemSwapping.framework in Frameworks */,
+				08D1BFE63ED4C8460B515074 /* Pods_TangemExpress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF4661982923AFC400346B6C /* Frameworks */ = {
+		EF9E29992B4F0C8C00418559 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF46619C2923AFC500346B6C /* TangemSwapping.framework in Frameworks */,
-				0CEF02C43D35ED41AF57E4F8 /* Pods_TangemSwappingTests.framework in Frameworks */,
+				EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */,
+				B2DA76CC5888EDCC2B545A98 /* Pods_TangemExpressTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2832,9 +2843,9 @@
 				B066822F26564ADB00CB86CF /* IntentsUI.framework */,
 				0496FCB163C6C7B695D32344 /* Pods_Tangem.framework */,
 				D6FE28D8D383F3A0A9C2DC36 /* Pods_Tangem_TangemUITests.framework */,
-				D4FA25F5907DF59F2318F4DE /* Pods_TangemSwapping.framework */,
-				571A42D6D60E902EB5EEA7D6 /* Pods_TangemSwappingTests.framework */,
 				FBDE239B0009448AD39245C8 /* Pods_TangemTests.framework */,
+				6EEAA84A3A777019AA95E14D /* Pods_TangemExpress.framework */,
+				40B8F6D27FF7480F2AA35B0D /* Pods_TangemExpressTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2950,8 +2961,8 @@
 				5D3F77DB24BF56DC00E8695B /* TangemTests */,
 				5D3F77E624BF56DC00E8695B /* TangemUITests */,
 				EF661E2628BF41D6005769E5 /* TangemIntent */,
-				EF4661932923AFC400346B6C /* TangemSwapping */,
-				EF4661A12923AFC500346B6C /* TangemSwappingTests */,
+				EF9E29942B4F0C8C00418559 /* TangemExpress */,
+				EF9E29A22B4F0C9800418559 /* TangemExpressTests */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
@@ -2965,8 +2976,8 @@
 				5D3F77C224BF56D800E8695B /* Tangem.app */,
 				5D3F77D824BF56DC00E8695B /* TangemTests.xctest */,
 				5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */,
-				EF4661922923AFC400346B6C /* TangemSwapping.framework */,
-				EF46619B2923AFC400346B6C /* TangemSwappingTests.xctest */,
+				EF9E29932B4F0C8800418559 /* TangemExpress.framework */,
+				EF9E299C2B4F0C8D00418559 /* TangemExpressTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3069,7 +3080,6 @@
 				EF729B522AF12B0E00D80205 /* BottomSheetHeaderView */,
 				EF729B4D2AF10DCF00D80205 /* FeeRowView */,
 				DA5EE9FC2AF3F3D2004B455C /* AddressIconView */,
-				EFC6846E2A0FA86200660690 /* SelectableSwappingFeeRow */,
 				EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */,
 				EF56B3CE2A03AFDA002CCE27 /* DefaultMenuRowView */,
 				EFD32AE529ED93EB0026353E /* FeatureStateRowView */,
@@ -3077,7 +3087,6 @@
 				EFE23AC9292CB84600A3C554 /* IconView */,
 				EF4662322924DFAF00346B6C /* GroupedScrollView */,
 				EF46620F2924DEEE00346B6C /* DefaultListViews */,
-				EFF253B0293DCAA900AEF302 /* SwappingFeeRowView */,
 				EF92413729354C6500C28551 /* SwappingTokenIconView */,
 				EFC46EFF29266996003928E3 /* ReceiveCurrencyView */,
 				EFC46EFC29266978003928E3 /* SendCurrencyView */,
@@ -4816,15 +4825,6 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		B6C358612A61352200AB1946 /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				EF29BEF029349C1A00D7C782 /* Extensions */,
-				B6FE557D2A614C92005D378C /* ThreadSafeContainer */,
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
 		B6C3B3052A3AD14B0007525E /* TokenListLoadingPlaceholders */ = {
 			isa = PBXGroup;
 			children = (
@@ -4881,16 +4881,6 @@
 			path = StatusBarConfiguration;
 			sourceTree = "<group>";
 		};
-		B6FE557D2A614C92005D378C /* ThreadSafeContainer */ = {
-			isa = PBXGroup;
-			children = (
-				B6C358622A61352A00AB1946 /* ThreadSafeContainer.swift */,
-				B6C358662A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */,
-				B6C358642A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */,
-			);
-			path = ThreadSafeContainer;
-			sourceTree = "<group>";
-		};
 		BBA154748909F0AB4121528D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -4924,6 +4914,18 @@
 				187DB39FEB3E514F0C172A42 /* Pods-TangemTests.release(production).xcconfig */,
 				C022BAFAF750ACD50AF690E4 /* Pods-TangemTests.release(beta).xcconfig */,
 				8CED5CCF1CC0741D1A51F7E7 /* Pods-TangemTests.release(alpha).xcconfig */,
+				FD201C410E0686B6F260B797 /* Pods-TangemExpress.debug(production).xcconfig */,
+				57BFFF25B906DB6F72EAFE64 /* Pods-TangemExpress.debug(beta).xcconfig */,
+				6A5EDD54FFF1FB0C14D29C29 /* Pods-TangemExpress.debug(alpha).xcconfig */,
+				BDA8FCF6A5558BAD5F1FB12A /* Pods-TangemExpress.release(production).xcconfig */,
+				173A8A87B1DFAACD93EBF493 /* Pods-TangemExpress.release(beta).xcconfig */,
+				A81424F4DF28987CBF1494D7 /* Pods-TangemExpress.release(alpha).xcconfig */,
+				CCB86CBD9BBD630EDD2FA5A8 /* Pods-TangemExpressTests.debug(production).xcconfig */,
+				2B3884B87B218CBC2D1C6843 /* Pods-TangemExpressTests.debug(beta).xcconfig */,
+				AE25DC957F12A412F8800143 /* Pods-TangemExpressTests.debug(alpha).xcconfig */,
+				A152C0FD12A4FBCCAFCA9603 /* Pods-TangemExpressTests.release(production).xcconfig */,
+				D2C7B26A91D18117383CB132 /* Pods-TangemExpressTests.release(beta).xcconfig */,
+				312309F588D6E26BA0F793DB /* Pods-TangemExpressTests.release(alpha).xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -5797,14 +5799,6 @@
 			path = TangemApiService;
 			sourceTree = "<group>";
 		};
-		E9C17C62291A687D00FDE4BC /* Factory */ = {
-			isa = PBXGroup;
-			children = (
-				EF4661CE2923B9CD00346B6C /* TangemExpressFactory.swift */,
-			);
-			path = Factory;
-			sourceTree = "<group>";
-		};
 		EF032C4D2955C59E006C1FF3 /* DefaultSelectableRowView */ = {
 			isa = PBXGroup;
 			children = (
@@ -5812,23 +5806,6 @@
 				EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */,
 			);
 			path = DefaultSelectableRowView;
-			sourceTree = "<group>";
-		};
-		EF04C5412AFBEE9A00D8853B /* ExpressAPIProvider */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C5422AFBEEA000D8853B /* ExpressAPIProvider.swift */,
-				EF04C5502AFBEF4E00D8853B /* CommonExpressAPIProvider.swift */,
-			);
-			path = ExpressAPIProvider;
-			sourceTree = "<group>";
-		};
-		EF04C55A2AFC1ACA00D8853B /* ExpressAPIMapper */ = {
-			isa = PBXGroup;
-			children = (
-				EF04C55B2AFC1AD300D8853B /* ExpressAPIMapper.swift */,
-			);
-			path = ExpressAPIMapper;
 			sourceTree = "<group>";
 		};
 		EF07082D2A1647560072AA0E /* FeeFormatter */ = {
@@ -5911,17 +5888,6 @@
 			path = LegacySingleWalletContentView;
 			sourceTree = "<group>";
 		};
-		EF29BEF029349C1A00D7C782 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				EF29BEEE292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift */,
-				EF29BEF329349F4200D7C782 /* Moya.Task+.swift */,
-				EF0DD79D2B028E130099527D /* Publisher+AsyncMap.swift */,
-				EF44873C2B2B71900029D118 /* Sequence+Async.swift */,
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
 		EF2EFDE02865BFE800798051 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
@@ -5957,87 +5923,6 @@
 				B098DD4B29C46EC300D2D55B /* UIFonts.swift */,
 			);
 			path = Appearance;
-			sourceTree = "<group>";
-		};
-		EF4661932923AFC400346B6C /* TangemSwapping */ = {
-			isa = PBXGroup;
-			children = (
-				EF0DD7A82B0393DD0099527D /* ExpressConstants.swift */,
-				E9C17C62291A687D00FDE4BC /* Factory */,
-				EF4661B92923B00800346B6C /* Interfaces */,
-				EF46620E2924CE2A00346B6C /* Manager */,
-				EF4661B82923B00100346B6C /* Services */,
-				EF4661BA2923B02C00346B6C /* Models */,
-				B6C358612A61352200AB1946 /* Helpers */,
-				EF4661942923AFC400346B6C /* TangemSwapping.h */,
-				EF4661952923AFC400346B6C /* TangemSwapping.docc */,
-			);
-			path = TangemSwapping;
-			sourceTree = "<group>";
-		};
-		EF4661A12923AFC500346B6C /* TangemSwappingTests */ = {
-			isa = PBXGroup;
-			children = (
-				EF4661A22923AFC500346B6C /* TangemSwappingTests.swift */,
-			);
-			path = TangemSwappingTests;
-			sourceTree = "<group>";
-		};
-		EF4661B82923B00100346B6C /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				EF5FE5D82B272F2D00C2DEA4 /* ExpressProviderManagerFactory */,
-				EF5FE5D52B272B5B00C2DEA4 /* ExpressManagerMapper */,
-				EF04C55A2AFC1ACA00D8853B /* ExpressAPIMapper */,
-				EF04C5412AFBEE9A00D8853B /* ExpressAPIProvider */,
-				EF729B662AF15D3D00D80205 /* SwappingLogger */,
-				EF729B582AF14A7700D80205 /* ExpressAPIService */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		EF4661B92923B00800346B6C /* Interfaces */ = {
-			isa = PBXGroup;
-			children = (
-				EF0DD7A62B0393C40099527D /* ExpressWallet.swift */,
-				EF48E6A02AFE6B2A00FE0072 /* AllowanceProvider.swift */,
-				EF5FE5DB2B272F6D00C2DEA4 /* FeeProvider.swift */,
-				EF5FE5E12B275C0E00C2DEA4 /* ExpressRepository.swift */,
-				EF5820442B33344800940387 /* ExpressExchangeDataDecoder.swift */,
-			);
-			path = Interfaces;
-			sourceTree = "<group>";
-		};
-		EF4661BA2923B02C00346B6C /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				EF5812082AF42ACF00A65AA3 /* ExpressProvider.swift */,
-				EF04C5442AFBEEB000D8853B /* ExpressTransaction.swift */,
-				EF04C5462AFBEEBD00D8853B /* ExpressTransactionData.swift */,
-				EF04C5482AFBEED600D8853B /* ExpressQuote.swift */,
-				EF04C54A2AFBEEDE00D8853B /* ExpressSwappableItem.swift */,
-				EF04C54C2AFBEEE600D8853B /* ExpressPair.swift */,
-				EF04C54E2AFBEEEF00D8853B /* ExpressCurrency.swift */,
-				EF04C5522AFC0F8800D8853B /* ExpressTransactionStatus.swift */,
-				EF04C5542AFC12C300D8853B /* ExpressProviderType.swift */,
-				EF04C5562AFC184800D8853B /* ExpressTransactionType.swift */,
-				EF48E6AD2AFE98D500FE0072 /* ExpressRestriction.swift */,
-				EF6A8B042B27950D00CA3535 /* ExpressApproveData.swift */,
-				EF6A8B062B27954F00CA3535 /* ExpressAvailableProvider.swift */,
-				B05FF3162B2C2D9A00F71338 /* ExpressAsset.swift */,
-				EF5820422B3333A100940387 /* DecodedTransactionDetails.swift */,
-				EFDDE5252A04379300899812 /* ExpressApprovePolicy.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		EF46620E2924CE2A00346B6C /* Manager */ = {
-			isa = PBXGroup;
-			children = (
-				EF5FE5CB2B27296200C2DEA4 /* ExpressProviderManager */,
-				EF48E6A62AFE988200FE0072 /* ExpressManager */,
-			);
-			path = Manager;
 			sourceTree = "<group>";
 		};
 		EF46620F2924DEEE00346B6C /* DefaultListViews */ = {
@@ -6124,19 +6009,6 @@
 				EF4662382924E00400346B6C /* WalletConnectRowView.swift */,
 			);
 			path = WalletConnectRow;
-			sourceTree = "<group>";
-		};
-		EF48E6A62AFE988200FE0072 /* ExpressManager */ = {
-			isa = PBXGroup;
-			children = (
-				EF48E6962AFCF49B00FE0072 /* CommonExpressManager.swift */,
-				EF48E6972AFCF49B00FE0072 /* ExpressManager.swift */,
-				EF48E6A92AFE98A000FE0072 /* ExpressManagerSwappingPair.swift */,
-				EF48E6AB2AFE98B000FE0072 /* ExpressManagerSwappingPairRequest.swift */,
-				EF48E6AF2AFE98E400FE0072 /* ExpressManagerState.swift */,
-				EF48E6B12AFE98F700FE0072 /* ExpressManagerError.swift */,
-			);
-			path = ExpressManager;
 			sourceTree = "<group>";
 		};
 		EF48E6C02B02273800FE0072 /* ExpressTokenItem */ = {
@@ -6260,34 +6132,6 @@
 			path = ExpressTransactionBuilder;
 			sourceTree = "<group>";
 		};
-		EF5FE5CB2B27296200C2DEA4 /* ExpressProviderManager */ = {
-			isa = PBXGroup;
-			children = (
-				EFB680072B28A3B100842BE3 /* Implementations */,
-				EF5FE5CC2B27296E00C2DEA4 /* ExpressProviderManager.swift */,
-				EF5FE5DD2B272F8000C2DEA4 /* ExpressProviderManagerState.swift */,
-				EF6A8B0A2B27CB0400CA3535 /* ExpressProviderError.swift */,
-			);
-			path = ExpressProviderManager;
-			sourceTree = "<group>";
-		};
-		EF5FE5D52B272B5B00C2DEA4 /* ExpressManagerMapper */ = {
-			isa = PBXGroup;
-			children = (
-				EF5FE5D62B272B6300C2DEA4 /* ExpressManagerMapper.swift */,
-			);
-			path = ExpressManagerMapper;
-			sourceTree = "<group>";
-		};
-		EF5FE5D82B272F2D00C2DEA4 /* ExpressProviderManagerFactory */ = {
-			isa = PBXGroup;
-			children = (
-				EF5FE5D92B272F3400C2DEA4 /* ExpressProviderManagerFactory.swift */,
-				EF6A8B082B27CAB600CA3535 /* CommonExpressProviderManagerFactory.swift */,
-			);
-			path = ExpressProviderManagerFactory;
-			sourceTree = "<group>";
-		};
 		EF661E2628BF41D6005769E5 /* TangemIntent */ = {
 			isa = PBXGroup;
 			children = (
@@ -6401,36 +6245,6 @@
 				EF729B532AF12B1500D80205 /* BottomSheetHeaderView.swift */,
 			);
 			path = BottomSheetHeaderView;
-			sourceTree = "<group>";
-		};
-		EF729B582AF14A7700D80205 /* ExpressAPIService */ = {
-			isa = PBXGroup;
-			children = (
-				EF729B592AF14A9A00D80205 /* ExpressAPIService.swift */,
-				EF729B632AF15D0A00D80205 /* CommonExpressAPIService.swift */,
-				EF729B652AF15D2200D80205 /* Types */,
-			);
-			path = ExpressAPIService;
-			sourceTree = "<group>";
-		};
-		EF729B652AF15D2200D80205 /* Types */ = {
-			isa = PBXGroup;
-			children = (
-				EF729B5B2AF1515D00D80205 /* ExpressDTO.swift */,
-				EF729B5D2AF151B800D80205 /* ExpressAPITarget.swift */,
-				EF729B612AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift */,
-				EF87AECD2B1F8DC800ACDBD3 /* ExpressAPIError.swift */,
-			);
-			path = Types;
-			sourceTree = "<group>";
-		};
-		EF729B662AF15D3D00D80205 /* SwappingLogger */ = {
-			isa = PBXGroup;
-			children = (
-				DCAB5805295F45AA005D0F4A /* Logger.swift */,
-				DCAB5807295F47A7005D0F4A /* CommonLogger.swift */,
-			);
-			path = SwappingLogger;
 			sourceTree = "<group>";
 		};
 		EF729B672AF3E82C00D80205 /* ExpressProvidersSelectorView */ = {
@@ -6639,6 +6453,222 @@
 			path = DefaultListViews;
 			sourceTree = "<group>";
 		};
+		EF9E29942B4F0C8C00418559 /* TangemExpress */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29C22B4F0CCE00418559 /* ExpressConstants.swift */,
+				EF9E29ED2B4F0CCF00418559 /* Factory */,
+				EF9E29B82B4F0CCE00418559 /* Helpers */,
+				EF9E29EF2B4F0CCF00418559 /* Interfaces */,
+				EF9E29F52B4F0CCF00418559 /* Manager */,
+				EF9E29DC2B4F0CCE00418559 /* Models */,
+				EF9E29C32B4F0CCE00418559 /* Services */,
+				EF9E29952B4F0C8C00418559 /* TangemExpress.h */,
+				EF9E29962B4F0C8C00418559 /* TangemExpress.docc */,
+			);
+			path = TangemExpress;
+			sourceTree = "<group>";
+		};
+		EF9E29A22B4F0C9800418559 /* TangemExpressTests */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29A32B4F0C9800418559 /* TangemExpressTests.swift */,
+			);
+			path = TangemExpressTests;
+			sourceTree = "<group>";
+		};
+		EF9E29B82B4F0CCE00418559 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29B92B4F0CCE00418559 /* Extensions */,
+				EF9E29BE2B4F0CCE00418559 /* ThreadSafeContainer */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		EF9E29B92B4F0CCE00418559 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */,
+				EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */,
+				EF9E29BC2B4F0CCE00418559 /* MoyaProvider+AsyncRequest.swift */,
+				EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		EF9E29BE2B4F0CCE00418559 /* ThreadSafeContainer */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */,
+				EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */,
+				EF9E29C12B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */,
+			);
+			path = ThreadSafeContainer;
+			sourceTree = "<group>";
+		};
+		EF9E29C32B4F0CCE00418559 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29C42B4F0CCE00418559 /* ExpressManagerMapper */,
+				EF9E29C62B4F0CCE00418559 /* ExpressProviderManagerFactory */,
+				EF9E29C92B4F0CCE00418559 /* ExpressAPIProvider */,
+				EF9E29CC2B4F0CCE00418559 /* SwappingLogger */,
+				EF9E29D22B4F0CCE00418559 /* ExpressAPIMapper */,
+				EF9E29D42B4F0CCE00418559 /* ExpressAPIService */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		EF9E29C42B4F0CCE00418559 /* ExpressManagerMapper */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29C52B4F0CCE00418559 /* ExpressManagerMapper.swift */,
+			);
+			path = ExpressManagerMapper;
+			sourceTree = "<group>";
+		};
+		EF9E29C62B4F0CCE00418559 /* ExpressProviderManagerFactory */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29C72B4F0CCE00418559 /* ExpressProviderManagerFactory.swift */,
+				EF9E29C82B4F0CCE00418559 /* CommonExpressProviderManagerFactory.swift */,
+			);
+			path = ExpressProviderManagerFactory;
+			sourceTree = "<group>";
+		};
+		EF9E29C92B4F0CCE00418559 /* ExpressAPIProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29CA2B4F0CCE00418559 /* CommonExpressAPIProvider.swift */,
+				EF9E29CB2B4F0CCE00418559 /* ExpressAPIProvider.swift */,
+			);
+			path = ExpressAPIProvider;
+			sourceTree = "<group>";
+		};
+		EF9E29CC2B4F0CCE00418559 /* SwappingLogger */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29CD2B4F0CCE00418559 /* Logger.swift */,
+				EF9E29CE2B4F0CCE00418559 /* CommonLogger.swift */,
+			);
+			path = SwappingLogger;
+			sourceTree = "<group>";
+		};
+		EF9E29D22B4F0CCE00418559 /* ExpressAPIMapper */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29D32B4F0CCE00418559 /* ExpressAPIMapper.swift */,
+			);
+			path = ExpressAPIMapper;
+			sourceTree = "<group>";
+		};
+		EF9E29D42B4F0CCE00418559 /* ExpressAPIService */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29D52B4F0CCE00418559 /* Types */,
+				EF9E29DA2B4F0CCE00418559 /* ExpressAPIService.swift */,
+				EF9E29DB2B4F0CCE00418559 /* CommonExpressAPIService.swift */,
+			);
+			path = ExpressAPIService;
+			sourceTree = "<group>";
+		};
+		EF9E29D52B4F0CCE00418559 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29D62B4F0CCE00418559 /* ExpressDTO.swift */,
+				EF9E29D72B4F0CCE00418559 /* ExpressAuthorizationPlugin.swift */,
+				EF9E29D82B4F0CCE00418559 /* ExpressAPITarget.swift */,
+				EF9E29D92B4F0CCE00418559 /* ExpressAPIError.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
+		EF9E29DC2B4F0CCE00418559 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29DD2B4F0CCE00418559 /* ExpressTransactionType.swift */,
+				EF9E29DE2B4F0CCE00418559 /* ExpressPair.swift */,
+				EF9E29DF2B4F0CCE00418559 /* ExpressQuote.swift */,
+				EF9E29E02B4F0CCE00418559 /* ExpressApproveData.swift */,
+				EF9E29E12B4F0CCE00418559 /* ExpressRestriction.swift */,
+				EF9E29E22B4F0CCE00418559 /* ExpressApprovePolicy.swift */,
+				EF9E29E32B4F0CCE00418559 /* ExpressTransactionData.swift */,
+				EF9E29E42B4F0CCE00418559 /* ExpressCurrency.swift */,
+				EF9E29E52B4F0CCE00418559 /* DecodedTransactionDetails.swift */,
+				EF9E29E62B4F0CCE00418559 /* ExpressProvider.swift */,
+				EF9E29E72B4F0CCE00418559 /* ExpressTransaction.swift */,
+				EF9E29E82B4F0CCE00418559 /* ExpressProviderType.swift */,
+				EF9E29E92B4F0CCE00418559 /* ExpressAsset.swift */,
+				EF9E29EA2B4F0CCE00418559 /* ExpressAvailableProvider.swift */,
+				EF9E29EB2B4F0CCE00418559 /* ExpressTransactionStatus.swift */,
+				EF9E29EC2B4F0CCE00418559 /* ExpressSwappableItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		EF9E29ED2B4F0CCF00418559 /* Factory */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29EE2B4F0CCF00418559 /* TangemExpressFactory.swift */,
+			);
+			path = Factory;
+			sourceTree = "<group>";
+		};
+		EF9E29EF2B4F0CCF00418559 /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29F02B4F0CCF00418559 /* ExpressWallet.swift */,
+				EF9E29F12B4F0CCF00418559 /* FeeProvider.swift */,
+				EF9E29F22B4F0CCF00418559 /* AllowanceProvider.swift */,
+				EF9E29F32B4F0CCF00418559 /* ExpressExchangeDataDecoder.swift */,
+				EF9E29F42B4F0CCF00418559 /* ExpressRepository.swift */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
+		EF9E29F52B4F0CCF00418559 /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29F62B4F0CCF00418559 /* ExpressProviderManager */,
+				EF9E29FD2B4F0CCF00418559 /* ExpressManager */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		EF9E29F62B4F0CCF00418559 /* ExpressProviderManager */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29F72B4F0CCF00418559 /* ExpressProviderError.swift */,
+				EF9E29F82B4F0CCF00418559 /* ExpressProviderManagerState.swift */,
+				EF9E29F92B4F0CCF00418559 /* ExpressProviderManager.swift */,
+				EF9E29FA2B4F0CCF00418559 /* Implementations */,
+			);
+			path = ExpressProviderManager;
+			sourceTree = "<group>";
+		};
+		EF9E29FA2B4F0CCF00418559 /* Implementations */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29FB2B4F0CCF00418559 /* CEXExpressProviderManager.swift */,
+				EF9E29FC2B4F0CCF00418559 /* DEXExpressProviderManager.swift */,
+			);
+			path = Implementations;
+			sourceTree = "<group>";
+		};
+		EF9E29FD2B4F0CCF00418559 /* ExpressManager */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29FE2B4F0CCF00418559 /* ExpressManagerSwappingPairRequest.swift */,
+				EF9E29FF2B4F0CCF00418559 /* ExpressManager.swift */,
+				EF9E2A002B4F0CCF00418559 /* ExpressManagerSwappingPair.swift */,
+				EF9E2A022B4F0CCF00418559 /* CommonExpressManager.swift */,
+				EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */,
+				EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */,
+			);
+			path = ExpressManager;
+			sourceTree = "<group>";
+		};
 		EF9EA9612B10D39600AC1DA1 /* ExpressTokensListAdapter */ = {
 			isa = PBXGroup;
 			children = (
@@ -6709,15 +6739,6 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
-		EFB680072B28A3B100842BE3 /* Implementations */ = {
-			isa = PBXGroup;
-			children = (
-				EF5FE5CE2B2729EE00C2DEA4 /* CEXExpressProviderManager.swift */,
-				EF5FE5D22B272A5900C2DEA4 /* DEXExpressProviderManager.swift */,
-			);
-			path = Implementations;
-			sourceTree = "<group>";
-		};
 		EFBE76922A7C3FCC00CD918B /* TransactionView */ = {
 			isa = PBXGroup;
 			children = (
@@ -6766,15 +6787,6 @@
 				EFE7D57A2AA209990047D93A /* TokenQuote.swift */,
 			);
 			path = TokenQuotesRepository;
-			sourceTree = "<group>";
-		};
-		EFC6846E2A0FA86200660690 /* SelectableSwappingFeeRow */ = {
-			isa = PBXGroup;
-			children = (
-				EFC6846F2A0FA88600660690 /* SelectableSwappingFeeRowView.swift */,
-				EFC684712A0FAB1300660690 /* SelectableSwappingFeeRowViewModel.swift */,
-			);
-			path = SelectableSwappingFeeRow;
 			sourceTree = "<group>";
 		};
 		EFCC66DF28AA6FB200EC7757 /* Types */ = {
@@ -6864,15 +6876,6 @@
 			path = WalletModelsManager;
 			sourceTree = "<group>";
 		};
-		EFF253B0293DCAA900AEF302 /* SwappingFeeRowView */ = {
-			isa = PBXGroup;
-			children = (
-				EFF253B1293DCAA900AEF302 /* SwappingFeeRowViewModel.swift */,
-				EFF253B2293DCAA900AEF302 /* SwappingFeeRowView.swift */,
-			);
-			path = SwappingFeeRowView;
-			sourceTree = "<group>";
-		};
 		EFF466E02AC709B600ACC3EA /* BalanceTitleView */ = {
 			isa = PBXGroup;
 			children = (
@@ -6909,11 +6912,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF46618D2923AFC400346B6C /* Headers */ = {
+		EF9E298E2B4F0C8800418559 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4661A42923AFC500346B6C /* TangemSwapping.h in Headers */,
+				EF9E29A52B4F0C9800418559 /* TangemExpress.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6932,14 +6935,15 @@
 				5D3F77BF24BF56D800E8695B /* Frameworks */,
 				5D3F77C024BF56D800E8695B /* Resources */,
 				B066823E26564ADB00CB86CF /* Embed Foundation Extensions */,
-				EF4661B02923AFC500346B6C /* Embed Frameworks */,
 				EFD32AE229DF1DCB0026353E /* Strip Binary Symbols */,
 				2FB680954A2686E4C41DFA95 /* [CP] Embed Pods Frameworks */,
+				EF9E29632B4F0BB500418559 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF4661A62923AFC500346B6C /* PBXTargetDependency */,
+				EF9E297D2B4F0C4900418559 /* PBXTargetDependency */,
+				EF9E29A72B4F0C9900418559 /* PBXTargetDependency */,
 			);
 			name = Tangem;
 			productName = "Tangem Tap";
@@ -6985,43 +6989,43 @@
 			productReference = 5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		EF4661912923AFC400346B6C /* TangemSwapping */ = {
+		EF9E29922B4F0C8800418559 /* TangemExpress */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF4661A92923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemSwapping" */;
+			buildConfigurationList = EF9E29AA2B4F0C9D00418559 /* Build configuration list for PBXNativeTarget "TangemExpress" */;
 			buildPhases = (
-				A23968416D0C93CC4E3B9DAF /* [CP] Check Pods Manifest.lock */,
-				EF46618D2923AFC400346B6C /* Headers */,
-				EF46618E2923AFC400346B6C /* Sources */,
-				EF46618F2923AFC400346B6C /* Frameworks */,
-				EF4661902923AFC400346B6C /* Resources */,
+				12ED806B875088DAF0A5CD55 /* [CP] Check Pods Manifest.lock */,
+				EF9E298E2B4F0C8800418559 /* Headers */,
+				EF9E298F2B4F0C8800418559 /* Sources */,
+				EF9E29902B4F0C8800418559 /* Frameworks */,
+				EF9E29912B4F0C8800418559 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = TangemSwapping;
-			productName = TExchange;
-			productReference = EF4661922923AFC400346B6C /* TangemSwapping.framework */;
+			name = TangemExpress;
+			productName = TangemExpress;
+			productReference = EF9E29932B4F0C8800418559 /* TangemExpress.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		EF46619A2923AFC400346B6C /* TangemSwappingTests */ = {
+		EF9E299B2B4F0C8C00418559 /* TangemExpressTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF4661B12923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemSwappingTests" */;
+			buildConfigurationList = EF9E29B12B4F0C9D00418559 /* Build configuration list for PBXNativeTarget "TangemExpressTests" */;
 			buildPhases = (
-				9B8B6EAAF7548F534FC8F29D /* [CP] Check Pods Manifest.lock */,
-				EF4661972923AFC400346B6C /* Sources */,
-				EF4661982923AFC400346B6C /* Frameworks */,
-				EF4661992923AFC400346B6C /* Resources */,
+				AF71BF5CDC0E9F8A79E25D6C /* [CP] Check Pods Manifest.lock */,
+				EF9E29982B4F0C8C00418559 /* Sources */,
+				EF9E29992B4F0C8C00418559 /* Frameworks */,
+				EF9E299A2B4F0C8C00418559 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF46619E2923AFC500346B6C /* PBXTargetDependency */,
-				EF4661A02923AFC500346B6C /* PBXTargetDependency */,
+				EF9E299F2B4F0C9100418559 /* PBXTargetDependency */,
+				EF9E29A12B4F0C9600418559 /* PBXTargetDependency */,
 			);
-			name = TangemSwappingTests;
-			productName = TExchangeTests;
-			productReference = EF46619B2923AFC400346B6C /* TangemSwappingTests.xctest */;
+			name = TangemExpressTests;
+			productName = TangemExpressTests;
+			productReference = EF9E299C2B4F0C8D00418559 /* TangemExpressTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -7031,7 +7035,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1410;
+				LastSwiftUpdateCheck = 1510;
 				LastUpgradeCheck = 1500;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
@@ -7047,11 +7051,11 @@
 						CreatedOnToolsVersion = 11.5;
 						TestTargetID = 5D3F77C124BF56D800E8695B;
 					};
-					EF4661912923AFC400346B6C = {
-						CreatedOnToolsVersion = 14.1;
+					EF9E29922B4F0C8800418559 = {
+						CreatedOnToolsVersion = 15.1;
 					};
-					EF46619A2923AFC400346B6C = {
-						CreatedOnToolsVersion = 14.1;
+					EF9E299B2B4F0C8C00418559 = {
+						CreatedOnToolsVersion = 15.1;
 						TestTargetID = 5D3F77C124BF56D800E8695B;
 					};
 				};
@@ -7077,8 +7081,8 @@
 				5D3F77C124BF56D800E8695B /* Tangem */,
 				5D3F77D724BF56DC00E8695B /* TangemTests */,
 				5D3F77E224BF56DC00E8695B /* TangemUITests */,
-				EF4661912923AFC400346B6C /* TangemSwapping */,
-				EF46619A2923AFC400346B6C /* TangemSwappingTests */,
+				EF9E29922B4F0C8800418559 /* TangemExpress */,
+				EF9E299B2B4F0C8C00418559 /* TangemExpressTests */,
 			);
 		};
 /* End PBXProject section */
@@ -7143,14 +7147,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF4661902923AFC400346B6C /* Resources */ = {
+		EF9E29912B4F0C8800418559 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF4661992923AFC400346B6C /* Resources */ = {
+		EF9E299A2B4F0C8C00418559 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -7160,6 +7164,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		12ED806B875088DAF0A5CD55 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TangemExpress-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		2A6B85FF9C197EB5A699F5A5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -7216,50 +7242,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9B8B6EAAF7548F534FC8F29D /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TangemSwappingTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A23968416D0C93CC4E3B9DAF /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TangemSwapping-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		AB478CFA341E43B7AC23C530 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -7276,6 +7258,28 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-Tangem-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AF71BF5CDC0E9F8A79E25D6C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TangemExpressTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -7602,7 +7606,6 @@
 				DCBAF6A12A4C4F650029480A /* DerivationManager.swift in Sources */,
 				B05A13A129FB971900FB511A /* TokenItemViewModel.swift in Sources */,
 				B0BB972F2B18654300053954 /* CommonExpressPendingTransactionRepository.swift in Sources */,
-				EFC684702A0FA88600660690 /* SelectableSwappingFeeRowView.swift in Sources */,
 				DA4371A22A7D1937006215CA /* LegacyManageTokensSettings.swift in Sources */,
 				DA682F962A29D08F0083CA79 /* PromotionNetworkModels.swift in Sources */,
 				B60B203A2AC5B5100098C09D /* MainBottomSheetFooterView.swift in Sources */,
@@ -7651,7 +7654,6 @@
 				DC0CC5B22B0D3B0900E32CAC /* UserWalletIdPreflightReadFilter.swift in Sources */,
 				DC7254922A050C200003FE1B /* NoteOnboardingStepsBuilder.swift in Sources */,
 				B65D3FCB2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift in Sources */,
-				EFF253B4293DCAAA00AEF302 /* SwappingFeeRowView.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
 				DAC4F9F02AC314E100BEBCF8 /* MainViewDelegate.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
@@ -8357,7 +8359,6 @@
 				B674D6DD2A97556F00172491 /* StorageEntryConverter.swift in Sources */,
 				B67D90DD2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
-				EFC684722A0FAB1300660690 /* SelectableSwappingFeeRowViewModel.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				EFEBCE2B29265CF300B0C886 /* TokenIconInfo.swift in Sources */,
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
@@ -8442,7 +8443,6 @@
 				2DC567692B0DFFAF00B0244F /* ManageTokensRoutable.swift in Sources */,
 				DA559C362B0261F400F59584 /* SendFeeViewModel.swift in Sources */,
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
-				EFF253B3293DCAA900AEF302 /* SwappingFeeRowViewModel.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				EFD39C9D2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift in Sources */,
 				B0B335E329FA9EB800E2082E /* BalanceFormattingOptions.swift in Sources */,
@@ -8520,74 +8520,74 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF46618E2923AFC400346B6C /* Sources */ = {
+		EF9E298F2B4F0C8800418559 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B05FF3172B2C2D9A00F71338 /* ExpressAsset.swift in Sources */,
-				EF5FE5CF2B2729EE00C2DEA4 /* CEXExpressProviderManager.swift in Sources */,
-				EF04C5512AFBEF4E00D8853B /* CommonExpressAPIProvider.swift in Sources */,
-				EF0DD7A92B0393DD0099527D /* ExpressConstants.swift in Sources */,
-				EF04C55C2AFC1AD300D8853B /* ExpressAPIMapper.swift in Sources */,
-				DCAB5808295F47A7005D0F4A /* CommonLogger.swift in Sources */,
-				EF6A8B052B27950D00CA3535 /* ExpressApproveData.swift in Sources */,
-				EF29BEF429349F4200D7C782 /* Moya.Task+.swift in Sources */,
-				EF5FE5E22B275C0E00C2DEA4 /* ExpressRepository.swift in Sources */,
-				EF44873D2B2B71900029D118 /* Sequence+Async.swift in Sources */,
-				EF48E6AE2AFE98D500FE0072 /* ExpressRestriction.swift in Sources */,
-				EF4661CF2923B9CD00346B6C /* TangemExpressFactory.swift in Sources */,
-				EF5FE5D72B272B6300C2DEA4 /* ExpressManagerMapper.swift in Sources */,
-				EF0DD79E2B028E130099527D /* Publisher+AsyncMap.swift in Sources */,
-				EF6A8B072B27954F00CA3535 /* ExpressAvailableProvider.swift in Sources */,
-				EF48E6B22AFE98F700FE0072 /* ExpressManagerError.swift in Sources */,
-				B6C358652A61357100AB1946 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */,
-				EF04C5492AFBEED600D8853B /* ExpressQuote.swift in Sources */,
-				EF6A8B092B27CAB600CA3535 /* CommonExpressProviderManagerFactory.swift in Sources */,
-				EF5820452B33344800940387 /* ExpressExchangeDataDecoder.swift in Sources */,
-				EF5812092AF42ACF00A65AA3 /* ExpressProvider.swift in Sources */,
-				EF04C54F2AFBEEEF00D8853B /* ExpressCurrency.swift in Sources */,
-				EF5FE5DC2B272F6D00C2DEA4 /* FeeProvider.swift in Sources */,
-				B6C358672A61358000AB1946 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
-				EF48E6AA2AFE98A000FE0072 /* ExpressManagerSwappingPair.swift in Sources */,
-				EF04C5532AFC0F8800D8853B /* ExpressTransactionStatus.swift in Sources */,
-				EF48E6B02AFE98E400FE0072 /* ExpressManagerState.swift in Sources */,
-				EF5FE5CD2B27296E00C2DEA4 /* ExpressProviderManager.swift in Sources */,
-				EF6A8B0B2B27CB0400CA3535 /* ExpressProviderError.swift in Sources */,
-				EF29BEEF292FC8C100D7C782 /* MoyaProvider+AsyncRequest.swift in Sources */,
-				EF04C54B2AFBEEDE00D8853B /* ExpressSwappableItem.swift in Sources */,
-				EF729B5E2AF151B800D80205 /* ExpressAPITarget.swift in Sources */,
-				EF48E6992AFCF49B00FE0072 /* CommonExpressManager.swift in Sources */,
-				EF729B642AF15D0A00D80205 /* CommonExpressAPIService.swift in Sources */,
-				EFDDE5262A04379300899812 /* ExpressApprovePolicy.swift in Sources */,
-				EF729B622AF15B7A00D80205 /* ExpressAuthorizationPlugin.swift in Sources */,
-				EF48E6A12AFE6B2A00FE0072 /* AllowanceProvider.swift in Sources */,
-				EF4661962923AFC400346B6C /* TangemSwapping.docc in Sources */,
-				EF87AECE2B1F8DC800ACDBD3 /* ExpressAPIError.swift in Sources */,
-				EF04C5572AFC184800D8853B /* ExpressTransactionType.swift in Sources */,
-				EF04C5472AFBEEBD00D8853B /* ExpressTransactionData.swift in Sources */,
-				EF5FE5DA2B272F3400C2DEA4 /* ExpressProviderManagerFactory.swift in Sources */,
-				EF5820432B3333A100940387 /* DecodedTransactionDetails.swift in Sources */,
-				EF48E6AC2AFE98B000FE0072 /* ExpressManagerSwappingPairRequest.swift in Sources */,
-				EF729B5A2AF14A9A00D80205 /* ExpressAPIService.swift in Sources */,
-				EF04C5552AFC12C300D8853B /* ExpressProviderType.swift in Sources */,
-				EF04C54D2AFBEEE600D8853B /* ExpressPair.swift in Sources */,
-				EF5FE5D32B272A5900C2DEA4 /* DEXExpressProviderManager.swift in Sources */,
-				EF48E69A2AFCF49B00FE0072 /* ExpressManager.swift in Sources */,
-				DCAB5806295F45AA005D0F4A /* Logger.swift in Sources */,
-				EF04C5432AFBEEA000D8853B /* ExpressAPIProvider.swift in Sources */,
-				EF02A0A82B052A8800D01E1E /* ExpressWallet.swift in Sources */,
-				EF729B5C2AF1515D00D80205 /* ExpressDTO.swift in Sources */,
-				B6C358632A61352A00AB1946 /* ThreadSafeContainer.swift in Sources */,
-				EF04C5452AFBEEB000D8853B /* ExpressTransaction.swift in Sources */,
-				EF5FE5DE2B272F8000C2DEA4 /* ExpressProviderManagerState.swift in Sources */,
+				EF9E2A1A2B4F0CD100418559 /* ExpressAPIService.swift in Sources */,
+				EF9E2A372B4F0CD100418559 /* ExpressManagerSwappingPairRequest.swift in Sources */,
+				EF9E2A382B4F0CD100418559 /* ExpressManager.swift in Sources */,
+				EF9E2A0B2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
+				EF9E2A2A2B4F0CD100418559 /* ExpressTransactionStatus.swift in Sources */,
+				EF9E2A0C2B4F0CD100418559 /* ExpressConstants.swift in Sources */,
+				EF9E2A1C2B4F0CD100418559 /* ExpressTransactionType.swift in Sources */,
+				EF9E2A2B2B4F0CD100418559 /* ExpressSwappableItem.swift in Sources */,
+				EF9E2A0E2B4F0CD100418559 /* ExpressProviderManagerFactory.swift in Sources */,
+				EF9E2A252B4F0CD100418559 /* ExpressProvider.swift in Sources */,
+				EF9E2A232B4F0CD100418559 /* ExpressCurrency.swift in Sources */,
+				EF9E2A242B4F0CD100418559 /* DecodedTransactionDetails.swift in Sources */,
+				EF9E2A082B4F0CD100418559 /* Sequence+Async.swift in Sources */,
+				EF9E2A282B4F0CD100418559 /* ExpressAsset.swift in Sources */,
+				EF9E2A1D2B4F0CD100418559 /* ExpressPair.swift in Sources */,
+				EF9E2A302B4F0CD100418559 /* ExpressExchangeDataDecoder.swift in Sources */,
+				EF9E2A102B4F0CD100418559 /* CommonExpressAPIProvider.swift in Sources */,
+				EF9E2A052B4F0CCF00418559 /* Publisher+AsyncMap.swift in Sources */,
+				EF9E2A192B4F0CD100418559 /* ExpressAPIError.swift in Sources */,
+				EF9E2A3B2B4F0CD100418559 /* CommonExpressManager.swift in Sources */,
+				EF9E2A3D2B4F0CD100418559 /* ExpressManagerState.swift in Sources */,
+				EF9E2A172B4F0CD100418559 /* ExpressAuthorizationPlugin.swift in Sources */,
+				EF9E2A222B4F0CD100418559 /* ExpressTransactionData.swift in Sources */,
+				EF9E2A132B4F0CD100418559 /* CommonLogger.swift in Sources */,
+				EF9E2A2F2B4F0CD100418559 /* AllowanceProvider.swift in Sources */,
+				EF9E2A112B4F0CD100418559 /* ExpressAPIProvider.swift in Sources */,
+				EF9E2A1E2B4F0CD100418559 /* ExpressQuote.swift in Sources */,
+				EF9E2A332B4F0CD100418559 /* ExpressProviderManagerState.swift in Sources */,
+				EF9E2A152B4F0CD100418559 /* ExpressAPIMapper.swift in Sources */,
+				EF9E2A0F2B4F0CD100418559 /* CommonExpressProviderManagerFactory.swift in Sources */,
+				EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */,
+				EF9E2A292B4F0CD100418559 /* ExpressAvailableProvider.swift in Sources */,
+				EF9E2A072B4F0CD100418559 /* MoyaProvider+AsyncRequest.swift in Sources */,
+				EF9E2A182B4F0CD100418559 /* ExpressAPITarget.swift in Sources */,
+				EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */,
+				EF9E2A0D2B4F0CD100418559 /* ExpressManagerMapper.swift in Sources */,
+				EF9E2A1F2B4F0CD100418559 /* ExpressApproveData.swift in Sources */,
+				EF9E2A122B4F0CD100418559 /* Logger.swift in Sources */,
+				EF9E2A2C2B4F0CD100418559 /* TangemExpressFactory.swift in Sources */,
+				EF9E2A392B4F0CD100418559 /* ExpressManagerSwappingPair.swift in Sources */,
+				EF9E2A262B4F0CD100418559 /* ExpressTransaction.swift in Sources */,
+				EF9E2A0A2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */,
+				EF9E2A352B4F0CD100418559 /* CEXExpressProviderManager.swift in Sources */,
+				EF9E2A062B4F0CD100418559 /* Moya.Task+.swift in Sources */,
+				EF9E2A342B4F0CD100418559 /* ExpressProviderManager.swift in Sources */,
+				EF9E2A2E2B4F0CD100418559 /* FeeProvider.swift in Sources */,
+				EF9E2A2D2B4F0CD100418559 /* ExpressWallet.swift in Sources */,
+				EF9E2A322B4F0CD100418559 /* ExpressProviderError.swift in Sources */,
+				EF9E2A092B4F0CD100418559 /* ThreadSafeContainer.swift in Sources */,
+				EF9E2A202B4F0CD100418559 /* ExpressRestriction.swift in Sources */,
+				EF9E2A1B2B4F0CD100418559 /* CommonExpressAPIService.swift in Sources */,
+				EF9E2A312B4F0CD100418559 /* ExpressRepository.swift in Sources */,
+				EF9E2A212B4F0CD100418559 /* ExpressApprovePolicy.swift in Sources */,
+				EF9E2A362B4F0CD100418559 /* DEXExpressProviderManager.swift in Sources */,
+				EF9E29972B4F0C8C00418559 /* TangemExpress.docc in Sources */,
+				EF9E2A272B4F0CD100418559 /* ExpressProviderType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF4661972923AFC400346B6C /* Sources */ = {
+		EF9E29982B4F0C8C00418559 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4661A32923AFC500346B6C /* TangemSwappingTests.swift in Sources */,
+				EF9E29A42B4F0C9800418559 /* TangemExpressTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8604,20 +8604,25 @@
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
 			targetProxy = 5D3F77E424BF56DC00E8695B /* PBXContainerItemProxy */;
 		};
-		EF46619E2923AFC500346B6C /* PBXTargetDependency */ = {
+		EF9E297D2B4F0C4900418559 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EF4661912923AFC400346B6C /* TangemSwapping */;
-			targetProxy = EF46619D2923AFC500346B6C /* PBXContainerItemProxy */;
+			target = EF9E29922B4F0C8800418559 /* TangemExpress */;
+			targetProxy = EF9E297C2B4F0C4900418559 /* PBXContainerItemProxy */;
 		};
-		EF4661A02923AFC500346B6C /* PBXTargetDependency */ = {
+		EF9E299F2B4F0C9100418559 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EF9E29922B4F0C8800418559 /* TangemExpress */;
+			targetProxy = EF9E299E2B4F0C9100418559 /* PBXContainerItemProxy */;
+		};
+		EF9E29A12B4F0C9600418559 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
-			targetProxy = EF46619F2923AFC500346B6C /* PBXContainerItemProxy */;
+			targetProxy = EF9E29A02B4F0C9600418559 /* PBXContainerItemProxy */;
 		};
-		EF4661A62923AFC500346B6C /* PBXTargetDependency */ = {
+		EF9E29A72B4F0C9900418559 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EF4661912923AFC400346B6C /* TangemSwapping */;
-			targetProxy = EF4661A52923AFC500346B6C /* PBXContainerItemProxy */;
+			target = EF9E29922B4F0C8800418559 /* TangemExpress */;
+			targetProxy = EF9E29A62B4F0C9900418559 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -9737,11 +9742,12 @@
 			};
 			name = "Release(beta)";
 		};
-		EF4661AA2923AFC500346B6C /* Debug(production) */ = {
+		EF9E29AB2B4F0C9D00418559 /* Debug(production) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1EBD417ABE67BAC4A999BCF7 /* Pods-TangemSwapping.debug(production).xcconfig */;
+			baseConfigurationReference = FD201C410E0686B6F260B797 /* Pods-TangemExpress.debug(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -9769,7 +9775,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -9782,7 +9787,8 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -9797,7 +9803,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -9807,17 +9813,17 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwapping;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -9828,11 +9834,12 @@
 			};
 			name = "Debug(production)";
 		};
-		EF4661AB2923AFC500346B6C /* Debug(beta) */ = {
+		EF9E29AC2B4F0C9D00418559 /* Debug(beta) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A440C7993F122962DFADF8D9 /* Pods-TangemSwapping.debug(beta).xcconfig */;
+			baseConfigurationReference = 57BFFF25B906DB6F72EAFE64 /* Pods-TangemExpress.debug(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -9860,7 +9867,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -9873,7 +9879,8 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -9888,7 +9895,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -9898,17 +9905,17 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwapping;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -9919,11 +9926,12 @@
 			};
 			name = "Debug(beta)";
 		};
-		EF4661AC2923AFC500346B6C /* Debug(alpha) */ = {
+		EF9E29AD2B4F0C9D00418559 /* Debug(alpha) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8C4DF77683A5CBAD41D03966 /* Pods-TangemSwapping.debug(alpha).xcconfig */;
+			baseConfigurationReference = 6A5EDD54FFF1FB0C14D29C29 /* Pods-TangemExpress.debug(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -9951,7 +9959,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -9964,7 +9971,8 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -9979,7 +9987,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -9989,17 +9997,17 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwapping;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -10010,11 +10018,12 @@
 			};
 			name = "Debug(alpha)";
 		};
-		EF4661AD2923AFC500346B6C /* Release(production) */ = {
+		EF9E29AE2B4F0C9D00418559 /* Release(production) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8D2D1639D7CE4E08554C739B /* Pods-TangemSwapping.release(production).xcconfig */;
+			baseConfigurationReference = BDA8FCF6A5558BAD5F1FB12A /* Pods-TangemExpress.release(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10042,7 +10051,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10055,7 +10063,8 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -10064,7 +10073,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -10074,19 +10083,18 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwapping;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = YES;
@@ -10095,11 +10103,12 @@
 			};
 			name = "Release(production)";
 		};
-		EF4661AE2923AFC500346B6C /* Release(beta) */ = {
+		EF9E29AF2B4F0C9D00418559 /* Release(beta) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F9B08290B365259A1A1A10E9 /* Pods-TangemSwapping.release(beta).xcconfig */;
+			baseConfigurationReference = 173A8A87B1DFAACD93EBF493 /* Pods-TangemExpress.release(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10127,7 +10136,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10140,7 +10148,8 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -10149,7 +10158,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -10159,19 +10168,18 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwapping;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = YES;
@@ -10180,11 +10188,12 @@
 			};
 			name = "Release(beta)";
 		};
-		EF4661AF2923AFC500346B6C /* Release(alpha) */ = {
+		EF9E29B02B4F0C9D00418559 /* Release(alpha) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0B4ED5E2880744768F9A4451 /* Pods-TangemSwapping.release(alpha).xcconfig */;
+			baseConfigurationReference = A81424F4DF28987CBF1494D7 /* Pods-TangemExpress.release(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10212,7 +10221,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10225,7 +10233,8 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -10234,7 +10243,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Tangem AG. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -10244,19 +10253,18 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwapping;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpress;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = YES;
@@ -10265,12 +10273,13 @@
 			};
 			name = "Release(alpha)";
 		};
-		EF4661B22923AFC500346B6C /* Debug(production) */ = {
+		EF9E29B22B4F0C9D00418559 /* Debug(production) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5A7C9D60893F2D582271600D /* Pods-TangemSwappingTests.debug(production).xcconfig */;
+			baseConfigurationReference = CCB86CBD9BBD630EDD2FA5A8 /* Pods-TangemExpressTests.debug(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10305,7 +10314,8 @@
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -10321,14 +10331,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwappingTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -10337,12 +10351,13 @@
 			};
 			name = "Debug(production)";
 		};
-		EF4661B32923AFC500346B6C /* Debug(beta) */ = {
+		EF9E29B32B4F0C9D00418559 /* Debug(beta) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9CC2AA18343C123E8B7EBEE2 /* Pods-TangemSwappingTests.debug(beta).xcconfig */;
+			baseConfigurationReference = 2B3884B87B218CBC2D1C6843 /* Pods-TangemExpressTests.debug(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10377,7 +10392,8 @@
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -10393,14 +10409,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwappingTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -10409,12 +10429,13 @@
 			};
 			name = "Debug(beta)";
 		};
-		EF4661B42923AFC500346B6C /* Debug(alpha) */ = {
+		EF9E29B42B4F0C9D00418559 /* Debug(alpha) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8C390600B80AB4DDCD26B677 /* Pods-TangemSwappingTests.debug(alpha).xcconfig */;
+			baseConfigurationReference = AE25DC957F12A412F8800143 /* Pods-TangemExpressTests.debug(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10449,7 +10470,8 @@
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -10465,14 +10487,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwappingTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -10481,12 +10507,13 @@
 			};
 			name = "Debug(alpha)";
 		};
-		EF4661B52923AFC500346B6C /* Release(production) */ = {
+		EF9E29B52B4F0C9D00418559 /* Release(production) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7780A56D10C48A025B75F276 /* Pods-TangemSwappingTests.release(production).xcconfig */;
+			baseConfigurationReference = A152C0FD12A4FBCCAFCA9603 /* Pods-TangemExpressTests.release(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10521,7 +10548,8 @@
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -10531,15 +10559,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwappingTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
@@ -10547,12 +10578,13 @@
 			};
 			name = "Release(production)";
 		};
-		EF4661B62923AFC500346B6C /* Release(beta) */ = {
+		EF9E29B62B4F0C9D00418559 /* Release(beta) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FE89229C8C2587A244BE9191 /* Pods-TangemSwappingTests.release(beta).xcconfig */;
+			baseConfigurationReference = D2C7B26A91D18117383CB132 /* Pods-TangemExpressTests.release(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10587,7 +10619,8 @@
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -10597,15 +10630,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwappingTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
@@ -10613,12 +10649,13 @@
 			};
 			name = "Release(beta)";
 		};
-		EF4661B72923AFC500346B6C /* Release(alpha) */ = {
+		EF9E29B72B4F0C9D00418559 /* Release(alpha) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B92CC5C46156E71BFBFF97A5 /* Pods-TangemSwappingTests.release(alpha).xcconfig */;
+			baseConfigurationReference = 312309F588D6E26BA0F793DB /* Pods-TangemExpressTests.release(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -10653,7 +10690,8 @@
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -10663,15 +10701,18 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSwappingTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemExpressTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tangem.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tangem";
@@ -11257,28 +11298,28 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release(production)";
 		};
-		EF4661A92923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemSwapping" */ = {
+		EF9E29AA2B4F0C9D00418559 /* Build configuration list for PBXNativeTarget "TangemExpress" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				EF4661AA2923AFC500346B6C /* Debug(production) */,
-				EF4661AB2923AFC500346B6C /* Debug(beta) */,
-				EF4661AC2923AFC500346B6C /* Debug(alpha) */,
-				EF4661AD2923AFC500346B6C /* Release(production) */,
-				EF4661AE2923AFC500346B6C /* Release(beta) */,
-				EF4661AF2923AFC500346B6C /* Release(alpha) */,
+				EF9E29AB2B4F0C9D00418559 /* Debug(production) */,
+				EF9E29AC2B4F0C9D00418559 /* Debug(beta) */,
+				EF9E29AD2B4F0C9D00418559 /* Debug(alpha) */,
+				EF9E29AE2B4F0C9D00418559 /* Release(production) */,
+				EF9E29AF2B4F0C9D00418559 /* Release(beta) */,
+				EF9E29B02B4F0C9D00418559 /* Release(alpha) */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release(production)";
 		};
-		EF4661B12923AFC500346B6C /* Build configuration list for PBXNativeTarget "TangemSwappingTests" */ = {
+		EF9E29B12B4F0C9D00418559 /* Build configuration list for PBXNativeTarget "TangemExpressTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				EF4661B22923AFC500346B6C /* Debug(production) */,
-				EF4661B32923AFC500346B6C /* Debug(beta) */,
-				EF4661B42923AFC500346B6C /* Debug(alpha) */,
-				EF4661B52923AFC500346B6C /* Release(production) */,
-				EF4661B62923AFC500346B6C /* Release(beta) */,
-				EF4661B72923AFC500346B6C /* Release(alpha) */,
+				EF9E29B22B4F0C9D00418559 /* Debug(production) */,
+				EF9E29B32B4F0C9D00418559 /* Debug(beta) */,
+				EF9E29B42B4F0C9D00418559 /* Debug(alpha) */,
+				EF9E29B52B4F0C9D00418559 /* Release(production) */,
+				EF9E29B62B4F0C9D00418559 /* Release(beta) */,
+				EF9E29B72B4F0C9D00418559 /* Release(alpha) */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Release(production)";
