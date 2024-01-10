@@ -14,7 +14,7 @@ import BlockchainSdk
 class ExpressInteractor {
     // MARK: - Public
 
-    public var state: AnyPublisher<ExpressInteractorState, Never> {
+    public var state: AnyPublisher<State, Never> {
         _state.eraseToAnyPublisher()
     }
 
@@ -38,7 +38,7 @@ class ExpressInteractor {
 
     // MARK: - Options
 
-    private let _state: CurrentValueSubject<ExpressInteractorState, Never> = .init(.idle)
+    private let _state: CurrentValueSubject<State, Never> = .init(.idle)
     private let _swappingPair: CurrentValueSubject<SwappingPair, Never>
     private let feeOption: ThreadSafeContainer<FeeOption> = .init(.market)
 
@@ -77,7 +77,7 @@ class ExpressInteractor {
 // MARK: - Getters
 
 extension ExpressInteractor {
-    func getState() -> ExpressInteractorState {
+    func getState() -> State {
         _state.value
     }
 
@@ -248,7 +248,7 @@ extension ExpressInteractor {
 // MARK: - Refresh
 
 extension ExpressInteractor {
-    func refresh(type: SwappingManagerRefreshType) {
+    func refresh(type: ExpressInteractor.RefreshType) {
         log("Was requested for refresh with \(type)")
 
         updateTask { interactor in
@@ -284,7 +284,7 @@ extension ExpressInteractor {
 // MARK: - State
 
 private extension ExpressInteractor {
-    func mapState(state: ExpressManagerState) async throws -> ExpressInteractorState {
+    func mapState(state: ExpressManagerState) async throws -> State {
         if hasPendingTransaction() {
             return .restriction(.hasPendingTransaction, quote: state.quote)
         }
@@ -308,7 +308,7 @@ private extension ExpressInteractor {
                 data: permissionRequired.data,
                 fees: mapToFees(fee: permissionRequired.fee)
             )
-            let state: ExpressInteractorState = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
+            let state: State = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
 
             guard try await hasEnoughBalanceForFee(fees: permissionRequiredState.fees, amount: permissionRequired.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: permissionRequired.quote)
@@ -318,7 +318,7 @@ private extension ExpressInteractor {
 
         case .previewCEX(let previewCEX):
             let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: mapToFees(fee: previewCEX.fee))
-            let state: ExpressInteractorState = .previewCEX(previewCEXState, quote: previewCEX.quote)
+            let state: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
 
             guard try await hasEnoughBalanceForFee(fees: previewCEXState.fees, amount: previewCEX.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: previewCEX.quote)
@@ -332,7 +332,7 @@ private extension ExpressInteractor {
             }
 
             let readyToSwapState = ReadyToSwapState(data: ready.data, fees: mapToFees(fee: ready.fee))
-            let state: ExpressInteractorState = .readyToSwap(readyToSwapState, quote: ready.quote)
+            let state: State = .readyToSwap(readyToSwapState, quote: ready.quote)
 
             guard try await hasEnoughBalanceForFee(fees: readyToSwapState.fees, amount: ready.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: ready.quote)
@@ -342,7 +342,7 @@ private extension ExpressInteractor {
         }
     }
 
-    func updateState(_ state: ExpressInteractorState) {
+    func updateState(_ state: State) {
         log("Update state to \(state)")
 
         if case .restriction(.notEnoughAmountForFee, _) = state {
@@ -444,14 +444,14 @@ private extension ExpressInteractor {
         }
     }
 
-    func feeOptionDidChange() async throws -> ExpressInteractorState {
+    func feeOptionDidChange() async throws -> State {
         switch getState() {
         case .idle:
             return .idle
         case .loading(let type):
             return .loading(type: type)
         case .permissionRequired(let state, let quote):
-            let state: ExpressInteractorState = .permissionRequired(state, quote: quote)
+            let state: State = .permissionRequired(state, quote: quote)
 
             guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
@@ -465,7 +465,7 @@ private extension ExpressInteractor {
 
             return returnState
         case .previewCEX(let state, let quote):
-            let state: ExpressInteractorState = .previewCEX(state, quote: quote)
+            let state: State = .previewCEX(state, quote: quote)
 
             guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
@@ -473,7 +473,7 @@ private extension ExpressInteractor {
 
             return state
         case .readyToSwap(let state, let quote):
-            let state: ExpressInteractorState = .readyToSwap(state, quote: quote)
+            let state: State = .readyToSwap(state, quote: quote)
 
             guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
@@ -489,7 +489,7 @@ private extension ExpressInteractor {
 // MARK: - Helpers
 
 private extension ExpressInteractor {
-    func updateTask(block: @escaping (_ interactor: ExpressInteractor) async throws -> ExpressInteractorState) {
+    func updateTask(block: @escaping (_ interactor: ExpressInteractor) async throws -> State) {
         cancelRefresh()
         updateStateTask = Task { [weak self] in
             guard let self else { return }
@@ -642,9 +642,9 @@ enum ExpressInteractorError: String, LocalizedError {
 }
 
 extension ExpressInteractor {
-    indirect enum ExpressInteractorState {
+    indirect enum State {
         case idle
-        case loading(type: SwappingManagerRefreshType)
+        case loading(type: RefreshType)
         case restriction(_ type: RestrictionType, quote: ExpressQuote?)
         case permissionRequired(PermissionRequiredState, quote: ExpressQuote)
         case previewCEX(PreviewCEXState, quote: ExpressQuote)
@@ -692,12 +692,17 @@ extension ExpressInteractor {
 
     // State models
 
+    enum RefreshType {
+        case full
+        case refreshRates
+    }
+
     enum RestrictionType {
         case notEnoughAmountForSwapping(minAmount: Decimal)
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
-        case notEnoughAmountForFee(_ returnState: ExpressInteractorState)
+        case notEnoughAmountForFee(_ returnState: State)
         case requiredRefresh(occurredError: Error)
         case noDestinationTokens
     }
