@@ -193,10 +193,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, notificationInputs in
-                viewModel.delegate?.didChangeNotificationInputs(
-                    notificationInputs,
-                    forUserWalletWithId: viewModel.userWalletModel.userWalletId
-                )
+                viewModel.delegate?.didChangeNotificationInputs(notificationInputs, for: viewModel.userWalletModel.userWalletId)
             }
             .store(in: &bag)
     }

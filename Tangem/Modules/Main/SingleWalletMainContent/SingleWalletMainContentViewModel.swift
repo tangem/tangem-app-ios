@@ -64,10 +64,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         userWalletNotificationPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, notificationInputs in
-                viewModel.delegate?.didChangeNotificationInputs(
-                    notificationInputs,
-                    forUserWalletWithId: viewModel.userWalletModel.userWalletId
-                )
+                viewModel.delegate?.didChangeNotificationInputs(notificationInputs, for: viewModel.userWalletModel.userWalletId)
             }
             .store(in: &bag)
     }
