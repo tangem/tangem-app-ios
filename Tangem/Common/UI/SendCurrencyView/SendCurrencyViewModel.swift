@@ -82,7 +82,7 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
             }
         }
     }
-    
+
     func updateSendFiatValue(amount: Decimal?, tokenItem: TokenItem) {
         guard let amount = amount else {
             update(fiatValue: .formatted(BalanceFormatter().formatFiatBalance(0)))
@@ -112,7 +112,7 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
             }
         }
     }
-    
+
     func update(fiatValue: State) {
         self.fiatValue = fiatValue
     }
