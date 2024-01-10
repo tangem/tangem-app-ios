@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import TangemSwapping
+import TangemExpress
 
 class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
     @Published private(set) var canChangeCurrency: Bool
