@@ -126,8 +126,8 @@ final class SendViewModel: ObservableObject {
         let walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: walletModel.balance,
+            currencyId: walletModel.tokenItem.currencyId,
             tokenIconInfo: tokenIconInfo,
-            cryptoCurrencyId: walletModel.tokenItem.currencyId,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount
