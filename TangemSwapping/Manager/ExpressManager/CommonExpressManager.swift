@@ -15,12 +15,12 @@ actor CommonExpressManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
-    private let logger: SwappingLogger
+    private let logger: Logger
 
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
-    private var _approvePolicy: SwappingApprovePolicy = .unlimited
+    private var _approvePolicy: ExpressApprovePolicy = .unlimited
     private var _amount: Decimal?
 
     private var allProviders: [ExpressAvailableProvider] = []
@@ -34,7 +34,7 @@ actor CommonExpressManager {
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
-        logger: SwappingLogger
+        logger: Logger
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
@@ -62,7 +62,7 @@ extension CommonExpressManager: ExpressManager {
         return allProviders
     }
 
-    func getApprovePolicy() -> SwappingApprovePolicy {
+    func getApprovePolicy() -> ExpressApprovePolicy {
         return _approvePolicy
     }
 
@@ -88,7 +88,7 @@ extension CommonExpressManager: ExpressManager {
         return try await selectedProviderState()
     }
 
-    func update(approvePolicy: SwappingApprovePolicy) async throws -> ExpressManagerState {
+    func update(approvePolicy: ExpressApprovePolicy) async throws -> ExpressManagerState {
         guard _approvePolicy != approvePolicy else {
             log("ApprovePolicy already is \(approvePolicy)")
             return try await selectedProviderState()
@@ -246,7 +246,7 @@ private extension CommonExpressManager {
         return nil
     }
 
-    func updateStatesInProviders(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async {
+    func updateStatesInProviders(request: ExpressManagerSwappingPairRequest, approvePolicy: ExpressApprovePolicy) async {
         let providers = availableProviders.map { $0.provider.name }.joined(separator: ", ")
         log("Start a parallel updating in providers: \(providers) with request \(request)")
 
