@@ -18,7 +18,6 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel)
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void)
     func openP2PTutorial()
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel)
     func openExpress(input: CommonExpressModulesFactory.InputModel)
     func openExplorer(at url: URL, blockchainDisplayName: String)
 }
