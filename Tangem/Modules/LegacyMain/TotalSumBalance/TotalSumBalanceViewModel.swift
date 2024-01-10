@@ -20,8 +20,6 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     // MARK: - Private
 
-    @Injected(\.rateAppService) private var rateAppService: LegacyRateAppService
-
     private unowned let tapOnCurrencySymbol: OpenCurrencySelectionDelegate
     private let walletModelsManager: WalletModelsManager
     private var totalBalanceProvider: TotalBalanceProviding
@@ -51,8 +49,7 @@ class TotalSumBalanceViewModel: ObservableObject {
 
         totalBalancePublisher
             .compactMap { $0.value }
-            .map { [unowned self] balance -> NSAttributedString in
-                checkPositiveBalance()
+            .map { [unowned self] balance in
                 return addAttributeForBalance(balance)
             }
             .assign(to: \.totalFiatValueString, on: self, ownership: .weak)
@@ -75,13 +72,5 @@ class TotalSumBalanceViewModel: ObservableObject {
         let balanceFormatter = BalanceFormatter()
         let formattedTotalFiatValue = balanceFormatter.formatFiatBalance(totalValue.balance, formattingOptions: .defaultFiatFormattingOptions)
         return balanceFormatter.formatTotalBalanceForMain(fiatBalance: formattedTotalFiatValue, formattingOptions: .defaultOptions)
-    }
-
-    private func checkPositiveBalance() {
-        guard rateAppService.shouldCheckBalanceForRateApp else { return }
-
-        guard walletModelsManager.walletModels.contains(where: { !$0.wallet.isEmpty }) else { return }
-
-        rateAppService.registerPositiveBalanceDate()
     }
 }
