@@ -87,6 +87,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 }
 
                 let newAmount = fromAmount(amount?.amount)
+                print("ZZZ model amount changed", amount?.amount, newAmount)
                 if self.amount != newAmount {
                     self.amount = newAmount
                 }
@@ -98,9 +99,19 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .sink { [weak self] amount in
                 guard let self else { return }
 
-                guard !doingFiatCryptoConversion else { return }
+                guard !doingFiatCryptoConversion else {
+                    print("ZZZ entered amount changed", amount, "(skipping)")
+                    return
+                }
+
+                // internal?
+                if self.amount?.value == amount?.value {
+                    print("ZZZ entered amount same", amount, "(skipping)")
+                    return
+                }
 
                 let newAmount = toAmount(amount)
+                print("ZZZ entered amount changed", amount, newAmount)
                 input.setAmount(newAmount)
             }
             .store(in: &bag)
@@ -111,7 +122,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .sink { [weak self] isFiatCalculation in
                 guard let self else { return }
 
+                doingFiatCryptoConversion = true
+                defer {
+                    doingFiatCryptoConversion = false
+                }
+
                 let newAmount = convert(input: amount, isFiatCalculation: isFiatCalculation)
+                print("ZZZ switched", amount, newAmount)
                 if amount != newAmount {
                     amount = newAmount
                 }
@@ -126,13 +143,14 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             return nil
         }
 
-        doingFiatCryptoConversion = true
-
         let inputValue = input.value
         let output: Decimal?
+        let scale: Int
         if isFiatCalculation {
+            scale = 2
             output = BalanceConverter().convertToFiat(value: inputValue, from: cryptoCurrencyId)
         } else {
+            scale = amountFractionDigits
             if case .external(let currentCryptoAmount) = self.input.currentAmount {
                 output = currentCryptoAmount?.value
             } else {
@@ -142,7 +160,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         guard let output else { return nil }
 
-        return DecimalNumberTextField.DecimalValue.external(output)
+        return DecimalNumberTextField.DecimalValue.external(output.rounded(scale: scale))
     }
 
     private func fromAmount(_ cryptoAmount: Amount?) -> DecimalNumberTextField.DecimalValue? {
