@@ -1,5 +1,5 @@
 //
-//  SwappingApproveViewModel.swift
+//  ExpressApproveViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import UIKit
 import enum TangemSdk.TangemSdkError
 import struct BlockchainSdk.Fee
 
-final class SwappingApproveViewModel: ObservableObject, Identifiable {
+final class ExpressApproveViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<ExpressApprovePolicy>?
@@ -34,7 +34,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
     private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let logger: Logger
     private let expressInteractor: ExpressInteractor
-    private unowned let coordinator: SwappingApproveRoutable
+    private unowned let coordinator: ExpressApproveRoutable
 
     private var didBecomeActiveNotificationCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
@@ -44,7 +44,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
         pendingTransactionRepository: ExpressPendingTransactionRepository,
         logger: Logger,
         expressInteractor: ExpressInteractor,
-        coordinator: SwappingApproveRoutable
+        coordinator: ExpressApproveRoutable
     ) {
         self.swappingFeeFormatter = swappingFeeFormatter
         self.pendingTransactionRepository = pendingTransactionRepository
@@ -75,7 +75,7 @@ final class SwappingApproveViewModel: ObservableObject, Identifiable {
 
 // MARK: - Navigation
 
-extension SwappingApproveViewModel {
+extension ExpressApproveViewModel {
     @MainActor
     func didSendApproveTransaction() {
         // We have to wait when the iOS close the nfc view that close this permission view
@@ -91,7 +91,7 @@ extension SwappingApproveViewModel {
 
 // MARK: - Private
 
-private extension SwappingApproveViewModel {
+private extension ExpressApproveViewModel {
     func bind() {
         expressInteractor.state
             .receive(on: DispatchQueue.main)
