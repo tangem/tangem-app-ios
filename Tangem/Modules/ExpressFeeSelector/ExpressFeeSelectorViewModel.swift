@@ -1,5 +1,5 @@
 //
-//  ExpressFeeBottomSheetViewModel.swift
+//  ExpressFeeSelectorViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import SwiftUI
 import TangemExpress
 import struct BlockchainSdk.Fee
 
-final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
+final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
@@ -21,14 +21,14 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
 
     private let feeFormatter: FeeFormatter
     private let expressInteractor: ExpressInteractor
-    private unowned let coordinator: ExpressFeeBottomSheetRoutable
+    private unowned let coordinator: ExpressFeeSelectorRoutable
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         feeFormatter: FeeFormatter,
         expressInteractor: ExpressInteractor,
-        coordinator: ExpressFeeBottomSheetRoutable
+        coordinator: ExpressFeeSelectorRoutable
     ) {
         self.feeFormatter = feeFormatter
         self.expressInteractor = expressInteractor
@@ -72,7 +72,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
                 if newValue {
                     root.expressInteractor.updateFeeOption(option: option)
                     root.selectedFeeOption = option
-                    root.coordinator.closeExpressFeeBottomSheet()
+                    root.coordinator.closeExpressFeeSelector()
                 }
             })
         )
