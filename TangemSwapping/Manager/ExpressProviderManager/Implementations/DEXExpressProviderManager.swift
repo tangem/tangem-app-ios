@@ -15,7 +15,7 @@ actor DEXExpressProviderManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let allowanceProvider: AllowanceProvider
     private let feeProvider: FeeProvider
-    private let logger: SwappingLogger
+    private let logger: Logger
     private let mapper: ExpressManagerMapper
 
     // MARK: - State
@@ -27,7 +27,7 @@ actor DEXExpressProviderManager {
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: AllowanceProvider,
         feeProvider: FeeProvider,
-        logger: SwappingLogger,
+        logger: Logger,
         mapper: ExpressManagerMapper
     ) {
         self.provider = provider
@@ -46,7 +46,7 @@ extension DEXExpressProviderManager: ExpressProviderManager {
         _state
     }
 
-    func update(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async {
+    func update(request: ExpressManagerSwappingPairRequest, approvePolicy: ExpressApprovePolicy) async {
         let state = await getState(request: request, approvePolicy: approvePolicy)
         log("Update to \(state)")
         _state = state
@@ -64,7 +64,7 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 // MARK: - Private
 
 private extension DEXExpressProviderManager {
-    func getState(request: ExpressManagerSwappingPairRequest, approvePolicy: SwappingApprovePolicy) async -> ExpressProviderManagerState {
+    func getState(request: ExpressManagerSwappingPairRequest, approvePolicy: ExpressApprovePolicy) async -> ExpressProviderManagerState {
         do {
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
@@ -98,7 +98,7 @@ private extension DEXExpressProviderManager {
         }
     }
 
-    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, approvePolicy: SwappingApprovePolicy) async -> ExpressProviderManagerState? {
+    func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, approvePolicy: ExpressApprovePolicy) async -> ExpressProviderManagerState? {
         // 1. Check Balance
         do {
             let sourceBalance = try request.pair.source.getBalance()
@@ -132,7 +132,7 @@ private extension DEXExpressProviderManager {
         return nil
     }
 
-    func makePermissionRequired(request: ExpressManagerSwappingPairRequest, spender: String, quote: ExpressQuote, approvePolicy: SwappingApprovePolicy) async throws -> ExpressManagerState.PermissionRequired {
+    func makePermissionRequired(request: ExpressManagerSwappingPairRequest, spender: String, quote: ExpressQuote, approvePolicy: ExpressApprovePolicy) async throws -> ExpressManagerState.PermissionRequired {
         let amount: Decimal = {
             switch approvePolicy {
             case .specified:

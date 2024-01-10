@@ -43,7 +43,7 @@ public enum ExpressManagerState {
 
 public extension ExpressManagerState {
     struct PermissionRequired {
-        public let policy: SwappingApprovePolicy
+        public let policy: ExpressApprovePolicy
         public let data: ExpressApproveData
         public let fee: ExpressFee
         public let quote: ExpressQuote
