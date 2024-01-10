@@ -34,7 +34,7 @@ class ExpressInteractor {
     private let expressDestinationService: ExpressDestinationService
     private let expressTransactionBuilder: ExpressTransactionBuilder
     private let signer: TransactionSigner
-    private let logger: SwappingLogger
+    private let logger: Logger
 
     // MARK: - Options
 
@@ -55,7 +55,7 @@ class ExpressInteractor {
         expressDestinationService: ExpressDestinationService,
         expressTransactionBuilder: ExpressTransactionBuilder,
         signer: TransactionSigner,
-        logger: SwappingLogger
+        logger: Logger
     ) {
         self.userWalletId = userWalletId
         self.initialWallet = initialWallet
@@ -95,7 +95,7 @@ extension ExpressInteractor {
 
     // Proxy methods
 
-    func getApprovePolicy() async -> SwappingApprovePolicy {
+    func getApprovePolicy() async -> ExpressApprovePolicy {
         await expressManager.getApprovePolicy()
     }
 
@@ -156,7 +156,7 @@ extension ExpressInteractor {
         }
     }
 
-    func updateApprovePolicy(policy: SwappingApprovePolicy) {
+    func updateApprovePolicy(policy: ExpressApprovePolicy) {
         updateState(.loading(type: .refreshRates))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(approvePolicy: policy)
@@ -587,7 +587,7 @@ private extension ExpressInteractor {
         Analytics.log(event: .swapButtonSwap, params: parameters)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: SwappingApprovePolicy) {
+    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy) {
         var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
 
         switch policy {
@@ -703,7 +703,7 @@ extension ExpressInteractor {
     }
 
     struct PermissionRequiredState {
-        let policy: SwappingApprovePolicy
+        let policy: ExpressApprovePolicy
         let data: ExpressApproveData
         let fees: [FeeOption: Fee]
     }
