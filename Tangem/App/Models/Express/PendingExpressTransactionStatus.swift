@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum PendingExpressTransactionStatus: String, Equatable {
+enum PendingExpressTransactionStatus: String, Equatable, Codable {
     case awaitingDeposit
     case confirming
     case exchanging
@@ -17,6 +17,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
     case failed
     case refunded
     case verificationRequired
+    case canceled
 
     var pendingStatusTitle: String {
         switch self {
@@ -28,6 +29,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         case .failed: return Localization.expressExchangeStatusFailed
         case .refunded: return Localization.expressExchangeStatusRefunded
         case .verificationRequired: return Localization.expressExchangeStatusVerifying
+        case .canceled: return Localization.expressExchangeStatusCanceled
         }
     }
 
@@ -41,6 +43,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         case .failed: return Localization.expressExchangeStatusFailed
         case .refunded: return Localization.expressExchangeStatusRefundedActive
         case .verificationRequired: return Localization.expressExchangeStatusVerifying
+        case .canceled: return Localization.expressExchangeStatusCanceled
         }
     }
 
@@ -54,6 +57,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         case .failed: return Localization.expressExchangeStatusFailed
         case .refunded: return Localization.expressExchangeStatusRefunded
         case .verificationRequired: return Localization.expressExchangeStatusVerified
+        case .canceled: return Localization.expressExchangeStatusCanceled
         }
     }
 
@@ -61,7 +65,7 @@ enum PendingExpressTransactionStatus: String, Equatable {
         switch self {
         case .awaitingDeposit, .confirming, .exchanging, .sendingToUser, .failed, .verificationRequired:
             return true
-        case .done, .refunded:
+        case .done, .refunded, .canceled:
             return false
         }
     }
