@@ -444,14 +444,21 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateLegalText(state _: ExpressInteractor.ExpressInteractorState) {
-        runTask(in: self) { viewModel in
-            let text = await viewModel.interactor.getSelectedProvider().flatMap { provider in
-                viewModel.expressProviderFormatter.mapToLegalText(provider: provider.provider)
-            }
+    func updateLegalText(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .loading(.refreshRates):
+            break
+        case .idle, .loading(.full):
+            legalText = nil
+        case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
+            runTask(in: self) { viewModel in
+                let text = await viewModel.interactor.getSelectedProvider().flatMap { provider in
+                    viewModel.expressProviderFormatter.mapToLegalText(provider: provider.provider)
+                }
 
-            await runOnMain {
-                viewModel.legalText = text
+                await runOnMain {
+                    viewModel.legalText = text
+                }
             }
         }
     }
