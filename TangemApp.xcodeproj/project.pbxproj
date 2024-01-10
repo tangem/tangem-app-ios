@@ -1100,7 +1100,6 @@
 		EF5FE5DC2B272F6D00C2DEA4 /* FeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5DB2B272F6D00C2DEA4 /* FeeProvider.swift */; };
 		EF5FE5DE2B272F8000C2DEA4 /* ExpressProviderManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5DD2B272F8000C2DEA4 /* ExpressProviderManagerState.swift */; };
 		EF5FE5E22B275C0E00C2DEA4 /* ExpressRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FE5E12B275C0E00C2DEA4 /* ExpressRepository.swift */; };
-		EF61837B2B4F03820064B7CD /* SwappingManagerRefreshType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837A2B4F03820064B7CD /* SwappingManagerRefreshType.swift */; };
 		EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */; };
 		EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837E2B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift */; };
 		EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */; };
@@ -2474,7 +2473,6 @@
 		EF5FE5DB2B272F6D00C2DEA4 /* FeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeProvider.swift; sourceTree = "<group>"; };
 		EF5FE5DD2B272F8000C2DEA4 /* ExpressProviderManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderManagerState.swift; sourceTree = "<group>"; };
 		EF5FE5E12B275C0E00C2DEA4 /* ExpressRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressRepository.swift; sourceTree = "<group>"; };
-		EF61837A2B4F03820064B7CD /* SwappingManagerRefreshType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingManagerRefreshType.swift; sourceTree = "<group>"; };
 		EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinator.swift; sourceTree = "<group>"; };
 		EF61837E2B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinatorView.swift; sourceTree = "<group>"; };
 		EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalNumberFormatterTests.swift; sourceTree = "<group>"; };
@@ -4218,7 +4216,6 @@
 			isa = PBXGroup;
 			children = (
 				B0BB97292B18653B00053954 /* ExpressInteractor.swift */,
-				EF61837A2B4F03820064B7CD /* SwappingManagerRefreshType.swift */,
 			);
 			path = ExpressInteractor;
 			sourceTree = "<group>";
@@ -8066,7 +8063,6 @@
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
 				B09310582A0B76C100F6043A /* ButtonWithLeadingIcon.swift in Sources */,
 				DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */,
-				EF61837B2B4F03820064B7CD /* SwappingManagerRefreshType.swift in Sources */,
 				2D788E862ADD657000E0884B /* WalletSelectorItemViewModel.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
