@@ -58,7 +58,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
 
-        cryptoCurrencyId = walletInfo.cryptoCurrencyId
+        cryptoCurrencyId = walletInfo.currencyId
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
