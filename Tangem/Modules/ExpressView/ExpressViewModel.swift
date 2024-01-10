@@ -279,7 +279,7 @@ private extension ExpressViewModel {
         sendCurrencyViewModel?.updateSendFiatValue(amount: amount, tokenItem: interactor.getSender().tokenItem)
     }
 
-    func updateSendCurrencyHeaderState(state: ExpressInteractor.ExpressInteractorState) {
+    func updateSendCurrencyHeaderState(state: ExpressInteractor.State) {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _),
              .restriction(.notEnoughAmountForFee, _):
@@ -312,7 +312,7 @@ private extension ExpressViewModel {
 
     // MARK: - Update for state
 
-    func updateState(state: ExpressInteractor.ExpressInteractorState) {
+    func updateState(state: ExpressInteractor.State) {
         updateFeeValue(state: state)
         updateProviderView(state: state)
         updateMainButton(state: state)
@@ -359,7 +359,7 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateProviderView(state: ExpressInteractor.ExpressInteractorState) {
+    func updateProviderView(state: ExpressInteractor.State) {
         switch state {
         case .idle:
             providerState = .none
@@ -381,7 +381,7 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateFeeValue(state: ExpressInteractor.ExpressInteractorState) {
+    func updateFeeValue(state: ExpressInteractor.State) {
         switch state {
         case .restriction(.notEnoughAmountForFee(let state), _):
             updateExpressFeeRowViewModel(fees: state.fees)
@@ -415,7 +415,7 @@ private extension ExpressViewModel {
         expressFeeRowViewModel = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: formattedFee, action: action)
     }
 
-    func updateMainButton(state: ExpressInteractor.ExpressInteractorState) {
+    func updateMainButton(state: ExpressInteractor.State) {
         switch state {
         case .idle, .loading(type: .full):
             mainButtonState = .swap
@@ -444,7 +444,7 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateLegalText(state: ExpressInteractor.ExpressInteractorState) {
+    func updateLegalText(state: ExpressInteractor.State) {
         switch state {
         case .loading(.refreshRates):
             break
