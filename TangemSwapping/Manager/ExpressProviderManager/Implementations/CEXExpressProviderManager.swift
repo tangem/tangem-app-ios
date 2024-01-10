@@ -14,7 +14,7 @@ actor CEXExpressProviderManager {
     private let provider: ExpressProvider
     private let expressAPIProvider: ExpressAPIProvider
     private let feeProvider: FeeProvider
-    private let logger: SwappingLogger
+    private let logger: Logger
     private let mapper: ExpressManagerMapper
 
     // MARK: - State
@@ -25,7 +25,7 @@ actor CEXExpressProviderManager {
         provider: ExpressProvider,
         expressAPIProvider: ExpressAPIProvider,
         feeProvider: FeeProvider,
-        logger: SwappingLogger,
+        logger: Logger,
         mapper: ExpressManagerMapper
     ) {
         self.provider = provider
@@ -43,7 +43,7 @@ extension CEXExpressProviderManager: ExpressProviderManager {
         _state
     }
 
-    func update(request: ExpressManagerSwappingPairRequest, approvePolicy _: SwappingApprovePolicy) async {
+    func update(request: ExpressManagerSwappingPairRequest, approvePolicy _: ExpressApprovePolicy) async {
         let state = await getState(request: request)
         log("Update to \(state)")
         _state = state
