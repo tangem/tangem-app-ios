@@ -304,8 +304,10 @@ class SendModel {
                 error = addressError
             }
 
-            self.destination.send(destination)
-            self._destinationError.send(error)
+            DispatchQueue.main.async {
+                self.destination.send(destination)
+                self._destinationError.send(error)
+            }
         }
     }
 
