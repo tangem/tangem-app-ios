@@ -98,11 +98,7 @@ extension CommonRateAppService: RateAppService {
             return
         }
 
-        if selectedPage.displayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
-            return
-        }
-
-        guard positiveBalanceAppearanceDate != nil else {
+        if positiveBalanceAppearanceDate == nil {
             return
         }
 
@@ -111,6 +107,10 @@ extension CommonRateAppService: RateAppService {
         }
 
         guard currentLaunchCount - lastRequestedReviewLaunchCount >= requiredNumberOfLaunches else {
+            return
+        }
+
+        if selectedPage.displayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
             return
         }
 
