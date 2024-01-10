@@ -323,11 +323,20 @@ private extension ExpressViewModel {
 
                 _ = try await wallet.getBalance()
                 await runOnMain {
-                    viewModel.sendCurrencyViewModel?.balance = .formatted(wallet.balance)
+                    let formatted: String = {
+                        if let balance = wallet.balanceValue {
+                            return viewModel.balanceFormatter.formatDecimal(balance)
+                        }
+
+                        return BalanceFormatter.defaultEmptyBalanceString
+                    }()
+
+                    viewModel.sendCurrencyViewModel?.balance = .formatted(formatted)
                 }
             }
-        case .some:
-            sendCurrencyViewModel?.balance = .formatted(wallet.balance)
+        case .some(let balance):
+            let formatted = balanceFormatter.formatDecimal(balance)
+            sendCurrencyViewModel?.balance = .formatted(formatted)
         }
     }
 
@@ -381,11 +390,20 @@ private extension ExpressViewModel {
 
                 _ = try await wallet.getBalance()
                 await runOnMain {
-                    viewModel.receiveCurrencyViewModel?.balance = .formatted(wallet.balance)
+                    let formatted: String = {
+                        if let balance = wallet.balanceValue {
+                            return viewModel.balanceFormatter.formatDecimal(balance)
+                        }
+
+                        return BalanceFormatter.defaultEmptyBalanceString
+                    }()
+
+                    viewModel.receiveCurrencyViewModel?.balance = .formatted(formatted)
                 }
             }
-        case .some:
-            receiveCurrencyViewModel?.balance = .formatted(wallet.balance)
+        case .some(let balance):
+            let formatted = balanceFormatter.formatDecimal(balance)
+            receiveCurrencyViewModel?.balance = .formatted(formatted)
         }
     }
 
