@@ -13,6 +13,8 @@ import Combine
 import CombineExt
 
 final class MainViewModel: ObservableObject {
+    private typealias UserWalletIdData = Data
+
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @InjectedWritable(\.mainBottomSheetVisibility) private var bottomSheetVisibility: MainBottomSheetVisibility
 
@@ -41,16 +43,16 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    private var pendingUserWalletIdsToUpdate: Set<Data> = []
+    private var pendingUserWalletIdsToUpdate: Set<UserWalletIdData> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
-    private let notificationInputsSubject: CurrentValueSubject<[Data: [NotificationViewInput]], Never> = .init([:])
-    private let loadedBalancesSubject: CurrentValueSubject<[Data: Bool], Never> = .init([:])
+    private let notificationInputsSubject: CurrentValueSubject<[UserWalletIdData: [NotificationViewInput]], Never> = .init([:])
+    private let loadedBalancesSubject: CurrentValueSubject<[UserWalletIdData: Bool], Never> = .init([:])
 
     private var isLoggingOut = false
 
-    private var totalBalanceSubscriptions: [Data: AnyCancellable] = [:]
+    private var totalBalanceSubscriptions: [UserWalletIdData: AnyCancellable] = [:]
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Initializers
@@ -243,7 +245,7 @@ final class MainViewModel: ObservableObject {
             let userWalletModels = pendingUserWalletModelsToAdd
             pendingUserWalletModelsToAdd.removeAll()
 
-            var processedUserWalletIds: Set<Data> = []
+            var processedUserWalletIds: Set<UserWalletIdData> = []
             for userWalletModel in userWalletModels {
                 processedUserWalletIds.insert(userWalletModel.userWallet.userWalletId)
                 addNewPage(for: userWalletModel)
@@ -285,7 +287,7 @@ final class MainViewModel: ObservableObject {
         subscribeToTotalBalanceUpdates(userWalletModel: userWalletModel)
     }
 
-    private func removePages(with userWalletIds: [Data]) {
+    private func removePages(with userWalletIds: [UserWalletIdData]) {
         pages.removeAll { userWalletIds.contains($0.id.value) }
         totalBalanceSubscriptions.removeAll { userWalletIds.contains($0.key) }
         notificationInputsSubject.value.removeAll { userWalletIds.contains($0.key) }
@@ -412,7 +414,10 @@ final class MainViewModel: ObservableObject {
             .subscribe(loadedBalancesSubject)
     }
 
-    private func requestRateApp(notificationInputs: [Data: [NotificationViewInput]], loadedBalances: [Data: Bool]) {
+    private func requestRateApp(
+        notificationInputs: [UserWalletIdData: [NotificationViewInput]],
+        loadedBalances: [UserWalletIdData: Bool]
+    ) {
         let pageInfos = pages.map { page in
             return RateAppRequest.PageInfo(
                 isLocked: page.isLockedWallet,
