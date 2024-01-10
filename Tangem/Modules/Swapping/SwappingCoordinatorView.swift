@@ -34,7 +34,10 @@ struct SwappingCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(item: $coordinator.swappingApproveViewModel) {
+            .bottomSheet(
+                item: $coordinator.swappingApproveViewModel,
+                backgroundColor: Colors.Background.tertiary
+            ) {
                 SwappingApproveView(viewModel: $0)
             }
 
