@@ -33,7 +33,7 @@ class ExpressNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: ExpressNotificationManager.setupNotifications(for:)))
     }
 
-    private func setupNotifications(for state: ExpressInteractor.ExpressInteractorState) {
+    private func setupNotifications(for state: ExpressInteractor.State) {
         priceImpactTask?.cancel()
         priceImpactTask = nil
 
