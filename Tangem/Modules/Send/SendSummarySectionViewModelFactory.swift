@@ -45,17 +45,17 @@ struct SendSummarySectionViewModelFactory {
 
         let formattedAmount = amount.description
 
-        let amountFiat: String?
+        let amountFiat: String
         if let currencyId,
            let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
             amountFiat = BalanceFormatter().formatFiatBalance(fiatValue)
         } else {
-            amountFiat = nil
+            amountFiat = AppConstants.dashSign
         }
         return AmountSummaryViewData(
             title: Localization.sendAmountLabel,
             amount: formattedAmount,
-            amountFiat: amountFiat ?? "",
+            amountFiat: amountFiat,
             tokenIconInfo: tokenIconInfo
         )
     }
