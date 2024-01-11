@@ -150,7 +150,8 @@ private extension CommonExpressTransactionBuilder {
              .octa,
              .chia,
              .near,
-             .decimal:
+             .decimal,
+             .veChain:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
