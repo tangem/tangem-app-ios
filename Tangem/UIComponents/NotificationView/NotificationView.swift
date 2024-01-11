@@ -48,7 +48,7 @@ struct NotificationView: View {
                     settings.dismissAction?(settings.id)
                 }) {
                     Assets.cross.image
-                        .foregroundColor(Colors.Icon.inactive)
+                        .foregroundColor(settings.event.colorScheme.dismissButtonColor)
                 }
             }
             .padding(.top, -4)
@@ -98,19 +98,16 @@ struct NotificationView: View {
 
     private var messageIconContent: some View {
         HStack(spacing: 12) {
-            settings.event.icon.image
-                .resizable()
-                .foregroundColor(settings.event.icon.color)
-                .frame(size: .init(bothDimensions: 20))
+            icon
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(settings.event.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
 
                 if let description = settings.event.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: settings.event.colorScheme.messageColor)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -118,6 +115,22 @@ struct NotificationView: View {
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.trailing, 20)
+    }
+
+    private var icon: some View {
+        Group {
+            switch settings.event.icon.iconType {
+            case .image(let image):
+                image
+                    .resizable()
+                    .foregroundColor(settings.event.icon.color)
+            case .progressView:
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .foregroundColor(Colors.Icon.informative)
+            }
+        }
+        .frame(size: settings.event.icon.size)
     }
 }
 
