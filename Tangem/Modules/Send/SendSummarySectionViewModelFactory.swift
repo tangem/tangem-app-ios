@@ -48,7 +48,7 @@ struct SendSummarySectionViewModelFactory {
         let amountFiat: String?
         if let currencyId,
            let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
-            amountFiat = fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode, maximumFractionDigits: 2)
+            amountFiat = BalanceFormatter().formatFiatBalance(fiatValue)
         } else {
             amountFiat = nil
         }
