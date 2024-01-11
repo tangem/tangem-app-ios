@@ -116,25 +116,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 }
 
                 inputTrigger = .currencySelector
-                updateViewAmount(isFiatCalculation: isFiatCalculation)
+                setTextFieldAmount(isFiatCalculation: isFiatCalculation)
             }
             .store(in: &bag)
-    }
-
-    private func updateViewAmount(isFiatCalculation: Bool) {
-        let newAmount: Decimal?
-
-        if isFiatCalculation {
-            newAmount = fiatAmount
-        } else {
-            newAmount = cryptoAmount
-        }
-
-        if let newAmount {
-            amount = .external(newAmount)
-        } else {
-            amount = nil
-        }
     }
 
     private func amountPair(from amount: Decimal?, isFiatCalculation: Bool) -> (cryptoAmount: Decimal?, fiatAmount: Decimal?)? {
@@ -174,7 +158,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         cryptoAmount = newCryptoAmount
         if inputTrigger != .keyboard {
             fiatAmount = newFiatAmount
-            updateViewAmount(isFiatCalculation: isFiatCalculation)
+            setTextFieldAmount(isFiatCalculation: isFiatCalculation)
         }
     }
 
@@ -191,6 +175,22 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             newAmount = nil
         }
         input.setAmount(newAmount)
+    }
+
+    private func setTextFieldAmount(isFiatCalculation: Bool) {
+        let newAmount: Decimal?
+
+        if isFiatCalculation {
+            newAmount = fiatAmount
+        } else {
+            newAmount = cryptoAmount
+        }
+
+        if let newAmount {
+            amount = .external(newAmount)
+        } else {
+            amount = nil
+        }
     }
 }
 
