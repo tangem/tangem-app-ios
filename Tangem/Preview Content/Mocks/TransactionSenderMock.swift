@@ -25,7 +25,7 @@ struct FiatRatesProviderMock: FiatRatesProviding {
     func getFiat(for blockchain: TangemSwapping.SwappingBlockchain, amount: Decimal) async throws -> Decimal { .zero }
 }
 
-struct SwappingFeeFormatterMock: SwappingFeeFormatter {
+struct FeeFormatterMock: FeeFormatter {
     func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String { "" }
     func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String { "" }
     func format(fee: Decimal, tokenItem: TokenItem) -> String { "" }
