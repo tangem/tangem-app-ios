@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import BigInt
 import BlockchainSdk
 
 class SendModel {
@@ -73,6 +74,10 @@ class SendModel {
     private let _transactionURL = CurrentValueSubject<URL?, Never>(nil)
 
     private let _sendError = PassthroughSubject<Error?, Never>()
+
+    private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
+    private let _customFeeGasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
+    private let _customFeeGasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -192,6 +197,14 @@ class SendModel {
                 if let marketFee = feeValues[.market],
                    let marketFeeValue = marketFee.value {
                     fee.send(marketFeeValue)
+                }
+
+                if let customFee = feeValues[.custom]?.value,
+                   let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
+                   _customFee.value == nil {
+                    _customFee.send(customFee)
+                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
+                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
                 }
             }
             .store(in: &bag)
