@@ -118,7 +118,7 @@ private extension CEXExpressProviderManager {
     }
 
     func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) async throws -> Bool {
-        let sourceBalance = try await request.pair.source.getBalance()
+        let sourceBalance = try request.pair.source.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
         return isNotEnoughBalanceForSwapping
@@ -128,7 +128,7 @@ private extension CEXExpressProviderManager {
         // The fee's subtraction needed only for coin
         guard !request.pair.source.isToken else { return 0 }
 
-        let balance = try await request.pair.source.getBalance()
+        let balance = try request.pair.source.getBalance()
         let fullAmount = request.amount + fee.fastest.amount.value
         // We have enough balance
         if fullAmount < balance {
