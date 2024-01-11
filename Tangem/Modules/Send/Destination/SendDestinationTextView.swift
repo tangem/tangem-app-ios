@@ -50,11 +50,11 @@ struct SendDestinationTextView: View {
     private var fieldName: some View {
         if let errorText = viewModel.errorText {
             Text(errorText)
-                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                .style(Fonts.Regular.footnote, color: Colors.Text.warning)
                 .lineLimit(1)
         } else {
             Text(viewModel.name)
-                .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
         }
     }
 
