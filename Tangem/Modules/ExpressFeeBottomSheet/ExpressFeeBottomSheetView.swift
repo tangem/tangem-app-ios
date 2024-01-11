@@ -24,8 +24,10 @@ struct ExpressFeeBottomSheetView: View {
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
+            .backgroundColor(Colors.Background.action)
+            .interItemSpacing(0)
+            .verticalPadding(10)
             .horizontalPadding(14)
-            .verticalPadding(0)
             .separatorStyle(.minimum)
             .padding(.horizontal, 14)
         }
@@ -59,11 +61,7 @@ struct ExpressFeeBottomSheetView_Preview: PreviewProvider {
         @Published var item: ExpressFeeBottomSheetViewModel?
 
         func toggleItem() {
-            if item == nil {
-                item = ExpressFeeBottomSheetViewModel(coordinator: self)
-            } else {
-                item = nil
-            }
+            // [REDACTED_TODO_COMMENT]
         }
 
         func closeExpressFeeBottomSheet() {
