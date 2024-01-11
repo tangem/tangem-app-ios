@@ -592,9 +592,9 @@ private extension ExpressInteractor {
 
         switch policy {
         case .specified:
-            parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
-        case .unlimited:
             parameters[.type] = Analytics.ParameterValue.oneTransactionApprove.rawValue
+        case .unlimited:
+            parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
         }
 
         if let destination = getDestination() {
