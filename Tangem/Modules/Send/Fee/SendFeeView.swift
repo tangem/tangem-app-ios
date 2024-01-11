@@ -23,6 +23,8 @@ struct SendFeeView: View {
             .verticalPadding(0)
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
+
+            GroupedSection
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
