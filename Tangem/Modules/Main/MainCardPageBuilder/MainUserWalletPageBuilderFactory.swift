@@ -23,10 +23,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let containsDefaultToken = (model.config.defaultBlockchains.first?.tokens.count ?? 0) > 0
         let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
         let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
+        let balanceProvider = MainHeaderBalanceProviderFactory().provider(for: model)
         let headerModel = MainHeaderViewModel(
-            infoProvider: model,
+            isUserWalletLocked: model.isUserWalletLocked,
+            supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
-            balanceProvider: model
+            balanceProvider: balanceProvider
         )
 
         let signatureCountValidator = selectSignatureCountValidator(for: model)
