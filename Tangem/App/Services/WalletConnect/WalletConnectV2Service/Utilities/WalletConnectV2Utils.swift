@@ -204,7 +204,7 @@ struct WalletConnectV2Utils {
                 .first(where: { $0.chainId == wcChainId })
                 .map {
                     BlockchainMeta(
-                        id: $0.coinId,
+                        id: $0.networkId,
                         currencySymbol: $0.currencySymbol,
                         displayName: $0.displayName
                     )
