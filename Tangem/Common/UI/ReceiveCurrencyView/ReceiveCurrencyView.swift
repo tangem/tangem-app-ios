@@ -23,22 +23,27 @@ struct ReceiveCurrencyView: View {
 
             mainContent
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
-        .background(Colors.Background.primary)
+        .padding(.all, 14)
+        .background(Colors.Background.action)
         .cornerRadius(14)
     }
 
     private var headerLabels: some View {
         HStack(spacing: 0) {
-            Text(Localization.exchangeReceiveViewHeader)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            Text(Localization.swappingToTitle)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             Spacer()
 
-            SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .fixedSize(horizontal: false, vertical: true)
+            if viewModel.isAvailable {
+                SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text(Localization.swappingTokenNotAvailable)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.disabled)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
@@ -49,39 +54,83 @@ struct ReceiveCurrencyView: View {
 
             Spacer()
 
-            SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+            SwappingTokenIconView(state: viewModel.tokenIconState)
                 .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
         }
     }
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            switch viewModel.cryptoAmountState {
-            case .loading:
-                SkeletonView()
-                    .frame(width: 102, height: 24)
-                    .cornerRadius(6)
-                    .padding(.vertical, 6)
+            cryptoAmountView
 
-            case .loaded:
-                Text(viewModel.cryptoAmountFormatted)
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 2) {
+                fiatAmountView
+
+                priceChangeView
             }
+        }
+    }
 
-            switch viewModel.fiatAmountState {
-            case .loading:
-                SkeletonView()
-                    .frame(width: 40, height: 13)
-                    .cornerRadius(6)
-            case .loaded:
-                Text(viewModel.fiatAmountFormatted)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
+    @ViewBuilder
+    private var cryptoAmountView: some View {
+        switch viewModel.cryptoAmountState {
+        case .idle:
+            EmptyView()
+        case .loading:
+            SkeletonView()
+                .frame(width: 102, height: 24)
+                .cornerRadius(6)
+                .padding(.vertical, 6)
+
+        case .loaded:
+            Text(viewModel.cryptoAmountFormatted)
+                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        case .formatted(let value):
+            Text(value)
+                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
+    private var fiatAmountView: some View {
+        switch viewModel.fiatAmountState {
+        case .idle:
+            EmptyView()
+        case .loading:
+            SkeletonView()
+                .frame(width: 40, height: 13)
+                .cornerRadius(6)
+        case .loaded:
+            Text(viewModel.fiatAmountFormatted)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        case .formatted(let value):
+            Text(value)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
+    private var priceChangeView: some View {
+        if let priceChangePercent = viewModel.priceChangePercent {
+            HStack(spacing: 4) {
+                Text("(\(priceChangePercent))")
+                    .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+
+                Assets.attention.image
+                    .resizable()
+                    .frame(width: 16, height: 16)
             }
         }
     }
@@ -98,51 +147,43 @@ extension ReceiveCurrencyView: Setupable {
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         ReceiveCurrencyViewModel(
-            balance: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loading,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
         ReceiveCurrencyViewModel(
-            balance: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loading,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
         ReceiveCurrencyViewModel(
-            balance: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loading,
             fiatAmountState: .loaded(1100.46),
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
         ReceiveCurrencyViewModel(
-            balance: 0.124124,
+            balance: .loaded(0.124124),
             canChangeCurrency: false,
             cryptoAmountState: .loaded(1100.46),
             fiatAmountState: .loaded(1100.46),
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                    symbol: "MATIC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
+                symbol: "MATIC"
             )
         ),
     ]
