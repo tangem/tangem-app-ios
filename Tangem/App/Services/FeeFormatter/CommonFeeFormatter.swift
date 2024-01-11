@@ -7,41 +7,24 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 
 struct CommonFeeFormatter {
     private let balanceFormatter: BalanceFormatter
     private let balanceConverter: BalanceConverter
 
-    private let fiatRatesProvider: FiatRatesProviding // Will be deleted
-
     init(
         balanceFormatter: BalanceFormatter,
-        balanceConverter: BalanceConverter,
-        fiatRatesProvider: FiatRatesProviding
+        balanceConverter: BalanceConverter
     ) {
         self.balanceFormatter = balanceFormatter
         self.balanceConverter = balanceConverter
-        self.fiatRatesProvider = fiatRatesProvider
     }
 }
 
 // MARK: - FeeFormatter
 
 extension CommonFeeFormatter: FeeFormatter {
-    func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String {
-        let fiatFee = try await fiatRatesProvider.getFiat(for: blockchain, amount: fee)
-        return format(fee: fee, symbol: blockchain.symbol, fiatFee: fiatFee)
-    }
-
-    func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String {
-        guard let fiatFee = fiatRatesProvider.getFiat(for: blockchain, amount: fee) else {
-            throw CommonError.noData
-        }
-
-        return format(fee: fee, symbol: blockchain.symbol, fiatFee: fiatFee)
-    }
-
     func format(fee: Decimal, tokenItem: TokenItem) -> String {
         let currencySymbol = tokenItem.blockchain.currencySymbol
         let currencyId = tokenItem.blockchain.currencyId
@@ -58,16 +41,5 @@ extension CommonFeeFormatter: FeeFormatter {
         } else {
             return result
         }
-    }
-}
-
-// MARK: - Private
-
-private extension CommonFeeFormatter {
-    func format(fee: Decimal, symbol: String, fiatFee: Decimal) -> String {
-        let feeFormatted = fee.groupedFormatted()
-        let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-
-        return "\(feeFormatted) \(symbol) (\(fiatFeeFormatted))"
     }
 }
