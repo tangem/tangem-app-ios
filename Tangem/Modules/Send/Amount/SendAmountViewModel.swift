@@ -108,7 +108,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .dropFirst()
             .removeDuplicates()
             .sink { [weak self] isFiatCalculation in
-                guard let self else { return }
+                guard
+                    let self,
+                    amount != nil
+                else {
+                    return
+                }
 
                 inputTrigger = .currencySelector
                 updateViewAmount(isFiatCalculation: isFiatCalculation)
