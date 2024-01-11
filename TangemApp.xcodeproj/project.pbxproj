@@ -990,8 +990,8 @@
 		EF053DF32938D4BC006FD13A /* UserWalletListOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */; };
 		EF0708262A0FADB60072AA0E /* SwappingGasPricePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0708252A0FADB60072AA0E /* SwappingGasPricePolicy.swift */; };
 		EF07082A2A1638890072AA0E /* SwappingAvailabilityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0708292A1638890072AA0E /* SwappingAvailabilityModel.swift */; };
-		EF07082C2A16474F0072AA0E /* SwappingFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082B2A16474F0072AA0E /* SwappingFeeFormatter.swift */; };
-		EF07082F2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082E2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift */; };
+		EF07082C2A16474F0072AA0E /* FeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082B2A16474F0072AA0E /* FeeFormatter.swift */; };
+		EF07082F2A16476F0072AA0E /* CommonFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082E2A16476F0072AA0E /* CommonFeeFormatter.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsList.swift */; };
 		EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */; };
@@ -2450,8 +2450,8 @@
 		EF053DF02938D4BC006FD13A /* UserWalletListOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletListOutput.swift; sourceTree = "<group>"; };
 		EF0708252A0FADB60072AA0E /* SwappingGasPricePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingGasPricePolicy.swift; sourceTree = "<group>"; };
 		EF0708292A1638890072AA0E /* SwappingAvailabilityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingAvailabilityModel.swift; sourceTree = "<group>"; };
-		EF07082B2A16474F0072AA0E /* SwappingFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingFeeFormatter.swift; sourceTree = "<group>"; };
-		EF07082E2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwappingFeeFormatter.swift; sourceTree = "<group>"; };
+		EF07082B2A16474F0072AA0E /* FeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeFormatter.swift; sourceTree = "<group>"; };
+		EF07082E2A16476F0072AA0E /* CommonFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeFormatter.swift; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsList.swift; sourceTree = "<group>"; };
 		EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetContainer.swift; sourceTree = "<group>"; };
@@ -5556,7 +5556,7 @@
 				DC3DCAE62A49B5C000F72554 /* UserTokensManager */,
 				B65CB4002A98B98C00C31199 /* UserTokensReordering */,
 				DA7444212A27889600F926A9 /* PromotionService */,
-				EF07082D2A1647560072AA0E /* SwappingFeeFormatter */,
+				EF07082D2A1647560072AA0E /* FeeFormatter */,
 				EFC7FE9529D6D8CA00C39E42 /* CurrencyMapper */,
 				EFC7FE9229D6D88D00C39E42 /* SwappingDestinationService */,
 				EF5F1BB629D6C6410093307B /* UserCurrenciesProvider */,
@@ -6051,13 +6051,13 @@
 			path = ExpressAPIMapper;
 			sourceTree = "<group>";
 		};
-		EF07082D2A1647560072AA0E /* SwappingFeeFormatter */ = {
+		EF07082D2A1647560072AA0E /* FeeFormatter */ = {
 			isa = PBXGroup;
 			children = (
-				EF07082B2A16474F0072AA0E /* SwappingFeeFormatter.swift */,
-				EF07082E2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift */,
+				EF07082B2A16474F0072AA0E /* FeeFormatter.swift */,
+				EF07082E2A16476F0072AA0E /* CommonFeeFormatter.swift */,
 			);
-			path = SwappingFeeFormatter;
+			path = FeeFormatter;
 			sourceTree = "<group>";
 		};
 		EF08A0ED283D1905008BD923 /* Extensions */ = {
@@ -8271,7 +8271,7 @@
 				5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */,
 				2DF5A81F2B13C33D00AA5E73 /* ManageTokensNetworkDataSource.swift in Sources */,
 				B0DD162C2A331C2100CB23AA /* TokenDetailsRoutable.swift in Sources */,
-				EF07082F2A16476F0072AA0E /* CommonSwappingFeeFormatter.swift in Sources */,
+				EF07082F2A16476F0072AA0E /* CommonFeeFormatter.swift in Sources */,
 				B0DD16292A331C2100CB23AA /* TokenDetailsCoordinatorView.swift in Sources */,
 				B0F318F62A738ACC009F131E /* LockedUserTokenListManager.swift in Sources */,
 				B07AE16C25DD548A0045179A /* CommonRateAppService.swift in Sources */,
@@ -8386,7 +8386,7 @@
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B68B35692A4ACF8B0069129F /* OrganizeTokensContainerView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
-				EF07082C2A16474F0072AA0E /* SwappingFeeFormatter.swift in Sources */,
+				EF07082C2A16474F0072AA0E /* FeeFormatter.swift in Sources */,
 				B674D6D92A96AC8800172491 /* Sequence+.swift in Sources */,
 				B6AA13762A2A37A800B53937 /* CardInfoPagePreviewView.swift in Sources */,
 				EFE503592A727A100086A1B1 /* BottomScrollableSheet.swift in Sources */,
