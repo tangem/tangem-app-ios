@@ -40,6 +40,7 @@ struct SendDestinationTextView: View {
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
         .horizontalPadding(14)
+        .backgroundColor(Colors.Background.action)
         .onAppear {
             viewModel.onAppear()
         }
