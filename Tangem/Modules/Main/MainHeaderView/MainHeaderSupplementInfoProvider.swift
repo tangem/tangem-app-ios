@@ -8,9 +8,7 @@
 
 import Combine
 
-protocol MainHeaderInfoProvider: AnyObject {
-    var isUserWalletLocked: Bool { get }
-    var isTokensListEmpty: Bool { get }
+protocol MainHeaderSupplementInfoProvider: AnyObject {
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { get }
     var userWalletNamePublisher: AnyPublisher<String, Never> { get }
 }
