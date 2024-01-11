@@ -8,80 +8,83 @@
 
 import Foundation
 
-struct SendCurrencyViewModel: Identifiable {
-    var id: Int { hashValue }
-
-    // ViewState
-    private(set) var maximumFractionDigits: Int
-    private(set) var canChangeCurrency: Bool
-    private(set) var balance: State
-    private(set) var fiatValue: State
-
-    let tokenIcon: SwappingTokenIconViewModel
+class SendCurrencyViewModel: ObservableObject, Identifiable {
+    @Published var headerState: HeaderState = .header
+    @Published var maximumFractionDigits: Int
+    @Published var canChangeCurrency: Bool
+    @Published var balance: State
+    @Published var fiatValue: State
+    @Published var tokenIconState: SwappingTokenIconView.State
 
     var balanceString: String {
-        let balance = balance.value ?? 0
-        return balance.groupedFormatted()
+        switch balance {
+        case .idle:
+            return ""
+        case .loading:
+            return "0"
+        case .loaded(let value):
+            return value.groupedFormatted()
+        case .formatted(let value):
+            return value
+        }
     }
 
     var fiatValueString: String {
-        let fiatValue = fiatValue.value ?? 0
-        return fiatValue.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        switch fiatValue {
+        case .idle:
+            return ""
+        case .loading:
+            return "0"
+        case .loaded(let value):
+            return value.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        case .formatted(let value):
+            return value
+        }
     }
 
     init(
-        balance: State,
-        fiatValue: State,
+        balance: State = .idle,
+        fiatValue: State = .idle,
         maximumFractionDigits: Int,
         canChangeCurrency: Bool,
-        tokenIcon: SwappingTokenIconViewModel
+        tokenIconState: SwappingTokenIconView.State
     ) {
         self.balance = balance
         self.fiatValue = fiatValue
         self.maximumFractionDigits = maximumFractionDigits
         self.canChangeCurrency = canChangeCurrency
-        self.tokenIcon = tokenIcon
+        self.tokenIconState = tokenIconState
     }
 
     func textFieldDidTapped() {
         Analytics.log(.swapSendTokenBalanceClicked)
     }
 
-    mutating func update(balance: State) {
+    func update(balance: State) {
         self.balance = balance
     }
 
-    mutating func update(fiatValue: State) {
+    func update(fiatValue: State) {
         self.fiatValue = fiatValue
     }
 
-    mutating func update(maximumFractionDigits: Int) {
+    func update(maximumFractionDigits: Int) {
         self.maximumFractionDigits = maximumFractionDigits
     }
 }
 
 extension SendCurrencyViewModel {
-    enum State: Hashable {
-        case loading
-        case loaded(_ value: Decimal)
-
-        var value: Decimal? {
-            switch self {
-            case .loaded(let value):
-                return value
-            default:
-                return nil
-            }
-        }
+    enum HeaderState {
+        case header
+        case insufficientFunds
     }
-}
 
-extension SendCurrencyViewModel: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(balance)
-        hasher.combine(fiatValue)
-        hasher.combine(maximumFractionDigits)
-        hasher.combine(canChangeCurrency)
-        hasher.combine(tokenIcon)
+    enum State: Hashable {
+        case idle
+        case loading
+        case formatted(_ value: String)
+
+        @available(*, deprecated, renamed: "formatted", message: "Have to be formatted outside")
+        case loaded(_ value: Decimal)
     }
 }
