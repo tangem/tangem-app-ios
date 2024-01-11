@@ -27,20 +27,27 @@ struct SendCurrencyView: View {
 
             mainContent
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
-        .background(Colors.Background.primary)
+        .padding(.all, 14)
+        .background(Colors.Background.action)
         .cornerRadius(14)
     }
 
     private var headerLabels: some View {
         HStack(spacing: 0) {
-            Text(Localization.exchangeSendViewHeader)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            switch viewModel.headerState {
+            case .header:
+                Text(Localization.swappingFromTitle)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+            case .insufficientFunds:
+                Text(Localization.swappingInsufficientFunds)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+            }
 
             Spacer()
 
             switch viewModel.balance {
+            case .idle:
+                EmptyView()
             case .loading:
                 SkeletonView()
                     .frame(width: 100, height: 13)
@@ -49,13 +56,17 @@ struct SendCurrencyView: View {
                 SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
+            case .formatted(let value):
+                SensitiveText(builder: Localization.commonBalance, sensitive: value)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
 
     private var currencyContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits)
+            SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: viewModel.maximumFractionDigits, font: Fonts.Regular.title1)
                 .maximumFractionDigits(viewModel.maximumFractionDigits)
                 .didTapMaxAmount { didTapMaxAmountAction?() }
                 .simultaneousGesture(TapGesture().onEnded {
@@ -63,12 +74,17 @@ struct SendCurrencyView: View {
                 })
 
             switch viewModel.fiatValue {
+            case .idle:
+                EmptyView()
             case .loading:
                 SkeletonView()
                     .frame(width: 50, height: 13)
                     .cornerRadius(6)
             case .loaded:
                 Text(viewModel.fiatValueString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            case .formatted(let value):
+                Text(value)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
         }
@@ -80,7 +96,7 @@ struct SendCurrencyView: View {
 
             Spacer()
 
-            SwappingTokenIconView(viewModel: viewModel.tokenIcon)
+            SwappingTokenIconView(state: viewModel.tokenIconState)
                 .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
         }
     }
@@ -107,11 +123,9 @@ struct SendCurrencyView_Preview: PreviewProvider {
             fiatValue: .loading,
             maximumFractionDigits: 8,
             canChangeCurrency: true,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                    symbol: "BTC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
+                symbol: "BTC"
             )
         ),
         SendCurrencyViewModel(
@@ -119,11 +133,9 @@ struct SendCurrencyView_Preview: PreviewProvider {
             fiatValue: .loaded(1000.71),
             maximumFractionDigits: 8,
             canChangeCurrency: true,
-            tokenIcon: SwappingTokenIconViewModel(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                    symbol: "BTC"
-                )
+            tokenIconState: .loaded(
+                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
+                symbol: "BTC"
             )
         ),
     ]
