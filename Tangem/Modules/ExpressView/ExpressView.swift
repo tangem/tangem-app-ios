@@ -178,7 +178,7 @@ struct ExpressView: View {
          tokenIconURLBuilder: TokenIconURLBuilder(),
          transactionSender: TransactionSenderMock(),
          fiatRatesProvider: FiatRatesProviderMock(),
-         swappingFeeFormatter: SwappingFeeFormatterMock(),
+         feeFormatter: FeeFormatterMock(),
          coordinator: ExpressCoordinator()
      )
 
