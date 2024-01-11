@@ -130,12 +130,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         let newFiatAmount: Decimal?
 
         if let cryptoCurrencyId {
+            let balanceConverter = BalanceConverter()
             if isFiatCalculation {
-                newCryptoAmount = BalanceConverter().convertFromFiat(value: amount, to: cryptoCurrencyId)?.rounded(scale: amountFractionDigits)
+                newCryptoAmount = balanceConverter.convertFromFiat(value: amount, to: cryptoCurrencyId)?.rounded(scale: amountFractionDigits)
                 newFiatAmount = amount
             } else {
                 newCryptoAmount = amount
-                newFiatAmount = BalanceConverter().convertToFiat(value: amount, from: cryptoCurrencyId)?.rounded(scale: 2)
+                newFiatAmount = balanceConverter.convertToFiat(value: amount, from: cryptoCurrencyId)?.rounded(scale: 2)
             }
         } else {
             newCryptoAmount = amount
