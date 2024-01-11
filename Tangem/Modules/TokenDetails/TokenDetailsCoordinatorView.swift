@@ -40,11 +40,17 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.legacySendCoordinator) {
                 LegacySendCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.swappingCoordinator) {
                 SwappingCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
+            }
+            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) {
+                ExpressCoordinatorView(coordinator: $0)
             }
 
         NavHolder()
@@ -60,6 +66,12 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 settings: .init(backgroundColor: Colors.Background.primary)
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
+            }
+            .bottomSheet(
+                item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
+                settings: .init(backgroundColor: Colors.Background.tertiary)
+            ) {
+                PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
     }
 }
