@@ -59,7 +59,7 @@ final class ExpressViewModel: ObservableObject {
 
     private let initialWallet: WalletModel
     private let userWalletModel: UserWalletModel
-    private let swappingFeeFormatter: SwappingFeeFormatter
+    private let feeFormatter: FeeFormatter
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
@@ -77,7 +77,7 @@ final class ExpressViewModel: ObservableObject {
     init(
         initialWallet: WalletModel,
         userWalletModel: UserWalletModel,
-        swappingFeeFormatter: SwappingFeeFormatter,
+        feeFormatter: FeeFormatter,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
         expressProviderFormatter: ExpressProviderFormatter,
@@ -88,7 +88,7 @@ final class ExpressViewModel: ObservableObject {
     ) {
         self.initialWallet = initialWallet
         self.userWalletModel = userWalletModel
-        self.swappingFeeFormatter = swappingFeeFormatter
+        self.feeFormatter = feeFormatter
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
         self.expressProviderFormatter = expressProviderFormatter
@@ -572,7 +572,7 @@ private extension ExpressViewModel {
         }
 
         let tokenItem = interactor.getSender().tokenItem
-        let formattedFee = swappingFeeFormatter.format(fee: fee, tokenItem: tokenItem)
+        let formattedFee = feeFormatter.format(fee: fee, tokenItem: tokenItem)
 
         var action: (() -> Void)?
         // If fee is one option then don't open selector
