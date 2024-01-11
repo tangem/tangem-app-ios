@@ -1,5 +1,5 @@
 //
-//  CommonSwappingFeeFormatter.swift
+//  CommonFeeFormatter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSwapping
 
-struct CommonSwappingFeeFormatter {
+struct CommonFeeFormatter {
     private let balanceFormatter: BalanceFormatter
     private let balanceConverter: BalanceConverter
 
@@ -26,9 +26,9 @@ struct CommonSwappingFeeFormatter {
     }
 }
 
-// MARK: - SwappingFeeFormatter
+// MARK: - FeeFormatter
 
-extension CommonSwappingFeeFormatter: SwappingFeeFormatter {
+extension CommonFeeFormatter: FeeFormatter {
     func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String {
         let fiatFee = try await fiatRatesProvider.getFiat(for: blockchain, amount: fee)
         return format(fee: fee, symbol: blockchain.symbol, fiatFee: fiatFee)
@@ -63,7 +63,7 @@ extension CommonSwappingFeeFormatter: SwappingFeeFormatter {
 
 // MARK: - Private
 
-private extension CommonSwappingFeeFormatter {
+private extension CommonFeeFormatter {
     func format(fee: Decimal, symbol: String, fiatFee: Decimal) -> String {
         let feeFormatted = fee.groupedFormatted()
         let fiatFeeFormatted = fiatFee.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
