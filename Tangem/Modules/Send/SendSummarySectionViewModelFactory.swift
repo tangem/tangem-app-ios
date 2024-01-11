@@ -14,8 +14,8 @@ struct SendSummarySectionViewModelFactory {
     private let currencyId: String?
     private let tokenIconInfo: TokenIconInfo
 
-    private var feeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
+    private var feeFormatter: FeeFormatter {
+        CommonFeeFormatter(
             balanceFormatter: BalanceFormatter(),
             balanceConverter: BalanceConverter(),
             fiatRatesProvider: SwappingRatesProvider()
