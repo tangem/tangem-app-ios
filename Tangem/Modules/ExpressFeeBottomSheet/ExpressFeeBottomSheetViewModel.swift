@@ -19,18 +19,18 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    private let swappingFeeFormatter: SwappingFeeFormatter
+    private let feeFormatter: FeeFormatter
     private let expressInteractor: ExpressInteractor
     private unowned let coordinator: ExpressFeeBottomSheetRoutable
 
     private var bag: Set<AnyCancellable> = []
 
     init(
-        swappingFeeFormatter: SwappingFeeFormatter,
+        feeFormatter: FeeFormatter,
         expressInteractor: ExpressInteractor,
         coordinator: ExpressFeeBottomSheetRoutable
     ) {
-        self.swappingFeeFormatter = swappingFeeFormatter
+        self.feeFormatter = feeFormatter
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
 
@@ -61,7 +61,7 @@ final class ExpressFeeBottomSheetViewModel: ObservableObject, Identifiable {
 
     private func makeFeeRowViewModel(option: FeeOption, fee: Fee) -> FeeRowViewModel {
         let tokenItem = expressInteractor.getSender().tokenItem
-        let formatedFee = swappingFeeFormatter.format(fee: fee.amount.value, tokenItem: tokenItem)
+        let formatedFee = feeFormatter.format(fee: fee.amount.value, tokenItem: tokenItem)
 
         return FeeRowViewModel(
             option: option,
