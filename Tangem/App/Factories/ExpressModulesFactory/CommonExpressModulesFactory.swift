@@ -41,7 +41,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         let model = ExpressViewModel(
             initialWallet: initialWalletModel,
             userWalletModel: userWalletModel,
-            swappingFeeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
@@ -69,7 +69,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel {
         ExpressFeeBottomSheetViewModel(
-            swappingFeeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -77,7 +77,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
         SwappingApproveViewModel(
-            swappingFeeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
             expressInteractor: expressInteractor,
@@ -104,7 +104,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
-            feeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             coordinator: coordinator
         )
     }
@@ -113,8 +113,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 // MARK: Dependencies
 
 private extension CommonExpressModulesFactory {
-    var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
+    var feeFormatter: FeeFormatter {
+        CommonFeeFormatter(
             balanceFormatter: balanceFormatter,
             balanceConverter: balanceConverter,
             fiatRatesProvider: SwappingRatesProvider()
