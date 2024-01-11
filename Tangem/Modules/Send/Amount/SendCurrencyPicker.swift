@@ -116,7 +116,7 @@ struct SendCurrencyPicker: View {
     }
 }
 
-struct PickerExample: View {
+private struct PickerExample: View {
     @State private var currency = 0
     @State private var useFiatCalculation = false
 
