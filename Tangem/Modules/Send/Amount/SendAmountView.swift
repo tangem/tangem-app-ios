@@ -56,6 +56,7 @@ struct SendAmountView: View {
                 }
             }
             .contentAlignment(.center)
+            .backgroundColor(Colors.Background.action)
             .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
 
             HStack {
@@ -71,7 +72,7 @@ struct SendAmountView: View {
                 MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
             }
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 }
 
