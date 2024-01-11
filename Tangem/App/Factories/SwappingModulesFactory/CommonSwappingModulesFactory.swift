@@ -53,7 +53,7 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
             tokenIconURLBuilder: tokenIconURLBuilder,
             transactionSender: transactionSender,
             fiatRatesProvider: fiatRatesProvider,
-            swappingFeeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             coordinator: coordinator
         )
     }
@@ -124,8 +124,8 @@ private extension CommonSwappingModulesFactory {
         SwappingRatesProvider()
     }
 
-    var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
+    var feeFormatter: FeeFormatter {
+        CommonFeeFormatter(
             balanceFormatter: .init(), balanceConverter: .init(),
             fiatRatesProvider: fiatRatesProvider
         )
