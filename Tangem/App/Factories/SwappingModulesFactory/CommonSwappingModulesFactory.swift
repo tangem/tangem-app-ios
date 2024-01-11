@@ -72,12 +72,8 @@ extension CommonSwappingModulesFactory: SwappingModulesFactory {
     }
 
     func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
-        SwappingApproveViewModel(
-            transactionSender: transactionSender,
-            swappingInteractor: swappingInteractor,
-            fiatRatesProvider: fiatRatesProvider,
-            coordinator: coordinator
-        )
+        // [REDACTED_INFO]
+        fatalError("Will be deleted")
     }
 
     func makeSwappingSuccessViewModel(
@@ -129,7 +125,10 @@ private extension CommonSwappingModulesFactory {
     }
 
     var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(fiatRatesProvider: fiatRatesProvider)
+        CommonSwappingFeeFormatter(
+            balanceFormatter: .init(), balanceConverter: .init(),
+            fiatRatesProvider: fiatRatesProvider
+        )
     }
 
     var explorerURLService: ExplorerURLService {
@@ -150,9 +149,7 @@ private extension CommonSwappingModulesFactory {
             return interactor
         }
 
-        let swappingManager = TangemSwappingFactory(
-            oneInchApiKey: keysManager.oneInchApiKey
-        ).makeSwappingManager(
+        let swappingManager = TangemSwappingFactory(oneInchApiKey: "").makeSwappingManager(
             walletDataProvider: walletDataProvider,
             referrer: referrer,
             source: source,

@@ -40,7 +40,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(viewModel.shouldShowNotificationsWithAnimation ? .notificationTransition : .identity)
+                        .transition(.notificationTransition)
                 }
 
                 if viewModel.isMarketPriceAvailable {
@@ -50,6 +50,11 @@ struct TokenDetailsView: View {
                         priceChangeState: viewModel.priceChangeState,
                         tapAction: nil
                     )
+                }
+
+                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                    PendingExpressTransactionView(info: transactionInfo)
+                        .transition(.notificationTransition)
                 }
 
                 PendingTransactionsListView(
@@ -74,23 +79,25 @@ struct TokenDetailsView: View {
             )
         }
         .animation(.default, value: viewModel.tokenNotificationInputs)
+        .animation(.default, value: viewModel.pendingExpressTransactions)
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
-        .onDidAppear(viewModel.onDidAppear)
         .alert(item: $viewModel.alert) { $0.alert }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 TokenIcon(
-                    name: "",
-                    imageURL: viewModel.iconUrl,
-                    customTokenColor: viewModel.customTokenColor,
-                    blockchainIconName: nil,
-                    isCustom: false,
+                    tokenIconInfo: .init(
+                        name: "",
+                        blockchainIconName: nil,
+                        imageURL: viewModel.iconUrl,
+                        isCustom: false,
+                        customTokenColor: viewModel.customTokenColor
+                    ),
                     size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
                 )
                 .opacity(toolbarIconOpacity)
