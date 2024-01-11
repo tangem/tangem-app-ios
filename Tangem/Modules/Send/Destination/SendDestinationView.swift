@@ -28,7 +28,7 @@ struct SendDestinationView: View {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
             }
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 }
 
