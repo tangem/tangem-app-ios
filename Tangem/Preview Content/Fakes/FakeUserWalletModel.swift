@@ -75,12 +75,12 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         _updatePublisher.send(())
     }
 
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-        return .just(output: .loading)
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
+        .just(output: .loading)
     }
 }
 
-extension FakeUserWalletModel: MainHeaderInfoProvider {
+extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
