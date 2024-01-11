@@ -1,5 +1,5 @@
 //
-//  SwappingFeeFormatter.swift
+//  FeeFormatter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemSwapping
 
-protocol SwappingFeeFormatter {
+protocol FeeFormatter {
     func format(fee: Decimal, blockchain: SwappingBlockchain) async throws -> String
     func format(fee: Decimal, blockchain: SwappingBlockchain) throws -> String
 
