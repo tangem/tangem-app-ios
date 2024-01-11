@@ -21,15 +21,14 @@ struct IconView<Placeholder: View>: View {
 
     private let placeholder: Placeholder
 
-    private static var defaultLowContrastBackgroundColor: UIColor {
-        UIColor.backgroundPrimary.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
-    }
-
-    private static var defaultCornerRadius: CGFloat {
-        5
-    }
-
-    init(url: URL?, size: CGSize, cornerRadius: CGFloat = Self.defaultCornerRadius, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false, @ViewBuilder placeholder: () -> Placeholder) {
+    init(
+        url: URL?,
+        size: CGSize,
+        cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
+        lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
+        forceKingfisher: Bool = false,
+        @ViewBuilder placeholder: () -> Placeholder
+    ) {
         self.url = url
         self.size = size
         self.cornerRadius = cornerRadius
@@ -38,8 +37,22 @@ struct IconView<Placeholder: View>: View {
         self.placeholder = placeholder()
     }
 
-    init(url: URL?, sizeSettings: IconViewSizeSettings, cornerRadius: CGFloat = Self.defaultCornerRadius, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false, @ViewBuilder placeholder: () -> Placeholder) {
-        self.init(url: url, size: sizeSettings.iconSize, cornerRadius: cornerRadius, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher, placeholder: placeholder)
+    init(
+        url: URL?,
+        sizeSettings: IconViewSizeSettings,
+        cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
+        lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
+        forceKingfisher: Bool = false,
+        @ViewBuilder placeholder: () -> Placeholder
+    ) {
+        self.init(
+            url: url,
+            size: sizeSettings.iconSize,
+            cornerRadius: cornerRadius,
+            lowContrastBackgroundColor: lowContrastBackgroundColor,
+            forceKingfisher: forceKingfisher,
+            placeholder: placeholder
+        )
     }
 
     var body: some View {
@@ -102,17 +115,41 @@ struct IconView<Placeholder: View>: View {
 // Extension to support default placeholder
 
 extension IconView where Placeholder == CircleImageTextView {
-    init(url: URL?, size: CGSize, cornerRadius: CGFloat = Self.defaultCornerRadius, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
-        self.init(url: url, size: size, cornerRadius: cornerRadius, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher) {
+    init(
+        url: URL?,
+        size: CGSize,
+        cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
+        lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
+        forceKingfisher: Bool = false
+    ) {
+        self.init(
+            url: url,
+            size: size,
+            cornerRadius: cornerRadius,
+            lowContrastBackgroundColor: lowContrastBackgroundColor,
+            forceKingfisher: forceKingfisher
+        ) {
             CircleImageTextView(name: "", color: Colors.Button.secondary, size: size)
         }
     }
 
-    init(url: URL?, sizeSettings: IconViewSizeSettings, cornerRadius: CGFloat = Self.defaultCornerRadius, lowContrastBackgroundColor: UIColor = Self.defaultLowContrastBackgroundColor, forceKingfisher: Bool = false) {
-        self.init(url: url, sizeSettings: sizeSettings, cornerRadius: cornerRadius, lowContrastBackgroundColor: lowContrastBackgroundColor, forceKingfisher: forceKingfisher) {
+    init(url: URL?, sizeSettings: IconViewSizeSettings, cornerRadius: CGFloat = IconViewDefaults.cornerRadius, lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor, forceKingfisher: Bool = false) {
+        self.init(
+            url: url,
+            sizeSettings: sizeSettings,
+            cornerRadius: cornerRadius,
+            lowContrastBackgroundColor: lowContrastBackgroundColor,
+            forceKingfisher: forceKingfisher
+        ) {
             CircleImageTextView(name: "", color: Colors.Button.secondary, size: sizeSettings.iconSize)
         }
     }
+}
+
+private enum IconViewDefaults {
+    static let cornerRadius: CGFloat = 5
+    static let lowContrastBackgroundColor = UIColor.backgroundPrimary
+        .resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
 }
 
 struct IconView_Preview: PreviewProvider {
