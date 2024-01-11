@@ -25,7 +25,7 @@ struct SwappingApproveView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 4)
-        .background(Colors.Background.secondary)
+        .background(Colors.Background.tertiary)
         .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
@@ -39,11 +39,13 @@ struct SwappingApproveView: View {
 
                 Button(action: viewModel.didTapInfoButton) {
                     Assets.infoIconMini.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.informative)
                         .padding(.horizontal, 16)
                 }
             }
 
-            Text(Localization.swappingPermissionSubheader(viewModel.tokenSymbol))
+            Text(viewModel.subheader)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 .padding(.horizontal, 50)
                 .multilineTextAlignment(.center)
@@ -57,6 +59,7 @@ struct SwappingApproveView: View {
             } footer: {
                 DefaultFooterView(Localization.swappingPermissionPolicyTypeFooter)
             }
+            .backgroundColor(Colors.Background.action)
             .padding(.horizontal, 16)
 
             GroupedSection(viewModel.feeRowViewModel) {
@@ -64,6 +67,7 @@ struct SwappingApproveView: View {
             } footer: {
                 DefaultFooterView(Localization.swappingPermissionFeeFooter)
             }
+            .backgroundColor(Colors.Background.action)
             .padding(.horizontal, 16)
         }
     }
@@ -90,20 +94,23 @@ struct SwappingApproveView: View {
     }
 }
 
-struct SwappingApproveView_Preview: PreviewProvider {
-    static let viewModel = SwappingApproveViewModel(
-        transactionSender: TransactionSenderMock(),
-        swappingInteractor: .init(
-            swappingManager: SwappingManagerMock(),
-            userTokensManager: UserTokensManagerMock(),
-            currencyMapper: CurrencyMapper(),
-            blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-        ),
-        fiatRatesProvider: FiatRatesProviderMock(),
-        coordinator: SwappingApproveRoutableMock()
-    )
+/*
+ // [REDACTED_TODO_COMMENT]
+ struct SwappingApproveView_Preview: PreviewProvider {
+     static let viewModel = SwappingApproveViewModel(
+         transactionSender: TransactionSenderMock(),
+         swappingInteractor: .init(
+             swappingManager: SwappingManagerMock(),
+             userTokensManager: UserTokensManagerMock(),
+             currencyMapper: CurrencyMapper(),
+             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
+         ),
+         fiatRatesProvider: FiatRatesProviderMock(),
+         coordinator: SwappingApproveRoutableMock()
+     )
 
-    static var previews: some View {
-        SwappingApproveView(viewModel: viewModel)
-    }
-}
+     static var previews: some View {
+         SwappingApproveView(viewModel: viewModel)
+     }
+ }
+ */
