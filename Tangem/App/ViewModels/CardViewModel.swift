@@ -568,12 +568,14 @@ extension CardViewModel: UserWalletModel {
     }
 }
 
-extension CardViewModel: MainHeaderInfoProvider {
+extension CardViewModel: MainHeaderSupplementInfoProvider {
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
-    var isUserWalletLocked: Bool { userWallet.isLocked }
-
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
+}
+
+extension CardViewModel: MainHeaderUserWalletStateInfoProvider {
+    var isUserWalletLocked: Bool { userWallet.isLocked }
 
     var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
 }
@@ -599,8 +601,8 @@ extension CardViewModel: CardDerivableProvider {
 }
 
 extension CardViewModel: TotalBalanceProviding {
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-        totalBalanceProvider.totalBalancePublisher()
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
+        totalBalanceProvider.totalBalancePublisher
     }
 }
 
