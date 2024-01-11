@@ -87,11 +87,11 @@ target 'Tangem' do
   end
 end
 
-target 'TangemSwapping' do 
+target 'TangemExpress' do 
   blockchain_sdk_pods
   pod 'Moya'
 
-  target 'TangemSwappingTests' do
+  target 'TangemExpressTests' do
     inherit! :search_paths
     # Pods for testing
   end
