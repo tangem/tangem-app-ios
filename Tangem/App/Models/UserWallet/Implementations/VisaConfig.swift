@@ -18,7 +18,7 @@ struct VisaConfig: CardContainer {
     }
 
     private var defaultBlockchain: Blockchain {
-        return .polygon(testnet: false)
+        VisaUtilities().visaBlockchain
     }
 }
 
@@ -45,7 +45,8 @@ extension VisaConfig: UserWalletConfig {
 
     var defaultBlockchains: [StorageEntry] {
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [VisaUtilities().visaToken])
+        let visaToken = VisaUtilities().visaToken
+        let entry = StorageEntry(blockchainNetwork: network, tokens: [visaToken])
         return [entry]
     }
 
