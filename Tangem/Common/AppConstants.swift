@@ -21,7 +21,8 @@ enum AppConstants {
 
     static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 
-    static let minusSign = "−"
+    static let minusSign = "−" // shorter stick
+    static let dashSign = "—" // longer stick
 
     static let sessionId = UUID().uuidString
 }
