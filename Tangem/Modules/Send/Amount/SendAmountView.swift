@@ -56,6 +56,7 @@ struct SendAmountView: View {
                 }
             }
             .contentAlignment(.center)
+            .backgroundColor(Colors.Background.action)
             .matchedGeometryEffect(id: "amount", in: namespace)
 
             HStack {
@@ -75,7 +76,7 @@ struct SendAmountView: View {
                     .frame(width: viewModel.windowWidth / 3)
             }
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 }
 
