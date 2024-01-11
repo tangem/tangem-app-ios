@@ -324,11 +324,17 @@ class SendModel {
                 .market: .loaded(fees[0]),
             ]
         case 3:
-            return [
+            var fees: [FeeOption: LoadingValue<Fee>] = [
                 .slow: .loaded(fees[0]),
                 .market: .loaded(fees[1]),
                 .fast: .loaded(fees[2]),
             ]
+
+            if feeOptions.contains(.custom) {
+                fees[.custom] = fees[.market]
+            }
+
+            return fees
         default:
             return [:]
         }
@@ -406,7 +412,11 @@ extension SendModel: SendFeeViewModelInput {
     #warning("TODO")
     var feeOptions: [FeeOption] {
         if walletModel.shouldShowFeeSelector {
-            return [.slow, .market, .fast]
+            var options: [FeeOption] = [.slow, .market, .fast]
+            if blockchain.isEvm {
+                options.append(.custom)
+            }
+            return options
         } else {
             return [.market]
         }
