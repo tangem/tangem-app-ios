@@ -11,12 +11,6 @@ import SwiftUI
 struct OrganizeTokensHeaderView: View {
     @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
 
-    @Environment(\.colorScheme) private var colorScheme
-
-    private var buttonShadowOpacity: CGFloat {
-        return colorScheme == .light ? Constants.lightModeButtonShadowOpacity : Constants.darkModeButtonShadowOpacity
-    }
-
     var body: some View {
         HStack(spacing: 8.0) {
             Group {
@@ -26,39 +20,21 @@ struct OrganizeTokensHeaderView: View {
                     isToggled: viewModel.isSortByBalanceEnabled,
                     action: viewModel.toggleSortState
                 )
-                .shadow(color: Colors.Icon.inactive.opacity(sortByBalanceButtonShadowOpacity), radius: 4.0)
 
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
                     action: viewModel.toggleGroupState
                 )
-                .shadow(color: Colors.Icon.inactive.opacity(groupingButtonShadowOpacity), radius: 4.0)
             }
             .background(
                 Colors.Background
                     .primary
+                    .opacity(0.5)
                     .cornerRadiusContinuous(10.0)
             )
             .onAppear(perform: viewModel.onViewAppear)
         }
-    }
-
-    private var sortByBalanceButtonShadowOpacity: CGFloat {
-        return buttonShadowOpacity / (viewModel.isSortByBalanceEnabled ? 3.0 : 1.0)
-    }
-
-    private var groupingButtonShadowOpacity: CGFloat {
-        return buttonShadowOpacity
-    }
-}
-
-// MARK: - Constants
-
-private extension OrganizeTokensHeaderView {
-    enum Constants {
-        static let lightModeButtonShadowOpacity = 0.37
-        static let darkModeButtonShadowOpacity = 0.57
     }
 }
 

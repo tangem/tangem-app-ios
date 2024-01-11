@@ -75,38 +75,32 @@ class SingleTokenRouter: SingleTokenRoutable {
         coordinator.openSend(
             amountToSend: amountToSend,
             blockchainNetwork: walletModel.blockchainNetwork,
-            cardViewModel: cardViewModel
+            cardViewModel: cardViewModel,
+            walletModel: walletModel
         )
     }
 
     func openExchange(walletModel: WalletModel) {
-        sendAnalyticsEvent(.buttonExchange, for: walletModel)
+        if FeatureProvider.isAvailable(.express) {
+            let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
+            coordinator.openExpress(input: input)
 
-        guard
-            let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: walletModel.amountType, in: walletModel.blockchainNetwork.blockchain),
-            let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
-            let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
-        else { return }
-
-        var referrer: SwappingReferrerAccount?
-
-        if let account = keysManager.swapReferrerAccount {
-            referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
+        } else if let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: walletModel.amountType, in: walletModel.blockchainNetwork.blockchain),
+                  let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
+                  let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor {
+            let input = CommonSwappingModulesFactory.InputModel(
+                userTokensManager: userWalletModel.userTokensManager,
+                walletModel: walletModel,
+                signer: userWalletModel.signer,
+                ethereumNetworkProvider: ethereumNetworkProvider,
+                ethereumTransactionProcessor: ethereumTransactionProcessor,
+                logger: AppLog.shared,
+                referrer: nil,
+                source: sourceCurrency,
+                walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
+            )
+            coordinator.openSwapping(input: input)
         }
-
-        let input = CommonSwappingModulesFactory.InputModel(
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModel: walletModel,
-            signer: userWalletModel.signer,
-            ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionProcessor: ethereumTransactionProcessor,
-            logger: AppLog.shared,
-            referrer: referrer,
-            source: sourceCurrency,
-            walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
-        )
-
-        coordinator.openSwapping(input: input)
     }
 
     func openSell(for walletModel: WalletModel) {
@@ -136,7 +130,8 @@ class SingleTokenRouter: SingleTokenRoutable {
             amountToSend: amount,
             destination: request.targetAddress,
             blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel
+            cardViewModel: cardViewModel,
+            walletModel: walletModel
         )
     }
 
