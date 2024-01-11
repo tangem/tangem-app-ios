@@ -19,11 +19,13 @@ struct TokenItemViewLeadingComponent: View {
 
     var body: some View {
         TokenIcon(
-            name: name,
-            imageURL: imageURL,
-            customTokenColor: customTokenColor,
-            blockchainIconName: blockchainIconName,
-            isCustom: isCustom,
+            tokenIconInfo: .init(
+                name: name,
+                blockchainIconName: blockchainIconName,
+                imageURL: imageURL,
+                isCustom: isCustom,
+                customTokenColor: customTokenColor
+            ),
             size: .init(bothDimensions: 36.0)
         )
         .saturation(hasMonochromeIcon ? 0 : 1)
