@@ -323,11 +323,20 @@ private extension ExpressViewModel {
 
                 _ = try await wallet.getBalance()
                 await runOnMain {
-                    viewModel.sendCurrencyViewModel?.balance = .formatted(wallet.balance)
+                    let formatted: String = {
+                        if let balance = wallet.balanceValue {
+                            return viewModel.balanceFormatter.formatDecimal(balance)
+                        }
+
+                        return BalanceFormatter.defaultEmptyBalanceString
+                    }()
+
+                    viewModel.sendCurrencyViewModel?.balance = .formatted(formatted)
                 }
             }
-        case .some:
-            sendCurrencyViewModel?.balance = .formatted(wallet.balance)
+        case .some(let balance):
+            let formatted = balanceFormatter.formatDecimal(balance)
+            sendCurrencyViewModel?.balance = .formatted(formatted)
         }
     }
 
@@ -381,11 +390,20 @@ private extension ExpressViewModel {
 
                 _ = try await wallet.getBalance()
                 await runOnMain {
-                    viewModel.receiveCurrencyViewModel?.balance = .formatted(wallet.balance)
+                    let formatted: String = {
+                        if let balance = wallet.balanceValue {
+                            return viewModel.balanceFormatter.formatDecimal(balance)
+                        }
+
+                        return BalanceFormatter.defaultEmptyBalanceString
+                    }()
+
+                    viewModel.receiveCurrencyViewModel?.balance = .formatted(formatted)
                 }
             }
-        case .some:
-            receiveCurrencyViewModel?.balance = .formatted(wallet.balance)
+        case .some(let balance):
+            let formatted = balanceFormatter.formatDecimal(balance)
+            receiveCurrencyViewModel?.balance = .formatted(formatted)
         }
     }
 
@@ -594,14 +612,21 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateLegalText(state _: ExpressInteractor.ExpressInteractorState) {
-        runTask(in: self) { viewModel in
-            let text = await viewModel.interactor.getSelectedProvider().flatMap { provider in
-                viewModel.expressProviderFormatter.mapToLegalText(provider: provider.provider)
-            }
+    func updateLegalText(state: ExpressInteractor.ExpressInteractorState) {
+        switch state {
+        case .loading(.refreshRates):
+            break
+        case .idle, .loading(.full):
+            legalText = nil
+        case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
+            runTask(in: self) { viewModel in
+                let text = await viewModel.interactor.getSelectedProvider().flatMap { provider in
+                    viewModel.expressProviderFormatter.mapToLegalText(provider: provider.provider)
+                }
 
-            await runOnMain {
-                viewModel.legalText = text
+                await runOnMain {
+                    viewModel.legalText = text
+                }
             }
         }
     }
