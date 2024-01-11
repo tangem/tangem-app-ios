@@ -405,7 +405,7 @@ extension SendModel: SendFeeViewModelInput {
 
     #warning("TODO")
     var feeOptions: [FeeOption] {
-        if walletModel.shoudShowFeeSelector {
+        if walletModel.shouldShowFeeSelector {
             return [.slow, .market, .fast]
         } else {
             return [.market]
