@@ -142,11 +142,6 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         bind()
-
-        // REMOVE !!!!!!!!!!
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.sendModel.setDestination("TGPz1VgfdRMMDhyeQDtNi9xZjFpQacHGzH")
-        }
     }
 
     func next() {
