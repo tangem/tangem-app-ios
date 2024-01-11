@@ -21,11 +21,13 @@ class CommonExpressAPIProvider {
 // MARK: - ExpressAPIProvider
 
 extension CommonExpressAPIProvider: ExpressAPIProvider {
+    /// Requests from Express API `exchangeAvailable` state for currencies included in filter
+    /// - Returns: All `ExpressCurrency` that available to exchange specified by filter
     func assets(with filter: [ExpressCurrency]) async throws -> [ExpressAsset] {
         let tokens = filter.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Assets.Request(tokensList: tokens)
         let response = try await expressAPIService.assets(request: request)
-        let assets = response.map(expressAPIMapper.mapToExpressAsset(currency:))
+        let assets: [ExpressAsset] = response.map(expressAPIMapper.mapToExpressAsset(response:))
         return assets
     }
 
@@ -50,36 +52,47 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
-            fromAmount: item.amount,
-            providerId: item.provider.id,
+            toDecimals: item.destination.decimalCount,
+            fromAmount: item.sourceAmountWEI(),
+            fromDecimals: item.source.decimalCount,
+            providerId: item.providerId,
             rateType: .float
         )
 
         let response = try await expressAPIService.exchangeQuote(request: request)
-        let quote = expressAPIMapper.mapToExpressQuote(response: response)
+        var quote = try expressAPIMapper.mapToExpressQuote(response: response)
+        // We have to check the "fromAmount" because sometimes we can receive it more then was sent
+        if quote.fromAmount > item.amount {
+            quote.fromAmount = item.amount
+        }
+
         return quote
     }
 
-    func exchangeData(item: ExpressSwappableItem, destinationAddress: String) async throws -> ExpressTransactionData {
+    func exchangeData(item: ExpressSwappableItem) async throws -> ExpressTransactionData {
+        let requestId: String = UUID().uuidString
         let request = ExpressDTO.ExchangeData.Request(
+            requestId: requestId,
             fromContractAddress: item.source.contractAddress,
             fromNetwork: item.source.network,
             toContractAddress: item.destination.contractAddress,
             toNetwork: item.destination.network,
-            fromAmount: item.amount,
-            providerId: item.provider.id,
+            toDecimals: item.destination.decimalCount,
+            fromAmount: item.sourceAmountWEI(),
+            fromDecimals: item.source.decimalCount,
+            providerId: item.providerId,
             rateType: .float,
-            toAddress: destinationAddress
+            toAddress: item.destination.defaultAddress
         )
 
         let response = try await expressAPIService.exchangeData(request: request)
-        let data = expressAPIMapper.mapToExpressTransactionData(response: response)
+        let data = try expressAPIMapper.mapToExpressTransactionData(request: request, response: response)
         return data
     }
 
-    func exchangeResult(transactionId: String) async throws -> ExpressTransaction {
-        let request = ExpressDTO.ExchangeResult.Request(txId: transactionId)
-        let response = try await expressAPIService.exchangeResult(request: request)
+    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction {
+        let request = ExpressDTO.ExchangeStatus.Request(txId: transactionId)
+        let response = try await expressAPIService.exchangeStatus(request: request)
         let transaction = expressAPIMapper.mapToExpressTransaction(response: response)
         return transaction
     }

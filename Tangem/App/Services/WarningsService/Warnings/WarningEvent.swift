@@ -24,6 +24,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
+    case tangemExpressPromotion
 }
 
 // For Notifications
@@ -64,6 +65,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.commonAccessDenied
         case .missingBackup:
             return Localization.warningNoBackupTitle
+        case .tangemExpressPromotion:
+            return Localization.mainSwapPromotionTitle
         }
     }
 
@@ -100,6 +103,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
+        case .tangemExpressPromotion:
+            return Localization.mainSwapPromotionMessage
         }
     }
 
@@ -107,6 +112,8 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
             return .primary
+        case .tangemExpressPromotion:
+            return .tangemExpressPromotion
         default:
             return .secondary
         }
@@ -115,15 +122,17 @@ extension WarningEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .failedToVerifyCard, .devCard:
-            return .init(image: Assets.redCircleWarning.image)
+            return .init(iconType: .image(Assets.redCircleWarning.image))
         case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup:
-            return .init(image: Assets.attention.image)
+            return .init(iconType: .image(Assets.attention.image))
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
-            return .init(image: Assets.blueCircleWarning.image)
+            return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .rateApp:
-            return .init(image: Assets.star.image)
+            return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
-            return .init(image: Assets.lock.image, color: Colors.Icon.primary1)
+            return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
+        case .tangemExpressPromotion:
+            return .init(iconType: .image(Assets.swapBannerIcon.image), size: CGSize(bothDimensions: 34))
         }
     }
 
@@ -131,7 +140,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
             return false
-        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
+        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary, .tangemExpressPromotion:
             return true
         }
     }
@@ -186,6 +195,7 @@ extension WarningEvent {
         case .missingDerivation: return .mainNoticeMissingAddress
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
+        case .tangemExpressPromotion: return nil
         }
     }
 

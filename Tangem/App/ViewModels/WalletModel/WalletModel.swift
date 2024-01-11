@@ -180,15 +180,16 @@ class WalletModel {
             return .cantSignLongTransactions
         }
 
-        guard
-            let currentAmount = wallet.amounts[amountType],
-            let token = amountType.token
-        else {
+        guard let currentAmount = wallet.amounts[amountType] else {
             return nil
         }
 
-        if wallet.hasPendingTx, !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
+        if wallet.hasPendingTx { // has pending tx for fee
             return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
+        }
+
+        guard let token = amountType.token else {
+            return nil
         }
 
         // no fee
@@ -207,14 +208,6 @@ class WalletModel {
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         swapAvailabilityProvider
             .tokenItemsAvailableToSwapPublisher
-            .contains { [weak self] itemsAvailableToSwap in
-                guard let self else {
-                    return false
-                }
-
-                return itemsAvailableToSwap[tokenItem] ?? false
-            }
-            .removeDuplicates()
             .mapToVoid()
             .eraseToAnyPublisher()
     }
@@ -438,6 +431,10 @@ class WalletModel {
             .eraseToAnyPublisher()
     }
 
+    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
+        return walletManager.estimatedFee(amount: amount)
+    }
+
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         if isDemo {
             let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
@@ -522,13 +519,17 @@ extension WalletModel {
 // MARK: - ExistentialDepositProvider
 
 extension WalletModel {
+    var existentialDeposit: Amount? {
+        existentialDepositProvider?.existentialDeposit
+    }
+
     var existentialDepositWarning: String? {
-        guard let existentialDepositProvider = walletManager as? ExistentialDepositProvider else {
+        guard let existentialDeposit = existentialDeposit else {
             return nil
         }
 
         let blockchainName = blockchainNetwork.blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
+        let existentialDepositAmount = existentialDeposit.string(roundingMode: .plain)
         return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
     }
 }
@@ -613,5 +614,9 @@ extension WalletModel {
 
     var hasRent: Bool {
         walletManager is RentProvider
+    }
+
+    var existentialDepositProvider: ExistentialDepositProvider? {
+        walletManager as? ExistentialDepositProvider
     }
 }
