@@ -67,7 +67,7 @@ final class SwappingViewModel: ObservableObject {
     private let tokenIconURLBuilder: TokenIconURLBuilding
     private let transactionSender: SwappingTransactionSender
     private let fiatRatesProvider: FiatRatesProviding
-    private let swappingFeeFormatter: SwappingFeeFormatter
+    private let feeFormatter: FeeFormatter
     private unowned let coordinator: SwappingRoutable
 
     // MARK: - Private
@@ -83,7 +83,7 @@ final class SwappingViewModel: ObservableObject {
         tokenIconURLBuilder: TokenIconURLBuilding,
         transactionSender: SwappingTransactionSender,
         fiatRatesProvider: FiatRatesProviding,
-        swappingFeeFormatter: SwappingFeeFormatter,
+        feeFormatter: FeeFormatter,
         coordinator: SwappingRoutable
     ) {
         self.initialSourceCurrency = initialSourceCurrency
@@ -92,7 +92,7 @@ final class SwappingViewModel: ObservableObject {
         self.tokenIconURLBuilder = tokenIconURLBuilder
         self.transactionSender = transactionSender
         self.fiatRatesProvider = fiatRatesProvider
-        self.swappingFeeFormatter = swappingFeeFormatter
+        self.feeFormatter = feeFormatter
         self.coordinator = coordinator
 
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialSourceCurrency.symbol])
@@ -578,7 +578,7 @@ private extension SwappingViewModel {
 
     func updateFeeOptionsViewModels(data: SwappingTransactionData, options: [EthereumGasDataModel]) {
         feeOptionsViewModels = options.map { gasModel in
-            let subtitle = try? swappingFeeFormatter.format(
+            let subtitle = try? feeFormatter.format(
                 fee: gasModel.fee,
                 blockchain: gasModel.blockchain
             )
