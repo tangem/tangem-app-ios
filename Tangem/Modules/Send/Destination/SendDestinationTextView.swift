@@ -26,19 +26,20 @@ struct SendDestinationTextView: View {
                 .padding(.vertical, 12)
             } else {
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 2) {
                         fieldName
                         input
                     }
 
                     pasteButton
                 }
-                .padding(.vertical, 12)
+                .padding(.vertical, 10)
             }
         } footer: {
             Text(viewModel.description)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
+        .interSectionPadding(2)
         .horizontalPadding(14)
         .onAppear {
             viewModel.onAppear()
@@ -63,18 +64,28 @@ struct SendDestinationTextView: View {
     }
 
     private var input: some View {
-        HStack {
-            TextField(viewModel.placeholder, text: $viewModel.input)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+        ZStack {
+            // Hidden icon to ensure the layout stays the same way
+            clearIcon
+                .hidden()
 
-            if !viewModel.input.isEmpty {
-                Button(action: viewModel.clearInput) {
-                    Assets.clear.image
-                        .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.informative)
+            HStack {
+                TextField(viewModel.placeholder, text: $viewModel.input)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+
+                if !viewModel.input.isEmpty {
+                    Button(action: viewModel.clearInput) {
+                        clearIcon
+                    }
                 }
             }
         }
+    }
+
+    private var clearIcon: some View {
+        Assets.clear.image
+            .renderingMode(.template)
+            .foregroundColor(Colors.Icon.informative)
     }
 
     @ViewBuilder
@@ -116,6 +127,19 @@ struct SendDestinationTextView: View {
         SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
         SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), errorText: .just(output: nil), didEnterDestination: { _ in }))
+
+        Text("There are two fields and they must be aligned 👇")
+            .foregroundColor(.blue)
+            .font(.caption)
+
+        // To make sure everything's aligned and doesn't jump when entering stuff
+        ZStack {
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), errorText: .just(output: nil), didEnterDestination: { _ in }))
+                .opacity(0.5)
+
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), errorText: .just(output: nil), didEnterDestination: { _ in }))
+                .opacity(0.5)
+        }
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
