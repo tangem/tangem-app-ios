@@ -66,7 +66,7 @@ struct SendAmountView: View {
                         cryptoCurrencyCode: viewModel.cryptoCurrencyCode,
                         fiatIconURL: viewModel.fiatIconURL,
                         fiatCurrencyCode: viewModel.fiatCurrencyCode,
-                        useFiatCalculation: $viewModel.isFiatCalculation
+                        useFiatCalculation: $viewModel.useFiatCalculation
                     )
                 } else {
                     Spacer()
