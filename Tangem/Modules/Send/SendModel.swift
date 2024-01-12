@@ -415,10 +415,6 @@ extension SendModel: SendFeeViewModelInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
         _feeValues.eraseToAnyPublisher()
     }
-
-    var tokenItem: TokenItem {
-        walletModel.tokenItem
-    }
 }
 
 extension SendModel: SendSummaryViewModelInput {
