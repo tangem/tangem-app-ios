@@ -35,15 +35,32 @@ class LockedUserWallet: UserWalletModel {
         return data
     }
 
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
+        let artwork: CardArtwork
+
+        if let artworkInfo = userWallet.artwork {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
+        }
+
+        return cardImageProvider.loadImage(
+            cardId: userWallet.card.cardId,
+            cardPublicKey: userWallet.card.cardPublicKey,
+            artwork: artwork
+        )
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
     private(set) var userWallet: UserWallet
+    private let cardImageProvider = CardImageProvider()
 
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
-        signer = TangemSigner(with: userWallet.card.cardId, sdk: config.makeTangemSdk())
+        signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     }
 
     func initialUpdate() {}
@@ -52,12 +69,12 @@ class LockedUserWallet: UserWalletModel {
         // Renaming locked wallets is prohibited
     }
 
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
         .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
     }
 }
 
-extension LockedUserWallet: MainHeaderInfoProvider {
+extension LockedUserWallet: MainHeaderSupplementInfoProvider {
     var isUserWalletLocked: Bool { true }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> {
