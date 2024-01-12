@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import BlockchainSdk
 
 class CommonExpressModulesFactory {
@@ -22,7 +22,6 @@ class CommonExpressModulesFactory {
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: "")
     private lazy var allowanceProvider = makeAllowanceProvider()
     private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
@@ -67,16 +66,16 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel {
-        ExpressFeeBottomSheetViewModel(
+    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
+        ExpressFeeSelectorViewModel(
             feeFormatter: feeFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
 
-    func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
-        SwappingApproveViewModel(
+    func makeExpressApproveViewModel(coordinator: ExpressApproveRoutable) -> ExpressApproveViewModel {
+        ExpressApproveViewModel(
             feeFormatter: feeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
@@ -116,8 +115,7 @@ private extension CommonExpressModulesFactory {
     var feeFormatter: FeeFormatter {
         CommonFeeFormatter(
             balanceFormatter: balanceFormatter,
-            balanceConverter: balanceConverter,
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: balanceConverter
         )
     }
 
@@ -129,10 +127,6 @@ private extension CommonExpressModulesFactory {
         ExpressNotificationManager(expressInteractor: expressInteractor)
     }
 
-    var explorerURLService: ExplorerURLService {
-        CommonExplorerURLService()
-    }
-
     var percentFormatter: PercentFormatter { .init() }
     var balanceConverter: BalanceConverter { .init() }
     var balanceFormatter: BalanceFormatter { .init() }
@@ -140,7 +134,7 @@ private extension CommonExpressModulesFactory {
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TransactionSigner { userWalletModel.signer }
-    var logger: SwappingLogger { AppLog.shared }
+    var logger: Logger { AppLog.shared }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
@@ -166,7 +160,7 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let expressManager = swappingFactory.makeExpressManager(
+        let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
