@@ -34,12 +34,7 @@ extension CommonFeeFormatter: FeeFormatter {
         )
     }
 
-    func format(
-        fee: Decimal,
-        currencySymbol: String,
-        currencyId: String,
-        isFeeApproximate: Bool
-    ) -> String {
+    func format(fee: Decimal, currencySymbol: String, currencyId: String, isFeeApproximate: Bool) -> String {
         let feeFormatted = balanceFormatter.formatCryptoBalance(fee, currencyCode: currencySymbol)
 
         guard let fiatFee = balanceConverter.convertToFiat(value: fee, from: currencyId) else {
