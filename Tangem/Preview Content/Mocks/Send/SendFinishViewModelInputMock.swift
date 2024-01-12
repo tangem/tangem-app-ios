@@ -12,7 +12,6 @@ import Combine
 import BlockchainSdk
 
 class SendFinishViewModelInputMock: SendFinishViewModelInput {
-    var tokenItem: TokenItem { .blockchain(.ethereum(testnet: false)) }
     var destinationText: String? { "0x123123123" }
     var additionalField: (SendAdditionalFields, String)? { (.memo, "123123") }
     var amountValue: BlockchainSdk.Amount? { .init(with: .ethereum(testnet: false), type: .coin, value: 1) }
