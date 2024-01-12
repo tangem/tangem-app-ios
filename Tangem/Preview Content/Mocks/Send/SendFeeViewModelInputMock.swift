@@ -8,9 +8,14 @@
 
 import SwiftUI
 import Combine
+import BigInt
 import BlockchainSdk
 
 class SendFeeViewModelInputMock: SendFeeViewModelInput {
+    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> {
+        .just(output: nil)
+    }
+
     var selectedFeeOption: FeeOption {
         .market
     }
@@ -30,4 +35,6 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
     var tokenItem: TokenItem { .blockchain(.ethereum(testnet: false)) }
 
     func didSelectFeeOption(_ feeOption: FeeOption) {}
+
+    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {}
 }
