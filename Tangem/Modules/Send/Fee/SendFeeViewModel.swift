@@ -25,6 +25,10 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
 
+    let customFeeModel: SendCustomFeeInputFieldModel?
+    let customFeeGasPriceModel: SendCustomFeeInputFieldModel?
+    let customFeeGasLimitModel: SendCustomFeeInputFieldModel?
+
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let tokenItem: TokenItem
@@ -43,6 +47,38 @@ class SendFeeViewModel: ObservableObject {
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
         tokenItem = input.tokenItem
+
+        if feeOptions.contains(.custom) {
+            #warning("[REDACTED_TODO_COMMENT]")
+            customFeeModel = SendCustomFeeInputFieldModel(
+                title: "Fee up to",
+                amount: .constant(.internal(1234)),
+                fractionDigits: 0,
+                amountAlternativePublisher: .just(output: "0.41 $"),
+                footer: "Maximum commission amount"
+            )
+
+            customFeeGasPriceModel = SendCustomFeeInputFieldModel(
+                title: Localization.sendGasPrice,
+                amount: .constant(.internal(1234)),
+                fractionDigits: 0,
+                amountAlternativePublisher: .just(output: nil),
+                footer: Localization.sendGasPriceFooter
+            )
+
+            customFeeGasLimitModel = SendCustomFeeInputFieldModel(
+                title: Localization.sendGasLimit,
+                amount: .constant(.internal(1234)),
+                fractionDigits: 0,
+                amountAlternativePublisher: .just(output: nil),
+                footer: Localization.sendGasLimitFooter
+            )
+        } else {
+            customFeeModel = nil
+            customFeeGasPriceModel = nil
+            customFeeGasLimitModel = nil
+        }
+
         feeRowViewModels = makeFeeRowViewModels([:])
 
         bind()
