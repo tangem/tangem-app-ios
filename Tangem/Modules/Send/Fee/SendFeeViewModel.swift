@@ -23,6 +23,7 @@ protocol SendFeeViewModelInput {
 class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
+    @Published private(set) var showCustomFeeFields: Bool = false
 
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
@@ -82,11 +83,16 @@ class SendFeeViewModel: ObservableObject {
                     root.selectedFeeOption == option
                 }, set: { root, newValue in
                     if newValue {
-                        root.selectedFeeOption = option
-                        root.input.didSelectFeeOption(option)
+                        self.selectFeeOption(option)
                     }
                 })
             )
         }
+    }
+
+    private func selectFeeOption(_ feeOption: FeeOption) {
+        selectedFeeOption = feeOption
+        input.didSelectFeeOption(feeOption)
+        showCustomFeeFields = feeOption == .custom
     }
 }
