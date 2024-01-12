@@ -17,11 +17,11 @@ struct SwappingTokenIconView: View {
     }
 
     private let imageSize = CGSize(width: 36, height: 36)
-    private let networkIconSize = CGSize(width: 16, height: 16)
+    private let mainContentSize = CGSize(width: 40, height: 40)
     private let chevronIconSize = CGSize(width: 9, height: 9)
 
     private var chevronYOffset: CGFloat {
-        imageSize.height / 2 - chevronIconSize.height / 2
+        mainContentSize.height / 2 - chevronIconSize.height / 2
     }
 
     private var isTappable: Bool {
@@ -30,17 +30,19 @@ struct SwappingTokenIconView: View {
 
     var body: some View {
         Button(action: { action?() }) {
-            HStack(alignment: .top, spacing: 4) {
+            ZStack(alignment: .topTrailing) {
                 mainContent
+                    // chevron's space
+                    .padding(.trailing, 12)
 
                 Assets.chevronDownMini.image
                     .resizable()
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
                     .frame(size: chevronIconSize)
-                    .offset(y: chevronYOffset)
-                    /// View have to keep size of the view same for both cases
+                    // View have to keep size of the view same for both cases
                     .opacity(isTappable ? 1 : 0)
+                    .offset(y: chevronYOffset)
             }
         }
         .disabled(!isTappable)
@@ -50,56 +52,36 @@ struct SwappingTokenIconView: View {
     private var mainContent: some View {
         switch state {
         case .loading:
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 SkeletonView()
                     .frame(size: imageSize)
                     .cornerRadius(imageSize.height / 2)
+                    .padding(.all, 2)
 
                 SkeletonView()
-                    .frame(width: 30, height: 14)
+                    .frame(width: 30, height: 12)
+                    .cornerRadius(3)
             }
 
         case .notAvailable:
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 Assets.emptyTokenList.image
                     .renderingMode(.template)
                     .resizable()
                     .foregroundColor(Colors.Icon.inactive)
                     .frame(size: imageSize)
+                    .padding(.all, 2)
 
                 Text("-")
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
             }
-
-        case .loaded(let imageURL, let networkURL, let symbol):
-            VStack(spacing: 4) {
-                image(imageURL: imageURL, networkURL: networkURL)
-
-                Text(symbol)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-            }
-
-        case .icon(let tokenIconInfo, let symbol):
-            VStack(spacing: 4) {
+        case .icon(let tokenIconInfo):
+            VStack(spacing: 2) {
                 TokenIcon(tokenIconInfo: tokenIconInfo, size: imageSize)
+                    .padding(.all, 2)
 
-                Text(symbol)
+                Text("BTC")
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-            }
-        }
-    }
-
-    private func image(imageURL: URL, networkURL: URL?) -> some View {
-        ZStack(alignment: .topTrailing) {
-            IconView(url: imageURL, size: imageSize)
-
-            if let networkIcon = networkURL {
-                IconView(url: networkIcon, size: networkIconSize)
-                    .frame(size: networkIconSize)
-                    .padding(.all, 1)
-                    .background(Colors.Background.primary)
-                    .cornerRadius(networkIconSize.height / 2)
-                    .offset(x: 6, y: -6)
             }
         }
     }
@@ -121,20 +103,25 @@ struct SwappingTokenIcon_Previews: PreviewProvider {
             SwappingTokenIconView(state: .loading)
                 .onTap {}
 
+            SwappingTokenIconView(state: .notAvailable)
+                .onTap {}
+
             SwappingTokenIconView(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
-                    symbol: "MATIC"
+                state: .icon(
+                    TokenIconInfoBuilder().build(
+                        from: .blockchain(.bitcoin(testnet: false)),
+                        isCustom: false
+                    )
                 )
             )
             .onTap {}
 
             SwappingTokenIconView(
-                state: .loaded(
-                    imageURL: TokenIconURLBuilder().iconURL(id: "dai", size: .large),
-                    networkURL: TokenIconURLBuilder().iconURL(id: "ethereum", size: .small),
-                    symbol: "MATIC"
+                state: .icon(
+                    TokenIconInfoBuilder().build(
+                        from: .blockchain(.bitcoin(testnet: false)),
+                        isCustom: false
+                    )
                 )
             )
         }
@@ -145,7 +132,6 @@ extension SwappingTokenIconView {
     enum State: Hashable {
         case loading
         case notAvailable
-        case loaded(imageURL: URL, networkURL: URL? = nil, symbol: String)
-        case icon(TokenIconInfo, symbol: String)
+        case icon(TokenIconInfo)
     }
 }
