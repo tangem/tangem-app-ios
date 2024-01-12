@@ -17,32 +17,6 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
     @Published private(set) var balance: State
     @Published private(set) var tokenIconState: SwappingTokenIconView.State
 
-    var balanceString: String {
-        switch balance {
-        case .idle:
-            return ""
-        case .loading:
-            return "0"
-        case .loaded(let value):
-            return value.groupedFormatted()
-        case .formatted(let value):
-            return value
-        }
-    }
-
-    var fiatValueString: String {
-        switch fiatValue {
-        case .idle:
-            return ""
-        case .loading:
-            return "0"
-        case .loaded(let value):
-            return value.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
-        case .formatted(let value):
-            return value
-        }
-    }
-
     private var walletDidChangeSubscription: AnyCancellable?
 
     init(
@@ -67,8 +41,8 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
         canChangeCurrency = wallet.id != initialWalletId
         maximumFractionDigits = wallet.decimalCount
         tokenIconState = .icon(
-            TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom),
-            symbol: wallet.tokenItem.currencySymbol
+            TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom)
+//            symbol: wallet.tokenItem.currencySymbol
         )
 
         walletDidChangeSubscription = wallet.walletDidChangePublisher.sink { [weak self] state in
@@ -134,8 +108,5 @@ extension SendCurrencyViewModel {
         case idle
         case loading
         case formatted(_ value: String)
-
-        @available(*, deprecated, renamed: "formatted", message: "Have to be formatted outside")
-        case loaded(_ value: Decimal)
     }
 }
