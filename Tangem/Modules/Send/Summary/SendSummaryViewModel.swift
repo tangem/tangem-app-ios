@@ -15,8 +15,6 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
-    var tokenItem: TokenItem { get }
-
     var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
@@ -48,7 +46,9 @@ class SendSummaryViewModel: ObservableObject {
         self.input = input
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
-            tokenItem: input.tokenItem,
+            feeCurrencySymbol: walletInfo.feeCurrencySymbol,
+            feeCurrencyId: walletInfo.feeCurrencyId,
+            isFeeApproximate: walletInfo.isFeeApproximate,
             currencyId: walletInfo.currencyId,
             tokenIconInfo: walletInfo.tokenIconInfo
         )
