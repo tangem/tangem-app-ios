@@ -99,7 +99,9 @@ struct SendSummaryView_Previews: PreviewProvider {
         balance: "12013",
         currencyId: "tether",
         tokenIconInfo: tokenIconInfo,
+        cryptoIconURL: nil,
         cryptoCurrencyCode: "USDT",
+        fiatIconURL: nil,
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6
     )
