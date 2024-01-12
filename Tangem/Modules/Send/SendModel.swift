@@ -330,6 +330,10 @@ class SendModel {
         _selectedFeeOption.send(feeOption)
     }
 
+    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
+        print("ZZZ", value)
+    }
+
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
         switch fees.count {
         case 1:
@@ -441,6 +445,10 @@ extension SendModel: SendFeeViewModelInput {
 
     var tokenItem: TokenItem {
         walletModel.tokenItem
+    }
+
+    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> {
+        _customFeeGasPrice.eraseToAnyPublisher()
     }
 }
 
