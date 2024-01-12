@@ -12,8 +12,6 @@ import Combine
 import BlockchainSdk
 
 protocol SendFinishViewModelInput: AnyObject {
-    var tokenItem: TokenItem { get }
-
     var amountValue: Amount? { get }
     var destinationText: String? { get }
     var additionalField: (SendAdditionalFields, String)? { get }
@@ -44,7 +42,9 @@ class SendFinishViewModel: ObservableObject {
         }
 
         let sectionViewModelFactory = SendSummarySectionViewModelFactory(
-            tokenItem: input.tokenItem,
+            feeCurrencySymbol: walletInfo.feeCurrencySymbol,
+            feeCurrencyId: walletInfo.feeCurrencyId,
+            isFeeApproximate: walletInfo.isFeeApproximate,
             currencyId: walletInfo.currencyId,
             tokenIconInfo: walletInfo.tokenIconInfo
         )
