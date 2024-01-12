@@ -52,10 +52,6 @@ struct SendCurrencyView: View {
                 SkeletonView()
                     .frame(width: 100, height: 13)
                     .cornerRadius(6)
-            case .loaded:
-                SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
             case .formatted(let value):
                 SensitiveText(builder: Localization.commonBalance, sensitive: value)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -80,9 +76,6 @@ struct SendCurrencyView: View {
                 SkeletonView()
                     .frame(width: 50, height: 13)
                     .cornerRadius(6)
-            case .loaded:
-                Text(viewModel.fiatValueString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             case .formatted(let value):
                 Text(value)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -123,19 +116,23 @@ struct SendCurrencyView_Preview: PreviewProvider {
             fiatValue: .loading,
             maximumFractionDigits: 8,
             canChangeCurrency: true,
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                symbol: "BTC"
+            tokenIconState: .icon(
+                TokenIconInfoBuilder().build(
+                    from: .blockchain(.bitcoin(testnet: false)),
+                    isCustom: false
+                )
             )
         ),
         SendCurrencyViewModel(
-            balance: .loaded(3043.75),
-            fiatValue: .loaded(1000.71),
+            balance: .formatted("3043.75"),
+            fiatValue: .formatted("1000.71"),
             maximumFractionDigits: 8,
             canChangeCurrency: true,
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "bitcoin", size: .large),
-                symbol: "BTC"
+            tokenIconState: .icon(
+                TokenIconInfoBuilder().build(
+                    from: .blockchain(.bitcoin(testnet: false)),
+                    isCustom: false
+                )
             )
         ),
     ]
