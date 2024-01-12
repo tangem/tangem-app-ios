@@ -60,7 +60,15 @@ class SendFeeViewModel: ObservableObject {
                 fractionDigits: 0,
                 amountAlternativePublisher: .just(output: "0.41 $"),
                 footer: Localization.sendMaxFeeFooter
-            ) { value in
+            ) { enteredValue in
+                let gasPrice: BigUInt?
+
+                if let decimalValue = enteredValue?.value {
+                    gasPrice = EthereumUtils.mapToBigUInt(decimalValue)
+                } else {
+                    gasPrice = nil
+                }
+                input.didChangeCustomFeeGasPrice(gasPrice)
             }
 
             customFeeGasPriceModel = SendCustomFeeInputFieldModel(
