@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import BigInt
 import BlockchainSdk
 
 protocol SendFeeViewModelInput {
@@ -17,7 +18,12 @@ protocol SendFeeViewModelInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var tokenItem: TokenItem { get }
 
+    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
+//    var gasLimitPublisher: AnyPublisher<BigUInt, Never> { get }
+
     func didSelectFeeOption(_ feeOption: FeeOption)
+
+    func didChangeCustomFeeGasPrice(_ value: BigUInt?)
 }
 
 class SendFeeViewModel: ObservableObject {
@@ -51,27 +57,31 @@ class SendFeeViewModel: ObservableObject {
         if feeOptions.contains(.custom) {
             customFeeModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendMaxFee,
-                amount: .constant(.internal(1234)),
+                amountPublisher: .just(output: .internal(1234)),
                 fractionDigits: 0,
                 amountAlternativePublisher: .just(output: "0.41 $"),
                 footer: Localization.sendMaxFeeFooter
-            )
+            ) { value in
+            }
 
             customFeeGasPriceModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendGasPrice,
-                amount: .constant(.internal(1234)),
+                amountPublisher: .just(output: .internal(1234)),
                 fractionDigits: 0,
                 amountAlternativePublisher: .just(output: nil),
                 footer: Localization.sendGasPriceFooter
-            )
+            ) { value in
+            }
 
             customFeeGasLimitModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendGasLimit,
-                amount: .constant(.internal(1234)),
+                amountPublisher: .just(output: .internal(1234)),
                 fractionDigits: 0,
                 amountAlternativePublisher: .just(output: nil),
                 footer: Localization.sendGasLimitFooter
-            )
+            ) { value in
+            }
+
         } else {
             customFeeModel = nil
             customFeeGasPriceModel = nil
