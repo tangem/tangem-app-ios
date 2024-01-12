@@ -31,12 +31,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let walletName: String
     let balance: String
     let tokenIconInfo: TokenIconInfo
+    let showCurrencyPicker: Bool
+    let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
+    let fiatIconURL: URL?
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
+    let windowWidth: CGFloat
 
     @Published var amount: DecimalNumberTextField.DecimalValue? = nil
-    @Published var currencyOption: CurrencyOption = .fiat
+    @Published var useFiatCalculation = false
     @Published var amountAlternative: String = ""
     @Published var error: String?
 
@@ -51,8 +55,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         balance = walletInfo.balance
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
+        windowWidth = UIApplication.shared.windows.first?.frame.width ?? 400
 
+        showCurrencyPicker = walletInfo.currencyId != nil
+        cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
+        fiatIconURL = walletInfo.fiatIconURL
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
         bind(from: input)
@@ -83,7 +91,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        $currencyOption
+        $useFiatCalculation
             .sink { [weak self] _ in
                 #warning("[REDACTED_TODO_COMMENT]")
             }
@@ -104,14 +112,5 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         } else {
             return nil
         }
-    }
-}
-
-extension SendAmountViewModel {
-    enum CurrencyOption: String, CaseIterable, Identifiable {
-        case crypto
-        case fiat
-
-        var id: Self { self }
     }
 }
