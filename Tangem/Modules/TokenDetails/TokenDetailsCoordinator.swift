@@ -22,7 +22,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var swappingCoordinator: SwappingCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
@@ -192,6 +191,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
             type: .send
@@ -220,9 +220,10 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
-            type: .sell(amount: amountToSend.value, destination: destination)
+            type: .sell(amount: amountToSend, destination: destination)
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -251,23 +252,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             withCloseButton: false,
             urlActions: [:]
         )
-    }
-
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.swappingCoordinator = nil
-        }
-
-        let factory = CommonSwappingModulesFactory(inputModel: input)
-        let coordinator = SwappingCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-
-        swappingCoordinator = coordinator
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {

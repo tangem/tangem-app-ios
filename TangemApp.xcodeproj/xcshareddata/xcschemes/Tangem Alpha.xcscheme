@@ -54,8 +54,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EF46619A2923AFC400346B6C"
-               BuildableName = "TangemSwappingTests.xctest"
-               BlueprintName = "TangemSwappingTests"
+               BuildableName = "TangemExpressTests.xctest"
+               BlueprintName = "TangemExpressTests"
                ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -88,6 +88,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-FIRDebugEnabled"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-com.tangem.PerformanceMonitorEnabled YES"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
