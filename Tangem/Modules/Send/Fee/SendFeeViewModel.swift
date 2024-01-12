@@ -49,13 +49,12 @@ class SendFeeViewModel: ObservableObject {
         tokenItem = input.tokenItem
 
         if feeOptions.contains(.custom) {
-            #warning("[REDACTED_TODO_COMMENT]")
             customFeeModel = SendCustomFeeInputFieldModel(
-                title: "Fee up to",
+                title: Localization.sendMaxFee,
                 amount: .constant(.internal(1234)),
                 fractionDigits: 0,
                 amountAlternativePublisher: .just(output: "0.41 $"),
-                footer: "Maximum commission amount"
+                footer: Localization.sendMaxFeeFooter
             )
 
             customFeeGasPriceModel = SendCustomFeeInputFieldModel(
