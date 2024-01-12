@@ -191,8 +191,7 @@ private extension ExpressViewModel {
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            canChangeCurrency: interactor.getDestination()?.id != initialWallet.id,
-            tokenIconState: .loading
+            canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
         )
     }
 
@@ -467,17 +466,6 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToSwappingTokenIconViewModelState(wallet: WalletModel?) -> SwappingTokenIconView.State {
-        guard let wallet = wallet else {
-            return .loading
-        }
-
-        return .icon(
-            TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom),
-            symbol: wallet.tokenItem.currencySymbol
-        )
-    }
-
     func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
         guard let selectedProvider = await interactor.getSelectedProvider() else {
             return nil
