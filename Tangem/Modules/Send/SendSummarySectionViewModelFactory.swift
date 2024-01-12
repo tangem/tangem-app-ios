@@ -17,8 +17,7 @@ struct SendSummarySectionViewModelFactory {
     private var feeFormatter: FeeFormatter {
         CommonFeeFormatter(
             balanceFormatter: BalanceFormatter(),
-            balanceConverter: BalanceConverter(),
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: BalanceConverter()
         )
     }
 
