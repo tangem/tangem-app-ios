@@ -32,9 +32,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let balance: String
     let tokenIconInfo: TokenIconInfo
     let cryptoCurrencyId: String?
+    let showCurrencyPicker: Bool
+    let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
+    let fiatIconURL: URL?
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
+    let windowWidth: CGFloat
 
     @Published var amount: DecimalNumberTextField.DecimalValue? = nil
     @Published var isFiatCalculation = false
@@ -56,9 +60,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         balance = walletInfo.balance
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
+        windowWidth = UIApplication.shared.windows.first?.frame.width ?? 400
 
         cryptoCurrencyId = walletInfo.currencyId
+        showCurrencyPicker = walletInfo.currencyId != nil
+        cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
+        fiatIconURL = walletInfo.fiatIconURL
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
         bind(from: input)
