@@ -10,7 +10,9 @@ import Foundation
 import BlockchainSdk
 
 struct SendSummarySectionViewModelFactory {
-    private let tokenItem: TokenItem
+    private let feeCurrencySymbol: String
+    private let feeCurrencyId: String
+    private let isFeeApproximate: Bool
     private let currencyId: String?
     private let tokenIconInfo: TokenIconInfo
 
@@ -21,8 +23,10 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    init(tokenItem: TokenItem, currencyId: String?, tokenIconInfo: TokenIconInfo) {
-        self.tokenItem = tokenItem
+    init(feeCurrencySymbol: String, feeCurrencyId: String, isFeeApproximate: Bool, currencyId: String?, tokenIconInfo: TokenIconInfo) {
+        self.feeCurrencySymbol = feeCurrencySymbol
+        self.feeCurrencyId = feeCurrencyId
+        self.isFeeApproximate = isFeeApproximate
         self.currencyId = currencyId
         self.tokenIconInfo = tokenIconInfo
     }
@@ -64,7 +68,9 @@ struct SendSummarySectionViewModelFactory {
 
         let formattedValue = feeFormatter.format(
             fee: value.amount.value,
-            tokenItem: tokenItem
+            currencySymbol: feeCurrencySymbol,
+            currencyId: feeCurrencyId,
+            isFeeApproximate: isFeeApproximate
         )
 
         return DefaultTextWithTitleRowViewData(title: Localization.sendNetworkFeeTitle, text: formattedValue)
