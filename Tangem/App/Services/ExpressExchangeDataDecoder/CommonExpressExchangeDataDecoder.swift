@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import TangemSdk
 
 struct CommonExpressExchangeDataDecoder: ExpressExchangeDataDecoder {
