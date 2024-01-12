@@ -63,12 +63,15 @@ struct ExpressView: View {
                     }
                 }
 
-                if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
-                    ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
+                GroupedSection(viewModel.receiveCurrencyViewModel) {
+                    ReceiveCurrencyView(viewModel: $0)
                         .didTapChangeCurrency {
                             viewModel.userDidTapChangeDestinationButton()
                         }
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
             }
 
             swappingButton
