@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTxRepository: ExpressPendingTransactionRepository
