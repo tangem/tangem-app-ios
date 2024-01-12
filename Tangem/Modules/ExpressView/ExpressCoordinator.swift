@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import TangemSwapping
+import TangemExpress
 import UIKit
 
 class ExpressCoordinator: CoordinatorObject {
@@ -26,9 +26,9 @@ class ExpressCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
-    @Published var expressFeeSelectorViewModel: ExpressFeeBottomSheetViewModel?
+    @Published var expressFeeSelectorViewModel: ExpressFeeSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
-    @Published var swappingApproveViewModel: SwappingApproveViewModel?
+    @Published var expressApproveViewModel: ExpressApproveViewModel?
 
     // MARK: - Properties
 
@@ -66,12 +66,13 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentFeeSelectorView() {
+        UIApplication.shared.endEditing()
         expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
     }
 
     func presentApproveView() {
         UIApplication.shared.endEditing()
-        swappingApproveViewModel = factory.makeSwappingApproveViewModel(coordinator: self)
+        expressApproveViewModel = factory.makeExpressApproveViewModel(coordinator: self)
     }
 
     func presentSuccessView(data: SentExpressTransactionData) {
@@ -94,6 +95,7 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentProviderSelectorView() {
+        UIApplication.shared.endEditing()
         expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
@@ -112,23 +114,23 @@ extension ExpressCoordinator: ExpressTokensListRoutable {
 
 // MARK: - ExpressRoutable
 
-extension ExpressCoordinator: ExpressFeeBottomSheetRoutable {
-    func closeExpressFeeBottomSheet() {
+extension ExpressCoordinator: ExpressFeeSelectorRoutable {
+    func closeExpressFeeSelector() {
         expressFeeSelectorViewModel = nil
         rootViewModel?.didCloseFeeSelectorSheet()
     }
 }
 
-// MARK: - SwappingApproveRoutable
+// MARK: - ExpressApproveRoutable
 
-extension ExpressCoordinator: SwappingApproveRoutable {
+extension ExpressCoordinator: ExpressApproveRoutable {
     func didSendApproveTransaction() {
-        swappingApproveViewModel = nil
+        expressApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
     }
 
     func userDidCancel() {
-        swappingApproveViewModel = nil
+        expressApproveViewModel = nil
         rootViewModel?.didCloseApproveSheet()
     }
 }
