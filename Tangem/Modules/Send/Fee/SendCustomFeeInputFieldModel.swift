@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BigInt
 import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
@@ -15,22 +16,28 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let fractionDigits: Int
     let footer: String
 
-    var amount: Binding<DecimalNumberTextField.DecimalValue?>
+    @Published var amount: DecimalNumberTextField.DecimalValue? = nil
     @Published var amountAlternative: String?
 
     private var bag: Set<AnyCancellable> = []
+    private let onFieldChange: (BigUInt?) -> Void
 
     init(
         title: String,
-        amount: Binding<DecimalNumberTextField.DecimalValue?>,
+        amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never>,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
-        footer: String
+        footer: String,
+        didChangeField: @escaping (BigUInt?) -> Void
     ) {
         self.title = title
-        self.amount = amount
         self.fractionDigits = fractionDigits
         self.footer = footer
+        onFieldChange = didChangeField
+
+        amountPublisher
+            .assign(to: \.amount, on: self, ownership: .weak)
+            .store(in: &bag)
 
         amountAlternativePublisher
             .assign(to: \.amountAlternative, on: self, ownership: .weak)
