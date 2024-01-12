@@ -9,129 +9,122 @@
 import SwiftUI
 
 struct ReceiveCurrencyView: View {
-    private let viewModel: ReceiveCurrencyViewModel
-    private let tokenIconSize = CGSize(width: 36, height: 36)
+    @ObservedObject private var viewModel: ReceiveCurrencyViewModel
+
+    private let imageSize = CGSize(width: 36, height: 36)
+    // With 2 padding in the all edges
+    private let tokenIconSize = CGSize(width: 40, height: 40)
+    private let chevronIconSize = CGSize(width: 9, height: 9)
     private var didTapChangeCurrency: () -> Void = {}
+
+    @State private var symbolSize: CGSize = .zero
 
     init(viewModel: ReceiveCurrencyViewModel) {
         self.viewModel = viewModel
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            headerLabels
+        VStack(spacing: 6) {
+            ExpressCurrencyTopView(title: Localization.swappingToTitle, state: viewModel.topViewState)
+                .border(Color.purple)
 
             mainContent
-        }
-        .padding(.all, 14)
-        .background(Colors.Background.action)
-        .cornerRadius(14)
-    }
+                .border(Color.red)
 
-    private var headerLabels: some View {
-        HStack(spacing: 0) {
-            Text(Localization.swappingToTitle)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-
-            Spacer()
-
-            if viewModel.isAvailable {
-                SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-            } else {
-                Text(Localization.swappingTokenNotAvailable)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.disabled)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            bottomContent
+                .border(Color.orange)
         }
     }
 
     @ViewBuilder
     private var mainContent: some View {
-        HStack(spacing: 0) {
-            currencyContent
+        HStack(alignment: .top, spacing: 0) {
+            LoadableTextView(
+                state: viewModel.cryptoAmountState,
+                font: Fonts.Regular.title1,
+                textColor: Colors.Text.primary1,
+                loaderSize: CGSize(width: 102, height: 24)
+            )
 
             Spacer()
 
-            SwappingTokenIconView(state: viewModel.tokenIconState)
-                .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
+            Button(action: { didTapChangeCurrency() }) {
+                ZStack(alignment: .trailing) {
+                    iconContent
+                        .padding(.all, 2)
+                        // Chevron's space
+                        .padding(.trailing, 12)
+
+                    Assets.chevronDownMini.image
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.informative)
+                        .frame(size: chevronIconSize)
+                        // View have to keep size of the view same for both cases
+                        .opacity(viewModel.canChangeCurrency ? 1 : 0)
+                }
+            }
+            .disabled(!viewModel.canChangeCurrency)
         }
     }
 
-    private var currencyContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            cryptoAmountView
-
+    @ViewBuilder
+    private var bottomContent: some View {
+        HStack(spacing: 0) {
             HStack(spacing: 2) {
-                fiatAmountView
+                LoadableTextView(
+                    state: viewModel.fiatAmountState,
+                    font: Fonts.Regular.footnote,
+                    textColor: Colors.Text.tertiary,
+                    loaderSize: CGSize(width: 70, height: 12),
+                    lineLimit: 1,
+                    isSensitiveText: false
+                )
 
-                priceChangeView
+                if let priceChangePercent = viewModel.priceChangePercent {
+                    HStack(spacing: 4) {
+                        Text(priceChangePercent)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+
+                        Assets.attention.image
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                    }
+                }
             }
+
+            Spacer()
+
+            LoadableTextView(
+                state: viewModel.symbolState,
+                font: Fonts.Bold.footnote,
+                textColor: Colors.Text.primary1,
+                loaderSize: CGSize(width: 30, height: 14),
+                lineLimit: 1,
+                isSensitiveText: false
+            )
+            .readGeometry(\.frame.size, bindTo: $symbolSize)
+            // Chevron's space
+            .padding(.trailing, 12)
+            .offset(x: -tokenIconSize.width / 2 + symbolSize.width / 2)
         }
     }
 
     @ViewBuilder
-    private var cryptoAmountView: some View {
-        switch viewModel.cryptoAmountState {
-        case .idle:
-            EmptyView()
+    private var iconContent: some View {
+        switch viewModel.tokenIconState {
         case .loading:
             SkeletonView()
-                .frame(width: 102, height: 24)
-                .cornerRadius(6)
-                .padding(.vertical, 6)
-
-        case .loaded:
-            Text(viewModel.cryptoAmountFormatted)
-                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .fixedSize(horizontal: false, vertical: true)
-        case .formatted(let value):
-            Text(value)
-                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
-    @ViewBuilder
-    private var fiatAmountView: some View {
-        switch viewModel.fiatAmountState {
-        case .idle:
-            EmptyView()
-        case .loading:
-            SkeletonView()
-                .frame(width: 40, height: 13)
-                .cornerRadius(6)
-        case .loaded:
-            Text(viewModel.fiatAmountFormatted)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .fixedSize(horizontal: false, vertical: true)
-        case .formatted(let value):
-            Text(value)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
-    @ViewBuilder
-    private var priceChangeView: some View {
-        if let priceChangePercent = viewModel.priceChangePercent {
-            HStack(spacing: 4) {
-                Text("(\(priceChangePercent))")
-                    .style(Fonts.Regular.footnote, color: Colors.Text.attention)
-
-                Assets.attention.image
-                    .resizable()
-                    .frame(width: 16, height: 16)
-            }
+                .frame(size: imageSize)
+                .cornerRadius(imageSize.height / 2)
+        case .notAvailable:
+            Assets.emptyTokenList.image
+                .renderingMode(.template)
+                .resizable()
+                .foregroundColor(Colors.Icon.inactive)
+                .frame(size: imageSize)
+        case .icon(let tokenIconInfo):
+            TokenIcon(tokenIconInfo: tokenIconInfo, size: imageSize)
         }
     }
 }
@@ -147,44 +140,53 @@ extension ReceiveCurrencyView: Setupable {
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
+            topViewState: .loading,
             cryptoAmountState: .loading,
             fiatAmountState: .loading,
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.ethereum(testnet: false)), isCustom: false)),
+            symbolState: .loaded(text: "ETH"),
+            canChangeCurrency: false
         ),
         ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
-            cryptoAmountState: .loaded(1100.46),
-            fiatAmountState: .loading,
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
-        ),
-        ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
+            topViewState: .formatted("0.0058"),
             cryptoAmountState: .loading,
-            fiatAmountState: .loaded(1100.46),
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
+            fiatAmountState: .loading,
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.cardano(extended: false)), isCustom: false)),
+            symbolState: .loaded(text: "ADA"),
+            canChangeCurrency: false
         ),
         ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
-            cryptoAmountState: .loaded(1100.46),
-            fiatAmountState: .loaded(1100.46),
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
+            topViewState: .formatted("0.0058"),
+            cryptoAmountState: .loaded(text: "1100.46"),
+            fiatAmountState: .loading,
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.polygon(testnet: false)), isCustom: false)),
+            symbolState: .loaded(text: "MATIC"),
+            canChangeCurrency: true
+        ),
+        ReceiveCurrencyViewModel(
+            topViewState: .formatted("0.0058"),
+            cryptoAmountState: .loading,
+            fiatAmountState: .loaded(text: "1100.46"),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.polygon(testnet: false)), isCustom: false)),
+            symbolState: .loaded(text: "MATIC"),
+            canChangeCurrency: true
+        ),
+        ReceiveCurrencyViewModel(
+            topViewState: .formatted("0.0058"),
+            cryptoAmountState: .loaded(text: "1100.46"),
+            fiatAmountState: .loaded(text: "2100.46 $"),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .polygon(testnet: false)), isCustom: false)),
+            symbolState: .loaded(text: "USDT"),
+            canChangeCurrency: true
+        ),
+        ReceiveCurrencyViewModel(
+            topViewState: .formatted("0.0058"),
+            cryptoAmountState: .loaded(text: "1100.46"),
+            fiatAmountState: .loaded(text: "2100.46 $"),
+            priceChangePercent: "-24.3 %",
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .polygon(testnet: false)), isCustom: false)),
+            symbolState: .loaded(text: "USDT"),
+            canChangeCurrency: true
         ),
     ]
 
@@ -194,7 +196,12 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
 
             VStack {
                 ForEach(viewModels) {
-                    ReceiveCurrencyView(viewModel: $0)
+                    GroupedSection($0) {
+                        ReceiveCurrencyView(viewModel: $0)
+                    }
+                    .interSectionPadding(12)
+                    .interItemSpacing(10)
+                    .verticalPadding(0)
                 }
             }
             .padding(.horizontal, 16)
