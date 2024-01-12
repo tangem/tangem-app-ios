@@ -24,35 +24,37 @@ struct SendFeeView: View {
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
 
-            SendCustomFeeInputField(
-                viewModel: SendCustomFeeInputFieldModel(
-                    title: "Fee up to",
-                    amount: .constant(.internal(1234)),
-                    fractionDigits: 0,
-                    amountAlternativePublisher: .just(output: "0.41 $"),
-                    footer: "Maximum commission amount"
+            if viewModel.showCustomFeeFields {
+                SendCustomFeeInputField(
+                    viewModel: SendCustomFeeInputFieldModel(
+                        title: "Fee up to",
+                        amount: .constant(.internal(1234)),
+                        fractionDigits: 0,
+                        amountAlternativePublisher: .just(output: "0.41 $"),
+                        footer: "Maximum commission amount"
+                    )
                 )
-            )
 
-            SendCustomFeeInputField(
-                viewModel: SendCustomFeeInputFieldModel(
-                    title: "Gas price",
-                    amount: .constant(.internal(1234)),
-                    fractionDigits: 0,
-                    amountAlternativePublisher: .just(output: nil),
-                    footer: "Gas Price impacts transaction speed; too low, it may not process"
+                SendCustomFeeInputField(
+                    viewModel: SendCustomFeeInputFieldModel(
+                        title: "Gas price",
+                        amount: .constant(.internal(1234)),
+                        fractionDigits: 0,
+                        amountAlternativePublisher: .just(output: nil),
+                        footer: "Gas Price impacts transaction speed; too low, it may not process"
+                    )
                 )
-            )
 
-            SendCustomFeeInputField(
-                viewModel: SendCustomFeeInputFieldModel(
-                    title: "Gas limit",
-                    amount: .constant(.internal(1234)),
-                    fractionDigits: 0,
-                    amountAlternativePublisher: .just(output: nil),
-                    footer: "Gas Limit is auto-calculated; raise it during network congestion"
+                SendCustomFeeInputField(
+                    viewModel: SendCustomFeeInputFieldModel(
+                        title: "Gas limit",
+                        amount: .constant(.internal(1234)),
+                        fractionDigits: 0,
+                        amountAlternativePublisher: .just(output: nil),
+                        footer: "Gas Limit is auto-calculated; raise it during network congestion"
+                    )
                 )
-            )
+            }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
