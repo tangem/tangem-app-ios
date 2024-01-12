@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import struct TangemSwapping.ExpressAPIError
+import struct TangemExpress.ExpressAPIError
 
 class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
@@ -33,7 +33,7 @@ class ExpressNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: ExpressNotificationManager.setupNotifications(for:)))
     }
 
-    private func setupNotifications(for state: ExpressInteractor.ExpressInteractorState) {
+    private func setupNotifications(for state: ExpressInteractor.State) {
         priceImpactTask?.cancel()
         priceImpactTask = nil
 
@@ -167,7 +167,7 @@ class ExpressNotificationManager {
             return nil
         }
 
-        let balance = try await sender.getBalance()
+        let balance = try sender.getBalance()
         let remainBalance = balance - (amount + subtractFee)
 
         guard remainBalance < provider.existentialDeposit.value, let warning = sender.existentialDepositWarning else {
