@@ -134,6 +134,9 @@ final class SendViewModel: ObservableObject {
             walletName: walletName,
             balance: walletModel.balance,
             currencyId: walletModel.tokenItem.currencyId,
+            feeCurrencySymbol: walletModel.tokenItem.blockchain.currencySymbol,
+            feeCurrencyId: walletModel.tokenItem.blockchain.currencyId,
+            isFeeApproximate: walletModel.tokenItem.blockchain.isFeeApproximate(for: walletModel.amountType),
             tokenIconInfo: tokenIconInfo,
             cryptoIconURL: cryptoIconURL,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
@@ -146,7 +149,7 @@ final class SendViewModel: ObservableObject {
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
         sendAmountViewModel.delegate = self
