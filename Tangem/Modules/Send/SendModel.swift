@@ -102,6 +102,11 @@ class SendModel {
         self.sendType = sendType
         self.addressService = addressService
 
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.setDestination("0xb794f5ea0ba39494ce839613fffba74279579268")
+            self.setAmount(.init(with: self.blockchain, type: self.amountType, value: 0.001))
+        }
+
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
             setAmount(amount)
