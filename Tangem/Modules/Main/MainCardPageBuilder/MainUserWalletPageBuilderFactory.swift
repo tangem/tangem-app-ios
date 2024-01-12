@@ -15,9 +15,8 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = MultiWalletMainContentRoutable
+    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable
     let coordinator: MainContentRoutable
-    let visaCoordinator: VisaWalletRoutable
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, mainViewDelegate: MainViewDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
@@ -89,7 +88,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             let walletModel = VisaUtilities().getVisaWalletModel(for: model)
             let viewModel = VisaWalletMainContentViewModel(
                 walletModel: walletModel,
-                coordinator: visaCoordinator
+                coordinator: coordinator
             )
 
             return .visaWallet(
