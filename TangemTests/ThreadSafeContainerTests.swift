@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-@testable import TangemSwapping
+@testable import TangemExpress
 
 class ThreadSafeContainerTests: XCTestCase {
     func testConcurrentReadWriteOperationsCountUsingSingleQueue() {
