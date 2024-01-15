@@ -39,14 +39,16 @@ class SendFeeViewModel: ObservableObject {
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
+    private let customFeeInFiat = CurrentValueSubject<String?, Never>("")
     private var bag: Set<AnyCancellable> = []
 
-    private var feeFormatter: FeeFormatter {
-        CommonFeeFormatter(
-            balanceFormatter: BalanceFormatter(),
-            balanceConverter: BalanceConverter()
-        )
-    }
+    private lazy var balanceFormatter = BalanceFormatter()
+    private lazy var balanceConverter = BalanceConverter()
+
+    private lazy var feeFormatter: FeeFormatter = CommonFeeFormatter(
+        balanceFormatter: balanceFormatter,
+        balanceConverter: balanceConverter
+    )
 
     init(input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
@@ -60,7 +62,7 @@ class SendFeeViewModel: ObservableObject {
                 title: Localization.sendMaxFee,
                 amountPublisher: input.customFeePublisher.decimalPublisher,
                 fractionDigits: 18,
-                amountAlternativePublisher: .just(output: "0.41 $"),
+                amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
                 footer: Localization.sendMaxFeeFooter
             ) { enteredValue in
                 let newFee: Fee?
@@ -103,6 +105,24 @@ class SendFeeViewModel: ObservableObject {
             .sink { [weak self] feeValues in
                 guard let self else { return }
                 feeRowViewModels = makeFeeRowViewModels(feeValues)
+            }
+            .store(in: &bag)
+
+        input
+            .customFeePublisher
+            .map { [weak self] customFee -> String? in
+                guard
+                    let self,
+                    let customFee,
+                    let fiatFee = balanceConverter.convertToFiat(value: customFee.amount.value, from: walletInfo.feeCurrencyId)
+                else {
+                    return nil
+                }
+
+                return balanceFormatter.formatFiatBalance(fiatFee)
+            }
+            .sink { [weak self] customFeeInFiat in
+                self?.customFeeInFiat.send(customFeeInFiat)
             }
             .store(in: &bag)
     }
