@@ -185,13 +185,18 @@ private extension ExpressViewModel {
 private extension ExpressViewModel {
     func setupView() {
         sendCurrencyViewModel = SendCurrencyViewModel(
-            maximumFractionDigits: interactor.getSender().decimalCount,
-            canChangeCurrency: interactor.getSender().id != initialWallet.id,
-            tokenIconState: .loading
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                canChangeCurrency: interactor.getSender().id != initialWallet.id
+            ),
+            maximumFractionDigits: interactor.getSender().decimalCount
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingFromTitle),
+                canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
+            )
         )
     }
 
@@ -282,9 +287,9 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _),
              .restriction(.notEnoughAmountForFee, _):
-            sendCurrencyViewModel?.update(headerState: .insufficientFunds)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
         default:
-            sendCurrencyViewModel?.update(headerState: .header)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingToTitle))
         }
     }
 
@@ -302,7 +307,7 @@ private extension ExpressViewModel {
     }
 
     func updateHighPricePercentLabel(quote: ExpressQuote?) {
-        receiveCurrencyViewModel?.updateHighPricePercentLabel(
+        receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(
             quote: quote,
             sourceCurrencyId: interactor.getSender().tokenItem.currencyId,
             destinationCurrencyId: interactor.getDestination()?.tokenItem.currencyId
@@ -333,7 +338,7 @@ private extension ExpressViewModel {
             guard type == .full else { return }
 
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
-            receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .loading)
             updateHighPricePercentLabel(quote: .none)
 
         case .restriction(let restriction, let quote):
