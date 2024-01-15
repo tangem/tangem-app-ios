@@ -9,42 +9,56 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 protocol SendFinishViewModelInput: AnyObject {
-    var amountText: String { get }
+    var amountValue: Amount? { get }
     var destinationText: String? { get }
-    var feeText: String { get }
+    var additionalField: (SendAdditionalFields, String)? { get }
+    var feeValue: Fee? { get }
+
     var transactionTime: Date? { get }
     var transactionURL: URL? { get }
 }
 
 class SendFinishViewModel: ObservableObject {
-    let amountText: String
-    let destinationText: String
-    let feeText: String
     let transactionTime: String
+
+    let destinationViewTypes: [SendDestinationSummaryViewType]
+    let amountSummaryViewData: AmountSummaryViewData?
+    let feeSummaryViewData: DefaultTextWithTitleRowViewData?
 
     weak var router: SendFinishRoutable?
 
     private let transactionURL: URL
 
-    init?(input: SendFinishViewModelInput) {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .short
-
+    init?(input: SendFinishViewModelInput, walletInfo: SendWalletInfo) {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
             let transactionURL = input.transactionURL
-
         else {
             return nil
         }
 
-        amountText = input.amountText
-        self.destinationText = destinationText
-        feeText = input.feeText
+        let sectionViewModelFactory = SendSummarySectionViewModelFactory(
+            feeCurrencySymbol: walletInfo.feeCurrencySymbol,
+            feeCurrencyId: walletInfo.feeCurrencyId,
+            isFeeApproximate: walletInfo.isFeeApproximate,
+            currencyId: walletInfo.currencyId,
+            tokenIconInfo: walletInfo.tokenIconInfo
+        )
+
+        destinationViewTypes = sectionViewModelFactory.makeDestinationViewTypes(
+            address: destinationText,
+            additionalField: input.additionalField
+        )
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.amountValue)
+        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .short
         self.transactionTime = formatter.string(from: transactionTime)
         self.transactionURL = transactionURL
     }
