@@ -172,8 +172,8 @@ class SendFeeViewModel: ObservableObject {
 // MARK: - private extensions
 
 private extension DecimalNumberTextField.DecimalValue {
-    var bigUIntValue: BigUInt {
-        EthereumUtils.mapToBigUInt(value)
+    var bigUIntValue: BigUInt? {
+        BigUInt(decimal: value)
     }
 }
 
@@ -193,8 +193,8 @@ private extension AnyPublisher where Output == Fee?, Failure == Never {
 private extension AnyPublisher where Output == BigUInt?, Failure == Never {
     var decimalPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
         map { value in
-            if let value {
-                return .external(Decimal(Int(value)))
+            if let decimal = value?.decimal {
+                return .external(decimal)
             } else {
                 return nil
             }
