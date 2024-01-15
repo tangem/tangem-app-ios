@@ -186,7 +186,7 @@ private extension ExpressViewModel {
     func setupView() {
         sendCurrencyViewModel = SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingToTitle),
+                titleState: .text(Localization.swappingFromTitle),
                 canChangeCurrency: interactor.getSender().id != initialWallet.id
             ),
             maximumFractionDigits: interactor.getSender().decimalCount
@@ -194,7 +194,7 @@ private extension ExpressViewModel {
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
             expressCurrencyViewModel: .init(
-                titleState: .text(Localization.swappingFromTitle),
+                titleState: .text(Localization.swappingToTitle),
                 canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
             )
         )
@@ -289,7 +289,7 @@ private extension ExpressViewModel {
              .restriction(.notEnoughAmountForFee, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
         default:
-            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingToTitle))
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingFromTitle))
         }
     }
 
