@@ -188,17 +188,21 @@ class WalletModel {
             return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
         }
 
-        guard let token = amountType.token else {
+        guard let amountTypeDisplayName else {
             return nil
         }
 
         // no fee
-        if !wallet.hasPendingTx, !canSendTransaction, !currentAmount.isZero {
-            return .notEnoughFeeForTokenTx(
-                tokenName: token.name,
-                networkName: blockchainNetwork.blockchain.displayName,
-                coinSymbol: blockchainNetwork.blockchain.currencySymbol,
-                networkIconName: blockchainNetwork.blockchain.iconNameFilled
+        if !canSendTransaction, !currentAmount.isZero {
+            // [REDACTED_TODO_COMMENT]
+            return .notEnoughFeeForTransaction(
+                configuration: .init(
+                    transactionAmountTypeName: amountTypeDisplayName,
+                    feeAmountTypeName: blockchainNetwork.blockchain.displayName,
+                    feeAmountTypeCurrencySymbol: blockchainNetwork.blockchain.currencySymbol,
+                    feeAmountTypeIconName: blockchainNetwork.blockchain.iconNameFilled,
+                    networkName: blockchainNetwork.blockchain.displayName
+                )
             )
         }
 
@@ -231,6 +235,17 @@ class WalletModel {
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
+
+    private var amountTypeDisplayName: String? {
+        switch amountType {
+        case .coin:
+            return blockchainNetwork.blockchain.displayName
+        case .token(let value):
+            return value.name
+        case .reserve:
+            return nil
+        }
+    }
 
     deinit {
         AppLog.shared.debug("🗑 \(self) deinit")
