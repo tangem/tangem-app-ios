@@ -48,6 +48,13 @@ struct DecimalNumberTextField: View {
             .onChange(of: textFieldText) { newValue in
                 updateValues(with: newValue)
             }
+            .onAppear {
+                if let value = _decimalValue.wrappedValue?.value {
+                    textFieldText = decimalNumberFormatter.format(value: value)
+                } else {
+                    textFieldText = ""
+                }
+            }
     }
 
     private func updateValues(with newValue: String) {
