@@ -73,6 +73,7 @@ struct ExpressView: View {
                 .interSectionPadding(12)
                 .interItemSpacing(10)
                 .verticalPadding(0)
+                .backgroundColor(Colors.Background.action)
             }
 
             swappingButton
