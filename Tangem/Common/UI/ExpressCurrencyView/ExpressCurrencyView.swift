@@ -30,9 +30,11 @@ struct ExpressCurrencyView<Content: View>: View {
         VStack(spacing: 6) {
             topContent
 
-            mainContent
+            VStack(spacing: 4) {
+                mainContent
 
-            bottomContent
+                bottomContent
+            }
         }
     }
 
