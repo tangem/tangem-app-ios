@@ -117,6 +117,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider.provider),
+            shouldAddPrefix: false,
             isDisabled: false,
             badge: badge,
             subtitles: subtitles,
@@ -130,6 +131,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     func unavailableProviderRowViewModel(provider: ExpressProvider) -> ProviderRowViewModel {
         ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider),
+            shouldAddPrefix: false,
             isDisabled: true,
             badge: .none,
             subtitles: [.text(Localization.expressProviderNotAvailable)],
