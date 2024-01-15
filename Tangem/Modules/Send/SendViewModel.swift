@@ -123,14 +123,25 @@ final class SendViewModel: ObservableObject {
         #warning("[REDACTED_TODO_COMMENT]")
         let walletName = "Wallet Name"
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+        let cryptoIconURL: URL?
+        if let tokenId = walletModel.tokenItem.id {
+            cryptoIconURL = TokenIconURLBuilder().iconURL(id: tokenId)
+        } else {
+            cryptoIconURL = nil
+        }
         let walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: walletModel.balance,
+            currencyId: walletModel.tokenItem.currencyId,
             tokenIconInfo: tokenIconInfo,
+            cryptoIconURL: cryptoIconURL,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
+            fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount
         )
+
+        #warning("Fiat icon URL")
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
