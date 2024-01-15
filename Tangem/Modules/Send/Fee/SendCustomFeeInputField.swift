@@ -24,6 +24,7 @@ struct SendCustomFeeInputField: View {
                         decimalNumberFormatter: .init(maximumFractionDigits: viewModel.fractionDigits),
                         font: Fonts.Regular.subheadline
                     )
+                    .layoutPriority(1)
 
                     if let amountAlternative = viewModel.amountAlternative {
                         Text(amountAlternative)
