@@ -26,8 +26,15 @@ struct CommonFeeFormatter {
 
 extension CommonFeeFormatter: FeeFormatter {
     func format(fee: Decimal, tokenItem: TokenItem) -> String {
-        let currencySymbol = tokenItem.blockchain.currencySymbol
-        let currencyId = tokenItem.blockchain.currencyId
+        format(
+            fee: fee,
+            currencySymbol: tokenItem.blockchain.currencySymbol,
+            currencyId: tokenItem.blockchain.currencyId,
+            isFeeApproximate: tokenItem.blockchain.isFeeApproximate(for: tokenItem.amountType)
+        )
+    }
+
+    func format(fee: Decimal, currencySymbol: String, currencyId: String, isFeeApproximate: Bool) -> String {
         let feeFormatted = balanceFormatter.formatCryptoBalance(fee, currencyCode: currencySymbol)
 
         guard let fiatFee = balanceConverter.convertToFiat(value: fee, from: currencyId) else {
@@ -36,7 +43,7 @@ extension CommonFeeFormatter: FeeFormatter {
 
         let fiatFeeFormatted = balanceFormatter.formatFiatBalance(fiatFee)
         let result = "\(feeFormatted) (\(fiatFeeFormatted))"
-        if fee > 0, tokenItem.blockchain.isFeeApproximate(for: tokenItem.amountType) {
+        if fee > 0, isFeeApproximate {
             return "< " + result
         } else {
             return result
