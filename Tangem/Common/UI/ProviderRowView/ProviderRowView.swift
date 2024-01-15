@@ -42,6 +42,11 @@ struct ProviderRowView: View {
     private var titleView: some View {
         HStack(alignment: .center, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
+                if viewModel.shouldAddPrefix {
+                    Text(Localization.expressByProvider)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                }
+
                 Text(viewModel.provider.name)
                     .style(
                         Fonts.Bold.footnote,
@@ -162,6 +167,7 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
                 name: "1inch",
                 type: "DEX"
             ),
+            shouldAddPrefix: .random(),
             isDisabled: isDisabled,
             badge: badge,
             subtitles: [.text("1 132,46 MATIC")] + subtitles,
