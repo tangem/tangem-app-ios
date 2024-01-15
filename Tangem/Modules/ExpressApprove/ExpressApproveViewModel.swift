@@ -165,7 +165,7 @@ private extension ExpressApproveViewModel {
             ]
         )
 
-        feeRowViewModel = DefaultRowViewModel(title: Localization.commonFeeLabel, detailsType: .none)
+        feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
         updateView(for: expressInteractor.getState())
     }
 
