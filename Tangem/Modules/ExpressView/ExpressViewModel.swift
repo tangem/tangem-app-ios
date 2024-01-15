@@ -416,7 +416,7 @@ private extension ExpressViewModel {
             action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
         }
 
-        expressFeeRowViewModel = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: formattedFee, action: action)
+        expressFeeRowViewModel = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: formattedFee, action: action)
     }
 
     func updateMainButton(state: ExpressInteractor.State) {
@@ -510,6 +510,7 @@ private extension ExpressViewModel {
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
+            shouldAddPrefix: true,
             isDisabled: false,
             badge: badge,
             subtitles: [subtitle],
