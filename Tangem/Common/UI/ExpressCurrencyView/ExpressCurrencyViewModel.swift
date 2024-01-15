@@ -76,7 +76,7 @@ class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func updateReceiveCurrencyValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
+    func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
         guard let expectAmount else {
             update(fiatAmountState: .loaded(text: BalanceFormatter().formatFiatBalance(0)))
             return

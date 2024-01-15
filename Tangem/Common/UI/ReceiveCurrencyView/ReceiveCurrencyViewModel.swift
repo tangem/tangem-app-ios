@@ -26,8 +26,8 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
         expressCurrencyViewModel.update(wallet: wallet, initialWalletId: initialWalletId)
     }
 
-    func updateReceiveCurrencyValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
-        expressCurrencyViewModel.updateReceiveCurrencyValue(expectAmount: expectAmount, tokenItem: tokenItem)
+    func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
+        expressCurrencyViewModel.updateFiatValue(expectAmount: expectAmount, tokenItem: tokenItem)
 
         guard let expectAmount else {
             update(cryptoAmountState: .loaded(text: "0"))
