@@ -822,6 +822,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
            let tangemSdkError = error as? TangemSdkError,
            case .backupFailedNotEmptyWallets(let cardId) = tangemSdkError {
             requestResetCard(with: cardId)
+            return
         }
 
         let sdkError = error.toTangemSdkError()
