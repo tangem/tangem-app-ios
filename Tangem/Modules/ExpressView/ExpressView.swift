@@ -62,6 +62,7 @@ struct ExpressView: View {
                 .interSectionPadding(12)
                 .interItemSpacing(10)
                 .verticalPadding(0)
+                .backgroundColor(Colors.Background.action)
 
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
@@ -76,7 +77,7 @@ struct ExpressView: View {
 
             swappingButton
         }
-        .padding(.top, 16)
+        .padding(.top, 8)
     }
 
     @ViewBuilder
@@ -109,6 +110,7 @@ struct ExpressView: View {
             NotificationView(input: $0)
                 .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
                 .transition(.notificationTransition)
+                .background(Colors.Background.action)
         }
     }
 
