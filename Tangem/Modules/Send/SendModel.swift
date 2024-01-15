@@ -342,14 +342,14 @@ class SendModel {
     private func updateCustomFee() {
         guard
             let gasPrice = _customFeeGasPrice.value,
-            let gasLimit = _customFeeGasLimit.value
+            let gasLimit = _customFeeGasLimit.value,
+            let gasInWei = (gasPrice * gasLimit).decimal
         else {
             _customFee.send(nil)
             return
         }
 
-        #warning("[REDACTED_TODO_COMMENT]")
-        let amount = Amount(with: blockchain, value: Decimal(Int(gasPrice * gasLimit)) / blockchain.decimalValue)
+        let amount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
 
         let newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
 
