@@ -20,7 +20,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
     private var loadedSwapableTokenItems: CurrentValueSubject<[TokenItem: Bool], Never> = .init([:])
 
     func canSwap(tokenItem: TokenItem) -> Bool {
-        true // loadedSwapableTokenItems.value[tokenItem] ?? false
+        loadedSwapableTokenItems.value[tokenItem] ?? false
     }
 
     func loadSwapAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String) {
