@@ -29,8 +29,9 @@ public extension Wallet {
             return false
         }
 
-        let coinAmount = amounts[.coin]?.value ?? 0
-        if coinAmount <= 0 { // not enough fee
+        let feeAmountType = feeAmountType(transactionAmountType: amountType)
+        let feeAmount = amounts[feeAmountType]?.value ?? 0
+        if feeAmount <= 0 { // not enough fee
             return false
         }
 
@@ -45,5 +46,16 @@ public extension Wallet {
         }
 
         return hasPendingTx
+    }
+
+    private func feeAmountType(transactionAmountType: Amount.AmountType) -> Amount.AmountType {
+        switch blockchain.feePaidCurrency(for: transactionAmountType) {
+        case .coin:
+            return .coin
+        case .token(let value):
+            return .token(value: value)
+        case .sameCurrency:
+            return transactionAmountType
+        }
     }
 }
