@@ -78,6 +78,7 @@ final class SendViewModel: ObservableObject {
     private let steps: [SendStep]
     private let walletModel: WalletModel
     private let emailDataProvider: EmailDataProvider
+    private let walletInfo: SendWalletInfo
 
     private unowned let coordinator: SendRoutable
 
@@ -129,10 +130,13 @@ final class SendViewModel: ObservableObject {
         } else {
             cryptoIconURL = nil
         }
-        let walletInfo = SendWalletInfo(
+        walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: walletModel.balance,
             currencyId: walletModel.tokenItem.currencyId,
+            feeCurrencySymbol: walletModel.tokenItem.blockchain.currencySymbol,
+            feeCurrencyId: walletModel.tokenItem.blockchain.currencyId,
+            isFeeApproximate: walletModel.tokenItem.blockchain.isFeeApproximate(for: walletModel.amountType),
             tokenIconInfo: tokenIconInfo,
             cryptoIconURL: cryptoIconURL,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
@@ -145,8 +149,8 @@ final class SendViewModel: ObservableObject {
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, walletInfo: walletInfo)
+        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
         sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
@@ -260,7 +264,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
