@@ -348,6 +348,7 @@ class SendModel {
             return
         }
 
+        #warning("[REDACTED_TODO_COMMENT]")
         let amount = Amount(with: blockchain, value: Decimal(Int(gasPrice * gasLimit)) / blockchain.decimalValue)
 
         let newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
