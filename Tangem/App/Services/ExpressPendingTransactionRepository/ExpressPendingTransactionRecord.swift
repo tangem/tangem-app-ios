@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 
 struct ExpressPendingTransactionRecord: Codable, Equatable {
     let userWalletId: String
