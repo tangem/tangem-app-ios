@@ -17,12 +17,14 @@ protocol SendFeeViewModelInput {
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
+    var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
-//    var gasLimitPublisher: AnyPublisher<BigUInt, Never> { get }
+    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> { get }
 
     func didSelectFeeOption(_ feeOption: FeeOption)
-
+    func didChangeCustomFee(_ value: Fee?)
     func didChangeCustomFeeGasPrice(_ value: BigUInt?)
+    func didChangeCustomFeeGasLimit(_ value: BigUInt?)
 }
 
 class SendFeeViewModel: ObservableObject {
@@ -52,42 +54,39 @@ class SendFeeViewModel: ObservableObject {
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
 
+        #warning("[REDACTED_TODO_COMMENT]")
         if feeOptions.contains(.custom) {
             customFeeModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendMaxFee,
-                amountPublisher: .just(output: .internal(1234)),
-                fractionDigits: 0,
+                amountPublisher: input.customFeePublisher.decimalPublisher,
+                fractionDigits: 18,
                 amountAlternativePublisher: .just(output: "0.41 $"),
                 footer: Localization.sendMaxFeeFooter
             ) { enteredValue in
-                let gasPrice: BigUInt?
+                let newFee: Fee?
 
-                if let decimalValue = enteredValue?.value {
-                    gasPrice = EthereumUtils.mapToBigUInt(decimalValue)
-                } else {
-                    gasPrice = nil
-                }
-                input.didChangeCustomFeeGasPrice(gasPrice)
+                #warning("[REDACTED_TODO_COMMENT]")
             }
 
             customFeeGasPriceModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendGasPrice,
-                amountPublisher: .just(output: .internal(1234)),
+                amountPublisher: input.customGasPricePublisher.decimalPublisher,
                 fractionDigits: 0,
                 amountAlternativePublisher: .just(output: nil),
                 footer: Localization.sendGasPriceFooter
-            ) { value in
+            ) {
+                input.didChangeCustomFeeGasPrice($0?.bigUIntValue)
             }
 
             customFeeGasLimitModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendGasLimit,
-                amountPublisher: .just(output: .internal(1234)),
+                amountPublisher: input.customGasLimitPublisher.decimalPublisher,
                 fractionDigits: 0,
                 amountAlternativePublisher: .just(output: nil),
                 footer: Localization.sendGasLimitFooter
-            ) { value in
+            ) {
+                input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
             }
-
         } else {
             customFeeModel = nil
             customFeeGasPriceModel = nil
@@ -147,5 +146,39 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = feeOption
         input.didSelectFeeOption(feeOption)
         showCustomFeeFields = feeOption == .custom
+    }
+}
+
+// MARK: - private extensions
+
+private extension DecimalNumberTextField.DecimalValue {
+    var bigUIntValue: BigUInt {
+        EthereumUtils.mapToBigUInt(value)
+    }
+}
+
+private extension AnyPublisher where Output == Fee?, Failure == Never {
+    var decimalPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
+        map { value in
+            if let value = value?.amount.value {
+                return .external(value)
+            } else {
+                return nil
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
+private extension AnyPublisher where Output == BigUInt?, Failure == Never {
+    var decimalPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
+        map { value in
+            if let value {
+                return .external(Decimal(Int(value)))
+            } else {
+                return nil
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }
