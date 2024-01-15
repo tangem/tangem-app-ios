@@ -22,8 +22,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let id = model.userWalletId
         let containsDefaultToken = model.config.hasDefaultToken
         let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
-        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
-        let balanceProvider = MainHeaderBalanceProviderFactory().provider(for: model)
+
+        let providerFactory = model.config.makeMainHeaderProviderFactory()
+        let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
+        let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
+
         let headerModel = MainHeaderViewModel(
             isUserWalletLocked: model.isUserWalletLocked,
             supplementInfoProvider: model,
