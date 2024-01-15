@@ -395,7 +395,7 @@ extension SendModel: SendDestinationViewModelInput {
 
     var networkName: String { walletModel.blockchainNetwork.blockchain.displayName }
 
-    var additionalField: SendAdditionalFields? {
+    var additionalFieldType: SendAdditionalFields? {
         let field = SendAdditionalFields.fields(for: walletModel.blockchainNetwork.blockchain)
         switch field {
         case .destinationTag, .memo:
@@ -458,22 +458,22 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
-    #warning("TODO")
-    var amountText: String {
-        "100"
-    }
-
-    #warning("TODO")
-    var destinationTextBinding: Binding<String> {
-        .constant("0x1234567")
-    }
-
-    var feeTextPublisher: AnyPublisher<String?, Never> {
-        fee
-            .map {
-                $0?.amount.string()
+    var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> {
+        _destinationAdditionalFieldText
+            .map { [weak self] in
+                guard
+                    !$0.isEmpty,
+                    let additionalFields = self?.additionalFieldType
+                else {
+                    return nil
+                }
+                return (additionalFields, $0)
             }
             .eraseToAnyPublisher()
+    }
+
+    var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
+        fee.eraseToAnyPublisher()
     }
 
     var canEditAmount: Bool {
@@ -490,8 +490,22 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
+    var amountValue: Amount? {
+        amount.value
+    }
+
     var destinationText: String? {
         destination.value
+    }
+
+    var additionalField: (SendAdditionalFields, String)? {
+        guard let additionalFieldType else { return nil }
+
+        return (additionalFieldType, _destinationAdditionalFieldText.value)
+    }
+
+    var feeValue: Fee? {
+        fee.value
     }
 
     var feeText: String {
