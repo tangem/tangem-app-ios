@@ -37,7 +37,7 @@ class WalletModel {
         _transactionHistoryService != nil
     }
 
-    var shoudShowFeeSelector: Bool {
+    var shouldShowFeeSelector: Bool {
         walletManager.allowsFeeSelection
     }
 
