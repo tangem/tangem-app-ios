@@ -137,7 +137,7 @@ struct LegacySendView: View {
                     if viewModel.shouldShowNetworkBlock {
                         Group {
                             HStack {
-                                Text(Localization.sendNetworkFeeTitle)
+                                Text(Localization.commonNetworkFeeTitle)
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemGrayDark6)
                                 Spacer()
