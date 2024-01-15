@@ -164,7 +164,7 @@ extension TokenNotificationEvent {
         case .existentialDepositWarning: return nil
         case .longTransaction: return nil
         case .hasPendingTransactions: return nil
-        case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughtFee
+        case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .tangemExpressPromotion: return nil
         }
     }
