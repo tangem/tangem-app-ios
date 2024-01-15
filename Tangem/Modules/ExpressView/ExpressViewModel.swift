@@ -299,8 +299,8 @@ private extension ExpressViewModel {
         receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
     }
 
-    func updateReceiveCurrencyValue(expectAmount: Decimal?) {
-        receiveCurrencyViewModel?.updateReceiveCurrencyValue(
+    func updateFiatValue(expectAmount: Decimal?) {
+        receiveCurrencyViewModel?.updateFiatValue(
             expectAmount: expectAmount,
             tokenItem: interactor.getDestination()?.tokenItem
         )
@@ -328,7 +328,7 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             stopTimer()
 
-            updateReceiveCurrencyValue(expectAmount: 0)
+            updateFiatValue(expectAmount: 0)
             updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
@@ -343,7 +343,7 @@ private extension ExpressViewModel {
 
         case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-            updateReceiveCurrencyValue(expectAmount: quote?.expectAmount)
+            updateFiatValue(expectAmount: quote?.expectAmount)
             updateHighPricePercentLabel(quote: quote)
 
             // restart timer for pending approve transaction
@@ -358,7 +358,7 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             restartTimer()
 
-            updateReceiveCurrencyValue(expectAmount: quote.expectAmount)
+            updateFiatValue(expectAmount: quote.expectAmount)
             updateHighPricePercentLabel(quote: quote)
         }
     }
