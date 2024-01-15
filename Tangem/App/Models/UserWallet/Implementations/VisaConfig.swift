@@ -146,6 +146,10 @@ extension VisaConfig: UserWalletConfig {
     func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         return VisaWalletManagerFactory()
     }
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
+        return VisaMainHeaderProviderFactory()
+    }
 }
 
 extension VisaConfig: VisaCardOnboardingStepsBuilderFactory {}
