@@ -52,16 +52,16 @@ struct ExpressView: View {
     private var swappingViews: some View {
         ZStack(alignment: .center) {
             VStack(spacing: 14) {
-                if let sendCurrencyViewModel = viewModel.sendCurrencyViewModel {
-                    SendCurrencyView(
-                        viewModel: sendCurrencyViewModel,
-                        decimalValue: $viewModel.sendDecimalValue
-                    )
-                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
-                    .didTapChangeCurrency {
-                        viewModel.userDidTapChangeSourceButton()
-                    }
+                GroupedSection(viewModel.sendCurrencyViewModel) {
+                    SendCurrencyView(viewModel: $0, decimalValue: $viewModel.sendDecimalValue)
+                        .didTapMaxAmount(viewModel.userDidTapMaxAmount)
+                        .didTapChangeCurrency {
+                            viewModel.userDidTapChangeSourceButton()
+                        }
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
 
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
