@@ -335,8 +335,35 @@ class SendModel {
         _selectedFeeOption.send(feeOption)
     }
 
+    func didChangeCustomFee(_ value: Fee?) {
+        _customFee.send(value)
+    }
+
+    private func updateCustomFee() {
+        guard
+            let gasPrice = _customFeeGasPrice.value,
+            let gasLimit = _customFeeGasLimit.value
+        else {
+            _customFee.send(nil)
+            return
+        }
+
+        let amount = Amount(with: blockchain, value: Decimal(Int(gasPrice * gasLimit)) / blockchain.decimalValue)
+
+        let newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
+
+        print("ZZZ recalculated feee value", gasPrice, gasLimit, amount)
+        _customFee.send(newFee)
+    }
+
     func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
-        print("ZZZ", value)
+        _customFeeGasPrice.send(value)
+        updateCustomFee()
+    }
+
+    func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
+        _customFeeGasLimit.send(value)
+        updateCustomFee()
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
@@ -452,8 +479,16 @@ extension SendModel: SendFeeViewModelInput {
         walletModel.tokenItem
     }
 
+    var customFeePublisher: AnyPublisher<Fee?, Never> {
+        _customFee.eraseToAnyPublisher()
+    }
+
     var customGasPricePublisher: AnyPublisher<BigUInt?, Never> {
         _customFeeGasPrice.eraseToAnyPublisher()
+    }
+
+    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> {
+        _customFeeGasLimit.eraseToAnyPublisher()
     }
 }
 
