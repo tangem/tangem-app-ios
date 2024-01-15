@@ -16,7 +16,6 @@ protocol SendFeeViewModelInput {
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
-    var tokenItem: TokenItem { get }
 
     var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
 //    var gasLimitPublisher: AnyPublisher<BigUInt, Never> { get }
@@ -37,7 +36,7 @@ class SendFeeViewModel: ObservableObject {
 
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
-    private let tokenItem: TokenItem
+    private let walletInfo: SendWalletInfo
     private var bag: Set<AnyCancellable> = []
 
     private var feeFormatter: FeeFormatter {
@@ -47,11 +46,11 @@ class SendFeeViewModel: ObservableObject {
         )
     }
 
-    init(input: SendFeeViewModelInput) {
+    init(input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
+        self.walletInfo = walletInfo
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
-        tokenItem = input.tokenItem
 
         if feeOptions.contains(.custom) {
             customFeeModel = SendCustomFeeInputFieldModel(
@@ -117,7 +116,9 @@ class SendFeeViewModel: ObservableObject {
             case .loaded(let value):
                 let formattedValue = self.feeFormatter.format(
                     fee: value.amount.value,
-                    tokenItem: tokenItem
+                    currencySymbol: walletInfo.feeCurrencySymbol,
+                    currencyId: walletInfo.feeCurrencyId,
+                    isFeeApproximate: walletInfo.isFeeApproximate
                 )
                 return .loaded(formattedValue)
             case .failedToLoad(let error):
