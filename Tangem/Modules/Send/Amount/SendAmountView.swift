@@ -57,7 +57,7 @@ struct SendAmountView: View {
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action)
-            .matchedGeometryEffect(id: "amount", in: namespace)
+            .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
 
             HStack {
                 if viewModel.showCurrencyPicker {
@@ -95,6 +95,9 @@ struct SendAmountView_Previews: PreviewProvider {
         walletName: "Wallet",
         balance: "12013",
         currencyId: "tether",
+        feeCurrencySymbol: "ETH",
+        feeCurrencyId: "ethereum",
+        isFeeApproximate: false,
         tokenIconInfo: tokenIconInfo,
         cryptoIconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
         cryptoCurrencyCode: "USDT",
