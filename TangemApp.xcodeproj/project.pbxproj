@@ -1348,9 +1348,6 @@
 		2D788E822ADD657000E0884B /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
 		2D788E842ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorAlertBuilder.swift; sourceTree = "<group>"; };
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
-		2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetModifier.swift; sourceTree = "<group>"; };
-		2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetContainer.swift; sourceTree = "<group>"; };
-		2D9BC02E2B20743D0033FA21 /* View+DetentBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+DetentBottomSheet.swift"; sourceTree = "<group>"; };
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2DB8E1152B29068C0044BF7D /* CustomSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSearchBar.swift; sourceTree = "<group>"; };
@@ -2759,16 +2756,6 @@
 			path = Tosts;
 			sourceTree = "<group>";
 		};
-		2DBE29BD2B3C4A5200109D5E /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */,
-				2D9BC02E2B20743D0033FA21 /* View+DetentBottomSheet.swift */,
-				2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		2DBE29BE2B3C4A8100109D5E /* DetentBottonSheet */ = {
 			isa = PBXGroup;
 			children = (
@@ -2980,7 +2967,6 @@
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				2DBE29BD2B3C4A5200109D5E /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
