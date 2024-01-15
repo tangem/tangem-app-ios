@@ -53,20 +53,20 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .bottomSheet(
                 item: $coordinator.warningBankCardViewModel,
-                sheetContent: {
-                    WarningBankCardView(viewModel: $0)
-                        .padding(.bottom, 10)
-                }
-            )
+                backgroundColor: Colors.Background.primary
+            ) {
+                WarningBankCardView(viewModel: $0)
+                    .padding(.bottom, 10)
+            }
             .bottomSheet(
                 item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary)
+                backgroundColor: Colors.Background.primary
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.tertiary)
+                backgroundColor: Colors.Background.tertiary
             ) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
