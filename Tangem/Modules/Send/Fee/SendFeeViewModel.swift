@@ -29,11 +29,10 @@ class SendFeeViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private var bag: Set<AnyCancellable> = []
 
-    private var feeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
+    private var feeFormatter: FeeFormatter {
+        CommonFeeFormatter(
             balanceFormatter: BalanceFormatter(),
-            balanceConverter: BalanceConverter(),
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: BalanceConverter()
         )
     }
 
