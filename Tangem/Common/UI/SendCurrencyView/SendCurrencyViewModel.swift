@@ -31,6 +31,6 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
     }
 
     func updateSendFiatValue(amount: Decimal?, tokenItem: TokenItem) {
-        expressCurrencyViewModel.updateReceiveCurrencyValue(expectAmount: amount, tokenItem: tokenItem)
+        expressCurrencyViewModel.updateFiatValue(expectAmount: amount, tokenItem: tokenItem)
     }
 }
