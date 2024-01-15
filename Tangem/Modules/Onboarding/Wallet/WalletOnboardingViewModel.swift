@@ -556,6 +556,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func backButtonAction() {
         switch currentStep {
+        case .disclaimer:
+            back()
         case .seedPhraseIntro:
             goToStep(.createWalletSelector)
         case .seedPhraseGeneration, .seedPhraseImport:
@@ -820,6 +822,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
            let tangemSdkError = error as? TangemSdkError,
            case .backupFailedNotEmptyWallets(let cardId) = tangemSdkError {
             requestResetCard(with: cardId)
+            return
         }
 
         let sdkError = error.toTangemSdkError()
