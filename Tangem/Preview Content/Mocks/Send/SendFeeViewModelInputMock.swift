@@ -32,8 +32,6 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         ])
     }
 
-    var tokenItem: TokenItem { .blockchain(.ethereum(testnet: false)) }
-
     func didSelectFeeOption(_ feeOption: FeeOption) {}
 
     func didChangeCustomFeeGasPrice(_ value: BigUInt?) {}
