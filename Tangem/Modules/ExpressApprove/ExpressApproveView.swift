@@ -30,6 +30,18 @@ struct ExpressApproveView: View {
     }
 
     private var headerView: some View {
+        ZStack(alignment: .topTrailing) {
+            BottomSheetHeaderView(title: Localization.swappingPermissionHeader, subtitle: viewModel.subheader)
+            
+            Button(action: viewModel.didTapInfoButton) {
+                Assets.infoIconMini.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
+                    .padding(.horizontal, 16)
+            }
+        }
+        
+        /*
         VStack(spacing: 16) {
             ZStack(alignment: .trailing) {
                 Text(Localization.swappingPermissionHeader)
@@ -50,6 +62,7 @@ struct ExpressApproveView: View {
                 .padding(.horizontal, 50)
                 .multilineTextAlignment(.center)
         }
+         */
     }
 
     private var content: some View {
