@@ -94,23 +94,10 @@ struct ExpressApproveView: View {
     }
 }
 
-/*
- // [REDACTED_TODO_COMMENT]
- struct ExpressApproveView_Preview: PreviewProvider {
-     static let viewModel = ExpressApproveViewModel(
-         transactionSender: TransactionSenderMock(),
-         swappingInteractor: .init(
-             swappingManager: SwappingManagerMock(),
-             userTokensManager: UserTokensManagerMock(),
-             currencyMapper: CurrencyMapper(),
-             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-         ),
-         fiatRatesProvider: FiatRatesProviderMock(),
-         coordinator: ExpressApproveRoutableMock()
-     )
+struct ExpressApproveView_Preview: PreviewProvider {
+    static let viewModel = ExpressModulesFactoryMock().makeExpressApproveViewModel(coordinator: ExpressApproveRoutableMock())
 
-     static var previews: some View {
-         ExpressApproveView(viewModel: viewModel)
-     }
- }
- */
+    static var previews: some View {
+        ExpressApproveView(viewModel: viewModel)
+    }
+}
