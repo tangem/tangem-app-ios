@@ -22,6 +22,8 @@ struct QRScanView: View {
 
     @Environment(\.presentationMode) var presentationMode
 
+    @State private var isFlashActive = false
+
     private let viewfinderCornerRadius: CGFloat = 2
     private let viewfinderPadding: CGFloat = 55
 
@@ -34,7 +36,7 @@ struct QRScanView: View {
                         .overlay(viewfinderCrosshair(screenSize: geometry.size))
                         .overlay(textView(screenSize: geometry.size), alignment: .top)
                 )
-                .overlay(cancelButton(), alignment: .topLeading)
+                .overlay(topButtons(), alignment: .top)
         }
         .ignoresSafeArea(edges: .bottom)
     }
@@ -49,12 +51,30 @@ struct QRScanView: View {
     }
 
     @ViewBuilder
-    private func cancelButton() -> some View {
-        Button(Localization.commonClose) {
-            presentationMode.wrappedValue.dismiss()
+    private func topButtons() -> some View {
+        HStack(spacing: 14) {
+            Button(Localization.commonClose) {
+                presentationMode.wrappedValue.dismiss()
+            }
+            .padding(7)
+            .style(Fonts.Regular.body, color: .white)
+
+            Spacer()
+
+            Button(action: toggleFlash) {
+                isFlashActive ? Assets.flashDisabled.image : Assets.flash.image
+            }
+            .padding(7)
+
+            Button {
+//                viewModel.openGallery()
+            } label: {
+                Assets.gallery.image
+            }
+            .padding(7)
         }
-        .padding()
-        .style(Fonts.Regular.body, color: .white)
+        .padding(.vertical, 21)
+        .padding(.horizontal, 9)
     }
 
     private func viewfinderCrosshair(screenSize: CGSize) -> some View {
@@ -72,6 +92,30 @@ struct QRScanView: View {
             .padding(.top, 24)
             .padding(.horizontal, viewfinderPadding)
             .offset(y: screenSize.height / 2 + screenSize.width / 2 - viewfinderPadding)
+    }
+
+    private func toggleFlash() {
+        guard
+            let camera = AVCaptureDevice.default(for: .video),
+            camera.hasTorch
+        else {
+            return
+        }
+
+        do {
+            try camera.lockForConfiguration()
+
+            // Do it before the actual changes because it's not immediate
+            withAnimation(nil) {
+                isFlashActive = !camera.isTorchActive
+            }
+
+            camera.torchMode = camera.isTorchActive ? .off : .on
+            camera.unlockForConfiguration()
+        } catch {
+            AppLog.shared.debug("Failed to toggle the flash")
+            AppLog.shared.error(error)
+        }
     }
 }
 
