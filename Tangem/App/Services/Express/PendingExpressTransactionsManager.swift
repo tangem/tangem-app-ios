@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import TangemSwapping
+import TangemExpress
 
 protocol PendingExpressTransactionsManager: AnyObject {
     var pendingTransactions: [PendingExpressTransaction] { get }
