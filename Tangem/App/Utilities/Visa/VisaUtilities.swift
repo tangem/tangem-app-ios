@@ -15,19 +15,8 @@ struct VisaUtilities {
         testnetUSDTtoken
     }
 
-    func getWalletManager(keys: [CardDTO.Wallet]) throws -> WalletManager {
-        let blockchain = Blockchain.polygon(testnet: true)
-
-        guard let walletPublicKey = keys.first(where: { $0.curve == blockchain.curve })?.publicKey else {
-            throw CommonError.noData
-        }
-
-        let factory = WalletManagerFactoryProvider().factory
-        let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: .none)
-        let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
-
-        walletManager.addTokens([visaToken])
-        return walletManager
+    var visaBlockchain: Blockchain {
+        .polygon(testnet: true)
     }
 
     func getVisaWalletModel(for userWalletModel: UserWalletModel) -> WalletModel {

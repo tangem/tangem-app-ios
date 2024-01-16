@@ -182,7 +182,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                         NavHolder()
                             .bottomSheet(
                                 item: viewModel,
-                                settings: .init(backgroundColor: Colors.Background.primary)
+                                backgroundColor: Colors.Background.primary
                             ) { model in
                                 ReceiveBottomSheetView(viewModel: model)
                             }
@@ -204,7 +204,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                         NavHolder()
                             .bottomSheet(
                                 item: viewModel,
-                                settings: .init(backgroundColor: Colors.Background.primary)
+                                backgroundColor: Colors.Background.primary
                             ) { model in
                                 ReceiveBottomSheetView(viewModel: model)
                             }
