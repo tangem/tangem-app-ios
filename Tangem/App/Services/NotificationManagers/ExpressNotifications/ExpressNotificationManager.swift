@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import struct TangemSwapping.ExpressAPIError
+import struct TangemExpress.ExpressAPIError
 
 class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
@@ -33,7 +33,7 @@ class ExpressNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: ExpressNotificationManager.setupNotifications(for:)))
     }
 
-    private func setupNotifications(for state: ExpressInteractor.ExpressInteractorState) {
+    private func setupNotifications(for state: ExpressInteractor.State) {
         priceImpactTask?.cancel()
         priceImpactTask = nil
 
@@ -61,11 +61,11 @@ class ExpressNotificationManager {
         case .permissionRequired:
             setupPermissionRequiredNotification()
 
-        case .readyToSwap(let swapData, _):
+        case .readyToSwap(_, let quote):
             notificationInputsSubject.value = []
-            checkHighPriceImpact(fromAmount: swapData.data.fromAmount, toAmount: swapData.data.toAmount)
+            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
             // We have not the subtractFee on DEX
-            setupExistentialDepositWarning(amount: swapData.data.fromAmount, subtractFee: 0)
+            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: 0)
 
         case .previewCEX(let preview, let quote):
             if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
@@ -167,7 +167,7 @@ class ExpressNotificationManager {
             return nil
         }
 
-        let balance = try await sender.getBalance()
+        let balance = try sender.getBalance()
         let remainBalance = balance - (amount + subtractFee)
 
         guard remainBalance < provider.existentialDeposit.value, let warning = sender.existentialDepositWarning else {

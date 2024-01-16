@@ -36,18 +36,8 @@ class TotalBalanceProvider {
 // MARK: - TotalBalanceProviding protocol conformance
 
 extension TotalBalanceProvider: TotalBalanceProviding {
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalance>, Never> {
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
         totalBalanceSubject.eraseToAnyPublisher()
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension TotalBalanceProvider {
-    struct TotalBalance {
-        let balance: Decimal?
-        let currencyCode: String
-        let hasError: Bool
     }
 }
 
