@@ -56,7 +56,7 @@ class MainCoordinator: CoordinatorObject {
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
-            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self, visaCoordinator: self)
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
         )
 
         swipeDiscoveryHelper.delegate = viewModel
