@@ -44,5 +44,9 @@ struct SendCoordinatorView: CoordinatorView {
                 QRScanView(viewModel: $0)
                     .edgesIgnoringSafeArea(.all)
             }
+            .sheet(item: $coordinator.qrScanViewCoordinator) {
+                QRScanViewCoordinatorView(coordinator: $0)
+                    .edgesIgnoringSafeArea(.all)
+            }
     }
 }
