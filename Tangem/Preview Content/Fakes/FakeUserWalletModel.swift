@@ -75,12 +75,12 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         _updatePublisher.send(())
     }
 
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-        return .just(output: .loading)
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
+        .just(output: .loading)
     }
 }
 
-extension FakeUserWalletModel: MainHeaderInfoProvider {
+extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
@@ -117,6 +117,19 @@ extension FakeUserWalletModel {
             .xrpManager,
         ],
         userWallet: UserWalletStubs.walletV2Stub
+    )
+
+    static let visa = FakeUserWalletModel(
+        userWalletName: "Tangem Visa",
+        isMultiWallet: false,
+        isUserWalletLocked: false,
+        isDelayed: false,
+        cardsCount: 1,
+        userWalletId: .init(with: Data.randomData(count: 32)),
+        walletManagers: [
+            .visaWalletManager,
+        ],
+        userWallet: UserWalletStubs.visaStub
     )
 
     static let walletWithoutDelay = FakeUserWalletModel(
