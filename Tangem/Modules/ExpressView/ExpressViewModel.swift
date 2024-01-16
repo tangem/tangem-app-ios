@@ -315,10 +315,10 @@ private extension ExpressViewModel {
     // MARK: - Toolbar
 
     func updateMaxButtonVisibility(pair: ExpressInteractor.SwappingPair) {
-        let senderIsMain = pair.sender.isMainToken
+        let sendingMainToken = pair.sender.isMainToken
         let isSameNetwork = pair.sender.blockchainNetwork == pair.destination.value?.blockchainNetwork
 
-        isMaxAmountButtonHidden = senderIsMain && isSameNetwork
+        isMaxAmountButtonHidden = sendingMainToken && isSameNetwork
     }
 
     // MARK: - Update for state
