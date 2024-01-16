@@ -11,10 +11,13 @@ import BlockchainSdk
 import Combine
 
 protocol VisaWalletRoutable: AnyObject {
+    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
     func openExplorer(at url: URL, blockchainDisplayName: String)
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
+    @Published var balancesAndLimitsViewModel: VisaBalancesLimitsBottomSheetViewModel?
+
     @Published private(set) var transactionListViewState: TransactionsListView.State = .loading
     @Published private(set) var isTransactoinHistoryReloading: Bool = true
     @Published private(set) var cryptoLimitText: String = "400.00 USDT"
@@ -33,9 +36,27 @@ class VisaWalletMainContentViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
-    func openDeposit() {}
+    func openDeposit() {
+        Analytics.log(event: .buttonReceive, params: [.token: walletModel.tokenItem.currencySymbol])
 
-    func openBalancesAndLimits() {}
+        let infos = walletModel.wallet.addresses.map { address in
+            ReceiveAddressInfo(
+                address: address.value,
+                type: address.type,
+                localizedName: address.localizedName,
+                addressQRImage: QrCodeGenerator.generateQRCode(from: address.value)
+            )
+        }
+        coordinator.openReceiveScreen(
+            amountType: walletModel.amountType,
+            blockchain: walletModel.blockchainNetwork.blockchain,
+            addressInfos: infos
+        )
+    }
+
+    func openBalancesAndLimits() {
+        balancesAndLimitsViewModel = .init()
+    }
 
     func openExplorer() {
         guard
