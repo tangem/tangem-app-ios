@@ -57,7 +57,7 @@ struct ExpressView: View {
                         viewModel: sendCurrencyViewModel,
                         decimalValue: $viewModel.sendDecimalValue
                     )
-                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
+                    .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
                     .didTapChangeCurrency {
                         viewModel.userDidTapChangeSourceButton()
                     }
@@ -178,7 +178,7 @@ struct ExpressView: View {
          tokenIconURLBuilder: TokenIconURLBuilder(),
          transactionSender: TransactionSenderMock(),
          fiatRatesProvider: FiatRatesProviderMock(),
-         swappingFeeFormatter: SwappingFeeFormatterMock(),
+         feeFormatter: FeeFormatterMock(),
          coordinator: ExpressCoordinator()
      )
 
