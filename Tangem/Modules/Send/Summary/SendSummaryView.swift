@@ -9,95 +9,67 @@
 import SwiftUI
 
 struct SendSummaryView: View {
-    let height = 150.0
     let namespace: Namespace.ID
 
     @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
-        VStack(spacing: 20) {
-            amountSummary
+        VStack {
+            GroupedScrollView {
+                GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
+                    SendWalletSummaryView(viewModel: viewModel)
+                }
+                .backgroundColor(Colors.Button.disabled)
 
-            destinationSummary
-            feeSummary
+                Button {
+                    viewModel.didTapSummary(for: .destination)
+                } label: {
+                    GroupedSection(viewModel.destinationViewTypes) { type in
+                        switch type {
+                        case .address(let address):
+                            SendDestinationAddressSummaryView(address: address)
+                                .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
+                        case .additionalField(let type, let value):
+                            if let name = type.name {
+                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
+                            }
+                        }
+                    }
+                    .backgroundColor(Colors.Background.action)
+                }
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .disabled(!viewModel.canEditDestination)
 
-            Spacer()
+                Button {
+                    viewModel.didTapSummary(for: .amount)
+                } label: {
+                    GroupedSection(viewModel.amountSummaryViewData) {
+                        AmountSummaryView(data: $0)
+                    }
+                    .interSectionPadding(12)
+                    .backgroundColor(Colors.Background.action)
+                }
+                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .disabled(!viewModel.canEditAmount)
+
+                Button {
+                    viewModel.didTapSummary(for: .fee)
+                } label: {
+                    GroupedSection(viewModel.feeSummaryViewData) { data in
+                        DefaultTextWithTitleRowView(data: data)
+                    }
+                    .backgroundColor(Colors.Background.action)
+                }
+                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+            }
 
             sendButton
+                .padding(.horizontal, 16)
         }
-        .padding(.horizontal)
-    }
-
-    @ViewBuilder
-    private var amountSummary: some View {
-        Button {
-            viewModel.didTapSummary(for: .amount)
-        } label: {
-            Color.clear
-                .frame(maxHeight: height)
-                .border(Color.green, width: 5)
-                .overlay(
-                    VStack {
-                        HStack {
-                            Text(viewModel.amountText)
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
-                    }
-                    .padding()
-                )
-                .matchedGeometryEffect(id: "amount", in: namespace)
-        }
-        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-        .disabled(!viewModel.canEditAmount)
-    }
-
-    @ViewBuilder
-    private var destinationSummary: some View {
-        Button {
-            viewModel.didTapSummary(for: .destination)
-        } label: {
-            Color.clear
-                .frame(maxHeight: height)
-                .border(Color.purple, width: 5)
-                .overlay(
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(viewModel.destinationText)
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
-                    }
-                    .padding()
-                )
-                .matchedGeometryEffect(id: "dest", in: namespace)
-        }
-        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
-        .disabled(!viewModel.canEditDestination)
-    }
-
-    @ViewBuilder
-    private var feeSummary: some View {
-        Button {
-            viewModel.didTapSummary(for: .fee)
-        } label: {
-            Color.clear
-                .frame(maxHeight: height)
-                .border(Color.blue, width: 5)
-                .overlay(
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(viewModel.feeText)
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
-                    }
-                    .padding()
-                )
-                .transition(.identity)
-                .matchedGeometryEffect(id: "fee", in: namespace)
-        }
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 
     @ViewBuilder
@@ -114,7 +86,30 @@ struct SendSummaryView: View {
 struct SendSummaryView_Previews: PreviewProvider {
     @Namespace static var namespace
 
+    static let tokenIconInfo = TokenIconInfo(
+        name: "Tether",
+        blockchainIconName: "ethereum.fill",
+        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        isCustom: false,
+        customTokenColor: nil
+    )
+
+    static let walletInfo = SendWalletInfo(
+        walletName: "Wallet",
+        balance: "12013",
+        currencyId: "tether",
+        feeCurrencySymbol: "ETH",
+        feeCurrencyId: "ethereum",
+        isFeeApproximate: false,
+        tokenIconInfo: tokenIconInfo,
+        cryptoIconURL: nil,
+        cryptoCurrencyCode: "USDT",
+        fiatIconURL: nil,
+        fiatCurrencyCode: "USD",
+        amountFractionDigits: 6
+    )
+
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock()))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), walletInfo: walletInfo))
     }
 }
