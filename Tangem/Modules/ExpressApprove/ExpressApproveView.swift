@@ -26,43 +26,23 @@ struct ExpressApproveView: View {
         .padding(.top, 8)
         .padding(.bottom, 4)
         .background(Colors.Background.tertiary)
-        .alert(item: $viewModel.errorAlert) { $0.alert }
+//        .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
     private var headerView: some View {
         ZStack(alignment: .topTrailing) {
             BottomSheetHeaderView(title: Localization.swappingPermissionHeader, subtitle: viewModel.subheader)
-            
+                .border(Color.red)
+                .padding(.horizontal, 16)
+                .border(Color.orange)
+
             Button(action: viewModel.didTapInfoButton) {
                 Assets.infoIconMini.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
-                    .padding(.horizontal, 16)
+//                    .padding(.horizontal, 16)
             }
         }
-        
-        /*
-        VStack(spacing: 16) {
-            ZStack(alignment: .trailing) {
-                Text(Localization.swappingPermissionHeader)
-                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
-
-                Button(action: viewModel.didTapInfoButton) {
-                    Assets.infoIconMini.image
-                        .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.informative)
-                        .padding(.horizontal, 16)
-                }
-            }
-
-            Text(viewModel.subheader)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
-                .padding(.horizontal, 50)
-                .multilineTextAlignment(.center)
-        }
-         */
     }
 
     private var content: some View {
@@ -108,9 +88,54 @@ struct ExpressApproveView: View {
 }
 
 struct ExpressApproveView_Preview: PreviewProvider {
-    static let viewModel = ExpressMockModulesFactory().makeExpressApproveViewModel(coordinator: ExpressApproveRoutableMock())
+    struct StatableContainer: View {
+        @ObservedObject private var coordinator = BottomSheetCoordinator()
+
+        var body: some View {
+            ZStack {
+                Colors.Background.primary
+                    .edgesIgnoringSafeArea(.all)
+
+                Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+                    coordinator.toggleItem()
+                }
+                .font(Fonts.Bold.body)
+                .offset(y: -200)
+
+                NavHolder()
+                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+                        ExpressApproveView(viewModel: $0)
+                    }
+            }
+        }
+    }
+
+    class BottomSheetCoordinator: ObservableObject, ExpressApproveRoutable {
+        @Published var item: ExpressApproveViewModel?
+
+        func toggleItem() {
+            if item == nil {
+                item = ExpressMockModulesFactory().makeExpressApproveViewModel(coordinator: self)
+            } else {
+                item = nil
+            }
+        }
+        
+        func didSendApproveTransaction() {
+            item = nil
+        }
+        
+        func userDidCancel() {
+            item = nil
+        }
+        
+    }
 
     static var previews: some View {
-        ExpressApproveView(viewModel: viewModel)
+        StatableContainer()
+            .preferredColorScheme(.light)
+
+        StatableContainer()
+            .preferredColorScheme(.dark)
     }
 }
