@@ -1,23 +1,23 @@
 //
 //  CommonAllowanceProvider.swift
-//  TangemSwapping
+//  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import BlockchainSdk
 
 class CommonExpressAllowanceProvider {
     private var ethereumNetworkProvider: EthereumNetworkProvider?
     private var ethereumTransactionProcessor: EthereumTransactionProcessor?
-    private let logger: SwappingLogger
+    private let logger: Logger
 
     private var spendersAwaitingApprove = Set<String>()
 
-    init(logger: SwappingLogger) {
+    init(logger: Logger) {
         self.logger = logger
     }
 }
