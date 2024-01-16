@@ -96,7 +96,7 @@ struct ExpressTokensListView: View {
 }
 
 struct ExpressTokensListView_Preview: PreviewProvider {
-    static let viewModel = ExpressMockModulesFactory().makeExpressTokensListViewModel(
+    static let viewModel = ExpressModulesFactoryMock().makeExpressTokensListViewModel(
         swapDirection: .fromSource(.mockETH),
         coordinator: ExpressTokensListRoutableMock()
     )
