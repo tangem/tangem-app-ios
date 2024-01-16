@@ -15,7 +15,6 @@ protocol SendFeeViewModelInput {
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
-    var tokenItem: TokenItem { get }
 
     func didSelectFeeOption(_ feeOption: FeeOption)
 }
@@ -26,22 +25,21 @@ class SendFeeViewModel: ObservableObject {
 
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
-    private let tokenItem: TokenItem
+    private let walletInfo: SendWalletInfo
     private var bag: Set<AnyCancellable> = []
 
-    private var feeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
+    private var feeFormatter: FeeFormatter {
+        CommonFeeFormatter(
             balanceFormatter: BalanceFormatter(),
-            balanceConverter: BalanceConverter(),
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: BalanceConverter()
         )
     }
 
-    init(input: SendFeeViewModelInput) {
+    init(input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
+        self.walletInfo = walletInfo
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
-        tokenItem = input.tokenItem
         feeRowViewModels = makeFeeRowViewModels([:])
 
         bind()
@@ -64,7 +62,9 @@ class SendFeeViewModel: ObservableObject {
             case .loaded(let value):
                 let formattedValue = self.feeFormatter.format(
                     fee: value.amount.value,
-                    tokenItem: tokenItem
+                    currencySymbol: walletInfo.feeCurrencySymbol,
+                    currencyId: walletInfo.feeCurrencyId,
+                    isFeeApproximate: walletInfo.isFeeApproximate
                 )
                 return .loaded(formattedValue)
             case .failedToLoad(let error):
