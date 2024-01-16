@@ -31,7 +31,7 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         "Ethereum"
     }
 
-    var additionalField: SendAdditionalFields? {
+    var additionalFieldType: SendAdditionalFields? {
         .memo
     }
 
