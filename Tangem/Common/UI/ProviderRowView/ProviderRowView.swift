@@ -59,6 +59,7 @@ struct ProviderRowView: View {
 
             badgeView
         }
+        .lineLimit(1)
     }
 
     private var subtitleView: some View {
