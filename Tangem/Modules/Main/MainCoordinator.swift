@@ -27,7 +27,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var legacySendCoordinator: LegacySendCoordinator?
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var swappingCoordinator: SwappingCoordinator?
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
 
@@ -291,23 +290,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.swappingCoordinator = nil
-        }
-
-        let factory = CommonSwappingModulesFactory(inputModel: input)
-        let coordinator = SwappingCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-
-        swappingCoordinator = coordinator
-    }
-
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
         let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.expressCoordinator = nil
@@ -374,3 +356,7 @@ extension MainCoordinator: OrganizeTokensRoutable {
         organizeTokensViewModel = nil
     }
 }
+
+// MARK: - VisaWalletRoutable
+
+extension MainCoordinator: VisaWalletRoutable {}
