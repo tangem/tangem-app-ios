@@ -21,7 +21,7 @@ struct ExpressApproveView: View {
 
             VStack(spacing: 22) {
                 content
- 
+
                 buttons
             }
         }
@@ -112,7 +112,7 @@ struct ExpressApproveView_Preview: PreviewProvider {
 
         func toggleItem() {
             if item == nil {
-                item = ExpressMockModulesFactory().makeExpressApproveViewModel(coordinator: self)
+                item = ExpressModulesFactoryMock().makeExpressApproveViewModel(coordinator: self)
             } else {
                 item = nil
             }
