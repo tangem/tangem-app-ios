@@ -62,7 +62,7 @@ struct ExpressFeeSelectorView_Preview: PreviewProvider {
 
         func toggleItem() {
             if item == nil {
-                item = ExpressMockModulesFactory().makeExpressFeeSelectorViewModel(coordinator: self)
+                item = ExpressModulesFactoryMock().makeExpressFeeSelectorViewModel(coordinator: self)
             } else {
                 item = nil
             }

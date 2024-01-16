@@ -1,5 +1,5 @@
 //
-//  ExpressMockModulesFactory.swift
+//  ExpressModulesFactoryMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
-class ExpressMockModulesFactory: ExpressModulesFactory {
+class ExpressModulesFactoryMock: ExpressModulesFactory {
     private let initialWalletModel: WalletModel = .mockETH
     private let userWalletModel: UserWalletModel = UserWalletModelMock()
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
@@ -98,7 +98,7 @@ class ExpressMockModulesFactory: ExpressModulesFactory {
 
 // MARK: Dependencies
 
-private extension ExpressMockModulesFactory {
+private extension ExpressModulesFactoryMock {
     var feeFormatter: FeeFormatter {
         CommonFeeFormatter(
             balanceFormatter: balanceFormatter,
