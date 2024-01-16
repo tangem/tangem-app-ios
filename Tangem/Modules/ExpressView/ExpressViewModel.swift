@@ -29,31 +29,15 @@ final class ExpressViewModel: ObservableObject {
     @Published var providerState: ProviderState?
 
     // Fee
-    var feeSectionItems: [FeeSectionItem] {
-        var items: [FeeSectionItem] = []
-
-        if let expressFeeRowViewModel {
-            items.append(.fee(expressFeeRowViewModel))
-
-            if let expressFeeFootnote {
-                items.append(.footnote(expressFeeFootnote))
-            }
-        }
-
-        return items
-    }
+    @Published var expressFeeRowViewModel: ExpressFeeRowData?
 
     // Main button
     @Published var mainButtonIsLoading: Bool = false
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
-    @Published var errorAlert: AlertBinder?
+    @Published var alert: AlertBinder?
 
     @Published var legalText: NSAttributedString?
-
-    // Private
-    @Published private var expressFeeRowViewModel: ExpressFeeRowData?
-    @Published private var expressFeeFootnote: String?
 
     // MARK: - Dependencies
 
@@ -123,6 +107,29 @@ final class ExpressViewModel: ObservableObject {
 
     func userDidTapChangeDestinationButton() {
         coordinator.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
+    }
+
+    func userDidTapPriceChangeInfoButton() {
+        runTask(in: self) { viewModel in
+            let message: String? = await {
+                switch await viewModel.interactor.getSelectedProvider()?.provider.type {
+                case .none:
+                    return nil
+                case .cex:
+                    return Localization.expressCexFeeExplanation
+                case .dex:
+                    return Localization.swappingHighPriceImpactDescription
+                }
+            }()
+
+            guard let message else {
+                return
+            }
+
+            await runOnMain {
+                viewModel.alert = .init(title: "", message: message)
+            }
+        }
     }
 
     func didTapMainButton() {
@@ -476,16 +483,6 @@ private extension ExpressViewModel {
             return nil
         }
 
-        // Setup additional expressFeeFootnote text if needed
-        await runOnMain {
-            switch selectedProvider.provider.type {
-            case .cex:
-                expressFeeFootnote = Localization.expressCexFeeExplanation
-            case .dex:
-                expressFeeFootnote = nil
-            }
-        }
-
         let state = await selectedProvider.getState()
         if state.isError {
             // Don't show a error provider
@@ -543,11 +540,11 @@ private extension ExpressViewModel {
             } catch let error as ExpressAPIError {
                 await runOnMain {
                     let message = Localization.expressErrorCode(error.errorCode.localizedDescription)
-                    root.errorAlert = AlertBinder(title: Localization.commonError, message: message)
+                    root.alert = AlertBinder(title: Localization.commonError, message: message)
                 }
             } catch {
                 await runOnMain {
-                    root.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                    root.alert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
 
@@ -622,20 +619,6 @@ private extension ExpressViewModel {
 }
 
 extension ExpressViewModel {
-    enum FeeSectionItem: Identifiable {
-        var id: String {
-            switch self {
-            case .fee(let expressFeeRowData):
-                return expressFeeRowData.id
-            case .footnote(let string):
-                return string
-            }
-        }
-
-        case fee(ExpressFeeRowData)
-        case footnote(String)
-    }
-
     enum ProviderState: Identifiable {
         var id: Int {
             switch self {
