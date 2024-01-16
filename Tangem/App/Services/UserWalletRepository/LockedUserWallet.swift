@@ -69,12 +69,12 @@ class LockedUserWallet: UserWalletModel {
         // Renaming locked wallets is prohibited
     }
 
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
         .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
     }
 }
 
-extension LockedUserWallet: MainHeaderInfoProvider {
+extension LockedUserWallet: MainHeaderSupplementInfoProvider {
     var isUserWalletLocked: Bool { true }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> {
