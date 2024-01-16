@@ -689,8 +689,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                     if case TangemSdkError.walletAlreadyCreated = error {
                         alert = AlertBuilder.makeAlert(
-                            title: Localization.commonError,
-                            message: "reset?",
+                            title: Localization.onboardingActivationErrorTitle,
+                            message: Localization.onboardingActivationErrorMessage,
                             primaryButton: .default(Text(Localization.warningButtonOk), action: { [weak self] in
                                 self?.cardInitializer?.shouldReset = true
                             }),
