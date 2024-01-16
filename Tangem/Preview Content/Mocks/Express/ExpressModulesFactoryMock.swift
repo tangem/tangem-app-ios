@@ -1,39 +1,27 @@
 //
-//  DependenciesFactory.swift
+//  ExpressModulesFactoryMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import TangemExpress
 import BlockchainSdk
 
-class CommonExpressModulesFactory {
-    @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
-
-    private let userWalletModel: UserWalletModel
-    private let initialWalletModel: WalletModel
+class ExpressModulesFactoryMock: ExpressModulesFactory {
+    private let initialWalletModel: WalletModel = .mockETH
+    private let userWalletModel: UserWalletModel = UserWalletModelMock()
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
-    // MARK: - Internal
-
+    private lazy var pendingTransactionRepository = ExpressPendingTransactionRepositoryMock()
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var allowanceProvider = makeAllowanceProvider()
     private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
 
-    init(inputModel: InputModel) {
-        userWalletModel = inputModel.userWalletModel
-        initialWalletModel = inputModel.initialWalletModel
-    }
-}
-
-// MARK: - ExpressModulesFactory
-
-extension CommonExpressModulesFactory: ExpressModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         let notificationManager = notificationManager
         let model = ExpressViewModel(
@@ -110,7 +98,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
 // MARK: Dependencies
 
-private extension CommonExpressModulesFactory {
+private extension ExpressModulesFactoryMock {
     var feeFormatter: FeeFormatter {
         CommonFeeFormatter(
             balanceFormatter: balanceFormatter,
@@ -199,12 +187,5 @@ private extension CommonExpressModulesFactory {
             walletModelsManager: walletModelsManager,
             expressAPIProvider: expressAPIProvider
         )
-    }
-}
-
-extension CommonExpressModulesFactory {
-    struct InputModel {
-        let userWalletModel: UserWalletModel
-        let initialWalletModel: WalletModel
     }
 }
