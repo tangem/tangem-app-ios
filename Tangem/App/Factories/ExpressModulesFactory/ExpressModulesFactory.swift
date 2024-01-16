@@ -15,8 +15,8 @@ protocol ExpressModulesFactory {
         coordinator: ExpressTokensListRoutable
     ) -> ExpressTokensListViewModel
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel
-    func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel
+    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel
+    func makeExpressApproveViewModel(coordinator: ExpressApproveRoutable) -> ExpressApproveViewModel
     func makeExpressProvidersSelectorViewModel(coordinator: ExpressProvidersSelectorRoutable) -> ExpressProvidersSelectorViewModel
 
     func makeExpressSuccessSentViewModel(
