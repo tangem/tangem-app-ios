@@ -24,8 +24,8 @@ struct SendDecimalNumberTextField: View {
     var body: some View {
         if #available(iOS 15, *) {
             FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits, font: font) {
-                if let maxAmountAction {
-                    Button(action: maxAmountAction) {
+                if let action = maxAmountAction {
+                    Button(action: action) {
                         Text(Localization.sendMaxAmountLabel)
                             .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                     }

@@ -54,7 +54,7 @@ struct ExpressView: View {
             VStack(spacing: 14) {
                 GroupedSection(viewModel.sendCurrencyViewModel) {
                     SendCurrencyView(viewModel: $0, decimalValue: $viewModel.sendDecimalValue)
-                        .maxAmountAction(viewModel.userDidTapMaxAmount)
+                        .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
                         .didTapChangeCurrency {
                             viewModel.userDidTapChangeSourceButton()
                         }
