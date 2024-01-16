@@ -11,6 +11,7 @@ import SwiftUI
 struct ReceiveCurrencyView: View {
     @ObservedObject private var viewModel: ReceiveCurrencyViewModel
     private var didTapChangeCurrency: () -> Void = {}
+    private var didTapPriceChangePercent: () -> Void = {}
 
     init(viewModel: ReceiveCurrencyViewModel) {
         self.viewModel = viewModel
@@ -26,6 +27,7 @@ struct ReceiveCurrencyView: View {
             )
         }
         .didTapChangeCurrency(didTapChangeCurrency)
+        .didTapPriceChangePercent(didTapPriceChangePercent)
     }
 }
 
@@ -34,6 +36,10 @@ struct ReceiveCurrencyView: View {
 extension ReceiveCurrencyView: Setupable {
     func didTapChangeCurrency(_ block: @escaping () -> Void) -> Self {
         map { $0.didTapChangeCurrency = block }
+    }
+
+    func didTapPriceChangePercent(_ block: @escaping () -> Void) -> Self {
+        map { $0.didTapPriceChangePercent = block }
     }
 }
 
