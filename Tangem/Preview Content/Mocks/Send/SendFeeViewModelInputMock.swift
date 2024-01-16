@@ -27,7 +27,5 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         ])
     }
 
-    var tokenItem: TokenItem { .blockchain(.ethereum(testnet: false)) }
-
     func didSelectFeeOption(_ feeOption: FeeOption) {}
 }
