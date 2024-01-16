@@ -12,61 +12,47 @@ import AVFoundation
 import SwiftUI
 import PhotosUI
 
-class QRScanViewModel: Identifiable {
-    let code: Binding<String>
-    let text: String
+class QRScanViewCoordinator: CoordinatorObject {
+    let dismissAction: Action<Void>
+    let popToRootAction: Action<PopToRootOptions>
 
-    init(code: Binding<String>, text: String) {
-        self.code = code
-        self.text = text
+    @Published var imagePickerModel: ImagePickerModel?
+
+    @Published private(set) var rootViewModel: QRScanViewModel?
+
+    required init(
+        dismissAction: @escaping Action<Void>,
+        popToRootAction: @escaping Action<PopToRootOptions>
+    ) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
     }
 
-    func scanFromGallery() {
-        var configuration = PHPickerConfiguration()
-        configuration.selectionLimit = 1
-        configuration.filter = .images
-
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = self
-        AppPresenter.shared.show(picker)
+    func start(with options: Options) {
+        rootViewModel = .init(code: options.code, text: options.text, coordinator: self)
     }
-}
 
-extension QRScanViewModel: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true)
-
-        guard
-            let itemProvider = results.map(\.itemProvider).first,
-            itemProvider.canLoadObject(ofClass: UIImage.self)
-        else {
-            return
-        }
-
-        itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-            if let error {
-                AppLog.shared.error(error)
-            }
-
+    func openImagePicker() {
+        imagePickerModel = ImagePickerModel { [weak self] image in
             guard
-                let image = object as? UIImage,
-                let message = self.readQRCode(from: image)
+                let image,
+                let code = self?.readQRCode(from: image)
             else {
-                AppLog.shared.debug("Failed to detect QR code in the image")
                 return
             }
 
-            DispatchQueue.main.async {
-                self.code.wrappedValue = message
+            self?.rootViewModel?.code.wrappedValue = code
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                self?.dismissAction(())
             }
         }
     }
 
-    func readQRCode(from image: UIImage) -> String? {
+    private func readQRCode(from image: UIImage) -> String? {
         let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
-        guard 
+        guard
             let ciImage = CIImage(image: image),
-            let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: CIContext(), options: options) 
+            let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: CIContext(), options: options)
         else {
             return nil
         }
@@ -76,6 +62,118 @@ extension QRScanViewModel: PHPickerViewControllerDelegate {
             .compactMap { $0 as? CIQRCodeFeature }
             .first?
             .messageString
+    }
+}
+
+// MARK: - Options
+
+extension QRScanViewCoordinator {
+    struct Options {
+        let code: Binding<String>
+        let text: String
+    }
+}
+
+struct QRScanViewCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: QRScanViewCoordinator
+
+    init(coordinator: QRScanViewCoordinator) {
+        self.coordinator = coordinator
+    }
+
+    var body: some View {
+        ZStack {
+            if let rootViewModel = coordinator.rootViewModel {
+                QRScanView(viewModel: rootViewModel)
+                    .navigationLinks(links)
+            }
+
+            sheets
+        }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        EmptyView()
+    }
+
+    @ViewBuilder
+    private var sheets: some View {
+        NavHolder()
+            .sheet(item: $coordinator.imagePickerModel) {
+                ImagePicker(viewModel: $0)
+            }
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    let viewModel: ImagePickerModel
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = .images
+
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(viewModel: viewModel)
+    }
+
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let viewModel: ImagePickerModel
+
+        init(viewModel: ImagePickerModel) {
+            self.viewModel = viewModel
+        }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+
+            guard
+                let itemProvider = results.map(\.itemProvider).first,
+                itemProvider.canLoadObject(ofClass: UIImage.self)
+            else {
+                return
+            }
+
+            itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
+                if let error {
+                    AppLog.shared.error(error)
+                }
+
+                let image = object as? UIImage
+                self?.viewModel.didScanImage(image)
+            }
+        }
+    }
+}
+
+class ImagePickerModel: Identifiable {
+    let didScanImage: (UIImage?) -> Void
+
+    init(didScanImage: @escaping (UIImage?) -> Void) {
+        self.didScanImage = didScanImage
+    }
+}
+
+class QRScanViewModel: Identifiable {
+    let code: Binding<String>
+    let text: String
+    let coordinator: QRScanViewCoordinator
+
+    init(code: Binding<String>, text: String, coordinator: QRScanViewCoordinator) {
+        self.code = code
+        self.text = text
+        self.coordinator = coordinator
+    }
+
+    func scanFromGallery() {
+        coordinator.openImagePicker()
     }
 }
 
@@ -221,7 +319,7 @@ struct QRScanView_Previews_Sheet: PreviewProvider {
     static var previews: some View {
         Text("A")
             .sheet(isPresented: .constant(true)) {
-                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address."))
+                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", coordinator: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
                     .background(
                         Image("qr_code_example")
                     )
@@ -234,7 +332,7 @@ struct QRScanView_Previews_Inline: PreviewProvider {
     @State static var code: String = ""
 
     static var previews: some View {
-        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address."))
+        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", coordinator: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
             .background(
                 Image("qr_code_example")
             )
