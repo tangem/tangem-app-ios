@@ -151,8 +151,8 @@ extension BottomSheetContainer {
 
         init(
             cornerRadius: CGFloat = 24,
-            backgroundColor: Color = Colors.Background.secondary,
-            backgroundOpacity: CGFloat = 0.5,
+            backgroundColor: Color,
+            backgroundOpacity: CGFloat = 0.4,
             distanceToHide: CGFloat = UIScreen.main.bounds.height * 0.1,
             animationDuration: Double = 0.35
         ) {
@@ -201,7 +201,7 @@ struct BottomSheetContainer_Previews: PreviewProvider {
                 .offset(y: -200)
 
                 NavHolder()
-                    .bottomSheet(item: $coordinator.item) {
+                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
                         BottomSheetView(viewModel: $0)
                     }
             }
