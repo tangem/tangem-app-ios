@@ -21,6 +21,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var isSwapButtonLoading: Bool = false
     @Published var isSwapButtonDisabled: Bool = false
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
+    @Published var isMaxAmountButtonHidden: Bool = false
 
     // Warnings
     @Published var notificationInputs: [NotificationViewInput] = []
@@ -240,6 +241,7 @@ private extension ExpressViewModel {
             .sink { [weak self] pair in
                 self?.updateSendView(wallet: pair.sender)
                 self?.updateReceiveView(wallet: pair.destination)
+                self?.updateMaxButtonVisibility(pair: pair)
             }
             .store(in: &bag)
 
@@ -312,6 +314,15 @@ private extension ExpressViewModel {
             sourceCurrencyId: interactor.getSender().tokenItem.currencyId,
             destinationCurrencyId: interactor.getDestination()?.tokenItem.currencyId
         )
+    }
+
+    // MARK: - Toolbar
+
+    func updateMaxButtonVisibility(pair: ExpressInteractor.SwappingPair) {
+        let sendingMainToken = pair.sender.isMainToken
+        let isSameNetwork = pair.sender.blockchainNetwork == pair.destination.value?.blockchainNetwork
+
+        isMaxAmountButtonHidden = sendingMainToken && isSameNetwork
     }
 
     // MARK: - Update for state
