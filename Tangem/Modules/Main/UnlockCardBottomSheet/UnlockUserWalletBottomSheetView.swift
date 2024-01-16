@@ -89,7 +89,7 @@ struct UnlockUserWalletBottomSheetView_Previews: PreviewProvider {
                 }
 
                 NavHolder()
-                    .bottomSheet(item: state, settings: .init(backgroundColor: Colors.Background.primary)) { model in
+                    .bottomSheet(item: state, backgroundColor: Colors.Background.primary) { model in
                         UnlockUserWalletBottomSheetView(viewModel: model)
                     }
             }
