@@ -25,7 +25,6 @@ class SendCoordinator: CoordinatorObject {
 
     @Published var mailViewModel: MailViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel?
-    @Published var qrScanViewModel: QRScanViewModel? = nil
     @Published var qrScanViewCoordinator: QRScanViewCoordinator? = nil
 
     required init(
