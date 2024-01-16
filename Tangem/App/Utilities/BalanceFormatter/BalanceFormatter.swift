@@ -11,10 +11,27 @@ import Foundation
 struct BalanceFormatter {
     static var defaultEmptyBalanceString: String { "–" }
 
+    /// Format any decimal number using `BalanceFormattingOptions`
+    /// - Note: Balance will be rounded using `roundingType` from `formattingOptions`
+    /// - Parameters:
+    ///   - value: Balance that should be rounded and formatted
+    ///   - formattingOptions: Options for number formatter and rounding
+    /// - Returns: Formatted balance string
+    func formatDecimal(_ value: Decimal, formattingOptions: BalanceFormattingOptions = .defaultCryptoFormattingOptions) -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = formattingOptions.minFractionDigits
+        formatter.maximumFractionDigits = formattingOptions.maxFractionDigits
+
+        let valueToFormat = roundDecimal(value, with: formattingOptions.roundingType)
+        return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat)"
+    }
+
     /// Format crypto balance using `BalanceFormattingOptions`
     /// - Note: Balance will be rounded using `roundingType` from `formattingOptions`
     /// - Parameters:
-    ///   - value: Balance that should be rounded and formated
+    ///   - value: Balance that should be rounded and formatted
     ///   - currencyCode: Code to be used
     ///   - formattingOptions: Options for number formatter and rounding
     /// - Returns: Formatted balance string
@@ -35,7 +52,7 @@ struct BalanceFormatter {
     /// Format fiat balance using `BalanceFormattingOptions`
     /// - Note: Balance will be rounded using `roundingType` from `formattingOptions`
     /// - Parameters:
-    ///   - value: Balance that should be rounded and formated
+    ///   - value: Balance that should be rounded and formatted. If `nil` will be return `defaultEmptyBalanceString`
     ///   - formattingOptions: Options for number formatter and rounding
     /// - Returns: Formatted balance string
     func formatFiatBalance(_ value: Decimal?, formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions) -> String {

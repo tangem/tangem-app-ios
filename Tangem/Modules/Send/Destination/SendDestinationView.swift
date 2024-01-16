@@ -16,17 +16,19 @@ struct SendDestinationView: View {
         GroupedScrollView {
             if let addressViewModel = viewModel.addressViewModel {
                 SendDestinationTextView(viewModel: addressViewModel)
+                    .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
             }
 
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
                 SendDestinationTextView(viewModel: additionalFieldViewModel)
+                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
             }
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
             }
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 }
 

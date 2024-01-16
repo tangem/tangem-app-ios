@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 struct SwapPairService {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
