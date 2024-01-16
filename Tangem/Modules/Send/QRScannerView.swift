@@ -10,11 +10,73 @@ import Foundation
 import UIKit
 import AVFoundation
 import SwiftUI
+import PhotosUI
 
-struct QRScanViewModel: Identifiable {
-    let id: UUID = .init()
+class QRScanViewModel: Identifiable {
     let code: Binding<String>
     let text: String
+
+    init(code: Binding<String>, text: String) {
+        self.code = code
+        self.text = text
+    }
+
+    func scanFromGallery() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        AppPresenter.shared.show(picker)
+    }
+}
+
+extension QRScanViewModel: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+
+        guard
+            let itemProvider = results.map(\.itemProvider).first,
+            itemProvider.canLoadObject(ofClass: UIImage.self)
+        else {
+            return
+        }
+
+        itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+            if let error {
+                AppLog.shared.error(error)
+            }
+
+            guard
+                let image = object as? UIImage,
+                let message = self.readQRCode(from: image)
+            else {
+                AppLog.shared.debug("Failed to detect QR code in the image")
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.code.wrappedValue = message
+            }
+        }
+    }
+
+    func readQRCode(from image: UIImage) -> String? {
+        let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        guard 
+            let ciImage = CIImage(image: image),
+            let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: CIContext(), options: options) 
+        else {
+            return nil
+        }
+
+        return detector.features(in: ciImage)
+            .lazy
+            .compactMap { $0 as? CIQRCodeFeature }
+            .first?
+            .messageString
+    }
 }
 
 struct QRScanView: View {
@@ -67,7 +129,7 @@ struct QRScanView: View {
             .padding(7)
 
             Button {
-//                viewModel.openGallery()
+                viewModel.scanFromGallery()
             } label: {
                 Assets.gallery.image
             }
