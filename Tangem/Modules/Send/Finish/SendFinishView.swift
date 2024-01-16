@@ -9,26 +9,52 @@
 import SwiftUI
 
 struct SendFinishView: View {
-    let height = 150.0
     let namespace: Namespace.ID
 
     @ObservedObject var viewModel: SendFinishViewModel
 
     var body: some View {
-        VStack(spacing: 20) {
-            header
+        VStack {
+            GroupedScrollView {
+                header
+                    .padding(.bottom, 24)
 
-            amountSummary
+                GroupedSection(viewModel.destinationViewTypes) { type in
+                    switch type {
+                    case .address(let address):
+                        SendDestinationAddressSummaryView(address: address)
+                            .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
+                    case .additionalField(let type, let value):
+                        if let name = type.name {
+                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
+                        }
+                    }
+                }
+                .backgroundColor(Colors.Background.action)
 
-            destinationSummary
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
-            feeSummary
+                GroupedSection(viewModel.amountSummaryViewData) {
+                    AmountSummaryView(data: $0)
+                }
+                .interSectionPadding(12)
+                .backgroundColor(Colors.Background.action)
+                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
-            Spacer()
+                GroupedSection(viewModel.feeSummaryViewData) { data in
+                    DefaultTextWithTitleRowView(data: data)
+                }
+                .backgroundColor(Colors.Background.action)
+                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+            }
 
             bottomButtons
+                .padding(.horizontal, 16)
         }
-        .padding(.horizontal)
+        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 
     @ViewBuilder
@@ -41,69 +67,11 @@ struct SendFinishView: View {
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .padding(.top, 18)
 
-            Text(viewModel.transactionTime ?? "")
+            Text(viewModel.transactionTime)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
                 .padding(.top, 6)
         }
-    }
-
-    @ViewBuilder
-    private var amountSummary: some View {
-        Color.clear
-            .frame(maxHeight: height)
-            .border(Color.green, width: 5)
-            .overlay(
-                VStack {
-                    HStack {
-                        Text(viewModel.amountText)
-                            .foregroundColor(.black)
-                        Spacer()
-                    }
-                }
-                .padding()
-            )
-            .matchedGeometryEffect(id: "amount", in: namespace)
-            .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-    }
-
-    @ViewBuilder
-    private var destinationSummary: some View {
-        Color.clear
-            .frame(maxHeight: height)
-            .border(Color.purple, width: 5)
-            .overlay(
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text(viewModel.destinationText)
-                            .lineLimit(1)
-                            .foregroundColor(.black)
-                        Spacer()
-                    }
-                }
-                .padding()
-            )
-            .matchedGeometryEffect(id: "dest", in: namespace)
-            .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale).combined(with: .offset(y: -height - 20))))
-    }
-
-    @ViewBuilder
-    private var feeSummary: some View {
-        Color.clear
-            .frame(maxHeight: height)
-            .border(Color.blue, width: 5)
-            .overlay(
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text(viewModel.feeText)
-                            .foregroundColor(.black)
-                        Spacer()
-                    }
-                }
-                .padding()
-            )
-            .transition(.identity)
-            .matchedGeometryEffect(id: "fee", in: namespace)
     }
 
     @ViewBuilder
@@ -135,7 +103,30 @@ struct SendFinishView: View {
 struct SendFinishView_Previews: PreviewProvider {
     @Namespace static var namespace
 
+    static let tokenIconInfo = TokenIconInfo(
+        name: "Tether",
+        blockchainIconName: "ethereum.fill",
+        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        isCustom: false,
+        customTokenColor: nil
+    )
+
+    static let walletInfo = SendWalletInfo(
+        walletName: "Wallet",
+        balance: "12013",
+        currencyId: "tether",
+        feeCurrencySymbol: "ETH",
+        feeCurrencyId: "ethereum",
+        isFeeApproximate: false,
+        tokenIconInfo: tokenIconInfo,
+        cryptoIconURL: nil,
+        cryptoCurrencyCode: "USDT",
+        fiatIconURL: nil,
+        fiatCurrencyCode: "USD",
+        amountFractionDigits: 6
+    )
+
     static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock())!)
+        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock(), walletInfo: walletInfo)!)
     }
 }
