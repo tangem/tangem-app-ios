@@ -16,31 +16,31 @@ struct ExpressApproveView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: .zero) {
             headerView
 
-            content
-
-            buttons
+            VStack(spacing: 22) {
+                content
+ 
+                buttons
+            }
         }
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 6)
         .background(Colors.Background.tertiary)
-//        .alert(item: $viewModel.errorAlert) { $0.alert }
+        .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
     private var headerView: some View {
         ZStack(alignment: .topTrailing) {
             BottomSheetHeaderView(title: Localization.swappingPermissionHeader, subtitle: viewModel.subheader)
-                .border(Color.red)
                 .padding(.horizontal, 16)
-                .border(Color.orange)
 
             Button(action: viewModel.didTapInfoButton) {
                 Assets.infoIconMini.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.informative)
-//                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
             }
         }
     }
@@ -53,7 +53,6 @@ struct ExpressApproveView: View {
                 DefaultFooterView(Localization.swappingPermissionPolicyTypeFooter)
             }
             .backgroundColor(Colors.Background.action)
-            .padding(.horizontal, 16)
 
             GroupedSection(viewModel.feeRowViewModel) {
                 DefaultRowView(viewModel: $0)
@@ -61,7 +60,6 @@ struct ExpressApproveView: View {
                 DefaultFooterView(Localization.swappingPermissionFeeFooter)
             }
             .backgroundColor(Colors.Background.action)
-            .padding(.horizontal, 16)
         }
     }
 
@@ -83,7 +81,6 @@ struct ExpressApproveView: View {
         }
         // This fix for text's font in the cancel button, it shrink with no reason
         .minimumScaleFactor(1)
-        .padding(.horizontal, 16)
     }
 }
 
@@ -120,15 +117,14 @@ struct ExpressApproveView_Preview: PreviewProvider {
                 item = nil
             }
         }
-        
+
         func didSendApproveTransaction() {
             item = nil
         }
-        
+
         func userDidCancel() {
             item = nil
         }
-        
     }
 
     static var previews: some View {
