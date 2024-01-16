@@ -72,7 +72,7 @@ struct MainView: View {
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .bottomSheet(
             item: $viewModel.unlockWalletBottomSheetViewModel,
-            settings: .init(backgroundColor: Colors.Background.primary)
+            backgroundColor: Colors.Background.primary
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
@@ -115,7 +115,7 @@ struct MainView_Preview: PreviewProvider {
         let viewModel = MainViewModel(
             coordinator: coordinator,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
-            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator, visaCoordinator: coordinator)
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
         )
         swipeDiscoveryHelper.delegate = viewModel
 
