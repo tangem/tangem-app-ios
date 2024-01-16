@@ -95,7 +95,7 @@ struct ExpressApproveView: View {
 }
 
 struct ExpressApproveView_Preview: PreviewProvider {
-    static let viewModel = ExpressMockModulesFactory().makeExpressApproveViewModel(coordinator: ExpressApproveRoutableMock())
+    static let viewModel = ExpressModulesFactoryMock().makeExpressApproveViewModel(coordinator: ExpressApproveRoutableMock())
 
     static var previews: some View {
         ExpressApproveView(viewModel: viewModel)
