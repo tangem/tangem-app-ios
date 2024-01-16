@@ -12,173 +12,50 @@ import AVFoundation
 import SwiftUI
 import PhotosUI
 
-class QRScanViewCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
-    let popToRootAction: Action<PopToRootOptions>
+class QRScanViewModel: ObservableObject, Identifiable {
+    @Published var isFlashActive = false
 
-    @Published var imagePickerModel: ImagePickerModel?
-
-    @Published private(set) var rootViewModel: QRScanViewModel?
-
-    required init(
-        dismissAction: @escaping Action<Void>,
-        popToRootAction: @escaping Action<PopToRootOptions>
-    ) {
-        self.dismissAction = dismissAction
-        self.popToRootAction = popToRootAction
-    }
-
-    func start(with options: Options) {
-        rootViewModel = .init(code: options.code, text: options.text, coordinator: self)
-    }
-
-    func openImagePicker() {
-        imagePickerModel = ImagePickerModel { [weak self] image in
-            guard
-                let image,
-                let code = self?.readQRCode(from: image)
-            else {
-                return
-            }
-
-            self?.rootViewModel?.code.wrappedValue = code
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                self?.dismissAction(())
-            }
-        }
-    }
-
-    private func readQRCode(from image: UIImage) -> String? {
-        let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
-        guard
-            let ciImage = CIImage(image: image),
-            let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: CIContext(), options: options)
-        else {
-            return nil
-        }
-
-        return detector.features(in: ciImage)
-            .lazy
-            .compactMap { $0 as? CIQRCodeFeature }
-            .first?
-            .messageString
-    }
-}
-
-// MARK: - Options
-
-extension QRScanViewCoordinator {
-    struct Options {
-        let code: Binding<String>
-        let text: String
-    }
-}
-
-struct QRScanViewCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: QRScanViewCoordinator
-
-    init(coordinator: QRScanViewCoordinator) {
-        self.coordinator = coordinator
-    }
-
-    var body: some View {
-        ZStack {
-            if let rootViewModel = coordinator.rootViewModel {
-                QRScanView(viewModel: rootViewModel)
-                    .navigationLinks(links)
-            }
-
-            sheets
-        }
-    }
-
-    @ViewBuilder
-    private var links: some View {
-        EmptyView()
-    }
-
-    @ViewBuilder
-    private var sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.imagePickerModel) {
-                ImagePicker(viewModel: $0)
-            }
-    }
-}
-
-struct ImagePicker: UIViewControllerRepresentable {
-    let viewModel: ImagePickerModel
-
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var config = PHPickerConfiguration()
-        config.filter = .images
-
-        let picker = PHPickerViewController(configuration: config)
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        return Coordinator(viewModel: viewModel)
-    }
-
-    class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let viewModel: ImagePickerModel
-
-        init(viewModel: ImagePickerModel) {
-            self.viewModel = viewModel
-        }
-
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            picker.dismiss(animated: true)
-
-            guard
-                let itemProvider = results.map(\.itemProvider).first,
-                itemProvider.canLoadObject(ofClass: UIImage.self)
-            else {
-                return
-            }
-
-            itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
-                if let error {
-                    AppLog.shared.error(error)
-                }
-
-                let image = object as? UIImage
-                self?.viewModel.didScanImage(image)
-            }
-        }
-    }
-}
-
-class ImagePickerModel: Identifiable {
-    let didScanImage: (UIImage?) -> Void
-
-    init(didScanImage: @escaping (UIImage?) -> Void) {
-        self.didScanImage = didScanImage
-    }
-}
-
-class QRScanViewModel: Identifiable {
     let code: Binding<String>
     let text: String
-    let coordinator: QRScanViewCoordinator
+    let router: QRScanViewRoutable
 
-    init(code: Binding<String>, text: String, coordinator: QRScanViewCoordinator) {
+    init(code: Binding<String>, text: String, router: QRScanViewRoutable) {
         self.code = code
         self.text = text
-        self.coordinator = coordinator
+        self.router = router
+    }
+
+    func toggleFlash() {
+        guard
+            let camera = AVCaptureDevice.default(for: .video),
+            camera.hasTorch
+        else {
+            return
+        }
+
+        do {
+            try camera.lockForConfiguration()
+
+            // Do it before the actual changes because it's not immediate
+            withAnimation(nil) {
+                isFlashActive = !camera.isTorchActive
+            }
+
+            camera.torchMode = camera.isTorchActive ? .off : .on
+            camera.unlockForConfiguration()
+        } catch {
+            AppLog.shared.debug("Failed to toggle the flash")
+            AppLog.shared.error(error)
+        }
     }
 
     func scanFromGallery() {
-        coordinator.openImagePicker()
+        router.openImagePicker()
     }
 }
 
 struct QRScanView: View {
-    let viewModel: QRScanViewModel
+    @ObservedObject var viewModel: QRScanViewModel
 
     @Environment(\.presentationMode) var presentationMode
 
@@ -221,14 +98,12 @@ struct QRScanView: View {
 
             Spacer()
 
-            Button(action: toggleFlash) {
-                isFlashActive ? Assets.flashDisabled.image : Assets.flash.image
+            Button(action: viewModel.toggleFlash) {
+                viewModel.isFlashActive ? Assets.flashDisabled.image : Assets.flash.image
             }
             .padding(7)
 
-            Button {
-                viewModel.scanFromGallery()
-            } label: {
+            Button(action: viewModel.scanFromGallery) {
                 Assets.gallery.image
             }
             .padding(7)
@@ -252,30 +127,6 @@ struct QRScanView: View {
             .padding(.top, 24)
             .padding(.horizontal, viewfinderPadding)
             .offset(y: screenSize.height / 2 + screenSize.width / 2 - viewfinderPadding)
-    }
-
-    private func toggleFlash() {
-        guard
-            let camera = AVCaptureDevice.default(for: .video),
-            camera.hasTorch
-        else {
-            return
-        }
-
-        do {
-            try camera.lockForConfiguration()
-
-            // Do it before the actual changes because it's not immediate
-            withAnimation(nil) {
-                isFlashActive = !camera.isTorchActive
-            }
-
-            camera.torchMode = camera.isTorchActive ? .off : .on
-            camera.unlockForConfiguration()
-        } catch {
-            AppLog.shared.debug("Failed to toggle the flash")
-            AppLog.shared.error(error)
-        }
     }
 }
 
@@ -319,7 +170,7 @@ struct QRScanView_Previews_Sheet: PreviewProvider {
     static var previews: some View {
         Text("A")
             .sheet(isPresented: .constant(true)) {
-                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", coordinator: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
+                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
                     .background(
                         Image("qr_code_example")
                     )
@@ -332,7 +183,7 @@ struct QRScanView_Previews_Inline: PreviewProvider {
     @State static var code: String = ""
 
     static var previews: some View {
-        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", coordinator: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
+        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
             .background(
                 Image("qr_code_example")
             )
