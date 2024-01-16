@@ -110,7 +110,7 @@ struct ExpressSuccessSentView: View {
 }
 
 struct ExpressSuccessSentView_Preview: PreviewProvider {
-    static let viewModel = ExpressMockModulesFactory().makeExpressSuccessSentViewModel(
+    static let viewModel = ExpressModulesFactoryMock().makeExpressSuccessSentViewModel(
         data: .mock,
         coordinator: ExpressSuccessSentRoutableMock()
     )
