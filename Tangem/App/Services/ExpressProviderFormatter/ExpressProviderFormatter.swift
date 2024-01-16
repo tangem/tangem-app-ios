@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import UIKit
 
 struct ExpressProviderFormatter {
