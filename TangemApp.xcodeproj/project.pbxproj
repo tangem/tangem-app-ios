@@ -269,6 +269,8 @@
 		B0468CE72954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0468CE62954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B04718FB2B4D71CB00444734 /* SingleTokenTotalBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04718FA2B4D71CB00444734 /* SingleTokenTotalBalanceProvider.swift */; };
+		B04718FF2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04718FE2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift */; };
+		B04719012B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04719002B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift */; };
 		B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04BA23026F07ECE0036784C /* OnboardingTextButtonView.swift */; };
 		B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04BA23326F0837C0036784C /* OnboardingTopupLayoutCalculator.swift */; };
 		B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04BA23526F083C30036784C /* OnboardingTopupBalanceView.swift */; };
@@ -1644,6 +1646,8 @@
 		B0468CE62954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2DefaultSocketFactory.swift; sourceTree = "<group>"; };
 		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B04718FA2B4D71CB00444734 /* SingleTokenTotalBalanceProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleTokenTotalBalanceProvider.swift; sourceTree = "<group>"; };
+		B04718FE2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaBalancesLimitsBottomSheetView.swift; sourceTree = "<group>"; };
+		B04719002B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaBalancesLimitsBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		B04BA23026F07ECE0036784C /* OnboardingTextButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTextButtonView.swift; sourceTree = "<group>"; };
 		B04BA23326F0837C0036784C /* OnboardingTopupLayoutCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupLayoutCalculator.swift; sourceTree = "<group>"; };
 		B04BA23526F083C30036784C /* OnboardingTopupBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupBalanceView.swift; sourceTree = "<group>"; };
@@ -3697,6 +3701,23 @@
 				B02B74A929879CC5006473F2 /* WalletConnectV2Factory.swift */,
 			);
 			path = WalletConnectV2Service;
+			sourceTree = "<group>";
+		};
+		B04718FC2B4E7BE200444734 /* Visa */ = {
+			isa = PBXGroup;
+			children = (
+				B04718FD2B4E7BED00444734 /* VisaBalancesLimits */,
+			);
+			path = Visa;
+			sourceTree = "<group>";
+		};
+		B04718FD2B4E7BED00444734 /* VisaBalancesLimits */ = {
+			isa = PBXGroup;
+			children = (
+				B04718FE2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift */,
+				B04719002B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift */,
+			);
+			path = VisaBalancesLimits;
 			sourceTree = "<group>";
 		};
 		B04A5C762A793C33001B95EC /* Views */ = {
@@ -5849,6 +5870,7 @@
 				DAA5E2FB28D21368003C0E80 /* UserWalletStorageAggreement */,
 				DA91770F2A25F14A006CD67B /* Promotion */,
 				B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */,
+				B04718FC2B4E7BE200444734 /* Visa */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -7670,6 +7692,7 @@
 				DC858A3928AA48B000D58EE7 /* CardEmailDataFactory.swift in Sources */,
 				B06C084F2A73FB4E00D982BC /* MainViewModel.swift in Sources */,
 				5D51037327C5371D0025EA55 /* EthereumAddress.swift in Sources */,
+				B04719012B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift in Sources */,
 				EF729B712AF3E86300D80205 /* ExpressProvidersSelectorView.swift in Sources */,
 				B05F1E66299CB81D00E27E32 /* TransactionViewPlaceholder.swift in Sources */,
 				B0AF2DEF2B1D8FF9001A8696 /* PendingExpressTransactionsManager.swift in Sources */,
@@ -8558,6 +8581,7 @@
 				EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */,
 				DA559C422B0261F400F59584 /* SendStep.swift in Sources */,
 				2D5EBAA72ADD15EA00A25AC4 /* ManageTokensNetworkSelectorViewModel.swift in Sources */,
+				B04718FF2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift in Sources */,
 				EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */,
 				DA4371A92A7D1937006215CA /* LegacyTokenListViewModel.swift in Sources */,
 				EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */,
