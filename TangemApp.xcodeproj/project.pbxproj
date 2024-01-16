@@ -1195,7 +1195,7 @@
 		EF9E2A3B2B4F0CD100418559 /* CommonExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A022B4F0CCF00418559 /* CommonExpressManager.swift */; };
 		EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */; };
 		EF9E2A3D2B4F0CD100418559 /* ExpressManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */; };
-		EF9E2A4E2B56A54400418559 /* ExpressMockModulesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A4D2B56A54400418559 /* ExpressMockModulesFactory.swift */; };
+		EF9E2A4E2B56A54400418559 /* ExpressModulesFactoryMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A4D2B56A54400418559 /* ExpressModulesFactoryMock.swift */; };
 		EF9E2A4F2B56A59F00418559 /* ExpressPendingTransactionRepositoryMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A482B56A21000418559 /* ExpressPendingTransactionRepositoryMock.swift */; };
 		EF9E2A532B56A5DF00418559 /* WalletModel+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A522B56A5DF00418559 /* WalletModel+Mock.swift */; };
 		EF9E2A552B56A6E800418559 /* UserWalletModelMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A542B56A6E800418559 /* UserWalletModelMock.swift */; };
@@ -2613,7 +2613,7 @@
 		EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerError.swift; sourceTree = "<group>"; };
 		EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerState.swift; sourceTree = "<group>"; };
 		EF9E2A482B56A21000418559 /* ExpressPendingTransactionRepositoryMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPendingTransactionRepositoryMock.swift; sourceTree = "<group>"; };
-		EF9E2A4D2B56A54400418559 /* ExpressMockModulesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressMockModulesFactory.swift; sourceTree = "<group>"; };
+		EF9E2A4D2B56A54400418559 /* ExpressModulesFactoryMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressModulesFactoryMock.swift; sourceTree = "<group>"; };
 		EF9E2A522B56A5DF00418559 /* WalletModel+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletModel+Mock.swift"; sourceTree = "<group>"; };
 		EF9E2A542B56A6E800418559 /* UserWalletModelMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModelMock.swift; sourceTree = "<group>"; };
 		EF9E2A562B56A9B100418559 /* SentExpressTransactionData+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentExpressTransactionData+Mock.swift"; sourceTree = "<group>"; };
@@ -6789,10 +6789,10 @@
 		EF9E2A4C2B56A53100418559 /* Express */ = {
 			isa = PBXGroup;
 			children = (
-				EF9E2A4D2B56A54400418559 /* ExpressMockModulesFactory.swift */,
+				EF9E2A4D2B56A54400418559 /* ExpressModulesFactoryMock.swift */,
 				EF9E2A482B56A21000418559 /* ExpressPendingTransactionRepositoryMock.swift */,
-				EF9E2A512B56A5BD00418559 /* Routables */,
 				EF9E2A562B56A9B100418559 /* SentExpressTransactionData+Mock.swift */,
+				EF9E2A512B56A5BD00418559 /* Routables */,
 			);
 			path = Express;
 			sourceTree = "<group>";
@@ -8617,7 +8617,7 @@
 				B60B9FDB2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift in Sources */,
 				DAC37FBA2A2DFB730068F3ED /* PromotionView.swift in Sources */,
 				DA559C392B0261F400F59584 /* SendViewModel.swift in Sources */,
-				EF9E2A4E2B56A54400418559 /* ExpressMockModulesFactory.swift in Sources */,
+				EF9E2A4E2B56A54400418559 /* ExpressModulesFactoryMock.swift in Sources */,
 				EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */,
 				DA559C422B0261F400F59584 /* SendStep.swift in Sources */,
 				2D5EBAA72ADD15EA00A25AC4 /* ManageTokensNetworkSelectorViewModel.swift in Sources */,
