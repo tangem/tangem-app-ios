@@ -67,6 +67,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     func makeWalletModelsFactory() -> WalletModelsFactory
 
     func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory
 }
 
 extension UserWalletConfig {
@@ -162,5 +164,9 @@ extension UserWalletConfig where Self: CardContainer {
     func makeBackupService() -> BackupService {
         let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
         return factory.makeBackupService()
+    }
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
+        return CommonMainHeaderProviderFactory()
     }
 }
