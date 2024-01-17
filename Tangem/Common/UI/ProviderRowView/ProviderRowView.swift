@@ -42,16 +42,24 @@ struct ProviderRowView: View {
     private var titleView: some View {
         HStack(alignment: .center, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                if viewModel.shouldAddPrefix {
+                switch viewModel.providerTitleType {
+                case .withPrefix:
                     Text(Localization.expressByProvider)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                }
 
-                Text(viewModel.provider.name)
-                    .style(
-                        Fonts.Bold.footnote,
-                        color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
-                    )
+                    Text(viewModel.provider.name)
+                        .style(
+                            Fonts.Regular.footnote,
+                            color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
+                        )
+
+                case .onlyName:
+                    Text(viewModel.provider.name)
+                        .style(
+                            Fonts.Bold.footnote,
+                            color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
+                        )
+                }
 
                 Text(viewModel.provider.type)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -168,7 +176,7 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
                 name: "1inch",
                 type: "DEX"
             ),
-            shouldAddPrefix: .random(),
+            providerTitleType: .random() ? .onlyName : .withPrefix,
             isDisabled: isDisabled,
             badge: badge,
             subtitles: [.text("1 132,46 MATIC")] + subtitles,
