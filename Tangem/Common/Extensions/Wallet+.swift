@@ -49,7 +49,7 @@ public extension Wallet {
     }
 
     private func feeAmountType(transactionAmountType: Amount.AmountType) -> Amount.AmountType {
-        switch blockchain.feePaidCurrency(for: transactionAmountType) {
+        switch blockchain.feePaidCurrency {
         case .coin:
             return .coin
         case .token(let value):
