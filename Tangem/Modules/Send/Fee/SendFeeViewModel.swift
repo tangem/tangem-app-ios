@@ -15,13 +15,18 @@ protocol SendFeeViewModelInput {
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     func didSelectFeeOption(_ feeOption: FeeOption)
+    func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
 class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
+    @Published private(set) var subtractFromAmountModel: DefaultToggleRowViewModel?
+
+    @Published private var isFeeIncluded: Bool = false
 
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
@@ -42,6 +47,15 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = input.selectedFeeOption
         feeRowViewModels = makeFeeRowViewModels([:])
 
+        let binding: BindingValue<Bool> = .init(root: self, default: isFeeIncluded) {
+            $0.isFeeIncluded
+        } set: {
+            $0.isFeeIncluded = $1
+            $0.input.didChangeFeeInclusion($1)
+        }
+
+        subtractFromAmountModel = DefaultToggleRowViewModel(title: Localization.sendAmountSubstract, isDisabled: false, isOn: binding)
+
         bind()
     }
 
@@ -50,6 +64,12 @@ class SendFeeViewModel: ObservableObject {
             .sink { [weak self] feeValues in
                 guard let self else { return }
                 feeRowViewModels = makeFeeRowViewModels(feeValues)
+            }
+            .store(in: &bag)
+
+        input.isFeeIncludedPublisher
+            .sink { [weak self] feeIncluded in
+                self?.isFeeIncluded = feeIncluded
             }
             .store(in: &bag)
     }
