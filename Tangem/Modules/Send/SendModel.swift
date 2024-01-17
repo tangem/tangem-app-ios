@@ -160,6 +160,14 @@ class SendModel {
     }
 
     private func bind() {
+        Publishers.CombineLatest(_isFeeIncluded, fee)
+            .sink { [weak self] isFeeIncluded, fee in
+                guard let self else { return }
+
+                print(isFeeIncluded, fee)
+            }
+            .store(in: &bag)
+
         #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest(amount, destination)
             .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Never> in
@@ -314,7 +322,16 @@ class SendModel {
     // MARK: - Fees
 
     func didSelectFeeOption(_ feeOption: FeeOption) {
+        guard let newFee = _feeValues.value[feeOption]?.value else {
+            return
+        }
+
         _selectedFeeOption.send(feeOption)
+        fee.send(newFee)
+    }
+
+    func didChangeFeeInclusion(_ isFeeIncluded: Bool) {
+        _isFeeIncluded.send(isFeeIncluded)
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
@@ -414,6 +431,10 @@ extension SendModel: SendFeeViewModelInput {
 
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
         _feeValues.eraseToAnyPublisher()
+    }
+
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
+        _isFeeIncluded.eraseToAnyPublisher()
     }
 }
 
