@@ -57,7 +57,7 @@ struct ExpressView: View {
                         viewModel: sendCurrencyViewModel,
                         decimalValue: $viewModel.sendDecimalValue
                     )
-                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
+                    .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
                     .didTapChangeCurrency {
                         viewModel.userDidTapChangeSourceButton()
                     }
