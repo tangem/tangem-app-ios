@@ -67,7 +67,7 @@ final class ExpressViewModel: ObservableObject {
     private let notificationManager: NotificationManager
     private let expressRepository: ExpressRepository
     private let interactor: ExpressInteractor
-    private unowned let coordinator: ExpressRoutable
+    private weak var coordinator: ExpressRoutable?
 
     // MARK: - Private
 
@@ -119,11 +119,11 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapChangeSourceButton() {
-        coordinator.presentSwappingTokenList(swapDirection: .toDestination(initialWallet))
+        coordinator?.presentSwappingTokenList(swapDirection: .toDestination(initialWallet))
     }
 
     func userDidTapChangeDestinationButton() {
-        coordinator.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
+        coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
     func didTapMainButton() {
@@ -155,7 +155,7 @@ final class ExpressViewModel: ObservableObject {
 private extension ExpressViewModel {
     @MainActor
     func openSuccessView(sentTransactionData: SentExpressTransactionData) {
-        coordinator.presentSuccessView(data: sentTransactionData)
+        coordinator?.presentSuccessView(data: sentTransactionData)
     }
 
     func openApproveView() {
@@ -163,7 +163,7 @@ private extension ExpressViewModel {
             return
         }
 
-        coordinator.presentApproveView()
+        coordinator?.presentApproveView()
     }
 
     func openFeeSelectorView() {
@@ -172,12 +172,12 @@ private extension ExpressViewModel {
             return
         }
 
-        coordinator.presentFeeSelectorView()
+        coordinator?.presentFeeSelectorView()
     }
 
     func presentProviderSelectorView() {
         Analytics.log(.swapProviderClicked)
-        coordinator.presentProviderSelectorView()
+        coordinator?.presentProviderSelectorView()
     }
 }
 
@@ -600,7 +600,7 @@ extension ExpressViewModel: NotificationTapDelegate {
             return
         }
 
-        coordinator.presentNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.presentNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
