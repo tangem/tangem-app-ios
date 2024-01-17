@@ -22,6 +22,14 @@ struct SendFeeView: View {
             }
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
+
+            GroupedSection(viewModel.subtractFromAmountModel) {
+                DefaultToggleRowView(viewModel: $0)
+            } footer: {
+                #warning("[REDACTED_TODO_COMMENT]")
+                DefaultFooterView(Localization.sendAmountSubstractFooter(100))
+            }
+            .backgroundColor(Colors.Background.action)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
