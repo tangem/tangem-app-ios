@@ -53,7 +53,7 @@ class WalletModel {
     var feeTokenItem: TokenItem {
         let blockchain = blockchainNetwork.blockchain
 
-        switch blockchain.feePaidCurrency(for: amountType) {
+        switch blockchain.feePaidCurrency {
         case .coin:
             return .blockchain(blockchain)
         case .token(let value):
