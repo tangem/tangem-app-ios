@@ -70,16 +70,16 @@ struct MainHeaderView: View {
 
     @ViewBuilder private var subtitleText: some View {
         Group {
-            if viewModel.subtitleContainsSensitiveInfo {
-                SensitiveText(viewModel.subtitleInfo.messages.first ?? "")
-            } else {
-                HStack(spacing: 6) {
-                    ForEach(viewModel.subtitleInfo.messages, id: \.self) { message in
+            HStack(spacing: 6) {
+                ForEach(viewModel.subtitleInfo.messages, id: \.self) { message in
+                    if viewModel.subtitleContainsSensitiveInfo {
+                        SensitiveText(message)
+                    } else {
                         Text(message)
+                    }
 
-                        if message != viewModel.subtitleInfo.messages.last {
-                            SubtitleSeparator()
-                        }
+                    if message != viewModel.subtitleInfo.messages.last {
+                        SubtitleSeparator()
                     }
                 }
             }
