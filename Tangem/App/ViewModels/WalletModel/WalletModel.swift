@@ -208,7 +208,7 @@ class WalletModel {
                     transactionAmountTypeName: tokenItem.name,
                     feeAmountTypeName: feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
-                    feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled, // [REDACTED_TODO_COMMENT]
+                    feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled,
                     networkName: tokenItem.networkName
                 )
             )
