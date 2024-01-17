@@ -13,7 +13,7 @@ struct SendCurrencyView: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
 
     private var didTapChangeCurrency: (() -> Void)?
-    private var didTapMaxAmountAction: (() -> Void)?
+    private var maxAmountAction: (() -> Void)?
 
     init(viewModel: SendCurrencyViewModel, decimalValue: Binding<DecimalNumberTextField.DecimalValue?>) {
         self.viewModel = viewModel
@@ -28,7 +28,7 @@ struct SendCurrencyView: View {
                 font: Fonts.Regular.title1
             )
             .maximumFractionDigits(viewModel.maximumFractionDigits)
-            .didTapMaxAmount { didTapMaxAmountAction?() }
+            .maxAmountAction(maxAmountAction)
             .simultaneousGesture(TapGesture().onEnded {
                 viewModel.textFieldDidTapped()
             })
@@ -40,8 +40,8 @@ struct SendCurrencyView: View {
 // MARK: - Setupable
 
 extension SendCurrencyView: Setupable {
-    func didTapMaxAmount(_ action: @escaping () -> Void) -> Self {
-        map { $0.didTapMaxAmountAction = action }
+    func maxAmountAction(_ action: (() -> Void)?) -> Self {
+        map { $0.maxAmountAction = action }
     }
 
     func didTapChangeCurrency(_ block: @escaping () -> Void) -> Self {
