@@ -105,7 +105,14 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, emailDataProvider: EmailDataProvider, coordinator: SendRoutable) {
+    init(
+        walletName: String,
+        walletModel: WalletModel,
+        transactionSigner: TransactionSigner,
+        sendType: SendType,
+        emailDataProvider: EmailDataProvider,
+        coordinator: SendRoutable
+    ) {
         self.coordinator = coordinator
         self.sendType = sendType
         self.walletModel = walletModel
@@ -121,8 +128,6 @@ final class SendViewModel: ObservableObject {
         self.steps = steps
         step = firstStep
 
-        #warning("[REDACTED_TODO_COMMENT]")
-        let walletName = "Wallet Name"
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
         if let tokenId = walletModel.tokenItem.id {
