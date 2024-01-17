@@ -59,6 +59,7 @@ struct SupportedBlockchains {
     private func testableBlockchains() -> Set<Blockchain> {
         [
             .veChain(testnet: false),
+            .xdc(testnet: false),
         ]
     }
 
@@ -135,6 +136,7 @@ struct SupportedBlockchains {
             .near(curve: ed25519Curve(for: version), testnet: true),
             .decimal(testnet: true),
             .veChain(testnet: true),
+            .xdc(testnet: true),
         ]
     }
 
