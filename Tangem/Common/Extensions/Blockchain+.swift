@@ -143,6 +143,11 @@ private extension Blockchain {
             return "decimal"
         case .veChain:
             return "vechain"
+        case .xdc:
+            switch type {
+            case .network: return "xdc-network"
+            case .coin: return "xdce-crowd-sale"
+            }
         }
     }
 
