@@ -12,7 +12,7 @@ struct ProviderRowViewModel: Identifiable {
     var id: Int { provider.hashValue }
 
     let provider: Provider
-    let shouldAddPrefix: Bool
+    let providerTitleType: ProviderTitleType
     let isDisabled: Bool
     let badge: Badge?
     let subtitles: [Subtitle]
@@ -21,7 +21,7 @@ struct ProviderRowViewModel: Identifiable {
 
     init(
         provider: Provider,
-        shouldAddPrefix: Bool,
+        providerTitleType: ProviderTitleType = .onlyName,
         isDisabled: Bool,
         badge: Badge?,
         subtitles: [Subtitle],
@@ -29,7 +29,7 @@ struct ProviderRowViewModel: Identifiable {
         tapAction: (() -> Void)? = nil
     ) {
         self.provider = provider
-        self.shouldAddPrefix = shouldAddPrefix
+        self.providerTitleType = providerTitleType
         self.isDisabled = isDisabled
         self.badge = badge
         self.subtitles = subtitles
@@ -39,6 +39,11 @@ struct ProviderRowViewModel: Identifiable {
 }
 
 extension ProviderRowViewModel {
+    enum ProviderTitleType {
+        case withPrefix
+        case onlyName
+    }
+
     struct Provider: Hashable {
         let id: String
         let iconURL: URL?
