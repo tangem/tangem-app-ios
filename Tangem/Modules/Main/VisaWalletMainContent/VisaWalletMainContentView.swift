@@ -10,6 +10,7 @@ import SwiftUI
 
 struct VisaWalletMainContentView: View {
     @ObservedObject var viewModel: VisaWalletMainContentViewModel
+
     var body: some View {
         VStack(spacing: 14) {
             MainButton(
@@ -54,6 +55,9 @@ struct VisaWalletMainContentView: View {
             )
         }
         .padding(.horizontal, 16)
+        .bottomSheet(item: $viewModel.balancesAndLimitsViewModel, settings: .init(backgroundColor: Colors.Background.tertiary)) { model in
+            VisaBalancesLimitsBottomSheetView(viewModel: model)
+        }
     }
 }
 
