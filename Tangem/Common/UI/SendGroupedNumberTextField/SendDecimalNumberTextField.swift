@@ -13,7 +13,7 @@ struct SendDecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     private var maximumFractionDigits: Int
     private let font: Font
-    private var didTapMaxAmountAction: (() -> Void)?
+    private var maxAmountAction: (() -> Void)?
 
     init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>, maximumFractionDigits: Int, font: Font) {
         _decimalValue = decimalValue
@@ -24,9 +24,11 @@ struct SendDecimalNumberTextField: View {
     var body: some View {
         if #available(iOS 15, *) {
             FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits, font: font) {
-                Button(action: { didTapMaxAmountAction?() }) {
-                    Text(Localization.sendMaxAmountLabel)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                if let action = maxAmountAction {
+                    Button(action: action) {
+                        Text(Localization.sendMaxAmountLabel)
+                            .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                    }
                 }
             }
             .maximumFractionDigits(maximumFractionDigits)
@@ -48,7 +50,7 @@ extension SendDecimalNumberTextField: Setupable {
         map { $0.maximumFractionDigits = digits }
     }
 
-    func didTapMaxAmount(_ action: @escaping () -> Void) -> Self {
-        map { $0.didTapMaxAmountAction = action }
+    func maxAmountAction(_ action: (() -> Void)?) -> Self {
+        map { $0.maxAmountAction = action }
     }
 }
