@@ -46,6 +46,7 @@ extension Analytics {
         case transactionFeeMin = "Min"
         case transactionFeeNormal = "Normal"
         case transactionFeeMax = "Max"
+        case transactionFeeCustom = "Custom"
 
         case signInTypeCard = "Card"
         case signInTypeBiometrics = "Biometric"
