@@ -29,13 +29,14 @@ public extension Wallet {
             return false
         }
 
+        return hasFeeCurrency(amountType: amountType)
+    }
+
+    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
         let feeAmountType = feeAmountType(transactionAmountType: amountType)
         let feeAmount = amounts[feeAmountType]?.value ?? 0
-        if feeAmount <= 0 { // not enough fee
-            return false
-        }
 
-        return true
+        return feeAmount > 0
     }
 
     private var hasPendingTransactions: Bool {
