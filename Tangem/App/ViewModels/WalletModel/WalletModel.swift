@@ -50,6 +50,19 @@ class WalletModel {
         }
     }
 
+    var feeTokenItem: TokenItem {
+        let blockchain = blockchainNetwork.blockchain
+
+        switch blockchain.feePaidCurrency(for: amountType) {
+        case .coin:
+            return .blockchain(blockchain)
+        case .token(let value):
+            return .token(value, blockchain)
+        case .sameCurrency:
+            return tokenItem
+        }
+    }
+
     var name: String {
         switch amountType {
         case .coin, .reserve:
@@ -230,19 +243,6 @@ class WalletModel {
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
-
-    private var feeTokenItem: TokenItem {
-        let blockchain = blockchainNetwork.blockchain
-
-        switch blockchain.feePaidCurrency(for: amountType) {
-        case .coin:
-            return .blockchain(blockchain)
-        case .token(let value):
-            return .token(value, blockchain)
-        case .sameCurrency:
-            return tokenItem
-        }
-    }
 
     deinit {
         AppLog.shared.debug("🗑 \(self) deinit")
