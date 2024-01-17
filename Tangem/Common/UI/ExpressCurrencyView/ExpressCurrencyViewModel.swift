@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemExpress
 
-class ExpressCurrencyViewModel: ObservableObject, Identifiable {
+final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     // Header view
     @Published private(set) var titleState: TitleState
     @Published private(set) var balanceState: BalanceState
@@ -26,6 +26,7 @@ class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
     private var walletDidChangeSubscription: AnyCancellable?
     private var highPriceTask: Task<Void, Error>?
+    private var balanceConvertTask: Task<Void, Error>?
 
     init(
         titleState: TitleState,
@@ -95,7 +96,8 @@ class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
         update(fiatAmountState: .loading)
 
-        runTask(in: self) { [currencyId] viewModel in
+        balanceConvertTask?.cancel()
+        balanceConvertTask = runTask(in: self) { [currencyId] viewModel in
             let fiatValue = try await BalanceConverter().convertToFiat(value: expectAmount, from: currencyId)
             let formatted = BalanceFormatter().formatFiatBalance(fiatValue)
 
@@ -116,6 +118,7 @@ class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             return
         }
 
+        highPriceTask?.cancel()
         highPriceTask = runTask(in: self) { viewModel in
             let priceImpactCalculator = HighPriceImpactCalculator(sourceCurrencyId: sourceCurrencyId, destinationCurrencyId: destinationCurrencyId)
             let result = try await priceImpactCalculator.isHighPriceImpact(
