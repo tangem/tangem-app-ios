@@ -20,14 +20,14 @@ extension WalletModel {
         }
 
         case cantSignLongTransactions
-        case hasPendingCoinTx(symbol: String)
+        case hasPendingFeeCurrencyTx(symbol: String)
         case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
 
         var description: String {
             switch self {
             case .cantSignLongTransactions:
                 return Localization.warningLongTransactionMessage
-            case .hasPendingCoinTx(let symbol):
+            case .hasPendingFeeCurrencyTx(let symbol):
                 return Localization.warningSendBlockedPendingTransactionsMessage(symbol)
             case .notEnoughFeeForTransaction(let configuration):
                 return Localization.warningSendBlockedFundsForFeeMessage(
