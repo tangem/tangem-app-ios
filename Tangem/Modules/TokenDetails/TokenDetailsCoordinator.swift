@@ -58,7 +58,12 @@ class TokenDetailsCoordinator: CoordinatorObject {
             swapPairService = nil
         }
 
-        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel, swapPairService: swapPairService, contextDataProvider: options.cardModel)
+        let notificationManager = SingleTokenNotificationManager(
+            walletModel: options.walletModel,
+            userTokensManager: options.userTokensManager,
+            swapPairService: swapPairService,
+            contextDataProvider: options.cardModel
+        )
 
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.cardModel,
@@ -137,7 +142,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
         guard let cardViewModel = userWalletModel as? CardViewModel else {
             return
@@ -262,7 +267,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
                 return
             }
 
-            self?.openNetworkCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
+            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
         }
 
         let factory = CommonExpressModulesFactory(inputModel: input)
