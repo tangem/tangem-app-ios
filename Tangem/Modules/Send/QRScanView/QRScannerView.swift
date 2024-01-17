@@ -59,8 +59,6 @@ struct QRScanView: View {
 
     @Environment(\.presentationMode) var presentationMode
 
-    @State private var isFlashActive = false
-
     private let viewfinderCornerRadius: CGFloat = 2
     private let viewfinderPadding: CGFloat = 55
 
