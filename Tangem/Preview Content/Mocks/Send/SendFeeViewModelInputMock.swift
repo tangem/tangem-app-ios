@@ -27,5 +27,11 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         ])
     }
 
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
     func didSelectFeeOption(_ feeOption: FeeOption) {}
+
+    func didChangeFeeInclusion(_ feeIncluded: Bool) {}
 }
