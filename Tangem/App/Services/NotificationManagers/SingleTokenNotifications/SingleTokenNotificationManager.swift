@@ -15,6 +15,7 @@ final class SingleTokenNotificationManager {
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
+    private let userTokensManager: UserTokensManager
     private let swapPairService: SwapPairService?
     private weak var delegate: NotificationTapDelegate?
 
@@ -31,8 +32,14 @@ final class SingleTokenNotificationManager {
         return !AppSettings.shared.tangemExpressTokenPromotionDismissed && TangemExpressPromotionUtility().isPromotionRunning
     }
 
-    init(walletModel: WalletModel, swapPairService: SwapPairService?, contextDataProvider: AnalyticsContextDataProvider?) {
+    init(
+        walletModel: WalletModel,
+        userTokensManager: UserTokensManager,
+        swapPairService: SwapPairService?,
+        contextDataProvider: AnalyticsContextDataProvider?
+    ) {
         self.walletModel = walletModel
+        self.userTokensManager = userTokensManager
         self.swapPairService = swapPairService
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
@@ -77,7 +84,11 @@ final class SingleTokenNotificationManager {
         }
 
         if let sendBlockedReason = walletModel.sendBlockedReason {
-            events.append(.event(for: sendBlockedReason))
+            let isFeeCurrencyPurchaseAllowed = userTokensManager.contains(
+                walletModel.feeTokenItem,
+                derivationPath: walletModel.blockchainNetwork.derivationPath
+            )
+            events.append(.event(for: sendBlockedReason, isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed))
         }
 
         let inputs = events.map {
