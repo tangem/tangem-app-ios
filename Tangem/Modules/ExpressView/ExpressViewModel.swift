@@ -186,14 +186,18 @@ private extension ExpressViewModel {
 private extension ExpressViewModel {
     func setupView() {
         sendCurrencyViewModel = SendCurrencyViewModel(
-            maximumFractionDigits: interactor.getSender().decimalCount,
-            canChangeCurrency: interactor.getSender().id != initialWallet.id,
-            tokenIconState: .loading
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingFromTitle),
+                canChangeCurrency: interactor.getSender().id != initialWallet.id
+            ),
+            maximumFractionDigits: interactor.getSender().decimalCount
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            canChangeCurrency: interactor.getDestination()?.id != initialWallet.id,
-            tokenIconState: .loading
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
+            )
         )
     }
 
@@ -285,9 +289,9 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _),
              .restriction(.notEnoughAmountForFee, _):
-            sendCurrencyViewModel?.update(headerState: .insufficientFunds)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
         default:
-            sendCurrencyViewModel?.update(headerState: .header)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingFromTitle))
         }
     }
 
@@ -297,15 +301,15 @@ private extension ExpressViewModel {
         receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
     }
 
-    func updateReceiveCurrencyValue(expectAmount: Decimal?) {
-        receiveCurrencyViewModel?.updateReceiveCurrencyValue(
+    func updateFiatValue(expectAmount: Decimal?) {
+        receiveCurrencyViewModel?.updateFiatValue(
             expectAmount: expectAmount,
             tokenItem: interactor.getDestination()?.tokenItem
         )
     }
 
     func updateHighPricePercentLabel(quote: ExpressQuote?) {
-        receiveCurrencyViewModel?.updateHighPricePercentLabel(
+        receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(
             quote: quote,
             sourceCurrencyId: interactor.getSender().tokenItem.currencyId,
             destinationCurrencyId: interactor.getDestination()?.tokenItem.currencyId
@@ -335,7 +339,7 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             stopTimer()
 
-            updateReceiveCurrencyValue(expectAmount: 0)
+            updateFiatValue(expectAmount: 0)
             updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
@@ -345,12 +349,12 @@ private extension ExpressViewModel {
             guard type == .full else { return }
 
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
-            receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .loading)
             updateHighPricePercentLabel(quote: .none)
 
         case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-            updateReceiveCurrencyValue(expectAmount: quote?.expectAmount)
+            updateFiatValue(expectAmount: quote?.expectAmount)
             updateHighPricePercentLabel(quote: quote)
 
             // restart timer for pending approve transaction
@@ -365,7 +369,7 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             restartTimer()
 
-            updateReceiveCurrencyValue(expectAmount: quote.expectAmount)
+            updateFiatValue(expectAmount: quote.expectAmount)
             updateHighPricePercentLabel(quote: quote)
         }
     }
@@ -478,17 +482,6 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToSwappingTokenIconViewModelState(wallet: WalletModel?) -> SwappingTokenIconView.State {
-        guard let wallet = wallet else {
-            return .loading
-        }
-
-        return .icon(
-            TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom),
-            symbol: wallet.tokenItem.currencySymbol
-        )
-    }
-
     func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
         guard let selectedProvider = await interactor.getSelectedProvider() else {
             return nil
