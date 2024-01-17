@@ -134,8 +134,11 @@ private struct SendViewBackButton: View {
 // MARK: - Preview
 
 struct SendView_Preview: PreviewProvider {
+    static let card = FakeUserWalletModel.wallet3Cards
+
     static let viewModel = SendViewModel(
-        walletModel: FakeUserWalletModel.wallet3Cards.walletModelsManager.walletModels.first!,
+        walletName: card.userWalletName,
+        walletModel: card.walletModelsManager.walletModels.first!,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: CardViewModel.mock!,
