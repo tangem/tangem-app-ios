@@ -580,7 +580,7 @@ extension ExpressViewModel: NotificationTapDelegate {
         switch action {
         case .refresh:
             interactor.refresh(type: .full)
-        case .openNetworkCurrency:
+        case .openFeeCurrency:
             openNetworkCurrency()
         default: return
         }
