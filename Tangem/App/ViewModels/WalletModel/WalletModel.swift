@@ -203,7 +203,7 @@ class WalletModel {
         }
 
         // no fee
-        if !canSendTransaction, !currentAmount.isZero {
+        if !wallet.hasFeeCurrency(amountType: amountType), !currentAmount.isZero {
             return .notEnoughFeeForTransaction(
                 configuration: .init(
                     transactionAmountTypeName: tokenItem.name,
