@@ -20,7 +20,6 @@ struct SendFeeView: View {
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
-            .verticalPadding(0)
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
         }
