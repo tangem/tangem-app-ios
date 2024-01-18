@@ -12,17 +12,24 @@ struct MainHeaderSubtitleProviderFactory {
     func provider(for userWalletModel: UserWalletModel, isMultiWallet: Bool) -> MainHeaderSubtitleProvider {
         let isUserWalletLocked = userWalletModel.isUserWalletLocked
 
-        guard isMultiWallet else {
-            return SingleWalletMainHeaderSubtitleProvider(
-                isUserWalletLocked: isUserWalletLocked,
-                dataSource: userWalletModel.walletModelsManager.walletModels.first
+        if isMultiWallet {
+            return MultiWalletMainHeaderSubtitleProvider(
+                isUserWalletLocked: userWalletModel.isUserWalletLocked,
+                areWalletsImported: userWalletModel.userWallet.card.wallets.contains(where: { $0.isImported ?? false }),
+                dataSource: userWalletModel
             )
         }
 
-        return MultiWalletMainHeaderSubtitleProvider(
-            isUserWalletLocked: userWalletModel.isUserWalletLocked,
-            areWalletsImported: userWalletModel.userWallet.card.wallets.contains(where: { $0.isImported ?? false }),
-            dataSource: userWalletModel
+        if userWalletModel.config is VisaConfig {
+            return VisaWalletMainHeaderSubtitleProvider(
+                isUserWalletLocked: isUserWalletLocked,
+                dataSource: userWalletModel.walletModelsManager.walletModels.first { $0.isToken }
+            )
+        }
+
+        return SingleWalletMainHeaderSubtitleProvider(
+            isUserWalletLocked: isUserWalletLocked,
+            dataSource: userWalletModel.walletModelsManager.walletModels.first
         )
     }
 }
