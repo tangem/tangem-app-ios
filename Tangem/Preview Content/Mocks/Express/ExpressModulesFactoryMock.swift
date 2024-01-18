@@ -120,7 +120,7 @@ private extension ExpressModulesFactoryMock {
     var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
-    var signer: TransactionSigner { userWalletModel.signer }
+    var signer: TransactionSigner { TransactionSignerMock() }
     var logger: Logger { AppLog.shared }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
