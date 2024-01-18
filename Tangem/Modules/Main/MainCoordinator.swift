@@ -52,17 +52,14 @@ class MainCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
-        let rateAppService = CommonRateAppService()
         let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
-            rateAppService: rateAppService,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
         )
 
         swipeDiscoveryHelper.delegate = viewModel
-        rateAppService.delegate = viewModel
         mainViewModel = viewModel
     }
 }

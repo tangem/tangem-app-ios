@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol SingleWalletMainContentDelegate: MainNotificationsObserver {
+protocol SingleWalletMainContentDelegate: AnyObject {
     func present(actionSheet: ActionSheetBinder)
 }
