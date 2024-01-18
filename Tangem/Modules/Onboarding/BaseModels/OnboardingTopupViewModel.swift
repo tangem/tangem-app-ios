@@ -121,7 +121,7 @@ extension OnboardingTopupViewModel {
         Analytics.log(.buttonBuyCrypto)
 
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
-            coordinator.openBankWarning {
+            coordinator?.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
                 self.openP2PTutorial()
@@ -134,18 +134,18 @@ extension OnboardingTopupViewModel {
     func openQR() {
         Analytics.log(.onboardingButtonShowTheWalletAddress)
 
-        coordinator.openQR(shareAddress: shareAddress, address: walletAddress, qrNotice: qrNoticeMessage)
+        coordinator?.openQR(shareAddress: shareAddress, address: walletAddress, qrNotice: qrNoticeMessage)
     }
 
     private func openBuyCrypto() {
         guard let url = buyCryptoURL else { return }
 
-        coordinator.openCryptoShop(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+        coordinator?.openCryptoShop(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
             self?.updateCardBalance()
         }
     }
 
     private func openP2PTutorial() {
-        coordinator.openP2PTutorial()
+        coordinator?.openP2PTutorial()
     }
 }
