@@ -50,7 +50,7 @@ struct ExpressFeeSelectorView_Preview: PreviewProvider {
                 .offset(y: -200)
 
                 NavHolder()
-                    .bottomSheet(item: $coordinator.item) {
+                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
                         ExpressFeeSelectorView(viewModel: $0)
                     }
             }
@@ -61,7 +61,11 @@ struct ExpressFeeSelectorView_Preview: PreviewProvider {
         @Published var item: ExpressFeeSelectorViewModel?
 
         func toggleItem() {
-            // [REDACTED_TODO_COMMENT]
+            if item == nil {
+                item = ExpressModulesFactoryMock().makeExpressFeeSelectorViewModel(coordinator: self)
+            } else {
+                item = nil
+            }
         }
 
         func closeExpressFeeSelector() {
