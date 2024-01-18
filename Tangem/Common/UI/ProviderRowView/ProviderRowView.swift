@@ -42,19 +42,12 @@ struct ProviderRowView: View {
     private var titleView: some View {
         HStack(alignment: .center, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                switch viewModel.titleFormat {
-                case prefixAndName:
-                    Text(Localization.expressByProvider)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                switch viewModel.providerTitle {
+                case .attributed(let text):
+                    Text(text)
 
-                    Text(viewModel.provider.name)
-                        .style(
-                            Fonts.Regular.footnote,
-                            color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
-                        )
-
-                case .name:
-                    Text(viewModel.provider.name)
+                case .text(let text):
+                    Text(text)
                         .style(
                             Fonts.Bold.footnote,
                             color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.primary1
@@ -152,9 +145,9 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
                 badge: .permissionNeeded,
                 subtitles: [.percent("0.7%", signType: .positive)]
             ),
-            viewModel(titleFormat: .name,badge: .none, isDisabled: true),
-            viewModel(titleFormat: .name,badge: .bestRate, isDisabled: true),
-            viewModel(titleFormat: .name,badge: .permissionNeeded, isDisabled: true),
+            viewModel(titleFormat: .name, badge: .none, isDisabled: true),
+            viewModel(titleFormat: .name, badge: .bestRate, isDisabled: true),
+            viewModel(titleFormat: .name, badge: .permissionNeeded, isDisabled: true),
         ]) {
             ProviderRowView(viewModel: $0)
         }
