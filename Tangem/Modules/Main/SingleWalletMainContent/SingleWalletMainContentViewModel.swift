@@ -58,3 +58,15 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             .store(in: &bag)
     }
 }
+
+// MARK: - MainViewPage protocol conformance
+
+extension SingleWalletMainContentViewModel: MainViewPage {
+    func onPageAppear() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func onPageDisappear() {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
