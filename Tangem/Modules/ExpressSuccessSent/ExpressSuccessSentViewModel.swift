@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-import TangemSwapping
+import TangemExpress
 
 final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
@@ -37,7 +37,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
     private let providerFormatter: ExpressProviderFormatter
-    private let feeFormatter: SwappingFeeFormatter
+    private let feeFormatter: FeeFormatter
     private unowned let coordinator: ExpressSuccessSentRoutable
 
     init(
@@ -46,7 +46,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
         providerFormatter: ExpressProviderFormatter,
-        feeFormatter: SwappingFeeFormatter,
+        feeFormatter: FeeFormatter,
         coordinator: ExpressSuccessSentRoutable
     ) {
         self.data = data

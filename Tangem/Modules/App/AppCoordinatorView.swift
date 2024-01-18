@@ -50,7 +50,7 @@ struct AppCoordinatorView: CoordinatorView {
         }
         .bottomSheet(
             item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
-            settings: .init(backgroundColor: Colors.Background.primary)
+            backgroundColor: Colors.Background.primary
         ) {
             InformationHiddenBalancesView(viewModel: $0)
         }
