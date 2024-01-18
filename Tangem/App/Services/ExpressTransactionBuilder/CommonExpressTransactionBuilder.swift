@@ -8,7 +8,7 @@
 
 import Foundation
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
     func makeTransaction(wallet: WalletModel, data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
@@ -150,7 +150,8 @@ private extension CommonExpressTransactionBuilder {
              .octa,
              .chia,
              .near,
-             .decimal:
+             .decimal,
+             .veChain:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
