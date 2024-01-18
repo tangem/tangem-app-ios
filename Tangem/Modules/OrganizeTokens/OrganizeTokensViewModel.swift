@@ -142,7 +142,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, _ in
-                viewModel?.coordinator.didTapSaveButton()
+                viewModel.coordinator?.didTapSaveButton()
             }
             .store(in: &bag)
 
