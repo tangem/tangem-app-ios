@@ -18,7 +18,7 @@ struct ExpressCurrencyView<Content: View>: View {
     private let tokenIconSize = CGSize(width: 40, height: 40)
     private let chevronIconSize = CGSize(width: 9, height: 9)
     private var didTapChangeCurrency: () -> Void = {}
-    private var didTapPriceChangePercent: () -> Void = {}
+    private var didTapPriceChangePercent: (() -> Void)?
 
     @State private var symbolSize: CGSize = .zero
 
@@ -110,7 +110,7 @@ struct ExpressCurrencyView<Content: View>: View {
                     isSensitiveText: false
                 )
 
-                if let priceChangePercent = viewModel.priceChangePercent {
+                if let priceChangePercent = viewModel.priceChangePercent, let didTapPriceChangePercent {
                     Button(action: { didTapPriceChangePercent() }) {
                         HStack(spacing: 2) {
                             Text(priceChangePercent)
