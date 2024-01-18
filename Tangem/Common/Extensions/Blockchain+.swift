@@ -141,6 +141,8 @@ private extension Blockchain {
             }
         case .decimal:
             return "decimal"
+        case .veChain:
+            return "vechain"
         }
     }
 
