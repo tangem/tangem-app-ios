@@ -52,14 +52,18 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = input.selectedFeeOption
         feeRowViewModels = makeFeeRowViewModels([:])
 
-        let isFeeIncludedBinding = BindingValue<Bool>(root: self, default: isFeeIncluded) {
-            $0.isFeeIncluded
-        } set: {
-            $0.isFeeIncluded = $1
-            $0.input.didChangeFeeInclusion($1)
-        }
         if input.canIncludeFeeIntoAmount {
-            subtractFromAmountModel = DefaultToggleRowViewModel(title: Localization.sendAmountSubstract, isDisabled: false, isOn: isFeeIncludedBinding)
+            let isFeeIncludedBinding = BindingValue<Bool>(root: self, default: isFeeIncluded) {
+                $0.isFeeIncluded
+            } set: {
+                $0.isFeeIncluded = $1
+                $0.input.didChangeFeeInclusion($1)
+            }
+            subtractFromAmountModel = DefaultToggleRowViewModel(
+                title: Localization.sendAmountSubstract,
+                isDisabled: false,
+                isOn: isFeeIncludedBinding
+            )
         }
 
         bind()
@@ -74,8 +78,8 @@ class SendFeeViewModel: ObservableObject {
             .store(in: &bag)
 
         input.isFeeIncludedPublisher
-            .sink { [weak self] feeIncluded in
-                self?.isFeeIncluded = feeIncluded
+            .sink { [weak self] isFeeIncluded in
+                self?.isFeeIncluded = isFeeIncluded
             }
             .store(in: &bag)
 

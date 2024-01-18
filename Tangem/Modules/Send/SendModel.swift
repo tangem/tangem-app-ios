@@ -259,7 +259,7 @@ class SendModel {
         let amount: Amount?
         let error: Error?
 
-        if let newAmount = newAmount,
+        if let newAmount,
            let fee,
            isFeeIncluded {
             amount = newAmount - fee.amount
