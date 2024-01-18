@@ -481,6 +481,7 @@
 "send_total_subtitle_format" = "%@ wird gesendet";
 "send_transaction_success" = "Die Transaktion wurde erfolgreich signiert und an den Blockchain-Knoten gesendet. Die Walletbilanz wird aktualisiert";
 "send_validation_invalid_address" = "Ungültige Adresse";
+"send_wallet_balance_format" = "%1$@ (%2$@)";
 "sent_transaction_sent_title" = "Transaction sent";
 "story_awe_description" = "Store your crypto assets secure while keeping private keys contained in your card";
 "story_awe_title" = "Revolutionary Hardware Wallet";
