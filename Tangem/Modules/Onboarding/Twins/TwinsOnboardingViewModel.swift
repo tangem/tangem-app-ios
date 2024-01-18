@@ -331,7 +331,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 case (.first, .second):
                     if let originalUserWallet = viewModel.input.userWalletToDelete {
                         viewModel.userWalletRepository.delete(
-                            UserWalletId(value: originalUserWallet.userWalletId), logoutIfNeeded: false
+                            UserWalletId(value: originalUserWallet.userWalletId),
+                            logoutIfNeeded: false
                         )
                     }
                     fallthrough
