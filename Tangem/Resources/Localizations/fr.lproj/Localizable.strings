@@ -94,6 +94,7 @@
 "common_like" = "Like";
 "common_locked" = "Locked";
 "common_main_network" = "Main network";
+"common_network_fee_title" = "Commissions du réseau";
 "common_next" = "Next";
 "common_no" = "No";
 "common_no_address" = "No address";
@@ -188,6 +189,7 @@
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You haven't added any tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Cannot be swapped for %@";
+"express_by_provider" = "Provided by %@";
 "express_cex_fee_explanation" = "Additionally, the network fee for sending the exchanged funds back to your address is included in the rate";
 "express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token swaps";
@@ -445,7 +447,6 @@
 "send_max_fee" = "Max fee";
 "send_max_fee_footer" = "Maximum fee amount";
 "send_memo_destination_tag_error" = "Numbers only for Destination Tag";
-"send_network_fee_title" = "Commissions du réseau";
 "send_network_fee_warning_content" = "Sending amount will be reduced to cover the selected fee level";
 "send_network_fee_warning_title" = "Network fee coverage";
 "send_notification_exceed_balance_text" = "Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance";
