@@ -167,34 +167,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .sink()
             .store(in: &bag)
 
-        let userWalletNotificationPublisher = userWalletNotificationManager
-            .notificationPublisher
+        userWalletNotificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
-            .share(replay: 1)
-
-        userWalletNotificationPublisher
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let tokensNotificationPublisher = tokensNotificationManager
-            .notificationPublisher
+        tokensNotificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
-            .share(replay: 1)
-
-        tokensNotificationPublisher
             .removeDuplicates()
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        [userWalletNotificationPublisher, tokensNotificationPublisher]
-            .combineLatest()
-            .map { $0.flatMap { $0 } }
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, notificationInputs in
-                viewModel.delegate?.didChangeNotificationInputs(notificationInputs, for: viewModel.userWalletModel.userWalletId)
-            }
             .store(in: &bag)
     }
 
