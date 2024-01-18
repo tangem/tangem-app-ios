@@ -55,6 +55,7 @@ struct SendView: View {
                     if viewModel.showQRCodeButton {
                         Button(action: viewModel.scanQRCode) {
                             Assets.qrCode.image
+                                .renderingMode(.template)
                                 .foregroundColor(Colors.Icon.primary1)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
@@ -125,6 +126,8 @@ private struct SendViewBackButton: View {
                 .overlay(
                     Assets.arrowLeftMini
                         .image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.primary1)
                 )
                 .frame(size: CGSize(bothDimensions: height))
         }
