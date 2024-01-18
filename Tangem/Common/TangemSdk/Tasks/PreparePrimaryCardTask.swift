@@ -13,11 +13,13 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     var shouldAskForAccessCode: Bool { false }
 
     private let curves: [EllipticCurve]
+    private let shouldReset: Bool
     private let mnemonic: Mnemonic?
     private var commandBag: (any CardSessionRunnable)?
 
-    init(curves: [EllipticCurve], mnemonic: Mnemonic?) {
+    init(curves: [EllipticCurve], mnemonic: Mnemonic?, shouldReset: Bool) {
         self.curves = curves
+        self.shouldReset = shouldReset
         self.mnemonic = mnemonic
     }
 
@@ -44,24 +46,41 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             session.updateConfig(with: sdkConfig)
         }
 
-        createMultiWallet(in: session, completion: completion)
+        if card.wallets.isEmpty {
+            createMultiWallet(in: session, completion: completion)
+        } else if shouldReset {
+            resetCard(in: session, completion: completion)
+        } else {
+            completion(.failure(.walletAlreadyCreated))
+        }
     }
 
     private func createMultiWallet(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
-        guard let card = session.environment.card else {
-            completion(.failure(.missingPreflightRead))
-            return
-        }
-
-        let existingCurves = card.wallets.map { $0.curve }
-        let curvesToCreate = curves.filter { !existingCurves.contains($0) }
-
-        let command = CreateMultiWalletTask(curves: curvesToCreate, mnemonic: mnemonic)
+        let command = CreateMultiWalletTask(curves: curves, mnemonic: mnemonic)
         commandBag = command
         command.run(in: session) { result in
             switch result {
             case .success:
-                self.readPrimaryCardIfNeeded(in: session, completion: completion)
+                self.checkIfAllWalletsCreated(in: session, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    private func checkIfAllWalletsCreated(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        let command = ReadWalletsListCommand()
+        commandBag = command
+        command.run(in: session) { result in
+            switch result {
+            case .success(let response):
+                let validator = CardInitializationValidator(expectedCurves: self.curves)
+
+                if validator.validateWallets(response.wallets) {
+                    self.readPrimaryCardIfNeeded(in: session, completion: completion)
+                } else {
+                    completion(.failure(.walletAlreadyCreated))
+                }
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -91,6 +110,19 @@ class PreparePrimaryCardTask: CardSessionRunnable {
 
                 let response = PreparePrimaryCardTaskResponse(card: card, primaryCard: primaryCard)
                 completion(.success(response))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    private func resetCard(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        let command = ResetToFactorySettingsTask()
+        commandBag = command
+        command.run(in: session) { result in
+            switch result {
+            case .success:
+                self.createMultiWallet(in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
