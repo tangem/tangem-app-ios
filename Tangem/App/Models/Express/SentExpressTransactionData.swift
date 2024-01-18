@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 
 struct SentExpressTransactionData {
     let hash: String
