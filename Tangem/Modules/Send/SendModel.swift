@@ -255,8 +255,16 @@ class SendModel {
         let amount: Amount?
         let error: Error?
 
+        if let newAmount = _amount.value,
+           let fee = fee.value,
+
+           isFeeIncluded {
+            amount = newAmount - fee.amount
+        } else {
+            amount = _amount.value
+        }
+
         #warning("validate")
-        amount = _amount.value
         error = nil
 
         self.amount.send(amount)
@@ -328,10 +336,14 @@ class SendModel {
 
         _selectedFeeOption.send(feeOption)
         fee.send(newFee)
+
+        validateAmount()
     }
 
     func didChangeFeeInclusion(_ isFeeIncluded: Bool) {
         _isFeeIncluded.send(isFeeIncluded)
+
+        validateAmount()
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
@@ -431,6 +443,19 @@ extension SendModel: SendFeeViewModelInput {
 
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
         _feeValues.eraseToAnyPublisher()
+    }
+
+    var canIncludeFeeIntoAmount: Bool {
+        if !sendType.canIncludeFeeIntoAmount {
+            return false
+        }
+
+        #warning("[REDACTED_TODO_COMMENT]")
+        if walletModel.tokenItem.isToken {
+            return false
+        }
+
+        return true
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
