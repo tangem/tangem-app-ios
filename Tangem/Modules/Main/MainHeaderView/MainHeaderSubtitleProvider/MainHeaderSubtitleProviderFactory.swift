@@ -20,6 +20,13 @@ struct MainHeaderSubtitleProviderFactory {
             )
         }
 
+        if userWalletModel.config is VisaConfig {
+            return VisaWalletMainHeaderSubtitleProvider(
+                isUserWalletLocked: isUserWalletLocked,
+                dataSource: userWalletModel.walletModelsManager.walletModels.first { $0.isToken }
+            )
+        }
+
         return SingleWalletMainHeaderSubtitleProvider(
             isUserWalletLocked: isUserWalletLocked,
             dataSource: userWalletModel.walletModelsManager.walletModels.first
