@@ -15,15 +15,18 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = MultiWalletMainContentRoutable
+    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable
     let coordinator: MainContentRoutable
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, mainViewDelegate: MainViewDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
-        let containsDefaultToken = (model.config.defaultBlockchains.first?.tokens.count ?? 0) > 0
+        let containsDefaultToken = model.config.hasDefaultToken
         let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
-        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
-        let balanceProvider = MainHeaderBalanceProviderFactory().provider(for: model)
+
+        let providerFactory = model.config.makeMainHeaderProviderFactory()
+        let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
+        let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
+
         let headerModel = MainHeaderViewModel(
             isUserWalletLocked: model.isUserWalletLocked,
             supplementInfoProvider: model,
@@ -78,6 +81,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletNotificationManager.setupManager(with: viewModel)
 
             return .multiWallet(
+                id: id,
+                headerModel: headerModel,
+                bodyModel: viewModel
+            )
+        }
+
+        if model.config is VisaConfig {
+            let walletModel = VisaUtilities().getVisaWalletModel(for: model)
+            let viewModel = VisaWalletMainContentViewModel(
+                walletModel: walletModel,
+                coordinator: coordinator
+            )
+
+            return .visaWallet(
                 id: id,
                 headerModel: headerModel,
                 bodyModel: viewModel
