@@ -304,11 +304,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
 
     private let backupService: BackupService
+    private var cardInitializer: CardInitializable?
 
     // MARK: - Initializer
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         backupService = input.backupService
+        cardInitializer = input.cardInitializer
 
         super.init(input: input, coordinator: coordinator)
 
@@ -666,7 +668,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, walletCreationType: WalletCreationType) {
-        guard let cardInitializer = input.cardInitializer else { return }
+        guard let cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
 
@@ -686,7 +688,21 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
-                    alert = error.alertBinder
+
+                    if case TangemSdkError.walletAlreadyCreated = error {
+                        alert = AlertBuilder.makeAlert(
+                            title: Localization.onboardingActivationErrorTitle,
+                            message: Localization.onboardingActivationErrorMessage,
+                            primaryButton: .default(Text(Localization.warningButtonOk), action: { [weak self] in
+                                self?.cardInitializer?.shouldReset = true
+                            }),
+                            secondaryButton: .default(Text(Localization.chatButtonTitle), action: { [weak self] in
+                                self?.openSupportChat()
+                            })
+                        )
+                    } else {
+                        alert = error.alertBinder
+                    }
                 }
             }
 

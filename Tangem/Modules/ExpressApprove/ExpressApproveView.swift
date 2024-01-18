@@ -16,39 +16,32 @@ struct ExpressApproveView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: .zero) {
             headerView
 
-            content
+            VStack(spacing: 22) {
+                content
 
-            buttons
+                buttons
+            }
         }
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 6)
         .background(Colors.Background.tertiary)
         .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
     private var headerView: some View {
-        VStack(spacing: 16) {
-            ZStack(alignment: .trailing) {
-                Text(Localization.swappingPermissionHeader)
-                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
+        ZStack(alignment: .topTrailing) {
+            BottomSheetHeaderView(title: Localization.swappingPermissionHeader, subtitle: viewModel.subheader)
+                .padding(.horizontal, 16)
 
-                Button(action: viewModel.didTapInfoButton) {
-                    Assets.infoIconMini.image
-                        .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.informative)
-                        .padding(.horizontal, 16)
-                }
+            Button(action: viewModel.didTapInfoButton) {
+                Assets.infoIconMini.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
+                    .padding(.top, 4)
             }
-
-            Text(viewModel.subheader)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
-                .padding(.horizontal, 50)
-                .multilineTextAlignment(.center)
         }
     }
 
@@ -60,7 +53,6 @@ struct ExpressApproveView: View {
                 DefaultFooterView(Localization.swappingPermissionPolicyTypeFooter)
             }
             .backgroundColor(Colors.Background.action)
-            .padding(.horizontal, 16)
 
             GroupedSection(viewModel.feeRowViewModel) {
                 DefaultRowView(viewModel: $0)
@@ -68,7 +60,6 @@ struct ExpressApproveView: View {
                 DefaultFooterView(Localization.swappingPermissionFeeFooter)
             }
             .backgroundColor(Colors.Background.action)
-            .padding(.horizontal, 16)
         }
     }
 
@@ -90,27 +81,57 @@ struct ExpressApproveView: View {
         }
         // This fix for text's font in the cancel button, it shrink with no reason
         .minimumScaleFactor(1)
-        .padding(.horizontal, 16)
     }
 }
 
-/*
- // [REDACTED_TODO_COMMENT]
- struct ExpressApproveView_Preview: PreviewProvider {
-     static let viewModel = ExpressApproveViewModel(
-         transactionSender: TransactionSenderMock(),
-         swappingInteractor: .init(
-             swappingManager: SwappingManagerMock(),
-             userTokensManager: UserTokensManagerMock(),
-             currencyMapper: CurrencyMapper(),
-             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-         ),
-         fiatRatesProvider: FiatRatesProviderMock(),
-         coordinator: ExpressApproveRoutableMock()
-     )
+struct ExpressApproveView_Preview: PreviewProvider {
+    struct StatableContainer: View {
+        @ObservedObject private var coordinator = BottomSheetCoordinator()
 
-     static var previews: some View {
-         ExpressApproveView(viewModel: viewModel)
-     }
- }
- */
+        var body: some View {
+            ZStack {
+                Colors.Background.primary
+                    .edgesIgnoringSafeArea(.all)
+
+                Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+                    coordinator.toggleItem()
+                }
+                .font(Fonts.Bold.body)
+                .offset(y: -200)
+
+                NavHolder()
+                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+                        ExpressApproveView(viewModel: $0)
+                    }
+            }
+        }
+    }
+
+    class BottomSheetCoordinator: ObservableObject, ExpressApproveRoutable {
+        @Published var item: ExpressApproveViewModel?
+
+        func toggleItem() {
+            if item == nil {
+                item = ExpressModulesFactoryMock().makeExpressApproveViewModel(coordinator: self)
+            } else {
+                item = nil
+            }
+        }
+
+        func didSendApproveTransaction() {
+            item = nil
+        }
+
+        func userDidCancel() {
+            item = nil
+        }
+    }
+
+    static var previews: some View {
+        StatableContainer()
+            .preferredColorScheme(.light)
+
+        StatableContainer()
+            .preferredColorScheme(.dark)
+    }
+}
