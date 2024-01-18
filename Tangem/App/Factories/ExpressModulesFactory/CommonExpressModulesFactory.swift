@@ -11,7 +11,6 @@ import TangemExpress
 import BlockchainSdk
 
 class CommonExpressModulesFactory {
-    @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletModel: UserWalletModel
