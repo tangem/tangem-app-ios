@@ -402,7 +402,7 @@ final class MainViewModel: ObservableObject {
     private func subscribeToTotalBalanceUpdates(userWalletModel: UserWalletModel) {
         let identifier = userWalletModel.userWalletId.value
         totalBalanceSubscriptions[identifier] = userWalletModel
-            .totalBalancePublisher()
+            .totalBalancePublisher
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { viewModel, totalBalance in
                 viewModel.rateAppService.registerBalances(of: userWalletModel.walletModelsManager.walletModels)
