@@ -316,7 +316,7 @@ extension DetailsViewModel {
                     alert = error.alertBinder
                 }
             case .success, .partial:
-                coordinator.dismiss()
+                coordinator?.dismiss()
             }
         }
     }
