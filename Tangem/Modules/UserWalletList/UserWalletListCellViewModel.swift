@@ -80,17 +80,18 @@ class UserWalletListCellViewModel: ObservableObject {
         userWalletModel
             .totalBalancePublisher
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton and apply state with delay, mimic current behavior
-            .sink { [unowned self] loadingValue in
+            .withWeakCaptureOf(self)
+            .sink { viewModel, loadingValue in
                 switch loadingValue {
                 case .loading:
-                    isBalanceLoading = true
-                    balance = Self.defaultBalanceValue
-                    hasError = false
+                    viewModel.isBalanceLoading = true
+                    viewModel.balance = Self.defaultBalanceValue
+                    viewModel.hasError = false
                 case .loaded(let value):
-                    isBalanceLoading = false
+                    viewModel.isBalanceLoading = false
                     let balanceFormatter = BalanceFormatter()
-                    balance = balanceFormatter.formatFiatBalance(value.balance, formattingOptions: .defaultFiatFormattingOptions)
-                    hasError = value.hasError
+                    viewModel.balance = balanceFormatter.formatFiatBalance(value.balance, formattingOptions: .defaultFiatFormattingOptions)
+                    viewModel.hasError = value.hasError
                 case .failedToLoad:
                     // State related to new design. So it won't occur in legacy version. Will be removed after integration of new design
                     break
