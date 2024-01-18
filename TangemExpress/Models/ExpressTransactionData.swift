@@ -38,4 +38,32 @@ public struct ExpressTransactionData {
     public let externalTxId: String?
     /// The URL of CEX provider exchange status page
     public let externalTxUrl: String?
+
+    public init(
+        requestId: String,
+        fromAmount: Decimal,
+        toAmount: Decimal,
+        expressTransactionId: String,
+        transactionType: ExpressTransactionType,
+        sourceAddress: String?,
+        destinationAddress: String,
+        extraDestinationId: String?,
+        value: Decimal,
+        txData: String?,
+        externalTxId: String?,
+        externalTxUrl: String?
+    ) {
+        self.requestId = requestId
+        self.fromAmount = fromAmount
+        self.toAmount = toAmount
+        self.expressTransactionId = expressTransactionId
+        self.transactionType = transactionType
+        self.sourceAddress = sourceAddress
+        self.destinationAddress = destinationAddress
+        self.extraDestinationId = extraDestinationId
+        self.value = value
+        self.txData = txData
+        self.externalTxId = externalTxId
+        self.externalTxUrl = externalTxUrl
+    }
 }
