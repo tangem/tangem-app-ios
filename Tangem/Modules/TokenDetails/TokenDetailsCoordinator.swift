@@ -191,6 +191,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
@@ -220,6 +221,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
