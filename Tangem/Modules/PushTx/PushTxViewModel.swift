@@ -135,7 +135,7 @@ class PushTxViewModel: ObservableObject {
             .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
-                
+
                 appDelegate.removeLoadingView()
                 if case .failure(let error) = completion {
                     if error.toTangemSdkError().isUserCancelled {
@@ -233,7 +233,7 @@ class PushTxViewModel: ObservableObject {
 
                 let newAmount = if isFeeIncluded {
                     viewModel.transaction.amount + viewModel.previousFeeAmount - fee.amount
-                }   else {
+                } else {
                     viewModel.transaction.amount
                 }
 
