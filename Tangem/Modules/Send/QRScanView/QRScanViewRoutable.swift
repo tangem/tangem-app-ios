@@ -10,4 +10,5 @@ import Foundation
 
 protocol QRScanViewRoutable {
     func openImagePicker()
+    func dismiss()
 }
