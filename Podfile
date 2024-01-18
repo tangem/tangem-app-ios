@@ -29,7 +29,7 @@ def tangem_sdk_pod
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :branch => 'feature/IOS-5650-add-fee-paid-currency-method'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :branch => 'develop-455'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.2.4-tangem1'
