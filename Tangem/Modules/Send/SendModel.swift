@@ -115,9 +115,8 @@ class SendModel {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
+            didChangeFeeInclusion(true)
         }
-
-        #warning("[REDACTED_TODO_COMMENT]")
     }
 
     func currentTransaction() -> BlockchainSdk.Transaction? {
@@ -160,6 +159,9 @@ class SendModel {
 
     private func bind() {
         Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
+            .removeDuplicates {
+                $0 == $1
+            }
             .sink { [weak self] amount, fee, isFeeIncluded in
                 self?.updateAndValidateAmount(amount, fee: fee, isFeeIncluded: isFeeIncluded)
             }
@@ -167,6 +169,9 @@ class SendModel {
 
         #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest(amount, destination)
+            .removeDuplicates {
+                $0 == $1
+            }
             .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Never> in
                 guard
                     let self,
@@ -203,6 +208,9 @@ class SendModel {
 
         #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest3(amount, destination, fee)
+            .removeDuplicates {
+                $0 == $1
+            }
             .map { [weak self] amount, destination, fee -> BlockchainSdk.Transaction? in
                 guard
                     let self,
