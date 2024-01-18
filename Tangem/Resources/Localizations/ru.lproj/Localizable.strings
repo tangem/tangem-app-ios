@@ -94,6 +94,7 @@
 "common_like" = "Нравится";
 "common_locked" = "Заблокирован";
 "common_main_network" = "Основная сеть";
+"common_network_fee_title" = "Сетевая комиссия";
 "common_next" = "Далее";
 "common_no" = "Нет";
 "common_no_address" = "Нет адреса";
@@ -188,6 +189,7 @@
 "exchange_tokens_available_tokens_header" = "Мои токены";
 "exchange_tokens_empty_tokens" = "У вас нет добавленных токенов. Добавьте токены для обмена";
 "exchange_tokens_unavailable_tokens_header" = "Недоступен для обмена с %@";
+"express_by_provider" = "Предоставлено %@";
 "express_cex_fee_explanation" = "Кроме того, в курс обмена включена комиссия сети за отправку обмененных средств на ваш адрес";
 "express_cex_status_button_title" = "Статус";
 "express_choose_providers_subtitle" = "Провайдеры проводят транзакции, обеспечивая плавный и эффективный обмен токенами";
@@ -222,8 +224,8 @@
 "express_fetch_best_rates" = "Получение наилучших курсов...";
 "express_floating_rate" = "Плавающая ставка";
 "express_go_to_provider" = "К провайдеру";
-"express_legal_one_placeholder" = "Пользуясь сервисом вы соглашаетесь с %@";
-"express_legal_two_placeholders" = "Пользуясь сервисом вы соглашаетесь с %1$@ и %2$@";
+"express_legal_one_placeholder" = "Пользуясь сервисом, вы соглашаетесь с %@";
+"express_legal_two_placeholders" = "Пользуясь сервисом, вы соглашаетесь с %1$@ и %2$@";
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_privacy_policy" = "Политикой конфиденциальности";
 "express_provider" = "Провайдер";
@@ -446,7 +448,6 @@
 "send_max_fee" = "Комиссия не превысит ";
 "send_max_fee_footer" = "Максимальная cумма комиссии";
 "send_memo_destination_tag_error" = "Numbers only for Destination Tag";
-"send_network_fee_title" = "Сетевая комиссия";
 "send_network_fee_warning_content" = "Сумма отправки будет уменьшена для покрытия выбранного уровня комиссии";
 "send_network_fee_warning_title" = "Покрытие сетевой комиссии";
 "send_notification_exceed_balance_text" = "Недостаточно средств для перевода, так как сумма комиссии и сумма перевода в совокупности больше имеющегося баланса";
@@ -658,7 +659,7 @@
 "warning_express_approval_in_progress_message" = "Разрешение обмена в процессе и будет скоро завершено";
 "warning_express_approval_in_progress_title" = "Разрешение в процессе";
 "warning_express_no_exchangeable_coins_description" = "У вас в списке нет монет доступных для обмена с %@";
-"warning_express_no_exchangeable_coins_title" = "Нет доступных токенов для обмена";
+"warning_express_no_exchangeable_coins_title" = "Нет доступных для обмена токенов";
 "warning_express_not_enough_fee_for_token_tx_description" = "Чтобы совершить транзакцию, вам необходимо внести немного %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Невозможно покрыть комиссию %@";
 "warning_express_refresh_required_title" = "Cервис временно недоступен";
