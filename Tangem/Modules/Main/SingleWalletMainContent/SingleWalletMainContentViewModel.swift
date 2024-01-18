@@ -52,20 +52,9 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     private func bind() {
-        let userWalletNotificationPublisher = userWalletNotificationManager
-            .notificationPublisher
+        userWalletNotificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
-            .share(replay: 1)
-
-        userWalletNotificationPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        userWalletNotificationPublisher
-            .withWeakCaptureOf(self)
-            .sink { viewModel, notificationInputs in
-                viewModel.delegate?.didChangeNotificationInputs(notificationInputs, for: viewModel.userWalletModel.userWalletId)
-            }
             .store(in: &bag)
     }
 }
