@@ -12,6 +12,7 @@ import Combine
 import BlockchainSdk
 
 protocol SendFeeViewModelInput {
+    var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
@@ -26,6 +27,8 @@ protocol SendFeeViewModelInput {
 class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
+
+    @Published private(set) var subtractFromAmountFooterText: String = ""
     @Published private(set) var subtractFromAmountModel: DefaultToggleRowViewModel?
 
     @Published private var isFeeIncluded: Bool = false
@@ -74,6 +77,17 @@ class SendFeeViewModel: ObservableObject {
             .sink { [weak self] feeIncluded in
                 self?.isFeeIncluded = feeIncluded
             }
+            .store(in: &bag)
+
+        input.amountPublisher
+            .map {
+                if let amountFormatted = $0?.string() {
+                    return Localization.sendAmountSubstractFooter(amountFormatted)
+                } else {
+                    return ""
+                }
+            }
+            .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
