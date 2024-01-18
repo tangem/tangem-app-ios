@@ -227,6 +227,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         }
 
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
@@ -256,6 +257,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
@@ -356,3 +358,7 @@ extension MainCoordinator: OrganizeTokensRoutable {
         organizeTokensViewModel = nil
     }
 }
+
+// MARK: - VisaWalletRoutable
+
+extension MainCoordinator: VisaWalletRoutable {}

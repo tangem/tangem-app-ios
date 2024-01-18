@@ -52,28 +52,32 @@ struct ExpressView: View {
     private var swappingViews: some View {
         ZStack(alignment: .center) {
             VStack(spacing: 14) {
-                if let sendCurrencyViewModel = viewModel.sendCurrencyViewModel {
-                    SendCurrencyView(
-                        viewModel: sendCurrencyViewModel,
-                        decimalValue: $viewModel.sendDecimalValue
-                    )
-                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
-                    .didTapChangeCurrency {
-                        viewModel.userDidTapChangeSourceButton()
-                    }
+                GroupedSection(viewModel.sendCurrencyViewModel) {
+                    SendCurrencyView(viewModel: $0, decimalValue: $viewModel.sendDecimalValue)
+                        .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
+                        .didTapChangeCurrency {
+                            viewModel.userDidTapChangeSourceButton()
+                        }
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
+                .backgroundColor(Colors.Background.action)
 
-                if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
-                    ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
+                GroupedSection(viewModel.receiveCurrencyViewModel) {
+                    ReceiveCurrencyView(viewModel: $0)
                         .didTapChangeCurrency {
                             viewModel.userDidTapChangeDestinationButton()
                         }
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
             }
 
             swappingButton
         }
-        .padding(.top, 16)
+        .padding(.top, 8)
     }
 
     @ViewBuilder
@@ -106,6 +110,7 @@ struct ExpressView: View {
             NotificationView(input: $0)
                 .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
                 .transition(.notificationTransition)
+                .background(Colors.Background.action)
         }
     }
 
