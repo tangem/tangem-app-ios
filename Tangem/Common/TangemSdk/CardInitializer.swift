@@ -12,10 +12,13 @@ import CombineExt
 import TangemSdk
 
 protocol CardInitializable {
+    var shouldReset: Bool { get set }
     func initializeCard(mnemonic: Mnemonic?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void)
 }
 
 class CardInitializer {
+    var shouldReset: Bool = false
+
     private let tangemSdk: TangemSdk
     private var cardInfo: CardInfo
     private var runnableBag: (any CardSessionRunnable)?
@@ -30,7 +33,7 @@ class CardInitializer {
 extension CardInitializer: CardInitializable {
     func initializeCard(mnemonic: Mnemonic?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let task = PreparePrimaryCardTask(curves: config.mandatoryCurves, mnemonic: mnemonic)
+        let task = PreparePrimaryCardTask(curves: config.mandatoryCurves, mnemonic: mnemonic, shouldReset: shouldReset)
         let initialMessage = Message(header: nil, body: Localization.initialMessageCreateWalletBody)
         runnableBag = task
 
