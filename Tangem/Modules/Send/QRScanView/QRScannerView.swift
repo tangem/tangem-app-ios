@@ -52,6 +52,40 @@ class QRScanViewModel: ObservableObject, Identifiable {
     func scanFromGallery() {
         router.openImagePicker()
     }
+
+    func didSelectImage(_ image: UIImage?) {
+        guard
+            let image,
+            let code = scanQRCode(from: image)
+        else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.code.wrappedValue = code
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            self.router.dismiss()
+        }
+    }
+
+    private func scanQRCode(from image: UIImage) -> String? {
+        let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        guard
+            let ciImage = CIImage(image: image),
+            let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: CIContext(), options: options)
+        else {
+            return nil
+        }
+
+        return detector
+            .features(in: ciImage)
+            .lazy
+            .compactMap { $0 as? CIQRCodeFeature }
+            .first?
+            .messageString
+    }
 }
 
 struct QRScanView: View {
