@@ -27,8 +27,6 @@ final class MainViewModel: ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
-    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
-    @Published var isAppStoreReviewRequested = false
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -37,7 +35,6 @@ final class MainViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
-    private let rateAppService: RateAppService
     private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
     private weak var coordinator: MainRoutable?
 
@@ -47,24 +44,18 @@ final class MainViewModel: ObservableObject {
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
-    private let notificationInputsSubject: CurrentValueSubject<[UserWalletIdData: [NotificationViewInput]], Never> = .init([:])
-    private let loadedBalancesSubject: CurrentValueSubject<[UserWalletIdData: Bool], Never> = .init([:])
-
     private var isLoggingOut = false
 
-    private var totalBalanceSubscriptions: [UserWalletIdData: AnyCancellable] = [:]
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Initializers
 
     init(
         coordinator: MainRoutable,
-        rateAppService: RateAppService,
         swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.coordinator = coordinator
-        self.rateAppService = rateAppService
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
 
@@ -76,19 +67,16 @@ final class MainViewModel: ObservableObject {
         )
 
         bind()
-        subscribeToTotalBalanceUpdates(userWalletModels: userWalletRepository.models)
     }
 
     convenience init(
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
-        rateAppService: RateAppService,
         swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     ) {
         self.init(
             coordinator: coordinator,
-            rateAppService: rateAppService,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory
         )
@@ -119,8 +107,6 @@ final class MainViewModel: ObservableObject {
         addPendingUserWalletModelsIfNeeded { [weak self] in
             self?.swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         }
-
-        requestRateApp(notificationInputs: notificationInputsSubject.value, loadedBalances: loadedBalancesSubject.value)
     }
 
     func onViewDisappear() {
@@ -285,15 +271,10 @@ final class MainViewModel: ObservableObject {
         let newPageIndex = pages.count
         pages.append(newPage)
         selectedCardIndex = newPageIndex
-
-        subscribeToTotalBalanceUpdates(userWalletModel: userWalletModel)
     }
 
     private func removePages(with userWalletIds: [UserWalletIdData]) {
         pages.removeAll { userWalletIds.contains($0.id.value) }
-        totalBalanceSubscriptions.removeAll { userWalletIds.contains($0.key) }
-        notificationInputsSubject.value.removeAll { userWalletIds.contains($0.key) }
-        loadedBalancesSubject.value.removeAll { userWalletIds.contains($0.key) }
 
         guard
             let newSelectedId = userWalletRepository.selectedUserWalletId,
@@ -322,18 +303,12 @@ final class MainViewModel: ObservableObject {
             singleWalletContentDelegate: self,
             multiWalletContentDelegate: self
         )
-
-        subscribeToTotalBalanceUpdates(userWalletModels: userWalletRepository.models)
     }
 
     // MARK: - Private functions
 
     private func bind() {
-        let selectedCardIndexPublisher = $selectedCardIndex
-            .removeDuplicates()
-            .share(replay: 1)
-
-        selectedCardIndexPublisher
+        $selectedCardIndex
             .dropFirst()
             .sink { [weak self] newIndex in
                 guard let userWalletId = self?.pages[newIndex].id else {
@@ -341,21 +316,11 @@ final class MainViewModel: ObservableObject {
                 }
 
                 Analytics.log(.walletOpened)
-
                 self?.userWalletRepository.setSelectedUserWalletId(
                     userWalletId.value,
                     unlockIfNeeded: false,
                     reason: .userSelected
                 )
-            }
-            .store(in: &bag)
-
-        selectedCardIndexPublisher
-            .combineLatest(notificationInputsSubject.removeDuplicates(), loadedBalancesSubject.removeDuplicates())
-            .withWeakCaptureOf(self)
-            .sink { input in
-                let (viewModel, (_, notificationInputs, loadedBalances)) = input
-                viewModel.requestRateApp(notificationInputs: notificationInputs, loadedBalances: loadedBalances)
             }
             .store(in: &bag)
 
@@ -393,42 +358,6 @@ final class MainViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-    }
-
-    private func subscribeToTotalBalanceUpdates(userWalletModels: [UserWalletModel]) {
-        userWalletModels.forEach(subscribeToTotalBalanceUpdates(userWalletModel:))
-    }
-
-    private func subscribeToTotalBalanceUpdates(userWalletModel: UserWalletModel) {
-        let identifier = userWalletModel.userWalletId.value
-        totalBalanceSubscriptions[identifier] = userWalletModel
-            .totalBalancePublisher
-            .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { viewModel, totalBalance in
-                viewModel.rateAppService.registerBalances(of: userWalletModel.walletModelsManager.walletModels)
-            })
-            .map { $0.1.value != nil }
-            .withLatestFrom(loadedBalancesSubject.removeDuplicates()) { isBalanceLoaded, loadedBalances in
-                var loadedBalances = loadedBalances
-                loadedBalances[identifier] = isBalanceLoaded
-                return loadedBalances
-            }
-            .subscribe(loadedBalancesSubject)
-    }
-
-    private func requestRateApp(
-        notificationInputs: [UserWalletIdData: [NotificationViewInput]],
-        loadedBalances: [UserWalletIdData: Bool]
-    ) {
-        let pageInfos = pages.map { page in
-            return RateAppRequest.PageInfo(
-                isLocked: page.isLockedWallet,
-                isSelected: page.id == userWalletRepository.selectedModel?.userWalletId,
-                isBalanceLoaded: loadedBalances[page.id.value, default: false],
-                displayedNotifications: notificationInputs[page.id.value, default: []]
-            )
-        }
-        rateAppService.requestRateAppIfAvailable(with: .init(pageInfos: pageInfos))
     }
 
     private func log(_ message: String) {
@@ -503,44 +432,6 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
     func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
         swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
-    }
-}
-
-// MARK: - MainNotificationsObserver protocol conformance
-
-extension MainViewModel: MainNotificationsObserver {
-    func didChangeNotificationInputs(_ inputs: [NotificationViewInput], for userWalletId: UserWalletId) {
-        notificationInputsSubject.value[userWalletId.value] = inputs
-    }
-}
-
-// MARK: - RateAppServiceDelegate protocol conformance
-
-extension MainViewModel: RateAppServiceDelegate {
-    func rateAppService(
-        _ service: RateAppService,
-        didRequestRateAppWithCompletionHandler completionHandler: @escaping (RateAppResult) -> Void
-    ) {
-        rateAppBottomSheetViewModel = RateAppBottomSheetViewModel(onInteraction: completionHandler)
-    }
-
-    func rateAppService(_ service: RateAppService, didRequestOpenMailWithEmailType emailType: EmailType) {
-        rateAppBottomSheetViewModel = nil
-
-        guard let userWallet = userWalletRepository.selectedModel else { return }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
-            let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWallet.emailData)
-            let recipient = userWallet.emailConfig?.recipient ?? EmailConfig.default.recipient
-            self?.coordinator?.openMail(with: collector, emailType: emailType, recipient: recipient)
-        }
-    }
-
-    func requestAppStoreReviewForRateAppService(_ service: RateAppService) {
-        rateAppBottomSheetViewModel = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
-            self?.isAppStoreReviewRequested = true
-        }
     }
 }
 
