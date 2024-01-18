@@ -24,7 +24,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     @Published private(set) var numberOfDaysLimitText: String = "available 7-day limit"
 
     private let walletModel: WalletModel
-    private unowned let coordinator: VisaWalletRoutable
+    private weak var coordinator: VisaWalletRoutable?
 
     private var updateSubscription: AnyCancellable?
 
@@ -47,7 +47,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
                 addressQRImage: QrCodeGenerator.generateQRCode(from: address.value)
             )
         }
-        coordinator.openReceiveScreen(
+        coordinator?.openReceiveScreen(
             amountType: walletModel.amountType,
             blockchain: walletModel.blockchainNetwork.blockchain,
             addressInfos: infos
@@ -66,7 +66,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator.openExplorer(at: url, blockchainDisplayName: walletModel.blockchainNetwork.blockchain.displayName)
+        coordinator?.openExplorer(at: url, blockchainDisplayName: walletModel.blockchainNetwork.blockchain.displayName)
     }
 
     func exploreTransaction(with id: String) {}

@@ -722,8 +722,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         stepPublisher =
             Deferred {
-                Future { [unowned self] promise in
-                    backupService.addBackupCard { result in
+                Future { [weak self] promise in
+                    self?.backupService.addBackupCard { result in
                         switch result {
                         case .success:
                             promise(.success(()))
@@ -761,9 +761,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         stepPublisher =
             Deferred {
-                Future { [unowned self] promise in
+                Future { [weak self] promise in
+                    guard let self else { return }
                     backupService.proceedBackup { result in
-
                         // Ring onboarding. Reset to defaults
                         self.backupService.config.style.scanTagImage = .genericCard
 
