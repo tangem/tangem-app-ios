@@ -880,7 +880,7 @@ extension WalletOnboardingViewModel {
         }
         let baseUrl = AppEnvironment.current.tangemComBaseUrl
         let url = baseUrl.appendingPathComponent("seed-phrase-\(websiteLanguageCode).html")
-        coordinator.openWebView(with: url)
+        coordinator?.openWebView(with: url)
         Analytics.log(.onboardingSeedButtonReadMore)
     }
 
@@ -938,7 +938,7 @@ extension WalletOnboardingViewModel {
 
 extension WalletOnboardingViewModel {
     func openAccessCode() {
-        coordinator.openAccessCodeView(callback: saveAccessCode)
+        coordinator?.openAccessCodeView(callback: saveAccessCode)
     }
 }
 
