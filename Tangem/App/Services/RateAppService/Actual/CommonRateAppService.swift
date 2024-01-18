@@ -79,7 +79,7 @@ extension CommonRateAppService: RateAppService {
     func registerBalances(of walletModels: [WalletModel]) {
         guard
             positiveBalanceAppearanceDate == nil,
-            walletModels.contains(where: { !$0.wallet.isEmpty })
+            walletModels.contains(where: { !$0.wallet.isEmpty }) // Check if at least one wallet has a non-empty (non-zero) balance
         else {
             return
         }
@@ -88,13 +88,11 @@ extension CommonRateAppService: RateAppService {
     }
 
     func requestRateAppIfAvailable(with request: RateAppRequest) {
-        guard let selectedPage = request.pageInfos.first(where: \.isSelected) else { return }
-
-        if selectedPage.isLocked {
+        if request.isLocked {
             return
         }
 
-        guard selectedPage.isBalanceLoaded else {
+        guard request.isBalanceLoaded else {
             return
         }
 
@@ -110,7 +108,7 @@ extension CommonRateAppService: RateAppService {
             return
         }
 
-        if selectedPage.displayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
+        if request.displayedNotifications.contains(where: { Constants.forbiddenSeverityLevels.contains($0.severity) }) {
             return
         }
 
