@@ -375,7 +375,7 @@ extension SendModel: SendAmountViewModelInput {
         walletModel.amountType
     }
 
-    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
+    var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
         _amount.eraseToAnyPublisher()
     }
 
@@ -476,6 +476,10 @@ extension SendModel: SendSummaryViewModelInput {
                 return (additionalFields, $0)
             }
             .eraseToAnyPublisher()
+    }
+
+    var amountPublisher: AnyPublisher<Amount?, Never> {
+        amount.eraseToAnyPublisher()
     }
 
     var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
