@@ -40,14 +40,14 @@ class TestnetBuyCryptoService {
 
                 return walletModel.send(tx, signer: signer).mapToVoid().eraseToAnyPublisher()
             }
-            .sink { [unowned self] completion in
+            .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     AppLog.shared.error(error)
                     AppPresenter.shared.showError(error)
                 } else {
                     AppPresenter.shared.show(AlertBuilder.makeSuccessAlertController(message: "Transaction signed and sent to testnet. Wait for a while and reload balance"))
                 }
-
+                guard let self else { return }
                 bag.remove(subs)
                 subs = nil
             } receiveValue: { _ in }
