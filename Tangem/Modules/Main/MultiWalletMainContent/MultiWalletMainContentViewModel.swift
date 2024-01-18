@@ -399,6 +399,16 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
     }
 }
 
+// MARK: - MainViewPage protocol conformance
+
+extension MultiWalletMainContentViewModel: MainViewPage {
+    func onPageAppear() {
+    }
+
+    func onPageDisappear() {
+    }
+}
+
 // MARK: - Auxiliary types
 
 extension MultiWalletMainContentViewModel {
