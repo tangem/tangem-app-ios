@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 import CombineExt
-import SwiftUI
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
@@ -57,6 +57,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
+    private let rateAppService: RateAppService
     private unowned let coordinator: MultiWalletMainContentRoutable
 
     private var canManageTokens: Bool { userWalletModel.isMultiWallet }
@@ -68,7 +69,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         qos: .userInitiated
     )
 
+    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
     private var isUpdating = false
+
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -87,6 +90,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tokenRouter = tokenRouter
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
+        rateAppService = CommonRateAppService()
 
         setup()
     }
@@ -167,16 +171,57 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .sink()
             .store(in: &bag)
 
-        userWalletNotificationManager.notificationPublisher
+        let userWalletNotificationsPublisher = userWalletNotificationManager
+            .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
+            .share(replay: 1)
+
+        userWalletNotificationsPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        tokensNotificationManager.notificationPublisher
+        let tokensNotificationsPublisher = tokensNotificationManager
+            .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
+            .share(replay: 1)
+
+        tokensNotificationsPublisher
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        userWalletModel
+            .totalBalancePublisher
+            .compactMap { $0.value }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                let walletModels = viewModel.userWalletModel.walletModelsManager.walletModels
+                viewModel.rateAppService.registerBalances(of: walletModels)
+            }
+            .store(in: &bag)
+
+        let allNotificationsPublisher = Publishers.CombineLatest(userWalletNotificationsPublisher, tokensNotificationsPublisher)
+            .map { $0.0 + $0.1 }
+
+        let isBalanceLoadedPublisher = userWalletModel
+            .totalBalancePublisher
+            .map { $0.value != nil }
+            .removeDuplicates()
+
+        Publishers.CombineLatest3(isPageSelectedSubject, isBalanceLoadedPublisher, allNotificationsPublisher)
+            .map { isPageSelected, isBalanceLoaded, notifications in
+                return RateAppRequest(
+                    isLocked: false,
+                    isSelected: isPageSelected,
+                    isBalanceLoaded: isBalanceLoaded,
+                    displayedNotifications: notifications
+                )
+            }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, rateAppRequest in
+                viewModel.rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
+            }
             .store(in: &bag)
     }
 
@@ -403,9 +448,11 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
 
 extension MultiWalletMainContentViewModel: MainViewPage {
     func onPageAppear() {
+        isPageSelectedSubject.send(true)
     }
 
     func onPageDisappear() {
+        isPageSelectedSubject.send(false)
     }
 }
 
