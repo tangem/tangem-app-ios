@@ -77,14 +77,11 @@ struct ExpressProvidersSelectorView_Preview: PreviewProvider {
         @Published var item: ExpressProvidersSelectorViewModel?
 
         func toggleItem() {
-            /*
-             // [REDACTED_TODO_COMMENT]
-             if item == nil {
-                 item = ExpressProvidersSelectorViewModel(coordinator: self)
-             } else {
-                 item = nil
-             }
-             */
+            if item == nil {
+                item = ExpressModulesFactoryMock().makeExpressProvidersSelectorViewModel(coordinator: self)
+            } else {
+                item = nil
+            }
         }
 
         func closeExpressProvidersSelector() {
