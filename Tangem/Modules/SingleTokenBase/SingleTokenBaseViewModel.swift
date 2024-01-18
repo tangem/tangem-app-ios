@@ -11,7 +11,7 @@ import Combine
 import SwiftUI
 import TangemSdk
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 import CombineExt
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
