@@ -76,16 +76,9 @@ struct MainView: View {
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
-        .bottomSheet(
-            item: $viewModel.rateAppBottomSheetViewModel,
-            backgroundColor: Colors.Background.primary
-        ) { viewModel in
-            RateAppBottomSheetView(viewModel: viewModel)
-        }
         .toast(isPresenting: $viewModel.showAddressCopiedToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
         }
-        .requestAppStoreReviewCompat($viewModel.isAppStoreReviewRequested)
     }
 
     var detailsNavigationButton: some View {
@@ -121,7 +114,6 @@ struct MainView_Preview: PreviewProvider {
         let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
         let viewModel = MainViewModel(
             coordinator: coordinator,
-            rateAppService: RateAppServiceStub(),
             swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
         )
