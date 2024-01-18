@@ -18,6 +18,9 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
+    private let rateAppService: RateAppService
+
+    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
     private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
@@ -35,6 +38,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.delegate = delegate
+        rateAppService = CommonRateAppService()
 
         super.init(
             userWalletModel: userWalletModel,
@@ -52,9 +56,44 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     private func bind() {
-        userWalletNotificationManager.notificationPublisher
+        let userWalletNotificationsPublisher = userWalletNotificationManager
+            .notificationPublisher
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .share(replay: 1)
+
+        userWalletNotificationsPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        userWalletModel
+            .totalBalancePublisher
+            .compactMap { $0.value }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                let walletModels = viewModel.userWalletModel.walletModelsManager.walletModels
+                viewModel.rateAppService.registerBalances(of: walletModels)
+            }
+            .store(in: &bag)
+
+        let isBalanceLoadedPublisher = userWalletModel
+            .totalBalancePublisher
+            .map { $0.value != nil }
+            .removeDuplicates()
+
+        Publishers.CombineLatest3(isPageSelectedSubject, isBalanceLoadedPublisher, userWalletNotificationsPublisher)
+            .map { isPageSelected, isBalanceLoaded, notifications in
+                return RateAppRequest(
+                    isLocked: false,
+                    isSelected: isPageSelected,
+                    isBalanceLoaded: isBalanceLoaded,
+                    displayedNotifications: notifications
+                )
+            }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, rateAppRequest in
+                viewModel.rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
+            }
             .store(in: &bag)
     }
 }
@@ -63,10 +102,10 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
 extension SingleWalletMainContentViewModel: MainViewPage {
     func onPageAppear() {
-        // [REDACTED_TODO_COMMENT]
+        isPageSelectedSubject.send(true)
     }
 
     func onPageDisappear() {
-        // [REDACTED_TODO_COMMENT]
+        isPageSelectedSubject.send(false)
     }
 }
