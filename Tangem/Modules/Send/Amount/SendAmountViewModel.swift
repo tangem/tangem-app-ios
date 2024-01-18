@@ -129,9 +129,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    private func amountPair(from amount: Decimal?, useFiatCalculation: Bool) -> (cryptoAmount: Decimal?, fiatAmount: Decimal?)? {
+    private func amountPair(from amount: Decimal?, useFiatCalculation: Bool) -> (amount: Amount?, cryptoAmount: Decimal?, fiatAmount: Decimal?)? {
         guard let amount else {
-            return (nil, nil)
+            return (nil, nil, nil)
         }
 
         let newCryptoAmount: Decimal?
@@ -158,11 +158,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             return nil
         }
 
-        return (newCryptoAmount, newFiatAmount)
+        let newAmount = Amount(with: input.blockchain, type: input.amountType, value: newCryptoAmount)
+        return (newAmount, newCryptoAmount, newFiatAmount)
     }
 
     private func setViewAmount(_ amount: Decimal?, inputTrigger: InputTrigger) {
-        guard let (newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: false) else { return }
+        guard let (_, newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: false) else { return }
 
         cryptoAmount = newCryptoAmount
         if inputTrigger != .keyboard {
@@ -172,17 +173,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     private func setModelAmount(_ amount: Decimal?) {
-        guard let (newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: useFiatCalculation) else { return }
+        guard let (newAmount, newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: useFiatCalculation) else { return }
 
         cryptoAmount = newCryptoAmount
         fiatAmount = newFiatAmount
-
-        let newAmount: Amount?
-        if let newCryptoAmount {
-            newAmount = Amount(with: input.blockchain, type: input.amountType, value: newCryptoAmount)
-        } else {
-            newAmount = nil
-        }
         input.setAmount(newAmount)
     }
 
