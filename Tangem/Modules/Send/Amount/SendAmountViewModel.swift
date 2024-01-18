@@ -187,14 +187,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     private func setTextFieldAmount(useFiatCalculation: Bool) {
-        let newAmount: Decimal?
-
-        if useFiatCalculation {
-            newAmount = fiatAmount
-        } else {
-            newAmount = cryptoAmount
-        }
-
+        let newAmount = useFiatCalculation ? fiatAmount : cryptoAmount
         if let newAmount {
             amount = .external(newAmount)
         } else {
