@@ -217,6 +217,7 @@ private extension CommonUserTokenListManager {
                     completions.forEach { $0(.success(())) }
                 case .failure(let error):
                     guard let self else { return }
+                    
                     pendingTokensToUpdate = listToUpdate
                     completions.forEach { $0(.failure(error)) }
                 }
