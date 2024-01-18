@@ -11,6 +11,10 @@ import Combine
 import BlockchainSdk
 
 class SendFeeViewModelInputMock: SendFeeViewModelInput {
+    var amountPublisher: AnyPublisher<Amount?, Never> {
+        .just(output: nil)
+    }
+
     var selectedFeeOption: FeeOption {
         .market
     }
