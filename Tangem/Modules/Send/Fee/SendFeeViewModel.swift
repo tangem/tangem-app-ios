@@ -15,6 +15,8 @@ protocol SendFeeViewModelInput {
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
+
+    var canIncludeFeeIntoAmount: Bool { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     func didSelectFeeOption(_ feeOption: FeeOption)
@@ -47,14 +49,15 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = input.selectedFeeOption
         feeRowViewModels = makeFeeRowViewModels([:])
 
-        let binding: BindingValue<Bool> = .init(root: self, default: isFeeIncluded) {
+        let isFeeIncludedBinding = BindingValue<Bool>(root: self, default: isFeeIncluded) {
             $0.isFeeIncluded
         } set: {
             $0.isFeeIncluded = $1
             $0.input.didChangeFeeInclusion($1)
         }
-
-        subtractFromAmountModel = DefaultToggleRowViewModel(title: Localization.sendAmountSubstract, isDisabled: false, isOn: binding)
+        if input.canIncludeFeeIntoAmount {
+            subtractFromAmountModel = DefaultToggleRowViewModel(title: Localization.sendAmountSubstract, isDisabled: false, isOn: isFeeIncludedBinding)
+        }
 
         bind()
     }
