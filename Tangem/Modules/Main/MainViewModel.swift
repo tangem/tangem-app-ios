@@ -127,6 +127,8 @@ final class MainViewModel: ObservableObject {
             viewModel.onPullToRefresh(completionHandler: completion)
         case .lockedWallet:
             completion()
+        case .visaWallet(_, _, let viewModel):
+            viewModel.onPullToRefresh(completionHandler: completion)
         }
     }
 
