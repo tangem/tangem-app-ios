@@ -763,7 +763,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             Deferred {
                 Future { [weak self] promise in
                     guard let self else { return }
-                    
+
                     backupService.proceedBackup { result in
                         // Ring onboarding. Reset to defaults
                         self.backupService.config.style.scanTagImage = .genericCard
