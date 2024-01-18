@@ -42,7 +42,7 @@ class TestnetBuyCryptoService {
             }
             .sink { [weak self] completion in
                 guard let self else { return }
-                
+
                 if case .failure(let error) = completion {
                     AppLog.shared.error(error)
                     AppPresenter.shared.showError(error)
