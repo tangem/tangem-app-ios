@@ -134,8 +134,9 @@ class PushTxViewModel: ObservableObject {
         pusher.pushTransaction(with: transaction.hash, newTransaction: tx, signer: cardViewModel.signer)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
-                appDelegate.removeLoadingView()
                 guard let self else { return }
+                
+                appDelegate.removeLoadingView()
                 if case .failure(let error) = completion {
                     if error.toTangemSdkError().isUserCancelled {
                         return
@@ -230,9 +231,11 @@ class PushTxViewModel: ObservableObject {
                     return (nil, fee)
                 }
 
-                let newAmount = isFeeIncluded ?
-                    viewModel.transaction.amount + viewModel.previousFeeAmount - fee.amount :
+                let newAmount = if isFeeIncluded {
+                    viewModel.transaction.amount + viewModel.previousFeeAmount - fee.amount
+                }   else {
                     viewModel.transaction.amount
+                }
 
                 var tx: BlockchainSdk.Transaction?
 
