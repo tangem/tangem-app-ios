@@ -27,6 +27,10 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         ])
     }
 
+    var canIncludeFeeIntoAmount: Bool {
+        true
+    }
+
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
         .just(output: false)
     }
