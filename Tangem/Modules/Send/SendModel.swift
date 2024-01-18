@@ -106,7 +106,6 @@ class SendModel {
             setDestination(destination)
         }
 
-        validateAmount()
         validateDestination()
         validateDestinationAdditionalField()
         bind()
@@ -160,11 +159,9 @@ class SendModel {
     }
 
     private func bind() {
-        Publishers.CombineLatest(_isFeeIncluded, fee)
-            .sink { [weak self] isFeeIncluded, fee in
-                guard let self else { return }
-
-                print(isFeeIncluded, fee)
+        Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
+            .sink { [weak self] amount, fee, isFeeIncluded in
+                self?.updateAndValidateAmount(amount, fee: fee, isFeeIncluded: isFeeIncluded)
             }
             .store(in: &bag)
 
@@ -248,20 +245,18 @@ class SendModel {
         guard _amount.value != amount else { return }
 
         _amount.send(amount)
-        validateAmount()
     }
 
-    private func validateAmount() {
+    private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
         let amount: Amount?
         let error: Error?
 
-        if let newAmount = _amount.value,
-           let fee = fee.value,
-
+        if let newAmount = newAmount,
+           let fee,
            isFeeIncluded {
             amount = newAmount - fee.amount
         } else {
-            amount = _amount.value
+            amount = newAmount
         }
 
         #warning("validate")
@@ -336,14 +331,10 @@ class SendModel {
 
         _selectedFeeOption.send(feeOption)
         fee.send(newFee)
-
-        validateAmount()
     }
 
     func didChangeFeeInclusion(_ isFeeIncluded: Bool) {
         _isFeeIncluded.send(isFeeIncluded)
-
-        validateAmount()
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
