@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import TangemVisa
 
 struct VisaConfig: CardContainer {
     let card: CardDTO
