@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 import CombineExt
-import SwiftUI
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
@@ -23,6 +23,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
+    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
+    @Published var isAppStoreReviewRequested = false
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -55,8 +57,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
     private let tokenSectionsAdapter: TokenSectionsAdapter
-    private unowned let coordinator: MultiWalletMainContentRoutable
     private let tokenRouter: SingleTokenRoutable
+    private let optionsEditing: OrganizeTokensOptionsEditing
+    private unowned let coordinator: MultiWalletMainContentRoutable
 
     private var canManageTokens: Bool { userWalletModel.isMultiWallet }
 
@@ -67,23 +70,29 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         qos: .userInitiated
     )
 
+    private let rateAppService = RateAppService()
+
+    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
     private var isUpdating = false
+
     private var bag = Set<AnyCancellable>()
 
     init(
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
-        coordinator: MultiWalletMainContentRoutable,
         tokenSectionsAdapter: TokenSectionsAdapter,
-        tokenRouter: SingleTokenRoutable
+        tokenRouter: SingleTokenRoutable,
+        optionsEditing: OrganizeTokensOptionsEditing,
+        coordinator: MultiWalletMainContentRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
-        self.coordinator = coordinator
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
+        self.optionsEditing = optionsEditing
+        self.coordinator = coordinator
 
         setup()
     }
@@ -153,36 +162,75 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        let userWalletNotificationPublisher = userWalletNotificationManager
+        organizedTokensSectionsPublisher
+            .map { $0.flatMap(\.items) }
+            .removeDuplicates()
+            .map { $0.map(\.walletModelId) }
+            .withWeakCaptureOf(self)
+            .flatMapLatest { viewModel, walletModelIds in
+                return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds)
+            }
+            .sink()
+            .store(in: &bag)
+
+        let userWalletNotificationsPublisher = userWalletNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .share(replay: 1)
 
-        userWalletNotificationPublisher
-            .removeDuplicates()
+        userWalletNotificationsPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let tokensNotificationPublisher = tokensNotificationManager
+        let tokensNotificationsPublisher = tokensNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .share(replay: 1)
 
-        tokensNotificationPublisher
-            .removeDuplicates()
+        tokensNotificationsPublisher
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        [userWalletNotificationPublisher, tokensNotificationPublisher]
-            .combineLatest()
-            .map { $0.flatMap { $0 } }
-            .removeDuplicates()
+        userWalletModel
+            .totalBalancePublisher
+            .compactMap { $0.value }
             .withWeakCaptureOf(self)
-            .sink { viewModel, notificationInputs in
-                viewModel.delegate?.didChangeNotificationInputs(
-                    notificationInputs,
-                    forUserWalletWithId: viewModel.userWalletModel.userWalletId
+            .sink { viewModel, _ in
+                let walletModels = viewModel.userWalletModel.walletModelsManager.walletModels
+                viewModel.rateAppService.registerBalances(of: walletModels)
+            }
+            .store(in: &bag)
+
+        let allNotificationsPublisher = Publishers.CombineLatest(userWalletNotificationsPublisher, tokensNotificationsPublisher)
+            .map { $0.0 + $0.1 }
+
+        let isBalanceLoadedPublisher = userWalletModel
+            .totalBalancePublisher
+            .map { $0.value != nil }
+            .removeDuplicates()
+
+        Publishers.CombineLatest3(isPageSelectedSubject, isBalanceLoadedPublisher, allNotificationsPublisher)
+            .map { isPageSelected, isBalanceLoaded, notifications in
+                return RateAppRequest(
+                    isLocked: false,
+                    isSelected: isPageSelected,
+                    isBalanceLoaded: isBalanceLoaded,
+                    displayedNotifications: notifications
                 )
+            }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, rateAppRequest in
+                viewModel.rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
+            }
+            .store(in: &bag)
+
+        rateAppService
+            .rateAppAction
+            .withWeakCaptureOf(self)
+            .sink { viewModel, rateAppAction in
+                viewModel.handleRateAppAction(rateAppAction)
             }
             .store(in: &bag)
     }
@@ -260,6 +308,28 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func handleRateAppAction(_ action: RateAppAction) {
+        rateAppBottomSheetViewModel = nil
+
+        switch action {
+        case .openAppRateDialog:
+            rateAppBottomSheetViewModel = RateAppBottomSheetViewModel { [weak self] response in
+                self?.rateAppService.respondToRateAppDialog(with: response)
+            }
+        case .openMailWithEmailType(let emailType):
+            let userWallet = userWalletModel
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+                let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWallet.emailData)
+                let recipient = userWallet.config.emailConfig?.recipient ?? EmailConfig.default.recipient
+                self?.coordinator.openMail(with: collector, emailType: emailType, recipient: recipient)
+            }
+        case .openAppStoreReview:
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+                self?.isAppStoreReviewRequested = true
+            }
+        }
     }
 }
 
@@ -406,33 +476,15 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
     }
 }
 
-// MARK: - Auxiliary types
+// MARK: - MainViewPage protocol conformance
 
-extension MultiWalletMainContentViewModel {
-    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
-
-    struct SectionViewModel: Identifiable {
-        let id: AnyHashable
-        let title: String?
+extension MultiWalletMainContentViewModel: MainViewPage {
+    func onPageAppear() {
+        isPageSelectedSubject.send(true)
     }
-}
 
-// MARK: - Convenience extensions
-
-private extension TokenSectionsAdapter.SectionItem {
-    var walletModel: WalletModel? {
-        switch self {
-        case .default(let walletModel):
-            return walletModel
-        case .withoutDerivation:
-            return nil
-        }
-    }
-}
-
-private extension TokenSectionsAdapter.Section {
-    var walletModels: [WalletModel] {
-        return items.compactMap(\.walletModel)
+    func onPageDisappear() {
+        isPageSelectedSubject.send(false)
     }
 }
 
@@ -454,7 +506,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         )
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
         let canSend = userWalletModel.config.hasFeature(.send) && walletModel.canSendTransaction
-        let canSwap = swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem)
+        let canSwap = userWalletModel.config.hasFeature(.swapping) && swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem) && !walletModel.isCustom
         let isBlockchainReachable = !walletModel.state.isBlockchainUnreachable
 
         return actionsBuilder.buildTokenContextActions(
@@ -498,9 +550,37 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
                 return
             }
 
+            Analytics.log(event: .buttonExchange, params: [.token: walletModel.tokenItem.currencySymbol])
             tokenRouter.openExchange(walletModel: walletModel)
         case .hide:
             return
         }
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension MultiWalletMainContentViewModel {
+    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
+
+    struct SectionViewModel: Identifiable {
+        let id: AnyHashable
+        let title: String?
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension TokenSectionsAdapter.Section {
+    var walletModels: [WalletModel] {
+        return items.compactMap(\.walletModel)
+    }
+}
+
+// MARK: - Constants
+
+private extension MultiWalletMainContentViewModel {
+    private enum Constants {
+        static let feedbackRequestDelay = 0.7
     }
 }
