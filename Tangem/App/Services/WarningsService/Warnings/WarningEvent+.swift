@@ -51,7 +51,7 @@ extension WarningEvent {
             return .critical
         case .systemDeprecationTemporary, .supportedOnlySingleCurrencyWallet:
             return .warning
-        case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
+        case .missingDerivation, .walletLocked, .missingBackup, .tangemExpressPromotion: // New cases won't be displayed in new design
             return .info
         }
     }
@@ -62,8 +62,7 @@ extension WarningEvent {
             return .temporary
         case .failedToVerifyCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
             return .permanent
-        case .missingDerivation, .walletLocked, .missingBackup:
-            // New cases won't be displayed in new design
+        case .missingDerivation, .walletLocked, .missingBackup, .tangemExpressPromotion: // New cases won't be displayed in new design
             return .temporary
         }
     }
@@ -84,6 +83,8 @@ extension WarningEvent {
         case .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
             // New cases won't be displayed in new design
             return defaultTitle
+        case .tangemExpressPromotion:
+            return Localization.mainSwapPromotionTitle
         }
     }
 }

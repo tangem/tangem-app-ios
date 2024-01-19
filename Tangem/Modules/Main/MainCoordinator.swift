@@ -27,7 +27,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var legacySendCoordinator: LegacySendCoordinator?
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var swappingCoordinator: SwappingCoordinator?
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
 
@@ -53,17 +52,14 @@ class MainCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
-        let rateAppService = CommonRateAppService()
         let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
-            rateAppService: rateAppService,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
         )
 
         swipeDiscoveryHelper.delegate = viewModel
-        rateAppService.delegate = viewModel
         mainViewModel = viewModel
     }
 }
@@ -125,6 +121,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
+
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
@@ -167,6 +164,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         legacyTokenListCoordinator = coordinator
     }
 }
+
+// MARK: - SingleWalletMainContentRoutable protocol conformance
+
+extension MainCoordinator: SingleWalletMainContentRoutable {}
 
 // MARK: - SingleTokenRoutable
 
@@ -230,6 +231,8 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         }
 
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
             type: .send
@@ -258,6 +261,8 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
             type: .sell(amount: amountToSend, destination: destination)
@@ -289,23 +294,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             withCloseButton: false,
             urlActions: [:]
         )
-    }
-
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.swappingCoordinator = nil
-        }
-
-        let factory = CommonSwappingModulesFactory(inputModel: input)
-        let coordinator = SwappingCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-
-        swappingCoordinator = coordinator
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
@@ -349,6 +337,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
+
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
@@ -373,3 +362,7 @@ extension MainCoordinator: OrganizeTokensRoutable {
         organizeTokensViewModel = nil
     }
 }
+
+// MARK: - VisaWalletRoutable
+
+extension MainCoordinator: VisaWalletRoutable {}
