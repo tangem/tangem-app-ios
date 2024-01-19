@@ -197,8 +197,9 @@ class WalletModel {
             return nil
         }
 
-        if wallet.hasPendingTx { // has pending tx for fee
-            return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
+        // has pending tx
+        if wallet.hasPendingTx {
+            return .hasPendingOutgoingTransaction(symbol: blockchainNetwork.blockchain.currencySymbol)
         }
 
         // no fee
