@@ -445,16 +445,7 @@ extension SendModel: SendFeeViewModelInput {
     }
 
     var canIncludeFeeIntoAmount: Bool {
-        if !sendType.canIncludeFeeIntoAmount {
-            return false
-        }
-
-        #warning("[REDACTED_TODO_COMMENT]")
-        if walletModel.tokenItem.isToken {
-            return false
-        }
-
-        return true
+        sendType.canIncludeFeeIntoAmount && walletModel.amountType == walletModel.feeTokenItem.amountType
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
