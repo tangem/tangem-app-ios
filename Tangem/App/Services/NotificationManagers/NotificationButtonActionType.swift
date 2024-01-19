@@ -36,7 +36,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         case .refresh:
             return Localization.warningButtonRefresh
         case .goToProvider:
-            return Localization.expressGoToProvider
+            return Localization.commonGoToProvider
         case .exchange:
             return Localization.tokenSwapPromotionButton
         }
