@@ -21,7 +21,6 @@ class LegacyTokenDetailsCoordinator: CoordinatorObject {
 
     @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
-    @Published var swappingCoordinator: SwappingCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -152,22 +151,5 @@ extension LegacyTokenDetailsCoordinator: LegacyTokenDetailsRoutable {
             withCloseButton: false,
             urlActions: [:]
         )
-    }
-
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.swappingCoordinator = nil
-        }
-
-        let factory = CommonSwappingModulesFactory(inputModel: input)
-        let coordinator = SwappingCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-
-        swappingCoordinator = coordinator
     }
 }
