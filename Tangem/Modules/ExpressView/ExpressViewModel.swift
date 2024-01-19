@@ -518,7 +518,7 @@ private extension ExpressViewModel {
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
-            providerTitleType: .withPrefix,
+            titleFormat: .prefixAndName,
             isDisabled: false,
             badge: badge,
             subtitles: [subtitle],
