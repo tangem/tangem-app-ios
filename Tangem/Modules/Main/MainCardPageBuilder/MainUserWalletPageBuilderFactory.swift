@@ -107,7 +107,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             walletModel: walletModel,
-            userTokensManager: model.userTokensManager,
+            walletModelsManager: model.walletModelsManager,
             swapPairService: nil,
             contextDataProvider: model
         )
