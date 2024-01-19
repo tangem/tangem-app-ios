@@ -134,6 +134,7 @@ private extension ExpressSuccessSentViewModel {
 
         provider = ProviderRowViewModel(
             provider: providerFormatter.mapToProvider(provider: data.provider),
+            titleFormat: .prefixAndName,
             isDisabled: false,
             badge: .none,
             subtitles: [subtitle],
@@ -141,6 +142,6 @@ private extension ExpressSuccessSentViewModel {
         )
 
         let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.tokenItem)
-        expressFee = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: feeFormatted)
+        expressFee = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: feeFormatted)
     }
 }
