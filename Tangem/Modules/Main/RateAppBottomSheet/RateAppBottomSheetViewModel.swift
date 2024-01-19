@@ -9,7 +9,7 @@
 import Foundation
 
 final class RateAppBottomSheetViewModel: ObservableObject, Identifiable {
-    typealias RateAppInteraction = (_ result: RateAppResult) -> Void
+    typealias RateAppInteraction = (_ result: RateAppResponse) -> Void
 
     private let onInteraction: RateAppInteraction
     private var isDismissInteractionAllowed = true
@@ -26,11 +26,11 @@ final class RateAppBottomSheetViewModel: ObservableObject, Identifiable {
 
     func onRateAppSheetPositiveResponse() {
         isDismissInteractionAllowed = false
-        onInteraction(.positiveResponse)
+        onInteraction(.positive)
     }
 
     func onRateAppSheetNegativeResponse() {
         isDismissInteractionAllowed = false
-        onInteraction(.negativeResponse)
+        onInteraction(.negative)
     }
 }
