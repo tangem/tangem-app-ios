@@ -104,6 +104,18 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             didChangeBlockchain()
         }
         .store(in: &bag)
+
+        // It is necessary to ensure that the steps of validating the existence of a token are not lost, since the validation includes a check for these fields (Line - 243)
+        Publishers.CombineLatest3(
+            $name.removeDuplicates(),
+            $symbol.removeDuplicates(),
+            $decimals.removeDuplicates()
+        )
+        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .sink { [weak self] _ in
+            self?.validate()
+        }
+        .store(in: &bag)
     }
 
     func createToken() {
