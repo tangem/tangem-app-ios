@@ -9,8 +9,7 @@
 import SwiftUI
 
 struct ReceiveCurrencyView: View {
-    private let viewModel: ReceiveCurrencyViewModel
-    private let tokenIconSize = CGSize(width: 36, height: 36)
+    @ObservedObject private var viewModel: ReceiveCurrencyViewModel
     private var didTapChangeCurrency: () -> Void = {}
 
     init(viewModel: ReceiveCurrencyViewModel) {
@@ -18,94 +17,15 @@ struct ReceiveCurrencyView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            headerLabels
-
-            mainContent
+        ExpressCurrencyView(viewModel: viewModel.expressCurrencyViewModel) {
+            LoadableTextView(
+                state: viewModel.cryptoAmountState,
+                font: Fonts.Regular.title1,
+                textColor: Colors.Text.primary1,
+                loaderSize: CGSize(width: 102, height: 24)
+            )
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
-        .background(Colors.Background.primary)
-        .cornerRadius(14)
-    }
-
-    private var headerLabels: some View {
-        HStack(spacing: 0) {
-            Text(Localization.exchangeReceiveViewHeader)
-                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
-
-            Spacer()
-
-            if viewModel.isAvailable {
-                SensitiveText(builder: Localization.commonBalance, sensitive: viewModel.balanceString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-            } else {
-                Text(Localization.swappingTokenNotAvailable)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.disabled)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var mainContent: some View {
-        HStack(spacing: 0) {
-            currencyContent
-
-            Spacer()
-
-            SwappingTokenIconView(state: viewModel.tokenIconState)
-                .onTap(viewModel.canChangeCurrency ? didTapChangeCurrency : nil)
-        }
-    }
-
-    private var currencyContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            switch viewModel.cryptoAmountState {
-            case .idle:
-                EmptyView()
-            case .loading:
-                SkeletonView()
-                    .frame(width: 102, height: 24)
-                    .cornerRadius(6)
-                    .padding(.vertical, 6)
-
-            case .loaded:
-                Text(viewModel.cryptoAmountFormatted)
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
-            case .formatted(let value):
-                Text(value)
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            switch viewModel.fiatAmountState {
-            case .idle:
-                EmptyView()
-            case .loading:
-                SkeletonView()
-                    .frame(width: 40, height: 13)
-                    .cornerRadius(6)
-            case .loaded:
-                Text(viewModel.fiatAmountFormatted)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
-            case .formatted(let value):
-                Text(value)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
+        .didTapChangeCurrency(didTapChangeCurrency)
     }
 }
 
@@ -120,44 +40,71 @@ extension ReceiveCurrencyView: Setupable {
 struct ReceiveCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
-            cryptoAmountState: .loading,
-            fiatAmountState: .loading,
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                balanceState: .loading,
+                fiatAmountState: .loading,
+                tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.ethereum(testnet: false)), isCustom: false)),
+                symbolState: .loaded(text: "ETH"),
+                canChangeCurrency: false
+            ),
+            cryptoAmountState: .loading
         ),
         ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
-            cryptoAmountState: .loaded(1100.46),
-            fiatAmountState: .loading,
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                balanceState: .formatted("0.0058"),
+                fiatAmountState: .loading,
+                tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.cardano(extended: false)), isCustom: false)),
+                symbolState: .loaded(text: "ADA"),
+                canChangeCurrency: false
+            ),
+            cryptoAmountState: .loading
         ),
         ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
-            cryptoAmountState: .loading,
-            fiatAmountState: .loaded(1100.46),
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                balanceState: .formatted("0.0058"),
+                fiatAmountState: .loading,
+                tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.polygon(testnet: false)), isCustom: false)),
+                symbolState: .loaded(text: "MATIC"),
+                canChangeCurrency: true
+            ),
+            cryptoAmountState: .loaded(text: "1100.46")
         ),
         ReceiveCurrencyViewModel(
-            balance: .loaded(0.124124),
-            canChangeCurrency: false,
-            cryptoAmountState: .loaded(1100.46),
-            fiatAmountState: .loaded(1100.46),
-            tokenIconState: .loaded(
-                imageURL: TokenIconURLBuilder().iconURL(id: "polygon", size: .large),
-                symbol: "MATIC"
-            )
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                balanceState: .formatted("0.0058"),
+                fiatAmountState: .loaded(text: "1100.46"),
+                tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.polygon(testnet: false)), isCustom: false)),
+                symbolState: .loaded(text: "MATIC"),
+                canChangeCurrency: true
+            ),
+            cryptoAmountState: .loading
+        ),
+        ReceiveCurrencyViewModel(
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                balanceState: .formatted("0.0058"),
+                fiatAmountState: .loaded(text: "2100.46 $"),
+                tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .polygon(testnet: false)), isCustom: false)),
+                symbolState: .loaded(text: "USDT"),
+                canChangeCurrency: true
+            ),
+            cryptoAmountState: .loaded(text: "1100.46")
+        ),
+        ReceiveCurrencyViewModel(
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                balanceState: .formatted("0.0058"),
+                fiatAmountState: .loaded(text: "2100.46 $"),
+                priceChangePercent: "-24.3 %",
+                tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .polygon(testnet: false)), isCustom: false)),
+                symbolState: .loaded(text: "USDT"),
+                canChangeCurrency: true
+            ),
+            cryptoAmountState: .loaded(text: "1100.46")
         ),
     ]
 
@@ -166,8 +113,13 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
             Colors.Background.secondary
 
             VStack {
-                ForEach(viewModels) {
-                    ReceiveCurrencyView(viewModel: $0)
+                ForEach(viewModels) { viewModel in
+                    GroupedSection(viewModel) { viewModel in
+                        ReceiveCurrencyView(viewModel: viewModel)
+                    }
+                    .interSectionPadding(12)
+                    .interItemSpacing(10)
+                    .verticalPadding(0)
                 }
             }
             .padding(.horizontal, 16)

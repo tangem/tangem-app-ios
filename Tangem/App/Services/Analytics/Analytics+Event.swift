@@ -194,9 +194,9 @@ extension Analytics {
 
         // MARK: Express
 
-        case tokenChangeNowStatus = "[Token] - ChangeNow Status"
-        case tokenChangeNowStatusScreenOpened = "[Token] - ChangeNow Status Opened"
-        case tokenChangeNowButtonGoToProvider = "[Token] - Button - Go To Provider"
+        case tokenChangeNowStatus = "[Token] ChangeNow Status"
+        case tokenChangeNowStatusScreenOpened = "[Token] ChangeNow Status Opened"
+        case tokenChangeNowButtonGoToProvider = "[Token] Button - Go To Provider"
 
         // MARK: - App settings
 
@@ -228,6 +228,11 @@ extension Analytics {
         case mainNoticeBackupYourWallet = "[Main Screen] Notice - Backup Your Wallet"
         case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
         case tokenNoticeNotEnoughtFee = "[Token] Notice - Not Enough Fee"
+
+        // MARK: - Swap promo
+
+        case swapPromoButtonExchangeNow = "[Swap Promo] Button - Exchange Now"
+        case swapPromoButtonClose = "[Swap Promo] Button - Close"
 
         // MARK: - BlockchainSdk exceptions
 

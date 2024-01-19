@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-import TangemSwapping
+import TangemExpress
 
 final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
@@ -37,7 +37,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
     private let providerFormatter: ExpressProviderFormatter
-    private let feeFormatter: SwappingFeeFormatter
+    private let feeFormatter: FeeFormatter
     private unowned let coordinator: ExpressSuccessSentRoutable
 
     init(
@@ -46,7 +46,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
         providerFormatter: ExpressProviderFormatter,
-        feeFormatter: SwappingFeeFormatter,
+        feeFormatter: FeeFormatter,
         coordinator: ExpressSuccessSentRoutable
     ) {
         self.data = data
@@ -103,22 +103,22 @@ private extension ExpressSuccessSentViewModel {
         let destinationTokenItem = data.destination.tokenItem
 
         let sourceAmountFormatted = balanceFormatter.formatCryptoBalance(fromAmount, currencyCode: sourceTokenItem.currencySymbol)
-        let sourceFiatAmount = balanceConverter.convertFromFiat(value: fromAmount, to: sourceTokenItem.currencyId ?? "")
+        let sourceFiatAmount = balanceConverter.convertToFiat(value: fromAmount, from: sourceTokenItem.currencyId ?? "")
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
-            title: Localization.exchangeSendViewHeader,
+            title: Localization.swappingFromTitle,
             amount: sourceAmountFormatted,
             amountFiat: sourceFiatAmountFormatted,
             tokenIconInfo: TokenIconInfoBuilder().build(from: sourceTokenItem, isCustom: false)
         )
 
         let destinationAmountFormatted = balanceFormatter.formatCryptoBalance(toAmount, currencyCode: destinationTokenItem.currencySymbol)
-        let destinationFiatAmount = balanceConverter.convertFromFiat(value: toAmount, to: destinationTokenItem.currencyId ?? "")
+        let destinationFiatAmount = balanceConverter.convertToFiat(value: toAmount, from: destinationTokenItem.currencyId ?? "")
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
-            title: Localization.exchangeReceiveViewHeader,
+            title: Localization.swappingToTitle,
             amount: destinationAmountFormatted,
             amountFiat: destinationFiatAmountFormatted,
             tokenIconInfo: TokenIconInfoBuilder().build(from: destinationTokenItem, isCustom: false)
@@ -137,12 +137,10 @@ private extension ExpressSuccessSentViewModel {
             isDisabled: false,
             badge: .none,
             subtitles: [subtitle],
-            detailsType: .none,
-            tapAction: {}
+            detailsType: .none
         )
 
         let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.tokenItem)
-
-        expressFee = ExpressFeeRowData(title: Localization.sendFeeLabel, subtitle: feeFormatted)
+        expressFee = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: feeFormatted)
     }
 }

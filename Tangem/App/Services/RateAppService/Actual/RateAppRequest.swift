@@ -9,12 +9,8 @@
 import Foundation
 
 struct RateAppRequest {
-    struct PageInfo {
-        let isLocked: Bool
-        let isSelected: Bool
-        let isBalanceLoaded: Bool
-        let displayedNotifications: [NotificationViewInput]
-    }
-
-    let pageInfos: [PageInfo]
+    let isLocked: Bool
+    let isSelected: Bool
+    let isBalanceLoaded: Bool
+    let displayedNotifications: [NotificationViewInput]
 }

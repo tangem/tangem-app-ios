@@ -39,6 +39,10 @@ struct MultiWalletMainContentView: View {
         .animation(.default, value: viewModel.tokensNotificationInputs)
         .padding(.horizontal, 16)
         .bindAlert($viewModel.error)
+        .bottomSheet(item: $viewModel.rateAppBottomSheetViewModel, backgroundColor: Colors.Background.primary) { viewModel in
+            RateAppBottomSheetView(viewModel: viewModel)
+        }
+        .requestAppStoreReviewCompat($viewModel.isAppStoreReviewRequested)
     }
 
     @ViewBuilder
@@ -137,9 +141,10 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletModel: userWalletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
-            coordinator: mainCoordinator,
             tokenSectionsAdapter: tokenSectionsAdapter,
-            tokenRouter: SingleTokenRoutableMock()
+            tokenRouter: SingleTokenRoutableMock(),
+            optionsEditing: optionsManager,
+            coordinator: mainCoordinator
         )
     }()
 
