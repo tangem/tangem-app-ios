@@ -33,7 +33,7 @@ enum TokenNotificationEvent: Hashable {
         switch reason {
         case .cantSignLongTransactions:
             return .longTransaction(message: message)
-        case .hasPendingCoinTx:
+        case .hasPendingOutgoingTransaction:
             return .hasPendingTransactions(message: message)
         case .notEnoughFeeForTransaction(let eventConfiguration):
             let configuration = NotEnoughFeeConfiguration(
