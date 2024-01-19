@@ -189,7 +189,7 @@
 "exchange_tokens_available_tokens_header" = "Мои токены";
 "exchange_tokens_empty_tokens" = "У вас нет добавленных токенов. Добавьте токены для обмена";
 "exchange_tokens_unavailable_tokens_header" = "Недоступен для обмена с %@";
-"express_by_provider" = "Предоставлено";
+"express_by_provider" = "Предоставлено %@";
 "express_cex_fee_explanation" = "Кроме того, в курс обмена включена комиссия сети за отправку обмененных средств на ваш адрес";
 "express_cex_status_button_title" = "Статус";
 "express_choose_providers_subtitle" = "Провайдеры проводят транзакции, обеспечивая плавный и эффективный обмен токенами";
@@ -298,6 +298,8 @@
 "onboarding_access_code_repeat_code_title" = "Повторно введите код доступа";
 "onboarding_access_code_too_short" = "Код доступа должен состоять не менее чем из 4 символов.";
 "onboarding_access_codes_doesnt_match" = "Введенные коды доступа не совпадают";
+"onboarding_activation_error_message" = "Необходимо повторить операцию, при этом карта будет сброшена к заводским настройкам";
+"onboarding_activation_error_title" = "Ошибка активации";
 "onboarding_alert_message_not_max_backup_cards_added" = "Вы добавили одну резервную карту. После того, как процесс будет завершен, Вы больше не сможете добавить карт. Если у Вас есть еще одна карта, добавьте ее в резервную копию. Хотите продолжить?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ не может создать резервную копию для Tangem Wallet из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции. Все остальные функции работают стабильно.";
 "onboarding_backup_exit_warning" = "Процесс резервного копирования почти завершен. Вы не можете выйти из него сейчас.";
@@ -481,6 +483,7 @@
 "send_total_subtitle_format" = "%@ будет отправлено";
 "send_transaction_success" = "Транзакция успешно подписана и отправлена в блокчейн. Баланс будет обновлен через некоторое время";
 "send_validation_invalid_address" = "Неверный адрес";
+"send_wallet_balance_format" = "%1$@ (%2$@)";
 "sent_transaction_sent_title" = "Transaction sent";
 "story_awe_description" = "Держите свои криптосбережения в безопасности. Приватные ключи надежно хранятся на карте.";
 "story_awe_title" = "Революционный аппаратный кошелек";
