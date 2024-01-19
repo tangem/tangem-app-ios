@@ -53,9 +53,20 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EF46619A2923AFC400346B6C"
+               BlueprintIdentifier = "EF9E299B2B4F0C8C00418559"
                BuildableName = "TangemExpressTests.xctest"
                BlueprintName = "TangemExpressTests"
+               ReferencedContainer = "container:TangemApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B099337D2B5517E600240CDB"
+               BuildableName = "TangemVisaTests.xctest"
+               BlueprintName = "TangemVisaTests"
                ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
