@@ -23,6 +23,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
+    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
+    @Published var isAppStoreReviewRequested = false
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -223,6 +225,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 viewModel.rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
             }
             .store(in: &bag)
+
+        rateAppService
+            .rateAppAction
+            .withWeakCaptureOf(self)
+            .sink { viewModel, rateAppAction in
+                viewModel.handleRateAppAction(rateAppAction)
+            }
+            .store(in: &bag)
     }
 
     private func convertToSections(
@@ -298,6 +308,28 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    private func handleRateAppAction(_ action: RateAppAction) {
+        rateAppBottomSheetViewModel = nil
+
+        switch action {
+        case .openAppRateDialog:
+            rateAppBottomSheetViewModel = RateAppBottomSheetViewModel { [weak self] response in
+                self?.rateAppService.respondToRateAppDialog(with: response)
+            }
+        case .openMailWithEmailType(let emailType):
+            let userWallet = userWalletModel
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+                let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWallet.emailData)
+                let recipient = userWallet.config.emailConfig?.recipient ?? EmailConfig.default.recipient
+                self?.coordinator.openMail(with: collector, emailType: emailType, recipient: recipient)
+            }
+        case .openAppStoreReview:
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+                self?.isAppStoreReviewRequested = true
+            }
+        }
     }
 }
 
