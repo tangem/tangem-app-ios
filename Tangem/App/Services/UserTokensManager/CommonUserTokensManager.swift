@@ -202,8 +202,8 @@ extension CommonUserTokensManager: UserTokensManager {
             removeInternal($0, derivationPath: derivationPath, shouldUpload: false)
         }
 
-        addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
-        loadSwapAvailbilityStateIfNeeded(forceReload: false)
+        addInternal(itemsToAdd, derivationPath: derivationPath, shouldUpload: false)
+        loadSwapAvailbilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
 
