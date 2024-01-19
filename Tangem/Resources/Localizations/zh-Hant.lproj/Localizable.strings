@@ -481,6 +481,7 @@
 "send_total_subtitle_format" = "%@ 將被發送";
 "send_transaction_success" = "交易已成功簽署並發送至區塊鏈節點。錢包餘額稍後更新";
 "send_validation_invalid_address" = "無效地址";
+"send_wallet_balance_format" = "%1$@ (%2$@)";
 "sent_transaction_sent_title" = "Transaction sent";
 "story_awe_description" = "安全地存儲您的加密貨幣，同時將私鑰保存在您的卡中";
 "story_awe_title" = "創新式的硬體錢包";
