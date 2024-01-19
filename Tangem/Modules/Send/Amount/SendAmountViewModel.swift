@@ -31,7 +31,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let walletName: String
     let balance: String
     let tokenIconInfo: TokenIconInfo
-    let cryptoCurrencyId: String?
     let showCurrencyPicker: Bool
     let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
@@ -47,14 +46,19 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     weak var delegate: SendAmountViewModelDelegate?
 
-    private var inputTrigger: InputTrigger = .keyboard
-    private var cryptoAmount: Decimal? = nil
-    private var fiatAmount: Decimal? = nil
-
     private let input: SendAmountViewModelInput
     private var bag: Set<AnyCancellable> = []
 
+    private let converter: SendFiatCryptoHelper
+
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
+        converter = SendFiatCryptoHelper(
+            blockchain: input.blockchain,
+            amountType: input.amountType,
+            cryptoCurrencyId: walletInfo.currencyId,
+            amountFractionDigits: walletInfo.amountFractionDigits
+        )
+
         self.input = input
         walletName = walletInfo.walletName
         balance = walletInfo.balance
@@ -62,7 +66,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         amountFractionDigits = walletInfo.amountFractionDigits
         windowWidth = UIApplication.shared.windows.first?.frame.width ?? 400
 
-        cryptoCurrencyId = walletInfo.currencyId
         showCurrencyPicker = walletInfo.currencyId != nil
         cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
@@ -73,7 +76,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func didTapMaxAmount() {
-        inputTrigger = .maxAmount
+        converter.didChooseMaxAmount()
         delegate?.didTapMaxAmount()
     }
 
@@ -88,27 +91,35 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .amountPublisher
             .removeDuplicates()
             .sink { [weak self] amount in
-                guard let self else { return }
-
-                setViewAmount(amount?.value, inputTrigger: inputTrigger)
+                self?.converter.setModelAmount(amount?.value)
             }
             .store(in: &bag)
 
         $amount
             .removeDuplicates()
             .sink { [weak self] amount in
-                guard let self else { return }
+                self?.converter.setUserInputAmount(amount?.value)
+            }
+            .store(in: &bag)
 
-                guard inputTrigger == .keyboard else {
-                    inputTrigger = .keyboard
-                    return
-                }
+        converter
+            .modelAmount
+            .sink { [weak self] in
+                self?.input.setAmount($0)
+            }
+            .store(in: &bag)
 
-                if self.amount?.value == amount?.value {
-                    return
-                }
-
-                setModelAmount(amount?.value)
+        converter
+            .userInputAmount
+            .map { newUserInputAmount -> DecimalNumberTextField.DecimalValue? in
+                guard let newUserInputAmount else { return nil }
+                return DecimalNumberTextField.DecimalValue.external(newUserInputAmount)
+            }
+//            .filter { [weak self] in
+//                self?.amount != $0
+//            }
+            .sink { [weak self] newUserInputAmount in
+                self?.amount = newUserInputAmount
             }
             .store(in: &bag)
 
@@ -116,84 +127,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .dropFirst()
             .removeDuplicates()
             .sink { [weak self] useFiatCalculation in
-                guard
-                    let self,
-                    amount != nil
-                else {
-                    return
-                }
-
-                inputTrigger = .currencySelector
-                setTextFieldAmount(useFiatCalculation: useFiatCalculation)
+                self?.converter.setUseFiatCalculation(useFiatCalculation)
             }
             .store(in: &bag)
-    }
-
-    private func amountPair(from amount: Decimal?, useFiatCalculation: Bool) -> (amount: Amount?, cryptoAmount: Decimal?, fiatAmount: Decimal?)? {
-        guard let amount else {
-            return (nil, nil, nil)
-        }
-
-        let newCryptoAmount: Decimal?
-        let newFiatAmount: Decimal?
-
-        if let cryptoCurrencyId {
-            let balanceConverter = BalanceConverter()
-            if useFiatCalculation {
-                newCryptoAmount = balanceConverter.convertFromFiat(value: amount, to: cryptoCurrencyId)?.rounded(scale: amountFractionDigits)
-                newFiatAmount = amount
-            } else {
-                newCryptoAmount = amount
-                newFiatAmount = balanceConverter.convertToFiat(value: amount, from: cryptoCurrencyId)?.rounded(scale: 2)
-            }
-        } else {
-            newCryptoAmount = amount
-            newFiatAmount = nil
-        }
-
-        guard
-            let newCryptoAmount,
-            newCryptoAmount != cryptoAmount || newFiatAmount != fiatAmount
-        else {
-            return nil
-        }
-
-        let newAmount = Amount(with: input.blockchain, type: input.amountType, value: newCryptoAmount)
-        return (newAmount, newCryptoAmount, newFiatAmount)
-    }
-
-    private func setViewAmount(_ amount: Decimal?, inputTrigger: InputTrigger) {
-        guard let (_, newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: false) else { return }
-
-        cryptoAmount = newCryptoAmount
-        if inputTrigger != .keyboard {
-            fiatAmount = newFiatAmount
-            setTextFieldAmount(useFiatCalculation: useFiatCalculation)
-        }
-    }
-
-    private func setModelAmount(_ amount: Decimal?) {
-        guard let (newAmount, newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: useFiatCalculation) else { return }
-
-        cryptoAmount = newCryptoAmount
-        fiatAmount = newFiatAmount
-        input.setAmount(newAmount)
-    }
-
-    private func setTextFieldAmount(useFiatCalculation: Bool) {
-        let newAmount = useFiatCalculation ? fiatAmount : cryptoAmount
-        if let newAmount {
-            amount = .external(newAmount)
-        } else {
-            amount = nil
-        }
-    }
-}
-
-private extension SendAmountViewModel {
-    enum InputTrigger {
-        case keyboard
-        case currencySelector
-        case maxAmount
     }
 }
