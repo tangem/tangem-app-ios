@@ -11,40 +11,49 @@ import SwiftUI
 struct ExpressView: View {
     @ObservedObject private var viewModel: ExpressViewModel
 
+    @State private var viewGeometryInfo: GeometryInfo = .zero
+    @State private var contentSize: CGSize = .zero
+    @State private var bottomViewSize: CGSize = .zero
+
+    private var spacer: CGFloat {
+        var height = viewGeometryInfo.frame.height
+        height += viewGeometryInfo.safeAreaInsets.bottom
+        height -= viewGeometryInfo.safeAreaInsets.top
+        height -= contentSize.height
+        height -= bottomViewSize.height
+        return max(0, height)
+    }
+
     init(viewModel: ExpressViewModel) {
         self.viewModel = viewModel
     }
 
     var body: some View {
         ZStack {
-            Colors.Background.tertiary.edgesIgnoringSafeArea(.all)
+            Colors.Background.tertiary.ignoresSafeArea(.all)
 
-            GroupedScrollView(spacing: 14) {
-                swappingViews
+            GroupedScrollView(spacing: .zero) {
+                VStack(spacing: 14) {
+                    swappingViews
 
-                providerSection
+                    providerSection
 
-                feeSection
+                    feeSection
 
-                informationSection
+                    informationSection
+                }
+                .readGeometry(\.frame.size, bindTo: $contentSize)
 
-                legalView
-
-                MainButton(
-                    title: viewModel.mainButtonState.title,
-                    icon: viewModel.mainButtonState.icon,
-                    isLoading: viewModel.mainButtonIsLoading,
-                    isDisabled: !viewModel.mainButtonIsEnabled,
-                    action: viewModel.didTapMainButton
-                )
+                bottomView
             }
             .scrollDismissesKeyboardCompat(true)
         }
+        .readGeometry(bindTo: $viewGeometryInfo)
+        .ignoresSafeArea(.keyboard)
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
-        .alert(item: $viewModel.errorAlert, content: { $0.alert })
+        .alert(item: $viewModel.alert) { $0.alert }
         // For animate button below informationSection
         .animation(.easeInOut, value: viewModel.providerState?.id)
-        .animation(.easeInOut, value: viewModel.feeSectionItems.count)
         .animation(.default, value: viewModel.notificationInputs)
     }
 
@@ -52,28 +61,30 @@ struct ExpressView: View {
     private var swappingViews: some View {
         ZStack(alignment: .center) {
             VStack(spacing: 14) {
-                if let sendCurrencyViewModel = viewModel.sendCurrencyViewModel {
-                    SendCurrencyView(
-                        viewModel: sendCurrencyViewModel,
-                        decimalValue: $viewModel.sendDecimalValue
-                    )
-                    .didTapMaxAmount(viewModel.userDidTapMaxAmount)
-                    .didTapChangeCurrency {
-                        viewModel.userDidTapChangeSourceButton()
-                    }
+                GroupedSection(viewModel.sendCurrencyViewModel) {
+                    SendCurrencyView(viewModel: $0, decimalValue: $viewModel.sendDecimalValue)
+                        .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
+                        .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
+                .backgroundColor(Colors.Background.action)
 
-                if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
-                    ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
-                        .didTapChangeCurrency {
-                            viewModel.userDidTapChangeDestinationButton()
-                        }
+                GroupedSection(viewModel.receiveCurrencyViewModel) {
+                    ReceiveCurrencyView(viewModel: $0)
+                        .didTapChangeCurrency(viewModel.userDidTapChangeDestinationButton)
+                        .didTapPriceChangePercent(viewModel.userDidTapPriceChangeInfoButton)
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
+                .backgroundColor(Colors.Background.action)
             }
 
             swappingButton
         }
-        .padding(.top, 16)
+        .padding(.top, 8)
     }
 
     @ViewBuilder
@@ -111,17 +122,10 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var feeSection: some View {
-        GroupedSection(viewModel.feeSectionItems) { item in
-            switch item {
-            case .fee(let data):
-                ExpressFeeRowView(viewModel: data)
-            case .footnote(let text):
-                Text(text)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
+        GroupedSection(viewModel.expressFeeRowViewModel) {
+            ExpressFeeRowView(viewModel: $0)
         }
         .backgroundColor(Colors.Background.action)
-        .separatorStyle(.minimum)
         .interSectionPadding(12)
         .interItemSpacing(10)
         .verticalPadding(0)
@@ -140,6 +144,27 @@ struct ExpressView: View {
         .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var bottomView: some View {
+        VStack(spacing: 12) {
+            FixedSpacer(height: spacer)
+
+            VStack(spacing: 12) {
+                legalView
+
+                MainButton(
+                    title: viewModel.mainButtonState.title,
+                    icon: viewModel.mainButtonState.icon,
+                    isLoading: viewModel.mainButtonIsLoading,
+                    isDisabled: !viewModel.mainButtonIsEnabled,
+                    action: viewModel.didTapMainButton
+                )
+            }
+            .readGeometry(\.frame.size, bindTo: $bottomViewSize)
+        }
+        .animation(.none)
     }
 
     @ViewBuilder
@@ -178,7 +203,7 @@ struct ExpressView: View {
          tokenIconURLBuilder: TokenIconURLBuilder(),
          transactionSender: TransactionSenderMock(),
          fiatRatesProvider: FiatRatesProviderMock(),
-         swappingFeeFormatter: SwappingFeeFormatterMock(),
+         feeFormatter: FeeFormatterMock(),
          coordinator: ExpressCoordinator()
      )
 

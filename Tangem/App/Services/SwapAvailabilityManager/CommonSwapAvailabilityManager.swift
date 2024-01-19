@@ -8,7 +8,7 @@
 
 import Combine
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 class CommonSwapAvailabilityManager: SwapAvailabilityManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -39,38 +39,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
             return
         }
 
-        guard FeatureProvider.isAvailable(.express) else {
-            loadSwapableTokens(for: filteredItemsToRequest)
-            return
-        }
-
         loadExpressAssets(for: filteredItemsToRequest, userWalletId: userWalletId)
-    }
-
-    private func loadSwapableTokens(for items: [TokenItem]) {
-        let requestItem = convertToRequestItem(items)
-        var loadSubscription: AnyCancellable?
-        loadSubscription = tangemApiService
-            .loadCoins(requestModel: .init(supportedBlockchains: requestItem.blockchains, ids: requestItem.ids))
-            .sink(receiveCompletion: { _ in
-                withExtendedLifetime(loadSubscription) {}
-            }, receiveValue: { [weak self] models in
-                guard let self else {
-                    return
-                }
-
-                let preparedSwapStates: [TokenItem: Bool] = models
-                    .flatMap { $0.items }
-                    .reduce(into: [:]) {
-                        guard SwappingBlockchain(networkId: $1.blockchain.networkId) != nil else {
-                            return
-                        }
-
-                        $0[$1.tokenItem] = $1.exchangeable
-                    }
-
-                saveTokenItemsAvailability(for: preparedSwapStates)
-            })
     }
 
     private func loadExpressAssets(for items: [TokenItem], userWalletId: String) {
