@@ -58,11 +58,17 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var customScanImage: ImageType? { get }
 
+    var cardSessionFilter: SessionFilter { get }
+
+    var hasDefaultToken: Bool { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func makeWalletModelsFactory() -> WalletModelsFactory
 
     func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory
 }
 
 extension UserWalletConfig {
@@ -102,6 +108,10 @@ extension UserWalletConfig {
     var customOnboardingImage: ImageType? { nil }
 
     var customScanImage: ImageType? { nil }
+
+    var hasDefaultToken: Bool {
+        (defaultBlockchains.first?.tokens.count ?? 0) > 0
+    }
 }
 
 struct EmailConfig {
@@ -130,6 +140,22 @@ extension UserWalletConfig where Self: CardContainer {
         card.walletCurves
     }
 
+    var tangemSigner: TangemSigner {
+        .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+    }
+
+    var cardSessionFilter: SessionFilter {
+        let shouldSkipCardId = card.backupStatus?.isActive ?? false
+
+        if shouldSkipCardId, let userWalletIdSeed {
+            let userWalletId = UserWalletId(with: userWalletIdSeed)
+            let filter = UserWalletIdPreflightReadFilter(userWalletId: userWalletId)
+            return .custom(filter)
+        }
+
+        return .cardId(card.cardId)
+    }
+
     func makeTangemSdk() -> TangemSdk {
         let factory = GenericTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet)
         return factory.makeTangemSdk()
@@ -138,5 +164,9 @@ extension UserWalletConfig where Self: CardContainer {
     func makeBackupService() -> BackupService {
         let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
         return factory.makeBackupService()
+    }
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
+        return CommonMainHeaderProviderFactory()
     }
 }
