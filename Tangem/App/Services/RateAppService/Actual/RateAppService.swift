@@ -95,6 +95,8 @@ final class RateAppService {
     }
 
     func respondToRateAppDialog(with response: RateAppResponse) {
+        sendAnalyticsEvent(for: response)
+
         switch response {
         case .positive:
             systemReviewPromptRequestDates.append(Date())
@@ -104,6 +106,21 @@ final class RateAppService {
         case .dismissed:
             userDismissedLastRequestedReview = true
         }
+    }
+
+    private func sendAnalyticsEvent(for response: RateAppResponse) {
+        let parameterValue: Analytics.ParameterValue
+
+        switch response {
+        case .positive:
+            parameterValue = .appStoreReview
+        case .negative:
+            parameterValue = .feedbackEmail
+        case .dismissed:
+            parameterValue = .appRateSheetDismissed
+        }
+
+        Analytics.log(.mainNoticeRateTheApp, params: [.result: parameterValue])
     }
 
     private func requestRateApp() {
