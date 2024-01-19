@@ -13,6 +13,7 @@ enum MainUserWalletPageBuilder: Identifiable {
     case singleWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: SingleWalletMainContentViewModel)
     case multiWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: MultiWalletMainContentViewModel)
     case lockedWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: LockedWalletMainContentViewModel)
+    case visaWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: VisaWalletMainContentViewModel)
 
     var id: UserWalletId {
         switch self {
@@ -22,13 +23,15 @@ enum MainUserWalletPageBuilder: Identifiable {
             return id
         case .lockedWallet(let id, _, _):
             return id
+        case .visaWallet(let id, _, _):
+            return id
         }
     }
 
     var isLockedWallet: Bool {
         switch self {
         case .lockedWallet: return true
-        case .singleWallet, .multiWallet: return false
+        case .singleWallet, .multiWallet, .visaWallet: return false
         }
     }
 
@@ -40,6 +43,8 @@ enum MainUserWalletPageBuilder: Identifiable {
             return bodyModel.footerViewModel
         case .lockedWallet(_, _, let bodyModel):
             return bodyModel.footerViewModel
+        case .visaWallet:
+            return nil
         }
     }
 
@@ -51,6 +56,8 @@ enum MainUserWalletPageBuilder: Identifiable {
         case .multiWallet(_, let headerModel, _):
             MainHeaderView(viewModel: headerModel)
         case .lockedWallet(_, let headerModel, _):
+            MainHeaderView(viewModel: headerModel)
+        case .visaWallet(_, let headerModel, _):
             MainHeaderView(viewModel: headerModel)
         }
     }
@@ -67,6 +74,9 @@ enum MainUserWalletPageBuilder: Identifiable {
         case .lockedWallet(let id, _, let bodyModel):
             LockedWalletMainContentView(viewModel: bodyModel)
                 .id(id)
+        case .visaWallet(let id, _, let bodyModel):
+            VisaWalletMainContentView(viewModel: bodyModel)
+                .id(id)
         }
     }
 
@@ -81,6 +91,32 @@ enum MainUserWalletPageBuilder: Identifiable {
             MainFooterView(viewModel: viewModel, didScrollToBottom: didScrollToBottom)
         } else {
             EmptyMainFooterView()
+        }
+    }
+}
+
+// MARK: - MainViewPage protocol conformance
+
+extension MainUserWalletPageBuilder: MainViewPage {
+    func onPageAppear() {
+        switch self {
+        case .singleWallet(_, _, let bodyModel):
+            bodyModel.onPageAppear()
+        case .multiWallet(_, _, let bodyModel):
+            bodyModel.onPageAppear()
+        case .lockedWallet, .visaWallet:
+            break
+        }
+    }
+
+    func onPageDisappear() {
+        switch self {
+        case .singleWallet(_, _, let bodyModel):
+            bodyModel.onPageDisappear()
+        case .multiWallet(_, _, let bodyModel):
+            bodyModel.onPageDisappear()
+        case .lockedWallet, .visaWallet:
+            break
         }
     }
 }

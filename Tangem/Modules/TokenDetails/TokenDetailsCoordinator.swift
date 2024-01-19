@@ -22,7 +22,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     @Published var legacySendCoordinator: LegacySendCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var swappingCoordinator: SwappingCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
@@ -47,7 +46,19 @@ class TokenDetailsCoordinator: CoordinatorObject {
             address: options.walletModel.wallet.address,
             amountType: options.walletModel.amountType
         )
-        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel, contextDataProvider: options.cardModel)
+
+        let swapPairService: SwapPairService?
+        if !options.walletModel.isCustom {
+            swapPairService = SwapPairService(
+                tokenItem: options.walletModel.tokenItem,
+                walletModelsManager: options.cardModel.walletModelsManager,
+                userWalletId: options.cardModel.userWalletId.stringValue
+            )
+        } else {
+            swapPairService = nil
+        }
+
+        let notificationManager = SingleTokenNotificationManager(walletModel: options.walletModel, swapPairService: swapPairService, contextDataProvider: options.cardModel)
 
         let tokenRouter = SingleTokenRouter(
             userWalletModel: options.cardModel,
@@ -69,7 +80,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self,
             tokenRouter: tokenRouter
         )
-        notificationManager.setupManager(with: tokenDetailsViewModel)
     }
 }
 
@@ -137,6 +147,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
+
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
@@ -180,6 +191,8 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
             type: .send
@@ -208,6 +221,8 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
             type: .sell(amount: amountToSend, destination: destination)
@@ -239,23 +254,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             withCloseButton: false,
             urlActions: [:]
         )
-    }
-
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.swappingCoordinator = nil
-        }
-
-        let factory = CommonSwappingModulesFactory(inputModel: input)
-        let coordinator = SwappingCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-
-        swappingCoordinator = coordinator
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
