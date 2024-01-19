@@ -27,6 +27,7 @@ struct SendFeeView: View {
                 DefaultToggleRowView(viewModel: $0)
             } footer: {
                 DefaultFooterView(viewModel.subtractFromAmountFooterText)
+                    .animation(.default)
             }
             .backgroundColor(Colors.Background.action)
         }
