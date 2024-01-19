@@ -7,8 +7,12 @@
 //
 
 import Foundation
+import Combine
 
 struct RateAppServiceStub: RateAppService {
+    var rateAppAction: AnyPublisher<RateAppAction, Never> { .just(output: .openAppRateDialog) }
+
     func registerBalances(of walletModels: [WalletModel]) {}
     func requestRateAppIfAvailable(with request: RateAppRequest) {}
+    func respondToRateAppDialog(with response: RateAppResponse) {}
 }
