@@ -50,6 +50,19 @@ class WalletModel {
         }
     }
 
+    var feeTokenItem: TokenItem {
+        let blockchain = blockchainNetwork.blockchain
+
+        switch blockchain.feePaidCurrency {
+        case .coin:
+            return .blockchain(blockchain)
+        case .token(let value):
+            return .token(value, blockchain)
+        case .sameCurrency:
+            return tokenItem
+        }
+    }
+
     var name: String {
         switch amountType {
         case .coin, .reserve:
