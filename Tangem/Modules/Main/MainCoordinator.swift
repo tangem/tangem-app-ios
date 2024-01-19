@@ -27,7 +27,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var legacySendCoordinator: LegacySendCoordinator?
     @Published var sendCoordinator: SendCoordinator? = nil
-    @Published var swappingCoordinator: SwappingCoordinator?
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
 
@@ -228,6 +227,8 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         }
 
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
             type: .send
@@ -256,9 +257,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
+            emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
-            type: .sell(amount: amountToSend.value, destination: destination)
+            type: .sell(amount: amountToSend, destination: destination)
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
@@ -289,23 +292,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.swappingCoordinator = nil
-        }
-
-        let factory = CommonSwappingModulesFactory(inputModel: input)
-        let coordinator = SwappingCoordinator(
-            factory: factory,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
-
-        coordinator.start(with: .default)
-
-        swappingCoordinator = coordinator
-    }
-
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
         let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.expressCoordinator = nil
@@ -314,7 +300,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
                 return
             }
 
-            self?.openNetworkCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
+            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
         }
 
         let factory = CommonExpressModulesFactory(inputModel: input)
@@ -337,7 +323,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
         guard let cardViewModel = userWalletModel as? CardViewModel else {
             return
@@ -372,3 +358,7 @@ extension MainCoordinator: OrganizeTokensRoutable {
         organizeTokensViewModel = nil
     }
 }
+
+// MARK: - VisaWalletRoutable
+
+extension MainCoordinator: VisaWalletRoutable {}
