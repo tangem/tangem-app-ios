@@ -59,7 +59,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
-    private let rateAppService: RateAppService
     private unowned let coordinator: MultiWalletMainContentRoutable
 
     private var canManageTokens: Bool { userWalletModel.isMultiWallet }
@@ -70,6 +69,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         label: "com.tangem.MultiWalletMainContentViewModel.mappingQueue",
         qos: .userInitiated
     )
+
+    private let rateAppService = RateAppService()
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
     private var isUpdating = false
@@ -92,7 +93,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tokenRouter = tokenRouter
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
-        rateAppService = CommonRateAppService()
 
         setup()
     }
