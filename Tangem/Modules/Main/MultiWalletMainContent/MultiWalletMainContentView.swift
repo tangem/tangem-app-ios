@@ -39,6 +39,10 @@ struct MultiWalletMainContentView: View {
         .animation(.default, value: viewModel.tokensNotificationInputs)
         .padding(.horizontal, 16)
         .bindAlert($viewModel.error)
+        .bottomSheet(item: $viewModel.rateAppBottomSheetViewModel, backgroundColor: Colors.Background.primary) { viewModel in
+            RateAppBottomSheetView(viewModel: viewModel)
+        }
+        .requestAppStoreReviewCompat($viewModel.isAppStoreReviewRequested)
     }
 
     @ViewBuilder
