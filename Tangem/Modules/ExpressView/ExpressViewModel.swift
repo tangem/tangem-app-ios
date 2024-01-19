@@ -30,31 +30,15 @@ final class ExpressViewModel: ObservableObject {
     @Published var providerState: ProviderState?
 
     // Fee
-    var feeSectionItems: [FeeSectionItem] {
-        var items: [FeeSectionItem] = []
-
-        if let expressFeeRowViewModel {
-            items.append(.fee(expressFeeRowViewModel))
-
-            if let expressFeeFootnote {
-                items.append(.footnote(expressFeeFootnote))
-            }
-        }
-
-        return items
-    }
+    @Published var expressFeeRowViewModel: ExpressFeeRowData?
 
     // Main button
     @Published var mainButtonIsLoading: Bool = false
     @Published var mainButtonIsEnabled: Bool = false
     @Published var mainButtonState: MainButtonState = .swap
-    @Published var errorAlert: AlertBinder?
+    @Published var alert: AlertBinder?
 
     @Published var legalText: NSAttributedString?
-
-    // Private
-    @Published private var expressFeeRowViewModel: ExpressFeeRowData?
-    @Published private var expressFeeFootnote: String?
 
     // MARK: - Dependencies
 
@@ -126,6 +110,29 @@ final class ExpressViewModel: ObservableObject {
         coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
+    func userDidTapPriceChangeInfoButton() {
+        runTask(in: self) { viewModel in
+            let message: String? = await {
+                switch await viewModel.interactor.getSelectedProvider()?.provider.type {
+                case .none:
+                    return nil
+                case .cex:
+                    return Localization.expressCexFeeExplanation
+                case .dex:
+                    return Localization.swappingHighPriceImpactDescription
+                }
+            }()
+
+            guard let message else {
+                return
+            }
+
+            await runOnMain {
+                viewModel.alert = .init(title: "", message: message)
+            }
+        }
+    }
+
     func didTapMainButton() {
         switch mainButtonState {
         case .permitAndSwap:
@@ -186,14 +193,18 @@ private extension ExpressViewModel {
 private extension ExpressViewModel {
     func setupView() {
         sendCurrencyViewModel = SendCurrencyViewModel(
-            maximumFractionDigits: interactor.getSender().decimalCount,
-            canChangeCurrency: interactor.getSender().id != initialWallet.id,
-            tokenIconState: .loading
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingFromTitle),
+                canChangeCurrency: interactor.getSender().id != initialWallet.id
+            ),
+            maximumFractionDigits: interactor.getSender().decimalCount
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
-            canChangeCurrency: interactor.getDestination()?.id != initialWallet.id,
-            tokenIconState: .loading
+            expressCurrencyViewModel: .init(
+                titleState: .text(Localization.swappingToTitle),
+                canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
+            )
         )
     }
 
@@ -285,9 +296,9 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _),
              .restriction(.notEnoughAmountForFee, _):
-            sendCurrencyViewModel?.update(headerState: .insufficientFunds)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
         default:
-            sendCurrencyViewModel?.update(headerState: .header)
+            sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingFromTitle))
         }
     }
 
@@ -297,15 +308,15 @@ private extension ExpressViewModel {
         receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
     }
 
-    func updateReceiveCurrencyValue(expectAmount: Decimal?) {
-        receiveCurrencyViewModel?.updateReceiveCurrencyValue(
+    func updateFiatValue(expectAmount: Decimal?) {
+        receiveCurrencyViewModel?.updateFiatValue(
             expectAmount: expectAmount,
             tokenItem: interactor.getDestination()?.tokenItem
         )
     }
 
     func updateHighPricePercentLabel(quote: ExpressQuote?) {
-        receiveCurrencyViewModel?.updateHighPricePercentLabel(
+        receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(
             quote: quote,
             sourceCurrencyId: interactor.getSender().tokenItem.currencyId,
             destinationCurrencyId: interactor.getDestination()?.tokenItem.currencyId
@@ -335,7 +346,7 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             stopTimer()
 
-            updateReceiveCurrencyValue(expectAmount: 0)
+            updateFiatValue(expectAmount: 0)
             updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
@@ -345,12 +356,12 @@ private extension ExpressViewModel {
             guard type == .full else { return }
 
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
-            receiveCurrencyViewModel?.update(fiatAmountState: .loading)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .loading)
             updateHighPricePercentLabel(quote: .none)
 
         case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
-            updateReceiveCurrencyValue(expectAmount: quote?.expectAmount)
+            updateFiatValue(expectAmount: quote?.expectAmount)
             updateHighPricePercentLabel(quote: quote)
 
             // restart timer for pending approve transaction
@@ -365,7 +376,7 @@ private extension ExpressViewModel {
             isSwapButtonLoading = false
             restartTimer()
 
-            updateReceiveCurrencyValue(expectAmount: quote.expectAmount)
+            updateFiatValue(expectAmount: quote.expectAmount)
             updateHighPricePercentLabel(quote: quote)
         }
     }
@@ -423,7 +434,7 @@ private extension ExpressViewModel {
             action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
         }
 
-        expressFeeRowViewModel = ExpressFeeRowData(title: Localization.commonFeeLabel, subtitle: formattedFee, action: action)
+        expressFeeRowViewModel = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: formattedFee, action: action)
     }
 
     func updateMainButton(state: ExpressInteractor.State) {
@@ -478,30 +489,9 @@ private extension ExpressViewModel {
 // MARK: - Mapping
 
 private extension ExpressViewModel {
-    func mapToSwappingTokenIconViewModelState(wallet: WalletModel?) -> SwappingTokenIconView.State {
-        guard let wallet = wallet else {
-            return .loading
-        }
-
-        return .icon(
-            TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom),
-            symbol: wallet.tokenItem.currencySymbol
-        )
-    }
-
     func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
         guard let selectedProvider = await interactor.getSelectedProvider() else {
             return nil
-        }
-
-        // Setup additional expressFeeFootnote text if needed
-        await runOnMain {
-            switch selectedProvider.provider.type {
-            case .cex:
-                expressFeeFootnote = Localization.expressCexFeeExplanation
-            case .dex:
-                expressFeeFootnote = nil
-            }
         }
 
         let state = await selectedProvider.getState()
@@ -528,6 +518,7 @@ private extension ExpressViewModel {
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
+            titleFormat: .prefixAndName,
             isDisabled: false,
             badge: badge,
             subtitles: [subtitle],
@@ -560,11 +551,11 @@ private extension ExpressViewModel {
             } catch let error as ExpressAPIError {
                 await runOnMain {
                     let message = Localization.expressErrorCode(error.errorCode.localizedDescription)
-                    root.errorAlert = AlertBinder(title: Localization.commonError, message: message)
+                    root.alert = AlertBinder(title: Localization.commonError, message: message)
                 }
             } catch {
                 await runOnMain {
-                    root.errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
+                    root.alert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
                 }
             }
 
@@ -639,20 +630,6 @@ private extension ExpressViewModel {
 }
 
 extension ExpressViewModel {
-    enum FeeSectionItem: Identifiable {
-        var id: String {
-            switch self {
-            case .fee(let expressFeeRowData):
-                return expressFeeRowData.id
-            case .footnote(let string):
-                return string
-            }
-        }
-
-        case fee(ExpressFeeRowData)
-        case footnote(String)
-    }
-
     enum ProviderState: Identifiable {
         var id: Int {
             switch self {
