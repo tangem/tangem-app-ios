@@ -64,21 +64,21 @@ struct LegacyTokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
 
     var displayBalanceText: String {
         if state.failureDescription != nil {
-            return "—"
+            return AppConstants.dashSign
         }
         return balance.isEmpty ? Decimal(0).currencyFormatted(code: currencySymbol) : balance
     }
 
     var displayFiatBalanceText: String {
         if rate.isEmpty {
-            return "—"
+            return AppConstants.dashSign
         }
 
         if state.isNoAccount {
             return fiatBalance
         }
 
-        return state.failureDescription != nil ? "—" : fiatBalance
+        return state.failureDescription != nil ? AppConstants.dashSign : fiatBalance
     }
 
     var displayRateText: String {
