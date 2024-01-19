@@ -19,7 +19,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     var providerType: String {
-        pendingTransaction.transactionRecord.provider.type.rawValue.capitalized
+        pendingTransaction.transactionRecord.provider.type.rawValue.uppercased()
     }
 
     var animationDuration: TimeInterval {
@@ -169,6 +169,10 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                     return
                 }
 
+                if !pendingTx.transactionRecord.transactionStatus.isTransactionInProgress {
+                    viewModel.pendingTransactionsManager.hideTransaction(with: pendingTx.transactionRecord.expressTransactionId)
+                }
+
                 viewModel.updateUI(with: pendingTx, delay: Constants.notificationAnimationDelay)
             }
     }
@@ -179,7 +183,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         updateUI(
             statusesList: list,
             currentIndex: currentIndex,
-            currentStatus: pendingTransaction.currentStatus,
+            currentStatus: pendingTransaction.transactionRecord.transactionStatus,
             delay: delay
         )
     }
@@ -194,27 +198,31 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         currentStatusIndex = currentIndex
 
         let notificationFactory = NotificationsFactory()
-        let event: ExpressNotificationEvent?
+
         switch currentStatus {
         case .failed:
-            event = .cexOperationFailed
-        case .verificationRequired:
-            event = .verificationRequired
-        default:
-            event = nil
-        }
+            showGoToProviderHeaderButton = false
+            let input = notificationFactory.buildNotificationInput(
+                for: .cexOperationFailed,
+                buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
+            )
+            scheduleNotificationUpdate(input, delay: delay)
 
-        guard let event else {
+        case .verificationRequired:
+            showGoToProviderHeaderButton = false
+            let input = notificationFactory.buildNotificationInput(
+                for: .verificationRequired,
+                buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
+            )
+            scheduleNotificationUpdate(input, delay: delay)
+
+        case .canceled:
+            showGoToProviderHeaderButton = false
+            scheduleNotificationUpdate(nil, delay: delay)
+        default:
             showGoToProviderHeaderButton = true
             scheduleNotificationUpdate(nil, delay: delay)
-            return
         }
-
-        showGoToProviderHeaderButton = false
-        scheduleNotificationUpdate(notificationFactory.buildNotificationInput(
-            for: event,
-            buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
-        ), delay: delay)
     }
 
     private func scheduleNotificationUpdate(_ newInput: NotificationViewInput?, delay: TimeInterval) {

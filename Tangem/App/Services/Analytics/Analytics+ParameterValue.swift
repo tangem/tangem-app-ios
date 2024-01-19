@@ -61,7 +61,7 @@ extension Analytics {
 
         case errorCode = "Error Code"
 
-        case oneTransactionApprove = "Transaction"
+        case oneTransactionApprove = "Current Transaction"
         case unlimitedApprove = "Unlimited"
 
         // destination address entered
@@ -93,6 +93,7 @@ extension Analytics {
         case done = "Done"
         case kyc = "KYC"
         case refunded = "Refunded"
+        case canceled = "Canceled"
 
         // App theme
         case system = "System"
