@@ -199,7 +199,7 @@ class WalletModel {
 
         // has pending tx
         if wallet.hasPendingTx {
-            return .hasPendingOutgoingTransaction(symbol: blockchainNetwork.blockchain.currencySymbol)
+            return .hasPendingOutgoingTransaction(blockchain: blockchainNetwork.blockchain)
         }
 
         // no fee
