@@ -157,7 +157,6 @@ final class SendViewModel: ObservableObject {
         sendFeeViewModel = SendFeeViewModel(input: sendModel, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
-        sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
 
         bind()
@@ -295,11 +294,5 @@ extension SendViewModel: SendSummaryRoutable {
 
     func send() {
         sendModel.send()
-    }
-}
-
-extension SendViewModel: SendAmountViewModelDelegate {
-    func didTapMaxAmount() {
-        sendModel.useMaxAmount()
     }
 }
