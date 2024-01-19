@@ -132,7 +132,7 @@ extension ExpressNotificationEvent: NotificationEvent {
     var buttonActionType: NotificationButtonActionType? {
         switch self {
         case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _):
-            return .openNetworkCurrency(currencySymbol: mainTokenSymbol)
+            return .openFeeCurrency(currencySymbol: mainTokenSymbol)
         case .refreshRequired:
             return .refresh
         case .verificationRequired, .cexOperationFailed:
