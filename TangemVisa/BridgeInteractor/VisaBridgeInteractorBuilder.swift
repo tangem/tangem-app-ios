@@ -25,7 +25,7 @@ public struct VisaBridgeInteractorBuilder {
 
             do {
                 let response = try await smartContractInteractor.ethCall(request: request).async()
-                let addressParser = try VisaAddressParser().parseAddressResponse(response)
+                let addressParser = try AddressParser().parseAddressResponse(response)
                 paymentAccount = addressParser
                 break
             } catch {
