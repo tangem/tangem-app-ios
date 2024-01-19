@@ -85,7 +85,8 @@ class SendFeeViewModel: ObservableObject {
 
         input.amountPublisher
             .map {
-                if let amountFormatted = $0?.string() {
+                let feeDecimals = 6
+                if let amountFormatted = $0?.string(with: feeDecimals) {
                     return Localization.sendAmountSubstractFooter(amountFormatted)
                 } else {
                     return ""
