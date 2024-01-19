@@ -15,7 +15,7 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable
+    typealias MainContentRoutable = SingleWalletMainContentRoutable & MultiWalletMainContentRoutable & VisaWalletRoutable
     let coordinator: MainContentRoutable
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, singleWalletContentDelegate: SingleWalletMainContentDelegate, multiWalletContentDelegate: MultiWalletMainContentDelegate?) -> MainUserWalletPageBuilder? {
@@ -119,6 +119,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletNotificationManager: userWalletNotificationManager,
             tokenNotificationManager: singleWalletNotificationManager,
             tokenRouter: tokenRouter,
+            coordinator: coordinator,
             delegate: singleWalletContentDelegate
         )
         userWalletNotificationManager.setupManager()
