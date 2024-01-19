@@ -700,6 +700,7 @@
 "warning_rent_fee_title" = "Необходима плата за аренду сети";
 "warning_send_blocked_funds_for_fee_message" = "%1$@ - это монета в сети %2$@. Для совершения транзакции %3$@, вам необходимо внести немного %4$@ (%5$@), чтобы покрыть комиссию сети.";
 "warning_send_blocked_funds_for_fee_title" = "Недостаточно %1$@ для оплаты комиссии сети";
+"warning_send_blocked_pending_transactions_in_blockchain_message" = "Отправка средств станет доступной после завершения транзакции(-ий) в сети %@";
 "warning_send_blocked_pending_transactions_message" = "Отправка средств станет доступной после завершения транзакции %@";
 "warning_send_blocked_pending_transactions_title" = "Транзакция в обработке";
 "warning_solana_rent_fee_message" = "Сеть Solana взимает арендную плату в размере %1$@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %2$@, чтобы не платить арендную плату.";
