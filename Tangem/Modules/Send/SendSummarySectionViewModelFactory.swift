@@ -73,6 +73,6 @@ struct SendSummarySectionViewModelFactory {
             isFeeApproximate: isFeeApproximate
         )
 
-        return DefaultTextWithTitleRowViewData(title: Localization.sendNetworkFeeTitle, text: formattedValue)
+        return DefaultTextWithTitleRowViewData(title: Localization.commonNetworkFeeTitle, text: formattedValue)
     }
 }
