@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 protocol SingleTokenRoutable {
     func openReceive(walletModel: WalletModel)
@@ -81,34 +81,8 @@ class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openExchange(walletModel: WalletModel) {
-        sendAnalyticsEvent(.buttonExchange, for: walletModel)
-
-        if FeatureProvider.isAvailable(.express) {
-            let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
-            coordinator.openExpress(input: input)
-
-        } else if let sourceCurrency = CurrencyMapper().mapToCurrency(amountType: walletModel.amountType, in: walletModel.blockchainNetwork.blockchain),
-                  let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
-                  let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor {
-            var referrer: SwappingReferrerAccount?
-
-            if let account = keysManager.swapReferrerAccount {
-                referrer = SwappingReferrerAccount(address: account.address, fee: account.fee)
-            }
-
-            let input = CommonSwappingModulesFactory.InputModel(
-                userTokensManager: userWalletModel.userTokensManager,
-                walletModel: walletModel,
-                signer: userWalletModel.signer,
-                ethereumNetworkProvider: ethereumNetworkProvider,
-                ethereumTransactionProcessor: ethereumTransactionProcessor,
-                logger: AppLog.shared,
-                referrer: referrer,
-                source: sourceCurrency,
-                walletModelTokens: userWalletModel.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
-            )
-            coordinator.openSwapping(input: input)
-        }
+        let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
+        coordinator.openExpress(input: input)
     }
 
     func openSell(for walletModel: WalletModel) {
