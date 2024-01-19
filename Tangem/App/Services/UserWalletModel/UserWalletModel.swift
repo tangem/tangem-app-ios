@@ -9,7 +9,7 @@
 import BlockchainSdk
 import Combine
 
-protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, AnyObject {
+protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, AnyObject {
     var isMultiWallet: Bool { get }
     var tokensCount: Int? { get }
     var config: UserWalletConfig { get }
@@ -23,5 +23,6 @@ protocol UserWalletModel: MainHeaderInfoProvider, TotalBalanceProviding, MultiWa
     var emailData: [EmailCollectedData] { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
     var twinInput: OnboardingInput? { get }
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { get }
     func updateWalletName(_ name: String)
 }
