@@ -44,7 +44,7 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     private func bind() {
         let totalBalancePublisher = totalBalanceProvider
-            .totalBalancePublisher()
+            .totalBalancePublisher
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton and apply state with delay, mimic current behavior
             .share(replay: 1)
 
@@ -70,7 +70,7 @@ class TotalSumBalanceViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func addAttributeForBalance(_ totalValue: TotalBalanceProvider.TotalBalance) -> NSAttributedString {
+    private func addAttributeForBalance(_ totalValue: TotalBalance) -> NSAttributedString {
         let balanceFormatter = BalanceFormatter()
         let formattedTotalFiatValue = balanceFormatter.formatFiatBalance(totalValue.balance, formattingOptions: .defaultFiatFormattingOptions)
         return balanceFormatter.formatTotalBalanceForMain(fiatBalance: formattedTotalFiatValue, formattingOptions: .defaultOptions)
