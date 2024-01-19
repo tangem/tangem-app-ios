@@ -50,11 +50,16 @@ struct SingleWalletMainContentView: View {
         .animation(.default, value: viewModel.tokenNotificationInputs)
         .padding(.horizontal, 16)
         .bindAlert($viewModel.alert)
+        .bottomSheet(item: $viewModel.rateAppBottomSheetViewModel, backgroundColor: Colors.Background.primary) { viewModel in
+            RateAppBottomSheetView(viewModel: viewModel)
+        }
+        .requestAppStoreReviewCompat($viewModel.isAppStoreReviewRequested)
     }
 }
 
 struct SingleWalletContentView_Preview: PreviewProvider {
     static let viewModel: SingleWalletMainContentViewModel = {
+        let mainCoordinator = MainCoordinator()
         let userWalletModel = FakeUserWalletModel.xrpNote
         let walletModel = userWalletModel.walletModelsManager.walletModels.first!
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
@@ -71,6 +76,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             tokenRouter: SingleTokenRoutableMock(),
+            coordinator: mainCoordinator,
             delegate: nil
         )
     }()
