@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-struct VisaAddressParser {
+struct AddressParser {
     private let addressLength = 42
     private let prefixLength = "0x".count
 
@@ -25,7 +25,7 @@ struct VisaAddressParser {
             response.hasHexPrefix(),
             response.count >= addressLength
         else {
-            throw ParserError.addressResponseDoesntContainAddress
+            throw VisaParserError.addressResponseDoesntContainAddress
         }
 
         var parsedAddress = response
@@ -34,7 +34,7 @@ struct VisaAddressParser {
         }
 
         guard addressService.validate(parsedAddress) else {
-            throw ParserError.noValidAddress
+            throw VisaParserError.noValidAddress
         }
 
         return parsedAddress
