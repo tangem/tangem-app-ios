@@ -15,7 +15,7 @@ final class SingleTokenNotificationManager {
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
-    private let userTokensManager: UserTokensManager
+    private let walletModelsManager: WalletModelsManager
     private let swapPairService: SwapPairService?
     private weak var delegate: NotificationTapDelegate?
 
@@ -34,12 +34,12 @@ final class SingleTokenNotificationManager {
 
     init(
         walletModel: WalletModel,
-        userTokensManager: UserTokensManager,
+        walletModelsManager: WalletModelsManager,
         swapPairService: SwapPairService?,
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
         self.walletModel = walletModel
-        self.userTokensManager = userTokensManager
+        self.walletModelsManager = walletModelsManager
         self.swapPairService = swapPairService
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
@@ -84,10 +84,9 @@ final class SingleTokenNotificationManager {
         }
 
         if let sendBlockedReason = walletModel.sendBlockedReason {
-            let isFeeCurrencyPurchaseAllowed = userTokensManager.contains(
-                walletModel.feeTokenItem,
-                derivationPath: walletModel.blockchainNetwork.derivationPath
-            )
+            let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
+                $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork
+            }
             events.append(.event(for: sendBlockedReason, isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed))
         }
 
