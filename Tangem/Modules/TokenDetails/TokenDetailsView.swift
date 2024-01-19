@@ -72,6 +72,7 @@ struct TokenDetailsView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
+        .onAppear(perform: scrollState.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
