@@ -25,6 +25,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
 
+    private var addressCopiedToast: Toast<SuccessToast>?
+
     var isSaveDisabled: Bool {
         pendingAdd.isEmpty && pendingRemove.isEmpty
     }
@@ -115,8 +117,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     iconNameSelected: $0.blockchain.iconNameFilled,
                     networkName: $0.networkName,
                     tokenTypeName: nil,
+                    contractAddress: $0.contractAddress,
                     isSelected: bindSelection($0),
-                    isAvailable: canTokenItemBeToggled
+                    isAvailable: canTokenItemBeToggled,
+                    isCopied: bindCopy($0)
                 )
             }
 
@@ -132,8 +136,10 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
                     iconNameSelected: $0.blockchain.iconNameFilled,
                     networkName: $0.networkName,
                     tokenTypeName: $0.blockchain.tokenTypeName,
+                    contractAddress: $0.contractAddress,
                     isSelected: bindSelection($0),
-                    isAvailable: canTokenItemBeToggled
+                    isAvailable: canTokenItemBeToggled,
+                    isCopied: bindCopy($0)
                 )
             }
     }
@@ -209,6 +215,20 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         return binding
     }
 
+    private func bindCopy(_ tokenItem: TokenItem) -> Binding<Bool> {
+        let binding = Binding<Bool> { [weak self] in
+            self?.addressCopiedToast != nil
+        } set: { [weak self] isSelected in
+            if isSelected {
+                self?.presentCopyAddressToast()
+            } else {
+                self?.addressCopiedToast?.dismiss(animated: true)
+            }
+        }
+
+        return binding
+    }
+
     private func updateSelection(_ tokenItem: TokenItem) {
         if tokenItem.isBlockchain {
             nativeSelectorItems
@@ -242,6 +262,12 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         currentWalletName = userWalletModel?.config.cardName ?? ""
 
         reloadSelectorItemsFromTokenItems()
+    }
+
+    func presentCopyAddressToast() {
+        let toastView = SuccessToast(text: Localization.contractAddressCopiedMessage)
+        addressCopiedToast = Toast(view: toastView)
+        addressCopiedToast?.present(layout: .top(padding: 14), type: .temporary())
     }
 }
 
