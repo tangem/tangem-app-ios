@@ -11,35 +11,45 @@ import SwiftUI
 struct ExpressView: View {
     @ObservedObject private var viewModel: ExpressViewModel
 
+    @State private var viewGeometryInfo: GeometryInfo = .zero
+    @State private var contentSize: CGSize = .zero
+    @State private var bottomViewSize: CGSize = .zero
+
+    private var spacer: CGFloat {
+        var height = viewGeometryInfo.frame.height
+        height += viewGeometryInfo.safeAreaInsets.bottom
+        height -= viewGeometryInfo.safeAreaInsets.top
+        height -= contentSize.height
+        height -= bottomViewSize.height
+        return max(0, height)
+    }
+
     init(viewModel: ExpressViewModel) {
         self.viewModel = viewModel
     }
 
     var body: some View {
         ZStack {
-            Colors.Background.tertiary.edgesIgnoringSafeArea(.all)
+            Colors.Background.tertiary.ignoresSafeArea(.all)
 
-            GroupedScrollView(spacing: 14) {
-                swappingViews
+            GroupedScrollView(spacing: .zero) {
+                VStack(spacing: 14) {
+                    swappingViews
 
-                providerSection
+                    providerSection
 
-                feeSection
+                    feeSection
 
-                informationSection
+                    informationSection
+                }
+                .readGeometry(\.frame.size, bindTo: $contentSize)
 
-                legalView
-
-                MainButton(
-                    title: viewModel.mainButtonState.title,
-                    icon: viewModel.mainButtonState.icon,
-                    isLoading: viewModel.mainButtonIsLoading,
-                    isDisabled: !viewModel.mainButtonIsEnabled,
-                    action: viewModel.didTapMainButton
-                )
+                bottomView
             }
             .scrollDismissesKeyboardCompat(true)
         }
+        .readGeometry(bindTo: $viewGeometryInfo)
+        .ignoresSafeArea(.keyboard)
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .alert(item: $viewModel.alert) { $0.alert }
         // For animate button below informationSection
@@ -107,7 +117,6 @@ struct ExpressView: View {
             NotificationView(input: $0)
                 .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
                 .transition(.notificationTransition)
-                .background(Colors.Background.action)
         }
     }
 
@@ -135,6 +144,27 @@ struct ExpressView: View {
         .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .verticalPadding(0)
+    }
+
+    @ViewBuilder
+    private var bottomView: some View {
+        VStack(spacing: 12) {
+            FixedSpacer(height: spacer)
+
+            VStack(spacing: 12) {
+                legalView
+
+                MainButton(
+                    title: viewModel.mainButtonState.title,
+                    icon: viewModel.mainButtonState.icon,
+                    isLoading: viewModel.mainButtonIsLoading,
+                    isDisabled: !viewModel.mainButtonIsEnabled,
+                    action: viewModel.didTapMainButton
+                )
+            }
+            .readGeometry(\.frame.size, bindTo: $bottomViewSize)
+        }
+        .animation(.none)
     }
 
     @ViewBuilder
