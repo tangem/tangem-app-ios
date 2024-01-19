@@ -127,6 +127,8 @@ final class MainViewModel: ObservableObject {
             viewModel.onPullToRefresh(completionHandler: completion)
         case .lockedWallet:
             completion()
+        case .visaWallet(_, _, let viewModel):
+            viewModel.onPullToRefresh(completionHandler: completion)
         }
     }
 
@@ -349,6 +351,8 @@ final class MainViewModel: ObservableObject {
                     }
                 case .replaced(let userWallet):
                     recreatePagesIfNeeded(for: userWallet)
+                case .biometryUnlocked:
+                    break
                 }
             }
             .store(in: &bag)
