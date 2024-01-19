@@ -60,7 +60,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let notificationManager = SingleTokenNotificationManager(
             walletModel: options.walletModel,
-            userTokensManager: options.userTokensManager,
+            walletModelsManager: options.cardModel.walletModelsManager,
             swapPairService: swapPairService,
             contextDataProvider: options.cardModel
         )
