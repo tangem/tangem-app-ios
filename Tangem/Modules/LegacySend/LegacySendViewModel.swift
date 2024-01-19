@@ -44,25 +44,36 @@ class LegacySendViewModel: ObservableObject {
 
     // MARK: UI
 
-    var shoudShowFeeSelector: Bool {
-        walletModel.shoudShowFeeSelector
+    var shouldShowFeeSelector: Bool {
+        walletModel.shouldShowFeeSelector
     }
 
-    var shoudShowFeeIncludeSelector: Bool {
+    var shouldShowFeeIncludeSelector: Bool {
         if isSellingCrypto {
             return false
         }
 
-        switch amountToSend.type {
-        case .coin, .reserve:
-            return true
-        case .token:
-            return !blockchainNetwork.blockchain.tokenTransactionFeePaidInNetworkCurrency
+        if fees.isEmpty {
+            return false
         }
+
+        let feesAmountTypes = fees.map(\.amount.type).toSet()
+
+        guard feesAmountTypes.count == 1, let feesAmountType = feesAmountTypes.first else {
+            let message = """
+            Fees can be charged in multiple denominations '\(feesAmountTypes)',
+            unable to determine if such fees can be included or not for currency '\(amountToSend.type)'
+            """
+            assertionFailure(message)
+            Log.error(message)
+            return false
+        }
+
+        return feesAmountType == amountToSend.type
     }
 
     var shouldShowNetworkBlock: Bool {
-        shoudShowFeeSelector || shoudShowFeeIncludeSelector
+        shouldShowFeeSelector || shouldShowFeeIncludeSelector
     }
 
     var hasAdditionalInputFields: Bool {
@@ -778,7 +789,7 @@ class LegacySendViewModel: ObservableObject {
 
 private extension LegacySendViewModel {
     var analyticsFeeType: Analytics.ParameterValue {
-        if shoudShowFeeSelector {
+        if shouldShowFeeSelector {
             let feeLevels: [Analytics.ParameterValue] = [
                 .transactionFeeMin,
                 .transactionFeeNormal,
