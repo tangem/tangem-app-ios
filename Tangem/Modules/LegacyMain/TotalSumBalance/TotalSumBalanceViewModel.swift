@@ -20,8 +20,6 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     // MARK: - Private
 
-    @Injected(\.rateAppService) private var rateAppService: LegacyRateAppService
-
     private unowned let tapOnCurrencySymbol: OpenCurrencySelectionDelegate
     private let walletModelsManager: WalletModelsManager
     private var totalBalanceProvider: TotalBalanceProviding
@@ -45,14 +43,13 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     private func bind() {
         let totalBalancePublisher = totalBalanceProvider
-            .totalBalancePublisher()
+            .totalBalancePublisher
             .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton and apply state with delay, mimic current behavior
             .share(replay: 1)
 
         totalBalancePublisher
             .compactMap { $0.value }
-            .map { [unowned self] balance -> NSAttributedString in
-                checkPositiveBalance()
+            .map { [unowned self] balance in
                 return addAttributeForBalance(balance)
             }
             .assign(to: \.totalFiatValueString, on: self, ownership: .weak)
@@ -71,17 +68,9 @@ class TotalSumBalanceViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func addAttributeForBalance(_ totalValue: TotalBalanceProvider.TotalBalance) -> NSAttributedString {
+    private func addAttributeForBalance(_ totalValue: TotalBalance) -> NSAttributedString {
         let balanceFormatter = BalanceFormatter()
         let formattedTotalFiatValue = balanceFormatter.formatFiatBalance(totalValue.balance, formattingOptions: .defaultFiatFormattingOptions)
         return balanceFormatter.formatTotalBalanceForMain(fiatBalance: formattedTotalFiatValue, formattingOptions: .defaultOptions)
-    }
-
-    private func checkPositiveBalance() {
-        guard rateAppService.shouldCheckBalanceForRateApp else { return }
-
-        guard walletModelsManager.walletModels.contains(where: { !$0.wallet.isEmpty }) else { return }
-
-        rateAppService.registerPositiveBalanceDate()
     }
 }

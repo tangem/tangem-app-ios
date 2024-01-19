@@ -43,33 +43,30 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.swappingCoordinator) {
-                SwappingCoordinatorView(coordinator: $0)
-            }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-            .sheet(item: $coordinator.expressCoordinator) {
+            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
             }
 
         NavHolder()
             .bottomSheet(
                 item: $coordinator.warningBankCardViewModel,
-                sheetContent: {
-                    WarningBankCardView(viewModel: $0)
-                        .padding(.bottom, 10)
-                }
-            )
+                backgroundColor: Colors.Background.primary
+            ) {
+                WarningBankCardView(viewModel: $0)
+                    .padding(.bottom, 10)
+            }
             .bottomSheet(
                 item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary)
+                backgroundColor: Colors.Background.primary
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.tertiary)
+                backgroundColor: Colors.Background.tertiary
             ) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
