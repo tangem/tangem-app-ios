@@ -41,10 +41,9 @@ struct ExpressView: View {
             .scrollDismissesKeyboardCompat(true)
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
-        .alert(item: $viewModel.errorAlert, content: { $0.alert })
+        .alert(item: $viewModel.alert) { $0.alert }
         // For animate button below informationSection
         .animation(.easeInOut, value: viewModel.providerState?.id)
-        .animation(.easeInOut, value: viewModel.feeSectionItems.count)
         .animation(.default, value: viewModel.notificationInputs)
     }
 
@@ -52,28 +51,30 @@ struct ExpressView: View {
     private var swappingViews: some View {
         ZStack(alignment: .center) {
             VStack(spacing: 14) {
-                if let sendCurrencyViewModel = viewModel.sendCurrencyViewModel {
-                    SendCurrencyView(
-                        viewModel: sendCurrencyViewModel,
-                        decimalValue: $viewModel.sendDecimalValue
-                    )
-                    .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
-                    .didTapChangeCurrency {
-                        viewModel.userDidTapChangeSourceButton()
-                    }
+                GroupedSection(viewModel.sendCurrencyViewModel) {
+                    SendCurrencyView(viewModel: $0, decimalValue: $viewModel.sendDecimalValue)
+                        .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
+                        .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
+                .backgroundColor(Colors.Background.action)
 
-                if let receiveCurrencyViewModel = viewModel.receiveCurrencyViewModel {
-                    ReceiveCurrencyView(viewModel: receiveCurrencyViewModel)
-                        .didTapChangeCurrency {
-                            viewModel.userDidTapChangeDestinationButton()
-                        }
+                GroupedSection(viewModel.receiveCurrencyViewModel) {
+                    ReceiveCurrencyView(viewModel: $0)
+                        .didTapChangeCurrency(viewModel.userDidTapChangeDestinationButton)
+                        .didTapPriceChangePercent(viewModel.userDidTapPriceChangeInfoButton)
                 }
+                .interSectionPadding(12)
+                .interItemSpacing(10)
+                .verticalPadding(0)
+                .backgroundColor(Colors.Background.action)
             }
 
             swappingButton
         }
-        .padding(.top, 16)
+        .padding(.top, 8)
     }
 
     @ViewBuilder
@@ -106,22 +107,16 @@ struct ExpressView: View {
             NotificationView(input: $0)
                 .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
                 .transition(.notificationTransition)
+                .background(Colors.Background.action)
         }
     }
 
     @ViewBuilder
     private var feeSection: some View {
-        GroupedSection(viewModel.feeSectionItems) { item in
-            switch item {
-            case .fee(let data):
-                ExpressFeeRowView(viewModel: data)
-            case .footnote(let text):
-                Text(text)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
+        GroupedSection(viewModel.expressFeeRowViewModel) {
+            ExpressFeeRowView(viewModel: $0)
         }
         .backgroundColor(Colors.Background.action)
-        .separatorStyle(.minimum)
         .interSectionPadding(12)
         .interItemSpacing(10)
         .verticalPadding(0)
