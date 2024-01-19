@@ -165,6 +165,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 }
 
+// MARK: - SingleWalletMainContentRoutable protocol conformance
+
+extension MainCoordinator: SingleWalletMainContentRoutable {}
+
 // MARK: - SingleTokenRoutable
 
 extension MainCoordinator: SingleTokenBaseRoutable {
