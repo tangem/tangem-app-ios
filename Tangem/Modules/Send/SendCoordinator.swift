@@ -37,6 +37,7 @@ class SendCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = SendViewModel(
+            walletName: options.walletName,
             walletModel: options.walletModel,
             transactionSigner: options.transactionSigner,
             sendType: options.type,
@@ -50,6 +51,7 @@ class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
+        let walletName: String
         let emailDataProvider: EmailDataProvider
         let walletModel: WalletModel
         let transactionSigner: TransactionSigner
