@@ -456,25 +456,6 @@ extension MultiWalletMainContentViewModel: MainViewPage {
     }
 }
 
-// MARK: - Auxiliary types
-
-extension MultiWalletMainContentViewModel {
-    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
-
-    struct SectionViewModel: Identifiable {
-        let id: AnyHashable
-        let title: String?
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension TokenSectionsAdapter.Section {
-    var walletModels: [WalletModel] {
-        return items.compactMap(\.walletModel)
-    }
-}
-
 // MARK: Context actions
 
 extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
@@ -542,5 +523,32 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .hide:
             return
         }
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension MultiWalletMainContentViewModel {
+    typealias Section = SectionModel<SectionViewModel, TokenItemViewModel>
+
+    struct SectionViewModel: Identifiable {
+        let id: AnyHashable
+        let title: String?
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension TokenSectionsAdapter.Section {
+    var walletModels: [WalletModel] {
+        return items.compactMap(\.walletModel)
+    }
+}
+
+// MARK: - Constants
+
+private extension MultiWalletMainContentViewModel {
+    private enum Constants {
+        static let feedbackRequestDelay = 0.7
     }
 }
