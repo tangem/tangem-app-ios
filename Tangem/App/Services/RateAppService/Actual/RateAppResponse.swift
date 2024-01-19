@@ -1,5 +1,5 @@
 //
-//  RateAppResult.swift
+//  RateAppResponse.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import Foundation
 
-enum RateAppResult {
-    case positiveResponse
-    case negativeResponse
+enum RateAppResponse {
+    case positive
+    case negative
     case dismissed
 }

@@ -7,10 +7,9 @@
 //
 
 import Foundation
+import Combine
 
 final class CommonRateAppService {
-    weak var delegate: RateAppServiceDelegate?
-
     @AppStorageCompat(StorageKeys.systemReviewPromptRequestDates)
     private var systemReviewPromptRequestDates: [Date] = []
 
@@ -38,6 +37,8 @@ final class CommonRateAppService {
 
     private lazy var calendar = Calendar(identifier: .gregorian)
 
+    private let rateAppActionSubject = PassthroughSubject<RateAppAction, Never>()
+
     init() {
         trimStorageIfNeeded()
     }
@@ -46,23 +47,7 @@ final class CommonRateAppService {
         lastRequestedReviewDate = Date()
         lastRequestedReviewLaunchCount = currentLaunchCount
         userDismissedLastRequestedReview = false
-
-        delegate?.rateAppService(
-            self,
-            didRequestRateAppWithCompletionHandler: weakify(self, forFunction: CommonRateAppService.handleRateAppResult(_:))
-        )
-    }
-
-    private func handleRateAppResult(_ result: RateAppResult) {
-        switch result {
-        case .positiveResponse:
-            systemReviewPromptRequestDates.append(Date())
-            delegate?.requestAppStoreReviewForRateAppService(self)
-        case .negativeResponse:
-            delegate?.rateAppService(self, didRequestOpenMailWithEmailType: .negativeRateAppFeedback)
-        case .dismissed:
-            userDismissedLastRequestedReview = true
-        }
+        rateAppActionSubject.send(.openAppRateDialog)
     }
 
     private func trimStorageIfNeeded() {
@@ -76,6 +61,8 @@ final class CommonRateAppService {
 // MARK: - RateAppService protocol conformance
 
 extension CommonRateAppService: RateAppService {
+    var rateAppAction: AnyPublisher<RateAppAction, Never> { rateAppActionSubject.eraseToAnyPublisher() }
+
     func registerBalances(of walletModels: [WalletModel]) {
         guard
             positiveBalanceAppearanceDate == nil,
@@ -123,6 +110,18 @@ extension CommonRateAppService: RateAppService {
         }
 
         requestRateApp()
+    }
+
+    func respondToRateAppDialog(with response: RateAppResponse) {
+        switch response {
+        case .positive:
+            systemReviewPromptRequestDates.append(Date())
+            rateAppActionSubject.send(.openAppStoreReview)
+        case .negative:
+            rateAppActionSubject.send(.openMailWithEmailType(emailType: .negativeRateAppFeedback))
+        case .dismissed:
+            userDismissedLastRequestedReview = true
+        }
     }
 }
 
