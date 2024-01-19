@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import BlockchainSdk
 
 class CommonExpressModulesFactory {
-    @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletModel: UserWalletModel
@@ -21,8 +20,10 @@ class CommonExpressModulesFactory {
     // MARK: - Internal
 
     private lazy var expressInteractor = makeExpressInteractor()
-    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: keysManager.oneInchApiKey)
+    private lazy var expressAPIProvider = makeExpressAPIProvider()
     private lazy var allowanceProvider = makeAllowanceProvider()
+    private lazy var expressFeeProvider = makeExpressFeeProvider()
+    private lazy var expressRepository = makeExpressRepository()
 
     init(inputModel: InputModel) {
         userWalletModel = inputModel.userWalletModel
@@ -38,11 +39,12 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         let model = ExpressViewModel(
             initialWallet: initialWalletModel,
             userWalletModel: userWalletModel,
-            swappingFeeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
+            expressRepository: expressRepository,
             interactor: expressInteractor,
             coordinator: coordinator
         )
@@ -57,23 +59,23 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         ExpressTokensListViewModel(
             swapDirection: swapDirection,
             expressTokensListAdapter: expressTokensListAdapter,
-            expressAPIProvider: expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger),
+            expressRepository: expressRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel {
-        ExpressFeeBottomSheetViewModel(
-            swappingFeeFormatter: swappingFeeFormatter,
+    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
+        ExpressFeeSelectorViewModel(
+            feeFormatter: feeFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
 
-    func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
-        SwappingApproveViewModel(
-            swappingFeeFormatter: swappingFeeFormatter,
+    func makeExpressApproveViewModel(coordinator: ExpressApproveRoutable) -> ExpressApproveViewModel {
+        ExpressApproveViewModel(
+            feeFormatter: feeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
             expressInteractor: expressInteractor,
@@ -81,12 +83,13 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressProvidersBottomSheetViewModel(
-        coordinator: ExpressProvidersBottomSheetRoutable
-    ) -> ExpressProvidersBottomSheetViewModel {
-        ExpressProvidersBottomSheetViewModel(
+    func makeExpressProvidersSelectorViewModel(
+        coordinator: ExpressProvidersSelectorRoutable
+    ) -> ExpressProvidersSelectorViewModel {
+        ExpressProvidersSelectorViewModel(
             percentFormatter: percentFormatter,
             expressProviderFormatter: expressProviderFormatter,
+            expressRepository: expressRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -99,7 +102,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
-            feeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             coordinator: coordinator
         )
     }
@@ -108,11 +111,10 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 // MARK: Dependencies
 
 private extension CommonExpressModulesFactory {
-    var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
+    var feeFormatter: FeeFormatter {
+        CommonFeeFormatter(
             balanceFormatter: balanceFormatter,
-            balanceConverter: balanceConverter,
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: balanceConverter
         )
     }
 
@@ -120,12 +122,8 @@ private extension CommonExpressModulesFactory {
         ExpressProviderFormatter(balanceFormatter: balanceFormatter)
     }
 
-    var notificationManager: ExpressNotificationManager {
+    var notificationManager: NotificationManager {
         ExpressNotificationManager(expressInteractor: expressInteractor)
-    }
-
-    var explorerURLService: ExplorerURLService {
-        CommonExplorerURLService()
     }
 
     var percentFormatter: PercentFormatter { .init() }
@@ -135,7 +133,7 @@ private extension CommonExpressModulesFactory {
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TransactionSigner { userWalletModel.signer }
-    var logger: SwappingLogger { AppLog.shared }
+    var logger: Logger { AppLog.shared }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
@@ -145,7 +143,8 @@ private extension CommonExpressModulesFactory {
     var expressDestinationService: ExpressDestinationService {
         CommonExpressDestinationService(
             pendingTransactionRepository: pendingTransactionRepository,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            expressRepository: expressRepository
         )
     }
 
@@ -155,10 +154,16 @@ private extension CommonExpressModulesFactory {
 
     // MARK: - Methods
 
+    func makeExpressAPIProvider() -> ExpressAPIProvider {
+        expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger)
+    }
+
     func makeExpressInteractor() -> ExpressInteractor {
-        let expressManager = swappingFactory.makeExpressManager(
-            expressAPIProvider: expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger),
+        let expressManager = TangemExpressFactory().makeExpressManager(
+            expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
+            feeProvider: expressFeeProvider,
+            expressRepository: expressRepository,
             logger: logger
         )
 
@@ -167,6 +172,8 @@ private extension CommonExpressModulesFactory {
             initialWallet: initialWalletModel,
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
+            feeProvider: expressFeeProvider,
+            expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressTransactionBuilder: expressTransactionBuilder,
@@ -178,9 +185,20 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeAllowanceProvider() -> ExpressAllowanceProvider {
-        let provider = CommonExpressAllowanceProvider()
+        let provider = CommonExpressAllowanceProvider(logger: logger)
         provider.setup(wallet: initialWalletModel)
         return provider
+    }
+
+    func makeExpressFeeProvider() -> ExpressFeeProvider {
+        return CommonExpressFeeProvider(wallet: initialWalletModel)
+    }
+
+    func makeExpressRepository() -> ExpressRepository {
+        CommonExpressRepository(
+            walletModelsManager: walletModelsManager,
+            expressAPIProvider: expressAPIProvider
+        )
     }
 }
 

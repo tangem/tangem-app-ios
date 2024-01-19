@@ -48,7 +48,7 @@ struct NotificationView: View {
                     settings.dismissAction?(settings.id)
                 }) {
                     Assets.cross.image
-                        .foregroundColor(Colors.Icon.inactive)
+                        .foregroundColor(settings.event.colorScheme.dismissButtonColor)
                 }
             }
             .padding(.top, -4)
@@ -102,12 +102,12 @@ struct NotificationView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(settings.event.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
 
                 if let description = settings.event.description {
                     Text(description)
                         .multilineTextAlignment(.leading)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: settings.event.colorScheme.messageColor)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -130,7 +130,7 @@ struct NotificationView: View {
                     .foregroundColor(Colors.Icon.informative)
             }
         }
-        .frame(size: .init(bothDimensions: 20))
+        .frame(size: settings.event.icon.size)
     }
 }
 

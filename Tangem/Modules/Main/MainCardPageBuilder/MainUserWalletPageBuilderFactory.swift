@@ -26,7 +26,7 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = MultiWalletMainContentRoutable
+    typealias MainContentRoutable = SingleWalletMainContentRoutable & MultiWalletMainContentRoutable & VisaWalletRoutable
     let coordinator: MainContentRoutable
 
     func createPage(
@@ -36,13 +36,18 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         multiWalletContentDelegate: MultiWalletMainContentDelegate?
     ) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
-        let containsDefaultToken = (model.config.defaultBlockchains.first?.tokens.count ?? 0) > 0
+        let containsDefaultToken = model.config.hasDefaultToken
         let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
-        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
+
+        let providerFactory = model.config.makeMainHeaderProviderFactory()
+        let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
+        let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
+
         let headerModel = MainHeaderViewModel(
-            infoProvider: model,
+            isUserWalletLocked: model.isUserWalletLocked,
+            supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
-            balanceProvider: model
+            balanceProvider: balanceProvider
         )
 
         let signatureCountValidator = selectSignatureCountValidator(for: model)
@@ -67,7 +72,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let tokenRouter = SingleTokenRouter(userWalletModel: model, coordinator: coordinator)
 
         if isMultiWalletPage {
-            let sectionsAdapter = makeSectionsAdapter(for: model)
+            let optionsManager = OrganizeTokensOptionsManager(
+                userTokensReorderer: model.userTokensManager
+            )
+            let sectionsAdapter = TokenSectionsAdapter(
+                userTokenListManager: model.userTokenListManager,
+                optionsProviding: optionsManager,
+                preservesLastSortedOrderOnSwitchToDragAndDrop: false
+            )
             let multiWalletNotificationManager = MultiWalletNotificationManager(
                 walletModelsManager: model.walletModelsManager,
                 contextDataProvider: model
@@ -76,14 +88,29 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
-                coordinator: coordinator,
                 tokenSectionsAdapter: sectionsAdapter,
-                tokenRouter: tokenRouter
+                tokenRouter: tokenRouter,
+                optionsEditing: optionsManager,
+                coordinator: coordinator
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
 
             return .multiWallet(
+                id: id,
+                headerModel: headerModel,
+                bodyModel: viewModel
+            )
+        }
+
+        if model.config is VisaConfig {
+            let walletModel = VisaUtilities().getVisaWalletModel(for: model)
+            let viewModel = VisaWalletMainContentViewModel(
+                walletModel: walletModel,
+                coordinator: coordinator
+            )
+
+            return .visaWallet(
                 id: id,
                 headerModel: headerModel,
                 bodyModel: viewModel
@@ -96,6 +123,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             walletModel: walletModel,
+            swapPairService: nil,
             contextDataProvider: model
         )
         let exchangeUtility = ExchangeCryptoUtility(
@@ -111,6 +139,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletNotificationManager: userWalletNotificationManager,
             tokenNotificationManager: singleWalletNotificationManager,
             tokenRouter: tokenRouter,
+            coordinator: coordinator,
             delegate: singleWalletContentDelegate
         )
         userWalletNotificationManager.setupManager()
@@ -137,16 +166,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 multiWalletContentDelegate: multiWalletContentDelegate
             )
         }
-    }
-
-    private func makeSectionsAdapter(for model: UserWalletModel) -> TokenSectionsAdapter {
-        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: model.userTokensManager)
-
-        return TokenSectionsAdapter(
-            userTokenListManager: model.userTokenListManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: false
-        )
     }
 
     private func selectSignatureCountValidator(for userWalletModel: UserWalletModel) -> SignatureCountValidator? {
