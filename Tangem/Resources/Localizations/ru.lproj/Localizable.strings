@@ -698,7 +698,7 @@
 "warning_rate_app_message" = "Ваш отзыв мотивирует нас сделать кошелек Tangem еще лучше";
 "warning_rate_app_title" = "Нравится Tangem?";
 "warning_rent_fee_title" = "Необходима плата за аренду сети";
-"warning_send_blocked_funds_for_fee_message" = "%1$@ - это токен в сети %2$@. Для совершения транзакции %3$@, вам необходимо внести депозит в размере %4$@ (%5$@), чтобы покрыть комиссию сети.";
+"warning_send_blocked_funds_for_fee_message" = "%1$@ - это монета в сети %2$@. Для совершения транзакции %3$@, вам необходимо внести немного %4$@ (%5$@), чтобы покрыть комиссию сети.";
 "warning_send_blocked_funds_for_fee_title" = "Недостаточно %1$@ для оплаты комиссии сети";
 "warning_send_blocked_pending_transactions_message" = "Отправка средств станет доступной после завершения транзакции %@";
 "warning_send_blocked_pending_transactions_title" = "Транзакция в обработке";
