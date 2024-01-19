@@ -20,8 +20,9 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
-    private let rateAppService: RateAppService
     private unowned let coordinator: SingleWalletMainContentRoutable
+
+    private let rateAppService = RateAppService()
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
@@ -43,7 +44,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         self.userWalletNotificationManager = userWalletNotificationManager
         self.coordinator = coordinator
         self.delegate = delegate
-        rateAppService = CommonRateAppService()
 
         super.init(
             userWalletModel: userWalletModel,
