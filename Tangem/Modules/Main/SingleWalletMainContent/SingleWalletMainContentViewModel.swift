@@ -14,11 +14,14 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - ViewState
 
     @Published var notificationInputs: [NotificationViewInput] = []
+    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
+    @Published var isAppStoreReviewRequested = false
 
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
     private let rateAppService: RateAppService
+    private unowned let coordinator: SingleWalletMainContentRoutable
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
@@ -34,9 +37,11 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
         tokenRouter: SingleTokenRoutable,
+        coordinator: SingleWalletMainContentRoutable,
         delegate: SingleWalletMainContentDelegate?
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
+        self.coordinator = coordinator
         self.delegate = delegate
         rateAppService = CommonRateAppService()
 
@@ -95,6 +100,36 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
                 viewModel.rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
             }
             .store(in: &bag)
+
+        rateAppService
+            .rateAppAction
+            .withWeakCaptureOf(self)
+            .sink { viewModel, rateAppAction in
+                viewModel.handleRateAppAction(rateAppAction)
+            }
+            .store(in: &bag)
+    }
+
+    private func handleRateAppAction(_ action: RateAppAction) {
+        rateAppBottomSheetViewModel = nil
+
+        switch action {
+        case .openAppRateDialog:
+            rateAppBottomSheetViewModel = RateAppBottomSheetViewModel { [weak self] response in
+                self?.rateAppService.respondToRateAppDialog(with: response)
+            }
+        case .openMailWithEmailType(let emailType):
+            let userWallet = userWalletModel
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+                let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWallet.emailData)
+                let recipient = userWallet.config.emailConfig?.recipient ?? EmailConfig.default.recipient
+                self?.coordinator.openMail(with: collector, emailType: emailType, recipient: recipient)
+            }
+        case .openAppStoreReview:
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
+                self?.isAppStoreReviewRequested = true
+            }
+        }
     }
 }
 
@@ -107,5 +142,13 @@ extension SingleWalletMainContentViewModel: MainViewPage {
 
     func onPageDisappear() {
         isPageSelectedSubject.send(false)
+    }
+}
+
+// MARK: - Constants
+
+private extension SingleWalletMainContentViewModel {
+    private enum Constants {
+        static let feedbackRequestDelay = 0.7
     }
 }
