@@ -324,6 +324,18 @@ final class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        $selectedCardIndex
+            .removeDuplicates()
+            .prepend(-1)
+            .pairwise()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                let (previousCardIndex, currentCardIndex) = input
+                viewModel.pages[safe: previousCardIndex]?.onPageDisappear()
+                viewModel.pages[safe: currentCardIndex]?.onPageAppear()
+            }
+            .store(in: &bag)
+
         userWalletRepository.eventProvider
             .receive(on: DispatchQueue.main)
             .sink { [weak self] event in
