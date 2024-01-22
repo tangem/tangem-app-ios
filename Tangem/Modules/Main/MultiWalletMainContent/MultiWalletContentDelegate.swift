@@ -1,5 +1,5 @@
 //
-//  MultiWalletMainContentDelegate.swift
+//  MultiWalletContentDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol MultiWalletMainContentDelegate: AnyObject {
+protocol MultiWalletContentDelegate: AnyObject {
     func displayAddressCopiedToast()
 }
