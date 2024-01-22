@@ -78,9 +78,7 @@ class SendFeeViewModel: ObservableObject {
             .store(in: &bag)
 
         input.isFeeIncludedPublisher
-            .sink { [weak self] isFeeIncluded in
-                self?.isFeeIncluded = isFeeIncluded
-            }
+            .assign(to: \.isFeeIncluded, on: self, ownership: .weak)
             .store(in: &bag)
 
         input.amountPublisher
