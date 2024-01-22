@@ -69,7 +69,7 @@ struct SupportedBlockchains {
             .ethereumFair,
             .litecoin,
             .bitcoin(testnet: false),
-            .bitcoinCash(testnet: false),
+            .bitcoinCash,
             .cardano(extended: version == .v2),
             .xrp(curve: .secp256k1),
             .rsk,
