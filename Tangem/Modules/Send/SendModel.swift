@@ -337,24 +337,26 @@ class SendModel {
 
     func didChangeCustomFee(_ value: Fee?) {
         _customFee.send(value)
+
+        if let ethereumParams = value?.parameters as? EthereumFeeParameters {
+            _customFeeGasLimit.send(ethereumParams.gasLimit)
+            _customFeeGasPrice.send(ethereumParams.gasPrice)
+        }
     }
 
     private func updateCustomFee() {
-        guard
-            let gasPrice = _customFeeGasPrice.value,
-            let gasLimit = _customFeeGasLimit.value,
-            let gasInWei = (gasPrice * gasLimit).decimal
-        else {
-            _customFee.send(nil)
-            return
+        let newFee: Fee?
+        if let gasPrice = _customFeeGasPrice.value,
+           let gasLimit = _customFeeGasLimit.value,
+           let gasInWei = (gasPrice * gasLimit).decimal {
+            let amount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
+            newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
+        } else {
+            newFee = nil
         }
 
-        let amount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
-
-        let newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
-
-        print("ZZZ recalculated feee value", gasPrice, gasLimit, amount)
         _customFee.send(newFee)
+        fee.send(newFee)
     }
 
     func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
@@ -480,6 +482,10 @@ extension SendModel: SendFeeViewModelInput {
         walletModel.tokenItem
     }
 
+    var customGasLimit: BigUInt? {
+        _customFeeGasLimit.value
+    }
+
     var customFeePublisher: AnyPublisher<Fee?, Never> {
         _customFee.eraseToAnyPublisher()
     }
@@ -555,34 +561,4 @@ extension SendModel: SendFinishViewModelInput {
     var transactionURL: URL? {
         _transactionURL.value
     }
-}
-
-extension BigUInt {
-    /// 1. For integers only, will return `nil` if the value isn't an integer number.
-    /// 2. The given value will be clamped in the `0..<2^256>` range.
-    init?(decimal decimalValue: Decimal) {
-        if decimalValue.isZero || decimalValue < .zero {
-            // Clamping to the min representable value
-            self = .zero
-        } else if decimalValue >= .greatestFiniteMagnitude {
-            // Clamping to the max representable value
-            self = BigUInt(2).power(256) - 1
-        } else {
-            // We're using a fixed locale here to avoid any possible ambiguity with the string representation
-            let stringValue = (decimalValue as NSDecimalNumber).description(withLocale: Locale.enUS)
-            self.init(stringValue, radix: 10)
-        }
-    }
-
-    /// - Note: Based on https://github.com/attaswift/BigInt/issues/52
-    /// - Warning: May lead to a loss of precision.
-    var decimal: Decimal? {
-        return Decimal(string: String(self), locale: Locale.enUS)
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension Locale {
-    static let enUS: Locale = .init(identifier: "en_US")
 }
