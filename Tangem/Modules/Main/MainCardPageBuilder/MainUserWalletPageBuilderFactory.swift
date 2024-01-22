@@ -26,7 +26,7 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = SingleWalletMainContentRoutable & MultiWalletMainContentRoutable & VisaWalletRoutable
+    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutabe
     let coordinator: MainContentRoutable
 
     func createPage(
@@ -69,6 +69,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
+        let rateAppController = CommonRateAppController(
+            rateAppService: RateAppService(),
+            userWalletModel: model,
+            coordinator: coordinator
+        )
+
         let tokenRouter = SingleTokenRouter(userWalletModel: model, coordinator: coordinator)
 
         if isMultiWalletPage {
@@ -88,6 +94,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
+                rateAppController: rateAppController,
                 tokenSectionsAdapter: sectionsAdapter,
                 tokenRouter: tokenRouter,
                 optionsEditing: optionsManager,
@@ -138,9 +145,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             exchangeUtility: exchangeUtility,
             userWalletNotificationManager: userWalletNotificationManager,
             tokenNotificationManager: singleWalletNotificationManager,
+            rateAppController: rateAppController,
             tokenRouter: tokenRouter,
-            coordinator: coordinator,
-            delegate: singleWalletContentDelegate
+            mainViewDelegate: mainViewDelegate
         )
         userWalletNotificationManager.setupManager()
         singleWalletNotificationManager.setupManager(with: viewModel)
@@ -162,7 +169,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
-                singleWalletContentDelegate: singleWalletContentDelegate,
+                mainViewDelegate: mainViewDelegate,
                 multiWalletContentDelegate: multiWalletContentDelegate
             )
         }
