@@ -16,8 +16,12 @@ struct BalanceFormatter {
     /// - Parameters:
     ///   - value: Balance that should be rounded and formatted
     ///   - formattingOptions: Options for number formatter and rounding
-    /// - Returns: Formatted balance string
-    func formatDecimal(_ value: Decimal, formattingOptions: BalanceFormattingOptions = .defaultCryptoFormattingOptions) -> String {
+    /// - Returns: Formatted balance string, if `value` is nil, returns `defaultEmptyBalanceString`
+    func formatDecimal(_ value: Decimal?, formattingOptions: BalanceFormattingOptions = .defaultCryptoFormattingOptions) -> String {
+        guard let value else {
+            return Self.defaultEmptyBalanceString
+        }
+
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .decimal
@@ -34,8 +38,12 @@ struct BalanceFormatter {
     ///   - value: Balance that should be rounded and formatted
     ///   - currencyCode: Code to be used
     ///   - formattingOptions: Options for number formatter and rounding
-    /// - Returns: Formatted balance string
-    func formatCryptoBalance(_ value: Decimal, currencyCode: String, formattingOptions: BalanceFormattingOptions = .defaultCryptoFormattingOptions) -> String {
+    /// - Returns: Formatted balance string, if `value` is nil, returns `defaultEmptyBalanceString`
+    func formatCryptoBalance(_ value: Decimal?, currencyCode: String, formattingOptions: BalanceFormattingOptions = .defaultCryptoFormattingOptions) -> String {
+        guard let value else {
+            return Self.defaultEmptyBalanceString
+        }
+
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
@@ -54,7 +62,7 @@ struct BalanceFormatter {
     /// - Parameters:
     ///   - value: Balance that should be rounded and formatted. If `nil` will be return `defaultEmptyBalanceString`
     ///   - formattingOptions: Options for number formatter and rounding
-    /// - Returns: Formatted balance string
+    /// - Returns: Formatted balance string, if `value` is nil, returns `defaultEmptyBalanceString`
     func formatFiatBalance(_ value: Decimal?, formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions) -> String {
         guard let balance = value else {
             return Self.defaultEmptyBalanceString
