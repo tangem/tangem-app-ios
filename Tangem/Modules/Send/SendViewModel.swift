@@ -138,6 +138,7 @@ final class SendViewModel: ObservableObject {
         walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
+            blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
             feeCurrencySymbol: walletModel.tokenItem.blockchain.currencySymbol,
             feeCurrencyId: walletModel.tokenItem.blockchain.currencyId,
@@ -148,7 +149,8 @@ final class SendViewModel: ObservableObject {
             fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
-            feeFractionDigits: walletModel.tokenItem.feeDecimalCount
+            feeFractionDigits: walletModel.tokenItem.feeTokenItem.decimalCount,
+            feeAmountType: walletModel.tokenItem.feeTokenItem.amountType
         )
 
         #warning("Fiat icon URL")
