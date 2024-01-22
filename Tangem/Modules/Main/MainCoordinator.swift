@@ -372,13 +372,15 @@ extension MainCoordinator: RateAppRoutabe {
         rateAppBottomSheetViewModel = viewModel
     }
 
-    func openFeedbackMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+    func closeAppRateDialog() {
         rateAppBottomSheetViewModel = nil
+    }
+
+    func openFeedbackMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
         openMail(with: dataCollector, emailType: emailType, recipient: recipient)
     }
 
     func openAppStoreReview() {
-        rateAppBottomSheetViewModel = nil
         isAppStoreReviewRequested = true
     }
 }
