@@ -15,27 +15,11 @@ public struct VisaLimits {
 }
 
 public struct VisaLimit {
-    public let dueDate: Date
-    public let remainingTimeSeconds: Double
+    public let expirationDate: Date
+    public let limitDurationSeconds: Double
     public let singleTransaction: Decimal?
     public let otpLimit: Decimal?
     public let spentOTPAmount: Decimal?
     public let noOTPLimit: Decimal?
     public let spentNoOTPAmount: Decimal?
-
-    public var remainingOTPAmount: Decimal? {
-        guard let otpLimit, let spentOTPAmount else {
-            return nil
-        }
-
-        return otpLimit - spentOTPAmount
-    }
-
-    public var remainingNoOTPAmount: Decimal? {
-        guard let noOTPLimit, let spentNoOTPAmount else {
-            return nil
-        }
-
-        return noOTPLimit - spentNoOTPAmount
-    }
 }
