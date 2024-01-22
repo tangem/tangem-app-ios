@@ -7,28 +7,50 @@
 //
 
 import Foundation
+import TangemVisa
 
 class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
     @Published var alert: AlertBinder? = nil
 
     // MARK: Balances related
 
-    // [REDACTED_TODO_COMMENT]
-    var totalAmount: String { "492.45" }
-    var amlVerifiedAmount: String { "392.45" }
-    var availableAmount: String { "356.45" }
-    var blockedAmount: String { "36.00" }
-    var debtAmount: String { "0.00" }
-    var pendingRefundAmount: String { "20.99" }
+    let totalAmount: String
+    let amlVerifiedAmount: String
+    let availableAmount: String
+    let blockedAmount: String
+    let debtAmount: String
+    let pendingRefundAmount: String
 
     // MARK: Limits related
 
-    // [REDACTED_TODO_COMMENT]
-    // one time purchase
-    var availabilityDescription: String { "Available by Nov, 11" }
-    var inStoreOtpAmount: String { "563.00" }
-    var otherNoOtpAmount: String { "100.00" }
-    var singleTransactionAmount: String { "100.00" }
+    // OTP - One time password
+    let availabilityDescription: String
+    let remainingOTPAmount: String
+    // No OTP - amount that could be spent without use of One Time Password
+    let remainingNoOtpAmount: String
+    let singleTransactionAmount: String
+
+    private let emptyAmount = BalanceFormatter.defaultEmptyBalanceString
+    private let formatter: BalanceFormatter = .init()
+    private let balanceFormattingOptions: BalanceFormattingOptions = .init(minFractionDigits: 2, maxFractionDigits: 2, roundingType: .default(roundingMode: .down, scale: 2))
+
+    init(balances: AppVisaBalances, limit: AppVisaLimit) {
+        let tokenCurrencyCode = VisaUtilities().visaToken.symbol
+        totalAmount = formatter.formatCryptoBalance(balances.totalBalance, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+        amlVerifiedAmount = formatter.formatCryptoBalance(balances.verifiedBalance, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+        availableAmount = formatter.formatCryptoBalance(balances.available, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+        blockedAmount = formatter.formatCryptoBalance(balances.blocked, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+        debtAmount = formatter.formatCryptoBalance(balances.debt, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+        pendingRefundAmount = formatter.formatCryptoBalance(balances.pendingRefund, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+
+        singleTransactionAmount = formatter.formatCryptoBalance(limit.singleTransaction, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.YYYY"
+        availabilityDescription = "Available till \(dateFormatter.string(from: limit.actualExpirationDate))"
+        remainingOTPAmount = formatter.formatCryptoBalance(limit.remainingOTPAmount, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+        remainingNoOtpAmount = formatter.formatCryptoBalance(limit.remainingNoOTPAmount, currencyCode: tokenCurrencyCode, formattingOptions: balanceFormattingOptions)
+    }
 
     func openBalancesInfo() {
         alert = AlertBinder(title: "", message: "Available balance is actual funds available, considering pending transactions, blocked amounts, and debit balance to prevent overdrafts.")
