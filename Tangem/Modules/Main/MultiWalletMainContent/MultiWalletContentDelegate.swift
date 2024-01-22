@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol MultiWalletMainContentDelegate: AnyObject {
+protocol MultiWalletContentDelegate: AnyObject {
     func displayAddressCopiedToast()
 }
