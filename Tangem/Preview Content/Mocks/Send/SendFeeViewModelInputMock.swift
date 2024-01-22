@@ -12,6 +12,10 @@ import BigInt
 import BlockchainSdk
 
 class SendFeeViewModelInputMock: SendFeeViewModelInput {
+    var customGasLimit: BigUInt? {
+        nil
+    }
+
     var customFeePublisher: AnyPublisher<Fee?, Never> {
         .just(output: nil)
     }
