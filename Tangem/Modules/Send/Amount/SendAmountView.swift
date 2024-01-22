@@ -103,7 +103,8 @@ struct SendAmountView_Previews: PreviewProvider {
         cryptoCurrencyCode: "USDT",
         fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
         fiatCurrencyCode: "USD",
-        amountFractionDigits: 6
+        amountFractionDigits: 6,
+        feeFractionDigits: 6
     )
 
     static var previews: some View {
