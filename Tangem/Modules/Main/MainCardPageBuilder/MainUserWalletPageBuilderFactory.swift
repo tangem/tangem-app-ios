@@ -130,6 +130,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             walletModel: walletModel,
+            walletModelsManager: model.walletModelsManager,
             swapPairService: nil,
             contextDataProvider: model
         )
@@ -138,7 +139,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             address: walletModel.wallet.address,
             amountType: walletModel.amountType
         )
-
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: walletModel,
@@ -147,7 +147,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,
-            mainViewDelegate: mainViewDelegate
+            delegate: singleWalletContentDelegate
         )
         userWalletNotificationManager.setupManager()
         singleWalletNotificationManager.setupManager(with: viewModel)
@@ -169,7 +169,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
-                mainViewDelegate: mainViewDelegate,
+                singleWalletContentDelegate: singleWalletContentDelegate,
                 multiWalletContentDelegate: multiWalletContentDelegate
             )
         }
