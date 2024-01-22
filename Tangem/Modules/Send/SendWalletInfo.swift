@@ -21,4 +21,5 @@ struct SendWalletInfo {
     let fiatIconURL: URL?
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
+    let feeFractionDigits: Int
 }
