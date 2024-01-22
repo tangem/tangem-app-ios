@@ -582,12 +582,14 @@ extension ExpressViewModel: NotificationTapDelegate {
         switch action {
         case .refresh:
             interactor.refresh(type: .full)
-        case .openNetworkCurrency:
+        case .openFeeCurrency:
             openNetworkCurrency()
-        default: return
+        default:
+            return
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     private func openNetworkCurrency() {
         guard
             let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
