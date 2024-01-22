@@ -18,6 +18,7 @@ struct ExpressCurrencyView<Content: View>: View {
     private let tokenIconSize = CGSize(width: 40, height: 40)
     private let chevronIconSize = CGSize(width: 9, height: 9)
     private var didTapChangeCurrency: () -> Void = {}
+    private var didTapPriceChangePercent: (() -> Void)?
 
     @State private var symbolSize: CGSize = .zero
 
@@ -99,7 +100,7 @@ struct ExpressCurrencyView<Content: View>: View {
     @ViewBuilder
     private var bottomContent: some View {
         HStack(spacing: 0) {
-            HStack(spacing: 2) {
+            HStack(spacing: 8) {
                 LoadableTextView(
                     state: viewModel.fiatAmountState,
                     font: Fonts.Regular.footnote,
@@ -109,14 +110,18 @@ struct ExpressCurrencyView<Content: View>: View {
                     isSensitiveText: false
                 )
 
-                if let priceChangePercent = viewModel.priceChangePercent {
-                    HStack(spacing: 4) {
-                        Text(priceChangePercent)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+                if let priceChangePercent = viewModel.priceChangePercent, let didTapPriceChangePercent {
+                    Button(action: { didTapPriceChangePercent() }) {
+                        HStack(spacing: 2) {
+                            Text(priceChangePercent)
+                                .style(Fonts.Regular.footnote, color: Colors.Text.attention)
 
-                        Assets.attention.image
-                            .resizable()
-                            .frame(width: 16, height: 16)
+                            Assets.infoIconMini.image
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                                .foregroundColor(Colors.Icon.attention)
+                        }
                     }
                 }
             }
@@ -162,6 +167,10 @@ struct ExpressCurrencyView<Content: View>: View {
 extension ExpressCurrencyView: Setupable {
     func didTapChangeCurrency(_ block: @escaping () -> Void) -> Self {
         map { $0.didTapChangeCurrency = block }
+    }
+
+    func didTapPriceChangePercent(_ block: @escaping () -> Void) -> Self {
+        map { $0.didTapPriceChangePercent = block }
     }
 }
 
