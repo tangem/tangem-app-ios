@@ -123,6 +123,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             address: walletModel.wallet.address,
             amountType: walletModel.amountType
         )
+
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: walletModel,
