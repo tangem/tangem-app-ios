@@ -28,6 +28,8 @@ final class CommonRateAppController {
     }
 
     private func handleRateAppAction(_ action: RateAppAction) {
+        coordinator.closeAppRateDialog()
+
         switch action {
         case .openAppRateDialog:
             let viewModel = RateAppBottomSheetViewModel { [weak self] response in
