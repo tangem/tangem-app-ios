@@ -100,7 +100,7 @@ final class RateAppService {
             systemReviewPromptRequestDates.append(Date())
             rateAppActionSubject.send(.openAppStoreReview)
         case .negative:
-            rateAppActionSubject.send(.openMailWithEmailType(emailType: .negativeRateAppFeedback))
+            rateAppActionSubject.send(.openFeedbackMailWithEmailType(emailType: .negativeRateAppFeedback))
         case .dismissed:
             userDismissedLastRequestedReview = true
         }
