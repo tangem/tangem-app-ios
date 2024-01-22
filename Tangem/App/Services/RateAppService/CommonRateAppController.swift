@@ -1,5 +1,5 @@
 //
-//  RateAppController.swift
+//  CommonRateAppController.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,6 @@
 import Foundation
 import Combine
 import CombineExt
-
-protocol RateAppController {
-    func bind(
-        isPageSelectedPublisher: some Publisher<Bool, Never>,
-        notificationsPublisher: some Publisher<[NotificationViewInput], Never>
-    )
-}
 
 final class CommonRateAppController {
     private let rateAppService: RateAppService
