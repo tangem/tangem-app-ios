@@ -15,7 +15,7 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = SingleWalletMainContentRoutable & MultiWalletMainContentRoutable & VisaWalletRoutable
+    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutabe
     let coordinator: MainContentRoutable
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, singleWalletContentDelegate: SingleWalletMainContentDelegate, multiWalletContentDelegate: MultiWalletMainContentDelegate?) -> MainUserWalletPageBuilder? {
@@ -53,6 +53,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
+        let rateAppController = CommonRateAppController(
+            rateAppService: RateAppService(),
+            userWalletModel: model,
+            coordinator: coordinator
+        )
+
         let tokenRouter = SingleTokenRouter(userWalletModel: model, coordinator: coordinator)
 
         if isMultiWalletPage {
@@ -72,6 +78,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
+                rateAppController: rateAppController,
                 tokenSectionsAdapter: sectionsAdapter,
                 tokenRouter: tokenRouter,
                 optionsEditing: optionsManager,
@@ -116,15 +123,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             address: walletModel.wallet.address,
             amountType: walletModel.amountType
         )
-
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             userWalletNotificationManager: userWalletNotificationManager,
             tokenNotificationManager: singleWalletNotificationManager,
+            rateAppController: rateAppController,
             tokenRouter: tokenRouter,
-            coordinator: coordinator,
             delegate: singleWalletContentDelegate
         )
         userWalletNotificationManager.setupManager()
