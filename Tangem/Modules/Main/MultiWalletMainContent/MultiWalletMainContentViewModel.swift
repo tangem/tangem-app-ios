@@ -24,7 +24,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
 
-    weak var delegate: MultiWalletMainContentDelegate?
+    weak var delegate: MultiWalletContentDelegate?
 
     var footerViewModel: MainFooterViewModel? {
         guard canManageTokens else { return nil }
