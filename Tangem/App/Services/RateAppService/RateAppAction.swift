@@ -11,6 +11,6 @@ import Foundation
 enum RateAppAction {
     /// An in-app (not provided by System or StoreKit) dialog/alert/sheet/etc.
     case openAppRateDialog
-    case openMailWithEmailType(emailType: EmailType)
+    case openFeedbackMailWithEmailType(emailType: EmailType)
     case openAppStoreReview
 }
