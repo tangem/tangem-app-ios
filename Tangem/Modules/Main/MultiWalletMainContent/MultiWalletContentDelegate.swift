@@ -1,5 +1,5 @@
 //
-//  MultiWalletContentDelegate.swift
+//  MultiWalletMainContentDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
