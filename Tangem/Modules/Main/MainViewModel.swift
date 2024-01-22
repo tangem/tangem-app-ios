@@ -62,7 +62,7 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
-            singleWalletContentDelegate: self,
+            mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
 
@@ -261,7 +261,7 @@ final class MainViewModel: ObservableObject {
             let newPage = mainUserWalletPageBuilderFactory.createPage(
                 for: userWalletModel,
                 lockedUserWalletDelegate: self,
-                singleWalletContentDelegate: self,
+                mainViewDelegate: self,
                 multiWalletContentDelegate: self
             )
         else {
@@ -300,7 +300,7 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
-            singleWalletContentDelegate: self,
+            mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
     }
@@ -400,7 +400,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
             let page = mainUserWalletPageBuilderFactory.createPage(
                 for: userWalletModel,
                 lockedUserWalletDelegate: self,
-                singleWalletContentDelegate: self,
+                mainViewDelegate: self,
                 multiWalletContentDelegate: self
             )
         else {
@@ -419,13 +419,13 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     }
 }
 
-extension MainViewModel: MultiWalletMainContentDelegate {
+extension MainViewModel: MultiWalletContentDelegate {
     func displayAddressCopiedToast() {
         showAddressCopiedToast = true
     }
 }
 
-extension MainViewModel: SingleWalletMainContentDelegate {
+extension MainViewModel: MainViewDelegate {
     func present(actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
     }
