@@ -123,7 +123,8 @@ struct SendFinishView_Previews: PreviewProvider {
         cryptoCurrencyCode: "USDT",
         fiatIconURL: nil,
         fiatCurrencyCode: "USD",
-        amountFractionDigits: 6
+        amountFractionDigits: 6,
+        feeFractionDigits: 6
     )
 
     static var previews: some View {
