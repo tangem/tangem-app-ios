@@ -76,9 +76,9 @@ struct MainView: View {
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
-        .toast(isPresenting: $viewModel.showAddressCopiedToast) {
+        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
-        }
+        })
     }
 
     var detailsNavigationButton: some View {
