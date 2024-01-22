@@ -65,7 +65,6 @@ final class MainViewModel: ObservableObject {
             mainViewDelegate: self,
             multiWalletContentDelegate: self
         )
-
         bind()
     }
 
