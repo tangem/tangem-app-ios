@@ -10,15 +10,15 @@ import Foundation
 import BlockchainSdk
 
 protocol MainUserWalletPageBuilderFactory {
-    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, singleWalletContentDelegate: SingleWalletMainContentDelegate, multiWalletContentDelegate: MultiWalletMainContentDelegate?) -> MainUserWalletPageBuilder?
-    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate, singleWalletContentDelegate: SingleWalletMainContentDelegate, multiWalletContentDelegate: MultiWalletMainContentDelegate?) -> [MainUserWalletPageBuilder]
+    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, mainViewDelegate: MainViewDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> MainUserWalletPageBuilder?
+    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate, mainViewDelegate: MainViewDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> [MainUserWalletPageBuilder]
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
     typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutabe
     let coordinator: MainContentRoutable
 
-    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, singleWalletContentDelegate: SingleWalletMainContentDelegate, multiWalletContentDelegate: MultiWalletMainContentDelegate?) -> MainUserWalletPageBuilder? {
+    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, mainViewDelegate: MainViewDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> MainUserWalletPageBuilder? {
         let id = model.userWalletId
         let containsDefaultToken = model.config.hasDefaultToken
         let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
@@ -131,7 +131,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,
-            delegate: singleWalletContentDelegate
+            mainViewDelegate: mainViewDelegate
         )
         userWalletNotificationManager.setupManager()
         singleWalletNotificationManager.setupManager(with: viewModel)
@@ -143,12 +143,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
     }
 
-    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate, singleWalletContentDelegate: SingleWalletMainContentDelegate, multiWalletContentDelegate: MultiWalletMainContentDelegate?) -> [MainUserWalletPageBuilder] {
+    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate, mainViewDelegate: MainViewDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> [MainUserWalletPageBuilder] {
         return models.compactMap {
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
-                singleWalletContentDelegate: singleWalletContentDelegate,
+                mainViewDelegate: mainViewDelegate,
                 multiWalletContentDelegate: multiWalletContentDelegate
             )
         }
