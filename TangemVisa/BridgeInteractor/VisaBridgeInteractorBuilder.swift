@@ -37,7 +37,7 @@ public struct VisaBridgeInteractorBuilder {
             throw VisaBridgeInteractorBuilderError.failedToFindPaymentAccount
         }
 
-        return DefaultBridgeInteractor(smartContractInteractor: smartContractInteractor, paymentAccount: paymentAccount)
+        return CommonBridgeInteractor(smartContractInteractor: smartContractInteractor, paymentAccount: paymentAccount)
     }
 }
 
