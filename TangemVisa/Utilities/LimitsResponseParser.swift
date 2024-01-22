@@ -45,7 +45,7 @@ struct LimitsResponseParser {
         var limitItems = split(string: limit, by: singleValueLength)
 
         guard limitItems.count == itemsForEachLimit else {
-            throw VisaParserError.limitWrongLength
+            throw VisaParserError.limitWrongSingleLimitItemsCount
         }
 
         let limitDurationSeconds = EthereumUtils.parseEthereumDecimal(limitItems.removeLast(), decimalsCount: 0)
@@ -56,7 +56,7 @@ struct LimitsResponseParser {
         var values = limitItems.map { EthereumUtils.parseEthereumDecimal($0, decimalsCount: decimalCount) }
 
         guard values.count == amountsCount else {
-            throw VisaParserError.failedToParseLimitAmount
+            throw VisaParserError.limitWrongSingleLimitAmountsCount
         }
 
         return VisaLimit(
