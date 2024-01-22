@@ -36,11 +36,13 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel?
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
+    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
 
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var isAppStoreReviewRequested = false
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -164,10 +166,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         legacyTokenListCoordinator = coordinator
     }
 }
-
-// MARK: - SingleWalletMainContentRoutable protocol conformance
-
-extension MainCoordinator: SingleWalletMainContentRoutable {}
 
 // MARK: - SingleTokenRoutable
 
@@ -304,7 +302,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
                 return
             }
 
-            self?.openNetworkCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
+            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
         }
 
         let factory = CommonExpressModulesFactory(inputModel: input)
@@ -327,7 +325,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
         guard let cardViewModel = userWalletModel as? CardViewModel else {
             return
@@ -366,3 +364,23 @@ extension MainCoordinator: OrganizeTokensRoutable {
 // MARK: - VisaWalletRoutable
 
 extension MainCoordinator: VisaWalletRoutable {}
+
+// MARK: - RateAppRoutabe protocol conformance
+
+extension MainCoordinator: RateAppRoutabe {
+    func openAppRateDialog(with viewModel: RateAppBottomSheetViewModel) {
+        rateAppBottomSheetViewModel = viewModel
+    }
+
+    func closeAppRateDialog() {
+        rateAppBottomSheetViewModel = nil
+    }
+
+    func openFeedbackMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+        openMail(with: dataCollector, emailType: emailType, recipient: recipient)
+    }
+
+    func openAppStoreReview() {
+        isAppStoreReviewRequested = true
+    }
+}
