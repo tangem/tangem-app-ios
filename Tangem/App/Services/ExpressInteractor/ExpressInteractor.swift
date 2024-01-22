@@ -216,6 +216,7 @@ extension ExpressInteractor {
             expressTransactionData: result.data
         )
 
+        logTransactionSentAnalyticsEvent(data: sentTransactionData)
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
         return sentTransactionData
     }
@@ -241,6 +242,7 @@ extension ExpressInteractor {
         let result = try await sender.send(transaction, signer: signer).async()
         logger.debug("Sent the approve transaction with result: \(result)")
         allowanceProvider.didSendApproveTransaction(for: state.data.spender)
+        logApproveTransactionSentAnalyticsEvent(policy: state.policy)
         updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
 }
@@ -602,6 +604,42 @@ private extension ExpressInteractor {
         }
 
         Analytics.log(event: .swapButtonPermissionApprove, params: parameters)
+    }
+
+    func logTransactionSentAnalyticsEvent(data: SentExpressTransactionData) {
+        let analyticsFeeType: Analytics.ParameterValue = {
+            if getState().fees.count == 1 {
+                return .transactionFeeFixed
+            }
+
+            return data.feeOption.analyticsValue
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .token: data.source.tokenItem.currencySymbol,
+            .blockchain: data.source.tokenItem.blockchain.displayName,
+            .feeType: analyticsFeeType.rawValue,
+        ])
+    }
+
+    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy) {
+        let permissionType: Analytics.ParameterValue = {
+            switch policy {
+            case .specified:
+                return .oneTransactionApprove
+            case .unlimited:
+                return .unlimitedApprove
+            }
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
+            .token: getSender().tokenItem.currencySymbol,
+            .blockchain: getSender().tokenItem.blockchain.displayName,
+            .permissionType: permissionType.rawValue,
+        ])
     }
 
     func logExpressError(_ error: ExpressAPIError) async {
