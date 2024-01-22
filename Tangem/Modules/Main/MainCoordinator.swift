@@ -36,11 +36,13 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel?
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
+    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
 
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var isAppStoreReviewRequested = false
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -165,11 +167,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 }
 
-// MARK: - SingleWalletMainContentRoutable protocol conformance
-
-extension MainCoordinator: SingleWalletMainContentRoutable {}
-
-// MARK: - SingleTokenRoutable
+// MARK: - SingleTokenBaseRoutable
 
 extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
@@ -366,3 +364,21 @@ extension MainCoordinator: OrganizeTokensRoutable {
 // MARK: - VisaWalletRoutable
 
 extension MainCoordinator: VisaWalletRoutable {}
+
+// MARK: - RateAppRoutabe protocol conformance
+
+extension MainCoordinator: RateAppRoutabe {
+    func openAppRateDialog(with viewModel: RateAppBottomSheetViewModel) {
+        rateAppBottomSheetViewModel = viewModel
+    }
+
+    func openFeedbackMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+        rateAppBottomSheetViewModel = nil
+        openMail(with: dataCollector, emailType: emailType, recipient: recipient)
+    }
+
+    func openAppStoreReview() {
+        rateAppBottomSheetViewModel = nil
+        isAppStoreReviewRequested = true
+    }
+}
