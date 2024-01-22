@@ -60,11 +60,15 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardSessionFilter: SessionFilter { get }
 
+    var hasDefaultToken: Bool { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func makeWalletModelsFactory() -> WalletModelsFactory
 
     func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory
 }
 
 extension UserWalletConfig {
@@ -104,6 +108,10 @@ extension UserWalletConfig {
     var customOnboardingImage: ImageType? { nil }
 
     var customScanImage: ImageType? { nil }
+
+    var hasDefaultToken: Bool {
+        (defaultBlockchains.first?.tokens.count ?? 0) > 0
+    }
 }
 
 struct EmailConfig {
@@ -156,5 +164,9 @@ extension UserWalletConfig where Self: CardContainer {
     func makeBackupService() -> BackupService {
         let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
         return factory.makeBackupService()
+    }
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
+        return CommonMainHeaderProviderFactory()
     }
 }
