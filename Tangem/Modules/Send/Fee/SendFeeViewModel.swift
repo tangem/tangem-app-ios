@@ -84,13 +84,12 @@ class SendFeeViewModel: ObservableObject {
             .store(in: &bag)
 
         input.amountPublisher
-            .map {
+            .compactMap {
+                guard let amount = $0 else { return nil }
+
                 let feeDecimals = 6
-                if let amountFormatted = $0?.string(with: feeDecimals) {
-                    return Localization.sendAmountSubstractFooter(amountFormatted)
-                } else {
-                    return ""
-                }
+                let amountFormatted = amount.string(with: feeDecimals)
+                return Localization.sendAmountSubstractFooter(amountFormatted)
             }
             .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
             .store(in: &bag)
