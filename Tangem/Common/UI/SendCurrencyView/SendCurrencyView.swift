@@ -11,7 +11,7 @@ import SwiftUI
 struct SendCurrencyView: View {
     @ObservedObject private var viewModel: SendCurrencyViewModel
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
-    @State private var startShakeAnimation: Bool = false
+    @State private var isShaking: Bool = false
 
     private var didTapChangeCurrency: (() -> Void)?
     private var maxAmountAction: (() -> Void)?
@@ -30,7 +30,7 @@ struct SendCurrencyView: View {
             )
             .maximumFractionDigits(viewModel.maximumFractionDigits)
             .maxAmountAction(maxAmountAction)
-            .offset(x: startShakeAnimation ? 10 : 0)
+            .offset(x: isShaking ? 10 : 0)
             .simultaneousGesture(TapGesture().onEnded {
                 viewModel.textFieldDidTapped()
             })
@@ -39,9 +39,9 @@ struct SendCurrencyView: View {
                     return
                 }
 
-                startShakeAnimation = true
+                isShaking = true
                 withAnimation(.spring(response: 0.2, dampingFraction: 0.2, blendDuration: 0.2)) {
-                    startShakeAnimation = false
+                    isShaking = false
                 }
             }
         }
