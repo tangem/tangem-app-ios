@@ -39,4 +39,17 @@ enum FeeOption: String, Hashable {
             return Localization.commonFeeSelectorOptionCustom
         }
     }
+
+    var analyticsValue: Analytics.ParameterValue {
+        switch self {
+        case .slow:
+            return .transactionFeeMin
+        case .market:
+            return .transactionFeeNormal
+        case .fast:
+            return .transactionFeeMax
+        case .custom:
+            return .transactionFeeCustom
+        }
+    }
 }
