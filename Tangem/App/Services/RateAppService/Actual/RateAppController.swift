@@ -1,5 +1,5 @@
 //
-//  SomeHandler.swift
+//  RateAppController.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
