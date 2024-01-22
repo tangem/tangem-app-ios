@@ -147,7 +147,8 @@ final class SendViewModel: ObservableObject {
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
             fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
-            amountFractionDigits: walletModel.tokenItem.decimalCount
+            amountFractionDigits: walletModel.tokenItem.decimalCount,
+            feeFractionDigits: walletModel.tokenItem.feeDecimalCount
         )
 
         #warning("Fiat icon URL")
