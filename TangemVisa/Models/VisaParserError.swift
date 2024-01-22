@@ -13,5 +13,6 @@ public enum VisaParserError: Error {
     case noValidAddress
     case limitsResponseWrongLength
     case limitWrongLength
-    case failedToParseLimitAmount
+    case limitWrongSingleLimitItemsCount
+    case limitWrongSingleLimitAmountsCount
 }
