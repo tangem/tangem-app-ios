@@ -197,21 +197,21 @@ class WalletModel {
             return nil
         }
 
-        if wallet.hasPendingTx { // has pending tx for fee
-            return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
-        }
-
-        guard let token = amountType.token else {
-            return nil
+        // has pending tx
+        if wallet.hasPendingTx {
+            return .hasPendingOutgoingTransaction(blockchain: blockchainNetwork.blockchain)
         }
 
         // no fee
-        if !wallet.hasPendingTx, !canSendTransaction, !currentAmount.isZero {
-            return .notEnoughFeeForTokenTx(
-                tokenName: token.name,
-                networkName: blockchainNetwork.blockchain.displayName,
-                coinSymbol: blockchainNetwork.blockchain.currencySymbol,
-                networkIconName: blockchainNetwork.blockchain.iconNameFilled
+        if !wallet.hasFeeCurrency(amountType: amountType), !currentAmount.isZero {
+            return .notEnoughFeeForTransaction(
+                configuration: .init(
+                    transactionAmountTypeName: tokenItem.name,
+                    feeAmountTypeName: feeTokenItem.name,
+                    feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
+                    feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled,
+                    networkName: tokenItem.networkName
+                )
             )
         }
 
