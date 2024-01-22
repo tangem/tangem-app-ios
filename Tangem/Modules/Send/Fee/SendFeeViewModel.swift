@@ -128,10 +128,16 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func makeFeeRowViewModels(_ feeValues: [FeeOption: LoadingValue<Fee>]) -> [FeeRowViewModel] {
-        let formattedFeeValues: [FeeOption: LoadingValue<String>] = feeValues.mapValues { fee in
-            switch fee {
+        let formattedFeeValuePairs: [(FeeOption, LoadingValue<String?>)] = feeValues.map {
+            feeOption, feeValue -> (FeeOption, LoadingValue<String?>) in
+            guard feeOption != .custom else {
+                return (feeOption, .loaded(nil))
+            }
+
+            let result: LoadingValue<String?>
+            switch feeValue {
             case .loading:
-                return .loading
+                result = .loading
             case .loaded(let value):
                 let formattedValue = self.feeFormatter.format(
                     fee: value.amount.value,
@@ -139,12 +145,15 @@ class SendFeeViewModel: ObservableObject {
                     currencyId: walletInfo.feeCurrencyId,
                     isFeeApproximate: walletInfo.isFeeApproximate
                 )
-                return .loaded(formattedValue)
+                result = .loaded(formattedValue)
             case .failedToLoad(let error):
-                return .failedToLoad(error: error)
+                result = .failedToLoad(error: error)
             }
+
+            return (feeOption, result)
         }
 
+        let formattedFeeValues = Dictionary(uniqueKeysWithValues: formattedFeeValuePairs)
         return feeOptions.map { option in
             let value = formattedFeeValues[option] ?? .loading
 
