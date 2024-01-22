@@ -325,7 +325,7 @@ final class MainViewModel: ObservableObject {
 
         $selectedCardIndex
             .removeDuplicates()
-            .prepend(-1)
+            .prepend(-1) // A dummy value to trigger initial index change event
             .pairwise()
             .withWeakCaptureOf(self)
             .sink { viewModel, input in
