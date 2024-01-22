@@ -50,10 +50,6 @@ struct SingleWalletMainContentView: View {
         .animation(.default, value: viewModel.tokenNotificationInputs)
         .padding(.horizontal, 16)
         .bindAlert($viewModel.alert)
-        .bottomSheet(item: $viewModel.rateAppBottomSheetViewModel, backgroundColor: Colors.Background.primary) { viewModel in
-            RateAppBottomSheetView(viewModel: viewModel)
-        }
-        .requestAppStoreReviewCompat($viewModel.isAppStoreReviewRequested)
     }
 }
 
@@ -75,9 +71,9 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             exchangeUtility: cryptoUtility,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
+            rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
-            coordinator: mainCoordinator,
-            delegate: nil
+            mainViewDelegate: nil
         )
     }()
 
