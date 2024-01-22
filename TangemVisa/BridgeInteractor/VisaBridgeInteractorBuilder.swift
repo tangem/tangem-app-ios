@@ -14,7 +14,7 @@ public struct VisaBridgeInteractorBuilder {
 
     public func buildInteractor(
         for cardAddress: String,
-        using smartContractInteractor: EVMSmartContractInteractor
+        using evmSmartContractInteractor: EVMSmartContractInteractor
     ) async throws -> VisaBridgeInteractor {
         var paymentAccount: String?
         for bridgeAddress in VisaUtilities().TangemBridgeProcessorAddresses {
@@ -24,7 +24,7 @@ public struct VisaBridgeInteractorBuilder {
             )
 
             do {
-                let response = try await smartContractInteractor.ethCall(request: request).async()
+                let response = try await evmSmartContractInteractor.ethCall(request: request).async()
                 let addressParser = try AddressParser().parseAddressResponse(response)
                 paymentAccount = addressParser
                 break
@@ -37,7 +37,7 @@ public struct VisaBridgeInteractorBuilder {
             throw VisaBridgeInteractorBuilderError.failedToFindPaymentAccount
         }
 
-        return CommonBridgeInteractor(smartContractInteractor: smartContractInteractor, paymentAccount: paymentAccount)
+        return CommonBridgeInteractor(evmSmartContractInteractor: evmSmartContractInteractor, paymentAccount: paymentAccount)
     }
 }
 
