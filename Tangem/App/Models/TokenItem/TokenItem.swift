@@ -111,14 +111,14 @@ enum TokenItem: Hashable, Codable {
         }
     }
 
-    var feeDecimalCount: Int {
+    var feeTokenItem: TokenItem {
         switch blockchain.feePaidCurrency {
         case .coin:
-            blockchain.decimalCount
+            .blockchain(blockchain)
         case .token(let feeToken):
-            feeToken.decimalCount
+            .token(feeToken, blockchain)
         case .sameCurrency:
-            decimalCount
+            self
         }
     }
 }
