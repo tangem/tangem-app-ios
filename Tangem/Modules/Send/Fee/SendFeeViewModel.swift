@@ -17,6 +17,8 @@ protocol SendFeeViewModelInput {
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
+    var customGasLimit: BigUInt? { get }
+
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
     var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> { get }
@@ -63,10 +65,8 @@ class SendFeeViewModel: ObservableObject {
                 fractionDigits: walletInfo.feeFractionDigits,
                 amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
                 footer: Localization.sendMaxFeeFooter
-            ) { enteredValue in
-                let newFee: Fee?
-
-                #warning("[REDACTED_TODO_COMMENT]")
+            ) { enteredFee in
+                input.didChangeCustomFee(Self.recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
             }
 
             customFeeGasPriceModel = SendCustomFeeInputFieldModel(
@@ -174,6 +174,30 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = feeOption
         input.didSelectFeeOption(feeOption)
         showCustomFeeFields = feeOption == .custom
+    }
+
+    private static func recalculateFee(enteredFee: DecimalNumberTextField.DecimalValue?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
+        let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
+
+        guard
+            let enteredFee,
+            let currentGasLimit = input.customGasLimit,
+            let enteredFeeInSmallestDenomination = BigUInt(decimal: enteredFee.value * feeDecimalValue)
+        else {
+            return nil
+        }
+
+        let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
+        guard
+            let recalculatedFeeInSmallestDenomination = (gasPrice * currentGasLimit).decimal
+        else {
+            return nil
+        }
+
+        let recalculatedFee = recalculatedFeeInSmallestDenomination / feeDecimalValue
+        let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
+        let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
+        return Fee(feeAmount, parameters: parameters)
     }
 }
 
