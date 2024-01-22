@@ -106,6 +106,7 @@ struct SupportedBlockchains {
             .decimal(testnet: false),
             .veChain(testnet: false),
             .xdc(testnet: false),
+            .algorand(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
@@ -137,6 +138,7 @@ struct SupportedBlockchains {
             .decimal(testnet: true),
             .veChain(testnet: true),
             .xdc(testnet: true),
+            .algorand(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
