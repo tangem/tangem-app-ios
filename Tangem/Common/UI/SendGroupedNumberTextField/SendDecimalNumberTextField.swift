@@ -12,18 +12,16 @@ import SwiftUI
 struct SendDecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     private var maximumFractionDigits: Int
-    private let font: Font
     private var maxAmountAction: (() -> Void)?
 
-    init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>, maximumFractionDigits: Int, font: Font) {
+    init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>, maximumFractionDigits: Int) {
         _decimalValue = decimalValue
         self.maximumFractionDigits = maximumFractionDigits
-        self.font = font
     }
 
     var body: some View {
         if #available(iOS 15, *) {
-            FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits, font: font) {
+            FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits) {
                 if let action = maxAmountAction {
                     Button(action: action) {
                         Text(Localization.sendMaxAmountLabel)
@@ -35,8 +33,7 @@ struct SendDecimalNumberTextField: View {
         } else {
             DecimalNumberTextField(
                 decimalValue: $decimalValue,
-                decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits),
-                font: font
+                decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
             )
             .maximumFractionDigits(maximumFractionDigits)
         }
