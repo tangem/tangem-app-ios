@@ -38,7 +38,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     @Published var amount: DecimalNumberTextField.DecimalValue? = nil
     @Published var useFiatCalculation = false
-    @Published var amountAlternative: String = ""
+    @Published var amountAlternative: String?
     @Published var error: String?
 
     private let input: SendAmountViewModelInput
@@ -123,6 +123,22 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .removeDuplicates()
             .sink { [weak self] useFiatCalculation in
                 self?.converter.setUseFiatCalculation(useFiatCalculation)
+            }
+            .store(in: &bag)
+
+        Publishers.CombineLatest3($useFiatCalculation, converter.fiatAmount, converter.cryptoAmount)
+            .map { useFiatCalculation, fiatAmount, cryptoAmount in
+                guard let cryptoAmount, let fiatAmount else { return nil }
+
+                if useFiatCalculation {
+                    return Amount(with: input.blockchain, type: input.amountType, value: cryptoAmount).string()
+                } else {
+                    return BalanceFormatter().formatFiatBalance(fiatAmount)
+                }
+            }
+            .withWeakCaptureOf(self)
+            .sink { (self, amountAlternative) in
+                self.amountAlternative = amountAlternative
             }
             .store(in: &bag)
     }
