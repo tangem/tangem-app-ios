@@ -13,6 +13,8 @@ struct SendFeeView: View {
 
     @ObservedObject var viewModel: SendFeeViewModel
 
+    let bottomSpacing: CGFloat
+
     var body: some View {
         GroupedScrollView {
             GroupedSection(viewModel.feeRowViewModels) {
@@ -23,6 +25,8 @@ struct SendFeeView: View {
             .verticalPadding(0)
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
+
+            Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
@@ -55,6 +59,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), walletInfo: walletInfo))
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), walletInfo: walletInfo), bottomSpacing: 150)
     }
 }
