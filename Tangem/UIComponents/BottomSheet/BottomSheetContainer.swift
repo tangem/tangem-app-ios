@@ -203,7 +203,7 @@ struct BottomSheetContainer_Previews: PreviewProvider {
 
         var body: some View {
             ZStack {
-                Color.white
+                Colors.Background.primary
                     .edgesIgnoringSafeArea(.all)
 
                 Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
