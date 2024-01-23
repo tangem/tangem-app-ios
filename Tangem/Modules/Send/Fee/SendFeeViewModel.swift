@@ -12,16 +12,26 @@ import Combine
 import BlockchainSdk
 
 protocol SendFeeViewModelInput {
+    var amountPublisher: AnyPublisher<Amount?, Never> { get }
     var selectedFeeOption: FeeOption { get }
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
+    var canIncludeFeeIntoAmount: Bool { get }
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
+
     func didSelectFeeOption(_ feeOption: FeeOption)
+    func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
 class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
+
+    @Published private(set) var subtractFromAmountFooterText: String = ""
+    @Published private(set) var subtractFromAmountModel: DefaultToggleRowViewModel?
+
+    @Published private var isFeeIncluded: Bool = false
 
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
@@ -42,6 +52,20 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = input.selectedFeeOption
         feeRowViewModels = makeFeeRowViewModels([:])
 
+        if input.canIncludeFeeIntoAmount {
+            let isFeeIncludedBinding = BindingValue<Bool>(root: self, default: isFeeIncluded) {
+                $0.isFeeIncluded
+            } set: {
+                $0.isFeeIncluded = $1
+                $0.input.didChangeFeeInclusion($1)
+            }
+            subtractFromAmountModel = DefaultToggleRowViewModel(
+                title: Localization.sendAmountSubstract,
+                isDisabled: false,
+                isOn: isFeeIncludedBinding
+            )
+        }
+
         bind()
     }
 
@@ -51,6 +75,21 @@ class SendFeeViewModel: ObservableObject {
                 guard let self else { return }
                 feeRowViewModels = makeFeeRowViewModels(feeValues)
             }
+            .store(in: &bag)
+
+        input.isFeeIncludedPublisher
+            .assign(to: \.isFeeIncluded, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input.amountPublisher
+            .compactMap {
+                guard let amount = $0 else { return nil }
+
+                let feeDecimals = 6
+                let amountFormatted = amount.string(with: feeDecimals)
+                return Localization.sendAmountSubstractFooter(amountFormatted)
+            }
+            .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
