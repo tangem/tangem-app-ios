@@ -16,18 +16,29 @@ struct ExpressTokensListView: View {
     }
 
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .center) {
-                Colors.Background.tertiary.ignoresSafeArea(.all)
+        ZStack(alignment: .top) {
+            Colors.Background.tertiary.ignoresSafeArea(.all)
 
-                content
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(Localization.swappingTokenListTitle)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
-            .autocorrectionDisabled()
+            mainContent
         }
         .onDisappear(perform: viewModel.onDisappear)
+    }
+
+    @ViewBuilder
+    private var mainContent: some View {
+        VStack(spacing: .zero) {
+            FixedSpacer(height: 8)
+
+            if #available(iOS 15.0, *) {
+                BottomSheetSearchableHeaderView(
+                    title: Localization.swappingTokenListTitle,
+                    searchText: $viewModel.searchText
+                )
+                .padding(.vertical, 12)
+            }
+
+            content
+        }
     }
 
     @ViewBuilder
@@ -51,15 +62,21 @@ struct ExpressTokensListView: View {
     }
 
     private var emptyContent: some View {
-        VStack(spacing: 16) {
-            Assets.emptyTokenList.image
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.inactive)
+        VStack(spacing: .zero) {
+            Spacer()
 
-            Text(Localization.exchangeTokensEmptyTokens)
-                .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .padding(.horizontal, 50)
+            VStack(spacing: 16) {
+                Assets.emptyTokenList.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.inactive)
+
+                Text(Localization.exchangeTokensEmptyTokens)
+                    .multilineTextAlignment(.center)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .padding(.horizontal, 50)
+            }
+
+            Spacer()
         }
     }
 
