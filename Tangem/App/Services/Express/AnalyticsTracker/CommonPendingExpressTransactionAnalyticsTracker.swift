@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import class TangemExpress.ThreadSafeContainer
 
 class CommonPendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker {
     typealias PendingTransactionId = String
 
     private let mapper = PendingExpressTransactionAnalyticsStatusMapper()
-    private var trackedStatuses = [PendingTransactionId: Set<Analytics.ParameterValue>]()
+    private var trackedStatuses: ThreadSafeContainer<[PendingTransactionId: Set<Analytics.ParameterValue>]> = .init([:])
 
     func trackStatusForTransaction(with transactionId: PendingTransactionId, tokenSymbol: String, status: PendingExpressTransactionStatus) {
         let statusToTrack = mapper.mapToAnalyticsStatus(pendingTxStatus: status)
@@ -26,7 +27,7 @@ class CommonPendingExpressTransactionAnalyticsTracker: PendingExpressTransaction
             .status: statusToTrack.rawValue,
         ])
         trackedStatusesSet.insert(statusToTrack)
-        trackedStatuses[transactionId] = trackedStatusesSet
+        trackedStatuses.mutate { $0[transactionId] = trackedStatusesSet }
     }
 }
 
