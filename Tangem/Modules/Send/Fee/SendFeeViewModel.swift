@@ -101,27 +101,28 @@ class SendFeeViewModel: ObservableObject {
 
     private func bind() {
         input.feeValues
-            .sink { [weak self] feeValues in
-                guard let self else { return }
-                feeRowViewModels = makeFeeRowViewModels(feeValues)
+            .withWeakCaptureOf(self)
+            .sink { (self, feeValues) in
+                self.feeRowViewModels = self.makeFeeRowViewModels(feeValues)
             }
             .store(in: &bag)
 
         input
             .customFeePublisher
-            .map { [weak self] customFee -> String? in
+            .withWeakCaptureOf(self)
+            .map { (self, customFee) -> String? in
                 guard
-                    let self,
                     let customFee,
-                    let fiatFee = balanceConverter.convertToFiat(value: customFee.amount.value, from: walletInfo.feeCurrencyId)
+                    let fiatFee = self.balanceConverter.convertToFiat(value: customFee.amount.value, from: self.walletInfo.feeCurrencyId)
                 else {
                     return nil
                 }
 
-                return balanceFormatter.formatFiatBalance(fiatFee)
+                return self.balanceFormatter.formatFiatBalance(fiatFee)
             }
-            .sink { [weak self] customFeeInFiat in
-                self?.customFeeInFiat.send(customFeeInFiat)
+            .withWeakCaptureOf(self)
+            .sink { (self, customFeeInFiat) in
+                self.customFeeInFiat.send(customFeeInFiat)
             }
             .store(in: &bag)
     }
