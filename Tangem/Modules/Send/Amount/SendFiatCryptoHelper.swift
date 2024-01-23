@@ -16,7 +16,8 @@ class SendFiatCryptoHelper {
     }
 
     var modelAmount: AnyPublisher<Amount?, Never> {
-        _cryptoAmount
+        _fiatCryptoValue
+            .crypto
             .map { [weak self] cryptoAmount in
                 guard let self, let cryptoAmount else { return nil }
 
@@ -31,13 +32,10 @@ class SendFiatCryptoHelper {
     private let amountFractionDigits: Int
 
     private var _userInputAmount = CurrentValueSubject<Decimal?, Never>(nil)
-
+    private var _fiatCryptoValue = FiatCryptoValue(crypto: nil, fiat: nil)
     private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
     private var inputTrigger: InputTrigger = .keyboard
-
-    private var _cryptoAmount = CurrentValueSubject<Decimal?, Never>(nil)
-    private var fiatAmount: Decimal?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -66,7 +64,10 @@ class SendFiatCryptoHelper {
                     return
                 }
 
-                setModelAmount2(decimal)
+                let useFiatCalculation = _useFiatCalculation.value
+                if let newAmountValue = fiatCryptoValue(from: decimal, useFiatCalculation: useFiatCalculation) {
+                    _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat)
+                }
             }
             .store(in: &bag)
     }
@@ -80,7 +81,12 @@ class SendFiatCryptoHelper {
     }
 
     func setModelAmount(_ amount: Decimal?) {
-        setViewAmount(amount, inputTrigger: inputTrigger)
+        guard let newAmountValue = fiatCryptoValue(from: amount, useFiatCalculation: false) else { return }
+
+        _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat)
+        if inputTrigger != .keyboard {
+            setTextFieldAmount(useFiatCalculation: _useFiatCalculation.value)
+        }
     }
 
     func setUseFiatCalculation(_ useFiatCalculation: Bool) {
@@ -94,9 +100,9 @@ class SendFiatCryptoHelper {
         setTextFieldAmount(useFiatCalculation: useFiatCalculation)
     }
 
-    private func amountPair(from amount: Decimal?, useFiatCalculation: Bool) -> (cryptoAmount: Decimal?, fiatAmount: Decimal?)? {
+    private func fiatCryptoValue(from amount: Decimal?, useFiatCalculation: Bool) -> FiatCryptoValue? {
         guard let amount else {
-            return (nil, nil)
+            return FiatCryptoValue(crypto: nil, fiat: nil)
         }
 
         let newCryptoAmount: Decimal?
@@ -116,41 +122,38 @@ class SendFiatCryptoHelper {
             newFiatAmount = nil
         }
 
-        guard
-            let newCryptoAmount,
-            newCryptoAmount != _cryptoAmount.value || newFiatAmount != fiatAmount
-        else {
+        let newValue = FiatCryptoValue(crypto: newCryptoAmount, fiat: newFiatAmount)
+        guard newValue != _fiatCryptoValue else {
             return nil
         }
 
-        return (newCryptoAmount, newFiatAmount)
-    }
-
-    private func setViewAmount(_ amount: Decimal?, inputTrigger: InputTrigger) {
-        guard let (newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: false) else { return }
-
-        _cryptoAmount.send(newCryptoAmount)
-        if inputTrigger != .keyboard {
-            fiatAmount = newFiatAmount
-            setTextFieldAmount(useFiatCalculation: _useFiatCalculation.value)
-        }
-    }
-
-    private func setModelAmount2(_ amount: Decimal?) {
-        let useFiatCalculation = _useFiatCalculation.value
-        guard
-            let (newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: useFiatCalculation)
-        else {
-            return
-        }
-
-        _cryptoAmount.send(newCryptoAmount)
-        fiatAmount = newFiatAmount
+        return newValue
     }
 
     private func setTextFieldAmount(useFiatCalculation: Bool) {
-        let newAmount = useFiatCalculation ? fiatAmount : _cryptoAmount.value
+        let newAmount = useFiatCalculation ? _fiatCryptoValue.fiat : _fiatCryptoValue.crypto.value
         _userInputAmount.send(newAmount)
+    }
+}
+
+private extension SendFiatCryptoHelper {
+    class FiatCryptoValue: Equatable {
+        private(set) var crypto = CurrentValueSubject<Decimal?, Never>(nil)
+        private(set) var fiat: Decimal?
+
+        init(crypto: Decimal?, fiat: Decimal? = nil) {
+            self.crypto.send(crypto)
+            self.fiat = fiat
+        }
+
+        func update(crypto: Decimal?, fiat: Decimal?) {
+            self.crypto.send(crypto)
+            self.fiat = fiat
+        }
+
+        static func == (left: SendFiatCryptoHelper.FiatCryptoValue, right: SendFiatCryptoHelper.FiatCryptoValue) -> Bool {
+            left.crypto.value == right.crypto.value && left.fiat == right.fiat
+        }
     }
 }
 
