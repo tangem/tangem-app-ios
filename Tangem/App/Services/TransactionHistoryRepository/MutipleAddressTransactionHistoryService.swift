@@ -19,7 +19,7 @@ class MutipleAddressTransactionHistoryService {
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private var totalPages: [String: Int] = [:]
-    private var currentPage: [String: Int] = [:]
+    private var currentPage: [String: TransactionHistoryPage] = [:]
     private let pageSize: Int = 20
     private var cancellable: AnyCancellable?
     private var storage: ThreadSafeContainer<[TransactionRecord]> = []
@@ -52,7 +52,7 @@ extension MutipleAddressTransactionHistoryService: TransactionHistoryService {
 
     var canFetchHistory: Bool {
         addresses.contains {
-            currentPage[$0, default: 0] < totalPages[$0, default: 0]
+            currentPage[$0]?.canFetchMore ?? false
         }
     }
 
@@ -90,7 +90,7 @@ private extension MutipleAddressTransactionHistoryService {
 
         // Collect publishers for the next page if the page is exist
         let publishers: [LoadingPublisher] = addresses.compactMap { address in
-            guard currentPage[address, default: 0] == 0 || canFetchHistory else {
+            guard currentPage[address] == nil || canFetchHistory else {
                 AppLog.shared.debug("Address \(address) in \(self) reached the end of list")
                 return nil
             }
@@ -124,7 +124,7 @@ private extension MutipleAddressTransactionHistoryService {
             } receiveValue: { service, responses in
                 for response in responses {
                     service.totalPages[response.address] = response.response.totalPages
-                    service.currentPage[response.address] = response.response.page.number
+                    service.currentPage[response.address] = response.response.page
                     service.addToStorage(records: response.response.records)
 
                     AppLog.shared.debug("Address \(response.address) in \(String(describing: self)) loaded")
@@ -135,8 +135,8 @@ private extension MutipleAddressTransactionHistoryService {
     }
 
     func loadTransactionHistory(address: String) -> LoadingPublisher {
-        let nextPage = Page(number: currentPage[address, default: 0] + 1, size: pageSize)
-        let request = TransactionHistory.Request(address: address, page: nextPage, amountType: tokenItem.amountType)
+        let nextPage = currentPage[address]?.nextPage ?? TransactionHistoryPage(limit: pageSize)
+        let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, page: nextPage)
         return transactionHistoryProvider
             .loadTransactionHistory(request: request)
             .map { (address: address, response: $0) }
