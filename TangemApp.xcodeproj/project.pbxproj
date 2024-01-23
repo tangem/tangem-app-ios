@@ -655,6 +655,11 @@
 		DA19D8C62B39AE3C001C91C4 /* QRCodeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19D8C52B39AE3C001C91C4 /* QRCodeParser.swift */; };
 		DA19D8C82B39AE6C001C91C4 /* QRCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
+		DA1D3B712B56C7E900247393 /* QRScanViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B702B56C7E900247393 /* QRScanViewCoordinator.swift */; };
+		DA1D3B732B56C82C00247393 /* QRScanViewCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B722B56C82C00247393 /* QRScanViewCoordinatorView.swift */; };
+		DA1D3B752B56C87200247393 /* PhotoSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B742B56C87200247393 /* PhotoSelectorView.swift */; };
+		DA1D3B772B56C8A000247393 /* PhotoSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B762B56C8A000247393 /* PhotoSelectorViewModel.swift */; };
+		DA1D3B792B56DC7800247393 /* QRScanViewRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B782B56DC7800247393 /* QRScanViewRoutable.swift */; };
 		DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA28D57C290AAE2000F0C335 /* ScrollView+.swift */; };
 		DA34BDF52B26F1AD00F606C2 /* SendWalletInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */; };
 		DA34BDF72B27578000F606C2 /* TangemExpressPromotionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA34BDF62B27578000F606C2 /* TangemExpressPromotionUtility.swift */; };
@@ -664,7 +669,7 @@
 		DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */; };
 		DA4055282ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055232ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift */; };
 		DA4055292ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055242ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift */; };
-		DA4333302B5A45F90058D467 /* SendFiatCryptoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43332F2B5A45F90058D467 /* SendFiatCryptoHelper.swift */; };
+		DA4333322B5A5B880058D467 /* QRScanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4333312B5A5B880058D467 /* QRScanViewModel.swift */; };
 		DA43719D2A7D1937006215CA /* LegacyCoinItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */; };
 		DA43719E2A7D1937006215CA /* LegacyCoinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43718F2A7D1937006215CA /* LegacyCoinView.swift */; };
 		DA43719F2A7D1937006215CA /* LegacyTokenListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */; };
@@ -724,6 +729,7 @@
 		DA6C7528292613D00070EEFD /* UserWalletIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */; };
 		DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */; };
 		DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7046162AAA180900808FA8 /* LineChartView.swift */; };
+		DA7140FF2B5F9564001EBB23 /* SendFiatCryptoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7140FE2B5F9564001EBB23 /* SendFiatCryptoHelper.swift */; };
 		DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */; };
 		DA74441E2A27739200F926A9 /* LearnAndEarnAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA74441D2A27739100F926A9 /* LearnAndEarnAlertView.swift */; };
 		DA7444242A27889600F926A9 /* PromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444222A27889600F926A9 /* PromotionService.swift */; };
@@ -1368,9 +1374,6 @@
 		2D788E822ADD657000E0884B /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
 		2D788E842ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorAlertBuilder.swift; sourceTree = "<group>"; };
 		2D805EC929ADE17100C030F7 /* ExchangeButtonStateType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeButtonStateType.swift; sourceTree = "<group>"; };
-		2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetModifier.swift; sourceTree = "<group>"; };
-		2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetentBottomSheetContainer.swift; sourceTree = "<group>"; };
-		2D9BC02E2B20743D0033FA21 /* View+DetentBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+DetentBottomSheet.swift"; sourceTree = "<group>"; };
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2DB8E1152B29068C0044BF7D /* CustomSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSearchBar.swift; sourceTree = "<group>"; };
@@ -2055,6 +2058,11 @@
 		DA19D8C52B39AE3C001C91C4 /* QRCodeParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeParser.swift; sourceTree = "<group>"; };
 		DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeParserTests.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
+		DA1D3B702B56C7E900247393 /* QRScanViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewCoordinator.swift; sourceTree = "<group>"; };
+		DA1D3B722B56C82C00247393 /* QRScanViewCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewCoordinatorView.swift; sourceTree = "<group>"; };
+		DA1D3B742B56C87200247393 /* PhotoSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectorView.swift; sourceTree = "<group>"; };
+		DA1D3B762B56C8A000247393 /* PhotoSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectorViewModel.swift; sourceTree = "<group>"; };
+		DA1D3B782B56DC7800247393 /* QRScanViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewRoutable.swift; sourceTree = "<group>"; };
 		DA28D57C290AAE2000F0C335 /* ScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+.swift"; sourceTree = "<group>"; };
 		DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletInfo.swift; sourceTree = "<group>"; };
 		DA34BDF62B27578000F606C2 /* TangemExpressPromotionUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExpressPromotionUtility.swift; sourceTree = "<group>"; };
@@ -2064,7 +2072,7 @@
 		DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorDelegate.swift; sourceTree = "<group>"; };
 		DA4055232ABDD3A300353F8A /* AddCustomTokenNetworkSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorViewModel.swift; sourceTree = "<group>"; };
 		DA4055242ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorView.swift; sourceTree = "<group>"; };
-		DA43332F2B5A45F90058D467 /* SendFiatCryptoHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFiatCryptoHelper.swift; sourceTree = "<group>"; };
+		DA4333312B5A5B880058D467 /* QRScanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewModel.swift; sourceTree = "<group>"; };
 		DA43718E2A7D1937006215CA /* LegacyCoinItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinItemViewModel.swift; sourceTree = "<group>"; };
 		DA43718F2A7D1937006215CA /* LegacyCoinView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCoinView.swift; sourceTree = "<group>"; };
 		DA4371902A7D1937006215CA /* LegacyTokenListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyTokenListCoordinator.swift; sourceTree = "<group>"; };
@@ -2129,6 +2137,7 @@
 		DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletIdFactory.swift; sourceTree = "<group>"; };
 		DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryUtil.swift; sourceTree = "<group>"; };
 		DA7046162AAA180900808FA8 /* LineChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
+		DA7140FE2B5F9564001EBB23 /* SendFiatCryptoHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFiatCryptoHelper.swift; sourceTree = "<group>"; };
 		DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnAndEarnStoryPage.swift; sourceTree = "<group>"; };
 		DA74441D2A27739100F926A9 /* LearnAndEarnAlertView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnAndEarnAlertView.swift; sourceTree = "<group>"; };
 		DA7444222A27889600F926A9 /* PromotionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionService.swift; sourceTree = "<group>"; };
@@ -2800,16 +2809,6 @@
 			path = Tosts;
 			sourceTree = "<group>";
 		};
-		2DBE29BD2B3C4A5200109D5E /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				2D9BC0292B1F87EF0033FA21 /* DetentBottomSheetModifier.swift */,
-				2D9BC02E2B20743D0033FA21 /* View+DetentBottomSheet.swift */,
-				2D9BC02C2B1F8DE70033FA21 /* DetentBottomSheetContainer.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		2DBE29BE2B3C4A8100109D5E /* DetentBottonSheet */ = {
 			isa = PBXGroup;
 			children = (
@@ -3021,7 +3020,6 @@
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				2DBE29BD2B3C4A5200109D5E /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -5064,6 +5062,20 @@
 			path = QRCodeParser;
 			sourceTree = "<group>";
 		};
+		DA1D3B6F2B56C7DC00247393 /* QRScanView */ = {
+			isa = PBXGroup;
+			children = (
+				DA60DD7C2B34572300AC1B79 /* QRScannerView.swift */,
+				DA4333312B5A5B880058D467 /* QRScanViewModel.swift */,
+				DA1D3B702B56C7E900247393 /* QRScanViewCoordinator.swift */,
+				DA1D3B782B56DC7800247393 /* QRScanViewRoutable.swift */,
+				DA1D3B722B56C82C00247393 /* QRScanViewCoordinatorView.swift */,
+				DA1D3B742B56C87200247393 /* PhotoSelectorView.swift */,
+				DA1D3B762B56C8A000247393 /* PhotoSelectorViewModel.swift */,
+			);
+			path = QRScanView;
+			sourceTree = "<group>";
+		};
 		DA207C212AB89F89005CC5E3 /* AddCustomToken */ = {
 			isa = PBXGroup;
 			children = (
@@ -5167,8 +5179,8 @@
 			children = (
 				DA559C2C2B0261F400F59584 /* SendAmountView.swift */,
 				DA559C2D2B0261F400F59584 /* SendAmountViewModel.swift */,
-				DA43332F2B5A45F90058D467 /* SendFiatCryptoHelper.swift */,
 				DAF3D58C2B3AD9050047D65F /* SendCurrencyPicker.swift */,
+				DA7140FE2B5F9564001EBB23 /* SendFiatCryptoHelper.swift */,
 			);
 			path = Amount;
 			sourceTree = "<group>";
@@ -5376,6 +5388,7 @@
 		DAFC3E002AA8A50000D1013F /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				DA1D3B6F2B56C7DC00247393 /* QRScanView */,
 				DA559C2B2B0261F400F59584 /* Amount */,
 				DA559C2E2B0261F400F59584 /* Destination */,
 				DA559C202B0261F300F59584 /* Fee */,
@@ -5392,7 +5405,6 @@
 				DA559C232B0261F300F59584 /* SendRoutable.swift */,
 				DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */,
 				5DCC20BC2500FC58007B467E /* LegacyQRScannerView.swift */,
-				DA60DD7C2B34572300AC1B79 /* QRScannerView.swift */,
 				DAAA3C702B3D813C0002DBB0 /* SendAddressService.swift */,
 				DAAA3C712B3D813C0002DBB0 /* SendAddressServiceFactory.swift */,
 				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
@@ -7672,6 +7684,7 @@
 				DA559C3D2B0261F400F59584 /* SendSummaryRoutable.swift in Sources */,
 				B691A8C22AFE4A680059D182 /* WalletSwipeDiscoveryHelper.swift in Sources */,
 				B074BAC326779BC8005D641B /* PushTxViewModel.swift in Sources */,
+				DA4333322B5A5B880058D467 /* QRScanViewModel.swift in Sources */,
 				EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */,
 				5D79D3152555ABE700650DD7 /* CardImageLoader.swift in Sources */,
 				DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */,
@@ -7734,6 +7747,7 @@
 				B08394E42B299FDB0025176F /* VisaWalletMainContentViewModel.swift in Sources */,
 				B03AEEB229596EBD00212267 /* WalletConnectV2MessageComposer.swift in Sources */,
 				DAA5E30028D21369003C0E80 /* UserWalletStorageAgreementRoutable.swift in Sources */,
+				DA1D3B752B56C87200247393 /* PhotoSelectorView.swift in Sources */,
 				2DBE29C22B3C4A8100109D5E /* DetentBottomSheetContainer.swift in Sources */,
 				DC858A3928AA48B000D58EE7 /* CardEmailDataFactory.swift in Sources */,
 				B06C084F2A73FB4E00D982BC /* MainViewModel.swift in Sources */,
@@ -7962,6 +7976,7 @@
 				B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */,
 				EF666C262A2DF9EF0044986F /* BottomSheetModifier.swift in Sources */,
 				EF842DEB2AFA58C5006E472E /* ExpressTokensListViewModel.swift in Sources */,
+				DA1D3B712B56C7E900247393 /* QRScanViewCoordinator.swift in Sources */,
 				2D2ACE1A2B30FAA90004CBB6 /* PresentationConfigurationViewModifier.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
 				EFD39C912A6A8ACC0055D215 /* SupportedBlockchainsPreferencesView.swift in Sources */,
@@ -8190,6 +8205,7 @@
 				DA7444242A27889600F926A9 /* PromotionService.swift in Sources */,
 				DA4371A62A7D1937006215CA /* LegacyAddCustomTokenView.swift in Sources */,
 				2D788E8A2ADD657000E0884B /* ManageTokensNetworkSelectorAlertBuilder.swift in Sources */,
+				DA1D3B772B56C8A000247393 /* PhotoSelectorViewModel.swift in Sources */,
 				B0E0AF5D2996488100E52F7B /* TransactionHistoryMapper.swift in Sources */,
 				B63D4CAD2B2B8C6200DB2420 /* MutableCollection+.swift in Sources */,
 				EF48E6E42B02408500FE0072 /* ExpressViewModel.swift in Sources */,
@@ -8256,7 +8272,6 @@
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				B60275292A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift in Sources */,
 				DA5BB72E2AF3FA97004CB8D0 /* AddressIconViewModel.swift in Sources */,
-				DA4333302B5A45F90058D467 /* SendFiatCryptoHelper.swift in Sources */,
 				EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */,
 				B6AA13702A2A377C00B53937 /* CardInfoPageWarningPreviewSectionItem.swift in Sources */,
 				B0BDFD1B2A8B685200479F53 /* NotificationView+Settings.swift in Sources */,
@@ -8329,6 +8344,7 @@
 				B69257E22AFC072000F33B3D /* BottomScrollableSheetCornerRadiusView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				B6FF1EFE2A57E59100B208E4 /* Subject+.swift in Sources */,
+				DA1D3B792B56DC7800247393 /* QRScanViewRoutable.swift in Sources */,
 				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0468CE72954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
@@ -8521,6 +8537,7 @@
 				659768172837B61000F9F04A /* LegacyTokenItemView.swift in Sources */,
 				B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
+				DA1D3B732B56C82C00247393 /* QRScanViewCoordinatorView.swift in Sources */,
 				B6ED08362A7DA9780090E51F /* OrganizeTokensOptionsManager.swift in Sources */,
 				EF842DEE2AFA6D07006E472E /* ProviderRowViewModel.swift in Sources */,
 				B674D6DD2A97556F00172491 /* StorageEntryConverter.swift in Sources */,
@@ -8551,6 +8568,7 @@
 				EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */,
 				DAC3D57A2B0518C900C55B4C /* TransactionSignerMock.swift in Sources */,
 				EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */,
+				DA7140FF2B5F9564001EBB23 /* SendFiatCryptoHelper.swift in Sources */,
 				EF9EA9652B10D3AE00AC1DA1 /* CommonExpressTokensListAdapter.swift in Sources */,
 				B06243082AA9B77C00F7B9B2 /* SingleTokenRouter.swift in Sources */,
 				B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */,
