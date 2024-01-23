@@ -28,12 +28,12 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
         footer: String,
-        didChangeField: @escaping (DecimalNumberTextField.DecimalValue?) -> Void
+        onFieldChange: @escaping (DecimalNumberTextField.DecimalValue?) -> Void
     ) {
         self.title = title
         self.fractionDigits = fractionDigits
         self.footer = footer
-        onFieldChange = didChangeField
+        self.onFieldChange = onFieldChange
 
         amountPublisher
             .removeDuplicates()
