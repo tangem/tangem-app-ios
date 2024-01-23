@@ -339,7 +339,17 @@ class SendModel {
         }
     }
 
-    private func updateCustomFee() {
+    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
+        _customFeeGasPrice.send(value)
+        recalculateCustomFee()
+    }
+
+    func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
+        _customFeeGasLimit.send(value)
+        recalculateCustomFee()
+    }
+
+    private func recalculateCustomFee() {
         let newFee: Fee?
         if let gasPrice = _customFeeGasPrice.value,
            let gasLimit = _customFeeGasLimit.value,
@@ -352,16 +362,6 @@ class SendModel {
 
         _customFee.send(newFee)
         fee.send(newFee)
-    }
-
-    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
-        _customFeeGasPrice.send(value)
-        updateCustomFee()
-    }
-
-    func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
-        _customFeeGasLimit.send(value)
-        updateCustomFee()
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
