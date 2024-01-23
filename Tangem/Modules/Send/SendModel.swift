@@ -482,3 +482,10 @@ extension SendModel: SendFinishViewModelInput {
         _transactionURL.value
     }
 }
+/*
+ fiatcryptovalue setfiat setcrhypto
+ 
+ 
+ 
+ 
+ */
