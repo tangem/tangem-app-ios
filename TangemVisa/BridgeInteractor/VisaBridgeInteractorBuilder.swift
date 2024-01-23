@@ -12,7 +12,7 @@ import BlockchainSdk
 public struct VisaBridgeInteractorBuilder {
     public init() {}
 
-    public func buildInteractor(
+    public func build(
         for cardAddress: String,
         using evmSmartContractInteractor: EVMSmartContractInteractor
     ) async throws -> VisaBridgeInteractor {
