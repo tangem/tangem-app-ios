@@ -24,7 +24,7 @@ struct SendView: View {
 
             ZStack(alignment: .bottom) {
                 currentPage
-                    .overlay(bottomOverlay(), alignment: .bottom)
+                    .overlay(bottomOverlay, alignment: .bottom)
 
                 if viewModel.showNavigationButtons {
                     navigationButtons
@@ -114,7 +114,7 @@ struct SendView: View {
     }
 
     @ViewBuilder
-    private func bottomOverlay() -> some View {
+    private var bottomOverlay: some View {
         if viewModel.showNavigationButtons {
             LinearGradient(colors: [.clear, backgroundColor], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
