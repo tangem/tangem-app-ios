@@ -40,7 +40,7 @@ struct BottomSheetContainer<ContentView: View>: View {
                         stateObject.viewDidHidden()
                     }
                 }
-                .animation(.default, value: opacity)
+                .animation(.default.delay(settings.backgroundAnimationDelay), value: opacity)
 
             sheetView
                 .transition(.move(edge: .bottom))
@@ -119,22 +119,31 @@ struct BottomSheetContainer<ContentView: View>: View {
     // MARK: - Methods
 
     func hideView(completion: @escaping () -> Void) {
-        let duration = settings.animationDuration
+        let animationBody = { stateObject.offset = UIScreen.main.bounds.height }
 
-        withAnimation(.linear(duration: duration)) {
-            stateObject.offset = UIScreen.main.bounds.height
-        }
+        if #available(iOS 17, *) {
+            withAnimation(transitionAnimation, animationBody, completion: completion)
+        } else {
+            withAnimation(transitionAnimation, animationBody)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-            completion()
+            let duration = settings.animationDuration
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                completion()
+            }
         }
     }
 
     func showView() {
-        let duration = settings.animationDuration
-
-        withAnimation(.linear(duration: duration)) {
+        withAnimation(transitionAnimation) {
             stateObject.offset = 0
+        }
+    }
+    
+    private var transitionAnimation: Animation {
+        if #available(iOS 17, *) {
+            return .default
+        } else {
+            return .easeInOut(duration: settings.animationDuration)
         }
     }
 }
@@ -148,19 +157,22 @@ extension BottomSheetContainer {
         let backgroundOpacity: CGFloat
         let distanceToHide: CGFloat
         let animationDuration: Double
+        let backgroundAnimationDelay: TimeInterval
 
         init(
             cornerRadius: CGFloat = 24,
             backgroundColor: Color,
             backgroundOpacity: CGFloat = 0.4,
             distanceToHide: CGFloat = UIScreen.main.bounds.height * 0.1,
-            animationDuration: Double = 0.35
+            animationDuration: Double = 0.35,
+            backgroundAnimationDelay: TimeInterval = 0.05
         ) {
             self.cornerRadius = cornerRadius
             self.backgroundColor = backgroundColor
             self.backgroundOpacity = backgroundOpacity
             self.distanceToHide = distanceToHide
             self.animationDuration = animationDuration
+            self.backgroundAnimationDelay = backgroundAnimationDelay
         }
     }
 }
@@ -191,7 +203,7 @@ struct BottomSheetContainer_Previews: PreviewProvider {
 
         var body: some View {
             ZStack {
-                Colors.Background.primary
+                Color.white
                     .edgesIgnoringSafeArea(.all)
 
                 Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
