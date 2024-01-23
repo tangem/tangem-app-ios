@@ -87,8 +87,8 @@ private extension CommonTransactionHistoryService {
         AppLog.shared.debug("\(self) start loading")
         _state.send(.loading)
 
-        let page = TransactionHistoryPage(limit: pageSize, page: currentPage?.nextPage)
-        let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, page: page)
+        let nextPage = currentPage?.nextPage ?? TransactionHistoryPage(limit: pageSize)
+        let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, page: nextPage)
 
         cancellable = transactionHistoryProvider
             .loadTransactionHistory(request: request)
@@ -133,9 +133,9 @@ extension CommonTransactionHistoryService: CustomStringConvertible {
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
                 "address": address,
-                "totalPages": totalPages ?? "-",
-                "currentPage": currentPage ?? "-",
-                "nextPage": currentPage?.nextPage ?? "-",
+                "totalPages": totalPages ?? "",
+                "currentPage": currentPage ?? "",
+                "nextPage": currentPage?.nextPage ?? "",
             ]
         )
     }
