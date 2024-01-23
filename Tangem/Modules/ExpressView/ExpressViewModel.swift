@@ -208,7 +208,7 @@ private extension ExpressViewModel {
         )
     }
 
-    func bind() {
+    func bind() {// todo
         $sendDecimalValue
             .removeDuplicates { $0?.value == $1?.value }
             // We skip the first nil value from the text field
