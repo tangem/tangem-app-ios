@@ -15,11 +15,9 @@ class MutipleAddressTransactionHistoryService {
     private let tokenItem: TokenItem
     private let addresses: [String]
 
-    private let transactionHistoryProvider: TransactionHistoryProvider
+    private let transactionHistoryProviders: [String: TransactionHistoryProvider]
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
-    private var totalPages: [String: Int] = [:]
-    private var currentPage: [String: TransactionHistoryPage] = [:]
     private let pageSize: Int = 20
     private var cancellable: AnyCancellable?
     private var storage: ThreadSafeContainer<[TransactionRecord]> = []
@@ -27,11 +25,11 @@ class MutipleAddressTransactionHistoryService {
     init(
         tokenItem: TokenItem,
         addresses: [String],
-        transactionHistoryProvider: TransactionHistoryProvider
+        transactionHistoryProviders: [String: TransactionHistoryProvider]
     ) {
         self.tokenItem = tokenItem
         self.addresses = addresses
-        self.transactionHistoryProvider = transactionHistoryProvider
+        self.transactionHistoryProviders = transactionHistoryProviders
     }
 }
 
@@ -52,14 +50,13 @@ extension MutipleAddressTransactionHistoryService: TransactionHistoryService {
 
     var canFetchHistory: Bool {
         addresses.contains {
-            currentPage[$0]?.canFetchMore ?? false
+            transactionHistoryProviders[$0]?.canFetchHistory ?? false
         }
     }
 
     func clearHistory() {
         cancellable = nil
-        currentPage = [:]
-        totalPages = [:]
+        transactionHistoryProviders.forEach { _, provider in provider.reset() }
         cleanStorage()
         AppLog.shared.debug("\(self) was reset")
     }
@@ -90,7 +87,7 @@ private extension MutipleAddressTransactionHistoryService {
 
         // Collect publishers for the next page if the page is exist
         let publishers: [LoadingPublisher] = addresses.compactMap { address in
-            guard currentPage[address] == nil || canFetchHistory else {
+            guard canFetchHistory else {
                 AppLog.shared.debug("Address \(address) in \(self) reached the end of list")
                 return nil
             }
@@ -123,8 +120,6 @@ private extension MutipleAddressTransactionHistoryService {
                 }
             } receiveValue: { service, responses in
                 for response in responses {
-                    service.totalPages[response.address] = response.response.totalPages
-                    service.currentPage[response.address] = response.response.page
                     service.addToStorage(records: response.response.records)
 
                     AppLog.shared.debug("Address \(response.address) in \(String(describing: self)) loaded")
@@ -135,11 +130,23 @@ private extension MutipleAddressTransactionHistoryService {
     }
 
     func loadTransactionHistory(address: String) -> LoadingPublisher {
-        let nextPage = currentPage[address]?.nextPage ?? TransactionHistoryPage(limit: pageSize)
-        let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, page: nextPage)
-        return transactionHistoryProvider
-            .loadTransactionHistory(request: request)
-            .map { (address: address, response: $0) }
+        let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
+
+        return Just(address)
+            .withUnownedCaptureOf(self)
+            .tryMap { service, address -> TransactionHistoryProvider in
+                guard let provider = service.transactionHistoryProviders[address] else {
+                    throw ServiceError.unknowProvider
+                }
+
+                return provider
+            }
+            .flatMap { provider in
+                provider.loadTransactionHistory(request: request)
+            }
+            .map { response in
+                return (address: address, response: response)
+            }
             .eraseToAnyPublisher()
     }
 
@@ -181,6 +188,12 @@ private extension MutipleAddressTransactionHistoryService {
     }
 }
 
+extension MutipleAddressTransactionHistoryService {
+    enum ServiceError: Error {
+        case unknowProvider
+    }
+}
+
 // MARK: - CustomStringConvertible
 
 extension MutipleAddressTransactionHistoryService: CustomStringConvertible {
@@ -190,8 +203,9 @@ extension MutipleAddressTransactionHistoryService: CustomStringConvertible {
             userInfo: [
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
-                "totalPages": totalPages,
-                "currentPage": currentPage,
+                "requests": transactionHistoryProviders.map { _, provider in
+                    provider.debugDescription
+                }.joined(separator: ","),
             ]
         )
     }
