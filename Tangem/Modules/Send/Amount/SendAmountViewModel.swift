@@ -21,10 +21,7 @@ protocol SendAmountViewModelInput {
     var amountType: Amount.AmountType { get }
 
     func setAmount(_ amount: Amount?)
-}
-
-protocol SendAmountViewModelDelegate: AnyObject {
-    func didTapMaxAmount()
+    func useMaxAmount()
 }
 
 class SendAmountViewModel: ObservableObject, Identifiable {
@@ -43,8 +40,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var useFiatCalculation = false
     @Published var amountAlternative: String = ""
     @Published var error: String?
-
-    weak var delegate: SendAmountViewModelDelegate?
 
     private let input: SendAmountViewModelInput
     private var bag: Set<AnyCancellable> = []
@@ -77,7 +72,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func didTapMaxAmount() {
         converter.didChooseMaxAmount()
-        delegate?.didTapMaxAmount()
+        input.useMaxAmount()
     }
 
     private func bind(from input: SendAmountViewModelInput) {
