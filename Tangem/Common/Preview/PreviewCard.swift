@@ -41,8 +41,7 @@ enum PreviewCard {
                     fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
                     chiaTangemApiKeys: .init(mainnetApiKey: ""),
                     quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
-                    quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
-                    blockscoutCredentials: .init(login: "", password: "")
+                    quickNodeBscCredentials: .init(apiKey: "", subdomain: "")
                 )
             )
             let walletManager = try! factory.makeWalletManager(
