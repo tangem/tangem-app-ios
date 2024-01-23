@@ -11,14 +11,8 @@ import UIKit
 import AVFoundation
 import SwiftUI
 
-struct QRScanViewModel: Identifiable {
-    let id: UUID = .init()
-    let code: Binding<String>
-    let text: String
-}
-
 struct QRScanView: View {
-    let viewModel: QRScanViewModel
+    @ObservedObject var viewModel: QRScanViewModel
 
     @Environment(\.presentationMode) var presentationMode
 
@@ -34,7 +28,7 @@ struct QRScanView: View {
                         .overlay(viewfinderCrosshair(screenSize: geometry.size))
                         .overlay(textView(screenSize: geometry.size), alignment: .top)
                 )
-                .overlay(cancelButton(), alignment: .topLeading)
+                .overlay(topButtons(), alignment: .top)
         }
         .ignoresSafeArea(edges: .bottom)
     }
@@ -49,12 +43,28 @@ struct QRScanView: View {
     }
 
     @ViewBuilder
-    private func cancelButton() -> some View {
-        Button(Localization.commonClose) {
-            presentationMode.wrappedValue.dismiss()
+    private func topButtons() -> some View {
+        HStack(spacing: 14) {
+            Button(Localization.commonClose) {
+                presentationMode.wrappedValue.dismiss()
+            }
+            .padding(7)
+            .style(Fonts.Regular.body, color: .white)
+
+            Spacer()
+
+            Button(action: viewModel.toggleFlash) {
+                viewModel.isFlashActive ? Assets.flashDisabled.image : Assets.flash.image
+            }
+            .padding(7)
+
+            Button(action: viewModel.scanFromGallery) {
+                Assets.gallery.image
+            }
+            .padding(7)
         }
-        .padding()
-        .style(Fonts.Regular.body, color: .white)
+        .padding(.vertical, 21)
+        .padding(.horizontal, 9)
     }
 
     private func viewfinderCrosshair(screenSize: CGSize) -> some View {
@@ -115,7 +125,7 @@ struct QRScanView_Previews_Sheet: PreviewProvider {
     static var previews: some View {
         Text("A")
             .sheet(isPresented: .constant(true)) {
-                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address."))
+                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
                     .background(
                         Image("qr_code_example")
                     )
@@ -128,7 +138,7 @@ struct QRScanView_Previews_Inline: PreviewProvider {
     @State static var code: String = ""
 
     static var previews: some View {
-        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address."))
+        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
             .background(
                 Image("qr_code_example")
             )
