@@ -30,7 +30,7 @@ struct AddressParser {
 
         var parsedAddress = response
         if parsedAddress.count > addressLength {
-            parsedAddress = String(parsedAddress.suffix(addressLength - 2)).addHexPrefix()
+            parsedAddress = String(parsedAddress.suffix(addressLength - prefixLength)).addHexPrefix()
         }
 
         guard addressService.validate(parsedAddress) else {
