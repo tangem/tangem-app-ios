@@ -13,29 +13,26 @@ import SwiftUI
 @available(iOS 15.0, *)
 struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
+    @State private var decimal: Int = 0
     @FocusState private var isInputActive: Bool
     private var maximumFractionDigits: Int
-    private let font: Font
 
     private let toolbarButton: () -> ToolbarButton
 
     init(
         decimalValue: Binding<DecimalNumberTextField.DecimalValue?>,
         maximumFractionDigits: Int,
-        font: Font,
         @ViewBuilder toolbarButton: @escaping () -> ToolbarButton
     ) {
         _decimalValue = decimalValue
         self.maximumFractionDigits = maximumFractionDigits
-        self.font = font
         self.toolbarButton = toolbarButton
     }
 
     var body: some View {
         DecimalNumberTextField(
             decimalValue: $decimalValue,
-            decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits),
-            font: font
+            decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
         )
         .maximumFractionDigits(maximumFractionDigits)
         .focused($isInputActive)
@@ -69,12 +66,15 @@ extension FocusedDecimalNumberTextField: Setupable {
     }
 }
 
+@available(iOS 15.0, *)
 struct FocusedNumberTextField_Previews: PreviewProvider {
     @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
 
     static var previews: some View {
-        if #available(iOS 15.0, *) {
-            FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8, font: Fonts.Regular.title1) {}
+        StatefulPreviewWrapper(decimalValue) { decimalValue in
+            FocusedDecimalNumberTextField(decimalValue: decimalValue, maximumFractionDigits: 8) {}
         }
+        .padding()
+        .border(Color.purple)
     }
 }
