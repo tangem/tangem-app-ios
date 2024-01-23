@@ -55,12 +55,41 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         return height(for: .top(trigger: .dragGesture)) + Constants.sheetTopInset
     }
 
+    private var bag: Set<AnyCancellable> = []
+    private var didBind = false
+
     func onAppear() {
+        bind()
         updateToState(state)
     }
 
     func onHeaderTap() {
         updateToState(.top(trigger: .tapGesture))
+    }
+
+    private func bind() {
+        if didBind { return }
+
+        NotificationCenter
+            .default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .withWeakCaptureOf(self)
+            .sink { object, note in
+                object.onDidBecomeActive()
+            }
+            .store(in: &bag)
+
+        didBind = true
+    }
+
+    private func onDidBecomeActive() {
+        // Prevents the sheet from getting stuck in an intermediate state if the drag gesture
+        // is interrupted by sending the app to the background
+        if progress >= 0.5 {
+            updateToState(.top(trigger: .dragGesture))
+        } else {
+            updateToState(.bottom)
+        }
     }
 
     /// Use for set and update sheet to the state
