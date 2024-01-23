@@ -10,12 +10,13 @@ import Foundation
 import BlockchainSdk
 
 public struct VisaBridgeInteractorBuilder {
-    public init() {}
+    private let evmSmartContractInteractor: EVMSmartContractInteractor
 
-    public func build(
-        for cardAddress: String,
-        using evmSmartContractInteractor: EVMSmartContractInteractor
-    ) async throws -> VisaBridgeInteractor {
+    public init(evmSmartContractInteractor: EVMSmartContractInteractor) {
+        self.evmSmartContractInteractor = evmSmartContractInteractor
+    }
+
+    public func build(for cardAddress: String) async throws -> VisaBridgeInteractor {
         var paymentAccount: String?
         for bridgeAddress in VisaUtilities().TangemBridgeProcessorAddresses {
             let request = VisaSmartContractRequest(
