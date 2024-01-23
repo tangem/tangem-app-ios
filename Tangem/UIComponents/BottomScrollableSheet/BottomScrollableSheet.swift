@@ -47,25 +47,22 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                backgroundView
+        ZStack {
+            backgroundView
 
-                sheet(proxy: proxy)
-                    .infinityFrame(axis: .vertical, alignment: .bottom)
-            }
-            .ignoresSafeArea(edges: .bottom)
-            .onAppear(perform: stateObject.onAppear)
-            .onDisappear(perform: restoreStatusBarColorScheme)
-            .onChange(of: stateObject.state) { newValue in
-                bottomScrollableSheetStateObserver?(newValue)
-            }
-            .onChange(of: stateObject.preferredStatusBarColorScheme) { newValue in
-                statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
-            }
-            .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
+            sheet
+                .infinityFrame(axis: .vertical, alignment: .bottom)
         }
         .ignoresSafeArea(edges: .bottom)
+        .onAppear(perform: stateObject.onAppear)
+        .onDisappear(perform: restoreStatusBarColorScheme)
+        .onChange(of: stateObject.state) { newValue in
+            bottomScrollableSheetStateObserver?(newValue)
+        }
+        .onChange(of: stateObject.preferredStatusBarColorScheme) { newValue in
+            statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
+        }
+        .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
     }
 
     private var headerDragGesture: some Gesture {
@@ -137,8 +134,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
         .coordinateSpace(name: coordinateSpaceName)
     }
 
-    @ViewBuilder
-    private func sheet(proxy: GeometryProxy) -> some View {
+    @ViewBuilder private var sheet: some View {
         ZStack {
             Colors.Background.primary
 
@@ -149,7 +145,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             }
             .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
         }
-        .frame(height: proxy.size.height - stateObject.topInset)
+        .frame(height: stateObject.maxHeight)
         .bottomScrollableSheetCornerRadius()
         .bottomScrollableSheetShadow()
         .hidden(isHiddenWhenCollapsed ? isHidden : false)
@@ -164,7 +160,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
             }
         }
         .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
-        .offset(y: proxy.size.height - stateObject.visibleHeight - stateObject.topInset)
+        .offset(y: stateObject.maxHeight - stateObject.visibleHeight)
     }
 
     /// Restores default (system-driven) appearance of the status bar.
