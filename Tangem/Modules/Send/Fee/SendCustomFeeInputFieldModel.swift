@@ -37,16 +37,18 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
 
         amountPublisher
             .removeDuplicates()
-            .sink { [weak self] amount in
-                guard amount?.value != self?.amount?.value else { return }
-                self?.amount = amount
+            .withWeakCaptureOf(self)
+            .sink { (self, amount) in
+                guard amount?.value != self.amount?.value else { return }
+                self.amount = amount
             }
             .store(in: &bag)
 
         $amount
             .removeDuplicates()
-            .sink { [weak self] value in
-                self?.onFieldChange(value)
+            .withWeakCaptureOf(self)
+            .sink { (self, value) in
+                self.onFieldChange(value)
             }
             .store(in: &bag)
 
