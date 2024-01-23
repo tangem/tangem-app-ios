@@ -111,3 +111,6 @@ struct SendAmountView_Previews: PreviewProvider {
         SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), walletInfo: walletInfo))
     }
 }
+
+// add smart amount value to sendmodel
+// keep usemaxamount action in sendmodel
