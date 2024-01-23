@@ -19,9 +19,5 @@ extension CurrenciesResponse {
             let localizedName = Locale.current.localizedString(forCurrencyCode: code)?.capitalizingFirstLetter() ?? name
             return "\(localizedName) (\(code)) \(AppConstants.dashSign) \(unit)"
         }
-
-        var analyticsDescription: String {
-            name + " (\(code.uppercased()))"
-        }
     }
 }
