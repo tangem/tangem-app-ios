@@ -139,25 +139,11 @@ private extension RateAppService {
         // MARK: - Constants that control the behavior of the rate app sheet itself
 
         /// The user interacted with the review prompt.
-        #if ALPHA
-        static let normalReviewRequestNumberOfLaunchesInterval = 1
-        #else
         static let normalReviewRequestNumberOfLaunchesInterval = 3
-        #endif
-
         /// The user dismissed the review prompt w/o interaction.
-        #if ALPHA
-        static let dismissedReviewRequestNumberOfLaunchesInterval = 3
-        #else
         static let dismissedReviewRequestNumberOfLaunchesInterval = 20
-        #endif
-
-        /// The interval between consecutive rate app requests.
-        #if ALPHA
-        static let reviewRequestTimeInterval: TimeInterval = 60 * 5
-        #else
+        /// Three days.
         static let reviewRequestTimeInterval: TimeInterval = 3600 * 24 * 3
-        #endif
 
         static let forbiddenSeverityLevels: Set<NotificationView.Severity> = [
             .warning,
