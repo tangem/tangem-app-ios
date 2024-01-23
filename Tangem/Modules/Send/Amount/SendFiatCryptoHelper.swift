@@ -99,9 +99,9 @@ class SendFiatCryptoHelper {
         setTextFieldAmount(useFiatCalculation: useFiatCalculation)
     }
 
-    private func amountPair(from amount: Decimal?, useFiatCalculation: Bool) -> (amount: Amount?, cryptoAmount: Decimal?, fiatAmount: Decimal?)? {
+    private func amountPair(from amount: Decimal?, useFiatCalculation: Bool) -> (cryptoAmount: Decimal?, fiatAmount: Decimal?)? {
         guard let amount else {
-            return (nil, nil, nil)
+            return (nil, nil)
         }
 
         let newCryptoAmount: Decimal?
@@ -128,12 +128,11 @@ class SendFiatCryptoHelper {
             return nil
         }
 
-        let newAmount = Amount(with: blockchain, type: amountType, value: newCryptoAmount)
-        return (newAmount, newCryptoAmount, newFiatAmount)
+        return (newCryptoAmount, newFiatAmount)
     }
 
     private func setViewAmount(_ amount: Decimal?, inputTrigger: InputTrigger) {
-        guard let (_, newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: false) else { return }
+        guard let (newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: false) else { return }
 
         _cryptoAmount.send(newCryptoAmount)
         if inputTrigger != .keyboard {
@@ -145,7 +144,7 @@ class SendFiatCryptoHelper {
     private func setModelAmount2(_ amount: Decimal?) {
         let useFiatCalculation = _useFiatCalculation.value
         guard
-            let (newAmount, newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: useFiatCalculation)
+            let (newCryptoAmount, newFiatAmount) = amountPair(from: amount, useFiatCalculation: useFiatCalculation)
         else {
             return
         }
