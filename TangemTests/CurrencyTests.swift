@@ -10,14 +10,14 @@ import XCTest
 @testable import Tangem
 
 class CurrencyTests: XCTestCase {
-    func testAnalyticsDescriptionContainsCode() {
+    func testDescriptionContainsCodeAndUnit() {
         let currency = CurrenciesResponse.Currency(
             id: "784",
-            code: "aud",
+            code: "AUD",
             name: "Australian Dollar",
-            unit: "dollar"
+            unit: "A$"
         )
 
-        XCTAssertEqual(currency.analyticsDescription, "Australian Dollar (AUD)")
+        XCTAssertEqual(currency.description, "Australian Dollar (AUD) — A$")
     }
 }
