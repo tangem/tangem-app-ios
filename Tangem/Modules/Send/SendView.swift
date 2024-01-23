@@ -55,6 +55,7 @@ struct SendView: View {
                     if viewModel.showQRCodeButton {
                         Button(action: viewModel.scanQRCode) {
                             Assets.qrCode.image
+                                .renderingMode(.template)
                                 .foregroundColor(Colors.Icon.primary1)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
@@ -125,6 +126,8 @@ private struct SendViewBackButton: View {
                 .overlay(
                     Assets.arrowLeftMini
                         .image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.primary1)
                 )
                 .frame(size: CGSize(bothDimensions: height))
         }
@@ -134,8 +137,11 @@ private struct SendViewBackButton: View {
 // MARK: - Preview
 
 struct SendView_Preview: PreviewProvider {
+    static let card = FakeUserWalletModel.wallet3Cards
+
     static let viewModel = SendViewModel(
-        walletModel: FakeUserWalletModel.wallet3Cards.walletModelsManager.walletModels.first!,
+        walletName: card.userWalletName,
+        walletModel: card.walletModelsManager.walletModels.first!,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: CardViewModel.mock!,
