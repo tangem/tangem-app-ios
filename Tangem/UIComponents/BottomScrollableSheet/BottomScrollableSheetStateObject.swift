@@ -16,9 +16,11 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     @Published private(set) var scrollViewIsDragging: Bool = false
 
+    @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
+
     @Published private(set) var visibleHeight: CGFloat = .zero
 
-    @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
+    var maxHeight: CGFloat { UIScreen.main.bounds.height }
 
     var headerHeight: CGFloat = .zero {
         didSet {
@@ -27,8 +29,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
             }
         }
     }
-
-    var topInset: CGFloat { Constants.sheetTopInset }
 
     var geometryInfoSubject: some Subject<GeometryInfo, Never> { _geometryInfoSubject }
     private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
@@ -47,15 +47,11 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     var scale: CGFloat {
         let minScale = 1.0
-        let maxScale = sourceViewMinHeight / sourceViewMaxHeight
+        let maxScale = minHeight / maxHeight
         return minScale - (minScale - maxScale) * progress
     }
 
-    private var sourceViewMaxHeight: CGFloat {
-        return UIScreen.main.bounds.height
-    }
-
-    private var sourceViewMinHeight: CGFloat {
+    private var minHeight: CGFloat {
         return height(for: .top(trigger: .dragGesture)) + Constants.sheetTopInset
     }
 
