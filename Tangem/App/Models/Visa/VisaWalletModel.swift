@@ -110,9 +110,9 @@ class VisaWalletModel {
         Task { [weak self] in
             guard let self else { return }
 
-            let builder = VisaBridgeInteractorBuilder()
+            let builder = VisaBridgeInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
             do {
-                let interactor = try await builder.buildInteractor(for: walletModel.defaultAddress, using: smartContractInteractor)
+                let interactor = try await builder.build(for: walletModel.defaultAddress)
                 visaBridgeInteractor = interactor
                 await generalUpdateAsync()
             } catch {
