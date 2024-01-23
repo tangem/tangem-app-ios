@@ -154,23 +154,19 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     private func dragView(translation: CGFloat) {
-        var translationChange = translation
+        var visibleHeight = height(for: state) - translation
+        let maxVisibleHeight = height(for: .top(trigger: .dragGesture))
+        let minVisibleHeight = height(for: .bottom)
 
-        switch state {
-        case .top:
-            // For the top state reduce the direction to bottom
-            if translationChange < .zero {
-                translationChange /= Constants.reduceSwipeMultiplicator
-            }
-        case .bottom:
-            // For the bottom state reduce the direction to top
-            if translationChange > .zero {
-                translationChange /= Constants.reduceSwipeMultiplicator
-            }
+        // Applying a rubberbanding effect when the view is dragged too much
+        // (the min/max allowed value for visible height is exceeded)
+        if visibleHeight > maxVisibleHeight {
+            visibleHeight = maxVisibleHeight + (visibleHeight - maxVisibleHeight).withRubberbanding()
+        } else if visibleHeight < minVisibleHeight {
+            visibleHeight = minVisibleHeight - (minVisibleHeight - visibleHeight).withRubberbanding()
         }
 
-        let newHeight = height(for: state) - translationChange
-        updateVisibleHeight(newHeight)
+        updateVisibleHeight(visibleHeight)
     }
 }
 
@@ -179,7 +175,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 private extension BottomScrollableSheetStateObject {
     enum Constants {
         static let hidingLineMultiplicator: CGFloat = 0.5
-        static let reduceSwipeMultiplicator: CGFloat = 10.0
         static let sheetTopInset: CGFloat = 16.0
     }
 }
