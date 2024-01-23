@@ -12,9 +12,9 @@ import BlockchainSdk
 public struct VisaBridgeInteractorBuilder {
     public init() {}
 
-    public func buildInteractor(
+    public func build(
         for cardAddress: String,
-        using smartContractInteractor: EVMSmartContractInteractor
+        using evmSmartContractInteractor: EVMSmartContractInteractor
     ) async throws -> VisaBridgeInteractor {
         var paymentAccount: String?
         for bridgeAddress in VisaUtilities().TangemBridgeProcessorAddresses {
@@ -24,7 +24,7 @@ public struct VisaBridgeInteractorBuilder {
             )
 
             do {
-                let response = try await smartContractInteractor.ethCall(request: request).async()
+                let response = try await evmSmartContractInteractor.ethCall(request: request).async()
                 let addressParser = try AddressParser().parseAddressResponse(response)
                 paymentAccount = addressParser
                 break
@@ -37,12 +37,19 @@ public struct VisaBridgeInteractorBuilder {
             throw VisaBridgeInteractorBuilderError.failedToFindPaymentAccount
         }
 
-        return DefaultBridgeInteractor(smartContractInteractor: smartContractInteractor, paymentAccount: paymentAccount)
+        return CommonBridgeInteractor(evmSmartContractInteractor: evmSmartContractInteractor, paymentAccount: paymentAccount)
     }
 }
 
 public extension VisaBridgeInteractorBuilder {
-    enum VisaBridgeInteractorBuilderError: Error {
+    enum VisaBridgeInteractorBuilderError: LocalizedError {
         case failedToFindPaymentAccount
+
+        public var errorDescription: String? {
+            switch self {
+            case .failedToFindPaymentAccount:
+                return "Failed to find payment account for card address"
+            }
+        }
     }
 }
