@@ -50,7 +50,7 @@ struct SendCustomFeeInputField: View {
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: "0.41 $"),
                 footer: "Maximum commission amount",
-                didChangeField: { _ in }
+                onFieldChange: { _ in }
             )
         )
 
@@ -61,7 +61,7 @@ struct SendCustomFeeInputField: View {
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: nil),
                 footer: "Maximum commission amount",
-                didChangeField: { _ in }
+                onFieldChange: { _ in }
             )
         )
     }
