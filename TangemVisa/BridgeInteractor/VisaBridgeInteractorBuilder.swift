@@ -10,13 +10,13 @@ import Foundation
 import BlockchainSdk
 
 public struct VisaBridgeInteractorBuilder {
-    public init() {}
+    private let evmSmartContractInteractor: EVMSmartContractInteractor
 
-    public func buildInteractor(
-        for cardAddress: String,
-        using smartContractInteractor: EVMSmartContractInteractor,
-        logger: VisaLogger
-    ) async throws -> VisaBridgeInteractor {
+    public init(evmSmartContractInteractor: EVMSmartContractInteractor) {
+        self.evmSmartContractInteractor = evmSmartContractInteractor
+    }
+
+    public func build(for cardAddress: String, logger: VisaLogger) async throws -> VisaBridgeInteractor {
         let logger = InternalLogger(logger: logger)
         var paymentAccount: String?
         logger.debug(topic: .bridgeInteractorBuilder, "Start searching PaymentAccount for card with address: \(cardAddress)")
@@ -28,7 +28,7 @@ public struct VisaBridgeInteractorBuilder {
             )
 
             do {
-                let response = try await smartContractInteractor.ethCall(request: request).async()
+                let response = try await evmSmartContractInteractor.ethCall(request: request).async()
                 paymentAccount = try AddressParser().parseAddressResponse(response)
                 logger.debug(topic: .bridgeInteractorBuilder, "PaymentAccount founded: \(paymentAccount ?? .unknown)")
                 break
@@ -43,8 +43,8 @@ public struct VisaBridgeInteractorBuilder {
         }
 
         logger.debug(topic: .bridgeInteractorBuilder, "Creating Bridge interactor for founded PaymentAccount")
-        return DefaultBridgeInteractor(
-            smartContractInteractor: smartContractInteractor,
+        return CommonBridgeInteractor(
+            evmSmartContractInteractor: evmSmartContractInteractor,
             paymentAccount: paymentAccount,
             logger: logger
         )
@@ -52,7 +52,14 @@ public struct VisaBridgeInteractorBuilder {
 }
 
 public extension VisaBridgeInteractorBuilder {
-    enum VisaBridgeInteractorBuilderError: Error {
+    enum VisaBridgeInteractorBuilderError: LocalizedError {
         case failedToFindPaymentAccount
+
+        public var errorDescription: String? {
+            switch self {
+            case .failedToFindPaymentAccount:
+                return "Failed to find payment account for card address"
+            }
+        }
     }
 }
