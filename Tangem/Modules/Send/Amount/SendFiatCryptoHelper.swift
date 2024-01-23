@@ -17,16 +17,11 @@ class SendFiatCryptoHelper {
 
     var modelAmount: AnyPublisher<Amount?, Never> {
         _cryptoAmount
-            .map { [weak self] in
-                guard let self else { return nil }
+            .map { [weak self] cryptoAmount in
+                guard let self, let cryptoAmount else { return nil }
 
-                if let value = $0 {
-                    return Amount(with: blockchain, type: amountType, value: value)
-                } else {
-                    return nil
-                }
+                return Amount(with: blockchain, type: amountType, value: cryptoAmount)
             }
-
             .eraseToAnyPublisher()
     }
 
