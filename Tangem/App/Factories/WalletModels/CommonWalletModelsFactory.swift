@@ -31,12 +31,13 @@ struct CommonWalletModelsFactory {
             return FakeTransactionHistoryService(blockchain: tokenItem.blockchain, address: address)
         }
 
-        let factory = TransactionHistoryFactoryProvider().factory
-        guard let provider = factory.makeProvider(for: tokenItem.blockchain) else {
-            return nil
-        }
-
         if addresses.count == 1, let address = addresses.first {
+            let factory = TransactionHistoryFactoryProvider().factory
+
+            guard let provider = factory.makeProvider(for: tokenItem.blockchain) else {
+                return nil
+            }
+
             return CommonTransactionHistoryService(
                 tokenItem: tokenItem,
                 address: address,
@@ -44,10 +45,18 @@ struct CommonWalletModelsFactory {
             )
         }
 
+        let multiAddressProviders: [String: TransactionHistoryProvider?] = [:]
+
+        _ = addresses.reduce(into: multiAddressProviders) { partialResult, address in
+            let factory = TransactionHistoryFactoryProvider().factory
+            let provider = factory.makeProvider(for: tokenItem.blockchain)
+            partialResult[address] = provider
+        }
+
         return MutipleAddressTransactionHistoryService(
             tokenItem: tokenItem,
             addresses: addresses,
-            transactionHistoryProvider: provider
+            transactionHistoryProviders: multiAddressProviders.compactMapValues { $0 }
         )
     }
 }
