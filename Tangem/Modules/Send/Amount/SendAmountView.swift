@@ -42,17 +42,11 @@ struct SendAmountView: View {
                     )
                     .padding(.top, 16)
 
-                    Group {
-                        if let amountAlternative = viewModel.amountAlternative {
-                            Text(amountAlternative)
-                        } else {
-                            Text("hidden placeholder")
-                                .opacity(0)
-                        }
-                    }
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .lineLimit(1)
-                    .padding(.top, 6)
+                    // Keep empty text so that the view maintains its place in the layout
+                    Text(viewModel.amountAlternative ?? " ")
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                        .padding(.top, 6)
 
                     // Keep empty text so that the view maintains its place in the layout
                     Text(viewModel.error ?? " ")
