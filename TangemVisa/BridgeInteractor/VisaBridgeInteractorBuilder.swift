@@ -42,7 +42,14 @@ public struct VisaBridgeInteractorBuilder {
 }
 
 public extension VisaBridgeInteractorBuilder {
-    enum VisaBridgeInteractorBuilderError: Error {
+    enum VisaBridgeInteractorBuilderError: LocalizedError {
         case failedToFindPaymentAccount
+
+        public var errorDescription: String? {
+            switch self {
+            case .failedToFindPaymentAccount:
+                return "Failed to find payment account for card address"
+            }
+        }
     }
 }
