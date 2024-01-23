@@ -227,6 +227,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         }
 
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
@@ -256,6 +257,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
         }
         let options = SendCoordinator.Options(
+            walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
@@ -298,7 +300,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
                 return
             }
 
-            self?.openNetworkCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
+            self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
         }
 
         let factory = CommonExpressModulesFactory(inputModel: input)
@@ -321,7 +323,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         )
     }
 
-    func openNetworkCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
         guard let cardViewModel = userWalletModel as? CardViewModel else {
             return
