@@ -42,10 +42,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var error: String?
 
     private let input: SendAmountViewModelInput
+    private let walletInfo: SendWalletInfo
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
+        self.walletInfo = walletInfo
         walletName = walletInfo.walletName
         balance = walletInfo.balance
         tokenIconInfo = walletInfo.tokenIconInfo
@@ -62,7 +64,14 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func didTapMaxAmount() {
-        input.useMaxAmount()
+        guard let maxCryptoAmount = (input as! SendModel).walletMaxAmount else { return }
+        (input as! SendModel).setCrypto(maxCryptoAmount)
+        let sendModel = (input as! SendModel)
+        guard let newAmount = useFiatCalculation ? sendModel.cryptoFiatAmount?.fiat : sendModel.cryptoFiatAmount?.crypto else {
+            return
+        }
+
+        amount = .external(newAmount)
     }
 
     private func bind(from input: SendAmountViewModelInput) {
