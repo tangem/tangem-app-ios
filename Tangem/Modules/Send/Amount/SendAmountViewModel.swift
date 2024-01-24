@@ -81,20 +81,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
 
-//        input
-//            .amountInputPublisher
-//            .sink { [weak self] amount in
-//                self?.amount = self?.fromAmount(amount)
-//            }
-//            .store(in: &bag)
-//
-//        $amount
-//            .sink { [weak self] amount in
-//                guard let self else { return }
-//                input.setAmount(toAmount(amount))
-//            }
-//            .store(in: &bag)
-
         $amount
             .removeDuplicates { $0?.value == $1?.value }
             // We skip the first nil value from the text field
@@ -126,21 +112,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 print("ZZZ changing input after fiat/crypto change", userInputAmount, "(\(sendModel.cryptoFiatAmount?.crypto), \(sendModel.cryptoFiatAmount?.fiat))")
             }
             .store(in: &bag)
-    }
 
-    private func fromAmount(_ amount: Amount?) -> DecimalNumberTextField.DecimalValue? {
-        if let amount {
-            return DecimalNumberTextField.DecimalValue.external(amount.value)
-        } else {
-            return nil
-        }
-    }
-
-    private func toAmount(_ decimalValue: DecimalNumberTextField.DecimalValue?) -> Amount? {
-        if let decimalValue {
-            return Amount(with: input.blockchain, type: input.amountType, value: decimalValue.value)
-        } else {
-            return nil
-        }
+        let sendModel = input as! SendModel
+        Publishers.CombineLatest3($useFiatCalculation, sendModel.cryptoFormattedPublisher, sendModel.fiatFormattedPublisher)
+            .map { useFiatCalculation, cryptoFormatted, fiatFormatted in
+                useFiatCalculation ? cryptoFormatted : fiatFormatted
+            }
+            .assign(to: \.amountAlternative, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 }
