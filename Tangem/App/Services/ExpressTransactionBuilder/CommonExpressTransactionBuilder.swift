@@ -141,7 +141,6 @@ private extension CommonExpressTransactionBuilder {
              .dash,
              .gnosis,
              .optimism,
-             .saltPay,
              .kava,
              .kaspa,
              .ravencoin,
@@ -151,7 +150,8 @@ private extension CommonExpressTransactionBuilder {
              .chia,
              .near,
              .decimal,
-             .veChain:
+             .veChain,
+             .xdc:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
