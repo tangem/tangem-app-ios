@@ -39,9 +39,9 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
 
-    let customFeeModel: SendCustomFeeInputFieldModel?
-    let customFeeGasPriceModel: SendCustomFeeInputFieldModel?
-    let customFeeGasLimitModel: SendCustomFeeInputFieldModel?
+    private(set) var customFeeModel: SendCustomFeeInputFieldModel?
+    private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
+    private(set) var customFeeGasLimitModel: SendCustomFeeInputFieldModel?
 
     @Published private(set) var subtractFromAmountFooterText: String = ""
     @Published private(set) var subtractFromAmountModel: DefaultToggleRowViewModel?
@@ -69,39 +69,7 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = input.selectedFeeOption
 
         if feeOptions.contains(.custom) {
-            customFeeModel = SendCustomFeeInputFieldModel(
-                title: Localization.sendMaxFee,
-                amountPublisher: input.customFeePublisher.decimalPublisher,
-                fractionDigits: walletInfo.feeFractionDigits,
-                amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
-                footer: Localization.sendMaxFeeFooter
-            ) { enteredFee in
-                input.didChangeCustomFee(Self.recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
-            }
-
-            customFeeGasPriceModel = SendCustomFeeInputFieldModel(
-                title: Localization.sendGasPrice,
-                amountPublisher: input.customGasPricePublisher.decimalPublisher,
-                fractionDigits: 0,
-                amountAlternativePublisher: .just(output: nil),
-                footer: Localization.sendGasPriceFooter
-            ) {
-                input.didChangeCustomFeeGasPrice($0?.bigUIntValue)
-            }
-
-            customFeeGasLimitModel = SendCustomFeeInputFieldModel(
-                title: Localization.sendGasLimit,
-                amountPublisher: input.customGasLimitPublisher.decimalPublisher,
-                fractionDigits: 0,
-                amountAlternativePublisher: .just(output: nil),
-                footer: Localization.sendGasLimitFooter
-            ) {
-                input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
-            }
-        } else {
-            customFeeModel = nil
-            customFeeGasPriceModel = nil
-            customFeeGasLimitModel = nil
+            createCustomFeeModels()
         }
 
         feeRowViewModels = makeFeeRowViewModels([:])
@@ -121,6 +89,41 @@ class SendFeeViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    private func createCustomFeeModels() {
+        customFeeModel = SendCustomFeeInputFieldModel(
+            title: Localization.sendMaxFee,
+            amountPublisher: input.customFeePublisher.decimalPublisher,
+            fractionDigits: walletInfo.feeFractionDigits,
+            amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
+            footer: Localization.sendMaxFeeFooter
+        ) { [weak self] enteredFee in
+            guard let self else { return }
+            input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
+        }
+
+        customFeeGasPriceModel = SendCustomFeeInputFieldModel(
+            title: Localization.sendGasPrice,
+            amountPublisher: input.customGasPricePublisher.decimalPublisher,
+            fractionDigits: 0,
+            amountAlternativePublisher: .just(output: nil),
+            footer: Localization.sendGasPriceFooter
+        ) { [weak self] in
+            guard let self else { return }
+            input.didChangeCustomFeeGasPrice($0?.bigUIntValue)
+        }
+
+        customFeeGasLimitModel = SendCustomFeeInputFieldModel(
+            title: Localization.sendGasLimit,
+            amountPublisher: input.customGasLimitPublisher.decimalPublisher,
+            fractionDigits: 0,
+            amountAlternativePublisher: .just(output: nil),
+            footer: Localization.sendGasLimitFooter
+        ) { [weak self] in
+            guard let self else { return }
+            input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
+        }
     }
 
     private func bind() {
@@ -216,7 +219,7 @@ class SendFeeViewModel: ObservableObject {
         showCustomFeeFields = feeOption == .custom
     }
 
-    private static func recalculateFee(enteredFee: DecimalNumberTextField.DecimalValue?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
+    private func recalculateFee(enteredFee: DecimalNumberTextField.DecimalValue?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
         let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
 
         guard
