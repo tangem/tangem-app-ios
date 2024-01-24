@@ -53,7 +53,8 @@ class SendFinishViewModel: ObservableObject {
             address: destinationText,
             additionalField: input.additionalField
         )
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.amountValue)
+        let sendModel = (input as! SendModel)
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(cryptoFormatted: sendModel.cryptoFormatted, fiatFormatted: sendModel.fiatFormatted)
         feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
 
         let formatter = DateFormatter()
