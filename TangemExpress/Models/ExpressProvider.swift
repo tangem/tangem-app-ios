@@ -17,4 +17,20 @@ public struct ExpressProvider: Hashable {
     public let imageURL: URL?
     public let termsOfUse: URL?
     public let privacyPolicy: URL?
+
+    public init(
+        id: Id,
+        name: String,
+        type: ExpressProviderType,
+        imageURL: URL?,
+        termsOfUse: URL?,
+        privacyPolicy: URL?
+    ) {
+        self.id = id
+        self.name = name
+        self.type = type
+        self.imageURL = imageURL
+        self.termsOfUse = termsOfUse
+        self.privacyPolicy = privacyPolicy
+    }
 }
