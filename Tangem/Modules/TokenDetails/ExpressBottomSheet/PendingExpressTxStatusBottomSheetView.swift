@@ -143,7 +143,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
                             .foregroundColor(Colors.Text.tertiary)
                             .frame(size: .init(bothDimensions: 18))
 
-                        Text(Localization.expressGoToProvider)
+                        Text(Localization.commonGoToProvider)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                 })
