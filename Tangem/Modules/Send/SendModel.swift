@@ -12,6 +12,10 @@ import Combine
 import BlockchainSdk
 
 class SendModel {
+    var walletMaxAmount: Decimal? {
+        walletModel.wallet.amounts[walletModel.amountType]?.value
+    }
+
     var cryptoFiatAmount: CryptoFiatAmount? {
         _amount
     }
