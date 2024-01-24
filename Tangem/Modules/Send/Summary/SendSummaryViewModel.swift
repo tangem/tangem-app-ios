@@ -85,10 +85,11 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.destinationViewTypes, on: self)
             .store(in: &bag)
 
-        input
-            .amountPublisher
-            .compactMap { [weak self] amount in
-                self?.sectionViewModelFactory.makeAmountViewData(from: amount)
+        let sendModel = (input as! SendModel)
+
+        Publishers.CombineLatest(sendModel.cryptoFormattedPublisher, sendModel.fiatFormattedPublisher)
+            .compactMap { [weak self] cryptoFormatted, fiatFormatted in
+                self?.sectionViewModelFactory.makeAmountViewData(cryptoFormatted: cryptoFormatted, fiatFormatted: fiatFormatted)
             }
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
