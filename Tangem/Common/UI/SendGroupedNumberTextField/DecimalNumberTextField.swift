@@ -12,7 +12,7 @@ struct DecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalValue?
     @State private var textFieldText: String = ""
 
-    private var placeholder: String = "0"
+    private let placeholder: String = "0"
     private var decimalNumberFormatter: DecimalNumberFormatter
     private var font: Font = Fonts.Regular.title1
     private var decimalSeparator: Character { decimalNumberFormatter.decimalSeparator }
