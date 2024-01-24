@@ -28,7 +28,7 @@ extension CommonBridgeInteractor: VisaBridgeInteractor {
     var accountAddress: String { paymentAccount }
 
     func loadBalances() async throws -> VisaBalances {
-        logger.debug(topic: .bridgeInteractor, "Attempting to load all balances for: \(accountAddress)")
+        logger.debug(subsystem: .bridgeInteractor, "Attempting to load all balances for: \(accountAddress)")
         let loadedBalances: VisaBalances
         do {
             async let totalBalance = try await evmSmartContractInteractor.ethCall(
@@ -53,25 +53,25 @@ extension CommonBridgeInteractor: VisaBridgeInteractor {
                 pendingRefund: convertToDecimal(pendingRefundAmount)
             )
 
-            logger.debug(topic: .bridgeInteractor, "All balances sucessfully loaded: \(loadedBalances)")
+            logger.debug(subsystem: .bridgeInteractor, "All balances sucessfully loaded: \(loadedBalances)")
             return loadedBalances
         } catch {
-            logger.debug(topic: .bridgeInteractor, "Failed to load balances for \(accountAddress).\n\nReason: \(error)")
+            logger.debug(subsystem: .bridgeInteractor, "Failed to load balances for \(accountAddress).\n\nReason: \(error)")
             throw error
         }
     }
 
     func loadLimits() async throws -> VisaLimits {
-        logger.debug(topic: .bridgeInteractor, "Attempting to load limits for:")
+        logger.debug(subsystem: .bridgeInteractor, "Attempting to load limits for:")
         do {
             let limitsResponse = try await evmSmartContractInteractor.ethCall(request: amountRequest(for: .limits)).async()
-            logger.debug(topic: .bridgeInteractor, "Received limits response for \(accountAddress).\n\nResponse: \(limitsResponse)\n\nAttempting to parse...")
+            logger.debug(subsystem: .bridgeInteractor, "Received limits response for \(accountAddress).\n\nResponse: \(limitsResponse)\n\nAttempting to parse...")
             let parser = LimitsResponseParser()
             let limits = try parser.parseResponse(limitsResponse)
-            logger.debug(topic: .bridgeInteractor, "Limits sucessfully loaded: \(limits)")
+            logger.debug(subsystem: .bridgeInteractor, "Limits sucessfully loaded: \(limits)")
             return limits
         } catch {
-            logger.debug(topic: .bridgeInteractor, "Failed to load balances for: \(accountAddress).\n\nReason: \(error)")
+            logger.debug(subsystem: .bridgeInteractor, "Failed to load balances for: \(accountAddress).\n\nReason: \(error)")
             throw error
         }
     }
@@ -85,7 +85,7 @@ private extension CommonBridgeInteractor {
 
     func convertToDecimal(_ value: String) -> Decimal? {
         let decimal = EthereumUtils.parseEthereumDecimal(value, decimalsCount: decimalCount)
-        logger.debug(topic: .bridgeInteractor, "Reponse \(value) converted into \(String(describing: decimal))")
+        logger.debug(subsystem: .bridgeInteractor, "Reponse \(value) converted into \(String(describing: decimal))")
         return decimal
     }
 }
