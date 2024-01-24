@@ -112,7 +112,7 @@ class VisaWalletModel {
 
             let builder = VisaBridgeInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
             do {
-                let interactor = try await builder.build(for: walletModel.defaultAddress)
+                let interactor = try await builder.build(for: walletModel.defaultAddress, logger: AppLog.shared)
                 visaBridgeInteractor = interactor
                 await generalUpdateAsync()
             } catch {
