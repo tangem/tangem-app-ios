@@ -28,10 +28,10 @@ struct UndoToastView: View {
             Button(action: undoAction) {
                 Text(Localization.toastUndo)
                     .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+                    .padding(.vertical, 9) // 8pt plus extra 1pt to match footnote font line height from figma, [REDACTED_TODO_COMMENT]
                     .padding(.horizontal, 8)
             }
         }
-        .padding(.vertical, 8)
         .padding(.horizontal, 6)
         .background(Colors.Icon.secondary)
         .cornerRadiusContinuous(10)
