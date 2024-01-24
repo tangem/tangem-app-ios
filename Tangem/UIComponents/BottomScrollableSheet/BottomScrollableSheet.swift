@@ -8,15 +8,14 @@
 
 import SwiftUI
 
-struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
-    @ViewBuilder private let header: () -> Header
-    @ViewBuilder private let content: () -> Content
-    @ViewBuilder private let overlay: () -> Overlay
-
-    @Environment(\.bottomScrollableSheetStateObserver) private var bottomScrollableSheetStateObserver
+struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View, Content: View, Overlay: View {
+    private let header: Header
+    private let content: Content
+    private let overlay: Overlay
 
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
+    @Environment(\.bottomScrollableSheetStateObserver) private var bottomScrollableSheetStateObserver
     @Environment(\.statusBarStyleConfigurator) private var statusBarStyleConfigurator
 
     @State private var overlayHeight: CGFloat = .zero
@@ -34,12 +33,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
 
     private let coordinateSpaceName = UUID()
 
-    init(
-        stateObject: BottomScrollableSheetStateObject,
-        @ViewBuilder header: @escaping () -> Header,
-        @ViewBuilder content: @escaping () -> Content,
-        @ViewBuilder overlay: @escaping () -> Overlay
-    ) {
+    init(stateObject: BottomScrollableSheetStateObject, header: Header, content: Content, overlay: Overlay) {
         self.stateObject = stateObject
         self.header = header
         self.content = content
@@ -77,7 +71,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
     }
 
     @ViewBuilder private var headerView: some View {
-        header()
+        header
             .gesture(headerDragGesture, including: headerDragGestureMask)
             .if(prefersGrabberVisible) { $0.bottomScrollableSheetGrabber() }
             .readGeometry(\.size.height, bindTo: $stateObject.headerHeight)
@@ -111,7 +105,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
                 )
 
                 VStack(spacing: 0.0) {
-                    content()
+                    content
                         .readContentOffset(
                             inCoordinateSpace: .named(coordinateSpaceName),
                             throttleInterval: .standard,
@@ -127,7 +121,7 @@ struct BottomScrollableSheet<Header: View, Content: View, Overlay: View>: View {
         }
         .ios16AndAboveScrollDisabledCompat(stateObject.scrollViewIsDragging)
         .overlay(
-            overlay()
+            overlay
                 .readGeometry(\.size.height, bindTo: $overlayHeight)
                 .infinityFrame(alignment: .bottom)
         )
