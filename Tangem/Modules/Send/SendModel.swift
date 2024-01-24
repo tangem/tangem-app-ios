@@ -20,6 +20,22 @@ class SendModel {
         _amount
     }
 
+    var cryptoFormatted: String {
+        _amount.cryptoFormatted
+    }
+
+    var fiatFormatted: String {
+        _amount.fiatFormatted
+    }
+
+    var cryptoFormattedPublisher: AnyPublisher<String, Never> {
+        _amount.cryptoFormattedPublisher
+    }
+
+    var fiatFormattedPublisher: AnyPublisher<String, Never> {
+        _amount.fiatFormattedPublisher
+    }
+
     var amountValid: AnyPublisher<Bool, Never> {
         amount
             .map {
@@ -104,7 +120,7 @@ class SendModel {
         self.transactionSigner = transactionSigner
         self.sendType = sendType
         self.addressService = addressService
-        _amount = CryptoFiatAmount(currencyId: walletModel.tokenItem.currencyId)
+        _amount = CryptoFiatAmount(amountFractionDigits: walletModel.decimalCount, currencyId: walletModel.tokenItem.currencyId, currencyCode: walletModel.tokenItem.currencySymbol)
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
