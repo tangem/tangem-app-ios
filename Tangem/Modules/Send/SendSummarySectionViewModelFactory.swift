@@ -43,22 +43,11 @@ struct SendSummarySectionViewModelFactory {
         return destinationViewTypes
     }
 
-    func makeAmountViewData(from amount: Amount?) -> AmountSummaryViewData? {
-        guard let amount else { return nil }
-
-        let formattedAmount = amount.description
-
-        let amountFiat: String
-        if let currencyId,
-           let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
-            amountFiat = BalanceFormatter().formatFiatBalance(fiatValue)
-        } else {
-            amountFiat = AppConstants.dashSign
-        }
+    func makeAmountViewData(cryptoFormatted: String, fiatFormatted: String) -> AmountSummaryViewData? {
         return AmountSummaryViewData(
             title: Localization.sendAmountLabel,
-            amount: formattedAmount,
-            amountFiat: amountFiat,
+            amount: cryptoFormatted,
+            amountFiat: fiatFormatted,
             tokenIconInfo: tokenIconInfo
         )
     }
