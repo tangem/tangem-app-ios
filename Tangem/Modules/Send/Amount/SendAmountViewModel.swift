@@ -72,23 +72,49 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
 
-        input
-            .amountInputPublisher
-            .sink { [weak self] amount in
-                self?.amount = self?.fromAmount(amount)
-            }
-            .store(in: &bag)
+//        input
+//            .amountInputPublisher
+//            .sink { [weak self] amount in
+//                self?.amount = self?.fromAmount(amount)
+//            }
+//            .store(in: &bag)
+//
+//        $amount
+//            .sink { [weak self] amount in
+//                guard let self else { return }
+//                input.setAmount(toAmount(amount))
+//            }
+//            .store(in: &bag)
 
         $amount
+            .removeDuplicates { $0?.value == $1?.value }
+            // We skip the first nil value from the text field
+            .dropFirst()
+            .filter {
+                $0?.isInternal ?? true
+            }
             .sink { [weak self] amount in
                 guard let self else { return }
-                input.setAmount(toAmount(amount))
+                if useFiatCalculation {
+                    (input as! SendModel).setFiat(amount?.value)
+                } else {
+                    (input as! SendModel).setCrypto(amount?.value)
+                }
+                print("ZZZ setting model amount", useFiatCalculation, amount?.value)
             }
             .store(in: &bag)
 
         $useFiatCalculation
-            .sink { [weak self] _ in
-                #warning("[REDACTED_TODO_COMMENT]")
+            .sink { [weak self] useFiatCalculation in
+                guard let self else { return }
+                let sendModel = input as! SendModel
+                let userInputAmount = useFiatCalculation ? sendModel.cryptoFiatAmount?.fiat : sendModel.cryptoFiatAmount?.crypto
+                if let userInputAmount {
+                    amount = .external(userInputAmount)
+                } else {
+                    amount = nil
+                }
+                print("ZZZ changing input after fiat/crypto change", userInputAmount, "(\(sendModel.cryptoFiatAmount?.crypto), \(sendModel.cryptoFiatAmount?.fiat))")
             }
             .store(in: &bag)
     }
