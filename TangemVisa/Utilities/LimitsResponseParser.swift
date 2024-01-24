@@ -48,7 +48,7 @@ struct LimitsResponseParser {
             throw VisaParserError.limitWrongLength
         }
 
-        let remainingLimitSeconds = EthereumUtils.parseEthereumDecimal(limitItems.removeLast(), decimalsCount: 0)
+        let limitDurationSeconds = EthereumUtils.parseEthereumDecimal(limitItems.removeLast(), decimalsCount: 0)
         let timeIntervalWhenLimitEnds = EthereumUtils.parseEthereumDecimal(limitItems.removeLast(), decimalsCount: 0)
         let dueDate = Date(timeIntervalSince1970: timeIntervalWhenLimitEnds?.doubleValue ?? 0)
 
@@ -60,8 +60,8 @@ struct LimitsResponseParser {
         }
 
         return VisaLimit(
-            dueDate: dueDate,
-            remainingTimeSeconds: remainingLimitSeconds?.doubleValue ?? 0,
+            expirationDate: dueDate,
+            limitDurationSeconds: limitDurationSeconds?.doubleValue ?? 0,
             singleTransaction: values.removeFirst(),
             otpLimit: values.removeFirst(),
             spentOTPAmount: values.removeFirst(),
