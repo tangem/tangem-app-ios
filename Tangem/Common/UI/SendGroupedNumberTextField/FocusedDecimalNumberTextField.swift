@@ -13,7 +13,6 @@ import SwiftUI
 @available(iOS 15.0, *)
 struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
-    @State private var decimal: Int = 0
     @FocusState private var isInputActive: Bool
     private var maximumFractionDigits: Int
 
