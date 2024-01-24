@@ -15,7 +15,7 @@ struct BalanceWithButtonsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(Localization.onboardingBalanceTitle)
+                Text(Localization.commonBalanceTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 BalanceTitleView(balance: viewModel.fiatBalance, isLoading: viewModel.isLoadingFiatBalance)
