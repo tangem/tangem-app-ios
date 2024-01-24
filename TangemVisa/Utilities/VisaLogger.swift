@@ -24,13 +24,13 @@ class InternalLogger {
         logger.error(error)
     }
 
-    func debug<T>(topic: Topic, _ message: @autoclosure () -> T) {
-        logger.debug("\(topic.rawValue)\(message())")
+    func debug<T>(subsystem: Subsystem, _ message: @autoclosure () -> T) {
+        logger.debug("\(subsystem.rawValue)\(message())")
     }
 }
 
 extension InternalLogger {
-    enum Topic: String {
+    enum Subsystem: String {
         case bridgeInteractorBuilder = "[Visa] Bridge Interactor Builder - "
         case bridgeInteractor = "[Visa] Bridge Interactor - "
     }
