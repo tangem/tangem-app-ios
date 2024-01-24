@@ -16,6 +16,14 @@ class SendModel {
         walletModel.wallet.amounts[walletModel.amountType]?.value
     }
 
+    var cryptoPublisher: AnyPublisher<Decimal?, Never> {
+        _amount.cryptoPublisher
+    }
+
+    var fiatPublisher: AnyPublisher<Decimal?, Never> {
+        _amount.fiatPublisher
+    }
+
     var cryptoFiatAmount: CryptoFiatAmount? {
         _amount
     }
@@ -139,7 +147,7 @@ class SendModel {
     func useMaxAmount() {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
-            setAmount(amount)
+            setCrypto(amount.value)
             didChangeFeeInclusion(true)
         }
     }
