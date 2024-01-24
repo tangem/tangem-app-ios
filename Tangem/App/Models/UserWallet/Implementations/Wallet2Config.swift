@@ -160,6 +160,24 @@ extension Wallet2Config: UserWalletConfig {
         // BAD Idea cards
         case "AF09":
             return cardsCount == 2 ? Assets.Cards.badIdeaDouble : Assets.Cards.badIdeaTriple
+        // Wallet white
+        case "AF15":
+            return cardsCount == 2 ? Assets.Cards.wallet2WhiteDouble : Assets.Cards.wallet2WhiteTriple
+        // Wallet traillant
+        case "AF16":
+            return cardsCount == 2 ? Assets.Cards.walletTraillantDouble : Assets.Cards.walletTraillantTriple
+        // Wallet avrora
+        case "AF18":
+            return cardsCount == 2 ? Assets.Cards.walletAvroraDouble : Assets.Cards.walletAvroraTriple
+        // Wallet JR
+        case "AF14":
+            return cardsCount == 2 ? Assets.Cards.jrDouble : Assets.Cards.jrTriple
+        // Wallet grim
+        case "AF13":
+            return cardsCount == 2 ? Assets.Cards.grimDouble : Assets.Cards.grimTriple
+        // Wallet satoshi friends
+        case "AF19":
+            return cardsCount == 2 ? Assets.Cards.satoshiFriendsDouble : Assets.Cards.satoshiFriendsTriple
         // Tangem Wallet 2.0
         default:
             return cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
