@@ -105,7 +105,14 @@ final class SendViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, sendType: SendType, emailDataProvider: EmailDataProvider, coordinator: SendRoutable) {
+    init(
+        walletName: String,
+        walletModel: WalletModel,
+        transactionSigner: TransactionSigner,
+        sendType: SendType,
+        emailDataProvider: EmailDataProvider,
+        coordinator: SendRoutable
+    ) {
         self.coordinator = coordinator
         self.sendType = sendType
         self.walletModel = walletModel
@@ -121,8 +128,6 @@ final class SendViewModel: ObservableObject {
         self.steps = steps
         step = firstStep
 
-        #warning("[REDACTED_TODO_COMMENT]")
-        let walletName = "Wallet Name"
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
         if let tokenId = walletModel.tokenItem.id {
@@ -132,7 +137,7 @@ final class SendViewModel: ObservableObject {
         }
         walletInfo = SendWalletInfo(
             walletName: walletName,
-            balance: walletModel.balance,
+            balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
             currencyId: walletModel.tokenItem.currencyId,
             feeCurrencySymbol: walletModel.tokenItem.blockchain.currencySymbol,
             feeCurrencyId: walletModel.tokenItem.blockchain.currencyId,
@@ -152,7 +157,6 @@ final class SendViewModel: ObservableObject {
         sendFeeViewModel = SendFeeViewModel(input: sendModel, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
-        sendAmountViewModel.delegate = self
         sendSummaryViewModel.router = self
 
         bind()
@@ -290,11 +294,5 @@ extension SendViewModel: SendSummaryRoutable {
 
     func send() {
         sendModel.send()
-    }
-}
-
-extension SendViewModel: SendAmountViewModelDelegate {
-    func didTapMaxAmount() {
-        sendModel.useMaxAmount()
     }
 }
