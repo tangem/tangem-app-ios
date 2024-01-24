@@ -18,7 +18,6 @@ class ExpressNotificationManager {
     private var analyticsService: NotificationsAnalyticsService = .init()
 
     private var subscription: AnyCancellable?
-    private var priceImpactTask: Task<Void, Error>?
     private var depositTask: Task<Void, Error>?
 
     init(expressInteractor: ExpressInteractor) {
@@ -34,8 +33,8 @@ class ExpressNotificationManager {
     }
 
     private func setupNotifications(for state: ExpressInteractor.State) {
-        priceImpactTask?.cancel()
-        priceImpactTask = nil
+        depositTask?.cancel()
+        depositTask = nil
 
         switch state {
         case .idle:
@@ -53,17 +52,11 @@ class ExpressNotificationManager {
         case .restriction(let restrictions, let quote):
             setupNotification(for: restrictions)
 
-            guard let quote else {
-                return
-            }
-
-            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
         case .permissionRequired:
             setupPermissionRequiredNotification()
 
         case .readyToSwap(_, let quote):
             notificationInputsSubject.value = []
-            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
             // We have not the subtractFee on DEX
             setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: 0)
 
@@ -77,7 +70,6 @@ class ExpressNotificationManager {
                 notificationInputsSubject.value = []
             }
 
-            checkHighPriceImpact(fromAmount: quote.fromAmount, toAmount: quote.expectAmount)
             setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: preview.subtractFee)
         }
     }
@@ -90,19 +82,6 @@ class ExpressNotificationManager {
 
             manager.notificationInputsSubject.value.append(notification)
         }
-    }
-
-    private func checkHighPriceImpact(fromAmount: Decimal, toAmount: Decimal) {
-        priceImpactTask = runTask(in: self, code: { manager in
-            guard let notification = try await manager.makeHighPriceImpactIfNeeded(
-                fromAmount: fromAmount,
-                toAmount: toAmount
-            ) else {
-                return
-            }
-
-            manager.notificationInputsSubject.value.append(notification)
-        })
     }
 
     private func setupNotification(for restrictions: ExpressInteractor.RestrictionType) {
@@ -120,7 +99,7 @@ class ExpressNotificationManager {
             event = .hasPendingTransaction(symbol: sourceTokenItem.currencySymbol)
         case .hasPendingApproveTransaction:
             event = .hasPendingApproveTransaction
-        case .notEnoughBalanceForSwapping(let requiredAmount):
+        case .notEnoughBalanceForSwapping:
             notificationInputsSubject.value = []
             return
         case .notEnoughAmountForFee:
@@ -183,32 +162,6 @@ class ExpressNotificationManager {
         guard subtractFee > 0 else { return nil }
         let factory = NotificationsFactory()
         let notification = factory.buildNotificationInput(for: .feeWillBeSubtractFromSendingAmount)
-        return notification
-    }
-
-    private func makeHighPriceImpactIfNeeded(fromAmount: Decimal, toAmount: Decimal) async throws -> NotificationViewInput? {
-        guard
-            let sourceCurrencyId = expressInteractor?.getSender().tokenItem.currencyId,
-            let destinationCurrencyId = expressInteractor?.getDestination()?.tokenItem.currencyId,
-            // We've decided don't show the "HighPriceImpact" for CEX providers
-            await expressInteractor?.getSelectedProvider()?.provider.type != .cex
-        else {
-            return nil
-        }
-
-        let priceImpactCalculator = HighPriceImpactCalculator(sourceCurrencyId: sourceCurrencyId, destinationCurrencyId: destinationCurrencyId)
-        let result = try await priceImpactCalculator.isHighPriceImpact(converting: fromAmount, to: toAmount)
-
-        if Task.isCancelled {
-            return nil
-        }
-
-        guard result.isHighPriceImpact else {
-            return nil
-        }
-
-        let factory = NotificationsFactory()
-        let notification = factory.buildNotificationInput(for: .highPriceImpact)
         return notification
     }
 }
