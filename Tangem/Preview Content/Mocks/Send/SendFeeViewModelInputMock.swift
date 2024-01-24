@@ -11,6 +11,10 @@ import Combine
 import BlockchainSdk
 
 class SendFeeViewModelInputMock: SendFeeViewModelInput {
+    var amountPublisher: AnyPublisher<Amount?, Never> {
+        .just(output: nil)
+    }
+
     var selectedFeeOption: FeeOption {
         .market
     }
@@ -27,5 +31,15 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         ])
     }
 
+    var canIncludeFeeIntoAmount: Bool {
+        true
+    }
+
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
     func didSelectFeeOption(_ feeOption: FeeOption) {}
+
+    func didChangeFeeInclusion(_ feeIncluded: Bool) {}
 }
