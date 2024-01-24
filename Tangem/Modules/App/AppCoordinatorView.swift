@@ -46,7 +46,9 @@ struct AppCoordinatorView: CoordinatorView {
                     isHiddenWhenCollapsed: true,
                     allowsHitTesting: coordinator.isMainBottomSheetShown
                 )
-                .onBottomScrollableSheetStateChange(mainBottomSheetCoordinator.onBottomScrollableSheetStateChange(_:))
+                .onBottomScrollableSheetStateChange(
+                    weakify(mainBottomSheetCoordinator, forFunction: MainBottomSheetCoordinator.onBottomScrollableSheetStateChange)
+                )
         }
         .bottomSheet(
             item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
