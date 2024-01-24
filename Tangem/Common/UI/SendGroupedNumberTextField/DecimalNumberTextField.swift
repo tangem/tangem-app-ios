@@ -42,11 +42,11 @@ struct DecimalNumberTextField: View {
                     // If the decimalValue did updated from external place
                     // We have to update the private values
                     let formattedNewValue = decimalNumberFormatter.format(value: value)
-                    updateValues(with: formattedNewValue)
+                    updateValues(with: formattedNewValue, external: true)
                 }
             }
             .onChange(of: textFieldText) { newValue in
-                updateValues(with: newValue)
+                updateValues(with: newValue, external: false)
             }
             .onAppear {
                 if let value = _decimalValue.wrappedValue?.value {
@@ -57,7 +57,7 @@ struct DecimalNumberTextField: View {
             }
     }
 
-    private func updateValues(with newValue: String) {
+    private func updateValues(with newValue: String, external: Bool) {
         var numberString = newValue
 
         // If user start enter number with `decimalSeparator` add zero before it
@@ -83,7 +83,7 @@ struct DecimalNumberTextField: View {
         textFieldText = numberString
 
         if let value = decimalNumberFormatter.mapToDecimal(string: numberString) {
-            decimalValue = .internal(value)
+            decimalValue = external ? .external(value) : .internal(value)
         } else if numberString.isEmpty {
             decimalValue = nil
         }
