@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import TangemVisa
 
 struct VisaConfig: CardContainer {
     let card: CardDTO
@@ -145,10 +146,6 @@ extension VisaConfig: UserWalletConfig {
 
     func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
         return VisaWalletManagerFactory()
-    }
-
-    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
-        return VisaMainHeaderProviderFactory()
     }
 }
 
