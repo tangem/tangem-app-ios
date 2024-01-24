@@ -41,4 +41,13 @@ extension SendType {
             return destination
         }
     }
+
+    var canIncludeFeeIntoAmount: Bool {
+        switch self {
+        case .send:
+            return true
+        case .sell:
+            return false
+        }
+    }
 }
