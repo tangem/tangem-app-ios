@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 
+#warning("[REDACTED_TODO_COMMENT]")
 struct SendWalletInfo {
     let walletName: String
     let balance: String
