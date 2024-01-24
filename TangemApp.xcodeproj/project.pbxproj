@@ -258,6 +258,7 @@
 		B03AEEB229596EBD00212267 /* WalletConnectV2MessageComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03AEEB129596EBD00212267 /* WalletConnectV2MessageComposer.swift */; };
 		B03FF89E2B5E4FC000202EC0 /* AppVisaBalances.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03FF89D2B5E4FC000202EC0 /* AppVisaBalances.swift */; };
 		B03FF8A02B5E4FC700202EC0 /* AppVisaLimits.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03FF89F2B5E4FC700202EC0 /* AppVisaLimits.swift */; };
+		B03FF8A22B5E5C4500202EC0 /* VisaLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03FF8A12B5E5C4500202EC0 /* VisaLogger.swift */; };
 		B03FF8A42B5E737600202EC0 /* CommonBridgeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03FF8A32B5E737600202EC0 /* CommonBridgeInteractor.swift */; };
 		B0406BB62A402462006452C2 /* PagerWithDots.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0406BB52A402462006452C2 /* PagerWithDots.swift */; };
 		B04090C42AF3969700DF8DD5 /* NotificationsAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04090C32AF3969600DF8DD5 /* NotificationsAnalyticsService.swift */; };
@@ -1693,6 +1694,7 @@
 		B03AEEB129596EBD00212267 /* WalletConnectV2MessageComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2MessageComposer.swift; sourceTree = "<group>"; };
 		B03FF89D2B5E4FC000202EC0 /* AppVisaBalances.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVisaBalances.swift; sourceTree = "<group>"; };
 		B03FF89F2B5E4FC700202EC0 /* AppVisaLimits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVisaLimits.swift; sourceTree = "<group>"; };
+		B03FF8A12B5E5C4500202EC0 /* VisaLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaLogger.swift; sourceTree = "<group>"; };
 		B03FF8A32B5E737600202EC0 /* CommonBridgeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonBridgeInteractor.swift; sourceTree = "<group>"; };
 		B0406BB52A402462006452C2 /* PagerWithDots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerWithDots.swift; sourceTree = "<group>"; };
 		B04090C32AF3969600DF8DD5 /* NotificationsAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsAnalyticsService.swift; sourceTree = "<group>"; };
@@ -3939,6 +3941,7 @@
 				B05145052B5933E000EDAD1E /* VisaUtilities.swift */,
 				B05145162B5934FD00EDAD1E /* VisaAddressParser.swift */,
 				B06F033C2B5A8C1200F04F0E /* LimitsResponseParser.swift */,
+				B03FF8A12B5E5C4500202EC0 /* VisaLogger.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -9055,6 +9058,7 @@
 				B099339D2B55196700240CDB /* VisaBridgeInteractor.swift in Sources */,
 				B05145062B5933E000EDAD1E /* VisaUtilities.swift in Sources */,
 				B05145122B59349100EDAD1E /* SmartContractMethodPrefixCreator.swift in Sources */,
+				B03FF8A22B5E5C4500202EC0 /* VisaLogger.swift in Sources */,
 				B05145102B59348000EDAD1E /* GetAmountMethod.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
