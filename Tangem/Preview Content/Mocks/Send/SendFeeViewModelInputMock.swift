@@ -28,6 +28,10 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         .just(output: nil)
     }
 
+    var amountPublisher: AnyPublisher<Amount?, Never> {
+        .just(output: nil)
+    }
+
     var selectedFeeOption: FeeOption {
         .market
     }
@@ -44,8 +48,17 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
         ])
     }
 
+    var canIncludeFeeIntoAmount: Bool {
+        true
+    }
+
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
     func didSelectFeeOption(_ feeOption: FeeOption) {}
     func didChangeCustomFee(_ value: Fee?) {}
     func didChangeCustomFeeGasPrice(_ value: BigUInt?) {}
     func didChangeCustomFeeGasLimit(_ value: BigUInt?) {}
+    func didChangeFeeInclusion(_ feeIncluded: Bool) {}
 }
