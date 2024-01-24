@@ -12,6 +12,10 @@ import Combine
 import BlockchainSdk
 
 class SendModel {
+    var cryptoFiatAmount: CryptoFiatAmount? {
+        _amount
+    }
+
     var amountValid: AnyPublisher<Bool, Never> {
         amount
             .map {
@@ -61,7 +65,7 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var _amount = CurrentValueSubject<Amount?, Never>(nil)
+    private var _amount: CryptoFiatAmount
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
@@ -96,6 +100,7 @@ class SendModel {
         self.transactionSigner = transactionSigner
         self.sendType = sendType
         self.addressService = addressService
+        _amount = CryptoFiatAmount(currencyId: walletModel.tokenItem.currencyId)
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -158,12 +163,21 @@ class SendModel {
     }
 
     private func bind() {
-        Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
+        Publishers.CombineLatest3(_amount.cryptoPublisher, fee, _isFeeIncluded)
             .removeDuplicates {
                 $0 == $1
             }
-            .sink { [weak self] amount, fee, isFeeIncluded in
-                self?.updateAndValidateAmount(amount, fee: fee, isFeeIncluded: isFeeIncluded)
+            .sink { [weak self] cryptoAmount, fee, isFeeIncluded in
+                guard let self else { return }
+
+                let amount: Amount?
+                if let cryptoAmount {
+                    amount = Amount(with: blockchain, type: amountType, value: cryptoAmount)
+                } else {
+                    amount = nil
+                }
+
+                updateAndValidateAmount(amount, fee: fee, isFeeIncluded: isFeeIncluded)
             }
             .store(in: &bag)
 
@@ -249,10 +263,18 @@ class SendModel {
 
     // MARK: - Amount
 
-    func setAmount(_ amount: Amount?) {
-        guard _amount.value != amount else { return }
+    func setCrypto(_ crypto: Decimal?) {
+        _amount.setCrypto(crypto)
+    }
 
-        _amount.send(amount)
+    func setFiat(_ fiat: Decimal?) {
+        _amount.setFiat(fiat)
+    }
+
+    func setAmount(_ amount: Amount?) {
+//        guard _amount.value != amount else { return }
+
+//        _amount.send(amount)
     }
 
     private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
@@ -375,7 +397,8 @@ extension SendModel: SendAmountViewModelInput {
     }
 
     var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
-        _amount.eraseToAnyPublisher()
+//        _amount.eraseToAnyPublisher()
+        .just(output: nil)
     }
 
     #warning("TODO")
