@@ -119,7 +119,9 @@ struct BottomSheetContainer<ContentView: View>: View {
     // MARK: - Methods
 
     func hideView(completion: @escaping () -> Void) {
-        let animationBody = { stateObject.offset = UIScreen.main.bounds.height }
+        let animationBody = {
+            stateObject.offset = UIScreen.main.bounds.height
+        }
 
         if #available(iOS 17, *) {
             withAnimation(transitionAnimation, animationBody, completion: completion)
