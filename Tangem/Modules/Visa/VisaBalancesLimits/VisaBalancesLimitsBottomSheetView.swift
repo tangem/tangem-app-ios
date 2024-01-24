@@ -33,7 +33,7 @@ struct VisaBalancesLimitsBottomSheetView: View {
 
     private var balancesView: some View {
         VStack(spacing: 0) {
-            sectionHeaderLine(leadingText: "Balance, USDT", infoAction: viewModel.openBalancesInfo)
+            sectionHeaderLine(leadingText: "Balance", infoAction: viewModel.openBalancesInfo)
 
             recordLine(with: "Total", amount: viewModel.totalAmount)
 
@@ -51,11 +51,11 @@ struct VisaBalancesLimitsBottomSheetView: View {
 
     private var limitsView: some View {
         VStack(spacing: 0) {
-            sectionHeaderLine(leadingText: "Limits, USDT", trailingText: viewModel.availabilityDescription, infoAction: viewModel.openLimitsInfo)
+            sectionHeaderLine(leadingText: "Limits", trailingText: viewModel.availabilityDescription, infoAction: viewModel.openLimitsInfo)
 
-            recordLine(with: "In-store (otp)", amount: viewModel.inStoreOtpAmount)
+            recordLine(with: "In-store (otp)", amount: viewModel.remainingOTPAmount)
 
-            recordLine(with: "Other (no-otp)", amount: viewModel.otherNoOtpAmount)
+            recordLine(with: "Other (no-otp)", amount: viewModel.remainingNoOtpAmount)
 
             recordLine(with: "Single transaction", amount: viewModel.singleTransactionAmount)
         }
@@ -90,7 +90,7 @@ struct VisaBalancesLimitsBottomSheetView: View {
 
             Spacer()
 
-            Text(amount)
+            SensitiveText(amount)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
         }
         .padding(.vertical, 8)
@@ -110,7 +110,25 @@ private struct PreviewBottomSheet: View {
     }
 
     private func generateBottomSheet() {
-        viewModel = .init()
+        viewModel = .init(
+            balances: .init(
+                totalBalance: 492.45,
+                verifiedBalance: 392.45,
+                available: 356.45,
+                blocked: 36.00,
+                debt: 0.0,
+                pendingRefund: 20.99
+            ),
+            limit: .init(
+                limitExpirationDate: Date().addingTimeInterval(3600 * 24 * 1.5),
+                limitDurationSeconds: 3600 * 24 * 3,
+                singleTransaction: 100.00,
+                otpLimit: 600.00,
+                spentOTPAmount: 59.45,
+                noOTPLimit: 50.0,
+                spentNoOTPAmount: 12.5
+            )
+        )
     }
 }
 
