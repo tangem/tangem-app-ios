@@ -31,6 +31,14 @@ struct SendFeeView: View {
                 SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
                 SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
             }
+
+            GroupedSection(viewModel.subtractFromAmountModel) {
+                DefaultToggleRowView(viewModel: $0)
+            } footer: {
+                DefaultFooterView(viewModel.subtractFromAmountFooterText)
+                    .animation(.default)
+            }
+            .backgroundColor(Colors.Background.action)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
