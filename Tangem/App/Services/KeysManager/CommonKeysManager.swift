@@ -49,7 +49,6 @@ extension CommonKeysManager: KeysManager {
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-            blockscoutCredentials: .init(login: "", password: ""), // used for saltpay tx history
             defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
             networkProviderConfigurations: [:]
         )
