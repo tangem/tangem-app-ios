@@ -10,6 +10,7 @@ import Foundation
 
 struct SendWalletInfo {
     let walletName: String
+//    let balanceAmount: Decimal
     let balance: String
     let currencyId: String?
     let feeCurrencySymbol: String
