@@ -325,7 +325,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             .receive(on: DispatchQueue.main)
             .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification))
             .withWeakCaptureOf(self)
-            .sink(receiveValue: { values in
+            .sink { values in
                 let (viewModel, (newStep, _)) = values
                 switch (viewModel.currentStep, newStep) {
                 case (.first, .second):
@@ -364,7 +364,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                         AppSettings.shared.cardsStartedActivation.insert(pairCardId)
                     }
                 }
-            })
+            }
     }
 
     private func loadSecondTwinImage() {
