@@ -11,9 +11,7 @@ import Combine
 import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
-    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> { .just(output: nil) }
-
-    func setAmount(_ amount: BlockchainSdk.Amount?) {}
+    var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> { .just(output: nil) }
 
     var amountType: Amount.AmountType { .coin }
 
@@ -21,4 +19,7 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
     var amountError: AnyPublisher<Error?, Never> {
         Just(nil).eraseToAnyPublisher()
     }
+
+    func setAmount(_ amount: BlockchainSdk.Amount?) {}
+    func useMaxAmount() {}
 }
