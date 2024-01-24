@@ -64,14 +64,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func didTapMaxAmount() {
-        guard let maxCryptoAmount = (input as! SendModel).walletMaxAmount else { return }
-        (input as! SendModel).setCrypto(maxCryptoAmount)
-        let sendModel = (input as! SendModel)
-        guard let newAmount = useFiatCalculation ? sendModel.cryptoFiatAmount?.fiat : sendModel.cryptoFiatAmount?.crypto else {
-            return
-        }
-
-        amount = .external(newAmount)
+        input.useMaxAmount()
     }
 
     private func bind(from input: SendAmountViewModelInput) {
@@ -99,26 +92,28 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        $useFiatCalculation
-            .sink { [weak self] useFiatCalculation in
-                guard let self else { return }
-                let sendModel = input as! SendModel
-                let userInputAmount = useFiatCalculation ? sendModel.cryptoFiatAmount?.fiat : sendModel.cryptoFiatAmount?.crypto
-                if let userInputAmount {
-                    amount = .external(userInputAmount)
-                } else {
-                    amount = nil
-                }
-                print("ZZZ changing input after fiat/crypto change", userInputAmount, "(\(sendModel.cryptoFiatAmount?.crypto), \(sendModel.cryptoFiatAmount?.fiat))")
-            }
-            .store(in: &bag)
-
         let sendModel = input as! SendModel
         Publishers.CombineLatest3($useFiatCalculation, sendModel.cryptoFormattedPublisher, sendModel.fiatFormattedPublisher)
             .map { useFiatCalculation, cryptoFormatted, fiatFormatted in
                 useFiatCalculation ? cryptoFormatted : fiatFormatted
             }
+            .removeDuplicates()
             .assign(to: \.amountAlternative, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        Publishers.CombineLatest3($useFiatCalculation, sendModel.cryptoPublisher, sendModel.fiatPublisher)
+            .map { useFiatCalculation, crypto, fiat in
+                useFiatCalculation ? fiat : crypto
+            }
+            .removeDuplicates()
+            .sink { newAmount in
+                print("ZZZ updating view amount", newAmount)
+                if let newAmount {
+                    self.amount = .external(newAmount)
+                } else {
+                    self.amount = nil
+                }
+            }
             .store(in: &bag)
     }
 }
