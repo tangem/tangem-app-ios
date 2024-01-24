@@ -122,6 +122,13 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .failed: return Colors.Icon.warning.opacity(0.1)
         }
     }
+
+    var amountColor: Color {
+        switch status {
+        case .failed: return Colors.Text.warning
+        default: return Colors.Text.primary1
+        }
+    }
 }
 
 extension TransactionViewModel {
