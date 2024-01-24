@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import BlockchainSdk
 import Combine
+import BlockchainSdk
 
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
@@ -16,57 +16,69 @@ protocol VisaWalletRoutable: AnyObject {
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
-    @Published var balancesAndLimitsViewModel: VisaBalancesLimitsBottomSheetViewModel?
+    @Published var balancesAndLimitsViewModel: VisaBalancesLimitsBottomSheetViewModel? = nil
 
     @Published private(set) var transactionListViewState: TransactionsListView.State = .loading
     @Published private(set) var isTransactoinHistoryReloading: Bool = true
-    @Published private(set) var cryptoLimitText: String = "400.00 USDT"
-    @Published private(set) var numberOfDaysLimitText: String = "available 7-day limit"
+    @Published private(set) var cryptoLimitText: String = ""
+    @Published private(set) var numberOfDaysLimitText: String = ""
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var failedToLoadInfoNotificationInput: NotificationViewInput?
 
-    private let walletModel: WalletModel
+    var isBalancesAndLimitsBlockLoading: Bool {
+        cryptoLimitText.isEmpty || numberOfDaysLimitText.isEmpty
+    }
+
+    private let visaWalletModel: VisaWalletModel
     private weak var coordinator: VisaWalletRoutable?
 
-    private var updateSubscription: AnyCancellable?
+    private var bag = Set<AnyCancellable>()
+    private var updateTask: Task<Void, Never>?
 
     init(
-        walletModel: WalletModel,
+        visaWalletModel: VisaWalletModel,
         coordinator: VisaWalletRoutable
     ) {
-        self.walletModel = walletModel
+        self.visaWalletModel = visaWalletModel
         self.coordinator = coordinator
+
+        bind()
     }
 
     func openDeposit() {
-        Analytics.log(event: .buttonReceive, params: [.token: walletModel.tokenItem.currencySymbol])
+        Analytics.log(event: .buttonReceive, params: [.token: visaWalletModel.tokenItem.currencySymbol])
 
-        let infos = walletModel.wallet.addresses.map { address in
-            ReceiveAddressInfo(
-                address: address.value,
-                type: address.type,
-                localizedName: address.localizedName,
-                addressQRImage: QrCodeGenerator.generateQRCode(from: address.value)
-            )
-        }
+        let addressType = AddressType.default
+        let addressInfo = ReceiveAddressInfo(
+            address: visaWalletModel.accountAddress,
+            type: addressType,
+            localizedName: addressType.defaultLocalizedName,
+            addressQRImage: QrCodeGenerator.generateQRCode(from: visaWalletModel.accountAddress)
+        )
         coordinator?.openReceiveScreen(
-            amountType: walletModel.amountType,
-            blockchain: walletModel.blockchainNetwork.blockchain,
-            addressInfos: infos
+            amountType: visaWalletModel.tokenItem.amountType,
+            blockchain: visaWalletModel.tokenItem.blockchain,
+            addressInfos: [addressInfo]
         )
     }
 
     func openBalancesAndLimits() {
-        balancesAndLimitsViewModel = .init()
-    }
-
-    func openExplorer() {
         guard
-            let token = walletModel.tokenItem.token,
-            let url = walletModel.exploreURL(for: 0, token: token)
+            let balances = visaWalletModel.balances,
+            let limit = visaWalletModel.limits?.currentLimit
         else {
             return
         }
 
-        coordinator?.openExplorer(at: url, blockchainDisplayName: walletModel.blockchainNetwork.blockchain.displayName)
+        balancesAndLimitsViewModel = .init(balances: balances, limit: limit)
+    }
+
+    func openExplorer() {
+        guard let url = visaWalletModel.exploreURL() else {
+            return
+        }
+
+        coordinator?.openExplorer(at: url, blockchainDisplayName: visaWalletModel.tokenItem.blockchain.displayName)
     }
 
     func exploreTransaction(with id: String) {}
@@ -78,15 +90,46 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
-        guard updateSubscription == nil else {
+        guard updateTask == nil else {
             return
         }
 
-        updateSubscription = walletModel.generalUpdate(silent: true)
+        updateTask = Task { [weak self] in
+            await self?.visaWalletModel.generalUpdateAsync()
+            completionHandler()
+            self?.updateTask = nil
+        }
+    }
+
+    private func bind() {
+        visaWalletModel.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                completionHandler()
-                self?.updateSubscription = nil
+            .withWeakCaptureOf(self)
+            .sink { (self, newState) in
+                switch newState {
+                case .loading, .notInitialized:
+                    break
+                case .idle:
+                    self.updateLimits()
+                case .failedToInitialize(let error):
+                    self.failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: error.notificationEvent)
+                }
             }
+            .store(in: &bag)
+    }
+
+    private func updateLimits() {
+        guard let limits = visaWalletModel.limits else {
+            return
+        }
+
+        let balanceFormatter = BalanceFormatter()
+        let currentLimit = limits.currentLimit
+        let remainingSummary = (currentLimit.remainingOTPAmount ?? 0) + (currentLimit.remainingNoOTPAmount ?? 0)
+        cryptoLimitText = balanceFormatter.formatCryptoBalance(remainingSummary, currencyCode: visaWalletModel.tokenItem.currencySymbol)
+
+        let remainingTimeSeconds = Date().distance(to: currentLimit.actualExpirationDate)
+        let remainingDays = Int(remainingTimeSeconds / 3600 / 24)
+        numberOfDaysLimitText = "available for \(remainingDays) day(s)"
     }
 }
