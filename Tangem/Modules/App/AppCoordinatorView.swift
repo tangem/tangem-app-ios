@@ -38,9 +38,10 @@ struct AppCoordinatorView: CoordinatorView {
             // `mainBottomSheetCoordinator.headerViewModel` or `mainBottomSheetCoordinator.contentViewModel`
             view
                 .bottomScrollableSheet(
-                    header: { MainBottomSheetHeaderCoordinatorView(coordinator: mainBottomSheetCoordinator) },
-                    content: { MainBottomSheetContentCoordinatorView(coordinator: mainBottomSheetCoordinator) },
-                    overlay: { MainBottomSheetOverlayCoordinatorView(coordinator: mainBottomSheetCoordinator) }
+                    item: mainBottomSheetCoordinator,
+                    header: MainBottomSheetHeaderCoordinatorView.init,
+                    content: MainBottomSheetContentCoordinatorView.init,
+                    overlay: MainBottomSheetOverlayCoordinatorView.init
                 )
                 .bottomScrollableSheetConfiguration(
                     isHiddenWhenCollapsed: true,
