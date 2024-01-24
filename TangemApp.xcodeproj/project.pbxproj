@@ -789,6 +789,7 @@
 		DAAA3C6F2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */; };
 		DAAA3C722B3D813C0002DBB0 /* SendAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C702B3D813C0002DBB0 /* SendAddressService.swift */; };
 		DAAA3C732B3D813C0002DBB0 /* SendAddressServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C712B3D813C0002DBB0 /* SendAddressServiceFactory.swift */; };
+		DAAB32582B60E9E200341C83 /* CryptoFiatAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAB32572B60E9E200341C83 /* CryptoFiatAmount.swift */; };
 		DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAADD5B327EB5A180046DEC3 /* SafariView.swift */; };
 		DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */; };
 		DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */; };
@@ -2243,6 +2244,7 @@
 		DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionParametersBuilder.swift; sourceTree = "<group>"; };
 		DAAA3C702B3D813C0002DBB0 /* SendAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAddressService.swift; sourceTree = "<group>"; };
 		DAAA3C712B3D813C0002DBB0 /* SendAddressServiceFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAddressServiceFactory.swift; sourceTree = "<group>"; };
+		DAAB32572B60E9E200341C83 /* CryptoFiatAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoFiatAmount.swift; sourceTree = "<group>"; };
 		DAADD5B327EB5A180046DEC3 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenCoordinator.swift; sourceTree = "<group>"; };
 		DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenViewModel.swift; sourceTree = "<group>"; };
@@ -5595,6 +5597,7 @@
 				DA559C242B0261F400F59584 /* SendType.swift */,
 				DA559C312B0261F400F59584 /* SendStep.swift */,
 				DA559C1D2B0261F300F59584 /* SendModel.swift */,
+				DAAB32572B60E9E200341C83 /* CryptoFiatAmount.swift */,
 				DA559C232B0261F300F59584 /* SendRoutable.swift */,
 				DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */,
 				5DCC20BC2500FC58007B467E /* LegacyQRScannerView.swift */,
@@ -8575,6 +8578,7 @@
 				5DF612A024E6D6C8001BF301 /* LegacyPendingTxView.swift in Sources */,
 				2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */,
 				65C9FCB12864507600FDE63E /* LegacyMainViewModel.swift in Sources */,
+				DAAB32582B60E9E200341C83 /* CryptoFiatAmount.swift in Sources */,
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
 				B668D2582A685DD800D9A12A /* BinaryFloatingPoint+.swift in Sources */,
 				DA60DD7D2B34572300AC1B79 /* QRScannerView.swift in Sources */,
