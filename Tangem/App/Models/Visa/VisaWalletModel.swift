@@ -141,11 +141,7 @@ class VisaWalletModel {
         }
 
         historyReloadTask = Task { [weak self] in
-            do {
-                try await self?.transactionHistoryService.loadNextPage()
-            } catch {
-                AppLog.shared.error(error)
-            }
+            await self?.transactionHistoryService.loadNextPage()
             self?.historyReloadTask = nil
         }
     }
@@ -181,27 +177,6 @@ class VisaWalletModel {
             }
         }
     }
-
-//    private func setupTransactionHistoryService(using userWalletModel: UserWalletModel) {
-    ////        let cardPublicKey = userWalletModel.userWallet.card.cardPublicKey.hexString
-//        let cardPublicKey = "03DEF02B1FECC8BD3CFD52CE93235194479E1DE931EF0F55DC194967E7CCC3D12C"
-//        let apiService = VisaAPIServiceBuilder().build(isTestnet: true, urlSessionConfiguration: .defaultConfiguration, logger: AppLog.shared)
-//        let dateFrom = Calendar.current.date(byAdding: .month, value: -2, to: Date())!
-//        let dateTo = Date()
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "yyyy-MM-dd"
-//        let dateFromString = dateFormatter.string(from: dateFrom)
-//        let dateToString = dateFormatter.string(from: dateTo)
-//        log("Loading history from \(dateFromString) till \(dateToString)")
-//        Task {
-//            do {
-//                let history = try await apiService.loadHistoryPage(request: VisaTransactionHistoryDTO.APIRequest(cardPublicKey: cardPublicKey, dateFrom: dateFromString, dateTo: dateToString))
-//                self.log("History loaded: \(history)")
-//            } catch {
-//                self.log("Failed to load tx history. Error: \(error)")
-//            }
-//        }
-//    }
 
     private func updateBalanceAndLimits() {
         Task { [weak self] in
