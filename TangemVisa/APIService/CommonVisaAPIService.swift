@@ -24,7 +24,7 @@ struct CommonVisaAPIService {
         decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
     }
 }
