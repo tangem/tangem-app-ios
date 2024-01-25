@@ -295,6 +295,8 @@
 		B050F4FC2B60F9F300B2E53C /* VisaAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4FB2B60F9F300B2E53C /* VisaAPITarget.swift */; };
 		B050F4FE2B60FA1800B2E53C /* CommonVisaAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4FD2B60FA1800B2E53C /* CommonVisaAPIService.swift */; };
 		B050F5002B60FCE500B2E53C /* VisaAPIServiceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4FF2B60FCE500B2E53C /* VisaAPIServiceBuilder.swift */; };
+		B050F5032B613A6F00B2E53C /* VisaTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F5022B613A6F00B2E53C /* VisaTransactionHistoryService.swift */; };
+		B050F5082B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F5072B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift */; };
 		B05145062B5933E000EDAD1E /* VisaUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05145052B5933E000EDAD1E /* VisaUtilities.swift */; };
 		B05145092B59340700EDAD1E /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05145082B59340700EDAD1E /* AnyPublisher+.swift */; };
 		B051450C2B59344100EDAD1E /* GetPaymentAccountMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051450B2B59344100EDAD1E /* GetPaymentAccountMethod.swift */; };
@@ -1738,6 +1740,8 @@
 		B050F4FB2B60F9F300B2E53C /* VisaAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAPITarget.swift; sourceTree = "<group>"; };
 		B050F4FD2B60FA1800B2E53C /* CommonVisaAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonVisaAPIService.swift; sourceTree = "<group>"; };
 		B050F4FF2B60FCE500B2E53C /* VisaAPIServiceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAPIServiceBuilder.swift; sourceTree = "<group>"; };
+		B050F5022B613A6F00B2E53C /* VisaTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionHistoryService.swift; sourceTree = "<group>"; };
+		B050F5072B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionHistoryMapper.swift; sourceTree = "<group>"; };
 		B05145052B5933E000EDAD1E /* VisaUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaUtilities.swift; sourceTree = "<group>"; };
 		B05145082B59340700EDAD1E /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		B051450B2B59344100EDAD1E /* GetPaymentAccountMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetPaymentAccountMethod.swift; sourceTree = "<group>"; };
@@ -3940,6 +3944,15 @@
 			path = APIService;
 			sourceTree = "<group>";
 		};
+		B050F5012B613A5300B2E53C /* Visa */ = {
+			isa = PBXGroup;
+			children = (
+				B050F5022B613A6F00B2E53C /* VisaTransactionHistoryService.swift */,
+				B050F5072B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift */,
+			);
+			path = Visa;
+			sourceTree = "<group>";
+		};
 		B05145072B5933FA00EDAD1E /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -5734,6 +5747,7 @@
 				DC0A57E02822A5A10031BECC /* TangemSdk */,
 				DC0A5848282C07750031BECC /* WalletConnect */,
 				DC0A57F52822BDFB0031BECC /* CardImageLoader */,
+				B050F5012B613A5300B2E53C /* Visa */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -8859,6 +8873,7 @@
 				2DCAEE4B2B13E4F800C87E09 /* GetBlockAccessTokens.swift in Sources */,
 				DC3DCAEF2A49C6E600F72554 /* CommonWalletManagersRepository.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
+				B050F5032B613A6F00B2E53C /* VisaTransactionHistoryService.swift in Sources */,
 				EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
 				DA129DD3292B4A3D004291EC /* UserWalletListCellViewModel.swift in Sources */,
@@ -9029,6 +9044,7 @@
 				EF9E2A472B5532A600418559 /* ExpressCurrencyViewModel.swift in Sources */,
 				DA559C4A2B02622600F59584 /* SendRoutableMock.swift in Sources */,
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
+				B050F5082B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift in Sources */,
 				DC7D3A0729E06365007BCD23 /* GenericBackupServiceFactory.swift in Sources */,
 				2DC5676A2B0DFFAF00B0244F /* ManageTokensCoordinator.swift in Sources */,
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
