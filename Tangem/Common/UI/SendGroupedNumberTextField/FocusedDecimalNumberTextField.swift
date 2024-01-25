@@ -9,14 +9,26 @@
 import Foundation
 import SwiftUI
 
-/// It same as`DecimalNumberTextField` but with support focus state and toolbar buttons
+/// It same as`DecimalNumberTextField` but with support focus state / toolbar buttons / suffix
 @available(iOS 15.0, *)
 struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     @FocusState private var isInputActive: Bool
-    private var maximumFractionDigits: Int
-    private var font: Font = Fonts.Regular.title1
     private let toolbarButton: () -> ToolbarButton
+
+    private var maximumFractionDigits: Int
+    private var placeholderColor: Color = Colors.Text.disabled
+    private var textColor: Color = Colors.Text.primary1
+    private var font: Font = Fonts.Regular.title1
+    private var suffix: String? = nil
+    private var suffixColor: Color {
+        switch decimalValue {
+        case .none:
+            return placeholderColor
+        case .some:
+            return textColor
+        }
+    }
 
     init(
         decimalValue: Binding<DecimalNumberTextField.DecimalValue?>,
@@ -29,6 +41,22 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     }
 
     var body: some View {
+        HStack(alignment: .bottom, spacing: 8) {
+            textField
+
+            if let suffix {
+                Text(suffix)
+                    .style(font, color: suffixColor)
+                    .onTapGesture {
+                        isInputActive = true
+                    }
+            }
+        }
+        .lineLimit(1)
+    }
+
+    @ViewBuilder
+    private var textField: some View {
         DecimalNumberTextField(
             decimalValue: $decimalValue,
             decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
@@ -65,12 +93,12 @@ extension FocusedDecimalNumberTextField: Setupable {
         map { $0.maximumFractionDigits = digits }
     }
 
-    func isInputActive(_ active: Bool) -> Self {
-        map { $0.isInputActive = active }
-    }
-
     func font(_ font: Font) -> Self {
         map { $0.font = font }
+    }
+
+    func suffix(_ suffix: String?) -> Self {
+        map { $0.suffix = suffix }
     }
 }
 
