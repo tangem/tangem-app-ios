@@ -15,7 +15,8 @@ class VisaWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    var visaBridgeInteractor: VisaBridgeInteractor?
+    private let transactionHistoryService: VisaTransactionHistoryService
+    private var visaBridgeInteractor: VisaBridgeInteractor?
 
     var accountAddress: String { visaBridgeInteractor?.accountAddress ?? .unknown }
 
@@ -39,6 +40,19 @@ class VisaWalletModel {
         limitsSubject.value
     }
 
+    var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
+        transactionHistoryService.statePublisher
+    }
+
+    var transactionHistoryItems: [TransactionListItem] {
+        let historyMapper = VisaTransactionHistoryMapper(currencySymbol: tokenItem.currencySymbol)
+        return historyMapper.mapTransactionListItem(from: transactionHistoryService.items)
+    }
+
+    var canFetchMoreTransactionHistory: Bool {
+        transactionHistoryService.canFetchMoreHistory
+    }
+
     let tokenItem: TokenItem
 
     private let balancesSubject = CurrentValueSubject<AppVisaBalances?, Never>(nil)
@@ -46,10 +60,28 @@ class VisaWalletModel {
     private let stateSubject = CurrentValueSubject<State, Never>(.notInitialized)
 
     private var updateTask: Task<Void, Never>?
+    private var historyReloadTask: Task<Void, Never>?
 
     init(userWalletModel: UserWalletModel) {
         let utils = VisaUtilities()
         tokenItem = .token(utils.visaToken, utils.visaBlockchain)
+
+        let apiService = VisaAPIServiceBuilder().build(
+            isTestnet: true,
+            urlSessionConfiguration: .defaultConfiguration,
+            logger: AppLog.shared
+        )
+        let cardPublicKey: String
+        if let wallet = userWalletModel.userWallet.card.wallets.first(where: { $0.curve == .secp256k1 }) {
+            cardPublicKey = wallet.publicKey.hexString
+        } else {
+            cardPublicKey = "Failed to find secp256k1 key"
+        }
+
+        transactionHistoryService = VisaTransactionHistoryService(
+            cardPublicKey: cardPublicKey,
+            apiService: apiService
+        )
 
         setupBridgeInteractor(using: userWalletModel)
     }
@@ -66,6 +98,7 @@ class VisaWalletModel {
 
         updateTask = Task { [weak self] in
             await self?.generalUpdateAsync()
+            self?.updateTask = nil
         }
     }
 
@@ -84,8 +117,36 @@ class VisaWalletModel {
 
             group.addTask { await self.loadBalancesAndLimits() }
 
+            group.addTask { await self.reloadHistoryAsync() }
+
             await group.waitForAll()
             stateSubject.send(.idle)
+        }
+    }
+
+    func reloadHistory() {
+        guard historyReloadTask == nil else {
+            return
+        }
+
+        historyReloadTask = Task { [weak self] in
+            await self?.reloadHistoryAsync()
+            self?.historyReloadTask = nil
+        }
+    }
+
+    func loadNextHistoryPage() {
+        guard historyReloadTask == nil else {
+            return
+        }
+
+        historyReloadTask = Task { [weak self] in
+            do {
+                try await self?.transactionHistoryService.loadNextPage()
+            } catch {
+                AppLog.shared.error(error)
+            }
+            self?.historyReloadTask = nil
         }
     }
 
@@ -120,6 +181,27 @@ class VisaWalletModel {
             }
         }
     }
+
+//    private func setupTransactionHistoryService(using userWalletModel: UserWalletModel) {
+    ////        let cardPublicKey = userWalletModel.userWallet.card.cardPublicKey.hexString
+//        let cardPublicKey = "03DEF02B1FECC8BD3CFD52CE93235194479E1DE931EF0F55DC194967E7CCC3D12C"
+//        let apiService = VisaAPIServiceBuilder().build(isTestnet: true, urlSessionConfiguration: .defaultConfiguration, logger: AppLog.shared)
+//        let dateFrom = Calendar.current.date(byAdding: .month, value: -2, to: Date())!
+//        let dateTo = Date()
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd"
+//        let dateFromString = dateFormatter.string(from: dateFrom)
+//        let dateToString = dateFormatter.string(from: dateTo)
+//        log("Loading history from \(dateFromString) till \(dateToString)")
+//        Task {
+//            do {
+//                let history = try await apiService.loadHistoryPage(request: VisaTransactionHistoryDTO.APIRequest(cardPublicKey: cardPublicKey, dateFrom: dateFromString, dateTo: dateToString))
+//                self.log("History loaded: \(history)")
+//            } catch {
+//                self.log("Failed to load tx history. Error: \(error)")
+//            }
+//        }
+//    }
 
     private func updateBalanceAndLimits() {
         Task { [weak self] in
@@ -160,6 +242,14 @@ class VisaWalletModel {
         } catch {
             limitsSubject.send(nil)
         }
+    }
+
+    private func reloadHistoryAsync() async {
+        await transactionHistoryService.reloadHistory()
+    }
+
+    private func log(_ message: @autoclosure () -> String) {
+        AppLog.shared.debug("\n\n[VisaWalletModel] \(message())\n\n")
     }
 }
 
