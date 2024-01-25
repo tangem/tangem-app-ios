@@ -14,18 +14,18 @@ public struct VisaTransactionHistoryDTO: Decodable {
 
     public struct APIRequest: Encodable {
         public let cardPublicKey: String
-        public let dateFrom: String
-        public let dateTo: String
+        public let offset: Int
+        public let numberOfItems: Int
 
-        public init(cardPublicKey: String, dateFrom: String, dateTo: String) {
+        public init(cardPublicKey: String, offset: Int, numberOfItems: Int) {
             self.cardPublicKey = cardPublicKey
-            self.dateFrom = dateFrom
-            self.dateTo = dateTo
+            self.offset = offset
+            self.numberOfItems = numberOfItems
         }
     }
 }
 
-public struct VisaTransactionRecord: Decodable {
+public struct VisaTransactionRecord: Decodable, Equatable {
     public let id: UInt64
     public let type: String
     public let status: String
@@ -85,7 +85,7 @@ public extension VisaTransactionRecord {
     }
 }
 
-public struct VisaTransactionRecordBlockchainRequest: Decodable {
+public struct VisaTransactionRecordBlockchainRequest: Decodable, Equatable {
     public let id: UInt64
     public let type: String
     public let status: String
