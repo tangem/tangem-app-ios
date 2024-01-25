@@ -93,10 +93,15 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     /// Use for set and update sheet to the state
-    private func updateToState(_ state: BottomScrollableSheetState) {
+    private func updateToState(
+        _ state: BottomScrollableSheetState,
+        velocity: CGFloat? = nil,
+        remainingProgress: CGFloat? = nil
+    ) {
         self.state = state
+        let animation = makeAnimation(velocity: velocity, remainingProgress: remainingProgress)
 
-        withAnimation(.easeOut) {
+        withAnimation(animation) {
             visibleHeight = height(for: state)
             updateStatusBarAppearance(to: state)
         }
@@ -136,12 +141,13 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     func headerDragGesture(onEnded value: DragGesture.Value) {
         let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
+        let velocity = value.velocityCompat.height
 
         // If the ended location below the hiding line
         if value.predictedEndLocation.y > hidingLine {
-            updateToState(.bottom)
+            updateToState(.bottom, velocity: velocity, remainingProgress: progress)
         } else {
-            updateToState(.top(trigger: .dragGesture))
+            updateToState(.top(trigger: .dragGesture), velocity: velocity, remainingProgress: 1.0 - progress)
         }
     }
 
@@ -169,11 +175,12 @@ final class BottomScrollableSheetStateObject: ObservableObject {
             // The user stop swipe below hiding line
             let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
             let isStoppedBelowHidingLine = visibleHeight < hidingLine
+            let velocity = value.velocity.y
 
             if isHighVelocity || isStoppedBelowHidingLine {
-                updateToState(.bottom)
+                updateToState(.bottom, velocity: velocity, remainingProgress: progress)
             } else {
-                updateToState(.top(trigger: .dragGesture))
+                updateToState(.top(trigger: .dragGesture), velocity: velocity, remainingProgress: 1.0 - progress)
             }
         }
 
@@ -197,6 +204,22 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
         updateVisibleHeight(visibleHeight)
     }
+
+    private func makeAnimation(velocity: CGFloat?, remainingProgress: CGFloat?) -> Animation {
+        guard let velocity, let remainingProgress else {
+            return Constants.defaultAnimation
+        }
+
+        let totalDistance = minHeight - headerHeight
+        let remainingDistance = totalDistance * remainingProgress
+        let duration = remainingDistance / abs(velocity)
+
+        guard duration.isFinite else {
+            return Constants.defaultAnimation
+        }
+
+        return .easeOut(duration: clamp(duration, min: Constants.minAnimationDuration, max: Constants.maxAnimationDuration))
+    }
 }
 
 // MARK: - Constants
@@ -205,5 +228,10 @@ private extension BottomScrollableSheetStateObject {
     enum Constants {
         static let hidingLineMultiplicator: CGFloat = 0.5
         static let sheetTopInset: CGFloat = 16.0
+        static let defaultAnimation: Animation = .easeOut
+        static let minAnimationDuration: TimeInterval = 0.075
+        /// Matches the default animation duration according to Apple's docs:
+        /// "The `easeOut` animation has a default duration of 0.35 seconds"
+        static let maxAnimationDuration: TimeInterval = 0.35
     }
 }
