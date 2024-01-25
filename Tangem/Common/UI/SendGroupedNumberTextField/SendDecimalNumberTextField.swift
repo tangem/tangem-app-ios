@@ -71,35 +71,33 @@ struct SendDecimalNumberTextField_Previews: PreviewProvider {
     @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
 
     static var previews: some View {
-        VStack(alignment: .leading) {
-            StatefulPreviewWrapper(decimalValue) { decimalValue in
+        ZStack {
+            Colors.Background.tertiary.ignoresSafeArea()
+            
+            VStack(alignment: .leading, spacing: 16) {
                 SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix("WEI")
-            }
-            .border(Color.purple)
-
-            StatefulPreviewWrapper(decimalValue) { decimalValue in
-                SendDecimalNumberTextField(decimalValue: decimalValue, maximumFractionDigits: 8)
+                    .padding()
+                    .background(Colors.Background.action)
+                
+                SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix(nil)
-            }
-            .border(Color.orange)
-
-            StatefulPreviewWrapper(decimalValue) { decimalValue in
-                SendDecimalNumberTextField(decimalValue: decimalValue, maximumFractionDigits: 8)
+                    .padding()
+                    .background(Colors.Background.action)
+                
+                SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix("USDT")
-            }
-            .border(Color.red)
-
-            StatefulPreviewWrapper(decimalValue) { decimalValue in
-                SendDecimalNumberTextField(decimalValue: decimalValue, maximumFractionDigits: 8)
+                    .padding()
+                    .background(Colors.Background.action)
+                
+                SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix("USDT")
                     .font(Fonts.Regular.body)
+                    .padding()
+                    .background(Colors.Background.action)
             }
-            .border(Color.green)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Colors.Background.tertiary)
-        .padding()
     }
 }
