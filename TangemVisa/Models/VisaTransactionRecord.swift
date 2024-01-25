@@ -68,23 +68,6 @@ public struct VisaTransactionRecord: Decodable, Equatable {
     }
 }
 
-public extension VisaTransactionRecord {
-    enum TransactionType: String, Decodable {
-        case undefined
-        case payment
-        case refund
-    }
-
-    enum TransactionStatus: String, Decodable {
-        case new
-        case declined
-        case authorized
-        case reverted
-        case settled
-        case unblocked
-    }
-}
-
 public struct VisaTransactionRecordBlockchainRequest: Decodable, Equatable {
     public let id: UInt64
     public let type: String
@@ -114,32 +97,5 @@ public struct VisaTransactionRecordBlockchainRequest: Decodable, Equatable {
         case date = "requestDt"
         case transactionHash = "txHash"
         case transactionStatus = "txStatus"
-    }
-}
-
-public extension VisaTransactionRecordBlockchainRequest {
-    enum RequestType: String, Decodable {
-        case unableToIdentify
-        case authorizePayment
-        case refundRequest
-        case authorizationAdvice
-        case completeReversalAdvice
-        case completeReversalRequest
-        case settlement
-    }
-
-    enum RequestStatus: String, Decodable {
-        case new
-        case declined
-        case accepted
-    }
-
-    enum TransactionStatus: String, Decodable {
-        case new
-        case broadcasted
-        case confirmed
-        case broadcastingError
-        case failed
-        case manuallyFinished
     }
 }
