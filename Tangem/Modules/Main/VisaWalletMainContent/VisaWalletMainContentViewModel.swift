@@ -81,12 +81,27 @@ class VisaWalletMainContentViewModel: ObservableObject {
         coordinator.openExplorer(at: url, blockchainDisplayName: visaWalletModel.tokenItem.blockchain.displayName)
     }
 
-    func exploreTransaction(with id: String) {}
+    func exploreTransaction(with id: String) {
+        guard let txId = UInt64(id) else {
+            return
+        }
 
-    func reloadTransactionHistory() {}
+        AppLog.shared.debug("[Visa Main Content View Model] Explore transaction with id: \(id)")
+    }
+
+    func reloadTransactionHistory() {
+        isTransactoinHistoryReloading = true
+        visaWalletModel.reloadHistory()
+    }
 
     func fetchNextTransactionHistoryPage() -> FetchMore? {
-        return nil
+        guard visaWalletModel.canFetchMoreTransactionHistory else {
+            return nil
+        }
+
+        return FetchMore { [weak self] in
+            self?.visaWalletModel.loadNextHistoryPage()
+        }
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
@@ -94,9 +109,13 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
+        isTransactoinHistoryReloading = true
         updateTask = Task { [weak self] in
             await self?.visaWalletModel.generalUpdateAsync()
-            completionHandler()
+            self?.isTransactoinHistoryReloading = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                completionHandler()
+            }
             self?.updateTask = nil
         }
     }
@@ -108,13 +127,31 @@ class VisaWalletMainContentViewModel: ObservableObject {
             .sink { (self, newState) in
                 switch newState {
                 case .loading, .notInitialized:
-                    break
+                    return
                 case .idle:
                     self.updateLimits()
                 case .failedToInitialize(let error):
                     self.failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: error.notificationEvent)
                 }
             }
+            .store(in: &bag)
+
+        visaWalletModel.transactionHistoryStatePublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { viewModel, newState in
+                switch newState {
+                case .initial, .loading:
+                    return .loading
+                case .loaded:
+                    viewModel.isTransactoinHistoryReloading = false
+                    return .loaded(viewModel.visaWalletModel.transactionHistoryItems)
+                case .failedToLoad(let error):
+                    viewModel.isTransactoinHistoryReloading = false
+                    return .error(error)
+                }
+            }
+            .assign(to: \.transactionListViewState, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
