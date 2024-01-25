@@ -47,7 +47,7 @@ struct ManageTokensView: View {
                 ManageTokensItemView(viewModel: $0)
             }
 
-            addCutomTokenView
+            addCustomTokenView
 
             if viewModel.hasNextPage {
                 ProgressView()
@@ -57,7 +57,7 @@ struct ManageTokensView: View {
         }
     }
 
-    private var addCutomTokenView: some View {
+    private var addCustomTokenView: some View {
         ManageTokensAddCustomItemView {
             viewModel.addCustomTokenDidTapAction()
         }
