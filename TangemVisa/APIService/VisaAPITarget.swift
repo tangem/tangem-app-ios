@@ -40,8 +40,8 @@ struct VisaAPITarget: TargetType {
         case .transactionHistory(let request):
             return .requestParameters(parameters: [
                 ParameterKey.cardPublicKey.rawValue: request.cardPublicKey,
-                ParameterKey.dateFrom.rawValue: request.dateFrom,
-                ParameterKey.dateTo.rawValue: request.dateTo,
+                ParameterKey.limit.rawValue: request.numberOfItems,
+                ParameterKey.offset.rawValue: request.offset,
             ], encoding: URLEncoding())
         }
     }
@@ -56,7 +56,7 @@ extension VisaAPITarget {
 
     enum ParameterKey: String {
         case cardPublicKey = "card_public_key"
-        case dateFrom = "date_from"
-        case dateTo = "date_to"
+        case limit
+        case offset
     }
 }
