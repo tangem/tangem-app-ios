@@ -11,24 +11,11 @@ import SwiftUI
 
 struct SendDecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
-    @State private var isInputActive: Bool = false
 
     private var maximumFractionDigits: Int
     private var maxAmountAction: (() -> Void)?
     private var suffix: String? = nil
-
-    private var placeholderColor: Color = Colors.Text.disabled
-    private var textColor: Color = Colors.Text.primary1
     private var font: Font = Fonts.Regular.title1
-
-    private var currencySymbolColor: Color {
-        switch decimalValue {
-        case .none:
-            return placeholderColor
-        case .some:
-            return textColor
-        }
-    }
 
     init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>, maximumFractionDigits: Int) {
         _decimalValue = decimalValue
@@ -36,22 +23,6 @@ struct SendDecimalNumberTextField: View {
     }
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 8) {
-            textField
-
-            if let suffix {
-                Text(suffix)
-                    .style(font, color: currencySymbolColor)
-                    .onTapGesture {
-                        isInputActive = true
-                    }
-            }
-        }
-        .lineLimit(1)
-    }
-
-    @ViewBuilder
-    private var textField: some View {
         if #available(iOS 15, *) {
             FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits) {
                 if let action = maxAmountAction {
@@ -62,9 +33,8 @@ struct SendDecimalNumberTextField: View {
                 }
             }
             .maximumFractionDigits(maximumFractionDigits)
-            .isInputActive(isInputActive)
             .font(font)
-
+            .suffix(suffix)
         } else {
             DecimalNumberTextField(
                 decimalValue: $decimalValue,
