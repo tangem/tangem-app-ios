@@ -23,27 +23,12 @@ struct VisaWalletMainContentView: View {
                 action: viewModel.openDeposit
             )
 
-            Button(action: viewModel.openBalancesAndLimits, label: {
-                HStack {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Balances & Limits")
-                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            balancesAndLimitsView
 
-                        HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text(viewModel.cryptoLimitText)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-
-                            Text(viewModel.numberOfDaysLimitText)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                        }
-                    }
-
-                    Spacer()
-
-                    Assets.chevronRight.image
-                }
-                .defaultRoundedBackground()
-            })
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
 
             TransactionsListView(
                 state: viewModel.transactionListViewState,
@@ -59,14 +44,44 @@ struct VisaWalletMainContentView: View {
             VisaBalancesLimitsBottomSheetView(viewModel: model)
         }
     }
+
+    @ViewBuilder
+    private var balancesAndLimitsView: some View {
+        if let input = viewModel.failedToLoadInfoNotificationInput {
+            NotificationView(input: input)
+                .transition(.notificationTransition)
+        } else {
+            Button(action: viewModel.openBalancesAndLimits, label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Balances & Limits")
+                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text(viewModel.cryptoLimitText)
+                                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+
+                            Text(viewModel.numberOfDaysLimitText)
+                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        }
+                        .skeletonable(isShown: viewModel.isBalancesAndLimitsBlockLoading, size: .init(width: 160, height: 18), radius: 4)
+                    }
+
+                    Spacer()
+
+                    Assets.chevronRight.image
+                }
+                .defaultRoundedBackground()
+            })
+        }
+    }
 }
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.visa
-    let visaUtils = VisaUtilities()
     let coordinator = MainCoordinator()
     let viewModel = VisaWalletMainContentViewModel(
-        walletModel: visaUtils.getVisaWalletModel(for: userWalletModel),
+        visaWalletModel: .init(userWalletModel: userWalletModel),
         coordinator: coordinator
     )
 
