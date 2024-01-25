@@ -29,7 +29,15 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
     /// Otherwise, a drag gesture from the `headerGestureOverlayView` view is used.
     private var headerDragGestureMask: GestureMask { stateObject.state.isBottom ? .subviews : .all }
 
-    private var scrollViewBottomContentInset: CGFloat { max(overlayHeight, UIApplication.safeAreaInsets.bottom, 6.0) }
+    private var sheetVerticalOffset: CGFloat { stateObject.maxHeight - stateObject.visibleHeight }
+
+    private var scrollViewBottomContentInset: CGFloat {
+        return max(
+            overlayHeight,
+            UIApplication.safeAreaInsets.bottom + sheetVerticalOffset,
+            Constants.notchlessDevicesBottomInset + sheetVerticalOffset
+        )
+    }
 
     private let coordinateSpaceName = UUID()
 
@@ -154,7 +162,7 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
             }
         }
         .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
-        .offset(y: stateObject.maxHeight - stateObject.visibleHeight)
+        .offset(y: sheetVerticalOffset)
     }
 
     /// Restores default (system-driven) appearance of the status bar.
@@ -180,6 +188,7 @@ extension BottomScrollableSheet: Setupable {
 private extension BottomScrollableSheet {
     enum Constants {
         static var backgroundViewOpacity: CGFloat { 0.5 }
+        static var notchlessDevicesBottomInset: CGFloat { 6.0 }
     }
 }
 
