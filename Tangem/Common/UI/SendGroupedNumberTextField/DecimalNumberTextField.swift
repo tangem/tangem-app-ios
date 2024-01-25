@@ -11,6 +11,7 @@ import SwiftUI
 struct DecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalValue?
     @State private var textFieldText: String = ""
+    @State private var size: CGSize = .zero
 
     private let placeholder: String = "0"
     private var decimalNumberFormatter: DecimalNumberFormatter
@@ -27,6 +28,20 @@ struct DecimalNumberTextField: View {
     }
 
     var body: some View {
+        ZStack(alignment: .leading) {
+            Text(textFieldText.isEmpty ? placeholder : textFieldText)
+                .font(font)
+                .opacity(0)
+                .layoutPriority(1)
+                .readGeometry(\.frame.size, bindTo: $size)
+
+            textField
+                .frame(width: size.width)
+        }
+        .lineLimit(1)
+    }
+
+    private var textField: some View {
         TextField(placeholder, text: $textFieldText)
             .style(font, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
