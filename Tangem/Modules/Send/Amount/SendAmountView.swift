@@ -15,14 +15,6 @@ struct SendAmountView: View {
 
     private let iconSize = CGSize(bothDimensions: 36)
 
-    private var currencySymbol: String {
-        viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode
-    }
-
-    private var currencySymbolColor: Color {
-        (viewModel.amount?.value ?? 0) > 0 ? Colors.Text.primary1 : Colors.Text.disabled
-    }
-
     var body: some View {
         GroupedScrollView {
             GroupedSection(viewModel) { viewModel in
@@ -43,17 +35,11 @@ struct SendAmountView: View {
                     )
                     .padding(.top, 34)
 
-                    HStack(alignment: .bottom) {
-                        SendDecimalNumberTextField(
-                            decimalValue: $viewModel.amount,
-                            maximumFractionDigits: viewModel.amountFractionDigits
-                        )
-                        .fixedSize()
-
-                        Text(currencySymbol)
-                            .style(Fonts.Regular.title1, color: currencySymbolColor)
-                    }
-                    .lineLimit(1)
+                    SendDecimalNumberTextField(
+                        decimalValue: $viewModel.amount,
+                        maximumFractionDigits: viewModel.amountFractionDigits
+                    )
+                    .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
                     .padding(.top, 16)
 
                     Text(viewModel.amountAlternative)
