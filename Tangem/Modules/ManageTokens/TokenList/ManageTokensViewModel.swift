@@ -195,7 +195,7 @@ private extension ManageTokensViewModel {
             coinModel: coinModel,
             action: actionType(for: coinModel.id),
             state: .loaded,
-            didTapAction: handle(action:with:)
+            didTapAction: weakify(self, forFunction: ManageTokensViewModel.handle)
         )
     }
 
