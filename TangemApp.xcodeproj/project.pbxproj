@@ -3601,7 +3601,6 @@
 				B012A10E2AA5A6F80079BAB4 /* WalletModel+.swift */,
 				B012A1102AA5A75A0079BAB4 /* WalletModel+State.swift */,
 				EF0DD78F2B026A840099527D /* WalletModel+ExpressWallet.swift */,
-				EFA6164D2B62A96A0013A129 /* TransactionSendAvailabilityProvider.swift */,
 			);
 			path = WalletModel;
 			sourceTree = "<group>";
@@ -5658,6 +5657,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EFA6164F2B62CC510013A129 /* TransactionSendAvailabilityProvider */,
 				DA19D8C42B39AE3C001C91C4 /* QRCodeParser */,
 				EF5820462B33348B00940387 /* ExpressExchangeDataDecoder */,
 				EF6A8B012B278A5700CA3535 /* ExpressRepository */,
@@ -7065,6 +7065,14 @@
 				DC72548B2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift */,
 			);
 			path = ResetToFactory;
+			sourceTree = "<group>";
+		};
+		EFA6164F2B62CC510013A129 /* TransactionSendAvailabilityProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EFA6164D2B62A96A0013A129 /* TransactionSendAvailabilityProvider.swift */,
+			);
+			path = TransactionSendAvailabilityProvider;
 			sourceTree = "<group>";
 		};
 		EFA6B04A2955A3930090A92F /* Common */ = {
