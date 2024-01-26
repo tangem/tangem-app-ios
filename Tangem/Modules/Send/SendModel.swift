@@ -92,6 +92,7 @@ class SendModel {
     private let addressService: SendAddressService
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
+    private var didSetCustomFee = false
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -211,7 +212,7 @@ class SendModel {
 
                 if let customFee = feeValues[.custom]?.value,
                    let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
-                   _customFee.value == nil {
+                   !didSetCustomFee {
                     _customFee.send(customFee)
                     _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
                     _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
@@ -359,7 +360,9 @@ class SendModel {
     }
 
     func didChangeCustomFee(_ value: Fee?) {
+        didSetCustomFee = true
         _customFee.send(value)
+        fee.send(value)
 
         if let ethereumParams = value?.parameters as? EthereumFeeParameters {
             _customFeeGasLimit.send(ethereumParams.gasLimit)
@@ -388,6 +391,7 @@ class SendModel {
             newFee = nil
         }
 
+        didSetCustomFee = true
         _customFee.send(newFee)
         fee.send(newFee)
     }
@@ -406,7 +410,12 @@ class SendModel {
             ]
 
             if feeOptions.contains(.custom) {
-                fees[.custom] = fees[.market]
+                if let customFee = _customFee.value,
+                   didSetCustomFee {
+                    fees[.custom] = .loaded(customFee)
+                } else {
+                    fees[.custom] = fees[.market]
+                }
             }
 
             return fees
