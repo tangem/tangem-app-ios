@@ -85,6 +85,29 @@ struct BalanceFormatter {
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(code)"
     }
 
+    func formatFiatBalance(_ value: Decimal?, fiatCurrencyCode: Int, formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions) -> String {
+        guard let balance = value else {
+            return Self.defaultEmptyBalanceString
+        }
+
+        let iso4217Converter = ISO4217CodeConverter.shared
+        let code = iso4217Converter.convertToStringCode(numericCode: fiatCurrencyCode) ?? "\(fiatCurrencyCode)"
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+        formatter.numberStyle = .currency
+        formatter.usesGroupingSeparator = true
+        formatter.currencyCode = code
+        formatter.minimumFractionDigits = formattingOptions.minFractionDigits
+        formatter.maximumFractionDigits = formattingOptions.maxFractionDigits
+
+        if code == "RUB" {
+            formatter.currencySymbol = "₽"
+        }
+
+        let valueToFormat = roundDecimal(balance, with: formattingOptions.roundingType)
+        return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(fiatCurrencyCode)"
+    }
+
     /// Format fiat balance string for main page with different font for integer and fractional parts
     /// - Parameters:
     ///   - fiatBalance: Fiat balance should be formatted and with currency symbol. Use `formatFiatBalance(Decimal, BalanceFormattingOptions)
