@@ -15,7 +15,7 @@ struct SendSummaryView: View {
 
     var body: some View {
         VStack {
-            GroupedScrollView {
+            GroupedScrollView(spacing: 14) {
                 GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
                     SendWalletSummaryView(viewModel: viewModel)
                 }
