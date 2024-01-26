@@ -45,6 +45,9 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         $amount
+            .removeDuplicates { $0?.value == $1?.value }
+            .dropFirst()
+            .filter { $0?.isInternal ?? true }
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { (self, value) in
