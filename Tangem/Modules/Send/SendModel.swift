@@ -11,6 +11,13 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
+extension SendModel {
+    enum FeeUpdateError: Error {
+        case feeIncrased
+        case failedToGetFee
+    }
+}
+
 class SendModel {
     var amountValid: AnyPublisher<Bool, Never> {
         amount
@@ -123,6 +130,24 @@ class SendModel {
         transaction.value
     }
 
+    func updateFees(errorHandler: @escaping (FeeUpdateError) -> Void) {
+        updateFees(amount: amount.value, destination: destination.value, errorHandler: errorHandler)
+//        guard let oldFee = fee.value?.amount else { return .justWithError(output: ()) }
+
+//        return fetchFees()
+//            .tryMap { [weak self] _ in
+//                guard let newFee = self?.fee.value?.amount else { return }
+//
+//                print("ZZZ fee new-old", newFee, oldFee)
+//                if newFee > oldFee {
+//                    throw FeeUpdateError.feeIncrased
+//                } else {
+//                    return
+//                }
+//            }
+//            .eraseToAnyPublisher()
+    }
+
     func send() {
         guard var transaction = transaction.value else {
             AppLog.shared.debug("Transaction object hasn't been created")
@@ -167,42 +192,12 @@ class SendModel {
             }
             .store(in: &bag)
 
-        #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest(amount, destination)
             .removeDuplicates {
                 $0 == $1
             }
-            .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Never> in
-                guard
-                    let self,
-                    let amount,
-                    let destination
-                else {
-                    return .just(output: [])
-                }
-
-                #warning("[REDACTED_TODO_COMMENT]")
-                return walletModel
-                    .getFee(amount: amount, destination: destination)
-                    .receive(on: DispatchQueue.main)
-                    .catch { [weak self] error in
-                        #warning("[REDACTED_TODO_COMMENT]")
-                        return Just([Fee]())
-                    }
-                    .eraseToAnyPublisher()
-            }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-            .sink { [weak self] fees in
-                guard let self else { return }
-
-                let feeValues = feeValues(fees)
-                _feeValues.send(feeValues)
-
-                if let marketFee = feeValues[selectedFeeOption],
-                   let marketFeeValue = marketFee.value {
-                    fee.send(marketFeeValue)
-                }
+            .sink { [weak self] amount, destination in
+                self?.updateFees(amount: amount, destination: destination, errorHandler: { _ in })
             }
             .store(in: &bag)
 
@@ -239,6 +234,48 @@ class SendModel {
                 print("TX built", transaction != nil)
             }
             .store(in: &bag)
+    }
+
+    private var feeUpdateSubscription: AnyCancellable?
+
+    private func updateFees(amount: Amount?, destination: String?, errorHandler: @escaping (FeeUpdateError) -> Void) {
+        let currentFeeAmount = fee.value?.amount
+
+        feeUpdateSubscription = Publishers.CombineLatest(Just(amount), Just(destination))
+            .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Error> in
+                guard
+                    let self,
+                    let amount,
+                    let destination
+                else {
+                    return .justWithError(output: [])
+                }
+
+                return walletModel
+                    .getFee(amount: amount, destination: destination)
+                    .receive(on: DispatchQueue.main)
+                    .eraseToAnyPublisher()
+            }
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { completion in
+                if case .failure = completion {
+                    errorHandler(FeeUpdateError.failedToGetFee)
+                }
+            }, receiveValue: { [weak self] fees in
+                guard let self else { return }
+
+                let feeValues = feeValues(fees)
+                _feeValues.send(feeValues)
+
+                if let marketFee = feeValues[selectedFeeOption],
+                   let marketFeeValue = marketFee.value {
+                    fee.send(marketFeeValue)
+
+                    if let currentFeeAmount, marketFeeValue.amount > currentFeeAmount {
+                        errorHandler(FeeUpdateError.feeIncrased)
+                    }
+                }
+            })
     }
 
     private func explorerUrl(from hash: String) -> URL? {
