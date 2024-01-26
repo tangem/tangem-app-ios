@@ -55,6 +55,8 @@ class VisaWalletModel {
 
     let tokenItem: TokenItem
 
+    private let userWalletModel: UserWalletModel
+
     private let balancesSubject = CurrentValueSubject<AppVisaBalances?, Never>(nil)
     private let limitsSubject = CurrentValueSubject<AppVisaLimits?, Never>(nil)
     private let stateSubject = CurrentValueSubject<State, Never>(.notInitialized)
@@ -63,6 +65,7 @@ class VisaWalletModel {
     private var historyReloadTask: Task<Void, Never>?
 
     init(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
         let utils = VisaUtilities()
         tokenItem = .token(utils.visaToken, utils.visaBlockchain)
 
@@ -83,7 +86,7 @@ class VisaWalletModel {
             apiService: apiService
         )
 
-        setupBridgeInteractor(using: userWalletModel)
+        setupBridgeInteractor()
     }
 
     func exploreURL() -> URL? {
@@ -91,18 +94,12 @@ class VisaWalletModel {
         return linkProvider.url(address: accountAddress, contractAddress: tokenItem.token?.contractAddress)
     }
 
-    func startGeneralUpdate() {
-        guard updateTask == nil else {
+    func generalUpdateAsync() async {
+        if visaBridgeInteractor == nil {
+            await setupBridgeInteractorAsync()
             return
         }
 
-        updateTask = Task { [weak self] in
-            await self?.generalUpdateAsync()
-            self?.updateTask = nil
-        }
-    }
-
-    func generalUpdateAsync() async {
         await withTaskGroup(of: Void.self) { [weak self] group in
             guard let self else { return }
 
@@ -146,7 +143,13 @@ class VisaWalletModel {
         }
     }
 
-    private func setupBridgeInteractor(using userWalletModel: UserWalletModel) {
+    private func setupBridgeInteractor() {
+        Task { [weak self] in
+            await self?.setupBridgeInteractorAsync()
+        }
+    }
+
+    private func setupBridgeInteractorAsync() async {
         guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem == tokenItem
         }) else {
@@ -164,17 +167,13 @@ class VisaWalletModel {
             return
         }
 
-        Task { [weak self] in
-            guard let self else { return }
-
-            let builder = VisaBridgeInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
-            do {
-                let interactor = try await builder.build(for: walletModel.defaultAddress, logger: AppLog.shared)
-                visaBridgeInteractor = interactor
-                await generalUpdateAsync()
-            } catch {
-                stateSubject.send(.failedToInitialize(.noPaymentAccount))
-            }
+        let builder = VisaBridgeInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
+        do {
+            let interactor = try await builder.build(for: walletModel.defaultAddress, logger: AppLog.shared)
+            visaBridgeInteractor = interactor
+            await generalUpdateAsync()
+        } catch {
+            stateSubject.send(.failedToInitialize(.noPaymentAccount))
         }
     }
 
