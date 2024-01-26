@@ -36,7 +36,6 @@ struct SendSummaryView: View {
                             }
                         }
                     }
-                    .backgroundColor(Colors.Background.action)
                 }
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditDestination)
@@ -48,7 +47,6 @@ struct SendSummaryView: View {
                         AmountSummaryView(data: $0)
                     }
                     .interSectionPadding(12)
-                    .backgroundColor(Colors.Background.action)
                 }
                 .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
@@ -60,7 +58,6 @@ struct SendSummaryView: View {
                     GroupedSection(viewModel.feeSummaryViewData) { data in
                         DefaultTextWithTitleRowView(data: data)
                     }
-                    .backgroundColor(Colors.Background.action)
                 }
                 .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
