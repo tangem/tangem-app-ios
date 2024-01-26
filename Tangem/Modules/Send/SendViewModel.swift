@@ -174,6 +174,39 @@ final class SendViewModel: ObservableObject {
         }
 
         step = nextStep
+
+        if case .summary = step {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.updateFee()
+            }
+        }
+    }
+
+    private var feeUpdateSubscription: AnyCancellable?
+
+    private func updateFee() {
+//        feeUpdateSubscription = sendModel.updateFees()
+//            .sink { [weak self] completion in
+//                guard
+//                    case .failure(let error) = completion,
+//                    let feeUpdateError = (error as? SendModel.FeeUpdateError)
+//                else {
+//                    return
+//                }
+//
+//                let alertText: String
+//                switch feeUpdateError {
+//                case .feeIncrased:
+//                    #warning("l10n")
+//                    alertText = Localization.sendNotificationHighFeeTitle
+//                case .failedToGetFee:
+//                    #warning("l10n")
+//                    alertText = "the transaction is not completed"
+//                }
+//
+//                self?.alert = AlertBuilder.makeOkGotItAlert(message: "Failed to")
+//            } receiveValue: { _ in
+//            }
     }
 
     func back() {
