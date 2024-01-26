@@ -224,7 +224,7 @@ class SendFeeViewModel: ObservableObject {
         guard
             let enteredFee,
             let currentGasLimit = input.customGasLimit,
-            let enteredFeeInSmallestDenomination = BigUInt(decimal: enteredFee.value * feeDecimalValue)
+            let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee.value * feeDecimalValue).rounded(roundingMode: .down))
         else {
             return nil
         }
