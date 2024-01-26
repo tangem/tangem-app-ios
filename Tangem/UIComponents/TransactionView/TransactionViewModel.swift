@@ -78,7 +78,7 @@ struct TransactionViewModel: Hashable, Identifiable {
                     Localization.transactionHistoryMultipleAddresses
                 )
             }
-            // Temp solution for Visa
+        // Temp solution for Visa
         case .custom(let message):
             return message
         }
