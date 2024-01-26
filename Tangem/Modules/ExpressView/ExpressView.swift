@@ -68,8 +68,6 @@ struct ExpressView: View {
                 }
                 .interSectionPadding(12)
                 .interItemSpacing(10)
-                .verticalPadding(0)
-                .backgroundColor(Colors.Background.action)
 
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
@@ -78,8 +76,6 @@ struct ExpressView: View {
                 }
                 .interSectionPadding(12)
                 .interItemSpacing(10)
-                .verticalPadding(0)
-                .backgroundColor(Colors.Background.action)
             }
 
             swappingButton
@@ -125,10 +121,8 @@ struct ExpressView: View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
         }
-        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
         .interItemSpacing(10)
-        .verticalPadding(0)
     }
 
     @ViewBuilder
@@ -141,9 +135,7 @@ struct ExpressView: View {
                 ProviderRowView(viewModel: data)
             }
         }
-        .backgroundColor(Colors.Background.action)
         .interSectionPadding(12)
-        .verticalPadding(0)
     }
 
     @ViewBuilder
