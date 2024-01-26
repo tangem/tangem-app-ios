@@ -125,7 +125,6 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
                     }
                     .interSectionPadding(12)
                     .interItemSpacing(10)
-                    .verticalPadding(0)
                 }
             }
             .padding(.horizontal, 16)
