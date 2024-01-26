@@ -16,7 +16,7 @@ struct SendFeeView: View {
     let bottomSpacing: CGFloat
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) {
                 FeeRowView(viewModel: $0)
             } footer: {
