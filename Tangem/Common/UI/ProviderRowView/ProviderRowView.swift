@@ -151,7 +151,6 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
         ]) {
             ProviderRowView(viewModel: $0)
         }
-        .separatorStyle(.minimum)
         .interItemSpacing(14)
         .interSectionPadding(12)
         .padding()
