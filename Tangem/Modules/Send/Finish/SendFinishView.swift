@@ -15,7 +15,7 @@ struct SendFinishView: View {
 
     var body: some View {
         VStack {
-            GroupedScrollView {
+            GroupedScrollView(spacing: 14) {
                 header
                     .padding(.bottom, 24)
 

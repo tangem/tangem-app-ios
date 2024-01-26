@@ -67,7 +67,6 @@ struct ExpressView: View {
                         .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
                 }
                 .interSectionPadding(12)
-                .interItemSpacing(10)
 
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
@@ -75,7 +74,6 @@ struct ExpressView: View {
                         .didTapPriceChangePercent(viewModel.userDidTapPriceChangeInfoButton)
                 }
                 .interSectionPadding(12)
-                .interItemSpacing(10)
             }
 
             swappingButton
@@ -122,7 +120,6 @@ struct ExpressView: View {
             ExpressFeeRowView(viewModel: $0)
         }
         .interSectionPadding(12)
-        .interItemSpacing(10)
     }
 
     @ViewBuilder
