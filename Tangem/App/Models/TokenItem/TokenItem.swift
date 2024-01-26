@@ -110,15 +110,4 @@ enum TokenItem: Hashable, Codable {
             return blockchain.decimalCount
         }
     }
-
-    var feeTokenItem: TokenItem {
-        switch blockchain.feePaidCurrency {
-        case .coin:
-            .blockchain(blockchain)
-        case .token(let feeToken):
-            .token(feeToken, blockchain)
-        case .sameCurrency:
-            self
-        }
-    }
 }
