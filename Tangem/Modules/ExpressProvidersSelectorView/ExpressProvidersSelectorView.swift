@@ -28,7 +28,7 @@ struct ExpressProvidersSelectorView: View {
             }
             .interItemSpacing(14)
             .interSectionPadding(12)
-            .padding(.vertical, 16)
+            .padding(.vertical, 10)
 
             moreProvidersInformationView
         }
