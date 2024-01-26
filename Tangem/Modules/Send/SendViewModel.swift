@@ -160,6 +160,11 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         bind()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.sendModel.setDestination("TGPz1VgfdRMMDhyeQDtNi9xZjFpQacHGzH")
+            self.sendModel.setAmount(.init(with: walletModel.blockchainNetwork.blockchain, type: walletModel.amountType, value: 1))
+        }
     }
 
     func next() {
