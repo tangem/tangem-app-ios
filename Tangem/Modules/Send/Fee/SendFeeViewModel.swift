@@ -170,8 +170,7 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func makeFeeRowViewModels(_ feeValues: [FeeOption: LoadingValue<Fee>]) -> [FeeRowViewModel] {
-        let formattedFeeValuePairs: [(FeeOption, LoadingValue<String?>)] = feeValues.map {
-            feeOption, feeValue -> (FeeOption, LoadingValue<String?>) in
+        let formattedFeeValuePairs: [(FeeOption, LoadingValue<String?>)] = feeValues.map { feeOption, feeValue in
             guard feeOption != .custom else {
                 return (feeOption, .loaded(nil))
             }
