@@ -9,10 +9,15 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemVisa
 
-protocol VisaWalletRoutable: AnyObject {
-    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
+protocol VisaBlockchainExplorable: AnyObject {
     func openExplorer(at url: URL, blockchainDisplayName: String)
+}
+
+protocol VisaWalletRoutable: VisaBlockchainExplorable {
+    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
+    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord)
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
@@ -82,11 +87,15 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     func exploreTransaction(with id: String) {
-        guard let txId = UInt64(id) else {
+        guard
+            let transactionId = UInt64(id),
+            let transactionRecord = visaWalletModel.transaction(with: transactionId)
+        else {
             return
         }
 
-        AppLog.shared.debug("[Visa Main Content View Model] Explore transaction with id: \(id)")
+        coordinator.openTransactionDetails(tokenItem: visaWalletModel.tokenItem, for: transactionRecord)
+        AppLog.shared.debug("[Visa Main Content View Model] Explore transaction with id: \(transactionId)")
     }
 
     func reloadTransactionHistory() {
@@ -112,8 +121,8 @@ class VisaWalletMainContentViewModel: ObservableObject {
         isTransactoinHistoryReloading = true
         updateTask = Task { [weak self] in
             await self?.visaWalletModel.generalUpdateAsync()
-            self?.isTransactoinHistoryReloading = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self?.isTransactoinHistoryReloading = false
                 completionHandler()
             }
             self?.updateTask = nil
