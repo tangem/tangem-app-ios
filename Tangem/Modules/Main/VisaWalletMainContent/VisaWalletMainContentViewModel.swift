@@ -138,6 +138,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
         visaWalletModel.transactionHistoryStatePublisher
             .receive(on: DispatchQueue.main)
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { viewModel, newState in
                 switch newState {
