@@ -14,13 +14,11 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    private var verticalPadding: CGFloat = 12
-    private var horizontalPadding: CGFloat = 16
-    private var separatorPadding: CGFloat = 16
-    private var separatorStyle: SeparatorStyle = .single
+    private var horizontalPadding: CGFloat = 14
+    private var separatorStyle: SeparatorStyle = .minimum
     private var interItemSpacing: CGFloat = 0
     private var interSectionPadding: CGFloat = 0
-    private var backgroundColor: Color = Colors.Background.primary
+    private var backgroundColor: Color = Colors.Background.action
     private var contentAlignment: HorizontalAlignment = .leading
 
     init(
@@ -58,21 +56,24 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 VStack(alignment: contentAlignment, spacing: interItemSpacing) {
                     ForEach(models) { model in
                         content(model)
+                            .border(Color.orange)
                             .padding(.horizontal, horizontalPadding)
+                            .border(Color.red)
 
                         if models.last?.id != model.id {
                             separator
                         }
                     }
                 }
+                .border(Color.purple)
                 .padding(.vertical, interSectionPadding)
                 .background(backgroundColor)
-                .cornerRadius(12)
+                .cornerRadiusContinuous(14)
 
                 footer()
                     .padding(.horizontal, horizontalPadding)
             }
-            .padding(.vertical, verticalPadding)
+            .border(Color.blue)
         }
     }
 
@@ -84,10 +85,10 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
             Colors.Stroke.primary
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
-                .padding(.leading, separatorPadding)
+                .padding(.leading, horizontalPadding)
         case .minimum:
             Separator(height: .minimal, color: Colors.Stroke.primary)
-                .padding(.leading, separatorPadding)
+                .padding(.leading, horizontalPadding)
         }
     }
 }
@@ -101,16 +102,8 @@ extension GroupedSection {
 }
 
 extension GroupedSection: Setupable {
-    func verticalPadding(_ padding: CGFloat) -> Self {
-        map { $0.verticalPadding = padding }
-    }
-
     func horizontalPadding(_ padding: CGFloat) -> Self {
         map { $0.horizontalPadding = padding }
-    }
-
-    func separatorPadding(_ padding: CGFloat) -> Self {
-        map { $0.separatorPadding = padding }
     }
 
     func separatorStyle(_ style: SeparatorStyle) -> Self {
