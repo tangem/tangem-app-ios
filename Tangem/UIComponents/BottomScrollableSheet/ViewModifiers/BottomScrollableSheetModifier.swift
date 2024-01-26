@@ -9,13 +9,16 @@
 import SwiftUI
 
 private struct BottomScrollableSheetModifier<
+    Item,
     SheetHeader,
     SheetContent,
     SheetOverlay
->: ViewModifier where SheetHeader: View, SheetContent: View, SheetOverlay: View {
-    @ViewBuilder let sheetHeader: () -> SheetHeader
-    @ViewBuilder let sheetContent: () -> SheetContent
-    @ViewBuilder let sheetOverlay: () -> SheetOverlay
+>: ViewModifier where Item: Identifiable, SheetHeader: View, SheetContent: View, SheetOverlay: View {
+    let item: Item
+
+    @ViewBuilder let sheetHeader: (_ item: Item) -> SheetHeader
+    @ViewBuilder let sheetContent: (_ item: Item) -> SheetContent
+    @ViewBuilder let sheetOverlay: (_ item: Item) -> SheetOverlay
 
     @StateObject private var stateObject = BottomScrollableSheetStateObject()
 
@@ -30,9 +33,9 @@ private struct BottomScrollableSheetModifier<
 
             BottomScrollableSheet(
                 stateObject: stateObject,
-                header: sheetHeader,
-                content: sheetContent,
-                overlay: sheetOverlay
+                header: sheetHeader(item),
+                content: sheetContent(item),
+                overlay: sheetOverlay(item)
             )
             .prefersGrabberVisible(configuration.prefersGrabberVisible)
             .isHiddenWhenCollapsed(configuration.isHiddenWhenCollapsed)
@@ -46,29 +49,34 @@ private struct BottomScrollableSheetModifier<
 
 extension View {
     /// An overload that supports `overlay` view
-    func bottomScrollableSheet<Header, Content, Overlay>(
-        @ViewBuilder header: @escaping () -> Header,
-        @ViewBuilder content: @escaping () -> Content,
-        @ViewBuilder overlay: @escaping () -> Overlay
-    ) -> some View where Header: View, Content: View, Overlay: View {
+    func bottomScrollableSheet<Item, Header, Content, Overlay>(
+        item: Item,
+        @ViewBuilder header: @escaping (_ item: Item) -> Header,
+        @ViewBuilder content: @escaping (_ item: Item) -> Content,
+        @ViewBuilder overlay: @escaping (_ item: Item) -> Overlay
+    ) -> some View where Item: Identifiable, Header: View, Content: View, Overlay: View {
         modifier(
             BottomScrollableSheetModifier(
+                item: item,
                 sheetHeader: header,
                 sheetContent: content,
                 sheetOverlay: overlay
             )
         )
+        .id(item.id)
     }
 
     /// An overload without `overlay` view support.
-    func bottomScrollableSheet<Header, Content>(
-        @ViewBuilder header: @escaping () -> Header,
-        @ViewBuilder content: @escaping () -> Content
-    ) -> some View where Header: View, Content: View {
+    func bottomScrollableSheet<Item, Header, Content>(
+        item: Item,
+        @ViewBuilder header: @escaping (_ item: Item) -> Header,
+        @ViewBuilder content: @escaping (_ item: Item) -> Content
+    ) -> some View where Item: Identifiable, Header: View, Content: View {
         return bottomScrollableSheet(
+            item: item,
             header: header,
             content: content,
-            overlay: { EmptyView() }
+            overlay: { _ in EmptyView() }
         )
     }
 }
