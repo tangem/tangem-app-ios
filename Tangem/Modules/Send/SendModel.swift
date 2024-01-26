@@ -205,9 +205,9 @@ class SendModel {
                 let feeValues = feeValues(fees)
                 _feeValues.send(feeValues)
 
-                if let marketFee = feeValues[selectedFeeOption],
-                   let marketFeeValue = marketFee.value {
-                    fee.send(marketFeeValue)
+                if let selectedFee = feeValues[selectedFeeOption],
+                   let selectedFeeValue = selectedFee.value {
+                    fee.send(selectedFeeValue)
                 }
 
                 if let customFee = feeValues[.custom]?.value,
