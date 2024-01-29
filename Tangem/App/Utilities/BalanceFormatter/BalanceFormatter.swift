@@ -76,7 +76,7 @@ struct BalanceFormatter {
     /// - Returns: Formatted balance string, if `value` is nil, returns `defaultEmptyBalanceString`
     func formatFiatBalance(_ value: Decimal?, numericCurrencyCode: Int, formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions) -> String {
         let iso4217Converter = ISO4217CodeConverter.shared
-        let code = iso4217Converter.convertToStringCode(numericCode: numericCurrencyCode) ?? "\(numericCurrencyCode)"
+        let code = iso4217Converter.convertToStringCode(numericCode: numericCurrencyCode) ?? "???"
         return formatFiatBalance(value, currencyCode: code, formattingOptions: formattingOptions)
     }
 
