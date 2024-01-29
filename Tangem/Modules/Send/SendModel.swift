@@ -237,9 +237,18 @@ class SendModel {
             }
             .receive(on: RunLoop.main)
             .sink { [weak self] result in
-                if case .failure = result {
-                    completion(.failedToGetFee)
+                guard
+                    let self,
+                    case .failure = result
+                else {
+                    return
                 }
+
+                let pairs: [(FeeOption, LoadingValue<Fee>)] = feeOptions.map { ($0, .failedToLoad(error: WalletError.failedToGetFee)) }
+                let feeValues = Dictionary(pairs, uniquingKeysWith: { v1, _ in v1 })
+                _feeValues.send(feeValues)
+
+                completion(.failedToGetFee)
             } receiveValue: { [weak self] fees in
                 guard let self else { return }
 
