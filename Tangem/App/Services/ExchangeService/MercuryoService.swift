@@ -19,7 +19,7 @@ private enum QueryKey: String {
     case signature
     case lang
     case fix_currency
-    case return_url
+    case redirect_url
     case theme
 }
 
@@ -68,7 +68,7 @@ class MercuryoService {
 extension MercuryoService: ExchangeService {
     var initializationPublisher: Published<Bool>.Publisher { $initialized }
 
-    var successCloseUrl: String { "https://success.tangem.com" }
+    var successCloseUrl: String { DismissSafariURLService().buildURL().absoluteString }
 
     var sellRequestUrl: String { "" }
 
@@ -114,7 +114,7 @@ extension MercuryoService: ExchangeService {
         queryItems.append(.init(key: .address, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .signature, value: signature(for: walletAddress).addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .fix_currency, value: "true"))
-        queryItems.append(.init(key: .return_url, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
+        queryItems.append(.init(key: .redirect_url, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
 
         if let languageCode = Locale.current.languageCode {
             queryItems.append(.init(key: .lang, value: languageCode))
