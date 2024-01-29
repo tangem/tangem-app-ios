@@ -82,9 +82,8 @@ class SendSummaryViewModel: ObservableObject {
     func send() {
         guard let screenIdleStartTime else { return }
 
-        let feeValidityInterval: TimeInterval = 5
+        let feeValidityInterval: TimeInterval = 60
         let now = Date()
-
         if now.timeIntervalSince(screenIdleStartTime) <= feeValidityInterval {
             input.send()
             return
@@ -98,7 +97,7 @@ class SendSummaryViewModel: ObservableObject {
                 self?.screenIdleStartTime = Date()
 
                 if let oldFee, newFee > oldFee {
-                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertFeeIncreasedTitle)
+                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendAlertFeeIncreasedTitle)
                 } else {
                     self?.input.send()
                 }
