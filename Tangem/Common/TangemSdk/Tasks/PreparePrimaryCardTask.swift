@@ -69,6 +69,16 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     }
 
     private func checkIfAllWalletsCreated(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+
+        guard card.firmwareVersion >= .multiwalletAvailable else {
+            completion(.success(.init(card: card, primaryCard: nil)))
+            return
+        }
+
         let command = ReadWalletsListCommand()
         commandBag = command
         command.run(in: session) { result in
