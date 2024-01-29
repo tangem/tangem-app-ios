@@ -63,7 +63,7 @@ struct VisaTransactionDetailsView: View {
     private func cryptoRequestView(_ info: CryptoRequestInfo) -> some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Blockchain request")
+                Text("Transaction request")
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
