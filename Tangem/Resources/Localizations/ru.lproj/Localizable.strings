@@ -424,6 +424,10 @@
 "scan_card_settings_button" = "Сканировать";
 "scan_card_settings_message" = "Отсканируйте карту, чтобы изменить ее настройки. Изменения затронут только ту карту, которую вы отсканировали, и не повлияют на другие карты, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свою карту";
+"send_alert_button_request_support" = "Поддержка";
+"send_alert_fee_increased_title" = "Комиссия увеличилась";
+"send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
+"send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
 "send_amount_substract" = "Вычесть из суммы отправки";
 "send_amount_substract_footer" = "Сумма к получению %@";
@@ -460,6 +464,8 @@
 "send_notification_exceed_fee_title" = "Комиссия превышает баланс";
 "send_notification_existential_deposit_text" = "The account will be wiped from the blockchain if a balance goes below the existential deposit. Please ensure that the remaining balance after sending will not be less than %@.";
 "send_notification_existential_deposit_title" = "Existential deposit";
+"send_notification_fee_too_high_accept" = "Оставить %s XTZ";
+"send_notification_fee_too_high_ignore" = "Отправить все";
 "send_notification_fee_too_high_text" = "Сумма комиссии в %@ раз превышает рекомендованную. Убедитесь, что указанная комиссия верна.";
 "send_notification_fee_too_high_title" = "Установлена высокая комиссия";
 "send_notification_high_fee_text" = "Комиссия при переводе всего баланса выше. Для того, чтобы снизить комиссию Вы можете оставить 0.01.";
