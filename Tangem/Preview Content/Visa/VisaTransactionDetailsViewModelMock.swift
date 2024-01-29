@@ -23,7 +23,7 @@ extension VisaTransactionDetailsViewModel {
             let transaction = try decoder.decode(VisaTransactionRecord.self, from: jsonContent.data(using: .utf8)!)
             let utils = VisaUtilities()
             let tokenItem = TokenItem.token(utils.visaToken, utils.visaBlockchain)
-            return .init(tokenItem: tokenItem, transaction: transaction, blockchainExplorer: nil)
+            return .init(tokenItem: tokenItem, transaction: transaction)
         } catch {
             print("\n\n\nFailed to create UI mock. Error: \(error)\n\n\n")
             fatalError("Failed to create UI mock. Error: \(error)")
