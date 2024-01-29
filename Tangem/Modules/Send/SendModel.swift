@@ -79,6 +79,7 @@ class SendModel {
     private let _amountError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
+    private let _feeError = CurrentValueSubject<Error?, Never>(nil)
 
     // MARK: - Private stuff
 
@@ -256,22 +257,46 @@ class SendModel {
     }
 
     private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
-        let amount: Amount?
+        let validatedAmount: Amount?
         let error: Error?
 
-        if let newAmount,
-           let fee,
-           isFeeIncluded {
-            amount = newAmount - fee.amount
+        if let newAmount {
+            do {
+                let amount: Amount
+                if let fee,
+                   isFeeIncluded {
+                    amount = newAmount - fee.amount
+                } else {
+                    amount = newAmount
+                }
+                try walletModel.transactionCreator.validate(amount: amount)
+
+                validatedAmount = amount
+                error = nil
+            } catch let validationError {
+                validatedAmount = nil
+                error = validationError
+            }
         } else {
-            amount = newAmount
+            validatedAmount = nil
+            error = nil
         }
 
-        #warning("validate")
-        error = nil
+        let feeError: Error?
+        if let fee {
+            do {
+                try walletModel.transactionCreator.validate(fee: fee)
+                feeError = nil
+            } catch let feeValidationError {
+                feeError = feeValidationError
+            }
+        } else {
+            feeError = nil
+        }
 
-        self.amount.send(amount)
+        amount.send(validatedAmount)
         _amountError.send(error)
+        _feeError.send(feeError)
     }
 
     // MARK: - Destination and memo
