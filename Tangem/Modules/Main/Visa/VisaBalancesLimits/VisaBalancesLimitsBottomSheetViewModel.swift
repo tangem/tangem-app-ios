@@ -57,6 +57,6 @@ class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func openLimitsInfo() {
-        alert = AlertBinder(title: "", message: "Limits are needed to control costs, improve security, manage risk. You can spend 1 000 USDT during the week for card payments in shops and 100 USDT for other transactions, e. g. subscriptions or debts.")
+        alert = AlertBinder(title: "", message: "Limits are needed to control costs, improve security, manage risk. You can spend \(remainingOTPAmount) during the period for card payments in shops and \(remainingNoOtpAmount) for other transactions, e.g. subscriptions or debts.")
     }
 }
