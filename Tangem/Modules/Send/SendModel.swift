@@ -11,13 +11,6 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-extension SendModel {
-    enum FeeUpdateError: Error {
-        case feeIncrased
-        case failedToGetFee
-    }
-}
-
 class SendModel {
     var amountValid: AnyPublisher<Bool, Never> {
         amount
@@ -94,6 +87,7 @@ class SendModel {
     private let addressService: SendAddressService
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
+    private var lastTimeFeesWereFetched: Date?
     private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -131,7 +125,7 @@ class SendModel {
         transaction.value
     }
 
-    func updateFees(completion: @escaping (Bool) -> Void) {
+    func updateFees(completion: @escaping (FeeUpdateResult) -> Void) {
         updateFees(amount: amount.value, destination: destination.value, completion: completion)
     }
 
@@ -223,7 +217,9 @@ class SendModel {
             .store(in: &bag)
     }
 
-    private func updateFees(amount: Amount?, destination: String?, completion: @escaping (Bool) -> Void) {
+    private func updateFees(amount: Amount?, destination: String?, completion: @escaping (FeeUpdateResult) -> Void) {
+        let oldFeeAmount = fee.value
+
         feeUpdateSubscription = Publishers.CombineLatest(Just(amount), Just(destination))
             .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Error> in
                 guard
@@ -240,26 +236,27 @@ class SendModel {
                     .eraseToAnyPublisher()
             }
             .receive(on: RunLoop.main)
-            .sink { result in
+            .sink { [weak self] result in
                 if case .failure = result {
-                    completion(false)
+                    completion(.failedToGetFee)
                 }
             } receiveValue: { [weak self] fees in
                 guard let self else { return }
 
                 let feeValues = feeValues(fees)
                 _feeValues.send(feeValues)
+                lastTimeFeesWereFetched = Date()
 
                 guard
                     let marketFee = feeValues[selectedFeeOption],
                     let marketFeeValue = marketFee.value
                 else {
-                    completion(false)
+                    completion(.failedToGetFee)
                     return
                 }
 
                 fee.send(marketFeeValue)
-                completion(true)
+                completion(.success(oldFee: oldFeeAmount?.amount, newFee: marketFeeValue.amount))
             }
     }
 
