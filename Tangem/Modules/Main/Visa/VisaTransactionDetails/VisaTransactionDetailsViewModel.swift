@@ -23,7 +23,7 @@ class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
             status: transaction.status,
             blockchainAmount: balanceFormatter.formatCryptoBalance(transaction.blockchainAmount, currencyCode: tokenItem.currencySymbol),
             blockchainFee: balanceFormatter.formatCryptoBalance(transaction.blockchainFee, currencyCode: tokenItem.currencySymbol),
-            transactionAmount: balanceFormatter.formatFiatBalance(transaction.billingAmount, numericCurrencyCode: transaction.transactionCurrencyCode),
+            transactionAmount: balanceFormatter.formatFiatBalance(transaction.transactionAmount, numericCurrencyCode: transaction.transactionCurrencyCode),
             currencyCode: iso4217CodeConverter.convertToStringCode(numericCode: transaction.transactionCurrencyCode) ?? "\(transaction.transactionCurrencyCode)"
         )
     }
@@ -38,7 +38,7 @@ class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
                 status: request.status,
                 blockchainAmount: balanceFormatter.formatCryptoBalance(request.blockchainAmount, currencyCode: tokenItem.currencySymbol),
                 blockchainFee: balanceFormatter.formatCryptoBalance(request.blockchainFee, currencyCode: tokenItem.currencySymbol),
-                transactionAmount: balanceFormatter.formatFiatBalance(request.transactionAmount, numericCurrencyCode: request.billingCurrencyCode),
+                transactionAmount: balanceFormatter.formatFiatBalance(request.transactionAmount, numericCurrencyCode: request.transactionCurrencyCode),
                 currencyCode: iso4217CodeConverter.convertToStringCode(numericCode: request.transactionCurrencyCode) ?? "\(request.transactionCurrencyCode)"
             )
 
