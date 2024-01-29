@@ -56,4 +56,11 @@ class IncomingActionsTests: XCTestCase {
             XCTAssertTrue(false)
         }
     }
+
+    func testSafariClose() {
+        let urlString = "https://tangem.com/redirect?action=dismissSafariVC"
+        let service = DismissSafariURLService()
+        XCTAssertEqual(service.buildURL().absoluteString, urlString)
+        XCTAssertTrue(service.parse(URL(string: urlString)!) == .dismissSafariVC)
+    }
 }
