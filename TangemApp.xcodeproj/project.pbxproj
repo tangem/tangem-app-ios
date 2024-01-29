@@ -252,6 +252,12 @@
 		B035645D2950689700397787 /* WalletConnectServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B035645C2950689700397787 /* WalletConnectServiceError.swift */; };
 		B035645F29506C4D00397787 /* WalletConnectAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B035645E29506C4D00397787 /* WalletConnectAction.swift */; };
 		B03574C82B1F876300118786 /* PendingExpressTransactionStatusRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03574C72B1F876300118786 /* PendingExpressTransactionStatusRow.swift */; };
+		B036625F2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B036625E2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift */; };
+		B03662612B6384BA0064E073 /* VisaTransactionDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03662602B6384BA0064E073 /* VisaTransactionDetailsView.swift */; };
+		B03662652B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03662642B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift */; };
+		B03662662B638BBC0064E073 /* visaSingleTransaction.json in Resources */ = {isa = PBXBuildFile; fileRef = B03662632B63851B0064E073 /* visaSingleTransaction.json */; };
+		B03662692B63D7660064E073 /* iso4217Codes.plist in Resources */ = {isa = PBXBuildFile; fileRef = B03662682B63D7660064E073 /* iso4217Codes.plist */; };
+		B036626B2B63D77D0064E073 /* ISO4217CodeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */; };
 		B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */; };
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* LegacyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* LegacyCardView.swift */; };
@@ -1256,6 +1262,7 @@
 		EFA3B2212AC43C350037C48D /* MutipleAddressTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA3B2202AC43C350037C48D /* MutipleAddressTransactionHistoryService.swift */; };
 		EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580602893E4E200110DB0 /* LanguageCode.swift */; };
 		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
+		EFA6164E2B62A96B0013A129 /* TransactionSendAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6164D2B62A96A0013A129 /* TransactionSendAvailabilityProvider.swift */; };
 		EFA6B04029532D520090A92F /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
 		EFA6B04129532D990090A92F /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
 		EFA6B044295334AF0090A92F /* ResetToFactoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6B042295334AF0090A92F /* ResetToFactoryView.swift */; };
@@ -1305,7 +1312,6 @@
 		EFF466E22AC709BE00ACC3EA /* BalanceTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */; };
 		EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01178482AC1B86200C5AD07 /* FakeTokenQuotesRepository.swift */; };
 		EFF466EA2ACD928800ACC3EA /* PendingTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */; };
-		EFF466ED2ACEB84C00ACC3EA /* PendingTransactionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466EC2ACEB84C00ACC3EA /* PendingTransactionsListView.swift */; };
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
 		EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */; };
 		EFFE2CEC28B8E1B000B9F279 /* CommonDerivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CEB28B8E1B000B9F279 /* CommonDerivationManager.swift */; };
@@ -1698,6 +1704,12 @@
 		B035645C2950689700397787 /* WalletConnectServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceError.swift; sourceTree = "<group>"; };
 		B035645E29506C4D00397787 /* WalletConnectAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectAction.swift; sourceTree = "<group>"; };
 		B03574C72B1F876300118786 /* PendingExpressTransactionStatusRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTransactionStatusRow.swift; sourceTree = "<group>"; };
+		B036625E2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionDetailsViewModel.swift; sourceTree = "<group>"; };
+		B03662602B6384BA0064E073 /* VisaTransactionDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionDetailsView.swift; sourceTree = "<group>"; };
+		B03662632B63851B0064E073 /* visaSingleTransaction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = visaSingleTransaction.json; sourceTree = "<group>"; };
+		B03662642B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionDetailsViewModelMock.swift; sourceTree = "<group>"; };
+		B03662682B63D7660064E073 /* iso4217Codes.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = iso4217Codes.plist; sourceTree = "<group>"; };
+		B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ISO4217CodeConverter.swift; sourceTree = "<group>"; };
 		B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsFinalizeWalletCreationTask.swift; sourceTree = "<group>"; };
 		B03A9338259877790061FB2D /* WarningsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsContainer.swift; sourceTree = "<group>"; };
 		B03ACAC82567CFFF00F5D269 /* LegacyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCardView.swift; sourceTree = "<group>"; };
@@ -2737,6 +2749,7 @@
 		EFA3B2202AC43C350037C48D /* MutipleAddressTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutipleAddressTransactionHistoryService.swift; sourceTree = "<group>"; };
 		EFA580602893E4E200110DB0 /* LanguageCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
 		EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
+		EFA6164D2B62A96A0013A129 /* TransactionSendAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSendAvailabilityProvider.swift; sourceTree = "<group>"; };
 		EFA6B042295334AF0090A92F /* ResetToFactoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResetToFactoryView.swift; sourceTree = "<group>"; };
 		EFA6B043295334AF0090A92F /* ResetToFactoryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResetToFactoryViewModel.swift; sourceTree = "<group>"; };
 		EFA6B04629533C860090A92F /* ResetToFactoryViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactoryViewRoutable.swift; sourceTree = "<group>"; };
@@ -2783,7 +2796,6 @@
 		EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletModelsManager.swift; sourceTree = "<group>"; };
 		EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceTitleView.swift; sourceTree = "<group>"; };
 		EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordMapper.swift; sourceTree = "<group>"; };
-		EFF466EC2ACEB84C00ACC3EA /* PendingTransactionsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionsListView.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
 		EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModel.swift; sourceTree = "<group>"; };
@@ -3179,6 +3191,7 @@
 				EF80843B293F6967000D91EA /* Mocks */,
 				B0F318F72A7393EB009F131E /* Stubs */,
 				B0DC10CE292755BA00BBE854 /* Cards */,
+				B03662622B63850F0064E073 /* Visa */,
 				5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
@@ -3784,6 +3797,42 @@
 			path = Referral;
 			sourceTree = "<group>";
 		};
+		B036625C2B6384670064E073 /* Visa */ = {
+			isa = PBXGroup;
+			children = (
+				B08394E22B299FA00025176F /* VisaWalletMainContent */,
+				B036625D2B63848F0064E073 /* VisaTransactionDetails */,
+				B04718FD2B4E7BED00444734 /* VisaBalancesLimits */,
+			);
+			path = Visa;
+			sourceTree = "<group>";
+		};
+		B036625D2B63848F0064E073 /* VisaTransactionDetails */ = {
+			isa = PBXGroup;
+			children = (
+				B03662602B6384BA0064E073 /* VisaTransactionDetailsView.swift */,
+				B036625E2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift */,
+			);
+			path = VisaTransactionDetails;
+			sourceTree = "<group>";
+		};
+		B03662622B63850F0064E073 /* Visa */ = {
+			isa = PBXGroup;
+			children = (
+				B03662632B63851B0064E073 /* visaSingleTransaction.json */,
+				B03662642B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift */,
+			);
+			path = Visa;
+			sourceTree = "<group>";
+		};
+		B03662672B63D7510064E073 /* ISO4217 */ = {
+			isa = PBXGroup;
+			children = (
+				B03662682B63D7660064E073 /* iso4217Codes.plist */,
+			);
+			path = ISO4217;
+			sourceTree = "<group>";
+		};
 		B03AEEAE29596D9100212267 /* WebSocket */ = {
 			isa = PBXGroup;
 			children = (
@@ -3855,14 +3904,6 @@
 				B02B74A929879CC5006473F2 /* WalletConnectV2Factory.swift */,
 			);
 			path = WalletConnectV2Service;
-			sourceTree = "<group>";
-		};
-		B04718FC2B4E7BE200444734 /* Visa */ = {
-			isa = PBXGroup;
-			children = (
-				B04718FD2B4E7BED00444734 /* VisaBalancesLimits */,
-			);
-			path = Visa;
 			sourceTree = "<group>";
 		};
 		B04718FD2B4E7BED00444734 /* VisaBalancesLimits */ = {
@@ -4063,6 +4104,7 @@
 			children = (
 				B0B335E129FA9E9A00E2082E /* BalanceFormatter */,
 				B0AF2DF22B1DF282001A8696 /* Express */,
+				B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */,
 				EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */,
 				B020FFBD25DE895E00EF422C /* FileLogger.swift */,
 				DC751ADE2ABB752F0039A4D2 /* ExceptionsCatcher.h */,
@@ -4111,7 +4153,7 @@
 				B030B4D92A8CE1CA0023DB8B /* LockedWalletMainContent */,
 				B06C08512A73FC1B00D982BC /* MultiWalletMainContent */,
 				B06C085F2A73FCC400D982BC /* SingleWalletMainContent */,
-				B08394E22B299FA00025176F /* VisaWalletMainContent */,
+				B036625C2B6384670064E073 /* Visa */,
 				B06243062AA9B75F00F7B9B2 /* Utilities */,
 				B06C08472A73FB4D00D982BC /* MainCoordinator.swift */,
 				B06C08482A73FB4D00D982BC /* MainCoordinatorView.swift */,
@@ -4296,7 +4338,6 @@
 			isa = PBXGroup;
 			children = (
 				EFE5EC512AEC1B8800C5ADC3 /* UndoToastView */,
-				EFF466EB2ACEB84000ACC3EA /* PendingTransactionsListView */,
 				EFF466E02AC709B600ACC3EA /* BalanceTitleView */,
 				EFE7D57C2AA20D480047D93A /* TokenPriceChange */,
 				EFE7D5822AA224C50047D93A /* Types */,
@@ -4662,6 +4703,7 @@
 		B0CC817C25CD626A006D49B9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B03662672B63D7510064E073 /* ISO4217 */,
 				EF692A452951E600001F4B8A /* Generated */,
 				5D383E4224D9602700C9BFF6 /* Assets */,
 				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
@@ -5700,6 +5742,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EFA6164F2B62CC510013A129 /* TransactionSendAvailabilityProvider */,
 				DA19D8C42B39AE3C001C91C4 /* QRCodeParser */,
 				EF5820462B33348B00940387 /* ExpressExchangeDataDecoder */,
 				EF6A8B012B278A5700CA3535 /* ExpressRepository */,
@@ -6144,7 +6187,6 @@
 				DAA5E2FB28D21368003C0E80 /* UserWalletStorageAggreement */,
 				DA91770F2A25F14A006CD67B /* Promotion */,
 				B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */,
-				B04718FC2B4E7BE200444734 /* Visa */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -7110,6 +7152,14 @@
 			path = ResetToFactory;
 			sourceTree = "<group>";
 		};
+		EFA6164F2B62CC510013A129 /* TransactionSendAvailabilityProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EFA6164D2B62A96A0013A129 /* TransactionSendAvailabilityProvider.swift */,
+			);
+			path = TransactionSendAvailabilityProvider;
+			sourceTree = "<group>";
+		};
 		EFA6B04A2955A3930090A92F /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -7283,14 +7333,6 @@
 				EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */,
 			);
 			path = BalanceTitleView;
-			sourceTree = "<group>";
-		};
-		EFF466EB2ACEB84000ACC3EA /* PendingTransactionsListView */ = {
-			isa = PBXGroup;
-			children = (
-				EFF466EC2ACEB84C00ACC3EA /* PendingTransactionsListView.swift */,
-			);
-			path = PendingTransactionsListView;
 			sourceTree = "<group>";
 		};
 		EFFE2CEA28B8E1A700B9F279 /* DerivationManager */ = {
@@ -7560,6 +7602,7 @@
 				B07C6A0C2A77E5AA00ACCBB0 /* twinCard.json in Resources */,
 				EF661E2E28BF41D6005769E5 /* Intents.strings in Resources */,
 				DC261CA1292CD3B800875E64 /* GoogleService-Info-Production.plist in Resources */,
+				B03662692B63D7660064E073 /* iso4217Codes.plist in Resources */,
 				DA6915A62A9CE2BD00DB4339 /* Tokens.xcassets in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
@@ -7571,6 +7614,7 @@
 				B07C6A0B2A77E5A600ACCBB0 /* walletV2.json in Resources */,
 				EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */,
 				B0DC10D1292755BB00BBE854 /* walletWithBackup.json in Resources */,
+				B03662662B638BBC0064E073 /* visaSingleTransaction.json in Resources */,
 				DC7AC968292BD64D00580668 /* config_alpha.json in Resources */,
 				DC261C9F292CD3B800875E64 /* GoogleService-Info-Beta.plist in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
@@ -7921,6 +7965,7 @@
 				EF9EA9682B110EEB00AC1DA1 /* ExpressModulesFactory.swift in Sources */,
 				DA8C672A2B0B44EF00E1C9B8 /* SendWalletSummaryView.swift in Sources */,
 				EFA6B04029532D520090A92F /* CircleActionButton.swift in Sources */,
+				B03662612B6384BA0064E073 /* VisaTransactionDetailsView.swift in Sources */,
 				B0C4F77B26F0A05C0086D815 /* BlankCard.swift in Sources */,
 				DA19D8C62B39AE3C001C91C4 /* QRCodeParser.swift in Sources */,
 				B06ADFD829B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift in Sources */,
@@ -8311,6 +8356,7 @@
 				B012A1192AA5CDE00079BAB4 /* NotificationButtonActionType.swift in Sources */,
 				DA5CD0972A25F4F2008FD876 /* PromotionRoutable.swift in Sources */,
 				5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */,
+				B036626B2B63D77D0064E073 /* ISO4217CodeConverter.swift in Sources */,
 				5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */,
 				EF729B4F2AF10DD900D80205 /* FeeRowView.swift in Sources */,
 				B674D6D72A96A90000172491 /* StoredUserTokenList.swift in Sources */,
@@ -8446,7 +8492,6 @@
 				EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */,
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
-				EFF466ED2ACEB84C00ACC3EA /* PendingTransactionsListView.swift in Sources */,
 				DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
 				EFD39C972A6A916C0055D215 /* EnvironmentSetupCoordinator.swift in Sources */,
@@ -8998,6 +9043,7 @@
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
 				DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
+				EFA6164E2B62A96B0013A129 /* TransactionSendAvailabilityProvider.swift in Sources */,
 				2D535E732A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift in Sources */,
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
 				DAE0F05A2A404CCC006074FF /* AwardToken.swift in Sources */,
@@ -9039,6 +9085,7 @@
 				B6E8BBFB2A2F209B0012E7D3 /* InfinityFrameModifier.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
+				B036625F2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift in Sources */,
 				B68EF4822A9C22B800E2AC5B /* LockedWalletMainContentViewModel.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 				B0CE1E4C2A30A00000D297F8 /* FakeBalanceWithButtonsInfoProvider.swift in Sources */,
@@ -9049,6 +9096,7 @@
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
 				B050F5082B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift in Sources */,
 				DC7D3A0729E06365007BCD23 /* GenericBackupServiceFactory.swift in Sources */,
+				B03662652B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift in Sources */,
 				2DC5676A2B0DFFAF00B0244F /* ManageTokensCoordinator.swift in Sources */,
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
 				DCBC944F2993FE720050BC35 /* Analytics+ParameterValue.swift in Sources */,
