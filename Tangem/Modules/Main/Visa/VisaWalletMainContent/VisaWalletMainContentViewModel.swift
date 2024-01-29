@@ -172,7 +172,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
         let balanceFormatter = BalanceFormatter()
         let currentLimit = limits.currentLimit
-        let remainingSummary = (currentLimit.remainingOTPAmount ?? 0) + (currentLimit.remainingNoOTPAmount ?? 0)
+        let remainingSummary = currentLimit.remainingOTPAmount ?? 0
         cryptoLimitText = balanceFormatter.formatCryptoBalance(remainingSummary, currencyCode: visaWalletModel.tokenItem.currencySymbol)
 
         let remainingTimeSeconds = Date().distance(to: currentLimit.actualExpirationDate)
