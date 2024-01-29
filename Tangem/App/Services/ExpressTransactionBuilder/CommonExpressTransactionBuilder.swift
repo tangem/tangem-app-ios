@@ -151,7 +151,8 @@ private extension CommonExpressTransactionBuilder {
              .near,
              .decimal,
              .veChain,
-             .xdc:
+             .xdc,
+             .shibarium:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
