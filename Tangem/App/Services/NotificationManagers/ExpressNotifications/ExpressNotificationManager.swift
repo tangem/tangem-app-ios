@@ -79,8 +79,11 @@ class ExpressNotificationManager {
             guard let notification = try await manager.makeExistentialDepositWarningIfNeeded(amount: amount, subtractFee: subtractFee) else {
                 return
             }
-
-            manager.notificationInputsSubject.value.append(notification)
+            
+            // If this notification already showed then will not update the notifications set
+            if !manager.notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
+                manager.notificationInputsSubject.value.append(notification)
+            }
         }
     }
 
