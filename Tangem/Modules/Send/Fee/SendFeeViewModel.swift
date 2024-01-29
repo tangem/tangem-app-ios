@@ -33,6 +33,9 @@ class SendFeeViewModel: ObservableObject {
 
     @Published private var isFeeIncluded: Bool = false
 
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+
+    private let notificationManager: NotificationManager
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
@@ -45,8 +48,9 @@ class SendFeeViewModel: ObservableObject {
         )
     }
 
-    init(input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
+    init(input: SendFeeViewModelInput, notificationManager: NotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
+        self.notificationManager = notificationManager
         self.walletInfo = walletInfo
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
@@ -90,6 +94,11 @@ class SendFeeViewModel: ObservableObject {
                 return Localization.sendAmountSubstractFooter(amountFormatted)
             }
             .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
