@@ -25,6 +25,11 @@ struct SendFeeView: View {
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
 
+            ForEach(viewModel.feeCoverageNotificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
+
             GroupedSection(viewModel.subtractFromAmountModel) {
                 DefaultToggleRowView(viewModel: $0)
             } footer: {
@@ -66,6 +71,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeUserWalletNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
     }
 }
