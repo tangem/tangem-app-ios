@@ -56,16 +56,13 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 VStack(alignment: contentAlignment, spacing: interItemSpacing) {
                     ForEach(models) { model in
                         content(model)
-                            .border(Color.orange)
                             .padding(.horizontal, horizontalPadding)
-                            .border(Color.red)
 
                         if models.last?.id != model.id {
                             separator
                         }
                     }
                 }
-                .border(Color.purple)
                 .padding(.vertical, interSectionPadding)
                 .background(backgroundColor)
                 .cornerRadiusContinuous(14)
@@ -73,7 +70,6 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 footer()
                     .padding(.horizontal, horizontalPadding)
             }
-            .border(Color.blue)
         }
     }
 
