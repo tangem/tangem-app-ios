@@ -98,11 +98,19 @@ class SendFeeViewModel: ObservableObject {
             .store(in: &bag)
 
         notificationManager.notificationPublisher
+            .map {
+                $0.filter { input in
+                    guard let sendNotificationEvent = input.settings.event as? SendNotificationEvent else {
+                        return true
+                    }
+
+                    return sendNotificationEvent.location == .feeIncluded
+                }
+            }
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
-            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
-        
-        notificationManager.
     }
 
     private func makeFeeRowViewModels(_ feeValues: [FeeOption: LoadingValue<Fee>]) -> [FeeRowViewModel] {
