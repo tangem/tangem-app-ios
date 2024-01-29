@@ -94,6 +94,7 @@ class SendModel {
     private let addressService: SendAddressService
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
+    private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -130,22 +131,8 @@ class SendModel {
         transaction.value
     }
 
-    func updateFees(errorHandler: @escaping (FeeUpdateError) -> Void) {
-        updateFees(amount: amount.value, destination: destination.value, errorHandler: errorHandler)
-//        guard let oldFee = fee.value?.amount else { return .justWithError(output: ()) }
-
-//        return fetchFees()
-//            .tryMap { [weak self] _ in
-//                guard let newFee = self?.fee.value?.amount else { return }
-//
-//                print("ZZZ fee new-old", newFee, oldFee)
-//                if newFee > oldFee {
-//                    throw FeeUpdateError.feeIncrased
-//                } else {
-//                    return
-//                }
-//            }
-//            .eraseToAnyPublisher()
+    func updateFees(completion: @escaping (Bool) -> Void) {
+        updateFees(amount: amount.value, destination: destination.value, completion: completion)
     }
 
     func send() {
@@ -197,7 +184,7 @@ class SendModel {
                 $0 == $1
             }
             .sink { [weak self] amount, destination in
-                self?.updateFees(amount: amount, destination: destination, errorHandler: { _ in })
+                self?.updateFees(amount: amount, destination: destination, completion: { _ in })
             }
             .store(in: &bag)
 
@@ -236,11 +223,7 @@ class SendModel {
             .store(in: &bag)
     }
 
-    private var feeUpdateSubscription: AnyCancellable?
-
-    private func updateFees(amount: Amount?, destination: String?, errorHandler: @escaping (FeeUpdateError) -> Void) {
-        let currentFeeAmount = fee.value?.amount
-
+    private func updateFees(amount: Amount?, destination: String?, completion: @escaping (Bool) -> Void) {
         feeUpdateSubscription = Publishers.CombineLatest(Just(amount), Just(destination))
             .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Error> in
                 guard
@@ -257,25 +240,27 @@ class SendModel {
                     .eraseToAnyPublisher()
             }
             .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { completion in
-                if case .failure = completion {
-                    errorHandler(FeeUpdateError.failedToGetFee)
+            .sink { result in
+                if case .failure = result {
+                    completion(false)
                 }
-            }, receiveValue: { [weak self] fees in
+            } receiveValue: { [weak self] fees in
                 guard let self else { return }
 
                 let feeValues = feeValues(fees)
                 _feeValues.send(feeValues)
 
-                if let marketFee = feeValues[selectedFeeOption],
-                   let marketFeeValue = marketFee.value {
-                    fee.send(marketFeeValue)
-
-                    if let currentFeeAmount, marketFeeValue.amount > currentFeeAmount {
-                        errorHandler(FeeUpdateError.feeIncrased)
-                    }
+                guard
+                    let marketFee = feeValues[selectedFeeOption],
+                    let marketFeeValue = marketFee.value
+                else {
+                    completion(false)
+                    return
                 }
-            })
+
+                fee.send(marketFeeValue)
+                completion(true)
+            }
     }
 
     private func explorerUrl(from hash: String) -> URL? {
