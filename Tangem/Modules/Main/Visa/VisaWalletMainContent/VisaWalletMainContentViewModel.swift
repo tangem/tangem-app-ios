@@ -11,12 +11,9 @@ import Combine
 import BlockchainSdk
 import TangemVisa
 
-protocol VisaBlockchainExplorable: AnyObject {
-    func openExplorer(at url: URL, blockchainDisplayName: String)
-}
-
-protocol VisaWalletRoutable: VisaBlockchainExplorable {
+protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
+    func openExplorer(at url: URL, blockchainDisplayName: String)
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord)
 }
 
