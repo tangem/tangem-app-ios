@@ -16,9 +16,11 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     @Published private(set) var scrollViewIsDragging: Bool = false
 
+    @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
+
     @Published private(set) var visibleHeight: CGFloat = .zero
 
-    @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
+    var maxHeight: CGFloat { UIScreen.main.bounds.height }
 
     var headerHeight: CGFloat = .zero {
         didSet {
@@ -27,8 +29,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
             }
         }
     }
-
-    var topInset: CGFloat { Constants.sheetTopInset }
 
     var geometryInfoSubject: some Subject<GeometryInfo, Never> { _geometryInfoSubject }
     private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
@@ -47,19 +47,19 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     var scale: CGFloat {
         let minScale = 1.0
-        let maxScale = sourceViewMinHeight / sourceViewMaxHeight
+        let maxScale = minHeight / maxHeight
         return minScale - (minScale - maxScale) * progress
     }
 
-    private var sourceViewMaxHeight: CGFloat {
-        return UIScreen.main.bounds.height
-    }
-
-    private var sourceViewMinHeight: CGFloat {
+    private var minHeight: CGFloat {
         return height(for: .top(trigger: .dragGesture)) + Constants.sheetTopInset
     }
 
+    private var bag: Set<AnyCancellable> = []
+    private var didBind = false
+
     func onAppear() {
+        bind()
         updateToState(state)
     }
 
@@ -67,11 +67,41 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         updateToState(.top(trigger: .tapGesture))
     }
 
-    /// Use for set and update sheet to the state
-    private func updateToState(_ state: BottomScrollableSheetState) {
-        self.state = state
+    private func bind() {
+        if didBind { return }
 
-        withAnimation(.easeOut) {
+        NotificationCenter
+            .default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .withWeakCaptureOf(self)
+            .sink { object, note in
+                object.onDidBecomeActive()
+            }
+            .store(in: &bag)
+
+        didBind = true
+    }
+
+    private func onDidBecomeActive() {
+        // Prevents the sheet from getting stuck in an intermediate state if the drag gesture
+        // is interrupted by sending the app to the background
+        if progress >= 0.5 {
+            updateToState(.top(trigger: .dragGesture))
+        } else {
+            updateToState(.bottom)
+        }
+    }
+
+    /// Use for set and update sheet to the state
+    private func updateToState(
+        _ state: BottomScrollableSheetState,
+        velocity: CGFloat? = nil,
+        remainingProgress: CGFloat? = nil
+    ) {
+        self.state = state
+        let animation = makeAnimation(velocity: velocity, remainingProgress: remainingProgress)
+
+        withAnimation(animation) {
             visibleHeight = height(for: state)
             updateStatusBarAppearance(to: state)
         }
@@ -111,12 +141,13 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     func headerDragGesture(onEnded value: DragGesture.Value) {
         let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
+        let velocity = value.velocityCompat.height
 
         // If the ended location below the hiding line
         if value.predictedEndLocation.y > hidingLine {
-            updateToState(.bottom)
+            updateToState(.bottom, velocity: velocity, remainingProgress: progress)
         } else {
-            updateToState(.top(trigger: .dragGesture))
+            updateToState(.top(trigger: .dragGesture), velocity: velocity, remainingProgress: 1.0 - progress)
         }
     }
 
@@ -144,11 +175,12 @@ final class BottomScrollableSheetStateObject: ObservableObject {
             // The user stop swipe below hiding line
             let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
             let isStoppedBelowHidingLine = visibleHeight < hidingLine
+            let velocity = value.velocity.y
 
             if isHighVelocity || isStoppedBelowHidingLine {
-                updateToState(.bottom)
+                updateToState(.bottom, velocity: velocity, remainingProgress: progress)
             } else {
-                updateToState(.top(trigger: .dragGesture))
+                updateToState(.top(trigger: .dragGesture), velocity: velocity, remainingProgress: 1.0 - progress)
             }
         }
 
@@ -158,23 +190,35 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     private func dragView(translation: CGFloat) {
-        var translationChange = translation
+        var visibleHeight = height(for: state) - translation
+        let maxVisibleHeight = height(for: .top(trigger: .dragGesture))
+        let minVisibleHeight = height(for: .bottom)
 
-        switch state {
-        case .top:
-            // For the top state reduce the direction to bottom
-            if translationChange < .zero {
-                translationChange /= Constants.reduceSwipeMultiplicator
-            }
-        case .bottom:
-            // For the bottom state reduce the direction to top
-            if translationChange > .zero {
-                translationChange /= Constants.reduceSwipeMultiplicator
-            }
+        // Applying a rubberbanding effect when the view is dragged too much
+        // (the min/max allowed value for visible height is exceeded)
+        if visibleHeight > maxVisibleHeight {
+            visibleHeight = maxVisibleHeight + (visibleHeight - maxVisibleHeight).withRubberbanding()
+        } else if visibleHeight < minVisibleHeight {
+            visibleHeight = minVisibleHeight - (minVisibleHeight - visibleHeight).withRubberbanding()
         }
 
-        let newHeight = height(for: state) - translationChange
-        updateVisibleHeight(newHeight)
+        updateVisibleHeight(visibleHeight)
+    }
+
+    private func makeAnimation(velocity: CGFloat?, remainingProgress: CGFloat?) -> Animation {
+        guard let velocity, let remainingProgress else {
+            return Constants.defaultAnimation
+        }
+
+        let totalDistance = minHeight - headerHeight
+        let remainingDistance = totalDistance * remainingProgress
+        let duration = remainingDistance / abs(velocity)
+
+        guard duration.isFinite else {
+            return Constants.defaultAnimation
+        }
+
+        return .easeOut(duration: clamp(duration, min: Constants.minAnimationDuration, max: Constants.maxAnimationDuration))
     }
 }
 
@@ -183,7 +227,11 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 private extension BottomScrollableSheetStateObject {
     enum Constants {
         static let hidingLineMultiplicator: CGFloat = 0.5
-        static let reduceSwipeMultiplicator: CGFloat = 10.0
         static let sheetTopInset: CGFloat = 16.0
+        static let defaultAnimation: Animation = .easeOut
+        static let minAnimationDuration: TimeInterval = 0.075
+        /// Matches the default animation duration according to Apple's docs:
+        /// "The `easeOut` animation has a default duration of 0.35 seconds"
+        static let maxAnimationDuration: TimeInterval = 0.35
     }
 }
