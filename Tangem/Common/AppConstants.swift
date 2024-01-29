@@ -11,6 +11,7 @@ import UIKit
 
 enum AppConstants {
     static let tangemDomainUrl = URL(string: "https://tangem.com")!
+    static let webShopUrl = URL(string: "https://buy.tangem.com")!
 
     static var isSmallScreen: Bool {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650

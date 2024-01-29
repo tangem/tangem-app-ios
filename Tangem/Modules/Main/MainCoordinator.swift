@@ -12,10 +12,12 @@ import BlockchainSdk
 import TangemVisa
 
 class MainCoordinator: CoordinatorObject {
-    // MARK: - Dependencies
-
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
 
@@ -44,6 +46,7 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    private var safariHandle: SafariHandle?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -182,20 +185,13 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         receiveBottomSheetViewModel = .init(tokenItem: tokenItem, addressInfos: addressInfos)
     }
 
-    func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
+    func openBuyCrypto(at url: URL, action: @escaping () -> Void) {
         Analytics.log(.topupScreenOpened)
-        modalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: Localization.commonBuy,
-            addLoadingIndicator: true,
-            withCloseButton: true,
-            urlActions: [
-                closeUrl: { [weak self] response in
-                    self?.modalWebViewModel = nil
-                    action(response)
-                },
-            ]
-        )
+
+        safariHandle = safariManager.openURL(url) { [weak self] in
+            self?.safariHandle = nil
+            action()
+        }
     }
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
@@ -318,12 +314,8 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         expressCoordinator = coordinator
     }
 
-    func openExplorer(at url: URL, blockchainDisplayName: String) {
-        modalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: Localization.commonExplorerFormat(blockchainDisplayName),
-            withCloseButton: true
-        )
+    func openExplorer(at url: URL) {
+        safariManager.openURL(url)
     }
 
     func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
