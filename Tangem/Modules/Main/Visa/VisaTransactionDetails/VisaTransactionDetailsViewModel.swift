@@ -95,12 +95,10 @@ class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
     private let balanceConverter = BalanceConverter()
     private let tokenItem: TokenItem
     private let transaction: VisaTransactionRecord
-    private weak var blockchainExplorer: VisaBlockchainExplorable?
 
-    init(tokenItem: TokenItem, transaction: VisaTransactionRecord, blockchainExplorer: VisaBlockchainExplorable?) {
+    init(tokenItem: TokenItem, transaction: VisaTransactionRecord) {
         self.tokenItem = tokenItem
         self.transaction = transaction
-        self.blockchainExplorer = blockchainExplorer
     }
 
     private func exploreTransactionRequest(with hash: TransactionHash) {
