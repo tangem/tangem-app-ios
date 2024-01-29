@@ -3825,7 +3825,6 @@
 		B03662672B63D7510064E073 /* ISO4217 */ = {
 			isa = PBXGroup;
 			children = (
-				B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */,
 				B03662682B63D7660064E073 /* iso4217Codes.plist */,
 			);
 			path = ISO4217;
@@ -4102,6 +4101,7 @@
 			children = (
 				B0B335E129FA9E9A00E2082E /* BalanceFormatter */,
 				B0AF2DF22B1DF282001A8696 /* Express */,
+				B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */,
 				EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */,
 				B020FFBD25DE895E00EF422C /* FileLogger.swift */,
 				DC751ADE2ABB752F0039A4D2 /* ExceptionsCatcher.h */,
