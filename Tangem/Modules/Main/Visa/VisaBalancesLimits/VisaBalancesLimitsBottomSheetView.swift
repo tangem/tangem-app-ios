@@ -53,7 +53,7 @@ struct VisaBalancesLimitsBottomSheetView: View {
         VStack(spacing: 0) {
             sectionHeaderLine(leadingText: "Limits", trailingText: viewModel.availabilityDescription, infoAction: viewModel.openLimitsInfo)
 
-            recordLine(with: "In-store (otp)", amount: viewModel.remainingOTPAmount)
+            recordLine(with: "Total", amount: viewModel.remainingOTPAmount)
 
             recordLine(with: "Other (no-otp)", amount: viewModel.remainingNoOtpAmount)
 
