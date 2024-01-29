@@ -147,6 +147,11 @@ private extension Blockchain {
             case .network: return "xdc-network"
             case .coin: return "xdce-crowd-sale"
             }
+        case .shibarium:
+            switch type {
+            case .network: return "shibarium"
+            case .coin: return "bone-shibaswap"
+            }
         }
     }
 
