@@ -32,7 +32,7 @@ class SendNotificationManager {
         input
             .feeValues
             .map {
-                $0.contains(where: { $0.value.error != nil })
+                $0.contains { $0.value.error != nil }
             }
             .sink { [weak self] hasError in
                 self?.updateEventVisibility(hasError, event: .networkFeeUnreachable)
@@ -41,13 +41,11 @@ class SendNotificationManager {
     }
 
     private func updateEventVisibility(_ visible: Bool, event: SendNotificationEvent) {
-        if visible {
-            if !notificationInputsSubject.value.contains(where: { $0.settings.event.hashValue == event.hashValue }) {
-                let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction)
-                notificationInputsSubject.value.append(input)
-            }
-        } else {
+        if !visible {
             notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == event.hashValue }
+        } else if !notificationInputsSubject.value.contains(where: { $0.settings.event.hashValue == event.hashValue }) {
+            let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction)
+            notificationInputsSubject.value.append(input)
         }
     }
 }
