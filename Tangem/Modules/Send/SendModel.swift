@@ -545,3 +545,5 @@ extension SendModel: SendFinishViewModelInput {
         _transactionURL.value
     }
 }
+
+extension SendModel: SendNotificationManagerInput {}
