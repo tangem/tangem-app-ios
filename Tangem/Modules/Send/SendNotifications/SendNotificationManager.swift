@@ -11,6 +11,7 @@ import BlockchainSdk
 
 protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 class SendNotificationManager {
@@ -36,6 +37,13 @@ class SendNotificationManager {
             }
             .sink { [weak self] hasError in
                 self?.updateEventVisibility(hasError, event: .networkFeeUnreachable)
+            }
+            .store(in: &bag)
+
+        input
+            .isFeeIncludedPublisher
+            .sink { [weak self] isFeeIncluded in
+                self?.updateEventVisibility(isFeeIncluded, event: .feeCoverage)
             }
             .store(in: &bag)
     }
