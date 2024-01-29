@@ -29,9 +29,6 @@ struct VisaTransactionDetailsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .background(Colors.Background.tertiary.ignoresSafeArea())
         }
-        .sheet(item: $viewModel.modalWebViewModel, content: {
-            WebViewContainer(viewModel: $0)
-        })
     }
 
     private var fiatTransactionContent: some View {
