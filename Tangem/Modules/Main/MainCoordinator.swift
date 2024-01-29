@@ -366,6 +366,6 @@ extension MainCoordinator: OrganizeTokensRoutable {
 
 extension MainCoordinator: VisaWalletRoutable {
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord) {
-        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record, blockchainExplorer: self)
+        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record)
     }
 }
