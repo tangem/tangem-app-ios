@@ -174,30 +174,6 @@ final class SendViewModel: ObservableObject {
         }
 
         step = nextStep
-
-        if case .summary = step {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.updateFee()
-            }
-        }
-    }
-
-    private var feeUpdateSubscription: AnyCancellable?
-
-    private func updateFee() {
-        let oldFeeAmount = sendModel.feeValue?.amount
-
-        sendModel.updateFees { [weak self] success in
-            guard success else {
-                self?.alert = AlertBuilder.makeOkErrorAlert(message: "the transaction is not completed")
-                return
-            }
-
-            let newFeeAmount = self?.sendModel.feeValue?.amount
-            if let oldFeeAmount, let newFeeAmount, newFeeAmount > oldFeeAmount {
-                self?.alert = AlertBuilder.makeOkErrorAlert(message: "Fee is increased")
-            }
-        }
     }
 
     func back() {
