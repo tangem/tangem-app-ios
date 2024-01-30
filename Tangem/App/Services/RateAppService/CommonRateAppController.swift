@@ -13,14 +13,14 @@ import CombineExt
 final class CommonRateAppController {
     private let rateAppService: RateAppService
     private let userWalletModel: UserWalletModel
-    private unowned let coordinator: RateAppRoutabe
+    private unowned let coordinator: RateAppRoutable
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         rateAppService: RateAppService,
         userWalletModel: UserWalletModel,
-        coordinator: RateAppRoutabe
+        coordinator: RateAppRoutable
     ) {
         self.rateAppService = rateAppService
         self.userWalletModel = userWalletModel
