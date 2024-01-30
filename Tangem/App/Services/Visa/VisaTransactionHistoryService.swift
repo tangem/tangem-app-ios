@@ -53,7 +53,7 @@ extension VisaTransactionHistoryService {
         do {
             let itemsOnServer = try await loadRecordsPage(offset: 0)
             if firstItemsInStorage == itemsOnServer {
-                log("First \(firstItemsInStorage.count) in storage are the same as first items on server, no need to update history")
+                log("First \(firstItemsInStorage.count) items in storage are the same as first items on server, no need to update history")
                 stateSubject.send(.loaded)
                 return
             }
