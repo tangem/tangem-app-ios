@@ -130,8 +130,9 @@ class SendModel {
         transaction.value
     }
 
-    func updateFees(completion: @escaping (FeeUpdateResult) -> Void) {
-        updateFees(amount: amount.value, destination: destination.value, completion: completion)
+    @discardableResult
+    func updateFees() async throws -> FeeUpdateResult {
+        try await updateFees(amount: amount.value, destination: destination.value)
     }
 
     func send() {
@@ -183,7 +184,9 @@ class SendModel {
                 $0 == $1
             }
             .sink { [weak self] amount, destination in
-                self?.updateFees(amount: amount, destination: destination, completion: { _ in })
+                runTask {
+                    try await self?.updateFees(amount: amount, destination: destination)
+                }
             }
             .store(in: &bag)
 
@@ -222,63 +225,66 @@ class SendModel {
             .store(in: &bag)
     }
 
-    private func updateFees(amount: Amount?, destination: String?, completion: @escaping (FeeUpdateResult) -> Void) {
+    @discardableResult
+    private func updateFees(amount: Amount?, destination: String?) async throws -> FeeUpdateResult {
         let oldFeeAmount = fee.value
 
-        feeUpdateSubscription = Publishers.CombineLatest(Just(amount), Just(destination))
-            .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Error> in
-                guard
-                    let self,
-                    let amount,
-                    let destination
-                else {
-                    return .justWithError(output: [])
+        return try await withCheckedThrowingContinuation { continuation in
+            feeUpdateSubscription = Publishers.CombineLatest(Just(amount), Just(destination))
+                .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Error> in
+                    guard
+                        let self,
+                        let amount,
+                        let destination
+                    else {
+                        return .justWithError(output: [])
+                    }
+
+                    return walletModel
+                        .getFee(amount: amount, destination: destination)
+                        .receive(on: DispatchQueue.main)
+                        .eraseToAnyPublisher()
                 }
+                .receive(on: RunLoop.main)
+                .sink { [weak self] result in
+                    guard
+                        let self,
+                        case .failure = result
+                    else {
+                        return
+                    }
 
-                return walletModel
-                    .getFee(amount: amount, destination: destination)
-                    .receive(on: DispatchQueue.main)
-                    .eraseToAnyPublisher()
-            }
-            .receive(on: RunLoop.main)
-            .sink { [weak self] result in
-                guard
-                    let self,
-                    case .failure = result
-                else {
-                    return
+                    let pairs: [(FeeOption, LoadingValue<Fee>)] = feeOptions.map { ($0, .failedToLoad(error: WalletError.failedToGetFee)) }
+                    let feeValues = Dictionary(pairs, uniquingKeysWith: { v1, _ in v1 })
+                    _feeValues.send(feeValues)
+
+                    continuation.resume(throwing: WalletError.failedToGetFee)
+                } receiveValue: { [weak self] fees in
+                    guard let self else { return }
+
+                    let feeValues = feeValues(fees)
+                    _feeValues.send(feeValues)
+
+                    guard
+                        let selectedFee = feeValues[selectedFeeOption],
+                        let selectedFeeValue = selectedFee.value
+                    else {
+                        continuation.resume(throwing: WalletError.failedToGetFee)
+                        return
+                    }
+
+                    fee.send(selectedFeeValue)
+                    continuation.resume(returning: FeeUpdateResult(oldFee: oldFeeAmount?.amount, newFee: selectedFeeValue.amount))
+
+                    if let customFee = feeValues[.custom]?.value,
+                       let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
+                       !didSetCustomFee {
+                        _customFee.send(customFee)
+                        _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
+                        _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
+                    }
                 }
-
-                let pairs: [(FeeOption, LoadingValue<Fee>)] = feeOptions.map { ($0, .failedToLoad(error: WalletError.failedToGetFee)) }
-                let feeValues = Dictionary(pairs, uniquingKeysWith: { v1, _ in v1 })
-                _feeValues.send(feeValues)
-
-                completion(.failure(WalletError.failedToGetFee))
-            } receiveValue: { [weak self] fees in
-                guard let self else { return }
-
-                let feeValues = feeValues(fees)
-                _feeValues.send(feeValues)
-
-                guard
-                    let selectedFee = feeValues[selectedFeeOption],
-                    let selectedFeeValue = selectedFee.value
-                else {
-                    completion(.failure(WalletError.failedToGetFee))
-                    return
-                }
-
-                fee.send(selectedFeeValue)
-                completion(.success((oldFee: oldFeeAmount?.amount, newFee: selectedFeeValue.amount)))
-
-                if let customFee = feeValues[.custom]?.value,
-                   let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
-                   !didSetCustomFee {
-                    _customFee.send(customFee)
-                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
-                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
-                }
-            }
+        }
     }
 
     private func explorerUrl(from hash: String) -> URL? {
