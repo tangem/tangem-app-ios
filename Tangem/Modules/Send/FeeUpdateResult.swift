@@ -8,7 +8,4 @@
 
 import BlockchainSdk
 
-enum FeeUpdateResult: Error {
-    case success(oldFee: Amount?, newFee: Amount)
-    case failedToGetFee
-}
+typealias FeeUpdateResult = Result<(oldFee: Amount?, newFee: Amount), Error>
