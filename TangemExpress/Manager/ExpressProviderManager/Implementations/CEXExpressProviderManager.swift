@@ -71,6 +71,11 @@ private extension CEXExpressProviderManager {
                 return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
 
+            guard try request.pair.source.availableForLoadFee() else {
+                let quote = try await loadQuote(request: request)
+                return .restriction(.notEnoughBalanceForFee, quote: quote)
+            }
+
             let (estimatedFee, subtractFee, request) = try await subtractedFeeRequestIfNeeded(request: request)
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)

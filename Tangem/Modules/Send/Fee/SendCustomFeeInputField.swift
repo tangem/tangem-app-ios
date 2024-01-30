@@ -20,7 +20,7 @@ struct SendCustomFeeInputField: View {
 
                 HStack {
                     SendDecimalNumberTextField(
-                        decimalValue: viewModel.amount,
+                        decimalValue: $viewModel.amount,
                         maximumFractionDigits: viewModel.fractionDigits
                     )
                     .suffix("WEI")
@@ -40,6 +40,7 @@ struct SendCustomFeeInputField: View {
             Text(viewModel.footer)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
+        .backgroundColor(Colors.Background.action)
     }
 }
 
@@ -48,20 +49,22 @@ struct SendCustomFeeInputField: View {
         SendCustomFeeInputField(
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
-                amount: .constant(.internal(1234)),
+                amountPublisher: .just(output: .internal(1234)),
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: "0.41 $"),
-                footer: "Maximum commission amount"
+                footer: "Maximum commission amount",
+                onFieldChange: { _ in }
             )
         )
 
         SendCustomFeeInputField(
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
-                amount: .constant(.internal(1234)),
+                amountPublisher: .just(output: .internal(1234)),
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: nil),
-                footer: "Maximum commission amount"
+                footer: "Maximum commission amount",
+                onFieldChange: { _ in }
             )
         )
     }
