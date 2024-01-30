@@ -110,7 +110,6 @@ private extension Blockchain {
         case .dash: return "dash"
         case .gnosis: return "xdai"
         case .optimism: return "optimistic-ethereum"
-        case .saltPay: return "sxdai"
         case .ton: return "the-open-network"
         case .kava: return "kava"
         case .kaspa: return "kaspa"
