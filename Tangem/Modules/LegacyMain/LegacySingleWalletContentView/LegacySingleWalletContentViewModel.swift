@@ -62,7 +62,7 @@ class LegacySingleWalletContentViewModel: ObservableObject {
     }
 
     public var canSend: Bool {
-        return singleWalletModel.wallet.canSend(amountType: .coin)
+        return false // singleWalletModel.wallet.canSend(amountType: .coin)
     }
 
     private var legacyTransactionMapper: LegacyTransactionMapper {
