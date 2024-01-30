@@ -63,7 +63,7 @@ class SendModel {
     // MARK: - Raw data
 
     private var _amount = CurrentValueSubject<Amount?, Never>(nil)
-    private var _isCheckingDestination = CurrentValueSubject<Bool, Never>(false)
+    private var _isValidatingDestination = CurrentValueSubject<Bool, Never>(false)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
@@ -165,12 +165,12 @@ class SendModel {
     }
 
     private func bind() {
-        // Start and stop "checking" flag when we the raw address and validated address change respectively
+        // Start and stop "validating" flag when we the raw address and validated address change respectively
         _destinationText
             .dropFirst()
             .removeDuplicates()
             .handleEvents(receiveOutput: { [weak self] _ in
-                self?._isCheckingDestination.send(true)
+                self?._isValidatingDestination.send(true)
             })
             .debounce(for: 1, scheduler: RunLoop.main)
             .sink { [weak self] _ in
@@ -180,7 +180,7 @@ class SendModel {
 
         destination
             .sink { [weak self] _ in
-                self?._isCheckingDestination.send(false)
+                self?._isValidatingDestination.send(false)
             }
             .store(in: &bag)
 
@@ -475,7 +475,7 @@ extension SendModel: SendAmountViewModelInput {
 }
 
 extension SendModel: SendDestinationViewModelInput {
-    var isCheckingDestination: AnyPublisher<Bool, Never> { _isCheckingDestination.eraseToAnyPublisher() }
+    var isValidatingDestination: AnyPublisher<Bool, Never> { _isValidatingDestination.eraseToAnyPublisher() }
 
     var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
