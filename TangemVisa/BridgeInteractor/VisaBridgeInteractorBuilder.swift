@@ -16,9 +16,12 @@ public struct VisaBridgeInteractorBuilder {
         self.evmSmartContractInteractor = evmSmartContractInteractor
     }
 
-    public func build(for cardAddress: String) async throws -> VisaBridgeInteractor {
+    public func build(for cardAddress: String, logger: VisaLogger) async throws -> VisaBridgeInteractor {
+        let logger = InternalLogger(logger: logger)
         var paymentAccount: String?
+        logger.debug(subsystem: .bridgeInteractorBuilder, "Start searching PaymentAccount for card with address: \(cardAddress)")
         for bridgeAddress in VisaUtilities().TangemBridgeProcessorAddresses {
+            logger.debug(subsystem: .bridgeInteractorBuilder, "Requesting PaymentAccount from bridge with address \(bridgeAddress)")
             let request = VisaSmartContractRequest(
                 contractAddress: bridgeAddress,
                 method: GetPaymentAccountMethod(cardWalletAddress: cardAddress)
@@ -26,19 +29,25 @@ public struct VisaBridgeInteractorBuilder {
 
             do {
                 let response = try await evmSmartContractInteractor.ethCall(request: request).async()
-                let addressParser = try AddressParser().parseAddressResponse(response)
-                paymentAccount = addressParser
+                paymentAccount = try AddressParser().parseAddressResponse(response)
+                logger.debug(subsystem: .bridgeInteractorBuilder, "PaymentAccount founded: \(paymentAccount ?? .unknown)")
                 break
             } catch {
-                print("Failed to get paymentAccount. Reason: \(error)")
+                logger.debug(subsystem: .bridgeInteractorBuilder, "Failed to receive PaymentAccount. Reason: \(error)")
             }
         }
 
         guard let paymentAccount else {
+            logger.debug(subsystem: .bridgeInteractorBuilder, "No payment account for card address: \(cardAddress)")
             throw VisaBridgeInteractorBuilderError.failedToFindPaymentAccount
         }
 
-        return CommonBridgeInteractor(evmSmartContractInteractor: evmSmartContractInteractor, paymentAccount: paymentAccount)
+        logger.debug(subsystem: .bridgeInteractorBuilder, "Creating Bridge interactor for founded PaymentAccount")
+        return CommonBridgeInteractor(
+            evmSmartContractInteractor: evmSmartContractInteractor,
+            paymentAccount: paymentAccount,
+            logger: logger
+        )
     }
 }
 
