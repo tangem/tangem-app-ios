@@ -93,7 +93,6 @@ class SendModel {
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
-    private var lastTimeFeesWereFetched: Date?
     private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -260,7 +259,6 @@ class SendModel {
 
                 let feeValues = feeValues(fees)
                 _feeValues.send(feeValues)
-                lastTimeFeesWereFetched = Date()
 
                 guard
                     let selectedFee = feeValues[selectedFeeOption],
