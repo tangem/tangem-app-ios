@@ -30,10 +30,10 @@ struct SendView: View {
                     navigationButtons
                 }
 
-                Color.clear.frame(width: 0.5, height: 0.5)
+                NavHolder()
                     .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
 
-                Color.clear.frame(width: 0.5, height: 0.5)
+                NavHolder()
                     .alert(item: $viewModel.alert) { $0.alert }
             }
         }
