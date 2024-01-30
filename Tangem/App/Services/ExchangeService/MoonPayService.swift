@@ -67,7 +67,7 @@ private struct MoonpayCurrency: Decodable {
             case .bitcoin:
                 return Blockchain.bitcoin(testnet: false).coinId
             case .bitcoinCash:
-                return Blockchain.bitcoinCash(testnet: false).coinId
+                return Blockchain.bitcoinCash.coinId
             case .ethereum:
                 return Blockchain.ethereum(testnet: false).coinId
             case .bnbChain:
