@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemVisa
 
 class MainCoordinator: CoordinatorObject {
     // MARK: - Dependencies
@@ -38,6 +39,8 @@ class MainCoordinator: CoordinatorObject {
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
     @Published var organizeTokensViewModel: OrganizeTokensViewModel?
     @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
+
+    @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel? = nil
 
     // MARK: - Helpers
 
@@ -363,7 +366,11 @@ extension MainCoordinator: OrganizeTokensRoutable {
 
 // MARK: - VisaWalletRoutable
 
-extension MainCoordinator: VisaWalletRoutable {}
+extension MainCoordinator: VisaWalletRoutable {
+    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord) {
+        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record)
+    }
+}
 
 // MARK: - RateAppRoutabe protocol conformance
 
