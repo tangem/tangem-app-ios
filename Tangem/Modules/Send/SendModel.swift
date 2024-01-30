@@ -253,7 +253,7 @@ class SendModel {
                 let feeValues = Dictionary(pairs, uniquingKeysWith: { v1, _ in v1 })
                 _feeValues.send(feeValues)
 
-                completion(.failedToGetFee)
+                completion(.failure(WalletError.failedToGetFee))
             } receiveValue: { [weak self] fees in
                 guard let self else { return }
 
@@ -264,12 +264,12 @@ class SendModel {
                     let selectedFee = feeValues[selectedFeeOption],
                     let selectedFeeValue = selectedFee.value
                 else {
-                    completion(.failedToGetFee)
+                    completion(.failure(WalletError.failedToGetFee))
                     return
                 }
 
                 fee.send(selectedFeeValue)
-                completion(.success(oldFee: oldFeeAmount?.amount, newFee: selectedFeeValue.amount))
+                completion(.success((oldFee: oldFeeAmount?.amount, newFee: selectedFeeValue.amount)))
 
                 if let customFee = feeValues[.custom]?.value,
                    let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
