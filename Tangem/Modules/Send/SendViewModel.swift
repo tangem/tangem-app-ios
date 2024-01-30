@@ -80,7 +80,7 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
 
-    private unowned let coordinator: SendRoutable
+    private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -197,7 +197,7 @@ final class SendViewModel: ObservableObject {
             )
 
             let networkName = walletModel.blockchainNetwork.blockchain.displayName
-            coordinator.openQRScanner(with: binding, networkName: networkName)
+            coordinator?.openQRScanner(with: binding, networkName: networkName)
         }
     }
 
@@ -237,7 +237,7 @@ final class SendViewModel: ObservableObject {
 
                 if walletModel.isDemo {
                     let button = Alert.Button.default(Text(Localization.commonOk)) {
-                        self.coordinator.dismiss()
+                        self.coordinator?.dismiss()
                     }
                     alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
                 }
@@ -267,7 +267,7 @@ final class SendViewModel: ObservableObject {
             lastError: error
         )
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
-        coordinator.openMail(with: emailDataCollector, recipient: recipient)
+        coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     private func openFinishPage() {
