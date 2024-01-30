@@ -93,7 +93,7 @@ class CommonSafariManager: SafariManager {
 
 extension CommonSafariManager: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        guard case .dismissSafariVC = action else {
+        guard case .dismissSafari = action else {
             return false
         }
 
