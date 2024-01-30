@@ -62,9 +62,10 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
-            mainViewDelegate: self,
+            singleWalletContentDelegate: self,
             multiWalletContentDelegate: self
         )
+
         bind()
     }
 
@@ -260,7 +261,7 @@ final class MainViewModel: ObservableObject {
             let newPage = mainUserWalletPageBuilderFactory.createPage(
                 for: userWalletModel,
                 lockedUserWalletDelegate: self,
-                mainViewDelegate: self,
+                singleWalletContentDelegate: self,
                 multiWalletContentDelegate: self
             )
         else {
@@ -299,7 +300,7 @@ final class MainViewModel: ObservableObject {
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
-            mainViewDelegate: self,
+            singleWalletContentDelegate: self,
             multiWalletContentDelegate: self
         )
     }
@@ -399,7 +400,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
             let page = mainUserWalletPageBuilderFactory.createPage(
                 for: userWalletModel,
                 lockedUserWalletDelegate: self,
-                mainViewDelegate: self,
+                singleWalletContentDelegate: self,
                 multiWalletContentDelegate: self
             )
         else {
@@ -418,13 +419,13 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
     }
 }
 
-extension MainViewModel: MultiWalletContentDelegate {
+extension MainViewModel: MultiWalletMainContentDelegate {
     func displayAddressCopiedToast() {
         showAddressCopiedToast = true
     }
 }
 
-extension MainViewModel: MainViewDelegate {
+extension MainViewModel: SingleWalletMainContentDelegate {
     func present(actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
     }
