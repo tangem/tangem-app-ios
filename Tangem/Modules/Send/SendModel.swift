@@ -90,6 +90,7 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let addressService: SendAddressService
+    private let addressParser: SendAddressParserService
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
@@ -97,11 +98,12 @@ class SendModel {
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, addressParser: SendAddressParserService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
         self.addressService = addressService
+        self.addressParser = addressParser
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -291,8 +293,13 @@ class SendModel {
     // MARK: - Destination and memo
 
     func setDestination(_ address: String) {
-        _destinationText.send(address)
+        let (parsedDestination, parsedAdditionalField) = addressParser.parse(address: address, additionalField: _destinationAdditionalFieldText.value)
+
+        _destinationText.send(parsedDestination)
         validateDestination()
+
+        _destinationAdditionalFieldText.send(parsedAdditionalField ?? "")
+        validateDestinationAdditionalField()
     }
 
     func setDestinationAdditionalField(_ additionalField: String) {
