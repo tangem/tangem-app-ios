@@ -372,9 +372,9 @@ extension MainCoordinator: VisaWalletRoutable {
     }
 }
 
-// MARK: - RateAppRoutabe protocol conformance
+// MARK: - RateAppRoutable protocol conformance
 
-extension MainCoordinator: RateAppRoutabe {
+extension MainCoordinator: RateAppRoutable {
     func openAppRateDialog(with viewModel: RateAppBottomSheetViewModel) {
         rateAppBottomSheetViewModel = viewModel
     }
