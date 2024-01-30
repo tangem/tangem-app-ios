@@ -141,7 +141,6 @@ private extension CommonExpressTransactionBuilder {
              .dash,
              .gnosis,
              .optimism,
-             .saltPay,
              .kava,
              .kaspa,
              .ravencoin,
