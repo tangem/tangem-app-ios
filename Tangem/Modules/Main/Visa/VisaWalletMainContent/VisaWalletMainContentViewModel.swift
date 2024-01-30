@@ -9,10 +9,12 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemVisa
 
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
     func openExplorer(at url: URL, blockchainDisplayName: String)
+    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord)
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
@@ -30,7 +32,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     private let visaWalletModel: VisaWalletModel
-    private unowned let coordinator: VisaWalletRoutable
+    private weak var coordinator: VisaWalletRoutable?
 
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Never>?
@@ -55,7 +57,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             localizedName: addressType.defaultLocalizedName,
             addressQRImage: QrCodeGenerator.generateQRCode(from: visaWalletModel.accountAddress)
         )
-        coordinator.openReceiveScreen(
+        coordinator?.openReceiveScreen(
             amountType: visaWalletModel.tokenItem.amountType,
             blockchain: visaWalletModel.tokenItem.blockchain,
             addressInfos: [addressInfo]
@@ -78,15 +80,34 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator.openExplorer(at: url, blockchainDisplayName: visaWalletModel.tokenItem.blockchain.displayName)
+        coordinator?.openExplorer(at: url, blockchainDisplayName: visaWalletModel.tokenItem.blockchain.displayName)
     }
 
-    func exploreTransaction(with id: String) {}
+    func exploreTransaction(with id: String) {
+        guard
+            let transactionId = UInt64(id),
+            let transactionRecord = visaWalletModel.transaction(with: transactionId)
+        else {
+            return
+        }
 
-    func reloadTransactionHistory() {}
+        coordinator?.openTransactionDetails(tokenItem: visaWalletModel.tokenItem, for: transactionRecord)
+        AppLog.shared.debug("[Visa Main Content View Model] Explore transaction with id: \(transactionId)")
+    }
+
+    func reloadTransactionHistory() {
+        isTransactoinHistoryReloading = true
+        visaWalletModel.reloadHistory()
+    }
 
     func fetchNextTransactionHistoryPage() -> FetchMore? {
-        return nil
+        guard visaWalletModel.canFetchMoreTransactionHistory else {
+            return nil
+        }
+
+        return FetchMore { [weak self] in
+            self?.visaWalletModel.loadNextHistoryPage()
+        }
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
@@ -94,9 +115,13 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
+        isTransactoinHistoryReloading = true
         updateTask = Task { [weak self] in
             await self?.visaWalletModel.generalUpdateAsync()
-            completionHandler()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self?.isTransactoinHistoryReloading = false
+                completionHandler()
+            }
             self?.updateTask = nil
         }
     }
@@ -108,13 +133,32 @@ class VisaWalletMainContentViewModel: ObservableObject {
             .sink { (self, newState) in
                 switch newState {
                 case .loading, .notInitialized:
-                    break
+                    return
                 case .idle:
                     self.updateLimits()
                 case .failedToInitialize(let error):
                     self.failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: error.notificationEvent)
                 }
             }
+            .store(in: &bag)
+
+        visaWalletModel.transactionHistoryStatePublisher
+            .receive(on: DispatchQueue.main)
+            .filter { !$0.isLoading }
+            .withWeakCaptureOf(self)
+            .map { viewModel, newState in
+                switch newState {
+                case .initial, .loading:
+                    return .loading
+                case .loaded:
+                    viewModel.isTransactoinHistoryReloading = false
+                    return .loaded(viewModel.visaWalletModel.transactionHistoryItems)
+                case .failedToLoad(let error):
+                    viewModel.isTransactoinHistoryReloading = false
+                    return .error(error)
+                }
+            }
+            .assign(to: \.transactionListViewState, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -125,7 +169,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
         let balanceFormatter = BalanceFormatter()
         let currentLimit = limits.currentLimit
-        let remainingSummary = (currentLimit.remainingOTPAmount ?? 0) + (currentLimit.remainingNoOTPAmount ?? 0)
+        let remainingSummary = currentLimit.remainingOTPAmount ?? 0
         cryptoLimitText = balanceFormatter.formatCryptoBalance(remainingSummary, currencyCode: visaWalletModel.tokenItem.currencySymbol)
 
         let remainingTimeSeconds = Date().distance(to: currentLimit.actualExpirationDate)
