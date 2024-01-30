@@ -61,7 +61,7 @@ struct SendDestinationTextView: View {
 
     private var addressIconView: some View {
         Group {
-            if viewModel.isChecking {
+            if viewModel.isValidating {
                 Circle()
                     .foregroundColor(Colors.Button.secondary)
                     .overlay(
@@ -138,15 +138,15 @@ struct SendDestinationTextView: View {
 
 #Preview {
     GroupedScrollView {
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isChecking: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isChecking: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isChecking: .just(output: true), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: true), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isChecking: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isChecking: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
         Text("There are two fields and they must be aligned 👇")
             .foregroundColor(.blue)
@@ -154,10 +154,10 @@ struct SendDestinationTextView: View {
 
         // To make sure everything's aligned and doesn't jump when entering stuff
         ZStack {
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isChecking: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
                 .opacity(0.5)
 
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isChecking: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
                 .opacity(0.5)
         }
     }
