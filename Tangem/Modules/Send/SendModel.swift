@@ -165,6 +165,34 @@ class SendModel {
     }
 
     private func bind() {
+        // Start and stop "checking" flag when we the raw address and validated address change respectively
+        _destinationText
+            .dropFirst()
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?._isCheckingDestination.send(true)
+            })
+            .debounce(for: 1, scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.validateDestination()
+            }
+            .store(in: &bag)
+
+        destination
+            .sink { [weak self] _ in
+                self?._isCheckingDestination.send(false)
+            }
+            .store(in: &bag)
+
+        _destinationAdditionalFieldText
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: 1, scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.validateDestinationAdditionalField()
+            }
+            .store(in: &bag)
+
         Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
             .removeDuplicates {
                 $0 == $1
@@ -293,16 +321,13 @@ class SendModel {
 
     func setDestination(_ address: String) {
         _destinationText.send(address)
-        validateDestination()
     }
 
     func setDestinationAdditionalField(_ additionalField: String) {
         _destinationAdditionalFieldText.send(additionalField)
-        validateDestinationAdditionalField()
     }
 
     private func validateDestination() {
-        #warning("[REDACTED_TODO_COMMENT]")
         destinationResolutionRequest?.cancel()
 
         destination.send(nil)
