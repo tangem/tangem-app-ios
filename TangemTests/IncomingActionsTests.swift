@@ -58,9 +58,14 @@ class IncomingActionsTests: XCTestCase {
     }
 
     func testSafariClose() {
-        let urlString = "https://tangem.com/redirect?action=dismissSafariVC"
-        let service = DismissSafariURLService()
-        XCTAssertEqual(service.buildURL().absoluteString, urlString)
-        XCTAssertTrue(service.parse(URL(string: urlString)!) == .dismissSafariVC)
+        let urlString1 = "tangem://redirect?action=dismissBrowser"
+        let urlString2 = "https://tangem.com/redirect?action=dismissBrowser"
+
+        let helper = DismissSafariActionURLHelper()
+        XCTAssertEqual(helper.buildURL(scheme: .universalLink).absoluteString, urlString1)
+        XCTAssertEqual(helper.buildURL(scheme: .redirectLink).absoluteString, urlString2)
+
+        XCTAssertTrue(helper.parse(URL(string: urlString1)!) == .dismissSafari)
+        XCTAssertTrue(helper.parse(URL(string: urlString2)!) == .dismissSafari)
     }
 }
