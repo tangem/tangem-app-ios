@@ -27,7 +27,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage()
-    private unowned let coordinator: EnvironmentSetupRoutable
+    private weak var coordinator: EnvironmentSetupRoutable?
     private var bag: Set<AnyCancellable> = []
 
     init(coordinator: EnvironmentSetupRoutable) {
@@ -98,7 +98,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
         additionalSettingsViewModels = [
             DefaultRowViewModel(title: "Supported Blockchains") { [weak self] in
-                self?.coordinator.openSupportedBlockchainsPreferences()
+                self?.coordinator?.openSupportedBlockchainsPreferences()
             },
         ]
 
