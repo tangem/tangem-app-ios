@@ -140,7 +140,7 @@ struct BottomSheetContainer<ContentView: View>: View {
             stateObject.offset = 0
         }
     }
-    
+
     private var transitionAnimation: Animation {
         .easeOut(duration: settings.animationDuration)
     }
