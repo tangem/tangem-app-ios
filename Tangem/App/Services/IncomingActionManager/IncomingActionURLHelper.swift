@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol IncomingActionURLBuilder {
-    func buildURL() -> URL
+    func buildURL(scheme: IncomingActionScheme) -> URL
 }
 
 public protocol IncomingActionURLParser {
@@ -20,24 +20,16 @@ public protocol IncomingActionURLHelper: IncomingActionURLBuilder & IncomingActi
     var actionValue: String { get }
 }
 
-extension IncomingActionURLHelper {
-    func buildURL() -> URL {
-        var urlComponents = URLComponents(string: IncomingActionConstants.redirectBaseURL)!
-        urlComponents.percentEncodedQueryItems = [.init(name: IncomingActionConstants.incoimingActionName, value: actionValue)]
-        return urlComponents.url!
-    }
-}
+public enum IncomingActionScheme {
+    case redirectLink
+    case universalLink
 
-// MARK: - Implementations
-
-struct DismissSafariURLService: IncomingActionURLHelper {
-    let actionValue: String = "dismissSafariVC"
-
-    func parse(_ url: URL) -> IncomingAction? {
-        guard url == buildURL() else {
-            return nil
+    var baseScheme: String {
+        switch self {
+        case .redirectLink:
+            return IncomingActionConstants.externalRedirectURL
+        case .universalLink:
+            return IncomingActionConstants.universalLinkRedirectURL
         }
-
-        return .dismissSafariVC
     }
 }
