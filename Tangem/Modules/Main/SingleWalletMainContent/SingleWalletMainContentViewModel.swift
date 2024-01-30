@@ -18,6 +18,9 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
+    private let rateAppController: RateAppController
+
+    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
     private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
@@ -30,10 +33,12 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
-        mainViewDelegate: MainViewDelegate?,
-        tokenRouter: SingleTokenRoutable
+        rateAppController: RateAppController,
+        tokenRouter: SingleTokenRoutable,
+        mainViewDelegate: MainViewDelegate?
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
+        self.rateAppController = rateAppController
         self.mainViewDelegate = mainViewDelegate
 
         super.init(
@@ -52,10 +57,31 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     private func bind() {
-        userWalletNotificationManager.notificationPublisher
+        let userWalletNotificationsPublisher = userWalletNotificationManager
+            .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
+            .share(replay: 1)
+
+        userWalletNotificationsPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
+
+        rateAppController.bind(
+            isPageSelectedPublisher: isPageSelectedSubject,
+            notificationsPublisher: userWalletNotificationsPublisher
+        )
+    }
+}
+
+// MARK: - MainViewPage protocol conformance
+
+extension SingleWalletMainContentViewModel: MainViewPage {
+    func onPageAppear() {
+        isPageSelectedSubject.send(true)
+    }
+
+    func onPageDisappear() {
+        isPageSelectedSubject.send(false)
     }
 }
