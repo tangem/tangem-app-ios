@@ -674,8 +674,9 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "Чтобы совершить транзакцию, вам необходимо внести немного %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Невозможно покрыть комиссию %@";
 "warning_express_refresh_required_title" = "Cервис временно недоступен";
-"warning_express_too_minimal_amount_description" = "Пожалуйста, измените сумму для обмена";
+"warning_express_too_maximum_amount_title" = "Сумма для обмена должна быть не более %@";
 "warning_express_too_minimal_amount_title" = "Сумма для обмена должна быть не менее %@";
+"warning_express_wrong_amount_description" = "Пожалуйста, измените сумму для обмена";
 "warning_failed_to_verify_card_message" = "Возможно, данная карта - образец или подделка";
 "warning_failed_to_verify_card_title" = "Ошибка проверки подлинности";
 "warning_long_transaction_message" = "iPhone 7/7+ не может подписывать транзакции в данной сети. Для завершения этой операции, пожалуйста, используйте другой телефон";
