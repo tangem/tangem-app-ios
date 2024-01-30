@@ -13,7 +13,7 @@ public class IncomingActionParser {
     @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
 
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
-        DismissSafariURLService(),
+        DismissSafariActionURLHelper(),
     ]
 
     public init() {}
