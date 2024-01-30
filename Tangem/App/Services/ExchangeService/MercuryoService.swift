@@ -152,12 +152,13 @@ extension MercuryoService: ExchangeService {
         URLSession(configuration: config).dataTaskPublisher(for: request)
             .map(\.data)
             .decode(type: MercuryoCurrencyResponse.self, decoder: JSONDecoder())
+            .withWeakCaptureOf(self)
             .sink { _ in
 
-            } receiveValue: { [unowned self] response in
-                availableCryptoCurrencyCodes = response.data.crypto
-                networkCodeByCurrencyCode = response.data.config.base
-                initialized = true
+            } receiveValue: { service, response in
+                service.availableCryptoCurrencyCodes = response.data.crypto
+                service.networkCodeByCurrencyCode = response.data.config.base
+                service.initialized = true
             }
             .store(in: &bag)
     }
