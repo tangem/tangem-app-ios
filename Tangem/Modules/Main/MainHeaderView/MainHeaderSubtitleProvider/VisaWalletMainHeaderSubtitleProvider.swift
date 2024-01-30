@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol VisaWalletMainHeaderSubtitleDataSource: AnyObject {
-    var walletDidChangePublisher: AnyPublisher<WalletModel.State, Never> { get }
+    var walletDidChangePublisher: AnyPublisher<VisaWalletModel.State, Never> { get }
     var fiatBalance: String { get }
     var blockchainName: String { get }
 }
@@ -47,18 +47,18 @@ class VisaWalletMainHeaderSubtitleProvider {
             .sink(receiveValue: { [weak self] newState in
                 guard let self else { return }
 
-                if newState == .created || newState == .loading {
+                if newState == .notInitialized || newState == .loading {
                     return
                 }
 
                 isLoadingSubject.send(false)
 
                 switch newState {
-                case .failed:
+                case .failedToInitialize:
                     formatErrorMessage()
-                case .idle, .noAccount:
+                case .idle:
                     formatBalanceMessage()
-                case .created, .loading, .noDerivation:
+                case .loading, .notInitialized:
                     break
                 }
             })
@@ -90,10 +90,4 @@ extension VisaWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     }
 
     var containsSensitiveInfo: Bool { true }
-}
-
-extension WalletModel: VisaWalletMainHeaderSubtitleDataSource {
-    var blockchainName: String {
-        "Polygon PoS"
-    }
 }
