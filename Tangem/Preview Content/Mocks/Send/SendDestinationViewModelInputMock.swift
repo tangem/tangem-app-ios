@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
-    var isCheckingDestination: AnyPublisher<Bool, Never> {
+    var isValidatingDestination: AnyPublisher<Bool, Never> {
         .just(output: false)
     }
 
