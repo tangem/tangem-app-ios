@@ -49,8 +49,9 @@ class TotalSumBalanceViewModel: ObservableObject {
 
         totalBalancePublisher
             .compactMap { $0.value }
-            .map { [unowned self] balance in
-                return addAttributeForBalance(balance)
+            .withWeakCaptureOf(self)
+            .map { viewModel, balance -> NSAttributedString in
+                return viewModel.addAttributeForBalance(balance)
             }
             .assign(to: \.totalFiatValueString, on: self, ownership: .weak)
             .store(in: &bag)
