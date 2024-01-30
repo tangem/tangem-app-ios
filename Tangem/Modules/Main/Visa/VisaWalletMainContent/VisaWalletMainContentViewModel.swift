@@ -91,7 +91,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator.openTransactionDetails(tokenItem: visaWalletModel.tokenItem, for: transactionRecord)
+        coordinator?.openTransactionDetails(tokenItem: visaWalletModel.tokenItem, for: transactionRecord)
         AppLog.shared.debug("[Visa Main Content View Model] Explore transaction with id: \(transactionId)")
     }
 
