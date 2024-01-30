@@ -33,7 +33,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         userWalletRepository.isLocked
     }
 
-    private unowned let coordinator: UserWalletListRoutable
+    private weak var coordinator: UserWalletListRoutable?
     private var bag: Set<AnyCancellable> = []
     private var userWalletIdToBeDeleted: Data?
     private var selectedUserWalletId: Data?
@@ -122,7 +122,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
 
-        coordinator.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
+        coordinator?.openMail(with: failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
     }
 
     func edit(_ userWalletId: Data) {
@@ -190,7 +190,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         switch reason {
         case .userSelected, .inserted:
-            coordinator.dismiss()
+            coordinator?.dismiss()
         case .deleted:
             break
         }
@@ -232,7 +232,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     private func openOnboarding(with input: OnboardingInput) {
         DispatchQueue.main.async {
-            self.coordinator.openOnboarding(with: input)
+            self.coordinator?.openOnboarding(with: input)
         }
     }
 
