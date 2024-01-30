@@ -58,7 +58,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
     private let rateAppController: RateAppController
-    private unowned let coordinator: MultiWalletMainContentRoutable
+    private weak var coordinator: MultiWalletMainContentRoutable?
 
     private var canManageTokens: Bool { userWalletModel.isMultiWallet }
 
@@ -123,7 +123,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         if let cardViewModel = userWalletModel as? CardViewModel,
            let input = cardViewModel.backupInput {
             Analytics.log(.mainNoticeBackupWalletTapped)
-            coordinator.openOnboardingModal(with: input)
+            coordinator?.openOnboardingModal(with: input)
         }
     }
 
@@ -274,7 +274,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+        coordinator?.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 }
 
@@ -359,11 +359,11 @@ extension MultiWalletMainContentViewModel {
             existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
         )
 
-        coordinator.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
+        coordinator?.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
     }
 
     private func openOrganizeTokens() {
-        coordinator.openOrganizeTokens(for: userWalletModel)
+        coordinator?.openOrganizeTokens(for: userWalletModel)
     }
 
     private func openBuy(for walletModel: WalletModel) {
@@ -449,8 +449,10 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
             address: walletModel.defaultAddress,
             amountType: walletModel.amountType
         )
+
         let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
-        let canSend = userWalletModel.config.hasFeature(.send) && walletModel.canSendTransaction
+        // On the Main view we have to hide send button if we have any sending restrictions
+        let canSend = userWalletModel.config.hasFeature(.send) && walletModel.sendingRestrictions == .none
         let canSwap = userWalletModel.config.hasFeature(.swapping) && swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem) && !walletModel.isCustom
         let isBlockchainReachable = !walletModel.state.isBlockchainUnreachable
 
