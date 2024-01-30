@@ -91,7 +91,7 @@ class SendSummaryViewModel: ObservableObject {
 
         input.updateFees { [weak self] result in
             switch result {
-            case .failedToGetFee:
+            case .failure:
                 self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
             case .success(let oldFee, let newFee):
                 self?.screenIdleStartTime = Date()
