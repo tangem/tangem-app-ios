@@ -95,7 +95,7 @@ class ExpressNotificationManager {
         let notificationsFactory = NotificationsFactory()
 
         switch restrictions {
-        case .notEnoughAmountForSwapping(let minAmount):
+        case .tooSmallAmountForSwapping(let minAmount):
             let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
             event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceTokenItemSymbol)")
         case .hasPendingTransaction:
