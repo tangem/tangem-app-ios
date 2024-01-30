@@ -33,7 +33,7 @@ struct TransactionView: View {
 
                     if let amount = viewModel.formattedAmount {
                         SensitiveText(amount)
-                            .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                            .style(Fonts.Regular.subheadline, color: viewModel.amountColor)
                     }
                 }
 
@@ -201,11 +201,30 @@ struct TransactionView_Previews: PreviewProvider {
     ]
 
     static var previews: some View {
-        VStack {
-            ForEach(previewViewModels) {
-                TransactionView(viewModel: $0)
+        Group {
+            VStack {
+                ForEach(previewViewModels) {
+                    TransactionView(viewModel: $0)
+                }
             }
+            .padding()
+            .previewDisplayName("previewViewModels")
+
+            VStack {
+                ForEach(figmaViewModels1) {
+                    TransactionView(viewModel: $0)
+                }
+            }
+            .padding()
+            .previewDisplayName("figmaViewModels1")
+
+            VStack {
+                ForEach(figmaViewModels2) {
+                    TransactionView(viewModel: $0)
+                }
+            }
+            .padding()
+            .previewDisplayName("figmaViewModels2")
         }
-        .padding()
     }
 }
