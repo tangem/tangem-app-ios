@@ -19,3 +19,11 @@ struct FixedSpacer: View {
             .frame(width: width, height: height)
     }
 }
+
+// MARK: - Convenience extensions
+
+extension FixedSpacer {
+    static func vertical(_ length: CGFloat) -> Self {
+        FixedSpacer(height: length, length: length)
+    }
+}
