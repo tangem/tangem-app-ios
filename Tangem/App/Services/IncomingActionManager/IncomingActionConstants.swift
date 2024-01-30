@@ -10,9 +10,10 @@ import Foundation
 
 enum IncomingActionConstants {
     static let appTangemDomain = "https://app.tangem.com"
+    static let tangemDomain = "https://tangem.com"
     static let universalLinkScheme = "tangem://"
-    static let tangemDomain = AppConstants.tangemDomainUrl.absoluteString
     static let ndefURL = "\(appTangemDomain)/ndef"
-    static let redirectBaseURL = "\(tangemDomain)/redirect"
+    static let externalRedirectURL = "\(tangemDomain)/redirect"
+    static let universalLinkRedirectURL = "\(universalLinkScheme)redirect"
     static let incoimingActionName = "action"
 }
