@@ -27,9 +27,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.legacyMainCoordinator) {
-                LegacyMainCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.mainCoordinator) {
                 MainCoordinatorView(coordinator: $0)
             }
