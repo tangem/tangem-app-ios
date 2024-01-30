@@ -304,6 +304,9 @@ private extension ExpressInteractor {
         case .restriction(.insufficientBalance(let requiredAmount), let quote):
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
 
+        case .restriction(.notEnoughBalanceForFee, let quote):
+            return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
+
         case .permissionRequired(let permissionRequired):
             let permissionRequiredState = PermissionRequiredState(
                 policy: permissionRequired.policy,
