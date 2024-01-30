@@ -8,4 +8,7 @@
 
 import BlockchainSdk
 
-typealias FeeUpdateResult = Result<(oldFee: Amount?, newFee: Amount), Error>
+struct FeeUpdateResult {
+    let oldFee: Amount?
+    let newFee: Amount
+}
