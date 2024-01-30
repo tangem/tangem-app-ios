@@ -311,7 +311,9 @@ extension SendViewModel: NotificationTapDelegate {
     func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
-            sendModel.updateFees { _ in }
+            runTask(in: self) { `self` in
+                try await self.sendModel.updateFees()
+            }
         default:
             break
         }
