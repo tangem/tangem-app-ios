@@ -15,10 +15,14 @@ protocol MainUserWalletPageBuilderFactory {
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutabe
+    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutable
     let coordinator: MainContentRoutable
 
     func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, mainViewDelegate: MainViewDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> MainUserWalletPageBuilder? {
+        if model.config is VisaConfig {
+            return createVisaPage(userWalletModel: model, lockedUserWalletDelegate: lockedUserWalletDelegate)
+        }
+
         let id = model.userWalletId
         let containsDefaultToken = model.config.hasDefaultToken
         let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
@@ -94,20 +98,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        if model.config is VisaConfig {
-            let walletModel = VisaUtilities().getVisaWalletModel(for: model)
-            let viewModel = VisaWalletMainContentViewModel(
-                walletModel: walletModel,
-                coordinator: coordinator
-            )
-
-            return .visaWallet(
-                id: id,
-                headerModel: headerModel,
-                bodyModel: viewModel
-            )
-        }
-
         guard let walletModel = model.walletModelsManager.walletModels.first else {
             return nil
         }
@@ -161,5 +151,43 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         }
 
         return userWalletModel.walletModelsManager.walletModels.first?.signatureCountValidator
+    }
+
+    private func createVisaPage(userWalletModel: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate?) -> MainUserWalletPageBuilder {
+        let id = userWalletModel.userWalletId
+        let isUserWalletLocked = userWalletModel.isUserWalletLocked
+
+        let visaWalletModel = VisaWalletModel(userWalletModel: userWalletModel)
+
+        let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaWalletModel)
+        let headerModel = MainHeaderViewModel(
+            isUserWalletLocked: userWalletModel.isUserWalletLocked,
+            supplementInfoProvider: userWalletModel,
+            subtitleProvider: subtitleProvider,
+            balanceProvider: visaWalletModel
+        )
+
+        let viewModel = VisaWalletMainContentViewModel(
+            visaWalletModel: visaWalletModel,
+            coordinator: coordinator
+        )
+
+        if isUserWalletLocked {
+            return .lockedWallet(
+                id: id,
+                headerModel: headerModel,
+                bodyModel: .init(
+                    userWalletModel: userWalletModel,
+                    isMultiWallet: false,
+                    lockedUserWalletDelegate: lockedUserWalletDelegate
+                )
+            )
+        }
+
+        return .visaWallet(
+            id: userWalletModel.userWalletId,
+            headerModel: headerModel,
+            bodyModel: viewModel
+        )
     }
 }
