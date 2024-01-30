@@ -14,17 +14,17 @@ struct SendAddressParserService {
     func parse(address: String, additionalField: String) -> (address: String, additionalField: String?) {
         guard
             case .xrp = blockchain,
-            let xrpAddress = try? XRPAddress(xAddress: address)
+            let xrpXAddress = try? XRPAddress(xAddress: address)
         else {
             return (address, additionalField)
         }
 
         let tagString: String?
-        if let tag = xrpAddress.tag {
+        if let tag = xrpXAddress.tag {
             tagString = "\(tag)"
         } else {
             tagString = nil
         }
-        return (xrpAddress.rAddress, tagString)
+        return (xrpXAddress.rAddress, tagString)
     }
 }
