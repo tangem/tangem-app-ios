@@ -42,7 +42,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     // Navigation
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
 
-    private unowned let pendingTransactionsManager: PendingExpressTransactionsManager
+    private weak var pendingTransactionsManager: PendingExpressTransactionsManager?
 
     private let pendingTransaction: PendingExpressTransaction
     private let currentTokenItem: TokenItem
@@ -148,7 +148,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     private func bind() {
-        subscription = pendingTransactionsManager.pendingTransactionsPublisher
+        subscription = pendingTransactionsManager?.pendingTransactionsPublisher
             .dropFirst()
             .withWeakCaptureOf(self)
             .map { viewModel, pendingTransactions in
@@ -170,7 +170,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                 }
 
                 if !pendingTx.transactionRecord.transactionStatus.isTransactionInProgress {
-                    viewModel.pendingTransactionsManager.hideTransaction(with: pendingTx.transactionRecord.expressTransactionId)
+                    viewModel.pendingTransactionsManager?.hideTransaction(with: pendingTx.transactionRecord.expressTransactionId)
                 }
 
                 viewModel.updateUI(with: pendingTx, delay: Constants.notificationAnimationDelay)

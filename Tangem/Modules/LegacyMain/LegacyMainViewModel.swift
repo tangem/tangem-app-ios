@@ -94,7 +94,7 @@ class LegacyMainViewModel: ObservableObject {
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 
-    private unowned let coordinator: LegacyMainRoutable
+    private unowned var coordinator: LegacyMainRoutable
 
     public var canSend: Bool {
         singleWalletContentViewModel?.canSend ?? false
