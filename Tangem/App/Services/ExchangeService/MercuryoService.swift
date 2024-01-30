@@ -143,11 +143,10 @@ extension MercuryoService: ExchangeService {
         URLSession(configuration: config).dataTaskPublisher(for: request)
             .map(\.data)
             .decode(type: MercuryoCurrencyResponse.self, decoder: decoder)
-            .sink { _ in
-
-            } receiveValue: { [unowned self] response in
-                cryptoCurrencies = response.data.config.cryptoCurrencies
-                initialized = true
+            .withWeakCaptureOf(self)
+            .receiveValue { service, response in
+                service.cryptoCurrencies = response.data.config.cryptoCurrencies
+                service.initialized = true
             }
             .store(in: &bag)
     }

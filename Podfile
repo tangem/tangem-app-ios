@@ -97,6 +97,15 @@ target 'TangemExpress' do
   end
 end
 
+target 'TangemVisa' do
+  blockchain_sdk_pods
+  pod 'Moya'
+
+  target 'TangemVisaTests' do
+    blockchain_sdk_pods
+  end
+end
+
 pre_install do |installer|
   # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
   Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
