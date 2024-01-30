@@ -13,7 +13,8 @@ public enum VisaParserError: String, LocalizedError {
     case noValidAddress
     case limitsResponseWrongLength
     case limitWrongLength
-    case failedToParseLimitAmount
+    case limitWrongSingleLimitItemsCount
+    case limitWrongSingleLimitAmountsCount
 
     public var errorDescription: String? {
         rawValue
