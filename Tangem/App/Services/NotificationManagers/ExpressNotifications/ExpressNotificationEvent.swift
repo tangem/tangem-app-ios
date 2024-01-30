@@ -41,8 +41,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .tooSmallAmountToSwap(let minimumAmountText):
             return Localization.warningExpressTooMinimalAmountTitle(minimumAmountText)
         case .tooBigAmountToSwap(let maximumAmountText):
-            #warning("Todo")
-            return Localization.warningExpressTooMinimalAmountTitle(maximumAmountText)
+            return Localization.warningExpressTooMaximumAmountTitle(maximumAmountText)
         case .notEnoughReserveToSwap(let maximumAmountText):
             return Localization.sendNotificationInvalidReserveAmountTitle(maximumAmountText)
         case .noDestinationTokens:
@@ -70,11 +69,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressApprovalInProgressMessage
         case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
-        case .tooSmallAmountToSwap:
-            return Localization.warningExpressTooMinimalAmountDescription
-        case .tooBigAmountToSwap:
-            #warning("Todo")
-            return Localization.warningExpressTooMinimalAmountDescription
+        case .tooSmallAmountToSwap, .tooBigAmountToSwap:
+            return Localization.warningExpressWrongAmountDescription
         case .notEnoughReserveToSwap:
             return Localization.sendNotificationInvalidReserveAmountText
         case .noDestinationTokens(let sourceTokenName):
