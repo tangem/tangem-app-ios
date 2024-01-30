@@ -142,11 +142,7 @@ struct BottomSheetContainer<ContentView: View>: View {
     }
     
     private var transitionAnimation: Animation {
-        if #available(iOS 17, *) {
-            return .default
-        } else {
-            return .easeInOut(duration: settings.animationDuration)
-        }
+        .easeOut(duration: settings.animationDuration)
     }
 }
 
