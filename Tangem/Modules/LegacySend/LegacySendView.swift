@@ -137,7 +137,7 @@ struct LegacySendView: View {
                     if viewModel.shouldShowNetworkBlock {
                         Group {
                             HStack {
-                                Text(Localization.sendNetworkFeeTitle)
+                                Text(Localization.commonNetworkFeeTitle)
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemGrayDark6)
                                 Spacer()
@@ -158,7 +158,7 @@ struct LegacySendView: View {
                             }
                             if viewModel.isNetworkFeeBlockOpen || viewModel.isSellingCrypto {
                                 VStack(spacing: 16.0) {
-                                    if viewModel.shoudShowFeeSelector {
+                                    if viewModel.shouldShowFeeSelector {
                                         PickerView(
                                             contents: [
                                                 Localization.sendFeePickerLow,
@@ -168,7 +168,7 @@ struct LegacySendView: View {
                                             selection: $viewModel.selectedFeeLevel
                                         )
                                     }
-                                    if viewModel.shoudShowFeeIncludeSelector {
+                                    if viewModel.shouldShowFeeIncludeSelector {
                                         Toggle(isOn: $viewModel.isFeeIncluded) {
                                             Text(Localization.sendFeeIncludeDescription)
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
