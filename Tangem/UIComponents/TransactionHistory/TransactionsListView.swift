@@ -72,6 +72,7 @@ struct TransactionsListView: View {
                 .padding(.horizontal, 36)
 
             makeExploreTransactionHistoryButton(withTitle: Localization.commonExploreTransactionHistory, hasFixedSize: true)
+                .padding(.horizontal, 16)
         }
         .padding(.vertical, 28)
     }
