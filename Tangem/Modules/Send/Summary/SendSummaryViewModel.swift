@@ -9,14 +9,16 @@
 import Foundation
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
-    var amountTextBinding: Binding<String> { get }
-    var destinationTextBinding: Binding<String> { get }
-    var feeTextBinding: Binding<String> { get }
+    var amountPublisher: AnyPublisher<Amount?, Never> { get }
+    var destinationTextPublisher: AnyPublisher<String, Never> { get }
+    var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
+    var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
@@ -27,28 +29,39 @@ class SendSummaryViewModel: ObservableObject {
     let canEditAmount: Bool
     let canEditDestination: Bool
 
-    let amountText: String
-    let destinationText: String
-    let feeText: String
-
     @Published var isSending = false
+
+    let walletSummaryViewModel: SendWalletSummaryViewModel
+    @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
+    @Published var amountSummaryViewData: AmountSummaryViewData?
+    @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
 
     weak var router: SendSummaryRoutable?
 
+    private let sectionViewModelFactory: SendSummarySectionViewModelFactory
     private var bag: Set<AnyCancellable> = []
-    private weak var input: SendSummaryViewModelInput?
+    private let input: SendSummaryViewModelInput
 
-    init(input: SendSummaryViewModelInput) {
+    init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
+        self.input = input
+
+        sectionViewModelFactory = SendSummarySectionViewModelFactory(
+            feeCurrencySymbol: walletInfo.feeCurrencySymbol,
+            feeCurrencyId: walletInfo.feeCurrencyId,
+            isFeeApproximate: walletInfo.isFeeApproximate,
+            currencyId: walletInfo.currencyId,
+            tokenIconInfo: walletInfo.tokenIconInfo
+        )
+
+        walletSummaryViewModel = SendWalletSummaryViewModel(
+            walletName: walletInfo.walletName,
+            totalBalance: walletInfo.balance
+        )
+
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
 
-        amountText = input.amountTextBinding.wrappedValue
-        destinationText = input.destinationTextBinding.wrappedValue
-        feeText = input.feeTextBinding.wrappedValue
-
-        self.input = input
-
-        bind(from: input)
+        bind()
     }
 
     func didTapSummary(for step: SendStep) {
@@ -56,13 +69,36 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func send() {
-        input?.send()
+        input.send()
     }
 
-    private func bind(from input: SendSummaryViewModelInput) {
+    private func bind() {
         input
             .isSending
             .assign(to: \.isSending, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        Publishers.CombineLatest(input.destinationTextPublisher, input.additionalFieldPublisher)
+            .map { [weak self] destination, additionalField in
+                self?.sectionViewModelFactory.makeDestinationViewTypes(address: destination, additionalField: additionalField) ?? []
+            }
+            .assign(to: \.destinationViewTypes, on: self)
+            .store(in: &bag)
+
+        input
+            .amountPublisher
+            .compactMap { [weak self] amount in
+                self?.sectionViewModelFactory.makeAmountViewData(from: amount)
+            }
+            .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input
+            .feeValuePublisher
+            .map { [weak self] fee in
+                self?.sectionViewModelFactory.makeFeeViewData(from: fee)
+            }
+            .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
