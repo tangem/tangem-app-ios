@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTxRepository: ExpressPendingTransactionRepository
@@ -85,8 +85,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
-        case .openNetworkCurrency:
-            openNetworkCurrency()
+        case .openFeeCurrency:
+            openFeeCurrency()
         default:
             super.didTapNotificationButton(with: id, action: action)
         }
@@ -218,18 +218,15 @@ private extension TokenDetailsViewModel {
         coordinator.dismiss()
     }
 
-    func openNetworkCurrency() {
-        guard
-            case .token(_, let blockchain) = walletModel.tokenItem,
-            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == .blockchain(blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
-            })
-        else {
-            assertionFailure("Network currency WalletModel not found")
+    func openFeeCurrency() {
+        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(
+            where: { $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork }
+        ) else {
+            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
             return
         }
 
-        coordinator.openNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
