@@ -11,20 +11,32 @@ import SwiftUI
 struct AmountSummaryView: View {
     let data: AmountSummaryViewData
 
+    private var namespace: Namespace.ID?
+    private var titleNamespaceId: String?
+    private var iconNamespaceId: String?
+    private var amountNamespaceId: String?
+
     private let iconSize = CGSize(bothDimensions: 36)
+
+    init(data: AmountSummaryViewData) {
+        self.data = data
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(data.title)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .matchedGeometryEffect(id: titleNamespaceId, in: namespace)
 
             HStack(spacing: 0) {
                 TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
+                    .matchedGeometryEffect(id: iconNamespaceId, in: namespace)
                     .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(data.amount)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .matchedGeometryEffect(id: amountNamespaceId, in: namespace)
 
                     Text(data.amountFiat)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -35,6 +47,24 @@ struct AmountSummaryView: View {
                 Spacer(minLength: 0)
             }
         }
+    }
+}
+
+extension AmountSummaryView: Setupable {
+    func setNamespace(_ namespace: Namespace.ID) -> Self {
+        map { $0.namespace = namespace }
+    }
+
+    func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
+        map { $0.titleNamespaceId = titleNamespaceId }
+    }
+
+    func setIconNamespaceId(_ iconNamespaceId: String?) -> Self {
+        map { $0.iconNamespaceId = iconNamespaceId }
+    }
+
+    func setAmountNamespaceId(_ amountNamespaceId: String?) -> Self {
+        map { $0.amountNamespaceId = amountNamespaceId }
     }
 }
 
