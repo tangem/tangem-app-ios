@@ -115,3 +115,35 @@ private extension TokenDetailsView {
         static let headerTopPadding: CGFloat = 14.0
     }
 }
+
+#Preview {
+    let userWalletModel = FakeUserWalletModel.wallet3Cards
+    let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? .mockETH
+    let exchangeUtility = ExchangeCryptoUtility(
+        blockchain: walletModel.blockchainNetwork.blockchain,
+        address: walletModel.defaultAddress,
+        amountType: walletModel.tokenItem.amountType
+    )
+    let notifManager = SingleTokenNotificationManager(
+        walletModel: walletModel,
+        walletModelsManager: userWalletModel.walletModelsManager,
+        swapPairService: nil,
+        contextDataProvider: nil
+    )
+    let pendingTxsManager = CommonPendingExpressTransactionsManager(
+        userWalletId: userWalletModel.userWalletId.stringValue,
+        blockchainNetwork: walletModel.blockchainNetwork,
+        tokenItem: walletModel.tokenItem
+    )
+    let coordinator = TokenDetailsCoordinator()
+
+    return TokenDetailsView(viewModel: .init(
+        userWalletModel: userWalletModel,
+        walletModel: walletModel,
+        exchangeUtility: exchangeUtility,
+        notificationManager: notifManager,
+        pendingExpressTransactionsManager: pendingTxsManager,
+        coordinator: coordinator,
+        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator)
+    ))
+}
