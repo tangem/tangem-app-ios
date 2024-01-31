@@ -18,7 +18,12 @@ struct SendFeeView: View {
     var body: some View {
         GroupedScrollView {
             GroupedSection(viewModel.feeRowViewModels) {
-                FeeRowView(viewModel: $0)
+                if $0.isSelected.value {
+                    FeeRowView(namespace: namespace, viewModel: $0)
+                        .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
+                } else {
+                    FeeRowView(namespace: namespace, viewModel: $0)
+                }
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
