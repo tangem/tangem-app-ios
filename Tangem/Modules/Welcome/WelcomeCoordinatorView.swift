@@ -38,9 +38,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.shopCoordinator) {
-                ShopCoordinatorView(coordinator: $0)
-            }
             .sheet(item: $coordinator.promotionCoordinator) {
                 PromotionCoordinatorView(coordinator: $0)
             }
