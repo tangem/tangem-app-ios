@@ -18,7 +18,6 @@ class LegacyMainViewModel: ObservableObject {
 
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
@@ -95,7 +94,7 @@ class LegacyMainViewModel: ObservableObject {
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 
-    private unowned let coordinator: LegacyMainRoutable
+    private unowned var coordinator: LegacyMainRoutable
 
     public var canSend: Bool {
         singleWalletContentViewModel?.canSend ?? false
@@ -416,14 +415,9 @@ extension LegacyMainViewModel {
         switch button {
         case .okGotIt:
             handleOkGotItButtonAction()
-        case .rateApp:
-            rateAppService.userReactToRateAppWarning(isPositive: true)
-        case .dismiss:
-            rateAppService.dismissRateAppWarning()
         case .reportProblem:
-            rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
-        case .learnMore:
+        case .learnMore, .rateApp, .dismiss:
             break
         }
 
