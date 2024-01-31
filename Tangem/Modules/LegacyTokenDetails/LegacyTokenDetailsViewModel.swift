@@ -113,23 +113,11 @@ class LegacyTokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.config.hasFeature(.send) else {
-            return false
-        }
-
-        return walletModel?.canSendTransaction ?? false
+        return false
     }
 
     var sendBlockedReason: String? {
-        guard let reason = walletModel?.sendBlockedReason else {
-            return nil
-        }
-
-        if case .cantSignLongTransactions = reason {
-            return nil
-        }
-
-        return reason.description
+        return nil
     }
 
     var existentialDepositWarning: String? {
