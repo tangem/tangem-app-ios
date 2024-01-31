@@ -30,6 +30,8 @@ struct SendView: View {
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
+        .alert(item: $viewModel.alert) { $0.alert }
+        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
 
     @ViewBuilder
@@ -38,11 +40,33 @@ struct SendView: View {
             SheetDragHandler()
                 .padding(.bottom, 4)
 
-            Text(viewModel.title)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                .animation(nil)
-                .padding(.vertical, 8)
+            if let title = viewModel.title {
+                HStack {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: 1)
+
+                    Text(title)
+                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                        .animation(nil)
+                        .padding(.vertical, 8)
+                        .lineLimit(1)
+                        .layoutPriority(1)
+
+                    if viewModel.showQRCodeButton {
+                        Button(action: viewModel.scanQRCode) {
+                            Assets.qrCode.image
+                                .renderingMode(.template)
+                                .foregroundColor(Colors.Icon.primary1)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        }
+                    } else {
+                        Color.clear
+                            .frame(maxWidth: .infinity, maxHeight: 1)
+                    }
+                }
+            }
         }
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -56,6 +80,8 @@ struct SendView: View {
             SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel)
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel)
+        case .finish(let sendFinishViewModel):
+            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel)
         }
     }
 
@@ -100,6 +126,8 @@ private struct SendViewBackButton: View {
                 .overlay(
                     Assets.arrowLeftMini
                         .image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.primary1)
                 )
                 .frame(size: CGSize(bothDimensions: height))
         }
@@ -109,10 +137,14 @@ private struct SendViewBackButton: View {
 // MARK: - Preview
 
 struct SendView_Preview: PreviewProvider {
+    static let card = FakeUserWalletModel.wallet3Cards
+
     static let viewModel = SendViewModel(
-        walletModel: WalletModelsManagerMock().walletModels.first!,
+        walletName: card.userWalletName,
+        walletModel: card.walletModelsManager.walletModels.first!,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
+        emailDataProvider: CardViewModel.mock!,
         coordinator: SendRoutableMock()
     )
 
