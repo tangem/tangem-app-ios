@@ -48,9 +48,6 @@ struct OnboardingCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.buyCryptoModel) {
-                WebViewContainer(viewModel: $0)
-            }
             .sheet(item: $coordinator.accessCodeModel) {
                 OnboardingAccessCodeView(viewModel: $0)
             }
