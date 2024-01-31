@@ -77,9 +77,11 @@ struct PendingExpressTxStatusBottomSheetView: View {
                     fiatAmountTextState: viewModel.sourceFiatAmountTextState
                 )
 
-                Assets.approx.image
+                Assets.arrowRightMini.image
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Text.tertiary)
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 12))
+                    .foregroundColor(Colors.Icon.informative)
 
                 tokenInfo(
                     with: viewModel.destinationTokenIconInfo,
