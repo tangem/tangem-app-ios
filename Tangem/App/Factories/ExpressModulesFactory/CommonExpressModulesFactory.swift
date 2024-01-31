@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import BlockchainSdk
 
 class CommonExpressModulesFactory {
-    @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletModel: UserWalletModel
@@ -22,7 +21,6 @@ class CommonExpressModulesFactory {
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var swappingFactory = TangemSwappingFactory(oneInchApiKey: "")
     private lazy var allowanceProvider = makeAllowanceProvider()
     private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
@@ -41,7 +39,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         let model = ExpressViewModel(
             initialWallet: initialWalletModel,
             userWalletModel: userWalletModel,
-            swappingFeeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
@@ -67,17 +65,17 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeBottomSheetRoutable) -> ExpressFeeBottomSheetViewModel {
-        ExpressFeeBottomSheetViewModel(
-            swappingFeeFormatter: swappingFeeFormatter,
+    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
+        ExpressFeeSelectorViewModel(
+            feeFormatter: feeFormatter,
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
 
-    func makeSwappingApproveViewModel(coordinator: SwappingApproveRoutable) -> SwappingApproveViewModel {
-        SwappingApproveViewModel(
-            swappingFeeFormatter: swappingFeeFormatter,
+    func makeExpressApproveViewModel(coordinator: ExpressApproveRoutable) -> ExpressApproveViewModel {
+        ExpressApproveViewModel(
+            feeFormatter: feeFormatter,
             pendingTransactionRepository: pendingTransactionRepository,
             logger: logger,
             expressInteractor: expressInteractor,
@@ -104,7 +102,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
-            feeFormatter: swappingFeeFormatter,
+            feeFormatter: feeFormatter,
             coordinator: coordinator
         )
     }
@@ -113,11 +111,10 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 // MARK: Dependencies
 
 private extension CommonExpressModulesFactory {
-    var swappingFeeFormatter: SwappingFeeFormatter {
-        CommonSwappingFeeFormatter(
+    var feeFormatter: FeeFormatter {
+        CommonFeeFormatter(
             balanceFormatter: balanceFormatter,
-            balanceConverter: balanceConverter,
-            fiatRatesProvider: SwappingRatesProvider()
+            balanceConverter: balanceConverter
         )
     }
 
@@ -129,10 +126,6 @@ private extension CommonExpressModulesFactory {
         ExpressNotificationManager(expressInteractor: expressInteractor)
     }
 
-    var explorerURLService: ExplorerURLService {
-        CommonExplorerURLService()
-    }
-
     var percentFormatter: PercentFormatter { .init() }
     var balanceConverter: BalanceConverter { .init() }
     var balanceFormatter: BalanceFormatter { .init() }
@@ -140,7 +133,7 @@ private extension CommonExpressModulesFactory {
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TransactionSigner { userWalletModel.signer }
-    var logger: SwappingLogger { AppLog.shared }
+    var logger: Logger { AppLog.shared }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
@@ -166,7 +159,7 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let expressManager = swappingFactory.makeExpressManager(
+        let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
