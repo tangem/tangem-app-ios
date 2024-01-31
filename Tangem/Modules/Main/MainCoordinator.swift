@@ -37,13 +37,15 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel?
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel? = nil
+    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
+    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
 
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel? = nil
 
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var isAppStoreReviewRequested = false
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -168,7 +170,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 }
 
-// MARK: - SingleTokenRoutable
+// MARK: - SingleTokenBaseRoutable
 
 extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
@@ -367,5 +369,25 @@ extension MainCoordinator: OrganizeTokensRoutable {
 extension MainCoordinator: VisaWalletRoutable {
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord) {
         visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record)
+    }
+}
+
+// MARK: - RateAppRoutable protocol conformance
+
+extension MainCoordinator: RateAppRoutable {
+    func openAppRateDialog(with viewModel: RateAppBottomSheetViewModel) {
+        rateAppBottomSheetViewModel = viewModel
+    }
+
+    func closeAppRateDialog() {
+        rateAppBottomSheetViewModel = nil
+    }
+
+    func openFeedbackMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+        openMail(with: dataCollector, emailType: emailType, recipient: recipient)
+    }
+
+    func openAppStoreReview() {
+        isAppStoreReviewRequested = true
     }
 }
