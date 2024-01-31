@@ -24,7 +24,6 @@ class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var legacyMainCoordinator: LegacyMainCoordinator? = nil
     @Published var mainCoordinator: MainCoordinator? = nil
 
     // MARK: - Child view models
@@ -180,17 +179,9 @@ extension OnboardingCoordinator: OnboardingRoutable {
     }
 
     private func openMain(with cardModel: CardViewModel) {
-        if FeatureProvider.isAvailable(.mainV2) {
-            let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-            let options = MainCoordinator.Options(userWalletModel: cardModel)
-            coordinator.start(with: options)
-            mainCoordinator = coordinator
-            return
-        }
-
-        let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
-        let options = LegacyMainCoordinator.Options(cardModel: cardModel)
+        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+        let options = MainCoordinator.Options(userWalletModel: cardModel)
         coordinator.start(with: options)
-        legacyMainCoordinator = coordinator
+        mainCoordinator = coordinator
     }
 }
