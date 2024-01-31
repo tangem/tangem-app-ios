@@ -312,7 +312,7 @@ extension SendViewModel: NotificationTapDelegate {
     func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
-            sendModel.updateFees { _ in }
+            sendModel.updateFees()
         default:
             break
         }
