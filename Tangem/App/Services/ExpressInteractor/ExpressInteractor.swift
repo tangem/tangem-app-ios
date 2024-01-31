@@ -8,13 +8,13 @@
 
 import Foundation
 import Combine
-import TangemSwapping
+import TangemExpress
 import BlockchainSdk
 
 class ExpressInteractor {
     // MARK: - Public
 
-    public var state: AnyPublisher<ExpressInteractorState, Never> {
+    public var state: AnyPublisher<State, Never> {
         _state.eraseToAnyPublisher()
     }
 
@@ -34,11 +34,11 @@ class ExpressInteractor {
     private let expressDestinationService: ExpressDestinationService
     private let expressTransactionBuilder: ExpressTransactionBuilder
     private let signer: TransactionSigner
-    private let logger: SwappingLogger
+    private let logger: Logger
 
     // MARK: - Options
 
-    private let _state: CurrentValueSubject<ExpressInteractorState, Never> = .init(.idle)
+    private let _state: CurrentValueSubject<State, Never> = .init(.idle)
     private let _swappingPair: CurrentValueSubject<SwappingPair, Never>
     private let feeOption: ThreadSafeContainer<FeeOption> = .init(.market)
 
@@ -55,7 +55,7 @@ class ExpressInteractor {
         expressDestinationService: ExpressDestinationService,
         expressTransactionBuilder: ExpressTransactionBuilder,
         signer: TransactionSigner,
-        logger: SwappingLogger
+        logger: Logger
     ) {
         self.userWalletId = userWalletId
         self.initialWallet = initialWallet
@@ -77,7 +77,7 @@ class ExpressInteractor {
 // MARK: - Getters
 
 extension ExpressInteractor {
-    func getState() -> ExpressInteractorState {
+    func getState() -> State {
         _state.value
     }
 
@@ -95,7 +95,7 @@ extension ExpressInteractor {
 
     // Proxy methods
 
-    func getApprovePolicy() async -> SwappingApprovePolicy {
+    func getApprovePolicy() async -> ExpressApprovePolicy {
         await expressManager.getApprovePolicy()
     }
 
@@ -156,7 +156,7 @@ extension ExpressInteractor {
         }
     }
 
-    func updateApprovePolicy(policy: SwappingApprovePolicy) {
+    func updateApprovePolicy(policy: ExpressApprovePolicy) {
         updateState(.loading(type: .refreshRates))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(approvePolicy: policy)
@@ -216,6 +216,7 @@ extension ExpressInteractor {
             expressTransactionData: result.data
         )
 
+        logTransactionSentAnalyticsEvent(data: sentTransactionData)
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
         return sentTransactionData
     }
@@ -241,6 +242,7 @@ extension ExpressInteractor {
         let result = try await sender.send(transaction, signer: signer).async()
         logger.debug("Sent the approve transaction with result: \(result)")
         allowanceProvider.didSendApproveTransaction(for: state.data.spender)
+        logApproveTransactionSentAnalyticsEvent(policy: state.policy)
         updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
 }
@@ -248,7 +250,7 @@ extension ExpressInteractor {
 // MARK: - Refresh
 
 extension ExpressInteractor {
-    func refresh(type: SwappingManagerRefreshType) {
+    func refresh(type: ExpressInteractor.RefreshType) {
         log("Was requested for refresh with \(type)")
 
         updateTask { interactor in
@@ -284,7 +286,7 @@ extension ExpressInteractor {
 // MARK: - State
 
 private extension ExpressInteractor {
-    func mapState(state: ExpressManagerState) async throws -> ExpressInteractorState {
+    func mapState(state: ExpressManagerState) async throws -> State {
         if hasPendingTransaction() {
             return .restriction(.hasPendingTransaction, quote: state.quote)
         }
@@ -302,13 +304,16 @@ private extension ExpressInteractor {
         case .restriction(.insufficientBalance(let requiredAmount), let quote):
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
 
+        case .restriction(.notEnoughBalanceForFee, let quote):
+            return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
+
         case .permissionRequired(let permissionRequired):
             let permissionRequiredState = PermissionRequiredState(
                 policy: permissionRequired.policy,
                 data: permissionRequired.data,
                 fees: mapToFees(fee: permissionRequired.fee)
             )
-            let state: ExpressInteractorState = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
+            let state: State = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
 
             guard try await hasEnoughBalanceForFee(fees: permissionRequiredState.fees, amount: permissionRequired.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: permissionRequired.quote)
@@ -318,7 +323,7 @@ private extension ExpressInteractor {
 
         case .previewCEX(let previewCEX):
             let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: mapToFees(fee: previewCEX.fee))
-            let state: ExpressInteractorState = .previewCEX(previewCEXState, quote: previewCEX.quote)
+            let state: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
 
             guard try await hasEnoughBalanceForFee(fees: previewCEXState.fees, amount: previewCEX.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: previewCEX.quote)
@@ -332,7 +337,7 @@ private extension ExpressInteractor {
             }
 
             let readyToSwapState = ReadyToSwapState(data: ready.data, fees: mapToFees(fee: ready.fee))
-            let state: ExpressInteractorState = .readyToSwap(readyToSwapState, quote: ready.quote)
+            let state: State = .readyToSwap(readyToSwapState, quote: ready.quote)
 
             guard try await hasEnoughBalanceForFee(fees: readyToSwapState.fees, amount: ready.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: ready.quote)
@@ -342,7 +347,7 @@ private extension ExpressInteractor {
         }
     }
 
-    func updateState(_ state: ExpressInteractorState) {
+    func updateState(_ state: State) {
         log("Update state to \(state)")
 
         if case .restriction(.notEnoughAmountForFee, _) = state {
@@ -370,7 +375,7 @@ private extension ExpressInteractor {
         let sender = getSender()
 
         if sender.isToken {
-            let coinBalance = try await sender.getCoinBalance()
+            let coinBalance = try sender.getCoinBalance()
             return fee <= coinBalance
         }
 
@@ -378,7 +383,7 @@ private extension ExpressInteractor {
             throw ExpressManagerError.amountNotFound
         }
 
-        let balance = try await sender.getBalance()
+        let balance = try sender.getBalance()
         log("\(#function) fee: \(fee) amount: \(amount) balance: \(balance)")
 
         return fee + amount <= balance
@@ -444,14 +449,14 @@ private extension ExpressInteractor {
         }
     }
 
-    func feeOptionDidChange() async throws -> ExpressInteractorState {
+    func feeOptionDidChange() async throws -> State {
         switch getState() {
         case .idle:
             return .idle
         case .loading(let type):
             return .loading(type: type)
         case .permissionRequired(let state, let quote):
-            let state: ExpressInteractorState = .permissionRequired(state, quote: quote)
+            let state: State = .permissionRequired(state, quote: quote)
 
             guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
@@ -465,7 +470,7 @@ private extension ExpressInteractor {
 
             return returnState
         case .previewCEX(let state, let quote):
-            let state: ExpressInteractorState = .previewCEX(state, quote: quote)
+            let state: State = .previewCEX(state, quote: quote)
 
             guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
@@ -473,7 +478,7 @@ private extension ExpressInteractor {
 
             return state
         case .readyToSwap(let state, let quote):
-            let state: ExpressInteractorState = .readyToSwap(state, quote: quote)
+            let state: State = .readyToSwap(state, quote: quote)
 
             guard try await hasEnoughBalanceForFee(fees: state.fees, amount: quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: quote)
@@ -489,7 +494,7 @@ private extension ExpressInteractor {
 // MARK: - Helpers
 
 private extension ExpressInteractor {
-    func updateTask(block: @escaping (_ interactor: ExpressInteractor) async throws -> ExpressInteractorState) {
+    func updateTask(block: @escaping (_ interactor: ExpressInteractor) async throws -> State) {
         cancelRefresh()
         updateStateTask = Task { [weak self] in
             guard let self else { return }
@@ -587,7 +592,7 @@ private extension ExpressInteractor {
         Analytics.log(event: .swapButtonSwap, params: parameters)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: SwappingApprovePolicy) {
+    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy) {
         var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
 
         switch policy {
@@ -602,6 +607,42 @@ private extension ExpressInteractor {
         }
 
         Analytics.log(event: .swapButtonPermissionApprove, params: parameters)
+    }
+
+    func logTransactionSentAnalyticsEvent(data: SentExpressTransactionData) {
+        let analyticsFeeType: Analytics.ParameterValue = {
+            if getState().fees.count == 1 {
+                return .transactionFeeFixed
+            }
+
+            return data.feeOption.analyticsValue
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .token: data.source.tokenItem.currencySymbol,
+            .blockchain: data.source.tokenItem.blockchain.displayName,
+            .feeType: analyticsFeeType.rawValue,
+        ])
+    }
+
+    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy) {
+        let permissionType: Analytics.ParameterValue = {
+            switch policy {
+            case .specified:
+                return .oneTransactionApprove
+            case .unlimited:
+                return .unlimitedApprove
+            }
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
+            .token: getSender().tokenItem.currencySymbol,
+            .blockchain: getSender().tokenItem.blockchain.displayName,
+            .permissionType: permissionType.rawValue,
+        ])
     }
 
     func logExpressError(_ error: ExpressAPIError) async {
@@ -642,9 +683,9 @@ enum ExpressInteractorError: String, LocalizedError {
 }
 
 extension ExpressInteractor {
-    indirect enum ExpressInteractorState {
+    indirect enum State {
         case idle
-        case loading(type: SwappingManagerRefreshType)
+        case loading(type: RefreshType)
         case restriction(_ type: RestrictionType, quote: ExpressQuote?)
         case permissionRequired(PermissionRequiredState, quote: ExpressQuote)
         case previewCEX(PreviewCEXState, quote: ExpressQuote)
@@ -692,18 +733,23 @@ extension ExpressInteractor {
 
     // State models
 
+    enum RefreshType {
+        case full
+        case refreshRates
+    }
+
     enum RestrictionType {
         case notEnoughAmountForSwapping(minAmount: Decimal)
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
-        case notEnoughAmountForFee(_ returnState: ExpressInteractorState)
+        case notEnoughAmountForFee(_ returnState: State)
         case requiredRefresh(occurredError: Error)
         case noDestinationTokens
     }
 
     struct PermissionRequiredState {
-        let policy: SwappingApprovePolicy
+        let policy: ExpressApprovePolicy
         let data: ExpressApproveData
         let fees: [FeeOption: Fee]
     }
