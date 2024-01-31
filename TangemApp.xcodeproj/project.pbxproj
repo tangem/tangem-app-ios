@@ -440,6 +440,7 @@
 		B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B8670526DF60E7008DAA67 /* CardStackAnimator.swift */; };
 		B0B86CFF2A1B594000AB1475 /* MainHeaderSupplementInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B86CFE2A1B594000AB1475 /* MainHeaderSupplementInfoProvider.swift */; };
 		B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B9E0B52629779500408726 /* AlertBinder.swift */; };
+		B0B9FD432B6A30D000B96B4F /* MainViewPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64598FC2B59A81D000FD73F /* MainViewPage.swift */; };
 		B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */; };
 		B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */; };
 		B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */; };
@@ -578,7 +579,6 @@
 		B643B8072B1965EA002DE401 /* PerformanceMonitorConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B643B8062B1965EA002DE401 /* PerformanceMonitorConfigurator.swift */; };
 		B644EC272ACBF217007D9F4B /* UIPanGestureRecognizer+Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = B644EC262ACBF217007D9F4B /* UIPanGestureRecognizer+Value.swift */; };
 		B644EC292ACBF469007D9F4B /* DragGesturePassthroughView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B644EC282ACBF469007D9F4B /* DragGesturePassthroughView.swift */; };
-		B64598FD2B59A81D000FD73F /* MainViewPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64598FC2B59A81D000FD73F /* MainViewPage.swift */; };
 		B64598FF2B59B4AC000FD73F /* RateAppAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64598FE2B59B4AC000FD73F /* RateAppAction.swift */; };
 		B654B6422A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B654B6412A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift */; };
 		B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */; };
@@ -8060,6 +8060,7 @@
 				2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */,
 				DAB19D4C2B2C72A100DD08C4 /* AddCustomTokenRoutable.swift in Sources */,
 				DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */,
+				B0B9FD432B6A30D000B96B4F /* MainViewPage.swift in Sources */,
 				DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */,
 				DA5CD0982A25F4F2008FD876 /* PromotionViewModel.swift in Sources */,
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
