@@ -23,7 +23,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                 let fourthValue: Decimal? = nil
                 switch provider.balance {
                 case .loading:
-                    provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
+                    provider.balance = .loaded(TotalBalance(
                         balance: firstValue,
                         currencyCode: "USD",
                         hasError: false
@@ -42,7 +42,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                     default:
                         newValue = firstValue
                     }
-                    provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
+                    provider.balance = .loaded(TotalBalance(
                         balance: newValue,
                         currencyCode: "USD",
                         hasError: false
@@ -58,7 +58,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                 provider.walletModel.updateWalletName(provider.walletModel.userWalletName == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah")
                 switch provider.balance {
                 case .loading:
-                    provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
+                    provider.balance = .loaded(TotalBalance(
                         balance: 92324.2133654889,
                         currencyCode: "EUR",
                         hasError: false
@@ -73,7 +73,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
             tapAction: { provider in
                 switch provider.balance {
                 case .loading:
-                    provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
+                    provider.balance = .loaded(TotalBalance(
                         balance: 4567575476468896456534878754.2114313,
                         currencyCode: "USD",
                         hasError: false
@@ -88,7 +88,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
             tapAction: { provider in
                 switch provider.balance {
                 case .loading:
-                    provider.balance = .loaded(TotalBalanceProvider.TotalBalance(
+                    provider.balance = .loaded(TotalBalance(
                         balance: 4567575476468896456532344878754.2114313,
                         currencyCode: "USD",
                         hasError: false
@@ -108,9 +108,14 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         models = infoProviders
             .map {
                 .init(
-                    infoProvider: $0.walletModel,
+                    isUserWalletLocked: $0.walletModel.isUserWalletLocked,
+                    supplementInfoProvider: $0.walletModel,
                     subtitleProvider: $0.headerSubtitleProvider,
-                    balanceProvider: $0
+                    balanceProvider: CommonMainHeaderBalanceProvider(
+                        totalBalanceProvider: $0,
+                        userWalletStateInfoProvider: $0.walletModel,
+                        mainBalanceFormatter: CommonMainHeaderBalanceFormatter()
+                    )
                 )
             }
     }
@@ -118,7 +123,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
 
 extension FakeCardHeaderPreviewProvider {
     final class CardInfoProvider: TotalBalanceProviding {
-        @Published var balance: LoadingValue<TotalBalanceProvider.TotalBalance> = .loading
+        @Published var balance: LoadingValue<TotalBalance> = .loading
 
         let walletModel: FakeUserWalletModel
         let headerSubtitleProvider: MainHeaderSubtitleProvider
@@ -131,7 +136,7 @@ extension FakeCardHeaderPreviewProvider {
             self.tapAction = tapAction
         }
 
-        func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
+        var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
             $balance.eraseToAnyPublisher()
         }
     }
