@@ -22,7 +22,7 @@ protocol SendSummaryViewModelInput: AnyObject {
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
-    func updateFees(completion: @escaping (FeeUpdateResult) -> Void)
+    func updateFees() -> AnyPublisher<FeeUpdateResult, Error>
     func send()
 }
 
@@ -89,20 +89,21 @@ class SendSummaryViewModel: ObservableObject {
             return
         }
 
-        input.updateFees { [weak self] result in
-            switch result {
-            case .failure:
-                self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
-            case .success(let oldFee, let newFee):
+        input.updateFees()
+            .sink { [weak self] completion in
+                if case .failure = completion {
+                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
+                }
+            } receiveValue: { [weak self] result in
                 self?.screenIdleStartTime = Date()
 
-                if let oldFee, newFee > oldFee {
+                if let oldFee = result.oldFee, result.newFee > oldFee {
                     self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendAlertFeeIncreasedTitle)
                 } else {
                     self?.input.send()
                 }
             }
-        }
+            .store(in: &bag)
     }
 
     private func bind() {
