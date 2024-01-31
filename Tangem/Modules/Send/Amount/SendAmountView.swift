@@ -59,8 +59,7 @@ struct SendAmountView: View {
                 }
             }
             .contentAlignment(.center)
-            .backgroundColor(Colors.Background.action)
-            .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
+            .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
             HStack {
                 if viewModel.showCurrencyPicker {
