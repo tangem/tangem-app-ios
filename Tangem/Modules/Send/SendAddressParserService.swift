@@ -9,22 +9,13 @@
 import BlockchainSdk
 
 struct SendAddressParserService {
-    let blockchain: Blockchain
+    let addressService: AddressService
 
-    func parse(address: String, additionalField: String) -> (address: String, additionalField: String?) {
-        guard
-            case .xrp = blockchain,
-            let xrpXAddress = try? XRPAddress(xAddress: address)
-        else {
+    func parse(address: String, additionalField: String) -> (parsedAddress: String, parsedAdditionalField: String?) {
+        if let addressParser = addressService as? AddressParser {
+            return addressParser.parse(address: address, additionalField: additionalField)
+        } else {
             return (address, additionalField)
         }
-
-        let tagString: String?
-        if let tag = xrpXAddress.tag {
-            tagString = "\(tag)"
-        } else {
-            tagString = nil
-        }
-        return (xrpXAddress.rAddress, tagString)
     }
 }
