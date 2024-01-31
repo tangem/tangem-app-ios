@@ -8,13 +8,18 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
-    var amountTextBinding: Binding<String> {
-        .constant("100,00")
-    }
+    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> { .just(output: nil) }
 
+    var amountType: Amount.AmountType { .coin }
+
+    var blockchain: Blockchain { .ethereum(testnet: false) }
     var amountError: AnyPublisher<Error?, Never> {
         Just(nil).eraseToAnyPublisher()
     }
+
+    func setAmount(_ amount: BlockchainSdk.Amount?) {}
+    func useMaxAmount() {}
 }
