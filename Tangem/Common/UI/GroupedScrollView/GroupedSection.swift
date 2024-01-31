@@ -23,6 +23,9 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private var backgroundColor: Color = Colors.Background.primary
     private var contentAlignment: HorizontalAlignment = .leading
 
+    private var namespace: Namespace.ID?
+    private var backgroundNamespaceId: String?
+
     init(
         _ models: [Model],
         @ViewBuilder content: @escaping (Model) -> Content,
@@ -55,18 +58,34 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 header()
                     .padding(.horizontal, horizontalPadding)
 
-                VStack(alignment: contentAlignment, spacing: interItemSpacing) {
-                    ForEach(models) { model in
-                        content(model)
-                            .padding(.horizontal, horizontalPadding)
+                ZStack {
+                    Rectangle()
+                        .fill(Color.red)
+                        .matchedGeometryEffect(id: backgroundNamespaceId, in: namespace)
+                        .overlay(
+                            Text("\(backgroundNamespaceId ?? "nil") \(namespace?.hashValue ?? -1)")
+                                .foregroundColor(.white)
+                        )
 
-                        if models.last?.id != model.id {
-                            separator
+                    VStack(alignment: contentAlignment, spacing: interItemSpacing) {
+                        ForEach(models) { model in
+                            content(model)
+                                .padding(.horizontal, horizontalPadding)
+
+                            if models.last?.id != model.id {
+                                separator
+                            }
                         }
                     }
+                    .padding(.vertical, interSectionPadding)
+                    //                .background(
+                    //                    backgroundColor
+                    //                        .matchedGeometryEffect(id: backgroundNamespaceId, in: namespace)
+                    //                )
+                    //                .overlay(
+                    //                    Text("\(backgroundNamespaceId ?? "nil") \(namespace?.hashValue ?? -1)")
+                    //                )
                 }
-                .padding(.vertical, interSectionPadding)
-                .background(backgroundColor)
                 .cornerRadius(12)
 
                 footer()
@@ -125,8 +144,12 @@ extension GroupedSection: Setupable {
         map { $0.interSectionPadding = spacing }
     }
 
-    func backgroundColor(_ color: Color) -> Self {
-        map { $0.backgroundColor = color }
+    func backgroundColor(_ color: Color, id: String? = nil, namespace: Namespace.ID? = nil) -> Self {
+        map {
+            $0.backgroundColor = color
+            $0.namespace = namespace
+            $0.backgroundNamespaceId = backgroundNamespaceId
+        }
     }
 
     func contentAlignment(_ alignment: HorizontalAlignment) -> Self {
