@@ -22,6 +22,6 @@ class SendSummaryViewModelInputMock: SendSummaryViewModelInput {
     var feeTextPublisher: AnyPublisher<String?, Never> { .just(output: "0.1 ETH") }
     var isSending: AnyPublisher<Bool, Never> { .just(output: false) }
 
-    func updateFees() async throws -> FeeUpdateResult { throw WalletError.failedToGetFee }
+    func updateFees(completion: @escaping (FeeUpdateResult) -> Void) { completion(.failure(WalletError.failedToGetFee)) }
     func send() {}
 }
