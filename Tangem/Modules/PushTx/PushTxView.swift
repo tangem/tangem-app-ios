@@ -90,7 +90,7 @@ struct PushTxView: View {
                         .foregroundColor(Color.tangemGrayDark)
                     }
                     VStack(alignment: .leading) {
-                        Text(Localization.sendNetworkFeeTitle)
+                        Text(Localization.commonNetworkFeeTitle)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                             .padding(.vertical, 8.0)
