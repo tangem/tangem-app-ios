@@ -66,7 +66,7 @@ struct ExpressProvidersSelectorView_Preview: PreviewProvider {
                 .offset(y: -200)
 
                 NavHolder()
-                    .bottomSheet(item: $coordinator.item) {
+                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
                         ExpressProvidersSelectorView(viewModel: $0)
                     }
             }
@@ -77,14 +77,11 @@ struct ExpressProvidersSelectorView_Preview: PreviewProvider {
         @Published var item: ExpressProvidersSelectorViewModel?
 
         func toggleItem() {
-            /*
-             // [REDACTED_TODO_COMMENT]
-             if item == nil {
-                 item = ExpressProvidersSelectorViewModel(coordinator: self)
-             } else {
-                 item = nil
-             }
-             */
+            if item == nil {
+                item = ExpressModulesFactoryMock().makeExpressProvidersSelectorViewModel(coordinator: self)
+            } else {
+                item = nil
+            }
         }
 
         func closeExpressProvidersSelector() {
