@@ -93,6 +93,7 @@ class SendModel {
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
+    private var feeUpdatePublisher: PassthroughSubject<FeeUpdateResult, Error>?
     private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -130,8 +131,9 @@ class SendModel {
         transaction.value
     }
 
-    func updateFees(completion: @escaping (FeeUpdateResult) -> Void) {
-        updateFees(amount: amount.value, destination: destination.value, completion: completion)
+    @discardableResult
+    func updateFees() -> AnyPublisher<FeeUpdateResult, Error> {
+        updateFees(amount: amount.value, destination: destination.value)
     }
 
     func send() {
@@ -183,7 +185,7 @@ class SendModel {
                 $0 == $1
             }
             .sink { [weak self] amount, destination in
-                self?.updateFees(amount: amount, destination: destination, completion: { _ in })
+                self?.updateFees(amount: amount, destination: destination)
             }
             .store(in: &bag)
 
@@ -222,7 +224,15 @@ class SendModel {
             .store(in: &bag)
     }
 
-    private func updateFees(amount: Amount?, destination: String?, completion: @escaping (FeeUpdateResult) -> Void) {
+    @discardableResult
+    private func updateFees(amount: Amount?, destination: String?) -> AnyPublisher<FeeUpdateResult, Error> {
+        if let feeUpdatePublisher {
+            return feeUpdatePublisher.eraseToAnyPublisher()
+        }
+
+        let newFeeUpdatePublisher = PassthroughSubject<FeeUpdateResult, Error>()
+        feeUpdatePublisher = newFeeUpdatePublisher
+
         let oldFeeAmount = fee.value
 
         feeUpdateSubscription = Publishers.CombineLatest(Just(amount), Just(destination))
@@ -253,7 +263,8 @@ class SendModel {
                 let feeValues = Dictionary(pairs, uniquingKeysWith: { v1, _ in v1 })
                 _feeValues.send(feeValues)
 
-                completion(.failure(WalletError.failedToGetFee))
+                feeUpdatePublisher?.send(completion: .failure(WalletError.failedToGetFee))
+                feeUpdatePublisher = nil
             } receiveValue: { [weak self] fees in
                 guard let self else { return }
 
@@ -264,12 +275,16 @@ class SendModel {
                     let selectedFee = feeValues[selectedFeeOption],
                     let selectedFeeValue = selectedFee.value
                 else {
-                    completion(.failure(WalletError.failedToGetFee))
+                    feeUpdatePublisher?.send(completion: .failure(WalletError.failedToGetFee))
+                    feeUpdatePublisher = nil
                     return
                 }
 
                 fee.send(selectedFeeValue)
-                completion(.success((oldFee: oldFeeAmount?.amount, newFee: selectedFeeValue.amount)))
+
+                feeUpdatePublisher?.send(FeeUpdateResult(oldFee: oldFeeAmount?.amount, newFee: selectedFeeValue.amount))
+                feeUpdatePublisher?.send(completion: .finished)
+                feeUpdatePublisher = nil
 
                 if let customFee = feeValues[.custom]?.value,
                    let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
@@ -279,6 +294,8 @@ class SendModel {
                     _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
                 }
             }
+
+        return newFeeUpdatePublisher.eraseToAnyPublisher()
     }
 
     private func explorerUrl(from hash: String) -> URL? {
