@@ -110,7 +110,6 @@ private extension Blockchain {
         case .dash: return "dash"
         case .gnosis: return "xdai"
         case .optimism: return "optimistic-ethereum"
-        case .saltPay: return "sxdai"
         case .ton: return "the-open-network"
         case .kava: return "kava"
         case .kaspa: return "kaspa"
@@ -141,6 +140,13 @@ private extension Blockchain {
             }
         case .decimal:
             return "decimal"
+        case .veChain:
+            return "vechain"
+        case .xdc:
+            switch type {
+            case .network: return "xdc-network"
+            case .coin: return "xdce-crowd-sale"
+            }
         }
     }
 
