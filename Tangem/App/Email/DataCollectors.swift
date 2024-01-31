@@ -33,6 +33,18 @@ private extension EmailDataCollector {
     }
 }
 
+struct NegativeFeedbackDataCollector: EmailDataCollector {
+    var logData: Data? {
+        formatData(userWalletEmailData)
+    }
+
+    private let userWalletEmailData: [EmailCollectedData]
+
+    init(userWalletEmailData: [EmailCollectedData]) {
+        self.userWalletEmailData = userWalletEmailData
+    }
+}
+
 struct SendScreenDataCollector: EmailDataCollector {
     var logData: Data? {
         var data = userWalletEmailData
