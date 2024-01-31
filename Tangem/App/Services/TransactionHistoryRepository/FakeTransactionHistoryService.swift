@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 import Combine
-import class TangemSwapping.ThreadSafeContainer
+import class TangemExpress.ThreadSafeContainer
 
 class FakeTransactionHistoryService {
     private let blockchain: Blockchain
@@ -40,11 +40,11 @@ extension FakeTransactionHistoryService: TransactionHistoryService {
         return FakeTransactionHistoryFactory().createFakeTxs(address: address, currencyCode: blockchain.currencySymbol)
     }
 
-    var canFetchMore: Bool {
+    var canFetchHistory: Bool {
         false
     }
 
-    func reset() {
+    func clearHistory() {
         AppLog.shared.debug("\(self) was reset")
     }
 

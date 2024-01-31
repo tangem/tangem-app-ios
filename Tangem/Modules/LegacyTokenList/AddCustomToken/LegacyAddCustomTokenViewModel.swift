@@ -386,6 +386,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             decimals = "\(token.decimalCount)"
             symbol = token.symbol
             name = token.name
+            contractAddress = token.contractAddress
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 UIApplication.shared.endEditing()
