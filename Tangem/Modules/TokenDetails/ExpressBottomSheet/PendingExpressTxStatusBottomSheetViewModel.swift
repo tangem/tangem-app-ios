@@ -145,7 +145,6 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private func bind() {
         subscription = pendingTransactionsManager?.pendingTransactionsPublisher
-            .dropFirst()
             .withWeakCaptureOf(self)
             .map { viewModel, pendingTransactions in
                 guard let first = pendingTransactions.first(where: { tx in
