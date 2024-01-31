@@ -11,7 +11,6 @@ import BlockchainSdk
 import Combine
 import CombineExt
 import TangemSdk
-import TangemSwapping
 
 class LegacyTokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -247,7 +246,7 @@ class LegacyTokenDetailsViewModel: ObservableObject {
         case .sell:
             openSellCrypto()
         case .swap:
-            openSwapping()
+            fatalError("Swapping was deleted")
         }
     }
 
@@ -487,55 +486,7 @@ extension LegacyTokenDetailsViewModel {
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
-    func openSwapping() {
-        Analytics.log(event: .buttonExchange, params: [.token: currencySymbol])
-
-        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .swapping) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
-        guard let walletModel = walletModel,
-              let source = sourceCurrency,
-              let ethereumNetworkProvider = walletModel.ethereumNetworkProvider,
-              let ethereumTransactionProcessor = walletModel.ethereumTransactionProcessor
-        else {
-            return
-        }
-
-        let input = CommonSwappingModulesFactory.InputModel(
-            userTokensManager: card.userTokensManager,
-            walletModel: walletModel,
-            signer: card.signer,
-            ethereumNetworkProvider: ethereumNetworkProvider,
-            ethereumTransactionProcessor: ethereumTransactionProcessor,
-            logger: AppLog.shared,
-            referrer: nil,
-            source: source,
-            walletModelTokens: card.userTokensManager.getAllTokens(for: walletModel.blockchainNetwork)
-        )
-
-        coordinator.openSwapping(input: input)
-    }
-
     func dismiss() {
         coordinator.dismiss()
-    }
-}
-
-// MARK: - Swapping preparing
-
-private extension LegacyTokenDetailsViewModel {
-    var sourceCurrency: Currency? {
-        let blockchain = blockchainNetwork.blockchain
-        let mapper = CurrencyMapper()
-
-        switch amountType {
-        case .coin, .reserve:
-            return mapper.mapToCurrency(blockchain: blockchain)
-
-        case .token(let token):
-            return mapper.mapToCurrency(token: token, blockchain: blockchain)
-        }
     }
 }
