@@ -10,6 +10,11 @@ import Foundation
 import SwiftUI
 
 enum TokenNotificationEvent: Hashable {
+    struct NotEnoughFeeConfiguration: Hashable {
+        let isFeeCurrencyPurchaseAllowed: Bool
+        let eventConfiguration: WalletModel.SendBlockedReason.NotEnoughFeeConfiguration
+    }
+
     case networkUnreachable(currencySymbol: String)
     case someNetworksUnreachable
     case rentFee(rentMessage: String)
@@ -17,18 +22,25 @@ enum TokenNotificationEvent: Hashable {
     case existentialDepositWarning(message: String)
     case longTransaction(message: String)
     case hasPendingTransactions(message: String)
-    case notEnoughFeeForTokenTx(tokenName: String, blockchainCurrencySymbol: String, blockchainName: String, blockchainIconName: String)
+    case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case tangemExpressPromotion
 
-    static func event(for reason: WalletModel.SendBlockedReason) -> TokenNotificationEvent {
+    static func event(
+        for reason: WalletModel.SendBlockedReason,
+        isFeeCurrencyPurchaseAllowed: Bool
+    ) -> TokenNotificationEvent {
         let message = reason.description
         switch reason {
         case .cantSignLongTransactions:
             return .longTransaction(message: message)
-        case .hasPendingCoinTx:
+        case .hasPendingOutgoingTransaction:
             return .hasPendingTransactions(message: message)
-        case .notEnoughFeeForTokenTx(let tokenName, let networkName, let coinSymbol, let chainIconName):
-            return .notEnoughFeeForTokenTx(tokenName: tokenName, blockchainCurrencySymbol: coinSymbol, blockchainName: networkName, blockchainIconName: chainIconName)
+        case .notEnoughFeeForTransaction(let eventConfiguration):
+            let configuration = NotEnoughFeeConfiguration(
+                isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed,
+                eventConfiguration: eventConfiguration
+            )
+            return .notEnoughFeeForTransaction(configuration: configuration)
         }
     }
 
@@ -37,8 +49,10 @@ enum TokenNotificationEvent: Hashable {
         // One notification with button action will be added later
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .noAccount:
             return nil
-        case .notEnoughFeeForTokenTx(_, let blockchainCurrencySymbol, _, _):
-            return .openNetworkCurrency(currencySymbol: blockchainCurrencySymbol)
+        case .notEnoughFeeForTransaction(let configuration):
+            return configuration.isFeeCurrencyPurchaseAllowed
+                ? .openFeeCurrency(currencySymbol: configuration.eventConfiguration.feeAmountTypeCurrencySymbol)
+                : nil
         case .tangemExpressPromotion:
             return .exchange
         }
@@ -62,8 +76,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.warningLongTransactionTitle
         case .hasPendingTransactions:
             return Localization.warningSendBlockedPendingTransactionsTitle
-        case .notEnoughFeeForTokenTx(_, _, let blockchainName, _):
-            return Localization.warningSendBlockedFundsForFeeTitle(blockchainName)
+        case .notEnoughFeeForTransaction(let configuration):
+            return Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName)
         case .tangemExpressPromotion:
             return Localization.tokenSwapPromotionTitle
         }
@@ -85,8 +99,14 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .hasPendingTransactions(let message):
             return message
-        case .notEnoughFeeForTokenTx(let tokenName, let blockchainCurrencySymbol, let blockchainName, _):
-            return Localization.warningSendBlockedFundsForFeeMessage(tokenName, blockchainName, tokenName, blockchainName, blockchainCurrencySymbol)
+        case .notEnoughFeeForTransaction(let configuration):
+            return Localization.warningSendBlockedFundsForFeeMessage(
+                configuration.eventConfiguration.transactionAmountTypeName,
+                configuration.eventConfiguration.networkName,
+                configuration.eventConfiguration.transactionAmountTypeName,
+                configuration.eventConfiguration.feeAmountTypeName,
+                configuration.eventConfiguration.feeAmountTypeCurrencySymbol
+            )
         case .tangemExpressPromotion:
             return Localization.tokenSwapPromotionMessage
         }
@@ -97,7 +117,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .noAccount:
             return .secondary
         // One white notification will be added later
-        case .notEnoughFeeForTokenTx:
+        case .notEnoughFeeForTransaction:
             return .primary
         case .tangemExpressPromotion:
             return .tangemExpressPromotion
@@ -110,10 +130,26 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.attention.image))
         case .rentFee, .noAccount, .existentialDepositWarning, .hasPendingTransactions:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
-        case .notEnoughFeeForTokenTx(_, _, _, let blockchainIconName):
-            return .init(iconType: .image(Image(blockchainIconName)))
+        case .notEnoughFeeForTransaction(let configuration):
+            return .init(iconType: .image(Image(configuration.eventConfiguration.feeAmountTypeIconName)))
         case .tangemExpressPromotion:
             return .init(iconType: .image(Assets.swapBannerIcon.image), size: CGSize(bothDimensions: 34))
+        }
+    }
+
+    var severity: NotificationView.Severity {
+        switch self {
+        case .noAccount,
+             .rentFee,
+             .existentialDepositWarning,
+             .hasPendingTransactions,
+             .tangemExpressPromotion:
+            return .info
+        case .networkUnreachable,
+             .someNetworksUnreachable,
+             .notEnoughFeeForTransaction,
+             .longTransaction:
+            return .warning
         }
     }
 
@@ -121,7 +157,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .rentFee, .tangemExpressPromotion:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughFeeForTokenTx, .noAccount:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughFeeForTransaction, .noAccount:
             return false
         }
     }
@@ -139,7 +175,7 @@ extension TokenNotificationEvent {
         case .existentialDepositWarning: return nil
         case .longTransaction: return nil
         case .hasPendingTransactions: return nil
-        case .notEnoughFeeForTokenTx: return .tokenNoticeNotEnoughtFee
+        case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .tangemExpressPromotion: return nil
         }
     }
@@ -148,8 +184,8 @@ extension TokenNotificationEvent {
         switch self {
         case .networkUnreachable(let currencySymbol):
             return [.token: currencySymbol]
-        case .notEnoughFeeForTokenTx(_, let coinSymbol, _, _):
-            return [.token: coinSymbol]
+        case .notEnoughFeeForTransaction(let configuration):
+            return [.token: configuration.eventConfiguration.feeAmountTypeCurrencySymbol]
         default:
             return [:]
         }
