@@ -13,4 +13,5 @@ enum SendViewNamespaceId: String {
     case additionalField
     case amount
     case fee
+    case feeText
 }
