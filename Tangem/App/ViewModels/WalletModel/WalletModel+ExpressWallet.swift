@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import TangemSwapping
+import TangemExpress
 import BlockchainSdk
 
 extension WalletModel: ExpressWallet {
-    var expressCurrency: TangemSwapping.ExpressCurrency {
+    var expressCurrency: TangemExpress.ExpressCurrency {
         tokenItem.expressCurrency
     }
 
@@ -19,31 +19,19 @@ extension WalletModel: ExpressWallet {
         tokenItem.decimalCount
     }
 
-    func getBalance() async throws -> Decimal {
-        if let balanceValue {
-            return balanceValue
+    func getBalance() throws -> Decimal {
+        guard let balanceValue else {
+            throw ExpressManagerError.amountNotFound
         }
 
-        _ = await update(silent: true).async()
-
-        if let balanceValue {
-            return balanceValue
-        }
-
-        throw ExpressManagerError.amountNotFound
+        return balanceValue
     }
 
-    func getCoinBalance() async throws -> Decimal {
-        if let coinBalance = getDecimalBalance(for: .coin) {
-            return coinBalance
+    func getCoinBalance() throws -> Decimal {
+        guard let coinBalance = getDecimalBalance(for: .coin) else {
+            throw ExpressManagerError.amountNotFound
         }
 
-        _ = await update(silent: true).async()
-
-        if let coinBalance = getDecimalBalance(for: .coin) {
-            return coinBalance
-        }
-
-        throw ExpressManagerError.amountNotFound
+        return coinBalance
     }
 }

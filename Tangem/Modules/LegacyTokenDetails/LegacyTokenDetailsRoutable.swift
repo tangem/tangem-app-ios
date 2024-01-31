@@ -18,6 +18,5 @@ protocol LegacyTokenDetailsRoutable: AnyObject {
     func openPushTx(for tx: PendingTransactionRecord, blockchainNetwork: BlockchainNetwork, card: CardViewModel)
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void)
     func openP2PTutorial()
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel)
     func dismiss()
 }

@@ -24,11 +24,24 @@ struct RoundedBackgroundModifier: ViewModifier {
 }
 
 extension View {
-    func roundedBackground(with color: Color, padding: CGFloat, radius: CGFloat) -> some View {
+    private static var defaultCornerRadius: CGFloat { 14 }
+
+    func roundedBackground(with color: Color, padding: CGFloat, radius: CGFloat = Self.defaultCornerRadius) -> some View {
         modifier(
             RoundedBackgroundModifier(
                 verticalPadding: padding,
                 horizontalPadding: padding,
+                backgroundColor: color,
+                cornerRadius: radius
+            )
+        )
+    }
+
+    func roundedBackground(with color: Color, verticalPadding: CGFloat, horizontalPadding: CGFloat, radius: CGFloat = Self.defaultCornerRadius) -> some View {
+        modifier(
+            RoundedBackgroundModifier(
+                verticalPadding: verticalPadding,
+                horizontalPadding: horizontalPadding,
                 backgroundColor: color,
                 cornerRadius: radius
             )
@@ -41,7 +54,7 @@ extension View {
                 verticalPadding: 12,
                 horizontalPadding: 14,
                 backgroundColor: color,
-                cornerRadius: 14
+                cornerRadius: Self.defaultCornerRadius
             )
         )
     }
