@@ -14,6 +14,12 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
+    enum StepAnimation {
+        case slideForward
+        case slideBackward
+    }
+
+    @Published var stepAnimation: StepAnimation? = .slideForward
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
@@ -171,7 +177,15 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        step = nextStep
+        if case .summary = nextStep {
+            stepAnimation = nil
+        } else {
+            stepAnimation = .slideForward
+        }
+
+        DispatchQueue.main.async {
+            self.step = nextStep
+        }
     }
 
     func back() {
@@ -180,7 +194,11 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        step = previousStep
+        stepAnimation = .slideBackward
+
+        DispatchQueue.main.async {
+            self.step = previousStep
+        }
     }
 
     func scanQRCode() {
@@ -292,6 +310,7 @@ final class SendViewModel: ObservableObject {
 
 extension SendViewModel: SendSummaryRoutable {
     func openStep(_ step: SendStep) {
+        stepAnimation = nil
         self.step = step
     }
 
