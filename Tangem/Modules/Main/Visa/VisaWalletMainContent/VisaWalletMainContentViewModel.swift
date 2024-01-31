@@ -32,7 +32,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     private let visaWalletModel: VisaWalletModel
-    private unowned let coordinator: VisaWalletRoutable
+    private weak var coordinator: VisaWalletRoutable?
 
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Never>?
@@ -57,7 +57,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             localizedName: addressType.defaultLocalizedName,
             addressQRImage: QrCodeGenerator.generateQRCode(from: visaWalletModel.accountAddress)
         )
-        coordinator.openReceiveScreen(
+        coordinator?.openReceiveScreen(
             amountType: visaWalletModel.tokenItem.amountType,
             blockchain: visaWalletModel.tokenItem.blockchain,
             addressInfos: [addressInfo]
@@ -80,7 +80,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator.openExplorer(at: url, blockchainDisplayName: visaWalletModel.tokenItem.blockchain.displayName)
+        coordinator?.openExplorer(at: url, blockchainDisplayName: visaWalletModel.tokenItem.blockchain.displayName)
     }
 
     func exploreTransaction(with id: String) {
@@ -91,7 +91,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator.openTransactionDetails(tokenItem: visaWalletModel.tokenItem, for: transactionRecord)
+        coordinator?.openTransactionDetails(tokenItem: visaWalletModel.tokenItem, for: transactionRecord)
         AppLog.shared.debug("[Visa Main Content View Model] Explore transaction with id: \(transactionId)")
     }
 
