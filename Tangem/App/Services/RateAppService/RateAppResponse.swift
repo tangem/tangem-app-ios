@@ -1,5 +1,5 @@
 //
-//  MainViewDelegate.swift
+//  RateAppResponse.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,8 @@
 
 import Foundation
 
-protocol MainViewDelegate: AnyObject {
-    func present(actionSheet: ActionSheetBinder)
+enum RateAppResponse {
+    case positive
+    case negative
+    case dismissed
 }
