@@ -25,6 +25,7 @@ struct SendView: View {
             ZStack(alignment: .bottom) {
                 currentPage
                     .overlay(bottomOverlay, alignment: .bottom)
+                    .transition(pageContentTransition)
 
                 if viewModel.showNavigationButtons {
                     navigationButtons
@@ -35,6 +36,17 @@ struct SendView: View {
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
         .alert(item: $viewModel.alert) { $0.alert }
         .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+    }
+
+    private var pageContentTransition: AnyTransition {
+        switch viewModel.stepAnimation {
+        case .slideForward:
+            return .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+        case .slideBackward:
+            return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
+        case .none:
+            return .opacity
+        }
     }
 
     @ViewBuilder
