@@ -57,7 +57,8 @@ struct SupportedBlockchains {
 
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
-        []
+        [
+        ]
     }
 
     private func mainnetBlockchains() -> Set<Blockchain> {
@@ -68,7 +69,7 @@ struct SupportedBlockchains {
             .ethereumFair,
             .litecoin,
             .bitcoin(testnet: false),
-            .bitcoinCash(testnet: false),
+            .bitcoinCash,
             .cardano(extended: version == .v2),
             .xrp(curve: .secp256k1),
             .rsk,
@@ -103,6 +104,8 @@ struct SupportedBlockchains {
             .near(curve: ed25519Curve(for: version), testnet: false),
             .telos(testnet: false),
             .decimal(testnet: false),
+            .veChain(testnet: false),
+            .xdc(testnet: false),
         ]
     }
 
@@ -132,6 +135,8 @@ struct SupportedBlockchains {
             .chia(testnet: true),
             .near(curve: ed25519Curve(for: version), testnet: true),
             .decimal(testnet: true),
+            .veChain(testnet: true),
+            .xdc(testnet: true),
         ]
     }
 
