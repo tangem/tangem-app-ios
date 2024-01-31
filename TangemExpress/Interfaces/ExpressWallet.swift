@@ -41,4 +41,12 @@ public extension ExpressWallet {
         let decimalValue = pow(10, decimalCount)
         return value / decimalValue
     }
+
+    func availableForLoadFee() throws -> Bool {
+        if isToken {
+            return try getCoinBalance() > 0
+        }
+
+        return true
+    }
 }
