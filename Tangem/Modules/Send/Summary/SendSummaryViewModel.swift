@@ -22,7 +22,7 @@ protocol SendSummaryViewModelInput: AnyObject {
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
-    func updateFees() async throws -> FeeUpdateResult
+    func updateFees(completion: @escaping (FeeUpdateResult) -> Void)
     func send()
 }
 
@@ -42,7 +42,6 @@ class SendSummaryViewModel: ObservableObject {
 
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
     private var screenIdleStartTime: Date?
-    private var feeUpdateTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
 
@@ -90,24 +89,17 @@ class SendSummaryViewModel: ObservableObject {
             return
         }
 
-        feeUpdateTask?.cancel()
-        feeUpdateTask = runTask(in: self) { `self` in
-            do {
-                let result = try await self.input.updateFees()
+        input.updateFees { [weak self] result in
+            switch result {
+            case .failure:
+                self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
+            case .success(let oldFee, let newFee):
+                self?.screenIdleStartTime = Date()
 
-                // We've successfully updated the fees
-                self.screenIdleStartTime = Date()
-
-                if let oldFee = result.oldFee, result.newFee > oldFee {
-                    await runOnMain {
-                        self.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendAlertFeeIncreasedTitle)
-                    }
+                if let oldFee, newFee > oldFee {
+                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendAlertFeeIncreasedTitle)
                 } else {
-                    self.input.send()
-                }
-            } catch {
-                await runOnMain {
-                    self.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
+                    self?.input.send()
                 }
             }
         }
