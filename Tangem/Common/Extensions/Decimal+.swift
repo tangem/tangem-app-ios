@@ -24,11 +24,6 @@ extension Decimal {
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self) \(code)"
     }
 
-    func groupedFormatted(maximumFractionDigits: Int = AppConstants.maximumFractionDigitsForBalance) -> String {
-        let formatter = DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
-        return formatter.format(value: self)
-    }
-
     var stringValue: String {
         (self as NSDecimalNumber).stringValue
     }

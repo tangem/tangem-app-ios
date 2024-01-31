@@ -301,9 +301,6 @@ extension LegacyMainCoordinator: LegacyMainRoutable {
         userWalletListCoordinator = coordinator
     }
 
-    /// Because `MainRoutable` inherits `TokenDetailsRoutable`. Todo: Remove it dependency
-    func openSwapping(input: CommonSwappingModulesFactory.InputModel) {}
-
     func openPromotion(cardPublicKey: String, cardId: String, walletId: String) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.promotionCoordinator = nil

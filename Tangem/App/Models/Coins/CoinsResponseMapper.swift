@@ -45,6 +45,10 @@ struct CoinsResponseMapper {
             return .blockchain(blockchain)
         }
 
+        guard blockchain.canHandleTokens else {
+            return nil
+        }
+
         let token = Token(
             name: name,
             symbol: symbol,
