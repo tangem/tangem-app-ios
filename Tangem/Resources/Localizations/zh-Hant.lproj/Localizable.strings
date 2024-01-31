@@ -674,8 +674,9 @@
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
 "warning_express_refresh_required_title" = "Service temporarily unavailable";
-"warning_express_too_minimal_amount_description" = "Please change the amount to swap";
+"warning_express_too_maximum_amount_title" = "The amount of tokens to be swapped must not exceed %@";
 "warning_express_too_minimal_amount_title" = "The amount to swap must be at least %@";
+"warning_express_wrong_amount_description" = "Please change the amount to swap";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
 "warning_failed_to_verify_card_title" = "認證檢查失敗";
 "warning_long_transaction_message" = "iPhone 7/7+ cannot sign transactions on this network. To complete this operation, please use a different phone.";
