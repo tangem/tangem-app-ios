@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct FeeRowView: View {
+    let namespace: Namespace.ID
+
     let viewModel: FeeRowViewModel
 
     var body: some View {
@@ -30,6 +32,7 @@ struct FeeRowView: View {
                         .style(font, color: Colors.Text.primary1)
                         .frame(minWidth: viewModel.isLoading ? 70 : 0)
                         .skeletonable(isShown: viewModel.isLoading)
+                        .matchedGeometryEffect(id: viewModel.isSelected.value ? SendViewNamespaceId.feeText.rawValue : nil as String?, in: namespace)
                 }
             }
             .padding(.vertical, 12)
@@ -63,7 +66,8 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
 
         var body: some View {
             GroupedSection(viewModels) {
-                FeeRowView(viewModel: $0)
+//                FeeRowView(viewModel: $0, namespace: ))
+                Text($0.subtitleText ?? "A")
             }
             .verticalPadding(14)
             .background(Colors.Background.secondary)
