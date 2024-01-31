@@ -52,10 +52,6 @@ struct PendingExpressTxStatusBottomSheetView: View {
         .animation(animation, value: viewModel.currentStatusIndex)
         .animation(animation, value: viewModel.notificationViewInput)
         .animation(animation, value: viewModel.showGoToProviderHeaderButton)
-        // Can't move this sheet to coordinator because coordinator already presenting bottom sheet ViewController
-        .sheet(item: $viewModel.modalWebViewModel) {
-            WebViewContainer(viewModel: $0)
-        }
     }
 
     private var amountsView: some View {
@@ -228,7 +224,8 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
                 userWalletId: userWalletId,
                 blockchainNetwork: blockchainNetwork,
                 tokenItem: tokenItem
-            )
+            ),
+            router: TokenDetailsCoordinator()
         )
     }()
 
