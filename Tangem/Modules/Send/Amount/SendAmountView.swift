@@ -23,6 +23,7 @@ struct SendAmountView: View {
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                         .lineLimit(1)
                         .padding(.top, 18)
+                        .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
 
                     Text(viewModel.balance)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -33,6 +34,7 @@ struct SendAmountView: View {
                         tokenIconInfo: viewModel.tokenIconInfo,
                         size: iconSize
                     )
+                    .matchedGeometryEffect(id: SendViewNamespaceId.tokenIcon.rawValue, in: namespace)
                     .padding(.top, 34)
 
                     SendDecimalNumberTextField(
@@ -40,6 +42,7 @@ struct SendAmountView: View {
                         maximumFractionDigits: viewModel.amountFractionDigits,
                         font: Fonts.Regular.title1
                     )
+                    .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                     .padding(.top, 16)
 
                     Text(viewModel.amountAlternative)
@@ -57,7 +60,7 @@ struct SendAmountView: View {
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action)
-            .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
+            .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
 
             HStack {
                 if viewModel.showCurrencyPicker {
