@@ -46,11 +46,15 @@ struct SendSummaryView: View {
                 } label: {
                     GroupedSection(viewModel.amountSummaryViewData) {
                         AmountSummaryView(data: $0)
+                            .setNamespace(namespace)
+                            .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+                            .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+                            .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                     }
                     .interSectionPadding(12)
                     .backgroundColor(Colors.Background.action)
                 }
-                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
+                .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditAmount)
 
