@@ -625,7 +625,45 @@
                     "exchangeable": false
                 }
             ]
-        }
+        },
+        {
+            "id": "decimal",
+            "symbol": "DEL",
+            "name": "Decimal",
+            "networks":
+            [
+                {
+                    "networkId": "decimal/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
+            "id": "vechain",
+            "symbol": "VET",
+            "name": "VeChain",
+            "networks":
+            [
+                {
+                    "networkId": "vechain/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
+            "id": "vethor-token",
+            "symbol": "VTHO",
+            "name": "VeThor",
+            "networks":
+            [
+                {
+                    "networkId": "vechain/test",
+                    "exchangeable": false,
+                    "contractAddress": "0x0000000000000000000000000000456e65726779",
+                    "decimalCount": 18
+                }
+            ]
+        },
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"

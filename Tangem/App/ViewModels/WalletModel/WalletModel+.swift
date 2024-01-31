@@ -11,18 +11,37 @@ import BlockchainSdk
 
 extension WalletModel {
     enum SendBlockedReason {
+        struct NotEnoughFeeConfiguration: Hashable {
+            let transactionAmountTypeName: String
+            let feeAmountTypeName: String
+            let feeAmountTypeCurrencySymbol: String
+            let feeAmountTypeIconName: String
+            let networkName: String
+        }
+
         case cantSignLongTransactions
-        case hasPendingCoinTx(symbol: String)
-        case notEnoughFeeForTokenTx(tokenName: String, networkName: String, coinSymbol: String, networkIconName: String)
+        case hasPendingOutgoingTransaction(blockchain: Blockchain)
+        case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
 
         var description: String {
             switch self {
             case .cantSignLongTransactions:
                 return Localization.warningLongTransactionMessage
-            case .hasPendingCoinTx(let symbol):
-                return Localization.warningSendBlockedPendingTransactionsMessage(symbol)
-            case .notEnoughFeeForTokenTx(let tokenName, let networkName, let coinSymbol, _):
-                return Localization.warningSendBlockedFundsForFeeMessage(tokenName, networkName, tokenName, networkName, coinSymbol)
+            case .hasPendingOutgoingTransaction(let blockchain):
+                switch blockchain.feePaidCurrency {
+                case .coin:
+                    return Localization.warningSendBlockedPendingTransactionsMessage(blockchain.currencySymbol)
+                case .token, .sameCurrency:
+                    return Localization.warningSendBlockedPendingTransactionsInBlockchainMessage(blockchain.displayName)
+                }
+            case .notEnoughFeeForTransaction(let configuration):
+                return Localization.warningSendBlockedFundsForFeeMessage(
+                    configuration.transactionAmountTypeName,
+                    configuration.networkName,
+                    configuration.transactionAmountTypeName,
+                    configuration.feeAmountTypeName,
+                    configuration.feeAmountTypeCurrencySymbol
+                )
             }
         }
     }

@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-import TangemSwapping
+import TangemExpress
 
 final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
@@ -117,6 +117,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider.provider),
+            titleFormat: .name,
             isDisabled: false,
             badge: badge,
             subtitles: subtitles,
@@ -130,6 +131,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     func unavailableProviderRowViewModel(provider: ExpressProvider) -> ProviderRowViewModel {
         ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider),
+            titleFormat: .name,
             isDisabled: true,
             badge: .none,
             subtitles: [.text(Localization.expressProviderNotAvailable)],
