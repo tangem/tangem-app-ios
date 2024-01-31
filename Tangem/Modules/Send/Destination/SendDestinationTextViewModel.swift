@@ -56,9 +56,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         isValidating
             .removeDuplicates()
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.isValidating = $0
-            }
+            .assign(to: \.isValidating, on: self, ownership: .weak)
             .store(in: &bag)
 
         errorText
