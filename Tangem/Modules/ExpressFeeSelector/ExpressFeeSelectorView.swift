@@ -20,7 +20,8 @@ struct ExpressFeeSelectorView: View {
             BottomSheetHeaderView(title: Localization.commonFeeSelectorTitle)
 
             GroupedSection(viewModel.feeRowViewModels) {
-                FeeRowView(viewModel: $0)
+//                FeeRowView(viewModel: $0)
+                Text($0.subtitleText ?? "A")
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
