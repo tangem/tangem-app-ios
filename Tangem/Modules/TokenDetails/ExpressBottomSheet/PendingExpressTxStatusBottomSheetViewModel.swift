@@ -39,10 +39,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     @Published var showGoToProviderHeaderButton = true
     @Published var notificationViewInput: NotificationViewInput? = nil
 
-    // Navigation
-    @Published var modalWebViewModel: WebViewContainerViewModel? = nil
-
-    private weak var pendingTransactionsManager: PendingExpressTransactionsManager?
+    private weak var pendingTransactionsManager: (any PendingExpressTransactionsManager)?
 
     private let pendingTransaction: PendingExpressTransaction
     private let currentTokenItem: TokenItem
@@ -52,15 +49,18 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private var subscription: AnyCancellable?
     private var notificationUpdateWorkItem: DispatchWorkItem?
+    private weak var router: PendingExpressTxStatusRoutable?
 
     init(
         pendingTransaction: PendingExpressTransaction,
         currentTokenItem: TokenItem,
-        pendingTransactionsManager: PendingExpressTransactionsManager
+        pendingTransactionsManager: PendingExpressTransactionsManager,
+        router: PendingExpressTxStatusRoutable
     ) {
         self.pendingTransaction = pendingTransaction
         self.currentTokenItem = currentTokenItem
         self.pendingTransactionsManager = pendingTransactionsManager
+        self.router = router
 
         let dateFormatter = DateFormatter()
         dateFormatter.doesRelativeDateFormatting = true
@@ -109,11 +109,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             return
         }
 
-        modalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: providerName,
-            withCloseButton: true
-        )
+        router?.openPendingExpressTxStatus(at: url)
     }
 
     private func loadEmptyFiatRates() {
