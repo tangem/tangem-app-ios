@@ -11,10 +11,12 @@ import Combine
 import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
-    // MARK: - Dependencies
-
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
+
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Main view model
 
@@ -24,7 +26,6 @@ class WelcomeCoordinator: CoordinatorObject {
 
     @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
 
@@ -40,7 +41,6 @@ class WelcomeCoordinator: CoordinatorObject {
         // Only modals, because the modal presentation will not trigger onAppear/onDissapear events
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($legacyTokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
@@ -127,8 +127,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openShop() {
-        let coordinator = ShopCoordinator()
-        coordinator.start()
-        shopCoordinator = coordinator
+        Analytics.log(.shopScreenOpened)
+        safariManager.openURL(AppConstants.webShopUrl)
     }
 }
