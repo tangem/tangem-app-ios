@@ -135,4 +135,13 @@ extension View {
             self
         }
     }
+
+    @ViewBuilder
+    func matchedGeometryEffect<ID>(id: ID?, in namespace: Namespace.ID?) -> some View where ID: Hashable {
+        if let id, let namespace {
+            matchedGeometryEffect(id: id, in: namespace, properties: .frame)
+        } else {
+            self
+        }
+    }
 }
