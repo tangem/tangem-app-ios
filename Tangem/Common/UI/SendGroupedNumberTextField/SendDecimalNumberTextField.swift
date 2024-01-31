@@ -73,23 +73,23 @@ struct SendDecimalNumberTextField_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Colors.Background.tertiary.ignoresSafeArea()
-            
+
             VStack(alignment: .leading, spacing: 16) {
                 SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix("WEI")
                     .padding()
                     .background(Colors.Background.action)
-                
+
                 SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix(nil)
                     .padding()
                     .background(Colors.Background.action)
-                
+
                 SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix("USDT")
                     .padding()
                     .background(Colors.Background.action)
-                
+
                 SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix("USDT")
                     .font(Fonts.Regular.body)
