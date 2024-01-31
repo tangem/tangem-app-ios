@@ -71,6 +71,11 @@ private extension CEXExpressProviderManager {
                 return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
 
+            guard try request.pair.source.availableForLoadFee() else {
+                let quote = try await loadQuote(request: request)
+                return .restriction(.notEnoughBalanceForFee, quote: quote)
+            }
+
             let (estimatedFee, subtractFee, request) = try await subtractedFeeRequestIfNeeded(request: request)
             let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
             let quote = try await expressAPIProvider.exchangeQuote(item: item)
@@ -78,11 +83,19 @@ private extension CEXExpressProviderManager {
             return .preview(.init(fee: estimatedFee, subtractFee: subtractFee, quote: quote))
 
         } catch let error as ExpressAPIError {
-            if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
-                return .restriction(.tooSmallAmount(minAmount), quote: .none)
+            guard let amount = error.value?.amount else {
+                return .error(error, quote: .none)
             }
 
-            return .error(error, quote: .none)
+            switch error.errorCode {
+            case .exchangeTooSmallAmountError:
+                return .restriction(.tooSmallAmount(amount), quote: .none)
+            case .exchangeTooBigAmountError:
+                return .restriction(.tooBigAmount(amount), quote: .none)
+            default:
+                return .error(error, quote: .none)
+            }
+
         } catch {
             return .error(error, quote: .none)
         }
