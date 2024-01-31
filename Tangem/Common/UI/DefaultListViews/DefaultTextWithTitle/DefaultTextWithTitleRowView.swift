@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct DefaultTextWithTitleRowView: View {
+//    let namespace: Namespace.ID
+
     let data: DefaultTextWithTitleRowViewData
 
     var body: some View {
@@ -19,6 +21,7 @@ struct DefaultTextWithTitleRowView: View {
 
             Text(data.text)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+//                .matchedGeometryEffect(id: SendViewNamespaceId.feeText, in: namespace)
         }
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
