@@ -153,10 +153,8 @@ PODS:
     - PromisesObjC (= 2.3.1)
   - ScaleCodec (0.2.1):
     - BigInt (~> 5.2)
-  - secp256k1.swift (0.1.4)
   - Sodium (0.9.1)
   - Solana.Swift (1.1):
-    - secp256k1.swift
     - Starscream (= 4.0.4)
     - TweetNacl (~> 1.0.2)
   - SPRMessengerClient (3.6.2)
@@ -221,7 +219,7 @@ DEPENDENCIES:
   - GDPerformanceView-Swift (~> 2.1)
   - Kingfisher (~> 7.9.0)
   - Moya
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-11`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, branch `feature/IOS-5792-SPM-dependencies-support`)
   - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-280`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
@@ -254,7 +252,6 @@ SPEC REPOS:
     - PromisesObjC
     - PromisesSwift
     - ScaleCodec
-    - secp256k1.swift
     - Sodium
     - Starscream
     - stellar-ios-mac-sdk
@@ -277,8 +274,8 @@ EXTERNAL SOURCES:
     :branch: feature/IOS-5792-SPM-dependencies-support
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
+    :branch: feature/IOS-5792-SPM-dependencies-support
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-11
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -303,8 +300,8 @@ CHECKOUT OPTIONS:
     :commit: 5d41daa0ef75e862c3f0b3af92ada206fb8ea017
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
+    :commit: 5241296aa54241a0e94d57c5e292f2ccf8140ad4
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-11
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -346,9 +343,8 @@ SPEC CHECKSUMS:
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   PromisesSwift: 28dca69a9c40779916ac2d6985a0192a5cb4a265
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
-  secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
-  Solana.Swift: 29d4d692702c8b598f8fa54d268542d5f8aeb246
+  Solana.Swift: 0baed6d4f0d9a4b8438f066022c31542dc2f93d9
   SPRMessengerClient: 6c1ab0a60e254ef17515f1433f95c9ee951f0395
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   stellar-ios-mac-sdk: d8ab1ff49ac48e25ac3097da4deebcef77af6047
@@ -359,6 +355,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: a9227a1068d62885bae05f726e20e1730864cb06
+PODFILE CHECKSUM: 207bc588b510660f655f5fb84ce8c9f5c1775f68
 
 COCOAPODS: 1.14.3
