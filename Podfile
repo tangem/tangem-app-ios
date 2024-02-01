@@ -105,46 +105,6 @@ target 'TangemVisa' do
   end
 end
 
-# Valid values for the `requirement` parameter are:
-# - `{ :kind => "upToNextMajorVersion", :minimumVersion => "1.0.0" }`
-# - `{ :kind => "upToNextMinorVersion", :minimumVersion => "1.0.0" }`
-# - `{ :kind => "exactVersion", :version => "1.0.0" }`
-# - `{ :kind => "versionRange", :minimumVersion => "1.0.0", :maximumVersion => "2.0.0" }`
-# - `{ :kind => "branch", :branch => "some-feature-branch" }`
-# - `{ :kind => "revision", :revision => "4a9b230f2b18e1798abbba2488293844bf62b33f" }`
-def add_spm_to_target(project, target_name, url, product_name, requirement)
-  project.targets.each do |target|
-    if target.name == target_name
-      pkg = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
-      pkg.repositoryURL = url
-      pkg.requirement = requirement
-      ref = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
-      ref.package = pkg
-      ref.product_name = product_name
-      target.package_product_dependencies << ref
-
-      already_has_this_pkg = false
-
-      project.root_object.package_references.each do |existing_ref|
-        if existing_ref.display_name.downcase.eql?(url.downcase)
-          already_has_this_pkg = true
-          break
-        end
-      end
-
-      unless already_has_this_pkg
-        project.root_object.package_references << pkg
-      end
-
-      target.build_configurations.each do |config|
-        config.build_settings['SWIFT_INCLUDE_PATHS'] = '$(inherited) ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)'
-      end
-    end
-  end
-
-  project.save
-end
-
 pre_install do |installer|
   # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
   Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
@@ -177,8 +137,10 @@ post_install do |installer|
 
   end
 
-  # Hedera for BlockchainSdk
-  add_spm_to_target(
+  # ============ SPM <-> CocoaPods interop ============
+
+  # `Hedera` SPM package for `BlockchainSdk` pod
+  add_spm_package_to_target(
     installer.pods_project,
     "BlockchainSdk",
     "https://github.com/tangem/hedera-sdk-swift.git",
@@ -186,8 +148,8 @@ post_install do |installer|
     { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
   )
 
-  # CryptoSwift for BlockchainSdk
-  add_spm_to_target(
+  # `CryptoSwift` SPM package for `BlockchainSdk` pod
+  add_spm_package_to_target(
     installer.pods_project,
     "BlockchainSdk",
     "https://github.com/krzyzanowskim/CryptoSwift.git",
@@ -195,8 +157,8 @@ post_install do |installer|
     { :kind => "upToNextMajorVersion", :minimumVersion => "1.8.0" }
   )
 
-  # WalletCore binaries for BlockchainSdk
-  add_spm_to_target(
+  # `Wallet Core binaries` SPM package for `BlockchainSdk` pod
+  add_spm_package_to_target(
     installer.pods_project,
     "BlockchainSdk",
     "https://github.com/tangem/wallet-core-binaries-ios.git",
@@ -204,8 +166,8 @@ post_install do |installer|
     { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
   )
 
-  # SwiftProtobuf for BlockchainSdk
-  add_spm_to_target(
+  # `SwiftProtobuf` SPM package for `BlockchainSdk` pod
+  add_spm_package_to_target(
    installer.pods_project,
    "BlockchainSdk",
    "https://github.com/tangem/swift-protobuf-binaries.git",
@@ -213,8 +175,8 @@ post_install do |installer|
    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
   )
 
-  # SwiftProtobuf for BinanceChain
-  add_spm_to_target(
+  # `SwiftProtobuf` SPM package for `BinanceChain` pod
+  add_spm_package_to_target(
    installer.pods_project,
    "BinanceChain",
    "https://github.com/tangem/swift-protobuf-binaries.git",
@@ -222,8 +184,8 @@ post_install do |installer|
    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
   )
 
-  # secp256k1.swift for Solana.Swift
-  add_spm_to_target(
+  # `secp256k1.swift` SPM package for `Solana.Swift` pod
+  add_spm_package_to_target(
    installer.pods_project,
    "Solana.Swift",
    "https://github.com/GigaBitcoin/secp256k1.swift.git",
@@ -231,4 +193,46 @@ post_install do |installer|
    { :kind => "upToNextMinorVersion", :minimumVersion => "0.12.0" }
   )
 
+end
+
+# Adds given SPM package as a dependency to a specific target in the `Pods` project.
+#
+# Valid values for the `requirement` parameter are:
+# - `{ :kind => "upToNextMajorVersion", :minimumVersion => "1.0.0" }`
+# - `{ :kind => "upToNextMinorVersion", :minimumVersion => "1.0.0" }`
+# - `{ :kind => "exactVersion", :version => "1.0.0" }`
+# - `{ :kind => "versionRange", :minimumVersion => "1.0.0", :maximumVersion => "2.0.0" }`
+# - `{ :kind => "branch", :branch => "some-feature-branch" }`
+# - `{ :kind => "revision", :revision => "4a9b230f2b18e1798abbba2488293844bf62b33f" }`
+def add_spm_package_to_target(project, target_name, url, product_name, requirement)
+  project.targets.each do |target|
+    if target.name == target_name
+      pkg = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+      pkg.repositoryURL = url
+      pkg.requirement = requirement
+      ref = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+      ref.package = pkg
+      ref.product_name = product_name
+      target.package_product_dependencies << ref
+
+      project_already_has_this_pkg = false
+
+      project.root_object.package_references.each do |existing_ref|
+        if existing_ref.display_name.downcase.eql?(url.downcase)
+          project_already_has_this_pkg = true
+          break
+        end
+      end
+
+      unless project_already_has_this_pkg
+        project.root_object.package_references << pkg
+      end
+
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_INCLUDE_PATHS'] = '$(inherited) ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)'
+      end
+    end
+  end
+
+  project.save
 end
