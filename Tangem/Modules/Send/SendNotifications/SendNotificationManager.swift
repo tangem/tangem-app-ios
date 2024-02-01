@@ -15,13 +15,17 @@ protocol SendNotificationManagerInput {
 }
 
 class SendNotificationManager {
+    private let tokenItem: TokenItem
+    private let feeTokenItem: TokenItem
     private let input: SendNotificationManagerInput
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
 
     private weak var delegate: NotificationTapDelegate?
 
-    init(input: SendNotificationManagerInput) {
+    init(tokenItem: TokenItem, feeTokenItem: TokenItem, input: SendNotificationManagerInput) {
+        self.tokenItem = tokenItem
+        self.feeTokenItem = feeTokenItem
         self.input = input
     }
 
@@ -93,6 +97,30 @@ class SendNotificationManager {
             .isFeeIncludedPublisher
             .sink { [weak self] isFeeIncluded in
                 self?.updateEventVisibility(isFeeIncluded, event: .feeCoverage)
+            }
+            .store(in: &bag)
+
+        #warning("TODO")
+
+        sendModel
+            .feeError
+            .sink { [weak self] feeError in
+                guard
+                    let self,
+                    !sendModel.feeChargedInSameCurrency
+                else {
+                    return
+                }
+
+                let feeExceedsBalance = ((feeError as? TransactionError) == TransactionError.feeExceedsBalance)
+                let configuration = TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration(
+                    transactionAmountTypeName: tokenItem.name,
+                    feeAmountTypeName: feeTokenItem.name,
+                    feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
+                    feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled,
+                    networkName: tokenItem.networkName
+                )
+                updateEventVisibility(feeExceedsBalance, event: .feeExceedsBalance(configuration: configuration))
             }
             .store(in: &bag)
     }
