@@ -647,6 +647,7 @@
 		B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */; };
 		B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */; };
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
+		B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */; };
@@ -2759,6 +2760,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B6F525922B6C05210079ADD1 /* _TangemWalletCoreWrapper in Frameworks */,
+				B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
 				0790546DD7D84EA886A5CA2B /* Pods_Tangem.framework in Frameworks */,
@@ -7259,6 +7261,7 @@
 			name = Tangem;
 			packageProductDependencies = (
 				B6F525912B6C05210079ADD1 /* _TangemWalletCoreWrapper */,
+				B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -7436,6 +7439,7 @@
 			mainGroup = 5D3F77B924BF56D800E8695B;
 			packageReferences = (
 				B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */,
+				B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -9444,8 +9448,6 @@
 					"-framework",
 					"\"nanopb\"",
 					"-framework",
-					"\"secp256k1\"",
-					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
 					"\"Combine\"",
@@ -9592,8 +9594,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -10893,8 +10893,6 @@
 					"-framework",
 					"\"nanopb\"",
 					"-framework",
-					"\"secp256k1\"",
-					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
 					"\"Combine\"",
@@ -11146,8 +11144,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -12386,8 +12382,6 @@
 					"-framework",
 					"\"nanopb\"",
 					"-framework",
-					"\"secp256k1\"",
-					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
 					"\"Combine\"",
@@ -12640,8 +12634,6 @@
 					"-framework",
 					"\"nanopb\"",
 					"-framework",
-					"\"secp256k1\"",
-					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
 					"\"Combine\"",
@@ -12824,6 +12816,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/GigaBitcoin/secp256k1.swift.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.12.0;
+			};
+		};
 		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tangem/wallet-core-binaries-ios.git";
@@ -12835,6 +12835,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
+			productName = secp256k1;
+		};
 		B6F525912B6C05210079ADD1 /* _TangemWalletCoreWrapper */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */;
