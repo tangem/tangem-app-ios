@@ -7260,8 +7260,8 @@
 			);
 			name = Tangem;
 			packageProductDependencies = (
-				B6F525912B6C05210079ADD1 /* _TangemWalletCoreWrapper */,
 				B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */,
+				B6F525912B6C05210079ADD1 /* _TangemWalletCoreWrapper */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -7438,8 +7438,8 @@
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
 			packageReferences = (
-				B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */,
 				B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
+				B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
