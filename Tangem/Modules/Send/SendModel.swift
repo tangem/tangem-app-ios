@@ -330,7 +330,6 @@ class SendModel {
     private func validateDestination() {
         destinationResolutionRequest?.cancel()
 
-        destination.send(nil)
         destinationResolutionRequest = runTask(in: self) { `self` in
             let destination: String?
             let error: Error?
