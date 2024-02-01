@@ -50,7 +50,7 @@ struct VisaTransactionHistoryMapper {
         return .init(
             hash: "\(record.id)",
             interactionAddress: .custom(message: leadingSubtitle),
-            timeFormatted: balanceFormatter.formatFiatBalance(record.billingAmount),
+            timeFormatted: balanceFormatter.formatFiatBalance(record.transactionAmount, numericCurrencyCode: record.transactionCurrencyCode),
             amount: balanceFormatter.formatCryptoBalance(record.blockchainAmount, currencyCode: currencySymbol),
             isOutgoing: true,
             transactionType: .operation(name: record.merchantName ?? .unknown),

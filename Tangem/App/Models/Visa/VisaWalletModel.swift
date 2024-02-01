@@ -94,6 +94,10 @@ class VisaWalletModel {
         return linkProvider.url(address: accountAddress, contractAddress: tokenItem.token?.contractAddress)
     }
 
+    func transaction(with id: UInt64) -> VisaTransactionRecord? {
+        transactionHistoryService.items.first(where: { $0.id == id })
+    }
+
     func generalUpdateAsync() async {
         if visaBridgeInteractor == nil {
             await setupBridgeInteractorAsync()
