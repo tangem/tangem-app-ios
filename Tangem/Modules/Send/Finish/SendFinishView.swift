@@ -36,7 +36,7 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.amountSummaryViewData) {
                     AmountSummaryView(data: $0)
                 }
-                .interSectionPadding(12)
+                .innerContentPadding(12)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
