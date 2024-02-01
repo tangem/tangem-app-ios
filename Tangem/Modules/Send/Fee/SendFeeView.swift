@@ -34,6 +34,11 @@ struct SendFeeView: View {
                 SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
             }
 
+            ForEach(viewModel.customFeeNotificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
+
             GroupedSection(viewModel.subtractFromAmountModel) {
                 DefaultToggleRowView(viewModel: $0)
             } footer: {
