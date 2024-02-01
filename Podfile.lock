@@ -27,7 +27,6 @@ PODS:
     - BigInt (= 5.2.0)
     - BinanceChain
     - BitcoinCore.swift
-    - CryptoSwift (= 1.8.0)
     - Moya (= 15.0.0)
     - ScaleCodec (= 0.2.1)
     - Sodium (= 0.9.1)
@@ -38,7 +37,6 @@ PODS:
     - TangemSdk
   - BlockiesSwift (0.1.2)
   - CombineExt (1.8.0)
-  - CryptoSwift (1.8.0)
   - Firebase/Analytics (10.18.0):
     - Firebase/Core
   - Firebase/Core (10.18.0):
@@ -238,7 +236,6 @@ SPEC REPOS:
     - BigInt
     - BlockiesSwift
     - CombineExt
-    - CryptoSwift
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -303,7 +300,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
-    :commit: 76166b4d9bbb3218d6c6622f6f64568a60e1a088
+    :commit: 5d41daa0ef75e862c3f0b3af92ada206fb8ea017
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
@@ -328,10 +325,9 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: f727abc7a20ba71f4497e46b7400124027b25692
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: 75e737514c65d085728f6f4dd05ff80d5b5c2b7f
+  BlockchainSdk: 1e52e0864fb78180b878474f8d2bf1a5e2841d53
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
-  CryptoSwift: 52aaf3fce7337552863b1d952e408085f0e65030
   Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
   FirebaseAnalytics: 4d310b35c48eaa4a058ddc04bdca6bdb5dc0fe80
   FirebaseCore: 2322423314d92f946219c8791674d2f3345b598f
@@ -363,6 +359,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: 60c811a153a90e690393b169cf91269e4d074707
+PODFILE CHECKSUM: a9227a1068d62885bae05f726e20e1730864cb06
 
 COCOAPODS: 1.14.3
