@@ -168,7 +168,7 @@
       "location" : "https://github.com/tangem/wallet-core-binaries-ios.git",
       "state" : {
         "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "7e1aa5601742898c7f532389346aa040cc92dea4"
+        "revision" : "60b2d4ac8067b8ef3e054dbfb0e62b441b154ddc"
       }
     }
   ],
