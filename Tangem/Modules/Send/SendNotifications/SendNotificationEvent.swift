@@ -10,6 +10,8 @@ import Foundation
 
 enum SendNotificationEvent {
     case networkFeeUnreachable
+    case customFeeTooHigh(orderOfMagnitude: Int)
+    case customFeeTooLow
     case feeCoverage
 }
 
@@ -18,6 +20,10 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return Localization.sendFeeUnreachableErrorTitle
+        case .customFeeTooHigh:
+            return Localization.sendNotificationFeeTooHighTitle
+        case .customFeeTooLow:
+            return Localization.sendNotificationTransactionDelayTitle
         case .feeCoverage:
             return Localization.sendNetworkFeeWarningTitle
         }
@@ -27,6 +33,10 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return Localization.sendFeeUnreachableErrorText
+        case .customFeeTooHigh(let orderOfMagnitude):
+            return Localization.sendNotificationFeeTooHighText(orderOfMagnitude)
+        case .customFeeTooLow:
+            return Localization.sendNotificationTransactionDelayText
         case .feeCoverage:
             return Localization.sendNetworkFeeWarningContent
         }
@@ -36,21 +46,23 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .primary
-        case .feeCoverage:
+        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkFeeUnreachable, .feeCoverage:
+        case .networkFeeUnreachable, .customFeeTooHigh, .feeCoverage:
             return .init(iconType: .image(Assets.attention.image))
+        case .customFeeTooLow:
+            return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
     }
 
     var severity: NotificationView.Severity {
         switch self {
-        case .networkFeeUnreachable, .feeCoverage:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             return .critical
         }
     }
@@ -75,6 +87,7 @@ extension SendNotificationEvent: NotificationEvent {
 extension SendNotificationEvent {
     enum Location {
         case feeLevels
+        case customFee
         case feeIncluded
     }
 
@@ -82,6 +95,8 @@ extension SendNotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .feeLevels
+        case .customFeeTooHigh, .customFeeTooLow:
+            return .customFee
         case .feeCoverage:
             return .feeIncluded
         }
@@ -93,7 +108,7 @@ extension SendNotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .refreshFee
-        case .feeCoverage:
+        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             return nil
         }
     }
