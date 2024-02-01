@@ -17,7 +17,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private var horizontalPadding: CGFloat = 14
     private var separatorStyle: SeparatorStyle = .minimum
     private var interItemSpacing: CGFloat = 0
-    private var interSectionPadding: CGFloat = 0
+    private var innerContentPadding: CGFloat = 0
     private var backgroundColor: Color = Colors.Background.action
     private var contentAlignment: HorizontalAlignment = .leading
 
@@ -63,7 +63,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                         }
                     }
                 }
-                .padding(.vertical, interSectionPadding)
+                .padding(.vertical, innerContentPadding)
                 .background(backgroundColor)
                 .cornerRadiusContinuous(14)
 
@@ -110,8 +110,8 @@ extension GroupedSection: Setupable {
         map { $0.interItemSpacing = spacing }
     }
 
-    func interSectionPadding(_ spacing: CGFloat) -> Self {
-        map { $0.interSectionPadding = spacing }
+    func innerContentPadding(_ spacing: CGFloat) -> Self {
+        map { $0.innerContentPadding = spacing }
     }
 
     func backgroundColor(_ color: Color) -> Self {
