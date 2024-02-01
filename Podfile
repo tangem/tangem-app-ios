@@ -34,7 +34,7 @@ def blockchain_sdk_pods
   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :branch => 'feature/IOS-5792-SPM-dependencies-support'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
-  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-11'
+  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :branch => 'feature/IOS-5792-SPM-dependencies-support'
   #pod 'Solana.Swift', :path => '../Solana.Swift'
 
   pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :branch => 'feature/IOS-5792-SPM-dependencies-support'
@@ -220,6 +220,15 @@ post_install do |installer|
    "https://github.com/tangem/swift-protobuf-binaries.git",
    "SwiftProtobuf",
    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+  )
+
+  # secp256k1.swift for Solana.Swift
+  add_spm_to_target(
+   installer.pods_project,
+   "Solana.Swift",
+   "https://github.com/GigaBitcoin/secp256k1.swift.git",
+   "secp256k1",
+   { :kind => "upToNextMinorVersion", :minimumVersion => "0.12.0" }
   )
 
 end
