@@ -66,14 +66,14 @@ struct ExpressView: View {
                         .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
                         .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
                 }
-                .interSectionPadding(12)
+                .innerContentPadding(12)
 
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
                         .didTapChangeCurrency(viewModel.userDidTapChangeDestinationButton)
                         .didTapPriceChangePercent(viewModel.userDidTapPriceChangeInfoButton)
                 }
-                .interSectionPadding(12)
+                .innerContentPadding(12)
             }
 
             swappingButton
@@ -119,7 +119,7 @@ struct ExpressView: View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
         }
-        .interSectionPadding(12)
+        .innerContentPadding(12)
     }
 
     @ViewBuilder
@@ -132,7 +132,7 @@ struct ExpressView: View {
                 ProviderRowView(viewModel: data)
             }
         }
-        .interSectionPadding(12)
+        .innerContentPadding(12)
     }
 
     @ViewBuilder
