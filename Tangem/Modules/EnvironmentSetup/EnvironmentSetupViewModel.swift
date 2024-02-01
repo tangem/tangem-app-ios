@@ -48,12 +48,21 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultToggleRowViewModel(
-                title: "Use dev API",
+                title: "[Tangem] Use develop API",
                 isOn: BindingValue<Bool>(
                     root: featureStorage,
                     default: false,
                     get: { $0.useDevApi },
                     set: { $0.useDevApi = $1 }
+                )
+            ),
+            DefaultToggleRowViewModel(
+                title: "[Express] Use develop API",
+                isOn: BindingValue<Bool>(
+                    root: featureStorage,
+                    default: false,
+                    get: { $0.useDevApiExpress },
+                    set: { $0.useDevApiExpress = $1 }
                 )
             ),
             DefaultToggleRowViewModel(
