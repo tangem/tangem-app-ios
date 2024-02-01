@@ -94,7 +94,11 @@ class SendFeeViewModel: ObservableObject {
                 let amountFormatted = amount.string(with: feeDecimals)
                 return Localization.sendAmountSubstractFooter(amountFormatted)
             }
-            .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
+            .sink { [weak self] newFooter in
+                withAnimation {
+                    self?.subtractFromAmountFooterText = newFooter
+                }
+            }
             .store(in: &bag)
 
         notificationManager.notificationPublisher
