@@ -29,16 +29,15 @@ def tangem_sdk_pod
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-470'
-  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  # 'TangemWalletCore' dependency must be added via SPM
 
-  pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.2.4-tangem1'
-  #pod 'TangemWalletCore', :path => '../wallet-core-binaries-ios'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :branch => 'feature/IOS-5792-SPM-dependencies-support'
+  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-11'
   #pod 'Solana.Swift', :path => '../Solana.Swift'
 
-  pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :tag => '0.0.10'
+  pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :branch => 'feature/IOS-5792-SPM-dependencies-support'
   #pod 'BinanceChain', :path => '../SwiftBinanceChain'
   
   pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.19'
@@ -106,6 +105,46 @@ target 'TangemVisa' do
   end
 end
 
+# Valid values for the `requirement` parameter are:
+# - `{ :kind => "upToNextMajorVersion", :minimumVersion => "1.0.0" }`
+# - `{ :kind => "upToNextMinorVersion", :minimumVersion => "1.0.0" }`
+# - `{ :kind => "exactVersion", :version => "1.0.0" }`
+# - `{ :kind => "versionRange", :minimumVersion => "1.0.0", :maximumVersion => "2.0.0" }`
+# - `{ :kind => "branch", :branch => "some-feature-branch" }`
+# - `{ :kind => "revision", :revision => "4a9b230f2b18e1798abbba2488293844bf62b33f" }`
+def add_spm_to_target(project, target_name, url, product_name, requirement)
+  project.targets.each do |target|
+    if target.name == target_name
+      pkg = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+      pkg.repositoryURL = url
+      pkg.requirement = requirement
+      ref = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+      ref.package = pkg
+      ref.product_name = product_name
+      target.package_product_dependencies << ref
+
+      already_has_this_pkg = false
+
+      project.root_object.package_references.each do |existing_ref|
+        if existing_ref.display_name.downcase.eql?(url.downcase)
+          already_has_this_pkg = true
+          break
+        end
+      end
+
+      unless already_has_this_pkg
+        project.root_object.package_references << pkg
+      end
+
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_INCLUDE_PATHS'] = '$(inherited) ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)'
+      end
+    end
+  end
+
+  project.save
+end
+
 pre_install do |installer|
   # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
   Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
@@ -113,7 +152,7 @@ end
 
 post_install do |installer|
   installer.pods_project.build_configurations.each do |config|
-    if config.name.include?("Debug")
+    if config.name.downcase.include?("debug")
       config.build_settings['GCC_OPTIMIZATION_LEVEL'] = '0'
       config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
       config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
@@ -126,7 +165,7 @@ post_install do |installer|
 
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.5'
       config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
       config.build_settings['OTHER_LDFLAGS'] << '-Wl,-no_warn_duplicate_libraries' #https://indiestack.com/2023/10/xcode-15-duplicate-library-linker-warnings/
       if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
@@ -136,12 +175,42 @@ post_install do |installer|
       end
     end
 
-    # Exporting SwiftProtobuf library symbols for WalletCore binaries 
-    if target.name.downcase.include?('swiftprotobuf')
-      target.build_configurations.each do |config|
-        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-      end
-    end
   end
+
+  # Hedera for BlockchainSdk
+  add_spm_to_target(
+    installer.pods_project,
+    "BlockchainSdk",
+    "https://github.com/tangem/hedera-sdk-swift.git",
+    "Hedera",
+    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+  )
+
+  # WalletCore binaries for BlockchainSdk
+  add_spm_to_target(
+    installer.pods_project,
+    "BlockchainSdk",
+    "https://github.com/tangem/wallet-core-binaries-ios.git",
+    "_TangemWalletCoreWrapper",
+    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+  )
+
+  # SwiftProtobuf for BlockchainSdk
+  add_spm_to_target(
+   installer.pods_project,
+   "BlockchainSdk",
+   "https://github.com/tangem/swift-protobuf.git",
+   "SwiftProtobuf",
+   { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+  )
+
+  # SwiftProtobuf for BinanceChain
+  add_spm_to_target(
+   installer.pods_project,
+   "BinanceChain",
+   "https://github.com/tangem/swift-protobuf.git",
+   "SwiftProtobuf",
+   { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+  )
 
 end
