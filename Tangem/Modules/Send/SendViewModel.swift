@@ -77,6 +77,7 @@ final class SendViewModel: ObservableObject {
     private let sendType: SendType
     private let steps: [SendStep]
     private let walletModel: WalletModel
+    private let userWalletModel: UserWalletModel
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
@@ -109,6 +110,7 @@ final class SendViewModel: ObservableObject {
     init(
         walletName: String,
         walletModel: WalletModel,
+        userWalletModel: UserWalletModel,
         transactionSigner: TransactionSigner,
         sendType: SendType,
         emailDataProvider: EmailDataProvider,
@@ -117,6 +119,7 @@ final class SendViewModel: ObservableObject {
         self.coordinator = coordinator
         self.sendType = sendType
         self.walletModel = walletModel
+        self.userWalletModel = userWalletModel
         self.emailDataProvider = emailDataProvider
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
@@ -156,7 +159,11 @@ final class SendViewModel: ObservableObject {
 
         #warning("Fiat icon URL")
 
-        notificationManager = SendNotificationManager(input: sendModel)
+        notificationManager = SendNotificationManager(
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem,
+            input: sendModel
+        )
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
@@ -293,6 +300,20 @@ final class SendViewModel: ObservableObject {
         sendModel.setDestination(result.destination)
         sendModel.setAmount(result.amount)
     }
+
+    // [REDACTED_TODO_COMMENT]
+    private func openNetworkCurrency() {
+        guard
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(walletModel.tokenItem.blockchain) && $0.blockchainNetwork == walletModel.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
+            return
+        }
+
+        coordinator?.presentNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+    }
 }
 
 extension SendViewModel: SendSummaryRoutable {
@@ -313,6 +334,8 @@ extension SendViewModel: NotificationTapDelegate {
         case .refreshFee:
 //            sendModel.updateFees { _ in }
             break
+        case .openFeeCurrency:
+            openNetworkCurrency()
         default:
             break
         }
