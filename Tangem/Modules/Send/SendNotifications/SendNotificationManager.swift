@@ -29,6 +29,19 @@ class SendNotificationManager {
         delegate?.didTapNotificationButton(with:action:) ?? { _, _ in }
     }
 
+    func notificationPublisher(for location: SendNotificationEvent.Location) -> AnyPublisher<[NotificationViewInput], Never> {
+        notificationPublisher
+            .map {
+                $0.filter { input in
+                    let sendNotificationEvent = input.settings.event as? SendNotificationEvent
+                    return sendNotificationEvent?.location == location
+                }
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+
     private func bind() {
         input
             .feeValues
@@ -37,6 +50,42 @@ class SendNotificationManager {
             }
             .sink { [weak self] hasError in
                 self?.updateEventVisibility(hasError, event: .networkFeeUnreachable)
+            }
+            .store(in: &bag)
+
+        #warning("TODO")
+        let sendModel = (input as! SendModel)
+        let loadedFeeValues = sendModel
+            .feeValues
+            .compactMap { loadingFeeValues -> [Decimal]? in
+                if loadingFeeValues.values.contains(where: { $0.isLoading }) {
+                    return nil
+                }
+
+                return loadingFeeValues.values.compactMap { $0.value?.amount.value }
+            }
+
+        let customFeeValue = sendModel
+            .customFeePublisher
+            .compactMap {
+                $0?.amount.value
+            }
+
+        Publishers.CombineLatest(loadedFeeValues, customFeeValue)
+            .sink { [weak self] loadedFees, customFee in
+                guard
+                    let lowestFee = loadedFees.first,
+                    let highestFee = loadedFees.last
+                else {
+                    return
+                }
+
+                let tooLow = customFee < lowestFee
+                self?.updateEventVisibility(tooLow, event: .customFeeTooLow)
+
+                let highFeeOrderTrigger = 5
+                let tooHigh = customFee > (highestFee * Decimal(highFeeOrderTrigger))
+                self?.updateEventVisibility(tooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderTrigger))
             }
             .store(in: &bag)
 
