@@ -25,17 +25,17 @@ struct SendFeeView: View {
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
 
-            ForEach(viewModel.feeCoverageNotificationInputs) { input in
-                NotificationView(input: input)
-                    .transition(.notificationTransition)
-            }
-
             GroupedSection(viewModel.subtractFromAmountModel) {
                 DefaultToggleRowView(viewModel: $0)
             } footer: {
                 DefaultFooterView(viewModel.subtractFromAmountFooterText)
             }
             .backgroundColor(Colors.Background.action)
+
+            ForEach(viewModel.feeCoverageNotificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
 
             Spacer(minLength: bottomSpacing)
         }
