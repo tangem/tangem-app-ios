@@ -675,6 +675,7 @@
 		B6ED08302A7D9FA70090E51F /* OrganizeTokensOptionsEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ED082F2A7D9FA70090E51F /* OrganizeTokensOptionsEditing.swift */; };
 		B6ED08362A7DA9780090E51F /* OrganizeTokensOptionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ED08352A7DA9780090E51F /* OrganizeTokensOptionsManager.swift */; };
 		B6ED083A2A7DB99D0090E51F /* UserTokensReorderingOptionsConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ED08392A7DB99D0090E51F /* UserTokensReorderingOptionsConverter.swift */; };
+		B6F525922B6C05210079ADD1 /* _TangemWalletCoreWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = B6F525912B6C05210079ADD1 /* _TangemWalletCoreWrapper */; };
 		B6FB04E52B1FEEF6000BB59E /* RootHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FB04E42B1FEEF6000BB59E /* RootHostingController.swift */; };
 		B6FB04E72B1FEF13000BB59E /* StatusBarStyleConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FB04E62B1FEF13000BB59E /* StatusBarStyleConfigurator.swift */; };
 		B6FB04E92B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FB04E82B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift */; };
@@ -2757,6 +2758,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6F525922B6C05210079ADD1 /* _TangemWalletCoreWrapper in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
 				0790546DD7D84EA886A5CA2B /* Pods_Tangem.framework in Frameworks */,
@@ -7255,6 +7257,9 @@
 				B09933892B5517EC00240CDB /* PBXTargetDependency */,
 			);
 			name = Tangem;
+			packageProductDependencies = (
+				B6F525912B6C05210079ADD1 /* _TangemWalletCoreWrapper */,
+			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
 			productType = "com.apple.product-type.application";
@@ -7429,6 +7434,9 @@
 				"zh-Hant",
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
+			packageReferences = (
+				B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */,
+			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -9422,8 +9430,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -9574,8 +9580,6 @@
 					"\"SwiftCBOR\"",
 					"-framework",
 					"\"SwiftDate\"",
-					"-framework",
-					"\"SwiftProtobuf\"",
 					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
@@ -10879,8 +10883,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -11136,8 +11138,6 @@
 					"\"SwiftCBOR\"",
 					"-framework",
 					"\"SwiftDate\"",
-					"-framework",
-					"\"SwiftProtobuf\"",
 					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
@@ -12380,8 +12380,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -12638,8 +12636,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -12838,6 +12834,25 @@
 			defaultConfigurationName = "Release(production)";
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tangem/wallet-core-binaries-ios.git";
+			requirement = {
+				branch = "feature/IOS-5792-SPM-dependencies-support";
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B6F525912B6C05210079ADD1 /* _TangemWalletCoreWrapper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */;
+			productName = _TangemWalletCoreWrapper;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5D3F77BA24BF56D800E8695B /* Project object */;
 }
