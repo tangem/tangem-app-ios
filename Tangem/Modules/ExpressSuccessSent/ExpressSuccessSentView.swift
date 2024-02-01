@@ -26,22 +26,22 @@ struct ExpressSuccessSentView: View {
                     GroupedSection(viewModel.sourceData) {
                         AmountSummaryView(data: $0)
                     }
-                    .interSectionPadding(12)
+                    .innerContentPadding(12)
 
                     GroupedSection(viewModel.destinationData) {
                         AmountSummaryView(data: $0)
                     }
-                    .interSectionPadding(12)
+                    .innerContentPadding(12)
 
                     GroupedSection(viewModel.provider) {
                         ProviderRowView(viewModel: $0)
                     }
-                    .interSectionPadding(12)
+                    .innerContentPadding(12)
 
                     GroupedSection(viewModel.expressFee) {
                         ExpressFeeRowView(viewModel: $0)
                     }
-                    .interSectionPadding(12)
+                    .innerContentPadding(12)
                 }
             }
             .padding(.horizontal, 14)

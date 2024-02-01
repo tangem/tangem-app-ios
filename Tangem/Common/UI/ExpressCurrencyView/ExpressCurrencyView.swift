@@ -243,7 +243,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
                             )
                         }
                     }
-                    .interSectionPadding(12)
+                    .innerContentPadding(12)
                     .interItemSpacing(10)
                 }
             }
