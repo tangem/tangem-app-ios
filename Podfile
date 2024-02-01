@@ -186,6 +186,15 @@ post_install do |installer|
     { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
   )
 
+  # CryptoSwift for BlockchainSdk
+  add_spm_to_target(
+    installer.pods_project,
+    "BlockchainSdk",
+    "https://github.com/krzyzanowskim/CryptoSwift.git",
+    "CryptoSwift",
+    { :kind => "upToNextMajorVersion", :minimumVersion => "1.8.0" }
+  )
+
   # WalletCore binaries for BlockchainSdk
   add_spm_to_target(
     installer.pods_project,
