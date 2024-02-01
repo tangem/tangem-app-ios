@@ -152,7 +152,7 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
             ProviderRowView(viewModel: $0)
         }
         .interItemSpacing(14)
-        .interSectionPadding(12)
+        .innerContentPadding(12)
         .padding()
         .background(Colors.Background.secondary)
     }
