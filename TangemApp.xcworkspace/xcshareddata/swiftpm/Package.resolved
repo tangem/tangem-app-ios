@@ -24,7 +24,7 @@
       "location" : "https://github.com/tangem/grpc-swift.git",
       "state" : {
         "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "bb8ee86a149e244ce63b71ac34dc5a2f7bd7f12a"
+        "revision" : "b87db7e9e220926e42d9ecfc685c44b2ffb0d11a"
       }
     },
     {
@@ -33,7 +33,7 @@
       "location" : "https://github.com/tangem/hedera-sdk-swift.git",
       "state" : {
         "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "4a9b230f2b18e1798abbba2488293844bf62b33f"
+        "revision" : "6f0ae7bc2f44b99f1878bfdfd672375e9ad38c0c"
       }
     },
     {
@@ -145,12 +145,12 @@
       }
     },
     {
-      "identity" : "swift-protobuf",
+      "identity" : "swift-protobuf-binaries",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/swift-protobuf.git",
+      "location" : "https://github.com/tangem/swift-protobuf-binaries.git",
       "state" : {
         "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "9e56dadd3a3d865bd6ff44847cfc27305dc7b55e"
+        "revision" : "bb1cf0deaa34d288ed74e7f47c5274915ed90213"
       }
     },
     {
@@ -168,7 +168,7 @@
       "location" : "https://github.com/tangem/wallet-core-binaries-ios.git",
       "state" : {
         "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "212f68d4ee736c466b1157946cb09984c471fa48"
+        "revision" : "7e1aa5601742898c7f532389346aa040cc92dea4"
       }
     }
   ],
