@@ -152,6 +152,10 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
     func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
+        guard model.tokenItem != tokenDetailsViewModel?.tokenItem else {
+            return
+        }
+
         guard let cardViewModel = userWalletModel as? CardViewModel else {
             return
         }
@@ -200,13 +204,22 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let coordinator = SendCoordinator { [weak self] in
+        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
+
+            if let navigationInfo {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
+                }
+            }
         }
+
+        let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
             walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
+            userWalletModel: cardViewModel,
             transactionSigner: cardViewModel.signer,
             type: .send
         )
@@ -230,13 +243,22 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let coordinator = SendCoordinator { [weak self] in
+        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
+
+            if let navigationInfo {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
+                }
+            }
         }
+
+        let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
             walletName: cardViewModel.userWallet.name,
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
+            userWalletModel: cardViewModel,
             transactionSigner: cardViewModel.signer,
             type: .sell(amount: amountToSend, destination: destination)
         )
