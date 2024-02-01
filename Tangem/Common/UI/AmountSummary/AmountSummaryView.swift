@@ -58,7 +58,7 @@ struct AmountSummaryView: View {
         ) {
             AmountSummaryView(data: $0)
         }
-        .interSectionPadding(12)
+        .innerContentPadding(12)
 
         GroupedSection([
             AmountSummaryViewData(
@@ -76,7 +76,7 @@ struct AmountSummaryView: View {
         ]) {
             AmountSummaryView(data: $0)
         }
-        .interSectionPadding(12)
+        .innerContentPadding(12)
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
