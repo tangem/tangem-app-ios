@@ -81,7 +81,7 @@ final class SendViewModel: ObservableObject {
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
 
-    private unowned let coordinator: SendRoutable
+    private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -139,6 +139,7 @@ final class SendViewModel: ObservableObject {
         walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
+            blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
             feeCurrencySymbol: walletModel.tokenItem.blockchain.currencySymbol,
             feeCurrencyId: walletModel.tokenItem.blockchain.currencyId,
@@ -148,7 +149,9 @@ final class SendViewModel: ObservableObject {
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
             fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
-            amountFractionDigits: walletModel.tokenItem.decimalCount
+            amountFractionDigits: walletModel.tokenItem.decimalCount,
+            feeFractionDigits: walletModel.feeTokenItem.decimalCount,
+            feeAmountType: walletModel.feeTokenItem.amountType
         )
 
         #warning("Fiat icon URL")
@@ -199,7 +202,7 @@ final class SendViewModel: ObservableObject {
             )
 
             let networkName = walletModel.blockchainNetwork.blockchain.displayName
-            coordinator.openQRScanner(with: binding, networkName: networkName)
+            coordinator?.openQRScanner(with: binding, networkName: networkName)
         }
     }
 
@@ -239,7 +242,7 @@ final class SendViewModel: ObservableObject {
 
                 if walletModel.isDemo {
                     let button = Alert.Button.default(Text(Localization.commonOk)) {
-                        self.coordinator.dismiss()
+                        self.coordinator?.dismiss()
                     }
                     alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
                 }
@@ -269,7 +272,7 @@ final class SendViewModel: ObservableObject {
             lastError: error
         )
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
-        coordinator.openMail(with: emailDataCollector, recipient: recipient)
+        coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     private func openFinishPage() {
