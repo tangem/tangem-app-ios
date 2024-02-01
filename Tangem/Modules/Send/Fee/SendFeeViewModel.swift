@@ -48,6 +48,7 @@ class SendFeeViewModel: ObservableObject {
 
     @Published private var isFeeIncluded: Bool = false
 
+    @Published private(set) var feeLevelsNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var customFeeNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var feeCoverageNotificationInputs: [NotificationViewInput] = []
 
@@ -178,6 +179,11 @@ class SendFeeViewModel: ObservableObject {
             .store(in: &bag)
 
         #warning("TODO")
+        (notificationManager as! SendNotificationManager)
+            .notificationPublisher(for: .feeLevels)
+            .assign(to: \.feeLevelsNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
         (notificationManager as! SendNotificationManager)
             .notificationPublisher(for: .customFee)
             .assign(to: \.customFeeNotificationInputs, on: self, ownership: .weak)
