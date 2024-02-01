@@ -273,13 +273,11 @@ extension DetailsViewModel {
     func setupCommonSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = []
 
-        if FeatureProvider.isAvailable(.mainV2) {
-            viewModels.append(DefaultRowViewModel(
-                title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-                detailsType: isScanning ? .loader : .none,
-                action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
-            ))
-        }
+        viewModels.append(DefaultRowViewModel(
+            title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
+            detailsType: isScanning ? .loader : .none,
+            action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
+        ))
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
