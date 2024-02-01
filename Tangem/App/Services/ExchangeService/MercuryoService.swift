@@ -74,7 +74,7 @@ class MercuryoService {
 extension MercuryoService: ExchangeService {
     var initializationPublisher: Published<Bool>.Publisher { $initialized }
 
-    var successCloseUrl: String { "https://success.tangem.com" }
+    var successCloseUrl: String { DismissSafariActionURLHelper().buildURL(scheme: .redirectLink).absoluteString }
 
     var sellRequestUrl: String { "" }
 
@@ -184,8 +184,8 @@ private extension URLQueryItem {
 private extension Blockchain {
     var mercuryoNetwork: String? {
         switch self {
-//        case .algorand:   //[REDACTED_TODO_COMMENT]
-//            return "ALGORAND"
+        case .algorand:
+            return "ALGORAND"
         case .arbitrum:
             return "ARBITRUM"
         case .avalanche:
