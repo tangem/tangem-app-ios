@@ -632,4 +632,10 @@ extension SendModel: SendFinishViewModelInput {
     }
 }
 
-extension SendModel: SendNotificationManagerInput {}
+extension SendModel: SendNotificationManagerInput {
+    var feeError: AnyPublisher<Error?, Never> { _feeError.eraseToAnyPublisher() }
+    
+    var feeChargedInSameCurrency: Bool {
+        walletModel.feeTokenItem == walletModel.tokenItem
+    }
+}
