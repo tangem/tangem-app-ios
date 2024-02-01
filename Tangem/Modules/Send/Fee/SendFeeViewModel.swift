@@ -48,7 +48,7 @@ class SendFeeViewModel: ObservableObject {
 
     @Published private var isFeeIncluded: Bool = false
 
-    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var customFeeNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var feeCoverageNotificationInputs: [NotificationViewInput] = []
 
     private let notificationManager: NotificationManager
@@ -177,18 +177,14 @@ class SendFeeViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        notificationManager.notificationPublisher
-            .map {
-                $0.filter { input in
-                    guard let sendNotificationEvent = input.settings.event as? SendNotificationEvent else {
-                        return true
-                    }
+        #warning("TODO")
+        (notificationManager as! SendNotificationManager)
+            .notificationPublisher(for: .customFee)
+            .assign(to: \.customFeeNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
 
-                    return sendNotificationEvent.location == .feeIncluded
-                }
-            }
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+        (notificationManager as! SendNotificationManager)
+            .notificationPublisher(for: .feeIncluded)
             .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
