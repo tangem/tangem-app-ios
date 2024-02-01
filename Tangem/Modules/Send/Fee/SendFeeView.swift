@@ -25,6 +25,11 @@ struct SendFeeView: View {
             .separatorStyle(.minimum)
             .backgroundColor(Colors.Background.action)
 
+            ForEach(viewModel.feeLevelsNotificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
+
             if viewModel.showCustomFeeFields,
                let customFeeModel = viewModel.customFeeModel,
                let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
