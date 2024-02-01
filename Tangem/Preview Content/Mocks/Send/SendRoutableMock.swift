@@ -17,4 +17,5 @@ class SendRoutableMock: SendRoutable {
     func explore(url: URL) {}
     func share(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
+    func presentNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {}
 }
