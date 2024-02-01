@@ -9,10 +9,12 @@
 import Foundation
 
 class OnboardingCoordinator: CoordinatorObject {
-    // MARK: - Dependencies
-
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
+
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Main view models
 
@@ -26,7 +28,6 @@ class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
@@ -41,6 +42,7 @@ class OnboardingCoordinator: CoordinatorObject {
     // MARK: - Private
 
     private var options: OnboardingCoordinator.Options!
+    private var safariHandle: SafariHandle?
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -91,19 +93,11 @@ extension OnboardingCoordinator {
 // MARK: - OnboardingTopupRoutable
 
 extension OnboardingCoordinator: OnboardingTopupRoutable {
-    func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
-        buyCryptoModel = .init(
-            url: url,
-            title: Localization.commonBuy,
-            addLoadingIndicator: true,
-            withCloseButton: true,
-            urlActions: [closeUrl: { [weak self] response in
-                DispatchQueue.main.async {
-                    action(response)
-                    self?.buyCryptoModel = nil
-                }
-            }]
-        )
+    func openCryptoShop(at url: URL, action: @escaping () -> Void) {
+        safariHandle = safariManager.openURL(url) { [weak self] in
+            self?.safariHandle = nil
+            action()
+        }
     }
 
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
