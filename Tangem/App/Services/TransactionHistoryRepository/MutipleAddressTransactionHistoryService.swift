@@ -92,7 +92,12 @@ private extension MutipleAddressTransactionHistoryService {
                 return nil
             }
 
-            return loadTransactionHistory(address: address)
+            do {
+                return try loadTransactionHistory(address: address)
+            } catch {
+                AppLog.shared.debug("Provider exception: \(error) publisher set be nil")
+                return nil
+            }
         }
 
         if publishers.isEmpty {
@@ -129,21 +134,15 @@ private extension MutipleAddressTransactionHistoryService {
             }
     }
 
-    func loadTransactionHistory(address: String) -> LoadingPublisher {
+    func loadTransactionHistory(address: String) throws -> LoadingPublisher {
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
-        return Just(address)
-            .withUnownedCaptureOf(self)
-            .tryMap { service, address -> TransactionHistoryProvider in
-                guard let provider = service.transactionHistoryProviders[address] else {
-                    throw ServiceError.unknowProvider
-                }
+        guard let provider = transactionHistoryProviders[address] else {
+            throw ServiceError.unknowProvider
+        }
 
-                return provider
-            }
-            .flatMap { provider in
-                provider.loadTransactionHistory(request: request)
-            }
+        return provider
+            .loadTransactionHistory(request: request)
             .map { response in
                 return (address: address, response: response)
             }
