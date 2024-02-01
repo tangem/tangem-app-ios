@@ -199,7 +199,7 @@ post_install do |installer|
   add_spm_to_target(
    installer.pods_project,
    "BlockchainSdk",
-   "https://github.com/tangem/swift-protobuf.git",
+   "https://github.com/tangem/swift-protobuf-binaries.git",
    "SwiftProtobuf",
    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
   )
@@ -208,7 +208,7 @@ post_install do |installer|
   add_spm_to_target(
    installer.pods_project,
    "BinanceChain",
-   "https://github.com/tangem/swift-protobuf.git",
+   "https://github.com/tangem/swift-protobuf-binaries.git",
    "SwiftProtobuf",
    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
   )
