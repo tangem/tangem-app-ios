@@ -39,7 +39,7 @@ struct SendDestinationTextView: View {
             Text(viewModel.description)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
-        .interSectionPadding(2)
+        .innerContentPadding(2)
         .onAppear {
             viewModel.onAppear()
         }
