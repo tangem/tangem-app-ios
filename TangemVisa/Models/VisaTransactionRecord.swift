@@ -41,10 +41,11 @@ public struct VisaTransactionRecord: Decodable, Equatable {
     public let merchantName: String?
     public let merchantCity: String?
     public let merchantCountryCode: String?
-    public let meerchantCategoryCode: Int?
+    public let merchantCategoryCode: String?
     public let authCode: String?
     public let rrn: String?
     public let localDate: Date?
+    public let requests: [VisaTransactionRecordBlockchainRequest]
 
     private enum CodingKeys: String, CodingKey {
         case id = "transactionId"
@@ -62,9 +63,10 @@ public struct VisaTransactionRecord: Decodable, Equatable {
         case merchantName
         case merchantCity
         case merchantCountryCode
-        case meerchantCategoryCode
+        case merchantCategoryCode
         case authCode
         case rrn
+        case requests
     }
 }
 
