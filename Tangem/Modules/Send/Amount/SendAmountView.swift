@@ -37,9 +37,9 @@ struct SendAmountView: View {
 
                     SendDecimalNumberTextField(
                         decimalValue: $viewModel.amount,
-                        maximumFractionDigits: viewModel.amountFractionDigits,
-                        font: Fonts.Regular.title1
+                        maximumFractionDigits: viewModel.amountFractionDigits
                     )
+                    .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
                     .padding(.top, 16)
 
                     Text(viewModel.amountAlternative)
@@ -54,6 +54,7 @@ struct SendAmountView: View {
                         .padding(.top, 6)
                         .padding(.bottom, 12)
                 }
+                .frame(maxWidth: .infinity)
             }
             .contentAlignment(.center)
             .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
