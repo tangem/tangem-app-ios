@@ -647,4 +647,21 @@ extension SendModel: SendNotificationManagerInput {
     var transactionCreationError: AnyPublisher<Error?, Never> {
         _transactionCreationError.eraseToAnyPublisher()
     }
+
+    var reserveAmountForTransaction: AnyPublisher<Amount?, Never> {
+        guard let transactionReserveAmountValidator = walletModel.transactionReserveAmountValidator else {
+            return Just(nil).eraseToAnyPublisher()
+        }
+
+        return transaction
+            .flatMap { transaction -> AnyPublisher<Amount?, Error> in
+                if let transaction {
+                    return transactionReserveAmountValidator.reserveAmount(for: transaction)
+                } else {
+                    return .justWithError(output: nil)
+                }
+            }
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
+    }
 }
