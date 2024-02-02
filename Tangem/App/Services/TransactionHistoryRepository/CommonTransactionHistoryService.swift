@@ -127,7 +127,7 @@ extension CommonTransactionHistoryService: CustomStringConvertible {
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
                 "address": address,
-                "request": transactionHistoryProvider.debugDescription,
+                "request": transactionHistoryProvider.description,
             ]
         )
     }
