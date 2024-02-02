@@ -203,7 +203,7 @@ extension MutipleAddressTransactionHistoryService: CustomStringConvertible {
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
                 "requests": transactionHistoryProviders.map { _, provider in
-                    provider.debugDescription
+                    provider.description
                 }.joined(separator: ","),
             ]
         )
