@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// A lightweight interface that allows making extensions with generic constraints for the `Swift.Optional` type.
+/// A lightweight interface that allows writing extensions with generic constraints for the `Swift.Optional` type.
 protocol OptionalProtocol {
     associatedtype Wrapped
 
