@@ -19,6 +19,7 @@ class SendNotificationManager {
     private let feeTokenItem: TokenItem
     private let input: SendNotificationManagerInput
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
+    private let transactionCreationNotificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
 
     private weak var delegate: NotificationTapDelegate?
@@ -31,6 +32,10 @@ class SendNotificationManager {
 
     var buttonAction: NotificationView.NotificationButtonTapAction {
         delegate?.didTapNotificationButton(with:action:) ?? { _, _ in }
+    }
+
+    func transactionCreationNotificationPublisher() -> AnyPublisher<[NotificationViewInput], Never> {
+        transactionCreationNotificationInputsSubject.eraseToAnyPublisher()
     }
 
     func notificationPublisher(for location: SendNotificationEvent.Location) -> AnyPublisher<[NotificationViewInput], Never> {
@@ -121,6 +126,32 @@ class SendNotificationManager {
                     networkName: tokenItem.networkName
                 )
                 updateEventVisibility(feeExceedsBalance, event: .feeExceedsBalance(configuration: configuration))
+            }
+            .store(in: &bag)
+
+        sendModel
+            .transactionCreationError
+            .compactMap {
+                ($0 as? TransactionErrors)?.errors.first
+            }
+            .removeDuplicates()
+            .sink { [weak self] transactionError in
+                guard let self else { return }
+
+                let event: SendNotificationEvent?
+                switch transactionError {
+                case .dustAmount(let dust), .dustChange(let dust):
+                    event = SendNotificationEvent.minimumAmount(value: dust.string())
+                default:
+                    event = nil
+                }
+
+                if let event {
+                    let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction)
+                    transactionCreationNotificationInputsSubject.send([input])
+                } else {
+                    transactionCreationNotificationInputsSubject.send([])
+                }
             }
             .store(in: &bag)
     }
