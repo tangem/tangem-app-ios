@@ -55,6 +55,7 @@ struct SingleWalletMainContentView: View {
 
 struct SingleWalletContentView_Preview: PreviewProvider {
     static let viewModel: SingleWalletMainContentViewModel = {
+        let mainCoordinator = MainCoordinator()
         let userWalletModel = FakeUserWalletModel.xrpNote
         let walletModel = userWalletModel.walletModelsManager.walletModels.first!
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
@@ -70,8 +71,9 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             exchangeUtility: cryptoUtility,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
-            mainViewDelegate: nil,
-            tokenRouter: SingleTokenRoutableMock()
+            rateAppController: RateAppControllerStub(),
+            tokenRouter: SingleTokenRoutableMock(),
+            delegate: nil
         )
     }()
 
