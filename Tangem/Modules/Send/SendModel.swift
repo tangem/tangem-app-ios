@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import BigInt
 import BlockchainSdk
 
 class SendModel {
@@ -74,6 +75,10 @@ class SendModel {
 
     private let _sendError = PassthroughSubject<Error?, Never>()
 
+    private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
+    private let _customFeeGasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
+    private let _customFeeGasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
+
     // MARK: - Errors (raw implementation)
 
     private let _amountError = CurrentValueSubject<Error?, Never>(nil)
@@ -87,6 +92,7 @@ class SendModel {
     private let addressService: SendAddressService
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
+    private var didSetCustomFee = false
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -106,7 +112,6 @@ class SendModel {
             setDestination(destination)
         }
 
-        validateAmount()
         validateDestination()
         validateDestinationAdditionalField()
         bind()
@@ -116,9 +121,8 @@ class SendModel {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
+            didChangeFeeInclusion(true)
         }
-
-        #warning("[REDACTED_TODO_COMMENT]")
     }
 
     func currentTransaction() -> BlockchainSdk.Transaction? {
@@ -160,8 +164,20 @@ class SendModel {
     }
 
     private func bind() {
+        Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
+            .removeDuplicates {
+                $0 == $1
+            }
+            .sink { [weak self] amount, fee, isFeeIncluded in
+                self?.updateAndValidateAmount(amount, fee: fee, isFeeIncluded: isFeeIncluded)
+            }
+            .store(in: &bag)
+
         #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest(amount, destination)
+            .removeDuplicates {
+                $0 == $1
+            }
             .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Never> in
                 guard
                     let self,
@@ -189,15 +205,26 @@ class SendModel {
                 let feeValues = feeValues(fees)
                 _feeValues.send(feeValues)
 
-                if let marketFee = feeValues[.market],
-                   let marketFeeValue = marketFee.value {
-                    fee.send(marketFeeValue)
+                if let selectedFee = feeValues[selectedFeeOption],
+                   let selectedFeeValue = selectedFee.value {
+                    fee.send(selectedFeeValue)
+                }
+
+                if let customFee = feeValues[.custom]?.value,
+                   let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
+                   !didSetCustomFee {
+                    _customFee.send(customFee)
+                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
+                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
                 }
             }
             .store(in: &bag)
 
         #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest3(amount, destination, fee)
+            .removeDuplicates {
+                $0 == $1
+            }
             .map { [weak self] amount, destination, fee -> BlockchainSdk.Transaction? in
                 guard
                     let self,
@@ -240,15 +267,21 @@ class SendModel {
         guard _amount.value != amount else { return }
 
         _amount.send(amount)
-        validateAmount()
     }
 
-    private func validateAmount() {
+    private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
         let amount: Amount?
         let error: Error?
 
+        if let newAmount,
+           let fee,
+           isFeeIncluded {
+            amount = newAmount - fee.amount
+        } else {
+            amount = newAmount
+        }
+
         #warning("validate")
-        amount = _amount.value
         error = nil
 
         self.amount.send(amount)
@@ -314,7 +347,53 @@ class SendModel {
     // MARK: - Fees
 
     func didSelectFeeOption(_ feeOption: FeeOption) {
+        guard let newFee = _feeValues.value[feeOption]?.value else {
+            return
+        }
+
         _selectedFeeOption.send(feeOption)
+        fee.send(newFee)
+    }
+
+    func didChangeFeeInclusion(_ isFeeIncluded: Bool) {
+        _isFeeIncluded.send(isFeeIncluded)
+    }
+
+    func didChangeCustomFee(_ value: Fee?) {
+        didSetCustomFee = true
+        _customFee.send(value)
+        fee.send(value)
+
+        if let ethereumParams = value?.parameters as? EthereumFeeParameters {
+            _customFeeGasLimit.send(ethereumParams.gasLimit)
+            _customFeeGasPrice.send(ethereumParams.gasPrice)
+        }
+    }
+
+    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
+        _customFeeGasPrice.send(value)
+        recalculateCustomFee()
+    }
+
+    func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
+        _customFeeGasLimit.send(value)
+        recalculateCustomFee()
+    }
+
+    private func recalculateCustomFee() {
+        let newFee: Fee?
+        if let gasPrice = _customFeeGasPrice.value,
+           let gasLimit = _customFeeGasLimit.value,
+           let gasInWei = (gasPrice * gasLimit).decimal {
+            let amount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
+            newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
+        } else {
+            newFee = nil
+        }
+
+        didSetCustomFee = true
+        _customFee.send(newFee)
+        fee.send(newFee)
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
@@ -324,11 +403,22 @@ class SendModel {
                 .market: .loaded(fees[0]),
             ]
         case 3:
-            return [
+            var fees: [FeeOption: LoadingValue<Fee>] = [
                 .slow: .loaded(fees[0]),
                 .market: .loaded(fees[1]),
                 .fast: .loaded(fees[2]),
             ]
+
+            if feeOptions.contains(.custom) {
+                if let customFee = _customFee.value,
+                   didSetCustomFee {
+                    fees[.custom] = .loaded(customFee)
+                } else {
+                    fees[.custom] = fees[.market]
+                }
+            }
+
+            return fees
         default:
             return [:]
         }
@@ -346,7 +436,7 @@ extension SendModel: SendAmountViewModelInput {
         walletModel.amountType
     }
 
-    var amountPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
+    var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
         _amount.eraseToAnyPublisher()
     }
 
@@ -406,7 +496,11 @@ extension SendModel: SendFeeViewModelInput {
     #warning("TODO")
     var feeOptions: [FeeOption] {
         if walletModel.shouldShowFeeSelector {
-            return [.slow, .market, .fast]
+            var options: [FeeOption] = [.slow, .market, .fast]
+            if blockchain.isEvm {
+                options.append(.custom)
+            }
+            return options
         } else {
             return [.market]
         }
@@ -414,6 +508,34 @@ extension SendModel: SendFeeViewModelInput {
 
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
         _feeValues.eraseToAnyPublisher()
+    }
+
+    var tokenItem: TokenItem {
+        walletModel.tokenItem
+    }
+
+    var customGasLimit: BigUInt? {
+        _customFeeGasLimit.value
+    }
+
+    var customFeePublisher: AnyPublisher<Fee?, Never> {
+        _customFee.eraseToAnyPublisher()
+    }
+
+    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> {
+        _customFeeGasPrice.eraseToAnyPublisher()
+    }
+
+    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> {
+        _customFeeGasLimit.eraseToAnyPublisher()
+    }
+
+    var canIncludeFeeIntoAmount: Bool {
+        sendType.canIncludeFeeIntoAmount && walletModel.amountType == walletModel.feeTokenItem.amountType
+    }
+
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
+        _isFeeIncluded.eraseToAnyPublisher()
     }
 }
 
@@ -430,6 +552,10 @@ extension SendModel: SendSummaryViewModelInput {
                 return (additionalFields, $0)
             }
             .eraseToAnyPublisher()
+    }
+
+    var amountPublisher: AnyPublisher<Amount?, Never> {
+        amount.eraseToAnyPublisher()
     }
 
     var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
