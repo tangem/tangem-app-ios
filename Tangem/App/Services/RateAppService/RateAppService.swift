@@ -14,6 +14,8 @@ final class RateAppService {
 
     @AppStorageCompat(StorageKeys.lastRequestedReviewDate)
     private var lastRequestedReviewDate: Date = .distantPast
+    @AppStorageCompat(StorageKeys.didAttemptMigrationFromLegacyRateApp)
+    private var didAttemptMigrationFromLegacyRateApp: Bool = false
 
     @AppStorageCompat(StorageKeys.lastRequestedReviewLaunchCount)
     private var lastRequestedReviewLaunchCount: Int = 0
@@ -26,6 +28,11 @@ final class RateAppService {
         set { AppSettings.shared.positiveBalanceAppearanceDate = newValue }
     }
 
+    private var positiveBalanceAppearanceLaunch: Int? {
+        get { AppSettings.shared.positiveBalanceAppearanceLaunch }
+        set { AppSettings.shared.positiveBalanceAppearanceLaunch = newValue }
+    }
+
     private var currentLaunchCount: Int { AppSettings.shared.numberOfLaunches }
 
     private var requiredNumberOfLaunches: Int {
@@ -35,6 +42,10 @@ final class RateAppService {
     }
 
     private let rateAppActionSubject = PassthroughSubject<RateAppAction, Never>()
+
+    init() {
+        migrateFromLegacyRateAppIfNeeded()
+    }
 
     func registerBalances(of walletModels: [WalletModel]) {
         guard
@@ -109,6 +120,30 @@ final class RateAppService {
         userDismissedLastRequestedReview = false
         rateAppActionSubject.send(.openAppRateDialog)
     }
+
+    private func migrateFromLegacyRateAppIfNeeded() {
+        if didAttemptMigrationFromLegacyRateApp {
+            return
+        }
+
+        didAttemptMigrationFromLegacyRateApp = true
+
+        // A fresh install without using the old version with legacy `RateAppService`
+        if currentLaunchCount <= 1 {
+            return
+        }
+
+        // An upgrade from the previous version with legacy `RateAppService`, therefore we have to
+        // postpone the upcoming rate app request even if all conditions for it are met
+
+        if positiveBalanceAppearanceDate != nil {
+            positiveBalanceAppearanceDate = Date()
+        }
+
+        if positiveBalanceAppearanceLaunch != nil {
+            positiveBalanceAppearanceLaunch = currentLaunchCount
+        }
+    }
 }
 
 // MARK: - Auxiliary types
@@ -118,6 +153,7 @@ private extension RateAppService {
         case lastRequestedReviewDate = "last_requested_review_date"
         case lastRequestedReviewLaunchCount = "last_requested_review_launch_count"
         case userDismissedLastRequestedReview = "user_dismissed_last_requested_review"
+        case didAttemptMigrationFromLegacyRateApp = "did_attempt_migration_from_legacy_rate_app"
     }
 }
 
