@@ -82,5 +82,14 @@ struct MainCoordinatorView: CoordinatorView {
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
             }
+            .bottomSheet(
+                item: $coordinator.rateAppBottomSheetViewModel,
+                backgroundColor: Colors.Background.primary
+            ) { viewModel in
+                RateAppBottomSheetView(viewModel: viewModel)
+            }
+
+        NavHolder()
+            .requestAppStoreReviewCompat($coordinator.isAppStoreReviewRequested)
     }
 }
