@@ -130,37 +130,30 @@ class SendNotificationManager {
             .store(in: &bag)
 
         sendModel
-            .transactionCreationError
-            .compactMap {
-                ($0 as? TransactionErrors)?.errors.first
-            }
-            .removeDuplicates()
-            .sink { [weak self] transactionError in
-                guard let self else { return }
-
-                let event: SendNotificationEvent?
-                switch transactionError {
-                case .dustAmount(let dust), .dustChange(let dust):
-                    event = SendNotificationEvent.minimumAmount(value: dust.string())
-                default:
-                    event = nil
-                }
-
-//                if let event {
-//                    let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction)
-//                    transactionCreationNotificationInputsSubject.send([input])
-//                } else {
-//                    transactionCreationNotificationInputsSubject.send([])
-//                }
-            }
-            .store(in: &bag)
-
-        sendModel
             .reserveAmountForTransaction
             .sink { [weak self] reserveAmountForTransaction in
                 let value = reserveAmountForTransaction?.string() ?? ""
                 let visible = reserveAmountForTransaction != nil
                 self?.updateEventVisibility(visible, event: .invalidReserve(value: value))
+            }
+            .store(in: &bag)
+
+        sendModel
+            .transactionCreationError
+            .map {
+                ($0 as? TransactionErrors)?.errors ?? []
+            }
+            .withWeakCaptureOf(self)
+            .map { (self, transactionErrors) -> [NotificationViewInput] in
+                let factory = NotificationsFactory()
+                return transactionErrors
+                    .compactMap(\.sendNotificationEvent)
+                    .map {
+                        factory.buildNotificationInput(for: $0, buttonAction: self.buttonAction)
+                    }
+            }
+            .sink { [weak self] in
+                self?.transactionCreationNotificationInputsSubject.send($0)
             }
             .store(in: &bag)
     }
@@ -179,11 +172,15 @@ class SendNotificationManager {
 
 extension SendNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
-        notificationInputsSubject.value
+        notificationInputsSubject.value + transactionCreationNotificationInputsSubject.value
     }
 
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
-        notificationInputsSubject.eraseToAnyPublisher()
+        Publishers.CombineLatest(notificationInputsSubject, transactionCreationNotificationInputsSubject)
+            .map {
+                $0 + $1
+            }
+            .eraseToAnyPublisher()
     }
 
     func setupManager(with delegate: NotificationTapDelegate?) {
@@ -192,4 +189,15 @@ extension SendNotificationManager: NotificationManager {
     }
 
     func dismissNotification(with id: NotificationViewId) {}
+}
+
+extension TransactionError {
+    var sendNotificationEvent: SendNotificationEvent? {
+        switch self {
+        case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
+            return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
+        default:
+            return nil
+        }
+    }
 }
