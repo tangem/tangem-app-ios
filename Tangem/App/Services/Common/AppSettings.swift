@@ -15,12 +15,6 @@ class AppSettings {
     @AppStorageCompat(StorageType.numberOfAppLaunches)
     var numberOfLaunches: Int = 0
 
-    @AppStorageCompat(StorageType.positiveBalanceAppearanceDate)
-    var positiveBalanceAppearanceDate: Date? = nil
-
-    @AppStorageCompat(StorageType.positiveBalanceAppearanceLaunch)
-    var positiveBalanceAppearanceLaunch: Int? = nil
-
     @AppStorageCompat(StorageType.cardsStartedActivation)
     var cardsStartedActivation: [String] = []
 
