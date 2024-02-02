@@ -182,6 +182,8 @@ class AppCoordinator: CoordinatorObject {
     }
 
     private func closeAllSheetsIfNeeded(animated: Bool, completion: @escaping () -> Void = {}) {
+        mainBottomSheetCoordinator = nil
+
         guard let topViewController = UIApplication.topViewController,
               topViewController.presentingViewController != nil else {
             DispatchQueue.main.async {
