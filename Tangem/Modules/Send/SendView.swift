@@ -15,20 +15,23 @@ struct SendView: View {
 
     private let backButtonStyle: MainButton.Style = .secondary
     private let backButtonSize: MainButton.Size = .default
+    private let backgroundColor = Colors.Background.tertiary
+    private let bottomGradientHeight: CGFloat = 150
 
     var body: some View {
         VStack {
             header
 
-            currentPage
+            ZStack(alignment: .bottom) {
+                currentPage
+                    .overlay(bottomOverlay, alignment: .bottom)
 
-            if viewModel.showNavigationButtons {
-                navigationButtons
+                if viewModel.showNavigationButtons {
+                    navigationButtons
+                }
             }
-
-            Color.clear.frame(height: 1)
         }
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(backgroundColor.ignoresSafeArea())
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
         .alert(item: $viewModel.alert) { $0.alert }
         .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
@@ -77,7 +80,7 @@ struct SendView: View {
         case .destination:
             SendDestinationView(namespace: namespace, viewModel: viewModel.sendDestinationViewModel)
         case .fee:
-            SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel)
+            SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight)
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel)
         case .finish(let sendFinishViewModel):
@@ -108,6 +111,16 @@ struct SendView: View {
             }
         }
         .padding(.horizontal)
+    }
+
+    @ViewBuilder
+    private var bottomOverlay: some View {
+        if viewModel.showNavigationButtons {
+            LinearGradient(colors: [.clear, backgroundColor], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+                .frame(maxHeight: bottomGradientHeight)
+                .allowsHitTesting(false)
+        }
     }
 }
 
