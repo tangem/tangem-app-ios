@@ -12,9 +12,6 @@ import Combine
 final class RateAppService {
     var rateAppAction: AnyPublisher<RateAppAction, Never> { rateAppActionSubject.eraseToAnyPublisher() }
 
-    @AppStorageCompat(StorageKeys.systemReviewPromptRequestDates)
-    private var systemReviewPromptRequestDates: [Date] = []
-
     @AppStorageCompat(StorageKeys.lastRequestedReviewDate)
     private var lastRequestedReviewDate: Date = .distantPast
 
@@ -37,13 +34,7 @@ final class RateAppService {
             : Constants.normalReviewRequestNumberOfLaunchesInterval
     }
 
-    private lazy var calendar = Calendar(identifier: .gregorian)
-
     private let rateAppActionSubject = PassthroughSubject<RateAppAction, Never>()
-
-    init() {
-        trimStorageIfNeeded()
-    }
 
     func registerBalances(of walletModels: [WalletModel]) {
         guard
@@ -81,16 +72,6 @@ final class RateAppService {
             return
         }
 
-        guard let referenceDate = calendar.date(byAdding: .year, value: -Constants.systemReviewPromptTimeWindowSize, to: Date()) else {
-            return
-        }
-
-        let systemReviewPromptRequestDatesWithinLastYear = systemReviewPromptRequestDates.filter { $0 >= referenceDate }
-
-        guard systemReviewPromptRequestDatesWithinLastYear.count < Constants.systemReviewPromptMaxCountPerYear else {
-            return
-        }
-
         requestRateApp()
     }
 
@@ -99,7 +80,6 @@ final class RateAppService {
 
         switch response {
         case .positive:
-            systemReviewPromptRequestDates.append(Date())
             rateAppActionSubject.send(.openAppStoreReview)
         case .negative:
             rateAppActionSubject.send(.openFeedbackMailWithEmailType(emailType: .negativeRateAppFeedback))
@@ -129,20 +109,12 @@ final class RateAppService {
         userDismissedLastRequestedReview = false
         rateAppActionSubject.send(.openAppRateDialog)
     }
-
-    private func trimStorageIfNeeded() {
-        let storageMaxSize = Constants.systemReviewPromptRequestDatesMaxSize
-        if systemReviewPromptRequestDates.count > storageMaxSize {
-            systemReviewPromptRequestDates = systemReviewPromptRequestDates.suffix(storageMaxSize)
-        }
-    }
 }
 
 // MARK: - Auxiliary types
 
 private extension RateAppService {
     enum StorageKeys: String, RawRepresentable {
-        case systemReviewPromptRequestDates = "system_review_prompt_request_dates"
         case lastRequestedReviewDate = "last_requested_review_date"
         case lastRequestedReviewLaunchCount = "last_requested_review_launch_count"
         case userDismissedLastRequestedReview = "user_dismissed_last_requested_review"
@@ -166,14 +138,5 @@ private extension RateAppService {
             .warning,
             .critical,
         ]
-
-        // MARK: - Constants that control the behavior of the system rate app prompt (`SKStoreReviewController`)
-
-        /// See https://developer.apple.com/documentation/storekit/requesting_app_store_reviews for details.
-        static let systemReviewPromptMaxCountPerYear = 3
-        /// Years, see https://developer.apple.com/documentation/storekit/requesting_app_store_reviews for details.
-        static let systemReviewPromptTimeWindowSize = 1
-        /// For storage trimming.
-        static let systemReviewPromptRequestDatesMaxSize = 5
     }
 }
