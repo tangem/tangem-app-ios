@@ -15,6 +15,12 @@ final class RateAppService {
     @AppStorageCompat(StorageKeys.didAttemptMigrationFromLegacyRateApp)
     private var didAttemptMigrationFromLegacyRateApp: Bool = false
 
+    @AppStorageCompat(StorageKeys.positiveBalanceAppearanceDate)
+    private var positiveBalanceAppearanceDate: Date? = nil
+
+    @AppStorageCompat(StorageKeys.positiveBalanceAppearanceLaunch)
+    private var positiveBalanceAppearanceLaunch: Int? = nil
+
     @AppStorageCompat(StorageKeys.userRespondedToLastRequestedReview)
     private var userRespondedToLastRequestedReview: Bool = false
 
@@ -23,16 +29,6 @@ final class RateAppService {
 
     @AppStorageCompat(StorageKeys.userDismissedLastRequestedReviewLaunchCount)
     private var userDismissedLastRequestedReviewLaunchCount: Int? = nil
-
-    private var positiveBalanceAppearanceDate: Date? {
-        get { AppSettings.shared.positiveBalanceAppearanceDate }
-        set { AppSettings.shared.positiveBalanceAppearanceDate = newValue }
-    }
-
-    private var positiveBalanceAppearanceLaunch: Int? {
-        get { AppSettings.shared.positiveBalanceAppearanceLaunch }
-        set { AppSettings.shared.positiveBalanceAppearanceLaunch = newValue }
-    }
 
     private var userDismissedLastRequestedReview: Bool {
         return userDismissedLastRequestedReviewDate != nil && userDismissedLastRequestedReviewLaunchCount != nil
@@ -168,6 +164,8 @@ final class RateAppService {
 
 private extension RateAppService {
     enum StorageKeys: String, RawRepresentable {
+        case positiveBalanceAppearanceDate = "tangem_tap_positive_balace_appearance_date"
+        case positiveBalanceAppearanceLaunch = "tangem_tap_positive_balance_appearance_launch"
         case userDismissedLastRequestedReviewDate = "user_dismissed_last_requested_review_date"
         case userDismissedLastRequestedReviewLaunchCount = "user_dismissed_last_requested_review_launch_count"
         case userRespondedToLastRequestedReview = "user_responded_to_last_requested_review"
