@@ -584,6 +584,10 @@ extension WalletModel {
         walletManager as? WithdrawalValidator
     }
 
+    var transactionReserveAmountValidator: TransactionReserveAmountValidator? {
+        walletManager as? TransactionReserveAmountValidator
+    }
+
     var ethereumGasLoader: EthereumGasLoader? {
         walletManager as? EthereumGasLoader
     }
