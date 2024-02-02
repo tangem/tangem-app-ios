@@ -57,7 +57,7 @@ class SendModel {
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
 
     private var transactionParameters: TransactionParams?
-
+    private let _transactionCreationError = CurrentValueSubject<Error?, Never>(nil)
     private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
     // MARK: - Raw data
@@ -226,32 +226,37 @@ class SendModel {
             .removeDuplicates {
                 $0 == $1
             }
-            .map { [weak self] amount, destination, fee -> BlockchainSdk.Transaction? in
+            .map { [weak self] amount, destination, fee -> Result<BlockchainSdk.Transaction, Error> in
                 guard
                     let self,
                     let amount,
                     let destination,
                     let fee
                 else {
-                    return nil
+                    return .failure(TransactionError.invalidAmount)
                 }
 
-                #warning("[REDACTED_TODO_COMMENT]")
                 do {
-                    return try walletModel.createTransaction(
+                    let transaction = try walletModel.createTransaction(
                         amountToSend: amount,
                         fee: fee,
                         destinationAddress: destination
                     )
+                    return .success(transaction)
                 } catch {
                     AppLog.shared.debug("Failed to create transaction")
-                    AppLog.shared.error(error)
-                    return nil
+                    return .failure(error)
                 }
             }
-            .sink { transaction in
-                self.transaction.send(transaction)
-                print("TX built", transaction != nil)
+            .sink { [weak self] result in
+                switch result {
+                case .success(let transaction):
+                    self?.transaction.send(transaction)
+                    self?._transactionCreationError.send(nil)
+                case .failure(let error):
+                    self?.transaction.send(nil)
+                    self?._transactionCreationError.send(error)
+                }
             }
             .store(in: &bag)
     }
@@ -634,8 +639,12 @@ extension SendModel: SendFinishViewModelInput {
 
 extension SendModel: SendNotificationManagerInput {
     var feeError: AnyPublisher<Error?, Never> { _feeError.eraseToAnyPublisher() }
-    
+
     var feeChargedInSameCurrency: Bool {
         walletModel.feeTokenItem == walletModel.tokenItem
+    }
+
+    var transactionCreationError: AnyPublisher<Error?, Never> {
+        _transactionCreationError.eraseToAnyPublisher()
     }
 }
