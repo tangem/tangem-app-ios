@@ -65,10 +65,8 @@ extension SendNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkFeeUnreachable, .customFeeTooHigh, .feeCoverage:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             return .init(iconType: .image(Assets.attention.image))
-        case .customFeeTooLow:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .feeExceedsBalance(let configuration):
             return .init(iconType: .image(Image(configuration.feeAmountTypeIconName)))
         }
