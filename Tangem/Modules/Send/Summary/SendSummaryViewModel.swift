@@ -36,14 +36,18 @@ class SendSummaryViewModel: ObservableObject {
     @Published var amountSummaryViewData: AmountSummaryViewData?
     @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
 
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+
     weak var router: SendSummaryRoutable?
 
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
+    private let notificationManager: NotificationManager
 
-    init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, notificationManager: NotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
+        self.notificationManager = notificationManager
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
@@ -99,6 +103,12 @@ class SendSummaryViewModel: ObservableObject {
                 self?.sectionViewModelFactory.makeFeeViewData(from: fee)
             }
             .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        (notificationManager as! SendNotificationManager)
+//            .notificationPublisher(for: .summary)
+            .transactionCreationNotificationPublisher()
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
