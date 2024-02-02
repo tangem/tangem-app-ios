@@ -45,12 +45,10 @@ struct CommonWalletModelsFactory {
             )
         }
 
-        let multiAddressProviders: [String: TransactionHistoryProvider?] = [:]
-
-        _ = addresses.reduce(into: multiAddressProviders) { partialResult, address in
+        let multiAddressProviders: [String: TransactionHistoryProvider?] = addresses.reduce(into: [:]) { result, address in
             let factory = TransactionHistoryFactoryProvider().factory
             let provider = factory.makeProvider(for: tokenItem.blockchain)
-            partialResult[address] = provider
+            result[address] = provider
         }
 
         return MutipleAddressTransactionHistoryService(
