@@ -146,12 +146,21 @@ class SendNotificationManager {
                     event = nil
                 }
 
-                if let event {
-                    let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction)
-                    transactionCreationNotificationInputsSubject.send([input])
-                } else {
-                    transactionCreationNotificationInputsSubject.send([])
-                }
+//                if let event {
+//                    let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction)
+//                    transactionCreationNotificationInputsSubject.send([input])
+//                } else {
+//                    transactionCreationNotificationInputsSubject.send([])
+//                }
+            }
+            .store(in: &bag)
+
+        sendModel
+            .reserveAmountForTransaction
+            .sink { [weak self] reserveAmountForTransaction in
+                let value = reserveAmountForTransaction?.string() ?? ""
+                let visible = reserveAmountForTransaction != nil
+                self?.updateEventVisibility(visible, event: .invalidReserve(value: value))
             }
             .store(in: &bag)
     }
