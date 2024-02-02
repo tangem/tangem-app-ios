@@ -12,16 +12,17 @@ import Combine
 final class RateAppService {
     var rateAppAction: AnyPublisher<RateAppAction, Never> { rateAppActionSubject.eraseToAnyPublisher() }
 
-    @AppStorageCompat(StorageKeys.lastRequestedReviewDate)
-    private var lastRequestedReviewDate: Date = .distantPast
     @AppStorageCompat(StorageKeys.didAttemptMigrationFromLegacyRateApp)
     private var didAttemptMigrationFromLegacyRateApp: Bool = false
 
-    @AppStorageCompat(StorageKeys.lastRequestedReviewLaunchCount)
-    private var lastRequestedReviewLaunchCount: Int = 0
+    @AppStorageCompat(StorageKeys.userRespondedToLastRequestedReview)
+    private var userRespondedToLastRequestedReview: Bool = false
 
-    @AppStorageCompat(StorageKeys.userDismissedLastRequestedReview)
-    private var userDismissedLastRequestedReview: Bool = false
+    @AppStorageCompat(StorageKeys.userDismissedLastRequestedReviewDate)
+    private var userDismissedLastRequestedReviewDate: Date? = nil
+
+    @AppStorageCompat(StorageKeys.userDismissedLastRequestedReviewLaunchCount)
+    private var userDismissedLastRequestedReviewLaunchCount: Int? = nil
 
     private var positiveBalanceAppearanceDate: Date? {
         get { AppSettings.shared.positiveBalanceAppearanceDate }
@@ -31,6 +32,10 @@ final class RateAppService {
     private var positiveBalanceAppearanceLaunch: Int? {
         get { AppSettings.shared.positiveBalanceAppearanceLaunch }
         set { AppSettings.shared.positiveBalanceAppearanceLaunch = newValue }
+    }
+
+    private var userDismissedLastRequestedReview: Bool {
+        return userDismissedLastRequestedReviewDate != nil && userDismissedLastRequestedReviewLaunchCount != nil
     }
 
     private var currentLaunchCount: Int { AppSettings.shared.numberOfLaunches }
@@ -56,9 +61,14 @@ final class RateAppService {
         }
 
         positiveBalanceAppearanceDate = Date()
+        positiveBalanceAppearanceLaunch = currentLaunchCount
     }
 
     func requestRateAppIfAvailable(with request: RateAppRequest) {
+        if userRespondedToLastRequestedReview {
+            return
+        }
+
         if request.isLocked {
             return
         }
@@ -71,11 +81,17 @@ final class RateAppService {
             return
         }
 
-        guard abs(lastRequestedReviewDate.timeIntervalSinceNow) >= Constants.reviewRequestTimeInterval else {
+        guard
+            let date = (userDismissedLastRequestedReviewDate ?? positiveBalanceAppearanceDate),
+            abs(date.timeIntervalSinceNow) >= Constants.reviewRequestTimeInterval
+        else {
             return
         }
 
-        guard currentLaunchCount - lastRequestedReviewLaunchCount >= requiredNumberOfLaunches else {
+        guard
+            let launchCount = (userDismissedLastRequestedReviewLaunchCount ?? positiveBalanceAppearanceLaunch),
+            currentLaunchCount - launchCount >= requiredNumberOfLaunches
+        else {
             return
         }
 
@@ -91,11 +107,14 @@ final class RateAppService {
 
         switch response {
         case .positive:
+            userRespondedToLastRequestedReview = true
             rateAppActionSubject.send(.openAppStoreReview)
         case .negative:
+            userRespondedToLastRequestedReview = true
             rateAppActionSubject.send(.openFeedbackMailWithEmailType(emailType: .negativeRateAppFeedback))
         case .dismissed:
-            userDismissedLastRequestedReview = true
+            userDismissedLastRequestedReviewDate = Date()
+            userDismissedLastRequestedReviewLaunchCount = currentLaunchCount
         }
     }
 
@@ -115,9 +134,8 @@ final class RateAppService {
     }
 
     private func requestRateApp() {
-        lastRequestedReviewDate = Date()
-        lastRequestedReviewLaunchCount = currentLaunchCount
-        userDismissedLastRequestedReview = false
+        userDismissedLastRequestedReviewDate = nil
+        userDismissedLastRequestedReviewLaunchCount = nil
         rateAppActionSubject.send(.openAppRateDialog)
     }
 
@@ -150,9 +168,9 @@ final class RateAppService {
 
 private extension RateAppService {
     enum StorageKeys: String, RawRepresentable {
-        case lastRequestedReviewDate = "last_requested_review_date"
-        case lastRequestedReviewLaunchCount = "last_requested_review_launch_count"
-        case userDismissedLastRequestedReview = "user_dismissed_last_requested_review"
+        case userDismissedLastRequestedReviewDate = "user_dismissed_last_requested_review_date"
+        case userDismissedLastRequestedReviewLaunchCount = "user_dismissed_last_requested_review_launch_count"
+        case userRespondedToLastRequestedReview = "user_responded_to_last_requested_review"
         case didAttemptMigrationFromLegacyRateApp = "did_attempt_migration_from_legacy_rate_app"
     }
 }
