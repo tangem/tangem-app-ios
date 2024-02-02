@@ -64,6 +64,11 @@ struct SendSummaryView: View {
                 }
                 .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+
+                ForEach(viewModel.notificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(.notificationTransition)
+                }
             }
 
             sendButton
@@ -113,6 +118,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeUserWalletNotificationManager(), walletInfo: walletInfo))
     }
 }
