@@ -15,6 +15,7 @@ enum SendNotificationEvent {
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
     case feeCoverage
+    case minimumAmount(value: String)
 }
 
 extension SendNotificationEvent: NotificationEvent {
@@ -30,6 +31,8 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationTransactionDelayTitle
         case .feeCoverage:
             return Localization.sendNetworkFeeWarningTitle
+        case .minimumAmount:
+            return Localization.sendNotificationInvalidAmountTitle
         }
     }
 
@@ -51,6 +54,8 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationTransactionDelayText
         case .feeCoverage:
             return Localization.sendNetworkFeeWarningContent
+        case .minimumAmount(let value):
+            return Localization.sendNotificationInvalidMinimumAmountText(value)
         }
     }
 
@@ -58,13 +63,15 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable, .feeExceedsBalance:
             return .primary
-        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount:
             return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
+        case .minimumAmount:
+            return .init(iconType: .image(Assets.redCircleWarning.image))
         case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             return .init(iconType: .image(Assets.attention.image))
         case .feeExceedsBalance(let configuration):
@@ -74,7 +81,7 @@ extension SendNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .feeExceedsBalance:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .feeExceedsBalance, .minimumAmount:
             return .critical
         }
     }
@@ -101,6 +108,7 @@ extension SendNotificationEvent {
         case feeLevels
         case customFee
         case feeIncluded
+        case summary
     }
 
     var location: Location {
@@ -111,6 +119,8 @@ extension SendNotificationEvent {
             return .customFee
         case .feeCoverage:
             return .feeIncluded
+        case .minimumAmount:
+            return .summary
         }
     }
 }
@@ -122,7 +132,7 @@ extension SendNotificationEvent {
             return .refreshFee
         case .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount:
             return nil
         }
     }
