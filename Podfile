@@ -196,6 +196,7 @@ post_install do |installer|
 end
 
 # Adds given SPM package as a dependency to a specific target in the `Pods` project.
+# TODO: Extract this logic to a dedicated CocoaPods plugin (IOS-5855)
 #
 # Valid values for the `requirement` parameter are:
 # - `{ :kind => "upToNextMajorVersion", :minimumVersion => "1.0.0" }`
