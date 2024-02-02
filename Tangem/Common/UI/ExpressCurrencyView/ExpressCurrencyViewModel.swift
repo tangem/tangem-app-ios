@@ -151,12 +151,12 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 }
 
 extension ExpressCurrencyViewModel {
-    enum TitleState {
+    enum TitleState: Hashable {
         case text(String)
         case insufficientFunds
     }
 
-    enum BalanceState {
+    enum BalanceState: Hashable {
         case idle
         case notAvailable
         case loading
