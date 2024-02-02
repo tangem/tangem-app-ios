@@ -18,8 +18,8 @@ final class RateAppService {
     @AppStorageCompat(StorageKeys.positiveBalanceAppearanceDate)
     private var positiveBalanceAppearanceDate: Date? = nil
 
-    @AppStorageCompat(StorageKeys.positiveBalanceAppearanceLaunch)
-    private var positiveBalanceAppearanceLaunch: Int? = nil
+    @AppStorageCompat(StorageKeys.positiveBalanceAppearanceLaunchCount)
+    private var positiveBalanceAppearanceLaunchCount: Int? = nil
 
     @AppStorageCompat(StorageKeys.userRespondedToLastRequestedReview)
     private var userRespondedToLastRequestedReview: Bool = false
@@ -57,7 +57,7 @@ final class RateAppService {
         }
 
         positiveBalanceAppearanceDate = Date()
-        positiveBalanceAppearanceLaunch = currentLaunchCount
+        positiveBalanceAppearanceLaunchCount = currentLaunchCount
     }
 
     func requestRateAppIfAvailable(with request: RateAppRequest) {
@@ -85,7 +85,7 @@ final class RateAppService {
         }
 
         guard
-            let launchCount = (userDismissedLastRequestedReviewLaunchCount ?? positiveBalanceAppearanceLaunch),
+            let launchCount = (userDismissedLastRequestedReviewLaunchCount ?? positiveBalanceAppearanceLaunchCount),
             currentLaunchCount - launchCount >= requiredNumberOfLaunches
         else {
             return
@@ -154,8 +154,8 @@ final class RateAppService {
             positiveBalanceAppearanceDate = Date()
         }
 
-        if positiveBalanceAppearanceLaunch != nil {
-            positiveBalanceAppearanceLaunch = currentLaunchCount
+        if positiveBalanceAppearanceLaunchCount != nil {
+            positiveBalanceAppearanceLaunchCount = currentLaunchCount
         }
     }
 }
@@ -165,7 +165,7 @@ final class RateAppService {
 private extension RateAppService {
     enum StorageKeys: String, RawRepresentable {
         case positiveBalanceAppearanceDate = "tangem_tap_positive_balace_appearance_date"
-        case positiveBalanceAppearanceLaunch = "tangem_tap_positive_balance_appearance_launch"
+        case positiveBalanceAppearanceLaunchCount = "tangem_tap_positive_balance_appearance_launch"
         case userDismissedLastRequestedReviewDate = "user_dismissed_last_requested_review_date"
         case userDismissedLastRequestedReviewLaunchCount = "user_dismissed_last_requested_review_launch_count"
         case userRespondedToLastRequestedReview = "user_responded_to_last_requested_review"
