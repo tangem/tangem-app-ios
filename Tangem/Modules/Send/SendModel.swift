@@ -65,6 +65,7 @@ class SendModel {
     private var _amount = CurrentValueSubject<Amount?, Never>(nil)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
+    private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
     private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
@@ -90,7 +91,6 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let addressService: SendAddressService
-    private let addressParser: SendAddressParserService
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
@@ -98,12 +98,11 @@ class SendModel {
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, addressParser: SendAddressParserService, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
         self.addressService = addressService
-        self.addressParser = addressParser
 
         if let amount = sendType.predefinedAmount {
             #warning("TODO")
@@ -293,13 +292,15 @@ class SendModel {
     // MARK: - Destination and memo
 
     func setDestination(_ address: String) {
-        let (parsedDestination, parsedAdditionalField) = addressParser.parse(address: address, additionalField: _destinationAdditionalFieldText.value)
-
-        _destinationText.send(parsedDestination)
+        _destinationText.send(address)
         validateDestination()
 
-        _destinationAdditionalFieldText.send(parsedAdditionalField ?? "")
-        validateDestinationAdditionalField()
+        let hasEmbeddedAdditionalField = addressService.hasEmbeddedAdditionalField(address: address)
+        _additionalFieldEmbeddedInAddress.send(hasEmbeddedAdditionalField)
+
+        if hasEmbeddedAdditionalField {
+            setDestinationAdditionalField("")
+        }
     }
 
     func setDestinationAdditionalField(_ additionalField: String) {
@@ -472,6 +473,10 @@ extension SendModel: SendDestinationViewModelInput {
         case .none:
             return nil
         }
+    }
+
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
+        _additionalFieldEmbeddedInAddress.eraseToAnyPublisher()
     }
 
     var blockchainNetwork: BlockchainNetwork {
