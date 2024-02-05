@@ -14,7 +14,7 @@ import BlockchainSdk
 #warning("[REDACTED_TODO_COMMENT]")
 
 protocol SendAmountViewModelInput {
-    var amountPublisher: AnyPublisher<Amount?, Never> { get }
+    var amountInputPublisher: AnyPublisher<Amount?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
     var blockchain: Blockchain { get }
@@ -83,7 +83,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         input
-            .amountPublisher
+            .amountInputPublisher
             .removeDuplicates()
             .sink { [weak self] amount in
                 self?.converter.setModelAmount(amount?.value)
