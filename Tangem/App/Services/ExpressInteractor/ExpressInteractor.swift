@@ -226,9 +226,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        guard let fee = state.fees[getFeeOption()] else {
-            throw ExpressInteractorError.feeNotFound
-        }
+        let fee = try selectedFee(fees: state.fees)
 
         logApproveTransactionAnalyticsEvent(policy: state.policy)
 
@@ -332,6 +330,11 @@ private extension ExpressInteractor {
                 return .restriction(.notEnoughAmountForFee(state), quote: previewCEX.quote)
             }
 
+            let fee = try selectedFee(fees: state.fees)
+            if let restriction = await validatePreviewCEX(amount: previewCEX.quote.fromAmount, fee: fee) {
+                return .restriction(restriction, quote: previewCEX.quote)
+            }
+
             return state
 
         case .ready(let ready):
@@ -344,6 +347,11 @@ private extension ExpressInteractor {
 
             guard try await hasEnoughBalanceForFee(fees: readyToSwapState.fees, amount: ready.quote.fromAmount) else {
                 return .restriction(.notEnoughAmountForFee(state), quote: ready.quote)
+            }
+
+            let fee = try selectedFee(fees: state.fees)
+            if let restriction = await validateDEX(data: readyToSwapState.data, fee: fee) {
+                return .restriction(restriction, quote: ready.quote)
             }
 
             return state
@@ -371,10 +379,7 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func hasEnoughBalanceForFee(fees: [FeeOption: Fee], amount: Decimal?) async throws -> Bool {
-        guard let fee = fees[getFeeOption()]?.amount.value else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
+        let fee = try selectedFee(fees: fees).amount.value
         let sender = getSender()
 
         if sender.isToken {
@@ -395,16 +400,43 @@ private extension ExpressInteractor {
     func hasPendingTransaction() -> Bool {
         return getSender().hasPendingTransactions
     }
+
+    func validateDEX(data: ExpressTransactionData, fee: Fee) async -> RestrictionType? {
+        do {
+            try await expressTransactionBuilder.validateTransaction(
+                wallet: getSender(),
+                data: data,
+                fee: fee
+            )
+        } catch let error as ValidationError {
+            return .validationError(error)
+        } catch {
+            return .requiredRefresh(occurredError: error)
+        }
+
+        return nil
+    }
+
+    func validatePreviewCEX(amount: Decimal, fee: Fee) async -> RestrictionType? {
+        do {
+            let wallet = getSender()
+            let amount = Amount(with: wallet.tokenItem.blockchain, type: wallet.amountType, value: amount)
+            try await getSender().transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
+        } catch let error as ValidationError {
+            return .validationError(error)
+        } catch {
+            return .requiredRefresh(occurredError: error)
+        }
+
+        return nil
+    }
 }
 
 // MARK: - Swap
 
 private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, provider: ExpressProvider) async throws -> TransactionSendResultState {
-        guard let fee = state.fees[getFeeOption()] else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
+        let fee = try selectedFee(fees: state.fees)
         let sender = getSender()
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: state.data, fee: fee)
         let result = try await sender.send(transaction, signer: signer).async()
@@ -413,10 +445,7 @@ private extension ExpressInteractor {
     }
 
     func sendCEXTransaction(state: PreviewCEXState, provider: ExpressProvider) async throws -> TransactionSendResultState {
-        guard let fee = state.fees[getFeeOption()] else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
+        let fee = try selectedFee(fees: state.fees)
         let sender = getSender()
         let data = try await expressManager.requestData()
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: data, fee: fee)
@@ -571,6 +600,14 @@ private extension ExpressInteractor {
         case .double(let market, let priority):
             return [.market: market, .fast: priority]
         }
+    }
+
+    func selectedFee(fees: [FeeOption: Fee]) throws -> Fee {
+        guard let fee = fees[getFeeOption()] else {
+            throw ExpressInteractorError.feeNotFound
+        }
+
+        return fee
     }
 }
 
@@ -750,6 +787,7 @@ extension ExpressInteractor {
         case notEnoughAmountForFee(_ returnState: State)
         case requiredRefresh(occurredError: Error)
         case noDestinationTokens
+        case validationError(ValidationError)
     }
 
     struct PermissionRequiredState {
