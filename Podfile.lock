@@ -1,13 +1,13 @@
 PODS:
-  - Alamofire (5.6.2)
+  - Alamofire (5.8.1)
   - AlertToast (1.3.7)
   - Amplitude (8.17.2):
     - AnalyticsConnector (~> 1.0.0)
   - AnalyticsConnector (1.0.3)
   - AnyCodable-FlightSchool (0.6.7)
-  - AppsFlyerFramework (6.12.2):
-    - AppsFlyerFramework/Main (= 6.12.2)
-  - AppsFlyerFramework/Main (6.12.2)
+  - AppsFlyerFramework (6.12.3):
+    - AppsFlyerFramework/Main (= 6.12.3)
+  - AppsFlyerFramework/Main (6.12.3)
   - BigInt (5.2.0)
   - BinanceChain (1.0.1-beta):
     - BinanceChain/Core (= 1.0.1-beta)
@@ -314,7 +314,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
-    :commit: 0d095493e72b83da002a92d1b2fc9cb8375496ce
+    :commit: c0dabff433e2023bcc56b3681f7f46d3da99a68c
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
@@ -333,12 +333,12 @@ CHECKOUT OPTIONS:
     :tag: 1.8.4
 
 SPEC CHECKSUMS:
-  Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
+  Alamofire: 3ca42e259043ee0dc5c0cdd76c4bc568b8e42af7
   AlertToast: 8c9d5efb2df6ea728b32b62bce99d876ec3e5393
   Amplitude: 0485db1968c10d13dc40b7980fb9f83c4e3036ab
   AnalyticsConnector: a53214d38ae22734c6266106c0492b37832633a9
   AnyCodable-FlightSchool: 261cbe76757802b17d471b9059b21e6fa5edf57b
-  AppsFlyerFramework: 6eb4d89d2eb9a6632317f1055b359d9fd85fd5ff
+  AppsFlyerFramework: fdc5c2fa3a3cfcd62eae58dfba4b8f59c6c77219
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: 70279da50755710ebcdf0355e32ef89ebd098758
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
@@ -381,4 +381,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 00d280c14ebc193a1505b1514bf7a3ba491ad2d1
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.0
