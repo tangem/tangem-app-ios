@@ -119,7 +119,7 @@ class SingleTokenRouter: SingleTokenRoutable {
 
     func openExplorer(at url: URL, for walletModel: WalletModel) {
         sendAnalyticsEvent(.buttonExplore, for: walletModel)
-        coordinator?.openExplorer(at: url, blockchainDisplayName: walletModel.blockchainNetwork.blockchain.displayName)
+        coordinator?.openExplorer(at: url)
     }
 
     private func openBuy(for walletModel: WalletModel) {
@@ -136,7 +136,7 @@ class SingleTokenRouter: SingleTokenRoutable {
 
         guard let url = exchangeUtility.buyURL else { return }
 
-        coordinator?.openBuyCrypto(at: url, closeUrl: exchangeUtility.buyCryptoCloseURL) { [weak self] _ in
+        coordinator?.openBuyCrypto(at: url) { [weak self] in
             self?.sendAnalyticsEvent(.tokenBought, for: walletModel)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
