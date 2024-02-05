@@ -207,6 +207,7 @@ class WalletModel {
     private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
+    private var _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
@@ -404,6 +405,8 @@ class WalletModel {
         return walletManager.send(tx, signer: signer)
             .receive(on: RunLoop.main)
             .handleEvents(receiveOutput: { [weak self] _ in
+                // Force update transactions history to take a new pending transaction from the local storage
+                self?._localPendingTransactionSubject.send(())
                 self?.startUpdatingTimer()
             })
             .receive(on: DispatchQueue.main)
@@ -469,6 +472,7 @@ extension WalletModel {
             return .just(output: ())
         }
 
+        AppLog.shared.debug("TransactionsHistory for \(self) start the updating")
         return _transactionHistoryService.update()
     }
 
@@ -477,27 +481,30 @@ extension WalletModel {
             return .just(output: .notSupported)
         }
 
-        return _transactionHistoryService
-            .statePublisher
-            .map { [weak self] state -> WalletModel.TransactionHistoryState in
-                switch state {
-                case .initial:
-                    return .notLoaded
-                case .loading:
-                    return .loading
-                case .loaded:
-                    var items = self?._transactionHistoryService?.items ?? []
-                    self?.insertPendingTransactionRecordIfNeeded(into: &items)
-                    return .loaded(items: items)
-                case .failedToLoad(let error):
-                    return .error(error)
-                }
+        return Publishers.Merge(
+            _localPendingTransactionSubject.withLatestFrom(_transactionHistoryService.statePublisher),
+            _transactionHistoryService.statePublisher
+        )
+        .map { [weak self] state -> WalletModel.TransactionHistoryState in
+            switch state {
+            case .initial:
+                return .notLoaded
+            case .loading:
+                return .loading
+            case .loaded:
+                var items = self?._transactionHistoryService?.items ?? []
+                self?.insertPendingTransactionRecordIfNeeded(into: &items)
+                return .loaded(items: items)
+            case .failedToLoad(let error):
+                return .error(error)
             }
-            .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
     private func insertPendingTransactionRecordIfNeeded(into items: inout [TransactionRecord]) {
         guard !pendingTransactions.isEmpty else {
+            AppLog.shared.debug("\(self) has not local pending transactions")
             return
         }
 
@@ -505,12 +512,12 @@ extension WalletModel {
         let mapper = PendingTransactionRecordMapper(formatter: formatter)
 
         pendingTransactions.forEach { pending in
-            if !items.contains(where: { $0.hash != pending.hash }) {
+            if items.contains(where: { $0.hash == pending.hash }) {
+                AppLog.shared.debug("\(self) Transaction history already contains \(pending.hash)")
+            } else {
                 let record = mapper.mapToTransactionRecord(pending: pending)
                 AppLog.shared.debug("\(self) Inserted to transaction history \(record.hash)")
                 items.insert(record, at: 0)
-            } else {
-                AppLog.shared.debug("\(self) Transaction history already contains \(pending.hash)")
             }
         }
     }
