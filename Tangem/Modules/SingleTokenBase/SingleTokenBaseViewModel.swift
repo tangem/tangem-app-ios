@@ -45,14 +45,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private var updateSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
-    var canSend: Bool {
-        guard userWalletModel.config.hasFeature(.send) else {
-            return false
-        }
-
-        return walletModel.canSendTransaction
-    }
-
     var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
 
     var amountType: Amount.AmountType { walletModel.amountType }
@@ -309,7 +301,7 @@ extension SingleTokenBaseViewModel {
         case .buy:
             return !exchangeUtility.buyAvailable
         case .send:
-            return !canSend
+            return sendIsDisabled()
         case .receive:
             return false
         case .exchange:
@@ -331,6 +323,19 @@ extension SingleTokenBaseViewModel {
         case .copyAddress, .hide: return nil
         }
     }
+
+    private func sendIsDisabled() -> Bool {
+        guard userWalletModel.config.hasFeature(.send) else {
+            return true
+        }
+
+        switch walletModel.sendingRestrictions {
+        case .zeroWalletBalance, .cantSignLongTransactions, .zeroFeeCurrencyBalance:
+            return true
+        case .none, .hasPendingTransaction:
+            return false
+        }
+    }
 }
 
 // MARK: - Navigation
@@ -350,7 +355,16 @@ extension SingleTokenBaseViewModel {
     }
 
     func openSend() {
-        tokenRouter.openSend(walletModel: walletModel)
+        switch walletModel.sendingRestrictions {
+        case .hasPendingTransaction:
+            if let message = walletModel.sendingRestrictions?.description {
+                alert = .init(title: Localization.warningSendBlockedPendingTransactionsTitle, message: message)
+            }
+        case .cantSignLongTransactions, .zeroWalletBalance, .zeroFeeCurrencyBalance:
+            assertionFailure("Send Button have to be disabled")
+        case .none:
+            tokenRouter.openSend(walletModel: walletModel)
+        }
     }
 
     func openExchangeAndLogAnalytics() {
