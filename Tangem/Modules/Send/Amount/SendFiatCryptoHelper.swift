@@ -41,8 +41,8 @@ class SendFiatCryptoHelper {
 
     private var _userInputAmount = CurrentValueSubject<Decimal?, Never>(nil)
     private var _fiatCryptoValue = FiatCryptoValue(crypto: nil, fiat: nil)
-    private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
+    private var useFiatCalculation = false
     private var inputTrigger: InputTrigger = .keyboard
 
     private var bag: Set<AnyCancellable> = []
@@ -72,7 +72,6 @@ class SendFiatCryptoHelper {
                     return
                 }
 
-                let useFiatCalculation = _useFiatCalculation.value
                 if let newAmountValue = fiatCryptoValue(from: decimal, useFiatCalculation: useFiatCalculation) {
                     _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat.value)
                 }
@@ -93,19 +92,17 @@ class SendFiatCryptoHelper {
 
         _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat.value)
         if inputTrigger != .keyboard {
-            setTextFieldAmount(useFiatCalculation: _useFiatCalculation.value)
+            setTextFieldAmount()
         }
     }
 
     func setUseFiatCalculation(_ useFiatCalculation: Bool) {
-        guard _userInputAmount.value != nil else {
-            return
+        self.useFiatCalculation = useFiatCalculation
+
+        if _userInputAmount.value != nil {
+            inputTrigger = .currencySelector
+            setTextFieldAmount()
         }
-
-        inputTrigger = .currencySelector
-
-        _useFiatCalculation.send(useFiatCalculation)
-        setTextFieldAmount(useFiatCalculation: useFiatCalculation)
     }
 
     private func fiatCryptoValue(from amount: Decimal?, useFiatCalculation: Bool) -> FiatCryptoValue? {
@@ -138,7 +135,7 @@ class SendFiatCryptoHelper {
         return newValue
     }
 
-    private func setTextFieldAmount(useFiatCalculation: Bool) {
+    private func setTextFieldAmount() {
         let newAmount = useFiatCalculation ? _fiatCryptoValue.fiat.value : _fiatCryptoValue.crypto.value
         _userInputAmount.send(newAmount)
     }
