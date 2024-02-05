@@ -59,7 +59,7 @@ struct RefreshableScrollView<Content: View>: View {
 
     private var scrollViewWithHacks: some View {
         return VStack {
-            ScrollView(showsIndicators: false) {
+            ScrollView(.vertical, showsIndicators: false) {
                 ZStack(alignment: .top) {
                     MovingView()
 
