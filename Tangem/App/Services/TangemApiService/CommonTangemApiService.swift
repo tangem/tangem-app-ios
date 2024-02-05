@@ -187,8 +187,13 @@ extension CommonTangemApiService: TangemApiService {
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
+    func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
+        ExpressPromotion.Response(start: Date().addingTimeInterval(-10000000), end: Date().addingTimeInterval(10000000))
+//        try await request(for: .promotion(request: model))
+    }
+
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
-        try await request(for: .promotion(programName: programName, timeout: timeout))
+        try await request(for: .promotion(request: .init(programName: programName)))
     }
 
     @discardableResult
