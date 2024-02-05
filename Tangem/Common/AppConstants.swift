@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 enum AppConstants {
-    static let tangemDomainUrl = URL(string: "https://tangem.com")!
+    static let webShopUrl = URL(string: "https://buy.tangem.com")!
 
     static var isSmallScreen: Bool {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
@@ -22,7 +22,7 @@ enum AppConstants {
     static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 
     static let minusSign = "−" // shorter stick
-    static let dashSign = "—" // longer stick
+    static let dashSign = "—" // longer stick (em-dash)
 
     static let sessionId = UUID().uuidString
 }
