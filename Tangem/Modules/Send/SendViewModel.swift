@@ -119,9 +119,7 @@ final class SendViewModel: ObservableObject {
         self.emailDataProvider = emailDataProvider
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
-        let addressParser = SendAddressParserService(addressService: AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService())
-
-        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, addressParser: addressParser, sendType: sendType)
+        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
