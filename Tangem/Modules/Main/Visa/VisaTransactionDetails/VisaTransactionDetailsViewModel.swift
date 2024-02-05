@@ -12,7 +12,9 @@ import TangemVisa
 
 class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
     typealias TransactionHash = String
-    @Published var modalWebViewModel: WebViewContainerViewModel?
+
+    // Exception. This should be in the coordinator.
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     var fiatTransactionInfo: VisaTransactionDetailsView.CommonTransactionInfo {
         .init(
@@ -107,10 +109,6 @@ class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
             return
         }
 
-        modalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: Localization.commonExplorerFormat(tokenItem.blockchain.displayName),
-            withCloseButton: true
-        )
+        safariManager.openURL(url)
     }
 }
