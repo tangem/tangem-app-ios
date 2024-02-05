@@ -254,9 +254,9 @@ extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaWalletModel: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<NSAttributedString>, Never> {
+    var balanceProvider: AnyPublisher<LoadingValue<AttributedStringParameters>, Never> {
         stateSubject.combineLatest(balancesSubject)
-            .map { [weak self] state, balances -> LoadingValue<NSAttributedString> in
+            .map { [weak self] state, balances -> LoadingValue<AttributedStringParameters> in
                 guard let self else {
                     return .loading
                 }
@@ -270,7 +270,7 @@ extension VisaWalletModel: MainHeaderBalanceProvider {
                     if let balances {
                         let balanceFormatter = BalanceFormatter()
                         let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                        let formattedForMain = balanceFormatter.formatTotalBalanceForMain(fiatBalance: formattedBalance, formattingOptions: .defaultOptions)
+                        let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
                         return .loaded(formattedForMain)
                     } else {
                         return .loading
