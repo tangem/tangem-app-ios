@@ -1093,6 +1093,7 @@
 		EF5E5A852B7100D700D19BBB /* ExpressPromotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */; };
 		EF5E5AA92B725F9A00D19BBB /* BannerPromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */; };
 		EF5E5AAD2B73E9AD00D19BBB /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AAC2B73E9AD00D19BBB /* Timeline.swift */; };
+		EF5E5A882B71331B00D19BBB /* TransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A872B71331B00D19BBB /* TransactionValidator.swift */; };
 		EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */; };
 		EF5F1BB429D5A19E0093307B /* SelectableGropedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */; };
 		EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */; };
@@ -2541,6 +2542,7 @@
 		EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPromotion.swift; sourceTree = "<group>"; };
 		EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerPromotionService.swift; sourceTree = "<group>"; };
 		EF5E5AAC2B73E9AD00D19BBB /* Timeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
+		EF5E5A872B71331B00D19BBB /* TransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionValidator.swift; sourceTree = "<group>"; };
 		EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderMock.swift; sourceTree = "<group>"; };
 		EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableGropedSection.swift; sourceTree = "<group>"; };
 		EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinator.swift; sourceTree = "<group>"; };
@@ -5636,6 +5638,7 @@
 			children = (
 				EF9E38032B74E6B5004B694C /* BannerPromotionNotification */,
 				EF5E5A802B70FF1B00D19BBB /* ExpressPromotionService */,
+				EF5E5A862B71330700D19BBB /* TransactionValidator */,
 				EFA6164F2B62CC510013A129 /* TransactionSendAvailabilityProvider */,
 				DCE61E3F2B5EDDEC005A8D2E /* Safari */,
 				DA19D8C42B39AE3C001C91C4 /* QRCodeParser */,
@@ -6424,6 +6427,14 @@
 				EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */,
 			);
 			path = ExpressPromotionService;
+			sourceTree = "<group>";
+		};
+		EF5E5A862B71330700D19BBB /* TransactionValidator */ = {
+			isa = PBXGroup;
+			children = (
+				EF5E5A872B71331B00D19BBB /* TransactionValidator.swift */,
+			);
+			path = TransactionValidator;
 			sourceTree = "<group>";
 		};
 		EF6600512B6D187600B65449 /* PendingTransactionsListView */ = {
