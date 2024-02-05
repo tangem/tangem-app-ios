@@ -18,7 +18,6 @@ class ExpressNotificationManager {
     private var analyticsService: NotificationsAnalyticsService = .init()
 
     private var subscription: AnyCancellable?
-    private var depositTask: Task<Void, Error>?
 
     init(expressInteractor: ExpressInteractor) {
         self.expressInteractor = expressInteractor
@@ -33,8 +32,8 @@ class ExpressNotificationManager {
     }
 
     private func setupNotifications(for state: ExpressInteractor.State) {
-        depositTask?.cancel()
-        depositTask = nil
+//        depositTask?.cancel()
+//        depositTask = nil
 
         switch state {
         case .idle:
@@ -58,7 +57,7 @@ class ExpressNotificationManager {
         case .readyToSwap(_, let quote):
             notificationInputsSubject.value = []
             // We have not the subtractFee on DEX
-            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: 0)
+//            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: 0)
 
         case .previewCEX(let preview, let quote):
             if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
@@ -70,22 +69,22 @@ class ExpressNotificationManager {
                 notificationInputsSubject.value = []
             }
 
-            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: preview.subtractFee)
+//            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: preview.subtractFee)
         }
     }
 
-    private func setupExistentialDepositWarning(amount: Decimal, subtractFee: Decimal) {
-        depositTask = runTask(in: self) { manager in
-            guard let notification = try await manager.makeExistentialDepositWarningIfNeeded(amount: amount, subtractFee: subtractFee) else {
-                return
-            }
-
-            // If this notification already showed then will not update the notifications set
-            if !manager.notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
-                manager.notificationInputsSubject.value.append(notification)
-            }
-        }
-    }
+//    private func setupExistentialDepositWarning(amount: Decimal, subtractFee: Decimal) {
+//        depositTask = runTask(in: self) { manager in
+//            guard let notification = try await manager.makeExistentialDepositWarningIfNeeded(amount: amount, subtractFee: subtractFee) else {
+//                return
+//            }
+//
+//            // If this notification already showed then will not update the notifications set
+//            if !manager.notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
+//                manager.notificationInputsSubject.value.append(notification)
+//            }
+//        }
+//    }
 
     private func setupNotification(for restrictions: ExpressInteractor.RestrictionType) {
         guard let interactor = expressInteractor else { return }
@@ -107,6 +106,8 @@ class ExpressNotificationManager {
         case .notEnoughBalanceForSwapping:
             notificationInputsSubject.value = []
             return
+        case .validationError(let validationError):
+            event = .existentialDepositWarning(message: validationError.localizedDescription)
         case .notEnoughAmountForFee:
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
@@ -145,23 +146,24 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func makeExistentialDepositWarningIfNeeded(amount: Decimal, subtractFee: Decimal) async throws -> NotificationViewInput? {
-        guard let sender = expressInteractor?.getSender(),
-              let provider = sender.existentialDepositProvider else {
-            return nil
-        }
-
-        let balance = try sender.getBalance()
-        let remainBalance = balance - (amount + subtractFee)
-
-        guard remainBalance < provider.existentialDeposit.value, let warning = sender.existentialDepositWarning else {
-            return nil
-        }
-
-        let notificationsFactory = NotificationsFactory()
-        let notification = notificationsFactory.buildNotificationInput(for: .existentialDepositWarning(message: warning))
-        return notification
-    }
+//
+//    private func makeExistentialDepositWarningIfNeeded(amount: Decimal, subtractFee: Decimal) async throws -> NotificationViewInput? {
+//        guard let sender = expressInteractor?.getSender(),
+//              let provider = sender.existentialDepositProvider else {
+//            return nil
+//        }
+//
+//        let balance = try sender.getBalance()
+//        let remainBalance = balance - (amount + subtractFee)
+//
+//        guard remainBalance < provider.existentialDeposit.value, let warning = sender.existentialDepositWarning else {
+//            return nil
+//        }
+//
+//        let notificationsFactory = NotificationsFactory()
+//        let notification = notificationsFactory.buildNotificationInput(for: .existentialDepositWarning(message: warning))
+//        return notification
+//    }
 
     private func makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
         guard subtractFee > 0 else { return nil }
