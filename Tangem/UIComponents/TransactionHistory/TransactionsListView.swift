@@ -98,7 +98,9 @@ struct TransactionsListView: View {
                 .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryEmptyTransactions)
+                .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .padding(.horizontal, 16)
 
             makeExploreTransactionHistoryButton(withTitle: Localization.commonExplore, hasFixedSize: true)
         }
