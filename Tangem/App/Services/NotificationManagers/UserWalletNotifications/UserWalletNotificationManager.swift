@@ -19,6 +19,7 @@ protocol NotificationTapDelegate: AnyObject {
 /// Don't forget to setup manager with delegate for proper notification handling
 final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
+    @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
 
     private let analyticsService: NotificationsAnalyticsService = .init()
     private let userWalletModel: UserWalletModel
@@ -28,6 +29,7 @@ final class UserWalletNotificationManager {
     private weak var delegate: NotificationTapDelegate?
     private var bag = Set<AnyCancellable>()
     private var numberOfPendingDerivations: Int = 0
+    private var promotionUpdateTask: Task<Void, Never>?
 
     init(
         userWalletModel: UserWalletModel,
@@ -48,16 +50,11 @@ final class UserWalletNotificationManager {
 
         var inputs: [NotificationViewInput] = []
 
-        if !AppSettings.shared.tangemExpressMainPromotionDismissed,
-           TangemExpressPromotionUtility().isPromotionRunning,
-           userWalletModel.isMultiWallet {
-            inputs.append(
-                factory.buildNotificationInput(
-                    for: .tangemExpressPromotion,
-                    action: action,
-                    buttonAction: buttonAction,
-                    dismissAction: dismissAction
-                )
+        if userWalletModel.isMultiWallet {
+            setupTangemExpressPromotionNotification(
+                action: action,
+                buttonAction: buttonAction,
+                dismissAction: dismissAction
             )
         }
 
@@ -104,6 +101,43 @@ final class UserWalletNotificationManager {
         validateHashesCount()
     }
 
+    private func setupTangemExpressPromotionNotification(
+        action: @escaping NotificationView.NotificationAction,
+        buttonAction: @escaping (NotificationViewId, NotificationButtonActionType) -> Void,
+        dismissAction: @escaping NotificationView.NotificationAction
+    ) {
+        promotionUpdateTask?.cancel()
+        promotionUpdateTask = Task { [weak self] in
+            guard let self, !Task.isCancelled else {
+                return
+            }
+
+            await bannerPromotionService.updatePromotions()
+
+            let event = WarningEvent.tangemExpressPromotion
+
+            guard bannerPromotionService.isActive(promotion: .changelly, on: .main) else {
+                notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == event.hashValue }
+                return
+            }
+
+            let input = NotificationsFactory().buildNotificationInput(
+                for: .tangemExpressPromotion,
+                action: action,
+                buttonAction: buttonAction,
+                dismissAction: dismissAction
+            )
+
+            guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
+                return
+            }
+
+            await runOnMain {
+                self.notificationInputsSubject.value.insert(input, at: 0)
+            }
+        }
+    }
+
     private func bind() {
         bag.removeAll()
 
@@ -116,20 +150,6 @@ final class UserWalletNotificationManager {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
-            .store(in: &bag)
-
-        AppSettings.shared.$tangemExpressMainPromotionDismissed
-            .sink { [weak self] dismissed in
-                guard
-                    let self,
-                    dismissed
-                else {
-                    return
-                }
-
-                let promotionEvent = WarningEvent.tangemExpressPromotion
-                notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == promotionEvent.hashValue }
-            }
             .store(in: &bag)
     }
 
@@ -257,7 +277,7 @@ extension UserWalletNotificationManager: NotificationManager {
         case .numberOfSignedHashesIncorrect:
             recordUserWalletHashesCountValidation()
         case .tangemExpressPromotion:
-            AppSettings.shared.tangemExpressMainPromotionDismissed = true
+            bannerPromotionService.hide(promotion: .changelly, on: .main)
         default:
             break
         }
