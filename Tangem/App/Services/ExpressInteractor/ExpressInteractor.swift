@@ -296,13 +296,19 @@ private extension ExpressInteractor {
             return .idle
 
         case .restriction(.tooSmallAmount(let minAmount), let quote):
-            return .restriction(.notEnoughAmountForSwapping(minAmount: minAmount), quote: quote)
+            return .restriction(.tooSmallAmountForSwapping(minAmount: minAmount), quote: quote)
+
+        case .restriction(.tooBigAmount(let maxAmount), let quote):
+            return .restriction(.tooBigAmountForSwapping(maxAmount: maxAmount), quote: quote)
 
         case .restriction(.approveTransactionInProgress, let quote):
             return .restriction(.hasPendingApproveTransaction, quote: quote)
 
         case .restriction(.insufficientBalance(let requiredAmount), let quote):
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
+
+        case .restriction(.notEnoughBalanceForFee, let quote):
+            return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
 
         case .permissionRequired(let permissionRequired):
             let permissionRequiredState = PermissionRequiredState(
@@ -736,7 +742,8 @@ extension ExpressInteractor {
     }
 
     enum RestrictionType {
-        case notEnoughAmountForSwapping(minAmount: Decimal)
+        case tooSmallAmountForSwapping(minAmount: Decimal)
+        case tooBigAmountForSwapping(maxAmount: Decimal)
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
