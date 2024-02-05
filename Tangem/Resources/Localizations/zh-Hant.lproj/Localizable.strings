@@ -191,7 +191,7 @@
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You haven't added any tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Cannot be swapped for %@";
-"express_by_provider" = "Provided by";
+"express_by_provider" = "Provided by %@";
 "express_cex_fee_explanation" = "Additionally, the network fee for sending the exchanged funds back to your address is included in the rate";
 "express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token swaps";
@@ -231,6 +231,7 @@
 "express_privacy_policy" = "Privacy Policy";
 "express_provider" = "Provider";
 "express_provider_best_rate" = "Best rate";
+"express_provider_max_amount" = "Available up to %@";
 "express_provider_min_amount" = "Available from %@";
 "express_provider_not_available" = "Unavailable for this pair";
 "express_provider_permission_needed" = "Permission Required";
