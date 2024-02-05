@@ -29,7 +29,7 @@ def tangem_sdk_pod
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-460'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-472'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.2.4-tangem1'
@@ -97,6 +97,15 @@ target 'TangemExpress' do
   end
 end
 
+target 'TangemVisa' do
+  blockchain_sdk_pods
+  pod 'Moya'
+
+  target 'TangemVisaTests' do
+    blockchain_sdk_pods
+  end
+end
+
 pre_install do |installer|
   # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
   Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
@@ -118,7 +127,6 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
       config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
       config.build_settings['OTHER_LDFLAGS'] << '-Wl,-no_warn_duplicate_libraries' #https://indiestack.com/2023/10/xcode-15-duplicate-library-linker-warnings/
       if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
@@ -126,7 +134,13 @@ post_install do |installer|
           config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
         end
       end
+    end
 
+    # Exporting SwiftProtobuf library symbols for WalletCore binaries 
+    if target.name.downcase.include?('swiftprotobuf')
+      target.build_configurations.each do |config|
+        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+      end
     end
   end
 
