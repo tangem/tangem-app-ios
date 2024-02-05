@@ -14,17 +14,15 @@ struct BalanceWithButtonsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(Localization.commonBalanceTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 BalanceTitleView(balance: viewModel.fiatBalance, isLoading: viewModel.isLoadingFiatBalance)
-                    .padding(.top, 8)
 
                 SensitiveText(viewModel.cryptoBalance)
                     .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 70, height: 12))
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .frame(height: 18)
             }
 
             ScrollableButtonsView(itemsHorizontalOffset: 14, buttonsInfo: viewModel.buttons)
