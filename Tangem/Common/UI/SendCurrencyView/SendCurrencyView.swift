@@ -25,8 +25,7 @@ struct SendCurrencyView: View {
         ExpressCurrencyView(viewModel: viewModel.expressCurrencyViewModel) {
             SendDecimalNumberTextField(
                 decimalValue: $decimalValue,
-                maximumFractionDigits: viewModel.maximumFractionDigits,
-                font: Fonts.Regular.title1
+                maximumFractionDigits: viewModel.maximumFractionDigits
             )
             .maximumFractionDigits(viewModel.maximumFractionDigits)
             .maxAmountAction(maxAmountAction)
@@ -143,9 +142,8 @@ struct SendCurrencyView_Preview: PreviewProvider {
                     GroupedSection(viewModel) { viewModel in
                         SendCurrencyView(viewModel: viewModel, decimalValue: $decimalValue)
                     }
-                    .interSectionPadding(12)
+                    .innerContentPadding(12)
                     .interItemSpacing(10)
-                    .verticalPadding(0)
                 }
             }
             .padding(.horizontal, 16)
