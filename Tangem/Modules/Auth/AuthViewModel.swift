@@ -168,7 +168,7 @@ extension AuthViewModel: IncomingActionResponder {
         switch action {
         case .start:
             return true
-        case .walletConnect:
+        default:
             return false
         }
     }
