@@ -425,7 +425,10 @@ class WalletModel {
     }
 
     func createTransaction(amountToSend: Amount, fee: Fee, destinationAddress: String) throws -> Transaction {
-        try walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
+        try transactionValidator.validate(amount: amountToSend, fee: fee)
+        let transaction = walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
+
+        return transaction
     }
 }
 
@@ -619,6 +622,10 @@ extension WalletModel {
 
     var existentialDepositProvider: ExistentialDepositProvider? {
         walletManager as? ExistentialDepositProvider
+    }
+
+    var transactionValidator: TransactionValidator {
+        walletManager
     }
 }
 

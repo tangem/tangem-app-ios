@@ -311,7 +311,7 @@ class LegacySendViewModel: ObservableObject {
                 let newAmount = Amount(with: amountToSend, value: newAmountValue)
 
                 do {
-                    try walletModel.transactionCreator.validate(amount: newAmount)
+                    try validate(amount: newAmount)
                     amountHint = nil
                     validatedAmount = newAmount
                 } catch {
@@ -557,7 +557,7 @@ class LegacySendViewModel: ObservableObject {
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
         guard
             let validator = walletModel.withdrawalValidator,
-            let warning = validator.validate(transaction),
+            let warning = validator.validateWithdrawalWarning(amount: transaction.amount, fee: transaction.fee.amount),
             error == nil
         else {
             return
@@ -597,6 +597,16 @@ class LegacySendViewModel: ObservableObject {
 
         UIApplication.shared.endEditing()
         error = AlertBinder(alert: alert)
+    }
+
+    func validate(amount: Amount) throws {
+        if amount.value < 0 {
+            throw ValidationError.invalidAmount
+        }
+
+        if amount.value > (walletModel.balanceValue ?? 0) {
+            throw ValidationError.amountExceedsBalance
+        }
     }
 
     // MARK: - Address resolution
