@@ -35,6 +35,10 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         .memo
     }
 
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
     var blockchainNetwork: BlockchainNetwork {
         BlockchainNetwork(.ethereum(testnet: false))
     }
