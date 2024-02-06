@@ -422,6 +422,7 @@
 "scan_card_settings_button" = "掃描卡片";
 "scan_card_settings_message" = "掃描卡片以更改其設置。這些更改只會影響您掃描過的卡，不會影響綁定到您錢包的其他卡。";
 "scan_card_settings_title" = "準備好您的卡!";
+"send_additional_field_already_included" = "Already included in the entered address";
 "send_amount_label" = "數量";
 "send_amount_substract" = "Subtract from send amount";
 "send_amount_substract_footer" = "The recipient will receive %@";
