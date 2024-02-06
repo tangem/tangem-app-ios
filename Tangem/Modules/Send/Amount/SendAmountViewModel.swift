@@ -110,9 +110,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 guard let newUserInputAmount else { return nil }
                 return DecimalNumberTextField.DecimalValue.external(newUserInputAmount)
             }
-//            .filter { [weak self] in
-//                self?.amount != $0
-//            }
             .sink { [weak self] newUserInputAmount in
                 self?.amount = newUserInputAmount
             }
