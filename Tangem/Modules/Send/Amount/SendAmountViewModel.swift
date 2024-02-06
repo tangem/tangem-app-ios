@@ -44,10 +44,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let input: SendAmountViewModelInput
     private var bag: Set<AnyCancellable> = []
 
-    private let converter: SendFiatCryptoHelper
+    private let converter: SendFiatCryptoConverter
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
-        converter = SendFiatCryptoHelper(
+        converter = SendFiatCryptoConverter(
             blockchain: input.blockchain,
             amountType: input.amountType,
             cryptoCurrencyId: walletInfo.currencyId,
