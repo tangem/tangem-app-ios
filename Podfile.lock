@@ -209,7 +209,7 @@ DEPENDENCIES:
   - AlertToast (from `https://github.com/elai950/AlertToast`, commit `a437862bb6605080a5816e866cbd4ac8c8657b49`)
   - Amplitude
   - AppsFlyerFramework
-  - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, branch `feature/IOS-5792-SPM-dependencies-support`)
+  - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.11`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
   - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, branch `feature/IOS-5792-SPM-dependencies-support`)
   - BlockiesSwift (~> 0.1.2)
@@ -219,7 +219,7 @@ DEPENDENCIES:
   - GDPerformanceView-Swift (~> 2.1)
   - Kingfisher (~> 7.9.0)
   - Moya
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, branch `feature/IOS-5792-SPM-dependencies-support`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `1.2.0-tangem1`)
   - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-280`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
@@ -265,8 +265,8 @@ EXTERNAL SOURCES:
     :commit: a437862bb6605080a5816e866cbd4ac8c8657b49
     :git: https://github.com/elai950/AlertToast
   BinanceChain:
-    :branch: feature/IOS-5792-SPM-dependencies-support
     :git: https://github.com/tangem/swiftbinancechain.git
+    :tag: 0.0.11
   BitcoinCore.swift:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
@@ -274,8 +274,8 @@ EXTERNAL SOURCES:
     :branch: feature/IOS-5792-SPM-dependencies-support
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
-    :branch: feature/IOS-5792-SPM-dependencies-support
     :git: https://github.com/tangem/Solana.Swift
+    :tag: 1.2.0-tangem1
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -291,17 +291,17 @@ CHECKOUT OPTIONS:
     :commit: a437862bb6605080a5816e866cbd4ac8c8657b49
     :git: https://github.com/elai950/AlertToast
   BinanceChain:
-    :commit: 96afae306439b58e4f1cb1e28ceb6b897a16bc23
     :git: https://github.com/tangem/swiftbinancechain.git
+    :tag: 0.0.11
   BitcoinCore.swift:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
-    :commit: fc5efb4c380c35abb3b2c497e64cda94c745071c
+    :commit: c5a59ada86d69f6954fc09060daefd523e5eac73
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
-    :commit: 5241296aa54241a0e94d57c5e292f2ccf8140ad4
     :git: https://github.com/tangem/Solana.Swift
+    :tag: 1.2.0-tangem1
   SPRMessengerClient:
     :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
     :tag: sprinklr-3.6.2-tangem1
@@ -355,6 +355,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: d8bc14a7da7e2577cff5b95121a2964e63411312
+PODFILE CHECKSUM: 508bbaaf38ffa0a715f8fe945cd452eacc3e5365
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.0
