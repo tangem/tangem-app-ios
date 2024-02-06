@@ -264,8 +264,6 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        print("ZZZ setting model amount", amount)
-
         guard _amount.value != amount else { return }
 
         _amount.send(amount)

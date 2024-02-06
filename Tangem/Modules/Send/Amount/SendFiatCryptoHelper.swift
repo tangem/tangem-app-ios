@@ -168,6 +168,3 @@ private extension SendFiatCryptoHelper {
         case maxAmount
     }
 }
-
-// [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
