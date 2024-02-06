@@ -88,8 +88,7 @@ extension AmountSummaryView: Setupable {
         ) {
             AmountSummaryView(data: $0)
         }
-        .interSectionPadding(12)
-        .verticalPadding(0)
+        .innerContentPadding(12)
 
         GroupedSection([
             AmountSummaryViewData(
@@ -107,8 +106,7 @@ extension AmountSummaryView: Setupable {
         ]) {
             AmountSummaryView(data: $0)
         }
-        .interSectionPadding(12)
-        .verticalPadding(0)
+        .innerContentPadding(12)
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }

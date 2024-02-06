@@ -19,11 +19,15 @@ struct SendCustomFeeInputField: View {
                     .lineLimit(1)
 
                 HStack {
-                    DecimalNumberTextField(
+                    SendDecimalNumberTextField(
                         decimalValue: $viewModel.amount,
-                        decimalNumberFormatter: .init(maximumFractionDigits: viewModel.fractionDigits),
-                        font: Fonts.Regular.subheadline
+                        maximumFractionDigits: viewModel.fractionDigits
                     )
+                    .shouldFocusOnAppear(false)
+                    .suffix("WEI")
+                    .font(Fonts.Regular.subheadline)
+
+                    Spacer()
 
                     if let amountAlternative = viewModel.amountAlternative {
                         Text(amountAlternative)
