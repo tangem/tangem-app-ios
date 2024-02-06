@@ -14,13 +14,11 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    private var verticalPadding: CGFloat = 12
-    private var horizontalPadding: CGFloat = 16
-    private var separatorPadding: CGFloat = 16
-    private var separatorStyle: SeparatorStyle = .single
+    private var horizontalPadding: CGFloat = 14
+    private var separatorStyle: SeparatorStyle = .minimum
     private var interItemSpacing: CGFloat = 0
-    private var interSectionPadding: CGFloat = 0
-    private var backgroundColor: Color = Colors.Background.primary
+    private var innerContentPadding: CGFloat = 0
+    private var backgroundColor: Color = Colors.Background.action
     private var contentAlignment: HorizontalAlignment = .leading
 
     private var namespace: Namespace.ID?
@@ -53,6 +51,49 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     }
 
     var body: some View {
+        if !models.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                header()
+                    .padding(.horizontal, horizontalPadding)
+
+                VStack(alignment: contentAlignment, spacing: interItemSpacing) {
+                    ForEach(models) { model in
+                        content(model)
+                            .padding(.horizontal, horizontalPadding)
+
+                        if models.last?.id != model.id {
+                            separator
+                        }
+                    }
+                }
+                .padding(.vertical, innerContentPadding)
+                .background(backgroundColor)
+                .cornerRadiusContinuous(14)
+
+                footer()
+                    .padding(.horizontal, horizontalPadding)
+            }
+        }
+    }
+
+    @ViewBuilder private var separator: some View {
+        switch separatorStyle {
+        case .none:
+            EmptyView()
+        case .single:
+            Colors.Stroke.primary
+                .frame(maxWidth: .infinity)
+                .frame(height: 1)
+                .padding(.leading, horizontalPadding)
+        case .minimum:
+            Separator(height: .minimal, color: Colors.Stroke.primary)
+                .padding(.leading, horizontalPadding)
+        }
+    }
+}
+
+/*
+ body: some View {
         if !models.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 header()
@@ -93,23 +134,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
             }
             .padding(.vertical, verticalPadding)
         }
-    }
-
-    @ViewBuilder private var separator: some View {
-        switch separatorStyle {
-        case .none:
-            EmptyView()
-        case .single:
-            Colors.Stroke.primary
-                .frame(maxWidth: .infinity)
-                .frame(height: 1)
-                .padding(.leading, separatorPadding)
-        case .minimum:
-            Separator(height: .minimal, color: Colors.Stroke.primary)
-                .padding(.leading, separatorPadding)
-        }
-    }
-}
+ */
 
 extension GroupedSection {
     enum SeparatorStyle: Int, Hashable {
@@ -120,16 +145,8 @@ extension GroupedSection {
 }
 
 extension GroupedSection: Setupable {
-    func verticalPadding(_ padding: CGFloat) -> Self {
-        map { $0.verticalPadding = padding }
-    }
-
     func horizontalPadding(_ padding: CGFloat) -> Self {
         map { $0.horizontalPadding = padding }
-    }
-
-    func separatorPadding(_ padding: CGFloat) -> Self {
-        map { $0.separatorPadding = padding }
     }
 
     func separatorStyle(_ style: SeparatorStyle) -> Self {
@@ -140,8 +157,8 @@ extension GroupedSection: Setupable {
         map { $0.interItemSpacing = spacing }
     }
 
-    func interSectionPadding(_ spacing: CGFloat) -> Self {
-        map { $0.interSectionPadding = spacing }
+    func innerContentPadding(_ spacing: CGFloat) -> Self {
+        map { $0.innerContentPadding = spacing }
     }
 
     func backgroundColor(_ color: Color, id: String? = nil, namespace: Namespace.ID? = nil) -> Self {
