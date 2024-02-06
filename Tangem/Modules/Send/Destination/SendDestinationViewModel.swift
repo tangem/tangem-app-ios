@@ -25,6 +25,7 @@ protocol SendDestinationViewModelInput {
     var walletPublicKey: Wallet.PublicKey { get }
 
     var additionalFieldType: SendAdditionalFields? { get }
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> { get }
 
     var currencySymbol: String { get }
     var walletAddresses: [String] { get }
@@ -84,6 +85,7 @@ class SendDestinationViewModel: ObservableObject {
             style: .address(networkName: input.networkName),
             input: input.destinationTextPublisher,
             isValidating: input.isValidatingDestination,
+            isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination($0)
@@ -95,6 +97,7 @@ class SendDestinationViewModel: ObservableObject {
                 style: .additionalField(name: name),
                 input: input.destinationAdditionalFieldTextPublisher,
                 isValidating: .just(output: false),
+                isDisabled: input.additionalFieldEmbeddedInAddress,
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
