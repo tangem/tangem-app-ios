@@ -89,7 +89,7 @@ private extension SensitiveTextVisibilityViewModel {
         NotificationCenter.default
             .publisher(for: UIApplication.didEnterBackgroundNotification)
             .sink(receiveValue: { [weak self] _ in
-                self?.previousIsFaceDown = false
+                self?.previousIsFaceDown = false // [REDACTED_INFO]: avoid toggle upon device unlock
                 self?.endUpdates()
             })
             .store(in: &bag)
@@ -116,18 +116,6 @@ private extension SensitiveTextVisibilityViewModel {
                 }
             }
             .store(in: &bag)
-
-        NotificationCenter.default
-            .publisher(for: UIDevice.orientationDidChangeNotification)
-            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: true)
-            .filter { _ in
-                UIApplication.shared.applicationState == .active &&
-                    UIDevice.current.isGeneratingDeviceOrientationNotifications
-            }
-            .sink(receiveValue: { [weak self] _ in
-                self?.orientationChanged()
-            })
-            .store(in: &bag)
     }
 
     func updateAvailability(_ isAvailable: Bool) {
@@ -145,32 +133,20 @@ private extension SensitiveTextVisibilityViewModel {
             return
         }
 
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        manager.startDeviceMotionUpdates(to: operationQueue) { [weak self] motion, error in
+            if error != nil {
+                self?.endUpdates()
+                return
+            }
 
-//        manager.startDeviceMotionUpdates(to: operationQueue) { [weak self] motion, error in
-//            if error != nil {
-//                self?.endUpdates()
-//                return
-//            }
-//
-//            if let attitude = motion?.attitude {
-//                self?.motionDidUpdate(attitude: attitude)
-//            }
-//        }
-    }
-
-    private func orientationChanged() {
-        let faceDown = UIDevice.current.orientation == .faceDown
-        if previousIsFaceDown, !faceDown {
-            deviceDidFlipped()
+            if let attitude = motion?.attitude {
+                self?.motionDidUpdate(attitude: attitude)
+            }
         }
-
-        previousIsFaceDown = faceDown
     }
 
     func endUpdates() {
-        UIDevice.current.endGeneratingDeviceOrientationNotifications()
-//        manager.stopDeviceMotionUpdates()
+        manager.stopDeviceMotionUpdates()
     }
 
     func motionDidUpdate(attitude: CMAttitude) {
