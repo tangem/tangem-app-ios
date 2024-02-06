@@ -34,10 +34,10 @@ def blockchain_sdk_pods
   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :branch => 'feature/IOS-5792-SPM-dependencies-support'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
-  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :branch => 'feature/IOS-5792-SPM-dependencies-support'
+  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => '1.2.0-tangem1'
   #pod 'Solana.Swift', :path => '../Solana.Swift'
 
-  pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :branch => 'feature/IOS-5792-SPM-dependencies-support'
+  pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :tag => '0.0.11'
   #pod 'BinanceChain', :path => '../SwiftBinanceChain'
   
   pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.19'
@@ -172,7 +172,7 @@ post_install do |installer|
    "BlockchainSdk",
    "https://github.com/tangem/swift-protobuf-binaries.git",
    "SwiftProtobuf",
-   { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+   { :kind => "exactVersion", :version => "1.25.2-tangem1" }
   )
 
   # `SwiftProtobuf` SPM package for `BinanceChain` pod
@@ -181,7 +181,7 @@ post_install do |installer|
    "BinanceChain",
    "https://github.com/tangem/swift-protobuf-binaries.git",
    "SwiftProtobuf",
-   { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+   { :kind => "exactVersion", :version => "1.25.2-tangem1" }
   )
 
   # `secp256k1.swift` SPM package for `Solana.Swift` pod
