@@ -19,7 +19,7 @@ struct EnvironmentSetupView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView {
+            GroupedScrollView(spacing: 16) {
                 GroupedSection(viewModel.appSettingsTogglesViewModels) {
                     DefaultToggleRowView(viewModel: $0)
                 } header: {
@@ -40,6 +40,7 @@ struct EnvironmentSetupView: View {
 
                 promotionProgramControls
             }
+            .interContentPadding(8)
         }
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
