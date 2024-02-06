@@ -69,7 +69,7 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
 //                FeeRowView(viewModel: $0, namespace: ))
                 Text($0.subtitleText ?? "A")
             }
-            .verticalPadding(14)
+            .padding(.vertical, 14)
             .background(Colors.Background.secondary)
         }
     }
