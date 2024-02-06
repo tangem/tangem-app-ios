@@ -165,11 +165,11 @@ class SendModel {
     }
 
     private func bind() {
-        // Start and stop "validating" flag when we the raw address and validated address change respectively
         _destinationText
             .dropFirst()
             .removeDuplicates()
             .handleEvents(receiveOutput: { [weak self] _ in
+                self?.destination.send(nil)
                 self?._isValidatingDestination.send(true)
             })
             .debounce(for: 1, scheduler: RunLoop.main)
@@ -178,16 +178,9 @@ class SendModel {
             }
             .store(in: &bag)
 
-        destination
-            .sink { [weak self] _ in
-                self?._isValidatingDestination.send(false)
-            }
-            .store(in: &bag)
-
         _destinationAdditionalFieldText
             .dropFirst()
             .removeDuplicates()
-            .debounce(for: 1, scheduler: RunLoop.main)
             .sink { [weak self] _ in
                 self?.validateDestinationAdditionalField()
             }
@@ -346,9 +339,10 @@ class SendModel {
                 error = addressError
             }
 
-            DispatchQueue.main.async {
+            await runOnMain {
                 self.destination.send(destination)
                 self._destinationError.send(error)
+                self._isValidatingDestination.send(false)
             }
         }
     }
