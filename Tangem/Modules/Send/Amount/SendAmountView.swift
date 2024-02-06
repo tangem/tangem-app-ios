@@ -39,9 +39,10 @@ struct SendAmountView: View {
 
                     SendDecimalNumberTextField(
                         decimalValue: $viewModel.amount,
-                        maximumFractionDigits: viewModel.amountFractionDigits,
-                        font: Fonts.Regular.title1
+                        maximumFractionDigits: viewModel.amountFractionDigits
                     )
+                    .alignment(.center)
+                    .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
                     .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                     .padding(.top, 16)
 
@@ -57,9 +58,11 @@ struct SendAmountView: View {
                         .padding(.top, 6)
                         .padding(.bottom, 12)
                 }
+                .frame(maxWidth: .infinity)
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+            .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
 
             HStack {
                 if viewModel.showCurrencyPicker {
