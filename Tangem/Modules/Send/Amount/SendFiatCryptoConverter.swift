@@ -1,5 +1,5 @@
 //
-//  SendFiatCryptoHelper.swift
+//  SendFiatCryptoConverter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-class SendFiatCryptoHelper {
+class SendFiatCryptoConverter {
     var userInputAmount: AnyPublisher<Decimal?, Never> {
         _userInputAmount.eraseToAnyPublisher()
     }
@@ -141,7 +141,7 @@ class SendFiatCryptoHelper {
     }
 }
 
-private extension SendFiatCryptoHelper {
+private extension SendFiatCryptoConverter {
     class FiatCryptoValue: Equatable {
         private(set) var crypto = CurrentValueSubject<Decimal?, Never>(nil)
         private(set) var fiat = CurrentValueSubject<Decimal?, Never>(nil)
@@ -155,13 +155,13 @@ private extension SendFiatCryptoHelper {
             self.fiat.send(fiat)
         }
 
-        static func == (left: SendFiatCryptoHelper.FiatCryptoValue, right: SendFiatCryptoHelper.FiatCryptoValue) -> Bool {
+        static func == (left: SendFiatCryptoConverter.FiatCryptoValue, right: SendFiatCryptoConverter.FiatCryptoValue) -> Bool {
             left.crypto.value == right.crypto.value && left.fiat.value == right.fiat.value
         }
     }
 }
 
-private extension SendFiatCryptoHelper {
+private extension SendFiatCryptoConverter {
     enum InputTrigger {
         case keyboard
         case currencySelector
