@@ -66,6 +66,7 @@ class SendModel {
     private var _isValidatingDestination = CurrentValueSubject<Bool, Never>(false)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
+    private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
     private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
@@ -314,6 +315,13 @@ class SendModel {
 
     func setDestination(_ address: String) {
         _destinationText.send(address)
+
+        let hasEmbeddedAdditionalField = addressService.hasEmbeddedAdditionalField(address: address)
+        _additionalFieldEmbeddedInAddress.send(hasEmbeddedAdditionalField)
+
+        if hasEmbeddedAdditionalField {
+            setDestinationAdditionalField("")
+        }
     }
 
     func setDestinationAdditionalField(_ additionalField: String) {
@@ -486,6 +494,10 @@ extension SendModel: SendDestinationViewModelInput {
         case .none:
             return nil
         }
+    }
+
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
+        _additionalFieldEmbeddedInAddress.eraseToAnyPublisher()
     }
 
     var blockchainNetwork: BlockchainNetwork {
