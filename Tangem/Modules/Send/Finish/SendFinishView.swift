@@ -15,7 +15,7 @@ struct SendFinishView: View {
 
     var body: some View {
         VStack {
-            GroupedScrollView {
+            GroupedScrollView(spacing: 14) {
                 header
                     .padding(.bottom, 24)
 
@@ -41,15 +41,16 @@ struct SendFinishView: View {
                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
                         .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                 }
-                .interSectionPadding(12)
-                .backgroundColor(Colors.Background.action)
+                .innerContentPadding(12)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
+                // .interSectionPadding(12)
+                // .backgroundColor(Colors.Background.action)
+                // .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     DefaultTextWithTitleRowView(data: data)
                 }
-                .backgroundColor(Colors.Background.action)
                 .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
             }
