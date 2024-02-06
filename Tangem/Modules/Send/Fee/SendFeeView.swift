@@ -16,14 +16,12 @@ struct SendFeeView: View {
     let bottomSpacing: CGFloat
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) {
                 FeeRowView(viewModel: $0)
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
-            .separatorStyle(.minimum)
-            .backgroundColor(Colors.Background.action)
 
             if viewModel.showCustomFeeFields,
                let customFeeModel = viewModel.customFeeModel,
@@ -40,7 +38,6 @@ struct SendFeeView: View {
                 DefaultFooterView(viewModel.subtractFromAmountFooterText)
                     .animation(.default)
             }
-            .backgroundColor(Colors.Background.action)
 
             Spacer(minLength: bottomSpacing)
         }
