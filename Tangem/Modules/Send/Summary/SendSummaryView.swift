@@ -15,7 +15,7 @@ struct SendSummaryView: View {
 
     var body: some View {
         VStack {
-            GroupedScrollView {
+            GroupedScrollView(spacing: 14) {
                 GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
                     SendWalletSummaryView(viewModel: viewModel)
                 }
@@ -36,7 +36,6 @@ struct SendSummaryView: View {
                             }
                         }
                     }
-                    .backgroundColor(Colors.Background.action)
                 }
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditDestination)
@@ -51,14 +50,39 @@ struct SendSummaryView: View {
                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
                         .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                 }
-                .interSectionPadding(12)
+                .innerContentPadding(12)
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+
                 .onTapGesture {
                     viewModel.didTapSummary(for: .amount)
                 }
+
+//                    .innerContentPadding(12)
 //                }
+//                .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
 //                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-                .disabled(!viewModel.canEditAmount)
+//                .disabled(!viewModel.canEditAmount)
+
+                /*
+                 //                Button {
+                 //                    viewModel.didTapSummary(for: .amount)
+                 //                } label: {
+                                 GroupedSection(viewModel.amountSummaryViewData) {
+                                     AmountSummaryView(data: $0)
+                                         .setNamespace(namespace)
+                                         .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+                                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+                                         .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                                 }
+                                 .interSectionPadding(12)
+                                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                                 .onTapGesture {
+                                     viewModel.didTapSummary(for: .amount)
+                                 }
+                 //                }
+                 //                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                                 .disabled(!viewModel.canEditAmount)
+                 */
 
                 Button {
                     viewModel.didTapSummary(for: .fee)
@@ -66,7 +90,6 @@ struct SendSummaryView: View {
                     GroupedSection(viewModel.feeSummaryViewData) { data in
                         DefaultTextWithTitleRowView(data: data)
                     }
-                    .backgroundColor(Colors.Background.action)
                 }
                 .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
