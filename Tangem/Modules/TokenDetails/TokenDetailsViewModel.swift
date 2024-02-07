@@ -52,7 +52,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     var canHideToken: Bool { userWalletModel.isMultiWallet }
 
     init(
-        cardModel: CardViewModel,
+        userWalletModel: UserWalletModel,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
@@ -63,7 +63,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.coordinator = coordinator
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         super.init(
-            userWalletModel: cardModel,
+            userWalletModel: userWalletModel,
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,

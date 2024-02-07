@@ -12,7 +12,7 @@ import Combine
 final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     @Published var isLoadingFiatBalance = true
     @Published var isLoadingBalance = true
-    @Published var fiatBalance = NSAttributedString(string: "")
+    @Published var fiatBalance: AttributedStringParameters = .emptyString
     @Published var cryptoBalance = ""
 
     @Published var buttons: [ButtonWithIconInfo] = []
@@ -56,7 +56,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     }
 
     private func setupEmptyBalances() {
-        fiatBalance = .init(string: BalanceFormatter.defaultEmptyBalanceString)
+        fiatBalance = .emptyString
         cryptoBalance = BalanceFormatter.defaultEmptyBalanceString
     }
 
@@ -65,6 +65,6 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
         isLoadingFiatBalance = false
         cryptoBalance = newBalance.balance
-        fiatBalance = formatter.formatTotalBalanceForMain(fiatBalance: newBalance.fiatBalance, formattingOptions: .defaultOptions)
+        fiatBalance = formatter.formatAttributedTotalBalance(fiatBalance: newBalance.fiatBalance)
     }
 }
