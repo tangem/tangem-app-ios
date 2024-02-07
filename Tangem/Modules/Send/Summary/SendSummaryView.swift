@@ -40,21 +40,18 @@ struct SendSummaryView: View {
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditDestination)
 
-//                Button {
-//                    viewModel.didTapSummary(for: .amount)
-//                } label: {
-                GroupedSection(viewModel.amountSummaryViewData) {
-                    AmountSummaryView(data: $0)
-                        .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
-                        .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
-                        .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
-                }
-                .innerContentPadding(12)
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
-
-                .onTapGesture {
+                Button {
                     viewModel.didTapSummary(for: .amount)
+                } label: {
+                    GroupedSection(viewModel.amountSummaryViewData) {
+                        AmountSummaryView(data: $0)
+                            .setNamespace(namespace)
+                            .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+                            .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+                            .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                    }
+                    .innerContentPadding(12)
+                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
                 }
 
 //                    .innerContentPadding(12)
