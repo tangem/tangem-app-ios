@@ -27,7 +27,7 @@ struct LegacyTokenListView: View {
         .toast(isPresenting: $viewModel.showToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.contractAddressCopiedMessage)
         }
-        .searchableCompat(text: $viewModel.enteredSearchText.value)
+        .searchable(text: $viewModel.enteredSearchText.value, placement: .navigationBarDrawer(displayMode: .always))
         .keyboardType(.alphabet)
         .autocorrectionDisabled()
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
@@ -38,14 +38,6 @@ struct LegacyTokenListView: View {
     private var list: some View {
         ScrollView {
             LazyVStack {
-                if #available(iOS 15.0, *) {} else {
-                    SearchBar(text: $viewModel.enteredSearchText.value, placeholder: Localization.commonSearch)
-                        .keyboardType(.alphabet)
-                        .autocorrectionDisabled()
-                        .padding(.horizontal, 8)
-                        .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                }
-
                 if viewModel.shouldShowAlert {
                     Text(Localization.warningManageTokensLegacyDerivationMessage)
                         .font(.system(size: 13, weight: .medium, design: .default))
@@ -96,7 +88,7 @@ struct LegacyTokenListView: View {
                 }
                 .frame(width: 26, height: 26)
             }
-            .animation(nil)
+            .animation(nil, value: 0)
         } else {
             EmptyView()
         }

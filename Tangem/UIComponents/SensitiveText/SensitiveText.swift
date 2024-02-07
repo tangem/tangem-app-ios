@@ -17,12 +17,8 @@ struct SensitiveText: View {
         textType = .string(text)
     }
 
-    init(_ text: NSAttributedString) {
+    init(_ text: AttributedString) {
         textType = .attributed(text)
-    }
-
-    init(_ params: AttributedStringParameters) {
-        textType = .attributedParams(params)
     }
 
     init(builder: @escaping (String) -> String, sensitive: String) {
@@ -34,9 +30,7 @@ struct SensitiveText: View {
         case .string(let string):
             Text(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : string)
         case .attributed(let string):
-            Text(sensitiveTextVisibilityViewModel.isHidden ? NSAttributedString(string: Constants.maskedBalanceString) : string)
-        case .attributedParams(let params):
-            Text(sensitiveTextVisibilityViewModel.isHidden ? .makeDefaultParams(for: Constants.maskedBalanceString) : params)
+            Text(sensitiveTextVisibilityViewModel.isHidden ? AttributedString(Constants.maskedBalanceString) : string)
         case .builder(let builder, let sensitive):
             Text(builder(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : sensitive))
         }
@@ -46,8 +40,7 @@ struct SensitiveText: View {
 extension SensitiveText {
     enum TextType {
         case string(String)
-        case attributed(NSAttributedString)
-        case attributedParams(AttributedStringParameters)
+        case attributed(AttributedString)
         case builder(builder: (String) -> String, sensitive: String)
     }
 }
