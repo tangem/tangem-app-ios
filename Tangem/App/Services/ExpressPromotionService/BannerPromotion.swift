@@ -23,13 +23,13 @@ extension BannerPromotion: NotificationEvent {
                 attributes: [.font: UIFonts.Bold.footnote, .foregroundColor: UIColor(Colors.Text.constantWhite)]
             )
 
-            if let range = attributed.string.range(of: ",") {
+            if let range = attributed.string.range(of: percent) {
                 let yellow = UIColor.yellow // (red: 233, green: 253, blue: 2, alpha: 1)
 
                 attributed.addAttribute(
                     .foregroundColor,
                     value: yellow,
-                    range: NSRange(range.upperBound..., in: attributed.string)
+                    range: NSRange(range.lowerBound..., in: attributed.string)
                 )
             }
 
