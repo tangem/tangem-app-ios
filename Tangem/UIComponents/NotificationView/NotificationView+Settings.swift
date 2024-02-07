@@ -65,6 +65,7 @@ extension NotificationView {
 
     enum Title {
         case string(String)
+        /// Available only for iOS 15
         case attributed(NSAttributedString)
     }
 
