@@ -22,7 +22,6 @@ enum TokenNotificationEvent: Hashable {
     case existentialDepositWarning(message: String)
     case longTransaction(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
-    case bannerPromotion(BannerPromotion)
 
     static func event(
         for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
@@ -55,8 +54,6 @@ enum TokenNotificationEvent: Hashable {
             return configuration.isFeeCurrencyPurchaseAllowed
                 ? .openFeeCurrency(currencySymbol: configuration.eventConfiguration.feeAmountTypeCurrencySymbol)
                 : nil
-        case .bannerPromotion(let promotion):
-            return promotion.buttonAction
         }
     }
 }
@@ -78,8 +75,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningLongTransactionTitle)
         case .notEnoughFeeForTransaction(let configuration):
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName))
-        case .bannerPromotion(let promotion):
-            return promotion.title
         }
     }
 
@@ -105,8 +100,6 @@ extension TokenNotificationEvent: NotificationEvent {
                 configuration.eventConfiguration.feeAmountTypeName,
                 configuration.eventConfiguration.feeAmountTypeCurrencySymbol
             )
-        case .bannerPromotion(let promotion):
-            return promotion.description
         }
     }
 
@@ -117,8 +110,6 @@ extension TokenNotificationEvent: NotificationEvent {
         // One white notification will be added later
         case .notEnoughFeeForTransaction:
             return .primary
-        case .bannerPromotion(let promotion):
-            return promotion.colorScheme
         }
     }
 
@@ -130,8 +121,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTransaction(let configuration):
             return .init(iconType: .image(Image(configuration.eventConfiguration.feeAmountTypeIconName)))
-        case .bannerPromotion(let promotion):
-            return promotion.icon
         }
     }
 
@@ -146,8 +135,6 @@ extension TokenNotificationEvent: NotificationEvent {
              .notEnoughFeeForTransaction,
              .longTransaction:
             return .warning
-        case .bannerPromotion(let promotion):
-            return promotion.severity
         }
     }
 
@@ -157,8 +144,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return true
         case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .notEnoughFeeForTransaction, .noAccount:
             return false
-        case .bannerPromotion(let promotion):
-            return promotion.isDismissable
         }
     }
 }
@@ -175,8 +160,6 @@ extension TokenNotificationEvent {
         case .existentialDepositWarning: return nil
         case .longTransaction: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
-        case .bannerPromotion(let promotion):
-            return promotion.analyticsEvent
         }
     }
 
@@ -186,8 +169,6 @@ extension TokenNotificationEvent {
             return [.token: currencySymbol]
         case .notEnoughFeeForTransaction(let configuration):
             return [.token: configuration.eventConfiguration.feeAmountTypeCurrencySymbol]
-        case .bannerPromotion(let promotion):
-            return promotion.analyticsParams
         default:
             return [:]
         }
@@ -195,11 +176,6 @@ extension TokenNotificationEvent {
 
     /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool {
-        switch self {
-        case .bannerPromotion(let promotion):
-            return promotion.isOneShotAnalyticsEvent
-        default:
-            return false
-        }
+        return false
     }
 }
