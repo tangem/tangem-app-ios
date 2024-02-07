@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
@@ -24,7 +25,7 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
-    case tangemExpressPromotion
+    case bannerPromotion(BannerPromotion)
     case supportedOnlySingleCurrencyWallet
 }
 
@@ -66,8 +67,8 @@ extension WarningEvent: NotificationEvent {
             return .string(Localization.commonAccessDenied)
         case .missingBackup:
             return .string(Localization.warningNoBackupTitle)
-        case .tangemExpressPromotion:
-            return .attributed(.init(string: Localization.mainSwapPromotionTitle))
+        case .bannerPromotion(let banner):
+            return banner.title
         case .supportedOnlySingleCurrencyWallet:
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         }
@@ -106,8 +107,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
-        case .tangemExpressPromotion:
-            return Localization.mainSwapPromotionMessage
+        case .bannerPromotion(let banner):
+            return banner.description
         case .supportedOnlySingleCurrencyWallet:
             return nil
         }
@@ -117,8 +118,8 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
             return .primary
-        case .tangemExpressPromotion:
-            return .tangemExpressPromotion
+        case .bannerPromotion(let banner):
+            return banner.colorScheme
         default:
             return .secondary
         }
@@ -136,8 +137,8 @@ extension WarningEvent: NotificationEvent {
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
-        case .tangemExpressPromotion:
-            return .init(iconType: .image(Assets.swapBannerIcon.image), size: CGSize(bothDimensions: 34))
+        case .bannerPromotion(let banner):
+            return banner.icon
         }
     }
 
@@ -151,8 +152,7 @@ extension WarningEvent: NotificationEvent {
              .legacyDerivation,
              .systemDeprecationTemporary,
              .missingDerivation,
-             .rateApp,
-             .tangemExpressPromotion:
+             .rateApp:
             return .info
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -163,6 +163,8 @@ extension WarningEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
             return .warning
+        case .bannerPromotion(let banner):
+            return banner.severity
         }
     }
 
@@ -170,8 +172,10 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
             return false
-        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary, .tangemExpressPromotion:
+        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
+        case .bannerPromotion(let banner):
+            return banner.isDismissable
         }
     }
 
@@ -225,13 +229,19 @@ extension WarningEvent {
         case .missingDerivation: return .mainNoticeMissingAddress
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
-        case .tangemExpressPromotion: return nil
         case .supportedOnlySingleCurrencyWallet: return nil
+        case .bannerPromotion(let banner):
+            return banner.analyticsEvent
         }
     }
 
     var analyticsParams: [Analytics.ParameterKey: String] {
-        [:]
+        switch self {
+        case .bannerPromotion(let promotion):
+            return promotion.analyticsParams
+        default:
+            return [:]
+        }
     }
 
     /// Determine if analytics event should be sent only once and tracked by service
@@ -241,6 +251,8 @@ extension WarningEvent {
         /// one card on different devices the `Missing derivation` notification will be updated
         /// and we need to track this update after PTR
         case .missingDerivation: return false
+        case .bannerPromotion(let promotion):
+            return promotion.isOneShotAnalyticsEvent
         default: return true
         }
     }
