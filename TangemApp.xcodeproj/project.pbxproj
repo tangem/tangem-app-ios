@@ -1087,6 +1087,7 @@
 		EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */; };
 		EF5E5A852B7100D700D19BBB /* ExpressPromotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */; };
 		EF5E5AA92B725F9A00D19BBB /* BannerPromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */; };
+		EF5E5AAB2B73928C00D19BBB /* BannerPromotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AAA2B73928C00D19BBB /* BannerPromotion.swift */; };
 		EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */; };
 		EF5F1BB429D5A19E0093307B /* SelectableGropedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */; };
 		EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */; };
@@ -2536,6 +2537,7 @@
 		EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonBannerPromotionService.swift; sourceTree = "<group>"; };
 		EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPromotion.swift; sourceTree = "<group>"; };
 		EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerPromotionService.swift; sourceTree = "<group>"; };
+		EF5E5AAA2B73928C00D19BBB /* BannerPromotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerPromotion.swift; sourceTree = "<group>"; };
 		EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderMock.swift; sourceTree = "<group>"; };
 		EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableGropedSection.swift; sourceTree = "<group>"; };
 		EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinator.swift; sourceTree = "<group>"; };
@@ -6402,6 +6404,7 @@
 			children = (
 				EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */,
 				EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */,
+				EF5E5AAA2B73928C00D19BBB /* BannerPromotion.swift */,
 			);
 			path = ExpressPromotionService;
 			sourceTree = "<group>";
@@ -8333,6 +8336,7 @@
 				DC66BC06285B6C7300CDF765 /* LegacySendCoordinatorView.swift in Sources */,
 				EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */,
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
+				EF5E5AAB2B73928C00D19BBB /* BannerPromotion.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
