@@ -28,14 +28,14 @@ struct SendSummaryView: View {
                         switch type {
                         case .address(let address):
                             SendDestinationAddressSummaryView(address: address)
-                                .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
+                                .setNamespace(namespace)
                         case .additionalField(let type, let value):
                             if let name = type.name {
                                 DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
                             }
                         }
                     }
+                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
                 }
                 .disabled(!viewModel.canEditDestination)
 

@@ -51,7 +51,7 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     DefaultTextWithTitleRowView(data: data)
                 }
-                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
+//                .matchedGeometryEffect(id: SendViewNamespaceId.feeContainer, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
             }
 
