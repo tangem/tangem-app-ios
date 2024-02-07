@@ -65,7 +65,7 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
             GroupedSection(viewModels) {
                 FeeRowView(viewModel: $0)
             }
-            .verticalPadding(14)
+            .padding(.vertical, 14)
             .background(Colors.Background.secondary)
         }
     }
