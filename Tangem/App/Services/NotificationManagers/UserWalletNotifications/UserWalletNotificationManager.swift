@@ -51,11 +51,7 @@ final class UserWalletNotificationManager {
         var inputs: [NotificationViewInput] = []
 
         if userWalletModel.isMultiWallet {
-            setupTangemExpressPromotionNotification(
-                action: action,
-                buttonAction: buttonAction,
-                dismissAction: dismissAction
-            )
+            setupTangemExpressPromotionNotification(dismissAction: dismissAction)
         }
 
         inputs.append(contentsOf: factory.buildNotificationInputs(
@@ -102,8 +98,6 @@ final class UserWalletNotificationManager {
     }
 
     private func setupTangemExpressPromotionNotification(
-        action: @escaping NotificationView.NotificationAction,
-        buttonAction: @escaping (NotificationViewId, NotificationButtonActionType) -> Void,
         dismissAction: @escaping NotificationView.NotificationAction
     ) {
         promotionUpdateTask?.cancel()
@@ -112,18 +106,15 @@ final class UserWalletNotificationManager {
                 return
             }
 
-            await bannerPromotionService.updatePromotions()
-
-            let input = BannerPromotionNotificationFactory().buildNotificationInput(
-                for: .changelly,
-                buttonAction: buttonAction,
-                dismissAction: dismissAction
-            )
-
-            guard bannerPromotionService.isActive(promotion: .changelly, on: .main) else {
-                notificationInputsSubject.value.removeAll { $0.id == input.id }
+            guard let promotion = await bannerPromotionService.activePromotion(place: .main) else {
+                notificationInputsSubject.value.removeAll { $0.settings.event is BannerNotificationEvent }
                 return
             }
+
+            let input = BannerPromotionNotificationFactory().buildMainBannerNotificationInput(
+                promotion: promotion,
+                dismissAction: dismissAction
+            )
 
             guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
                 return
