@@ -24,6 +24,7 @@ struct MainHeaderView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 titleView
+
                 Spacer(minLength: 6)
 
                 if viewModel.isUserWalletLocked {
