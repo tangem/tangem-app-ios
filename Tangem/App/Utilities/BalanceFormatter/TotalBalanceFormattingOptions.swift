@@ -8,13 +8,13 @@
 
 import SwiftUI
 
-struct AttributedTotalBalanceFormattingOptions {
+struct TotalBalanceFormattingOptions {
     let integerPartFont: Font
     let fractionalPartFont: Font
     let integerPartColor: Color
     let fractionalPartColor: Color
 
-    static var defaultOptions: AttributedTotalBalanceFormattingOptions {
+    static var defaultOptions: TotalBalanceFormattingOptions {
         .init(
             integerPartFont: Fonts.Regular.title1,
             fractionalPartFont: Fonts.Bold.title3,
