@@ -33,7 +33,7 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(.easeOut(duration: 0.3), value: viewModel.step)
+        .animation(.easeOut(duration: viewModel.slowAnimation ? 2 : 0.3), value: viewModel.step) // TMP
         .alert(item: $viewModel.alert) { $0.alert }
         .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
@@ -57,8 +57,10 @@ struct SendView: View {
 
             if let title = viewModel.title {
                 HStack {
-                    Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: 1)
+                    #warning("TMP")
+//                    Color.clear
+//                        .frame(maxWidth: .infinity, maxHeight: 1)
+                    Toggle("Slow", isOn: $viewModel.slowAnimation)
 
                     Text(title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
@@ -121,6 +123,14 @@ struct SendView: View {
                     action: viewModel.next
                 )
             }
+
+            #warning("TMP")
+            SendViewBackButton(
+                backgroundColor: backButtonStyle.background(isDisabled: false),
+                cornerRadius: backButtonStyle.cornerRadius(for: backButtonSize),
+                height: backButtonSize.height,
+                action: viewModel.summ
+            )
         }
         .padding(.horizontal)
     }
