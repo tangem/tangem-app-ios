@@ -422,6 +422,7 @@
 "scan_card_settings_button" = "Сканировать";
 "scan_card_settings_message" = "Отсканируйте карту, чтобы изменить ее настройки. Изменения затронут только ту карту, которую вы отсканировали, и не повлияют на другие карты, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свою карту";
+"send_additional_field_already_included" = "Уже содержится в введенном адресе";
 "send_amount_label" = "Сумма";
 "send_amount_substract" = "Вычесть из суммы отправки";
 "send_amount_substract_footer" = "Сумма к получению %@";
