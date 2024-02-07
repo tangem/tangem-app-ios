@@ -11,41 +11,35 @@ import Foundation
 class CommonBannerPromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private var _activePromotions: Set<PromotionType> = []
+    private var activePromotion: ActivePromotionInfo?
 
     init() {}
-}
-
-struct PromotionType: Hashable {
-    let bannerPromotion: BannerPromotion
-    let timeline: Timeline
 }
 
 // MARK: - PromotionService
 
 extension CommonBannerPromotionService: BannerPromotionService {
-    var activePromotions: Set<PromotionType> { _activePromotions }
+    func activePromotion(place: BannerPromotionPlace) async -> ActivePromotionInfo? {
+        let promotion = PromotionProgramName.changelly
+        guard !isHidden(promotion: promotion, on: place) else {
+            return nil
+        }
 
-    func updatePromotions() async {
         do {
-            let promotion = BannerPromotion.changelly
             let promotionInfo = try await tangemApiService.expressPromotion(request: .init(programName: promotion.rawValue))
             let now = Date()
-            if promotionInfo.all.timeline.start < now, now < promotionInfo.all.timeline.end {
-                _activePromotions.insert(.init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline))
-            }
+//                if promotionInfo.all.timeline.start < now, now < promotionInfo.all.timeline.end {
+            activePromotion = .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline)
+//                }
         } catch {
             AppLog.shared.debug("Check promotions catch error \(error)")
             AppLog.shared.error(error)
         }
+
+        return activePromotion
     }
 
-    func isActive(promotion: BannerPromotion, on place: BannerPromotionPlace) -> Bool {
-        let shouldVisible = !isHidden(promotion: promotion, on: place)
-        return shouldVisible && activePromotions.contains(where: { $0.bannerPromotion == promotion })
-    }
-
-    func isHidden(promotion: BannerPromotion, on place: BannerPromotionPlace) -> Bool {
+    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlace) -> Bool {
         switch place {
         case .main:
             return AppSettings.shared.mainPromotionDismissed.contains(promotion.rawValue)
@@ -54,8 +48,8 @@ extension CommonBannerPromotionService: BannerPromotionService {
         }
     }
 
-    func hide(promotion: BannerPromotion, on place: BannerPromotionPlace) {
-        return
+    func hide(promotion: PromotionProgramName, on place: BannerPromotionPlace) {
+        return ()
 
         switch place {
         case .main:
