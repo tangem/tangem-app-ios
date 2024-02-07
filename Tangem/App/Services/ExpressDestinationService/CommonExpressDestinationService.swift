@@ -29,18 +29,34 @@ struct CommonExpressDestinationService {
 
 extension CommonExpressDestinationService: ExpressDestinationService {
     func canBeSwapped(wallet: WalletModel) async -> Bool {
+        let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+        let hasBalance = (wallet.balanceValue ?? 0) > 0
+
+        guard isAvailable, !wallet.isCustom, hasBalance else {
+            AppLog.shared.debug("[Express] \(self) has checked that wallet: \(wallet.name) can not be swapped")
+            return false
+        }
+
         do {
             try await expressRepository.updatePairs(for: wallet)
-            let canBeSwapped = await !availableForSwapWalletModels(source: wallet).isEmpty
-            AppLog.shared.debug("[Express] \(self) has checked that wallet: \(wallet.name) canBeSwapped: \(canBeSwapped)")
-            return canBeSwapped
+            let hasPairs = await !expressRepository.getPairs(from: wallet).isEmpty
+            AppLog.shared.debug("[Express] \(self) has checked that wallet: \(wallet.name) can be swapped: \(hasPairs)")
+            return hasPairs
         } catch {
             return false
         }
     }
 
     func getDestination(source: WalletModel) async throws -> WalletModel {
-        let searchableWalletModels = await availableForSwapWalletModels(source: source)
+        let availablePairs = await expressRepository.getPairs(from: source)
+        let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
+            let isNotSource = wallet.id != source.id
+            let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+            let isNotCustom = !wallet.isCustom
+            let hasPair = availablePairs.contains(where: { $0.destination == wallet.expressCurrency })
+
+            return isNotSource && isAvailable && isNotCustom && hasPair
+        }
 
         AppLog.shared.debug("[Express] \(self) has searchableWalletModels: \(searchableWalletModels.map { ($0.expressCurrency, $0.fiatBalance) })")
 
@@ -79,19 +95,6 @@ private extension CommonExpressDestinationService {
         let lastCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency
 
         return walletModel.expressCurrency == lastCurrency
-    }
-
-    func availableForSwapWalletModels(source: WalletModel) async -> [WalletModel] {
-        let availablePairs = await expressRepository.getPairs(from: source)
-
-        return walletModelsManager.walletModels.filter { wallet in
-            let isNotSource = wallet.id != source.id
-            let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
-            let isNotCustom = !wallet.isCustom
-            let hasPair = availablePairs.contains(where: { $0.destination == wallet.expressCurrency })
-
-            return isNotSource && isAvailable && isNotCustom && hasPair
-        }
     }
 }
 
