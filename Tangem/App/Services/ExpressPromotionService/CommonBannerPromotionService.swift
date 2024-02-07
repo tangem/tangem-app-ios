@@ -24,7 +24,7 @@ extension CommonBannerPromotionService: BannerPromotionService {
             let promotion = BannerPromotion.changelly
             let promotionInfo = try await tangemApiService.expressPromotion(request: .init(programName: promotion.rawValue))
             let now = Date()
-            if promotionInfo.start < now, now < promotionInfo.end {
+            if promotionInfo.all.timeline.start < now, now < promotionInfo.all.timeline.end {
                 activePromotions.insert(promotion)
             }
         } catch {
