@@ -254,9 +254,9 @@ extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaWalletModel: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<AttributedStringParameters>, Never> {
+    var balanceProvider: AnyPublisher<LoadingValue<AttributedString>, Never> {
         stateSubject.combineLatest(balancesSubject)
-            .map { [weak self] state, balances -> LoadingValue<AttributedStringParameters> in
+            .map { [weak self] state, balances -> LoadingValue<AttributedString> in
                 guard let self else {
                     return .loading
                 }
