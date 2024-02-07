@@ -150,6 +150,11 @@ private extension Blockchain {
             case .coin: return "xdce-crowd-sale"
             }
         case .algorand: return "algorand"
+        case .shibarium:
+            switch type {
+            case .network: return "shibarium"
+            case .coin: return "bone-shibaswap"
+            }
         }
     }
 
