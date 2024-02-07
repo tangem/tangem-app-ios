@@ -49,11 +49,7 @@ struct RefreshableScrollView<Content: View>: View {
             content
         }
         .refreshable {
-            await withCheckedContinuation { continuation in
-                onRefresh {
-                    continuation.resume()
-                }
-            }
+            await refreshAsync()
         }
     }
 
@@ -127,6 +123,15 @@ struct RefreshableScrollView<Content: View>: View {
 
             // Updating last scroll offset
             previousScrollOffset = scrollOffset
+        }
+    }
+
+    @MainActor
+    private func refreshAsync() async {
+        await withCheckedContinuation { continuation in
+            onRefresh {
+                continuation.resume()
+            }
         }
     }
 
