@@ -67,8 +67,11 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                     }
                 }
                 .padding(.vertical, innerContentPadding)
-                .background(backgroundColor)
-                .cornerRadiusContinuous(14)
+                .background(
+                    backgroundColor
+                        .cornerRadiusContinuous(14)
+                        .matchedGeometryEffectOptional(id: backgroundNamespaceId, in: namespace)
+                )
 
                 footer()
                     .padding(.horizontal, horizontalPadding)
