@@ -221,7 +221,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.10`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, branch `IOS-5736-shibarium-implementation`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-476`)
   - BlockiesSwift (~> 0.1.2)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
@@ -285,8 +285,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
-    :branch: IOS-5736-shibarium-implementation
     :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-476
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-11
@@ -314,8 +314,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
-    :commit: 5d727286bf641fec34bd97aee1fe8d89f652dc67
     :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-476
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-11
@@ -379,6 +379,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: e3d9b55c2583373832493bd8771aece5709cac21
+PODFILE CHECKSUM: 6ee189d361c8c4e112592533e674e2a4a790f769
 
 COCOAPODS: 1.15.0
