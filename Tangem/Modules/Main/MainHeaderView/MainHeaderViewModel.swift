@@ -15,7 +15,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var cardImage: ImageType?
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
-    @Published private(set) var balance: AttributedStringParameters = .emptyString
+    @Published private(set) var balance: AttributedString = .init(BalanceFormatter.defaultEmptyBalanceString)
     @Published var isLoadingFiatBalance: Bool = true
     @Published var isLoadingSubtitle: Bool = true
 
@@ -84,7 +84,7 @@ final class MainHeaderViewModel: ObservableObject {
                     AppLog.shared.debug("Failed to load total balance. Reason: \(error)")
                     isLoadingFiatBalance = false
 
-                    balance = .emptyString
+                    balance = .init(BalanceFormatter.defaultEmptyBalanceString)
                 }
             }
             .store(in: &bag)
