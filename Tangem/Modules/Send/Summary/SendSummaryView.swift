@@ -21,48 +21,47 @@ struct SendSummaryView: View {
                 }
                 .backgroundColor(Colors.Button.disabled)
 
-                Button {
-                    viewModel.didTapSummary(for: .destination)
-                } label: {
-                    GroupedSection(viewModel.destinationViewTypes) { type in
-                        switch type {
-                        case .address(let address):
-                            SendDestinationAddressSummaryView(address: address)
-                                .setNamespace(namespace)
-                        case .additionalField(let type, let value):
-                            if let name = type.name {
-                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                            }
+                GroupedSection(viewModel.destinationViewTypes) { type in
+                    switch type {
+                    case .address(let address):
+                        SendDestinationAddressSummaryView(address: address)
+                            .setNamespace(namespace)
+                    case .additionalField(let type, let value):
+                        if let name = type.name {
+                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
                         }
                     }
-                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
                 }
-                .disabled(!viewModel.canEditDestination)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.didTapSummary(for: .destination)
+                }
 
-                Button {
+                GroupedSection(viewModel.amountSummaryViewData) {
+                    AmountSummaryView(data: $0)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+                        .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+                        .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                }
+                .innerContentPadding(12)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
                     viewModel.didTapSummary(for: .amount)
-                } label: {
-                    GroupedSection(viewModel.amountSummaryViewData) {
-                        AmountSummaryView(data: $0)
-                            .setNamespace(namespace)
-                            .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
-                            .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
-                            .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
-                    }
-                    .innerContentPadding(12)
-                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
                 }
 
-                Button {
+                GroupedSection(viewModel.feeSummaryViewData) { data in
+                    DefaultTextWithTitleRowView(data: data)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                }
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
                     viewModel.didTapSummary(for: .fee)
-                } label: {
-                    GroupedSection(viewModel.feeSummaryViewData) { data in
-                        DefaultTextWithTitleRowView(data: data)
-                            .setNamespace(namespace)
-                            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                            .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-                    }
-                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                 }
             }
 
