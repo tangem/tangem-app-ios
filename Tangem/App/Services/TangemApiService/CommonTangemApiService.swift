@@ -188,8 +188,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
-        ExpressPromotion.Response(start: Date().addingTimeInterval(-10000000), end: Date().addingTimeInterval(10000000))
-//        try await request(for: .promotion(request: model))
+        try await request(for: .promotion(request: model))
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
