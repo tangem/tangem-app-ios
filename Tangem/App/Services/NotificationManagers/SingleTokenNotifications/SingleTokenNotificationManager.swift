@@ -22,7 +22,6 @@ final class SingleTokenNotificationManager {
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
-    private var expressPromotionBanner: NotificationViewInput?
     private var rentFeeNotification: NotificationViewInput?
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
@@ -128,32 +127,28 @@ final class SingleTokenNotificationManager {
     }
 
     private func setupTangemExpressPromotionNotification() {
-        if let expressPromotionBanner {
-            notificationInputsSubject.value.insert(expressPromotionBanner, at: 0)
-        }
-
         promotionUpdateTask?.cancel()
         promotionUpdateTask = Task { [weak self] in
             guard let self, let expressDestinationService, !Task.isCancelled else {
                 return
             }
 
-            await bannerPromotionService.updatePromotions()
+            guard let promotion = await bannerPromotionService.activePromotion(place: .tokenDetails) else {
+                notificationInputsSubject.value.removeAll { $0.settings.event is BannerNotificationEvent }
+                return
+            }
 
-            let input = BannerPromotionNotificationFactory().buildNotificationInput(
-                for: .changelly,
+            let input = BannerPromotionNotificationFactory().buildTokenBannerNotificationInput(
+                promotion: promotion,
                 buttonAction: { [weak self] id, actionType in
                     self?.delegate?.didTapNotificationButton(with: id, action: actionType)
                     self?.dismissNotification(with: id)
-                },
-                dismissAction: { [weak self] id in
+                }, dismissAction: { [weak self] id in
                     self?.dismissNotification(with: id)
                 }
             )
 
-            guard bannerPromotionService.isActive(promotion: .changelly, on: .main),
-                  await expressDestinationService.canBeSwapped(wallet: walletModel) else {
-                expressPromotionBanner = nil
+            guard await expressDestinationService.canBeSwapped(wallet: walletModel) else {
                 notificationInputsSubject.value.removeAll { $0.id == input.id }
                 return
             }
@@ -161,8 +156,6 @@ final class SingleTokenNotificationManager {
             guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
                 return
             }
-
-            expressPromotionBanner = input
 
             await runOnMain {
                 self.notificationInputsSubject.value.insert(input, at: 0)
@@ -247,7 +240,7 @@ extension SingleTokenNotificationManager: NotificationManager {
         switch event {
         case .changelly:
             Analytics.log(.swapPromoButtonClose)
-            bannerPromotionService.hide(promotion: .changelly, on: .main)
+            bannerPromotionService.hide(promotion: .changelly, on: .tokenDetails)
         }
 
         notificationInputsSubject.value.removeAll(where: { $0.id == id })
