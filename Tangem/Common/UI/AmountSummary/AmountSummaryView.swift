@@ -26,17 +26,17 @@ struct AmountSummaryView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(data.title)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                .matchedGeometryEffect(id: titleNamespaceId, in: namespace)
+                .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
 
             HStack(spacing: 0) {
                 TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
-                    .matchedGeometryEffect(id: iconNamespaceId, in: namespace)
+                    .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
                     .padding(.trailing, 12)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(data.amount)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                        .matchedGeometryEffect(id: amountNamespaceId, in: namespace)
+                        .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
 
                     Text(data.amountFiat)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
