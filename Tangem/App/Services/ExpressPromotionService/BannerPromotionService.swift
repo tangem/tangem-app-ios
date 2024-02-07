@@ -9,6 +9,7 @@
 import Foundation
 
 protocol BannerPromotionService {
+    var activePromotions: Set<PromotionType> { get }
     func updatePromotions() async
     func isActive(promotion: BannerPromotion, on place: BannerPromotionPlace) -> Bool
     func isHidden(promotion: BannerPromotion, on place: BannerPromotionPlace) -> Bool
