@@ -25,7 +25,6 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
-    case bannerPromotion(BannerPromotion)
     case supportedOnlySingleCurrencyWallet
 }
 
@@ -67,8 +66,6 @@ extension WarningEvent: NotificationEvent {
             return .string(Localization.commonAccessDenied)
         case .missingBackup:
             return .string(Localization.warningNoBackupTitle)
-        case .bannerPromotion(let banner):
-            return banner.title
         case .supportedOnlySingleCurrencyWallet:
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         }
@@ -107,8 +104,6 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
-        case .bannerPromotion(let banner):
-            return banner.description
         case .supportedOnlySingleCurrencyWallet:
             return nil
         }
@@ -118,8 +113,6 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
             return .primary
-        case .bannerPromotion(let banner):
-            return banner.colorScheme
         default:
             return .secondary
         }
@@ -137,8 +130,6 @@ extension WarningEvent: NotificationEvent {
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
-        case .bannerPromotion(let banner):
-            return banner.icon
         }
     }
 
@@ -163,8 +154,6 @@ extension WarningEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
             return .warning
-        case .bannerPromotion(let banner):
-            return banner.severity
         }
     }
 
@@ -174,8 +163,6 @@ extension WarningEvent: NotificationEvent {
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
-        case .bannerPromotion(let banner):
-            return banner.isDismissable
         }
     }
 
@@ -230,18 +217,11 @@ extension WarningEvent {
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
         case .supportedOnlySingleCurrencyWallet: return nil
-        case .bannerPromotion(let banner):
-            return banner.analyticsEvent
         }
     }
 
     var analyticsParams: [Analytics.ParameterKey: String] {
-        switch self {
-        case .bannerPromotion(let promotion):
-            return promotion.analyticsParams
-        default:
-            return [:]
-        }
+        [:]
     }
 
     /// Determine if analytics event should be sent only once and tracked by service
@@ -251,8 +231,6 @@ extension WarningEvent {
         /// one card on different devices the `Missing derivation` notification will be updated
         /// and we need to track this update after PTR
         case .missingDerivation: return false
-        case .bannerPromotion(let promotion):
-            return promotion.isOneShotAnalyticsEvent
         default: return true
         }
     }
