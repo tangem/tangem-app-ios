@@ -9,7 +9,7 @@
 import Foundation
 
 protocol NotificationEvent: Hashable {
-    var title: String { get }
+    var title: NotificationView.Title { get }
     var description: String? { get }
     var colorScheme: NotificationView.ColorScheme { get }
     var icon: NotificationView.MessageIcon { get }
