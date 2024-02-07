@@ -57,10 +57,8 @@ struct SendView: View {
 
             if let title = viewModel.title {
                 HStack {
-                    #warning("TMP")
-//                    Color.clear
-//                        .frame(maxWidth: .infinity, maxHeight: 1)
-                    Toggle("Slow", isOn: $viewModel.slowAnimation)
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: 1)
 
                     Text(title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
@@ -81,6 +79,11 @@ struct SendView: View {
                             .frame(maxWidth: .infinity, maxHeight: 1)
                     }
                 }
+                .overlay(
+                    Toggle("Slow", isOn: $viewModel.slowAnimation),
+                    alignment: .leading
+                )
+                #warning("TMP")
             }
         }
         .padding(.horizontal, 16)
@@ -125,12 +128,15 @@ struct SendView: View {
             }
 
             #warning("TMP")
-            SendViewBackButton(
-                backgroundColor: backButtonStyle.background(isDisabled: false),
-                cornerRadius: backButtonStyle.cornerRadius(for: backButtonSize),
-                height: backButtonSize.height,
-                action: viewModel.summ
-            )
+            Color.black
+                .frame(width: backButtonSize.height, height: backButtonSize.height)
+                .overlay(
+                    Image(systemName: "arrow.circlepath")
+                        .foregroundColor(.white)
+                )
+                .onTapGesture {
+                    viewModel.summ()
+                }
         }
         .padding(.horizontal)
     }
