@@ -175,7 +175,5 @@ extension TokenNotificationEvent {
     }
 
     /// Determine if analytics event should be sent only once and tracked by service
-    var isOneShotAnalyticsEvent: Bool {
-        return false
-    }
+    var isOneShotAnalyticsEvent: Bool { false }
 }
