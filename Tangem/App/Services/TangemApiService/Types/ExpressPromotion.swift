@@ -24,11 +24,6 @@ extension ExpressPromotion {
             let status: Status
         }
 
-        struct Timeline: Decodable {
-            let start: Date
-            let end: Date
-        }
-
         enum Status: String, Decodable {
             case active
             case pending
