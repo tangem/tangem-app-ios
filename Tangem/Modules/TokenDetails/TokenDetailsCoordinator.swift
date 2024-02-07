@@ -83,7 +83,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
         )
 
         tokenDetailsViewModel = .init(
-            cardModel: options.cardModel,
+            userWalletModel: options.cardModel,
             walletModel: options.walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
