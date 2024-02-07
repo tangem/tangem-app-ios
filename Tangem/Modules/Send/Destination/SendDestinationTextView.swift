@@ -39,9 +39,7 @@ struct SendDestinationTextView: View {
             Text(viewModel.description)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
-        .interSectionPadding(2)
-        .horizontalPadding(14)
-        .backgroundColor(Colors.Background.action)
+        .innerContentPadding(2)
         .onAppear {
             viewModel.onAppear()
         }
@@ -79,6 +77,7 @@ struct SendDestinationTextView: View {
                         TextField(viewModel.placeholder, text: $viewModel.input)
                     }
                 }
+                .disabled(viewModel.isDisabled)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
                 if !viewModel.input.isEmpty {
@@ -98,7 +97,7 @@ struct SendDestinationTextView: View {
 
     @ViewBuilder
     private var pasteButton: some View {
-        if viewModel.input.isEmpty {
+        if viewModel.input.isEmpty, !viewModel.isDisabled {
             if #available(iOS 16.0, *) {
                 PasteButton(payloadType: String.self) { strings in
                     guard let string = strings.first else { return }
@@ -128,13 +127,13 @@ struct SendDestinationTextView: View {
 
 #Preview {
     GroupedScrollView {
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
         Text("There are two fields and they must be aligned 👇")
             .foregroundColor(.blue)
@@ -142,10 +141,10 @@ struct SendDestinationTextView: View {
 
         // To make sure everything's aligned and doesn't jump when entering stuff
         ZStack {
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), errorText: .just(output: nil), didEnterDestination: { _ in }))
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
                 .opacity(0.5)
 
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), errorText: .just(output: nil), didEnterDestination: { _ in }))
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
                 .opacity(0.5)
         }
     }
