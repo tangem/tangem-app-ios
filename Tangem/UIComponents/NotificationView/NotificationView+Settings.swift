@@ -63,6 +63,11 @@ extension NotificationView {
         }
     }
 
+    enum Title {
+        case string(String)
+        case attributed(NSAttributedString)
+    }
+
     enum ColorScheme {
         case primary
         case secondary

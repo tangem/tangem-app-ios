@@ -50,9 +50,11 @@ extension CommonBannerPromotionService: BannerPromotionService {
     func hide(promotion: BannerPromotion, on place: BannerPromotionPlace) {
         switch place {
         case .main:
-            return AppSettings.shared.mainPromotionDismissed.insert(promotion.rawValue)
+//            return AppSettings.shared.mainPromotionDismissed.insert(promotion.rawValue)
+            break
         case .tokenDetails:
-            return AppSettings.shared.tokenPromotionDismissed.insert(promotion.rawValue)
+//            return AppSettings.shared.tokenPromotionDismissed.insert(promotion.rawValue)
+            break
         }
     }
 }
