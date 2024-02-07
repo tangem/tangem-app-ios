@@ -100,11 +100,7 @@ struct TokenDetailsView: View {
     private var navbarTrailingButton: some View {
         if viewModel.canHideToken {
             Menu {
-                if #available(iOS 15.0, *) {
-                    Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-                } else {
-                    Button(Localization.tokenDetailsHideToken, action: viewModel.hideTokenButtonAction)
-                }
+                Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
             } label: {
                 NavbarDotsImage()
             }

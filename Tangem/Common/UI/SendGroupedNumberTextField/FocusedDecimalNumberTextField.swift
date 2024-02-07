@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 
 /// It same as`DecimalNumberTextField` but with support focus state / toolbar buttons / suffix
-@available(iOS 15.0, *)
 struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     @FocusState private var isInputActive: Bool
@@ -87,7 +86,6 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
 
 // MARK: - Setupable
 
-@available(iOS 15.0, *)
 extension FocusedDecimalNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
@@ -102,7 +100,6 @@ extension FocusedDecimalNumberTextField: Setupable {
     }
 }
 
-@available(iOS 15.0, *)
 struct FocusedNumberTextField_Previews: PreviewProvider {
     @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
 

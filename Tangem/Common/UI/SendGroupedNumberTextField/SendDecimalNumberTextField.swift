@@ -23,26 +23,17 @@ struct SendDecimalNumberTextField: View {
     }
 
     var body: some View {
-        if #available(iOS 15, *) {
-            FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits) {
-                if let action = maxAmountAction {
-                    Button(action: action) {
-                        Text(Localization.sendMaxAmountLabel)
-                            .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                    }
+        FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits) {
+            if let action = maxAmountAction {
+                Button(action: action) {
+                    Text(Localization.sendMaxAmountLabel)
+                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                 }
             }
-            .maximumFractionDigits(maximumFractionDigits)
-            .font(font)
-            .suffix(suffix)
-        } else {
-            DecimalNumberTextField(
-                decimalValue: $decimalValue,
-                decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
-            )
-            .maximumFractionDigits(maximumFractionDigits)
-            .font(font)
         }
+        .maximumFractionDigits(maximumFractionDigits)
+        .font(font)
+        .suffix(suffix)
     }
 }
 
@@ -66,7 +57,6 @@ extension SendDecimalNumberTextField: Setupable {
     }
 }
 
-@available(iOS 15.0, *)
 struct SendDecimalNumberTextField_Previews: PreviewProvider {
     @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
 
