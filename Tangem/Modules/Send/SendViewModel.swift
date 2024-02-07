@@ -25,6 +25,9 @@ final class SendViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var showCameraDeniedAlert = false
 
+    #warning("TMP")
+    @Published var slowAnimation = true
+
     var title: String? {
         step.name
     }
@@ -169,6 +172,15 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         bind()
+
+        #warning("TMP")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.sendModel.setDestination("TXLuYhdbMUsLYLatsbYBPzsyaU3CX2n4t6")
+            self.sendModel.setAmount(.init(with: self.sendModel.blockchain, type: .coin, value: 1))
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            self.summ()
+        }
     }
 
     func next() {
@@ -199,6 +211,11 @@ final class SendViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.step = previousStep
         }
+    }
+
+    #warning("TMP")
+    func summ() {
+        openStep(.summary)
     }
 
     func scanQRCode() {
