@@ -9,11 +9,15 @@
 import Foundation
 
 protocol BannerPromotionService {
-    var activePromotions: Set<PromotionType> { get }
-    func updatePromotions() async
-    func isActive(promotion: BannerPromotion, on place: BannerPromotionPlace) -> Bool
-    func isHidden(promotion: BannerPromotion, on place: BannerPromotionPlace) -> Bool
-    func hide(promotion: BannerPromotion, on place: BannerPromotionPlace)
+    func activePromotion(place: BannerPromotionPlace) async -> ActivePromotionInfo?
+
+    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlace) -> Bool
+    func hide(promotion: PromotionProgramName, on place: BannerPromotionPlace)
+}
+
+struct ActivePromotionInfo: Hashable {
+    let bannerPromotion: PromotionProgramName
+    let timeline: Timeline
 }
 
 enum BannerPromotionPlace: String, Hashable {
