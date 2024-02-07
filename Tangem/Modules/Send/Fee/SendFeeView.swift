@@ -19,14 +19,17 @@ struct SendFeeView: View {
         GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) {
                 if $0.isSelected.value {
-                    FeeRowView(namespace: namespace, viewModel: $0)
-                        .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
+                    FeeRowView(viewModel: $0)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
                 } else {
-                    FeeRowView(namespace: namespace, viewModel: $0)
+                    FeeRowView(viewModel: $0)
                 }
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
+            .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
 
             if viewModel.showCustomFeeFields,
                let customFeeModel = viewModel.customFeeModel,
