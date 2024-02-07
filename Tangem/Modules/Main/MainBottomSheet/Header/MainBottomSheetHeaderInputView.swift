@@ -18,11 +18,7 @@ struct MainBottomSheetHeaderInputView: View {
     let allowsHitTestingForTextField: Bool
 
     var body: some View {
-        if #available(iOS 15.0, *) {
-            FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
-        } else {
-            searchBar
-        }
+        FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
     }
 
     @ViewBuilder
@@ -40,7 +36,6 @@ struct MainBottomSheetHeaderInputView: View {
 
 // MARK: - Auxiliary types
 
-@available(iOS 15.0, *)
 private extension MainBottomSheetHeaderInputView {
     private struct FocusableWrapperView<Content>: View where Content: View {
         private let content: Content
