@@ -11,22 +11,43 @@ import SwiftUI
 struct SendDestinationAddressSummaryView: View {
     let address: String
 
+    private var namespace: Namespace.ID?
+
+    init(address: String) {
+        self.address = address
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(Localization.sendRecipient)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressTitle.rawValue, in: namespace)
 
             HStack(spacing: 12) {
                 AddressIconView(viewModel: AddressIconViewModel(address: address))
+                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressIcon.rawValue, in: namespace)
                     .frame(size: CGSize(bothDimensions: 36))
 
                 Text(address)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                     .multilineTextAlignment(.leading)
+                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
                     .frame(maxWidth: .infinity, alignment: .leading)
+
+                Assets.clear.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
+                    .opacity(0)
+                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressClearButton.rawValue, in: namespace)
             }
         }
         .padding(.vertical, 12)
+    }
+}
+
+extension SendDestinationAddressSummaryView: Setupable {
+    func setNamespace(_ namespace: Namespace.ID) -> Self {
+        map { $0.namespace = namespace }
     }
 }
 
