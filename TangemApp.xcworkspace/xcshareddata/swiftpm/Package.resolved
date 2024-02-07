@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tangem/grpc-swift.git",
       "state" : {
-        "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "04dbe855fff68a4062252a8cbc805de20a35c129"
+        "revision" : "d1d312e2547f0091341efb9f465791dd8380a24c",
+        "version" : "1.21.0-tangem1"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tangem/hedera-sdk-swift.git",
       "state" : {
-        "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "e0c1279e0e17cef92b3cb2e567287972ca057eec"
+        "revision" : "b830dd150b22c69ad59f52d85bf9ed032161f483",
+        "version" : "0.26.0-tangem1"
       }
     },
     {
@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tangem/wallet-core-binaries-ios.git",
       "state" : {
-        "branch" : "feature/IOS-5792-SPM-dependencies-support",
-        "revision" : "0a0e0ba58808f07da155eed78fc9543f5f389907"
+        "revision" : "144d999008e065276b4e5ccbae2c920d0d62edd3",
+        "version" : "4.0.21-tangem3"
       }
     }
   ],
