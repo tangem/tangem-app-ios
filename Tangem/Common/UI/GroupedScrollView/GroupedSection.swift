@@ -164,7 +164,11 @@ extension GroupedSection: Setupable {
         map { $0.innerContentPadding = spacing }
     }
 
-    func backgroundColor(_ color: Color, id backgroundNamespaceId: String? = nil, namespace: Namespace.ID? = nil) -> Self {
+    func backgroundColor(_ color: Color) -> Self {
+        backgroundColor(color, id: nil, namespace: nil)
+    }
+
+    func backgroundColor(_ color: Color, id backgroundNamespaceId: String?, namespace: Namespace.ID?) -> Self {
         map {
             $0.backgroundColor = color
             $0.namespace = namespace
