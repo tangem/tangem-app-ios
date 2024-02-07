@@ -120,6 +120,13 @@ post_install do |installer|
       config.build_settings['SWIFT_COMPILATION_MODE'] = 'Incremental'
     end
 
+    # Dynamic frameworks can be safely stripped https://github.com/CocoaPods/CocoaPods/issues/10277
+    if config.name.downcase.include?("release")
+      config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'YES'
+      config.build_settings['DEPLOYMENT_POSTPROCESSING'] = 'YES'
+      config.build_settings['COPY_PHASE_STRIP'] = 'YES'
+    end
+
     config.build_settings['DEAD_CODE_STRIPPING'] = 'YES'
   end
 
