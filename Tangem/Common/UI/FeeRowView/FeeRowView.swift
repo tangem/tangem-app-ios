@@ -9,9 +9,15 @@
 import SwiftUI
 
 struct FeeRowView: View {
-    let namespace: Namespace.ID
-
     let viewModel: FeeRowViewModel
+
+    private var namespace: Namespace.ID?
+    private var titleNamespaceId: String?
+    private var subtitleNamespaceId: String?
+
+    init(viewModel: FeeRowViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         Button(action: viewModel.isSelected.toggle) {
@@ -24,15 +30,16 @@ struct FeeRowView: View {
 
                 Text(viewModel.option.title)
                     .style(font, color: Colors.Text.primary1)
+                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
 
                 Spacer()
 
                 if let subtitleText = viewModel.subtitleText {
                     Text(subtitleText)
                         .style(font, color: Colors.Text.primary1)
+                        .matchedGeometryEffectOptional(id: SendViewNamespaceId.feeSubtitle.rawValue, in: namespace)
                         .frame(minWidth: viewModel.isLoading ? 70 : 0)
                         .skeletonable(isShown: viewModel.isLoading)
-                        .matchedGeometryEffect(id: viewModel.isSelected.value ? SendViewNamespaceId.feeText.rawValue : nil as String?, in: namespace)
                 }
             }
             .padding(.vertical, 12)
@@ -45,6 +52,20 @@ struct FeeRowView: View {
 
     private var font: Font {
         viewModel.isSelected.value ? Fonts.Bold.footnote : Fonts.Regular.footnote
+    }
+}
+
+extension FeeRowView: Setupable {
+    func setNamespace(_ namespace: Namespace.ID) -> Self {
+        map { $0.namespace = namespace }
+    }
+
+    func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
+        map { $0.titleNamespaceId = titleNamespaceId }
+    }
+
+    func setSubtitleNamespaceId(_ subtitleNamespaceId: String?) -> Self {
+        map { $0.subtitleNamespaceId = subtitleNamespaceId }
     }
 }
 
