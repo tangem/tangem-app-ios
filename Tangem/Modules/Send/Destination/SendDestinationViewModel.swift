@@ -12,6 +12,8 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationViewModelInput {
+    var isValidatingDestination: AnyPublisher<Bool, Never> { get }
+
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { get }
 
@@ -82,6 +84,7 @@ class SendDestinationViewModel: ObservableObject {
         addressViewModel = SendDestinationTextViewModel(
             style: .address(networkName: input.networkName),
             input: input.destinationTextPublisher,
+            isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
@@ -93,6 +96,7 @@ class SendDestinationViewModel: ObservableObject {
             additionalFieldViewModel = SendDestinationTextViewModel(
                 style: .additionalField(name: name),
                 input: input.destinationAdditionalFieldTextPublisher,
+                isValidating: .just(output: false),
                 isDisabled: input.additionalFieldEmbeddedInAddress,
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
