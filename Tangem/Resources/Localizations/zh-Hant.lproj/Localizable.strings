@@ -263,8 +263,8 @@
 "main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 48 hours";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
-"main_swap_promotion_message" = "Swap multiple currencies across several blockchains";
-"main_swap_promotion_title" = "Cross-chain swaps are now available";
+"main_swap_changelly_promotion_message" = "Enjoy %1$@ service fees on swaps via Changelly from %2$@ to %3$@";
+"main_swap_changelly_promotion_title" = "Swap with Changelly, %@ fees";
 "main_tokens" = "代幣";
 "manage_tokens_add" = "Add";
 "manage_tokens_edit" = "Edit";
@@ -551,8 +551,6 @@
 "token_details_unable_hide_alert_message" = "%1$@ 代幣是 %2$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_swap_promotion_button" = "Swap now";
-"token_swap_promotion_message" = "Exchange this token for other assets in your portfolio";
-"token_swap_promotion_title" = "Introducing cross-chain swaps";
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_empty_transactions" = "您還沒有任何交易";
 "transaction_history_error_failed_to_load" = "無法加載交易";
