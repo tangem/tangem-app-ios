@@ -114,19 +114,16 @@ final class UserWalletNotificationManager {
 
             await bannerPromotionService.updatePromotions()
 
-            let event = WarningEvent.bannerPromotion(.changelly)
-
-            guard bannerPromotionService.isActive(promotion: .changelly, on: .main) else {
-                notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == event.hashValue }
-                return
-            }
-
-            let input = NotificationsFactory().buildNotificationInput(
-                for: event,
-                action: action,
+            let input = BannerPromotionNotificationFactory().buildNotificationInput(
+                for: .changelly,
                 buttonAction: buttonAction,
                 dismissAction: dismissAction
             )
+
+            guard bannerPromotionService.isActive(promotion: .changelly, on: .main) else {
+                notificationInputsSubject.value.removeAll { $0.id == input.id }
+                return
+            }
 
             guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
                 return
@@ -267,21 +264,26 @@ extension UserWalletNotificationManager: NotificationManager {
             return
         }
 
-        guard let event = notification.settings.event as? WarningEvent else {
-            return
+        if let event = notification.settings.event as? WarningEvent {
+            switch event {
+            case .systemDeprecationTemporary, .systemDeprecationPermanent:
+                recordDeprecationNotificationDismissal()
+            case .numberOfSignedHashesIncorrect:
+                recordUserWalletHashesCountValidation()
+            default:
+                break
+            }
+
+            notificationInputsSubject.value.removeAll(where: { $0.id == id })
         }
 
-        switch event {
-        case .systemDeprecationTemporary, .systemDeprecationPermanent:
-            recordDeprecationNotificationDismissal()
-        case .numberOfSignedHashesIncorrect:
-            recordUserWalletHashesCountValidation()
-        case .bannerPromotion(let promotion):
-            bannerPromotionService.hide(promotion: promotion, on: .main)
-        default:
-            break
-        }
+        if let event = notification.settings.event as? BannerNotificationEvent {
+            switch event {
+            case .changelly(let title, let description):
+                bannerPromotionService.hide(promotion: .changelly, on: .main)
+            }
 
-        notificationInputsSubject.value.removeAll(where: { $0.id == id })
+            notificationInputsSubject.value.removeAll(where: { $0.id == id })
+        }
     }
 }

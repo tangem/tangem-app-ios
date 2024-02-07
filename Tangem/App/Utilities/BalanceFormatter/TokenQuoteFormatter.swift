@@ -9,11 +9,15 @@
 import Foundation
 
 struct PercentFormatter {
-    func expressRatePercentFormat(value: Decimal) -> String {
+    func expressRatePercentFormat(
+        value: Decimal,
+        maximumFractionDigits: Int = 1,
+        minimumFractionDigits: Int = 1
+    ) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .percent
-        formatter.maximumFractionDigits = 1
-        formatter.minimumFractionDigits = 1
+        formatter.maximumFractionDigits = maximumFractionDigits
+        formatter.minimumFractionDigits = minimumFractionDigits
 
         if let formatted = formatter.string(from: value as NSDecimalNumber) {
             return formatted
