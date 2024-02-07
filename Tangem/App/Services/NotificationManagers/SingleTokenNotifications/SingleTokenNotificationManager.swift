@@ -141,7 +141,7 @@ final class SingleTokenNotificationManager {
             await bannerPromotionService.updatePromotions()
 
             let input = NotificationsFactory().buildNotificationInput(
-                for: .tangemExpressPromotion,
+                for: .bannerPromotion(.changelly),
                 buttonAction: { [weak self] id, actionType in
                     self?.delegate?.didTapNotificationButton(with: id, action: actionType)
                     self?.dismissNotification(with: id)
@@ -245,9 +245,9 @@ extension SingleTokenNotificationManager: NotificationManager {
         }
 
         switch event {
-        case .tangemExpressPromotion:
+        case .bannerPromotion(let promotion):
             Analytics.log(.swapPromoButtonClose)
-            bannerPromotionService.hide(promotion: .changelly, on: .main)
+            bannerPromotionService.hide(promotion: promotion, on: .main)
         default:
             break
         }
