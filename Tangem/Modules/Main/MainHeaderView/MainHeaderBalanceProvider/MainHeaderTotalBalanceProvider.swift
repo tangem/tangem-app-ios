@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<AttributedStringParameters>, Never> { get }
+    var balanceProvider: AnyPublisher<LoadingValue<AttributedString>, Never> { get }
 }
 
 class CommonMainHeaderBalanceProvider {
@@ -18,7 +18,7 @@ class CommonMainHeaderBalanceProvider {
     private let userWalletStateInfoProvider: MainHeaderUserWalletStateInfoProvider
     private let mainBalanceFormatter: MainHeaderBalanceFormatter
 
-    private let headerBalanceSubject = CurrentValueSubject<LoadingValue<AttributedStringParameters>, Never>(.loading)
+    private let headerBalanceSubject = CurrentValueSubject<LoadingValue<AttributedString>, Never>(.loading)
     private var balanceSubscription: AnyCancellable?
 
     init(
@@ -63,7 +63,7 @@ class CommonMainHeaderBalanceProvider {
 }
 
 extension CommonMainHeaderBalanceProvider: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<AttributedStringParameters>, Never> {
+    var balanceProvider: AnyPublisher<LoadingValue<AttributedString>, Never> {
         headerBalanceSubject.eraseToAnyPublisher()
     }
 }
