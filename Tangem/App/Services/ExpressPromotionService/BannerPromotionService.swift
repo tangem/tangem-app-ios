@@ -20,10 +20,6 @@ enum BannerPromotionPlace: String, Hashable {
     case tokenDetails
 }
 
-enum BannerPromotion: String, Hashable {
-    case changelly
-}
-
 private struct BannerPromotionServiceKey: InjectionKey {
     static var currentValue: BannerPromotionService = CommonBannerPromotionService()
 }
