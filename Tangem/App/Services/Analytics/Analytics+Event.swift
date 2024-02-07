@@ -182,9 +182,9 @@ extension Analytics {
 
         // MARK: Express
 
-        case tokenChangeNowStatus = "[Token] ChangeNow Status"
-        case tokenChangeNowStatusScreenOpened = "[Token] ChangeNow Status Opened"
-        case tokenChangeNowButtonGoToProvider = "[Token] Button - Go To Provider"
+        case tokenSwapStatus = "[Token] Swap Status"
+        case tokenSwapStatusScreenOpened = "[Token] Swap Status Opened"
+        case tokenButtonGoToProvider = "[Token] Button - Go To Provider"
 
         // MARK: - App settings
 
