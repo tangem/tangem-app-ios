@@ -144,7 +144,7 @@ post_install do |installer|
     "BlockchainSdk",
     "https://github.com/tangem/hedera-sdk-swift.git",
     "Hedera",
-    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+    { :kind => "exactVersion", :version => "0.26.0-tangem1" }
   )
 
   # `CryptoSwift` SPM package for `BlockchainSdk` pod
@@ -161,8 +161,8 @@ post_install do |installer|
     installer.pods_project,
     "BlockchainSdk",
     "https://github.com/tangem/wallet-core-binaries-ios.git",
-    "_TangemWalletCoreWrapper",
-    { :kind => "branch", :branch => "feature/IOS-5792-SPM-dependencies-support" }
+    "TangemWalletCoreBinariesWrapper",
+    { :kind => "exactVersion", :version => "4.0.21-tangem3" }
   )
 
   # `SwiftProtobuf` SPM package for `BlockchainSdk` pod
