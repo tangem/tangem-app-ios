@@ -72,6 +72,7 @@ struct TransactionsListView: View {
                 .padding(.horizontal, 36)
 
             makeExploreTransactionHistoryButton(withTitle: Localization.commonExploreTransactionHistory, hasFixedSize: true)
+                .padding(.horizontal, 16)
         }
         .padding(.vertical, 28)
     }
@@ -97,7 +98,9 @@ struct TransactionsListView: View {
                 .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryEmptyTransactions)
+                .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .padding(.horizontal, 16)
 
             makeExploreTransactionHistoryButton(withTitle: Localization.commonExplore, hasFixedSize: true)
         }
