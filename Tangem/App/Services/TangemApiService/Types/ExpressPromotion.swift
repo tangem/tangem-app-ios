@@ -16,7 +16,23 @@ extension ExpressPromotion {
     }
 
     struct Response: Decodable {
-        let start: Date
-        let end: Date
+        let name: String
+        let all: Info
+
+        struct Info: Decodable {
+            let timeline: Timeline
+            let status: Status
+        }
+
+        struct Timeline: Decodable {
+            let start: Date
+            let end: Date
+        }
+
+        enum Status: String, Decodable {
+            case active
+            case pending
+            case finished
+        }
     }
 }
