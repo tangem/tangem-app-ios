@@ -164,27 +164,14 @@ struct ExpressView: View {
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
-        .animation(.none)
+        .animation(nil, value: 0)
     }
 
     @ViewBuilder
     private var legalView: some View {
         if let legalText = viewModel.legalText {
-            if #available(iOS 15, *) {
-                Text(AttributedString(legalText))
-                    .font(Fonts.Regular.footnote)
-                    .multilineTextAlignment(.center)
-            } else {
-                GeometryReader { proxy in
-                    VStack(spacing: .zero) {
-                        Spacer()
-                            .layoutPriority(1)
-
-                        // AttributedTextView(UILabel) doesn't tappable on iOS 14
-                        AttributedTextView(legalText, textAlignment: .center, maxLayoutWidth: proxy.size.width)
-                    }
-                }
-            }
+            Text(legalText)
+                .multilineTextAlignment(.center)
         }
     }
 }
