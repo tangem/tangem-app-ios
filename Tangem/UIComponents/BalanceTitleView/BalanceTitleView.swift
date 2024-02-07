@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct BalanceTitleView: View {
-    let balance: AttributedStringParameters
+    let balance: AttributedString
     let isLoading: Bool
 
     var body: some View {

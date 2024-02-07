@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 
-@available(iOS 13.0, *)
 struct UserWalletIdPreflightReadFilter: PreflightReadFilter {
     private let expectedUserWalletId: UserWalletId
 
