@@ -11,6 +11,16 @@ import SwiftUI
 struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
 
+    private var namespace: Namespace.ID?
+    private var iconNamespaceId: String?
+    private var titleNamespaceId: String?
+    private var textNamespaceId: String?
+    private var clearButtonNamespaceId: String?
+
+    init(viewModel: SendDestinationTextViewModel) {
+        self.viewModel = viewModel
+    }
+
     var body: some View {
         GroupedSection(viewModel) { _ in
             if viewModel.showAddressIcon {
@@ -40,6 +50,7 @@ struct SendDestinationTextView: View {
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
         .innerContentPadding(2)
+        .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
         .onAppear {
             viewModel.onAppear()
         }
@@ -54,11 +65,13 @@ struct SendDestinationTextView: View {
         } else {
             Text(viewModel.name)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
         }
     }
 
     private var addressIconView: some View {
         AddressIconView(viewModel: AddressIconViewModel(address: viewModel.input))
+            .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
             .frame(size: CGSize(bothDimensions: 36))
     }
 
@@ -68,7 +81,7 @@ struct SendDestinationTextView: View {
             clearIcon
                 .hidden()
 
-            HStack {
+            HStack(spacing: 12) {
                 Group {
                     if #available(iOS 16, *) {
                         TextField(viewModel.placeholder, text: $viewModel.input, axis: .vertical)
@@ -79,10 +92,12 @@ struct SendDestinationTextView: View {
                 }
                 .disabled(viewModel.isDisabled)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
                 if !viewModel.input.isEmpty {
                     Button(action: viewModel.clearInput) {
                         clearIcon
+                            .matchedGeometryEffectOptional(id: clearButtonNamespaceId, in: namespace)
                     }
                 }
             }
@@ -122,6 +137,28 @@ struct SendDestinationTextView: View {
                 .disabled(!viewModel.hasTextInClipboard)
             }
         }
+    }
+}
+
+extension SendDestinationTextView: Setupable {
+    func setNamespace(_ namespace: Namespace.ID) -> Self {
+        map { $0.namespace = namespace }
+    }
+
+    func setIconNamespaceId(_ iconNamespaceId: String) -> Self {
+        map { $0.iconNamespaceId = iconNamespaceId }
+    }
+
+    func setTitleNamespaceId(_ titleNamespaceId: String) -> Self {
+        map { $0.titleNamespaceId = titleNamespaceId }
+    }
+
+    func setTextNamespaceId(_ textNamespaceId: String) -> Self {
+        map { $0.textNamespaceId = textNamespaceId }
+    }
+
+    func setClearButtonNamespaceId(_ clearButtonNamespaceId: String) -> Self {
+        map { $0.clearButtonNamespaceId = clearButtonNamespaceId }
     }
 }
 
