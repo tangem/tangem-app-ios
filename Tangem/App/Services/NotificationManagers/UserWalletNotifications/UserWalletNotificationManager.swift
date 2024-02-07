@@ -114,7 +114,7 @@ final class UserWalletNotificationManager {
 
             await bannerPromotionService.updatePromotions()
 
-            let event = WarningEvent.tangemExpressPromotion
+            let event = WarningEvent.bannerPromotion(.changelly)
 
             guard bannerPromotionService.isActive(promotion: .changelly, on: .main) else {
                 notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == event.hashValue }
@@ -122,7 +122,7 @@ final class UserWalletNotificationManager {
             }
 
             let input = NotificationsFactory().buildNotificationInput(
-                for: .tangemExpressPromotion,
+                for: event,
                 action: action,
                 buttonAction: buttonAction,
                 dismissAction: dismissAction
@@ -276,8 +276,8 @@ extension UserWalletNotificationManager: NotificationManager {
             recordDeprecationNotificationDismissal()
         case .numberOfSignedHashesIncorrect:
             recordUserWalletHashesCountValidation()
-        case .tangemExpressPromotion:
-            bannerPromotionService.hide(promotion: .changelly, on: .main)
+        case .bannerPromotion(let promotion):
+            bannerPromotionService.hide(promotion: promotion, on: .main)
         default:
             break
         }
