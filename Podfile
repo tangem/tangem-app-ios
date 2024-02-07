@@ -120,13 +120,6 @@ post_install do |installer|
       config.build_settings['SWIFT_COMPILATION_MODE'] = 'Incremental'
     end
 
-    # Dynamic frameworks can be safely stripped https://github.com/CocoaPods/CocoaPods/issues/10277
-    if config.name.downcase.include?("release")
-      config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'YES'
-      config.build_settings['DEPLOYMENT_POSTPROCESSING'] = 'YES'
-      config.build_settings['COPY_PHASE_STRIP'] = 'YES'
-    end
-
     # Fix warnings on Xcode 15 https://indiestack.com/2023/10/xcode-15-duplicate-library-linker-warnings/
     config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
     config.build_settings['OTHER_LDFLAGS'] << '-Wl,-no_warn_duplicate_libraries'
