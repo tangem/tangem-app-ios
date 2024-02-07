@@ -127,21 +127,20 @@ post_install do |installer|
       config.build_settings['COPY_PHASE_STRIP'] = 'YES'
     end
 
+    # Fix warnings on Xcode 15 https://indiestack.com/2023/10/xcode-15-duplicate-library-linker-warnings/
+    config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+    config.build_settings['OTHER_LDFLAGS'] << '-Wl,-no_warn_duplicate_libraries'
     config.build_settings['DEAD_CODE_STRIPPING'] = 'YES'
   end
 
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.5'
-      config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
-      config.build_settings['OTHER_LDFLAGS'] << '-Wl,-no_warn_duplicate_libraries' #https://indiestack.com/2023/10/xcode-15-duplicate-library-linker-warnings/
       if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
-        target.build_configurations.each do |config|
-          config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
-        end
+        config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
       end
-    end
 
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.5'
+    end
   end
 
   # ============ SPM <-> CocoaPods interop ============
