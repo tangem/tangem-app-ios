@@ -106,10 +106,12 @@ struct NotificationView: View {
                     Text(string)
                         .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
                 case .attributed(let attributedString):
-                    GeometryReader { proxy in
-                        AttributedTextView(attributedString, textAlignment: .left, maxLayoutWidth: proxy.size.width)
+                    if #available(iOS 15, *) {
+                        Text(AttributedString(attributedString))
+                    } else {
+                        Text(attributedString.string)
+                            .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
                     }
-                    .border(Color.orange)
                 }
 
                 if let description = settings.event.description {
