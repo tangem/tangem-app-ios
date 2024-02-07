@@ -62,24 +62,24 @@ enum TokenNotificationEvent: Hashable {
 }
 
 extension TokenNotificationEvent: NotificationEvent {
-    var title: String {
+    var title: NotificationView.Title {
         switch self {
         case .networkUnreachable:
-            return Localization.warningNetworkUnreachableTitle
+            return .string(Localization.warningNetworkUnreachableTitle)
         case .someNetworksUnreachable:
-            return Localization.warningSomeNetworksUnreachableTitle
+            return .string(Localization.warningSomeNetworksUnreachableTitle)
         case .rentFee:
-            return Localization.warningRentFeeTitle
+            return .string(Localization.warningRentFeeTitle)
         case .noAccount:
-            return Localization.warningNoAccountTitle
+            return .string(Localization.warningNoAccountTitle)
         case .existentialDepositWarning:
-            return Localization.warningExistentialDepositTitle
+            return .string(Localization.warningExistentialDepositTitle)
         case .longTransaction:
-            return Localization.warningLongTransactionTitle
+            return .string(Localization.warningLongTransactionTitle)
         case .notEnoughFeeForTransaction(let configuration):
-            return Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName)
+            return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName))
         case .tangemExpressPromotion:
-            return Localization.tokenSwapPromotionTitle
+            return .attributed(.init(string: Localization.tokenSwapPromotionTitle))
         }
     }
 
