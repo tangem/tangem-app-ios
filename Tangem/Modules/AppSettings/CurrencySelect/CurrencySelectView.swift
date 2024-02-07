@@ -10,6 +10,8 @@ import Foundation
 import SwiftUI
 import Combine
 
+// [REDACTED_TODO_COMMENT]
+// [REDACTED_INFO]
 struct CurrencySelectView: View {
     @ObservedObject var viewModel: CurrencySelectViewModel
     @Environment(\.presentationMode) var presentationMode
