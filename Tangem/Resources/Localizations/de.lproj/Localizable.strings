@@ -263,7 +263,7 @@
 "main_promotion_credited" = "1INCH tokens will be credited to your %@ wallet address within 48 hours";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card";
-"main_swap_changelly_promotion_message" = "Enjoy %1$@ service fees on swaps via Changelly from %2$@ to %3$@";
+"main_swap_changelly_promotion_message" = "Enjoy %1$@ service fees on swaps via Changelly from February %2$@-%3$@";
 "main_swap_changelly_promotion_title" = "Swap with Changelly, %@ fees";
 "main_tokens" = "Tokens";
 "manage_tokens_add" = "Add";
@@ -550,6 +550,8 @@
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_unable_hide_alert_message" = "The %1$@ token is the main currency on the %2$@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
+"token_swap_changelly_promotion_message" = "Exchange this token for another at %1$@ service fees from February %2$@-%3$@.";
+"token_swap_changelly_promotion_title" = "Swap with Changelly, %@ fees";
 "token_swap_promotion_button" = "Swap now";
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
