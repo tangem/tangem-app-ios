@@ -108,31 +108,35 @@ struct BalanceFormatter {
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(currencyCode)"
     }
 
-    /// Format fiat balance string for main page with different font for integer and fractional parts
+    /// Format fiat balance string for main page with different font for integer and fractional parts.
     /// - Parameters:
     ///   - fiatBalance: Fiat balance should be formatted and with currency symbol. Use `formatFiatBalance(Decimal, BalanceFormattingOptions)
-    ///   - formattingOptions: Fonts for integer and fractional parts
-    /// - Returns: Formatted string for main screen
-    func formatTotalBalanceForMain(fiatBalance: String, formattingOptions: TotalBalanceFormattingOptions) -> NSAttributedString {
-        let attributedString = NSMutableAttributedString(string: fiatBalance)
-        let allStringRange = NSRange(location: 0, length: attributedString.length)
-        attributedString.addAttribute(.font, value: formattingOptions.integerPartFont, range: allStringRange)
-
+    ///   - formattingOptions: Fonts and colors for integer and fractional parts
+    /// - Returns: Parameters that can be used with SwiftUI `Text` view
+    func formatAttributedTotalBalance(fiatBalance: String, formattingOptions: AttributedTotalBalanceFormattingOptions = .defaultOptions) -> AttributedStringParameters {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
         let decimalSeparator = formatter.decimalSeparator ?? ""
+        var params: [AttributedTextParam] = []
 
-        let decimalLocation = NSString(string: fiatBalance).range(of: decimalSeparator).location
-        if decimalLocation < (fiatBalance.count - 1) {
-            let locationAfterDecimal = decimalLocation + 1
-            let symbolsAfterDecimal = fiatBalance.count - locationAfterDecimal
-            let rangeAfterDecimal = NSRange(location: locationAfterDecimal, length: symbolsAfterDecimal)
+        let decimalLocationRange = NSString(string: fiatBalance).range(of: decimalSeparator)
+        let decimalLocation = decimalLocationRange.location == Int.max ? (fiatBalance.count - 1) : decimalLocationRange.location
 
-            attributedString.addAttribute(.font, value: formattingOptions.fractionalPartFont, range: rangeAfterDecimal)
-        }
+        let integerPart = String(fiatBalance[...decimalLocation])
+        let fractionalPart = String(fiatBalance[(decimalLocation + 1) ..< fiatBalance.count])
+        params.append(.init(
+            text: integerPart,
+            font: formattingOptions.integerPartFont,
+            color: formattingOptions.integerPartColor
+        ))
+        params.append(.init(
+            text: fractionalPart,
+            font: formattingOptions.fractionalPartFont,
+            color: formattingOptions.fractionalPartColor
+        ))
 
-        return attributedString
+        return .init(params: params)
     }
 
     private func roundDecimal(_ value: Decimal, with roundingType: AmountRoundingType?) -> Decimal {
