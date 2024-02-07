@@ -11,8 +11,10 @@ import SwiftUI
 typealias RefreshCompletionHandler = () -> Void
 typealias OnRefresh = (_ completionHandler: @escaping RefreshCompletionHandler) -> Void
 
+// [REDACTED_TODO_COMMENT]
 /// Author: The SwiftUI Lab.
 /// Full article: https://swiftui-lab.com/scrollview-pull-to-refresh/.
+@available(*, deprecated, message: "Will be removed in [REDACTED_INFO]. Place `refreshable` modifier with async func instead of this view")
 struct RefreshableScrollView<Content: View>: View {
     let onRefresh: OnRefresh
     let content: Content
@@ -30,10 +32,15 @@ struct RefreshableScrollView<Content: View>: View {
             content
         }
         .refreshable {
-            await withCheckedContinuation { continuation in
-                onRefresh {
-                    continuation.resume()
-                }
+            await refreshAsync()
+        }
+    }
+
+    @MainActor
+    private func refreshAsync() async {
+        await withCheckedContinuation { continuation in
+            onRefresh {
+                continuation.resume()
             }
         }
     }
