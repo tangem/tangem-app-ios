@@ -13,6 +13,7 @@ import BlockchainSdk
 
 protocol SendAddressService {
     func validate(address: String) async throws -> String?
+    func hasEmbeddedAdditionalField(address: String) -> Bool
 }
 
 // MARK: - Default implementation
@@ -41,6 +42,14 @@ class DefaultSendAddressService: SendAddressService {
 
         return address
     }
+
+    func hasEmbeddedAdditionalField(address: String) -> Bool {
+        if let addressAdditionalFieldParser = addressService as? AddressAdditionalFieldParser {
+            return addressAdditionalFieldParser.hasAdditionalField(address)
+        } else {
+            return false
+        }
+    }
 }
 
 // MARK: - Service that can resolve an address (from a user-friendly one like in NEAR protocol)
@@ -64,6 +73,10 @@ class SendResolvableAddressService: SendAddressService {
         } catch {
             throw SendAddressServiceError.invalidAddress
         }
+    }
+
+    func hasEmbeddedAdditionalField(address: String) -> Bool {
+        defaultSendAddressService.hasEmbeddedAdditionalField(address: address)
     }
 }
 
