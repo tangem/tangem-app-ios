@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import UIKit
 
 enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
