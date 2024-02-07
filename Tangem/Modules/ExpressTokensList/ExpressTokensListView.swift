@@ -89,7 +89,7 @@ struct ExpressTokensListView: View {
                     }
                 }
             }
-            .background(Colors.Background.primary)
+            .background(Colors.Background.action)
             .cornerRadiusContinuous(14)
         }
     }

@@ -422,6 +422,7 @@
 "scan_card_settings_button" = "Scan Card";
 "scan_card_settings_message" = "Scan the card to change its settings. The changes will impact only the card you've scanned and will not affect other cards tied to your wallet.";
 "scan_card_settings_title" = "Get your card ready!";
+"send_additional_field_already_included" = "Already included in the entered address";
 "send_amount_label" = "Betrag";
 "send_amount_substract" = "Subtract from send amount";
 "send_amount_substract_footer" = "The recipient will receive %@";
