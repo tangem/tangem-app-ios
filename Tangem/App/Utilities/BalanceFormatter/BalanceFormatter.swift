@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct BalanceFormatter {
     static var defaultEmptyBalanceString: String { "–" }
@@ -113,30 +114,22 @@ struct BalanceFormatter {
     ///   - fiatBalance: Fiat balance should be formatted and with currency symbol. Use `formatFiatBalance(Decimal, BalanceFormattingOptions)
     ///   - formattingOptions: Fonts and colors for integer and fractional parts
     /// - Returns: Parameters that can be used with SwiftUI `Text` view
-    func formatAttributedTotalBalance(fiatBalance: String, formattingOptions: AttributedTotalBalanceFormattingOptions = .defaultOptions) -> AttributedStringParameters {
+    func formatAttributedTotalBalance(fiatBalance: String, formattingOptions: TotalBalanceFormattingOptions = .defaultOptions) -> AttributedString {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
         let decimalSeparator = formatter.decimalSeparator ?? ""
-        var params: [AttributedTextParam] = []
+        var attributedString = AttributedString(fiatBalance)
+        attributedString.font = formattingOptions.integerPartFont
+        attributedString.foregroundColor = formattingOptions.integerPartColor
 
-        let decimalLocationRange = NSString(string: fiatBalance).range(of: decimalSeparator)
-        let decimalLocation = decimalLocationRange.location == Int.max ? (fiatBalance.count - 1) : decimalLocationRange.location
+        if let separatorRange = attributedString.range(of: decimalSeparator) {
+            let fractionalPartRange = Range<AttributedString.Index>.init(uncheckedBounds: (lower: separatorRange.upperBound, upper: attributedString.endIndex))
+            attributedString[fractionalPartRange].font = formattingOptions.fractionalPartFont
+            attributedString[fractionalPartRange].foregroundColor = formattingOptions.fractionalPartColor
+        }
 
-        let integerPart = String(fiatBalance[...decimalLocation])
-        let fractionalPart = String(fiatBalance[(decimalLocation + 1) ..< fiatBalance.count])
-        params.append(.init(
-            text: integerPart,
-            font: formattingOptions.integerPartFont,
-            color: formattingOptions.integerPartColor
-        ))
-        params.append(.init(
-            text: fractionalPart,
-            font: formattingOptions.fractionalPartFont,
-            color: formattingOptions.fractionalPartColor
-        ))
-
-        return .init(params: params)
+        return attributedString
     }
 
     private func roundDecimal(_ value: Decimal, with roundingType: AmountRoundingType?) -> Decimal {
