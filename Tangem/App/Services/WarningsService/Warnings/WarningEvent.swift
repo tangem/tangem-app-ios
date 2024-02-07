@@ -34,42 +34,42 @@ extension WarningEvent: NotificationEvent {
         Localization.commonWarning
     }
 
-    var title: String {
+    var title: NotificationView.Title {
         switch self {
         case .rateApp:
-            return Localization.warningRateAppTitle
+            return .string(Localization.warningRateAppTitle)
         case .failedToVerifyCard:
-            return Localization.warningFailedToVerifyCardTitle
+            return .string(Localization.warningFailedToVerifyCardTitle)
         case .systemDeprecationTemporary:
-            return Localization.warningSystemUpdateTitle
+            return .string(Localization.warningSystemUpdateTitle)
         case .systemDeprecationPermanent:
-            return Localization.warningSystemDeprecationTitle
+            return .string(Localization.warningSystemDeprecationTitle)
         case .testnetCard:
-            return Localization.warningTestnetCardTitle
+            return .string(Localization.warningTestnetCardTitle)
         case .demoCard:
-            return Localization.warningDemoModeTitle
+            return .string(Localization.warningDemoModeTitle)
         case .oldDeviceOldCard:
-            return Localization.warningOldDeviceOldCardTitle
+            return .string(Localization.warningOldDeviceOldCardTitle)
         case .oldCard:
-            return Localization.warningOldCardTitle
+            return .string(Localization.warningOldCardTitle)
         case .devCard:
-            return Localization.warningDeveloperCardTitle
+            return .string(Localization.warningDeveloperCardTitle)
         case .lowSignatures:
-            return Localization.warningLowSignaturesTitle
+            return .string(Localization.warningLowSignaturesTitle)
         case .numberOfSignedHashesIncorrect:
-            return Localization.warningNumberOfSignedHashesIncorrectTitle
+            return .string(Localization.warningNumberOfSignedHashesIncorrectTitle)
         case .legacyDerivation:
-            return defaultTitle
+            return .string(defaultTitle)
         case .missingDerivation:
-            return Localization.warningMissingDerivationTitle
+            return .string(Localization.warningMissingDerivationTitle)
         case .walletLocked:
-            return Localization.commonAccessDenied
+            return .string(Localization.commonAccessDenied)
         case .missingBackup:
-            return Localization.warningNoBackupTitle
+            return .string(Localization.warningNoBackupTitle)
         case .tangemExpressPromotion:
-            return Localization.mainSwapPromotionTitle
+            return .attributed(.init(string: Localization.mainSwapPromotionTitle))
         case .supportedOnlySingleCurrencyWallet:
-            return Localization.manageTokensWalletSupportOnlyOneNetworkTitle
+            return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         }
     }
 
