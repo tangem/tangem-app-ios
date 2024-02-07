@@ -37,7 +37,6 @@ struct SendSummaryView: View {
                         }
                     }
                 }
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditDestination)
 
                 Button {
@@ -54,42 +53,17 @@ struct SendSummaryView: View {
                     .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
                 }
 
-//                    .innerContentPadding(12)
-//                }
-//                .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
-//                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-//                .disabled(!viewModel.canEditAmount)
-
-                /*
-                 //                Button {
-                 //                    viewModel.didTapSummary(for: .amount)
-                 //                } label: {
-                                 GroupedSection(viewModel.amountSummaryViewData) {
-                                     AmountSummaryView(data: $0)
-                                         .setNamespace(namespace)
-                                         .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
-                                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
-                                         .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
-                                 }
-                                 .interSectionPadding(12)
-                                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
-                                 .onTapGesture {
-                                     viewModel.didTapSummary(for: .amount)
-                                 }
-                 //                }
-                 //                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-                                 .disabled(!viewModel.canEditAmount)
-                 */
-
                 Button {
                     viewModel.didTapSummary(for: .fee)
                 } label: {
                     GroupedSection(viewModel.feeSummaryViewData) { data in
                         DefaultTextWithTitleRowView(data: data)
+                            .setNamespace(namespace)
+                            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                            .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
                     }
+                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                 }
-                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
             }
 
             sendButton
