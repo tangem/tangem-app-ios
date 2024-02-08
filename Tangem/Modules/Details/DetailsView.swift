@@ -17,7 +17,7 @@ struct DetailsView: View {
     }
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 24) {
             walletConnectSection
 
             commonSection
@@ -32,6 +32,7 @@ struct DetailsView: View {
 
             socialNetworks
         }
+        .interContentPadding(8)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .background(
             ScanTroubleshootingView(
