@@ -348,7 +348,6 @@ extension MultiWalletMainContentViewModel {
 
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
         var supportedBlockchains = userWalletModel.config.supportedBlockchains
-        supportedBlockchains.remove(.ducatus)
 
         let settings = LegacyManageTokensSettings(
             supportedBlockchains: supportedBlockchains,
