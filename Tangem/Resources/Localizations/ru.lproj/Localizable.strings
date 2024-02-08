@@ -422,6 +422,7 @@
 "scan_card_settings_button" = "Сканировать";
 "scan_card_settings_message" = "Отсканируйте карту, чтобы изменить ее настройки. Изменения затронут только ту карту, которую вы отсканировали, и не повлияют на другие карты, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свою карту";
+"send_additional_field_already_included" = "Уже содержится в введенном адресе";
 "send_alert_button_request_support" = "Поддержка";
 "send_alert_fee_increased_title" = "Комиссия увеличилась";
 "send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
