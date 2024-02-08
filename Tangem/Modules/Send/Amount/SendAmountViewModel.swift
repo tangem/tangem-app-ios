@@ -109,8 +109,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         converter
             .userInputAmount
-            .sink { [weak self] newUserInputAmount in
-                self?.amount = newUserInputAmount
+            .sink { [weak self] userInputAmount in
+                self?.amount = userInputAmount
             }
             .store(in: &bag)
 
