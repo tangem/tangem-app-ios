@@ -313,6 +313,11 @@ extension SendViewModel: NotificationTapDelegate {
         switch action {
         case .refreshFee:
             sendModel.updateFees()
+                .sink { _ in
+
+                } receiveValue: { _ in
+                }
+                .store(in: &bag)
         default:
             break
         }
