@@ -24,7 +24,7 @@ struct ExpressTokensListView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(Localization.swappingTokenListTitle)
-            .searchableCompat(text: $viewModel.searchText)
+            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
             .autocorrectionDisabled()
         }
         .onDisappear(perform: viewModel.onDisappear)
@@ -89,7 +89,7 @@ struct ExpressTokensListView: View {
                     }
                 }
             }
-            .background(Colors.Background.primary)
+            .background(Colors.Background.action)
             .cornerRadiusContinuous(14)
         }
     }
