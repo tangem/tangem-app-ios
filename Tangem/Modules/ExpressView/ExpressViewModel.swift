@@ -38,7 +38,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var alert: AlertBinder?
 
-    @Published var legalText: NSAttributedString?
+    @Published var legalText: AttributedString?
 
     // MARK: - Dependencies
 
