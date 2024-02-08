@@ -11,8 +11,6 @@ import Foundation
 class CommonBannerPromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private var activePromotion: ActivePromotionInfo?
-
     init() {}
 }
 
@@ -29,14 +27,14 @@ extension CommonBannerPromotionService: BannerPromotionService {
             let promotionInfo = try await tangemApiService.expressPromotion(request: .init(programName: promotion.rawValue))
             let now = Date()
             if promotionInfo.all.status == .active, now < promotionInfo.all.timeline.end {
-                activePromotion = .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline)
+                return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline)
             }
         } catch {
             AppLog.shared.debug("Check promotions catch error \(error)")
             AppLog.shared.error(error)
         }
 
-        return activePromotion
+        return nil
     }
 
     func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlace) -> Bool {
