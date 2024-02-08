@@ -53,21 +53,20 @@ class TokenDetailsCoordinator: CoordinatorObject {
             amountType: options.walletModel.amountType
         )
 
-        let swapPairService: SwapPairService?
-        if !options.walletModel.isCustom {
-            swapPairService = SwapPairService(
-                tokenItem: options.walletModel.tokenItem,
-                walletModelsManager: options.cardModel.walletModelsManager,
-                userWalletId: options.cardModel.userWalletId.stringValue
-            )
-        } else {
-            swapPairService = nil
-        }
+        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(
+            userId: options.cardModel.userWalletId.stringValue,
+            logger: AppLog.shared
+        )
+
+        let expressDestinationService = CommonExpressDestinationService(
+            walletModelsManager: options.cardModel.walletModelsManager,
+            expressRepository: CommonExpressRepository(walletModelsManager: options.cardModel.walletModelsManager, expressAPIProvider: provider)
+        )
 
         let notificationManager = SingleTokenNotificationManager(
             walletModel: options.walletModel,
             walletModelsManager: options.cardModel.walletModelsManager,
-            swapPairService: swapPairService,
+            expressDestinationService: expressDestinationService,
             contextDataProvider: options.cardModel
         )
 
