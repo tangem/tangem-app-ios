@@ -272,7 +272,7 @@ extension UserWalletNotificationManager: NotificationManager {
                 bannerPromotionService.hide(promotion: .changelly, on: .main)
             }
         }
-        
+
         notificationInputsSubject.value.removeAll(where: { $0.id == id })
     }
 }
