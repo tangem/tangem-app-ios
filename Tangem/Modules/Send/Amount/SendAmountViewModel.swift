@@ -71,47 +71,33 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func didTapMaxAmount() {
-        converter.didChooseMaxAmount()
         input.useMaxAmount()
     }
 
     private func bind(from input: SendAmountViewModelInput) {
         input
-            .amountError
-            .map { $0?.localizedDescription }
-            .assign(to: \.error, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        input
             .amountInputPublisher
-            .removeDuplicates()
+
             .sink { [weak self] amount in
+                print("ZZZ -> model amount changed", amount)
+//                if let value = amount?.value {
+//                    self?.amount = .external(value)
+//                } else {
+//                    self?.amount = nil
+//                }
+
                 self?.converter.setModelAmount(amount?.value)
             }
             .store(in: &bag)
 
         $amount
-            .removeDuplicates()
-            .sink { [weak self] amount in
-                self?.converter.setUserInputAmount(amount?.value)
-            }
-            .store(in: &bag)
-
-        converter
-            .modelAmount
-            .sink { [weak self] in
-                self?.input.setAmount($0)
-            }
-            .store(in: &bag)
-
-        converter
-            .userInputAmount
-            .map { newUserInputAmount -> DecimalNumberTextField.DecimalValue? in
-                guard let newUserInputAmount else { return nil }
-                return DecimalNumberTextField.DecimalValue.external(newUserInputAmount)
-            }
-            .sink { [weak self] newUserInputAmount in
-                self?.amount = newUserInputAmount
+            .removeDuplicates { $0?.value == $1?.value }
+            .dropFirst()
+            // If value == nil then continue chain to reset states to idle
+            .filter { $0?.isInternal ?? true }
+            .sink { [weak self] v in
+                print("ZZZ -> text input amount changed", v?.value, (v?.isInternal ?? true) ? "internal" : "external")
+                self?.converter.setUserInputAmount(v)
             }
             .store(in: &bag)
 
@@ -123,20 +109,31 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest3($useFiatCalculation, converter.fiatAmount, converter.cryptoAmount)
-            .map { useFiatCalculation, fiatAmount, cryptoAmount in
-                guard let cryptoAmount, let fiatAmount else { return nil }
+        converter
+            .modelAmount
+            .sink { [weak self] modelAmount in
+                print("ZZZ <- model amount recalculated", modelAmount)
+                self?.input.setAmount(modelAmount)
+            }
+            .store(in: &bag)
 
-                if useFiatCalculation {
-                    return Amount(with: input.blockchain, type: input.amountType, value: cryptoAmount).string()
-                } else {
-                    return BalanceFormatter().formatFiatBalance(fiatAmount)
-                }
+        converter
+            .userInputAmount
+            .sink { [weak self] newUserInputAmount in
+                print("ZZZ <- user input recalculated", newUserInputAmount?.value, (newUserInputAmount?.isInternal ?? true) ? "internal" : "external")
+                self?.amount = newUserInputAmount
             }
-            .withWeakCaptureOf(self)
-            .sink { (self, amountAlternative) in
-                self.amountAlternative = amountAlternative
-            }
+            .store(in: &bag)
+
+        input
+            .amountError
+            .map { $0?.localizedDescription }
+            .assign(to: \.error, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        converter
+            .amountAlternative
+            .assign(to: \.amountAlternative, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
