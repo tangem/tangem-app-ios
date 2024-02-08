@@ -22,7 +22,7 @@ struct AddressIconView: View {
         if let image = viewModel.image {
             Image(uiImage: image)
         } else {
-            Colors.Background.tertiary
+            Colors.Button.secondary
         }
     }
 }
