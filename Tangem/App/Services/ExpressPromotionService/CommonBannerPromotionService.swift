@@ -28,9 +28,9 @@ extension CommonBannerPromotionService: BannerPromotionService {
         do {
             let promotionInfo = try await tangemApiService.expressPromotion(request: .init(programName: promotion.rawValue))
             let now = Date()
-//                if promotionInfo.all.timeline.start < now, now < promotionInfo.all.timeline.end {
-            activePromotion = .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline)
-//                }
+            if promotionInfo.all.status == .active, now < promotionInfo.all.timeline.end {
+                activePromotion = .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline)
+            }
         } catch {
             AppLog.shared.debug("Check promotions catch error \(error)")
             AppLog.shared.error(error)
@@ -49,8 +49,6 @@ extension CommonBannerPromotionService: BannerPromotionService {
     }
 
     func hide(promotion: PromotionProgramName, on place: BannerPromotionPlace) {
-        return ()
-
         switch place {
         case .main:
             AppSettings.shared.mainPromotionDismissed.insert(promotion.rawValue)
