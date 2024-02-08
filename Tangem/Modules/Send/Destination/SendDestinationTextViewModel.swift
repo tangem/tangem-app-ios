@@ -16,6 +16,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     let description: String
     let didEnterDestination: (String) -> Void
 
+    @Published var isValidating: Bool = false
     @Published var input: String = ""
     @Published var placeholder: String = ""
     @Published var isDisabled: Bool = true
@@ -28,6 +29,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     init(
         style: Style,
         input: AnyPublisher<String, Never>,
+        isValidating: AnyPublisher<Bool, Never>,
         isDisabled: AnyPublisher<Bool, Never>,
         errorText: AnyPublisher<Error?, Never>,
         didEnterDestination: @escaping (String) -> Void
@@ -38,10 +40,10 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         self.didEnterDestination = didEnterDestination
         placeholder = style.placeholder(isDisabled: self.isDisabled)
 
-        bind(style: style, input: input, isDisabled: isDisabled, errorText: errorText)
+        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, errorText: errorText)
     }
 
-    private func bind(style: Style, input: AnyPublisher<String, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
+    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
             .assign(to: \.input, on: self, ownership: .weak)
             .store(in: &bag)
@@ -51,6 +53,12 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
             .sink { [weak self] in
                 self?.didEnterDestination($0)
             }
+            .store(in: &bag)
+
+        isValidating
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .assign(to: \.isValidating, on: self, ownership: .weak)
             .store(in: &bag)
 
         isDisabled

@@ -88,65 +88,42 @@ struct ExpressProviderFormatter {
         )
     }
 
-    @available(iOS, obsoleted: 15, message: "Should be replaced on AttributedString + Text")
-    func mapToLegalText(provider: ExpressProvider) -> NSAttributedString? {
+    func mapToLegalText(provider: ExpressProvider) -> AttributedString? {
         let tos = Localization.expressTermsOfUse
         let policy = Localization.expressPrivacyPolicy
 
+        func makeBaseAttributedString(for text: String) -> AttributedString {
+            var attributedString = AttributedString(text)
+            attributedString.font = Fonts.Regular.footnote
+            attributedString.foregroundColor = Colors.Text.tertiary
+            return attributedString
+        }
+
+        func formatLink(in attributedString: inout AttributedString, textToSearch: String, url: URL) {
+            guard let range = attributedString.range(of: textToSearch) else {
+                return
+            }
+
+            attributedString[range].link = url
+            attributedString[range].foregroundColor = Colors.Text.accent
+        }
+
         if let termsOfUse = provider.termsOfUse, let privacyPolicy = provider.privacyPolicy {
-            let text = Localization.expressLegalTwoPlaceholders(tos, policy)
-            let attributedString = NSMutableAttributedString(string: text, attributes: [
-                .font: UIFonts.Regular.footnote,
-                .foregroundColor: UIColor(Colors.Text.tertiary),
-            ])
-
-            if let range = text.range(of: tos) {
-                attributedString.addAttributes(
-                    [.link: termsOfUse, .foregroundColor: UIColor(Colors.Text.accent)],
-                    range: NSRange(range, in: text)
-                )
-            }
-
-            if let range = text.range(of: policy) {
-                attributedString.addAttributes(
-                    [.link: privacyPolicy, .foregroundColor: UIColor(Colors.Text.accent)],
-                    range: NSRange(range, in: text)
-                )
-            }
-
+            var attributedString = makeBaseAttributedString(for: Localization.expressLegalTwoPlaceholders(tos, policy))
+            formatLink(in: &attributedString, textToSearch: tos, url: termsOfUse)
+            formatLink(in: &attributedString, textToSearch: policy, url: privacyPolicy)
             return attributedString
         }
 
         if let termsOfUse = provider.termsOfUse {
-            let text = Localization.expressLegalOnePlaceholder(tos)
-            let attributedString = NSMutableAttributedString(string: text, attributes: [
-                .font: UIFonts.Regular.footnote,
-                .foregroundColor: UIColor(Colors.Text.tertiary),
-            ])
-            if let range = text.range(of: tos) {
-                attributedString.addAttributes(
-                    [.link: termsOfUse, .foregroundColor: UIColor(Colors.Text.accent)],
-                    range: NSRange(range, in: text)
-                )
-            }
-
+            var attributedString = makeBaseAttributedString(for: Localization.expressLegalOnePlaceholder(tos))
+            formatLink(in: &attributedString, textToSearch: tos, url: termsOfUse)
             return attributedString
         }
 
         if let privacyPolicy = provider.privacyPolicy {
-            let text = Localization.expressLegalOnePlaceholder(policy)
-            let attributedString = NSMutableAttributedString(string: text, attributes: [
-                .font: UIFonts.Regular.footnote,
-                .foregroundColor: UIColor(Colors.Text.tertiary),
-            ])
-
-            if let range = text.range(of: policy) {
-                attributedString.addAttributes(
-                    [.link: privacyPolicy, .foregroundColor: UIColor(Colors.Text.accent)],
-                    range: NSRange(range, in: text)
-                )
-            }
-
+            var attributedString = makeBaseAttributedString(for: Localization.expressLegalOnePlaceholder(policy))
+            formatLink(in: &attributedString, textToSearch: policy, url: privacyPolicy)
             return attributedString
         }
 
