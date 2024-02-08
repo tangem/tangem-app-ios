@@ -17,8 +17,8 @@ protocol SendAmountViewModelInput {
     var amountInputPublisher: AnyPublisher<Amount?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
-    var blockchain: Blockchain { get }
     var amountType: Amount.AmountType { get }
+    var currencySymbol: String { get }
 
     func setAmount(_ amount: Amount?)
     func useMaxAmount()
@@ -48,10 +48,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         converter = SendFiatCryptoConverter(
-            blockchain: input.blockchain,
             amountType: input.amountType,
             cryptoCurrencyId: walletInfo.currencyId,
-            amountFractionDigits: walletInfo.amountFractionDigits
+            currencySymbol: input.currencySymbol,
+            decimals: walletInfo.amountFractionDigits
         )
 
         self.input = input
