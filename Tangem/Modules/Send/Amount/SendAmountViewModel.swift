@@ -77,15 +77,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private func bind(from input: SendAmountViewModelInput) {
         input
             .amountInputPublisher
-
             .sink { [weak self] amount in
-                print("ZZZ -> model amount changed", amount)
-//                if let value = amount?.value {
-//                    self?.amount = .external(value)
-//                } else {
-//                    self?.amount = nil
-//                }
-
                 self?.converter.setModelAmount(amount?.value)
             }
             .store(in: &bag)
@@ -96,7 +88,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             // If value == nil then continue chain to reset states to idle
             .filter { $0?.isInternal ?? true }
             .sink { [weak self] v in
-                print("ZZZ -> text input amount changed", v?.value, (v?.isInternal ?? true) ? "internal" : "external")
                 self?.converter.setUserInputAmount(v)
             }
             .store(in: &bag)
@@ -112,7 +103,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         converter
             .modelAmount
             .sink { [weak self] modelAmount in
-                print("ZZZ <- model amount recalculated", modelAmount)
                 self?.input.setAmount(modelAmount)
             }
             .store(in: &bag)
@@ -120,7 +110,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         converter
             .userInputAmount
             .sink { [weak self] newUserInputAmount in
-                print("ZZZ <- user input recalculated", newUserInputAmount?.value, (newUserInputAmount?.isInternal ?? true) ? "internal" : "external")
                 self?.amount = newUserInputAmount
             }
             .store(in: &bag)
