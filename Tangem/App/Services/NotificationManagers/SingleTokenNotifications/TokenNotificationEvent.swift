@@ -21,7 +21,6 @@ enum TokenNotificationEvent: Hashable {
     case noAccount(message: String)
     case existentialDepositWarning(message: String)
     case longTransaction(message: String)
-    case hasPendingTransactions(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case tangemExpressPromotion
 
@@ -34,12 +33,10 @@ enum TokenNotificationEvent: Hashable {
         }
 
         switch reason {
-        case .zeroWalletBalance:
+        case .zeroWalletBalance, .hasPendingTransaction:
             return nil
         case .cantSignLongTransactions:
             return .longTransaction(message: message)
-        case .hasPendingTransaction:
-            return .hasPendingTransactions(message: message)
         case .zeroFeeCurrencyBalance(let eventConfiguration):
             let configuration = NotEnoughFeeConfiguration(
                 isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed,
@@ -52,7 +49,7 @@ enum TokenNotificationEvent: Hashable {
     var buttonAction: NotificationButtonActionType? {
         switch self {
         // One notification with button action will be added later
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .hasPendingTransactions, .noAccount:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .noAccount:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             return configuration.isFeeCurrencyPurchaseAllowed
@@ -79,8 +76,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.warningExistentialDepositTitle
         case .longTransaction:
             return Localization.warningLongTransactionTitle
-        case .hasPendingTransactions:
-            return Localization.warningSendBlockedPendingTransactionsTitle
         case .notEnoughFeeForTransaction(let configuration):
             return Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName)
         case .tangemExpressPromotion:
@@ -102,8 +97,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .longTransaction(let message):
             return message
-        case .hasPendingTransactions(let message):
-            return message
         case .notEnoughFeeForTransaction(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.eventConfiguration.transactionAmountTypeName,
@@ -119,7 +112,7 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .noAccount:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .noAccount:
             return .secondary
         // One white notification will be added later
         case .notEnoughFeeForTransaction:
@@ -133,7 +126,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .networkUnreachable, .someNetworksUnreachable, .longTransaction:
             return .init(iconType: .image(Assets.attention.image))
-        case .rentFee, .noAccount, .existentialDepositWarning, .hasPendingTransactions:
+        case .rentFee, .noAccount, .existentialDepositWarning:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTransaction(let configuration):
             return .init(iconType: .image(Image(configuration.eventConfiguration.feeAmountTypeIconName)))
@@ -147,7 +140,6 @@ extension TokenNotificationEvent: NotificationEvent {
         case .noAccount,
              .rentFee,
              .existentialDepositWarning,
-             .hasPendingTransactions,
              .tangemExpressPromotion:
             return .info
         case .networkUnreachable,
@@ -162,7 +154,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .rentFee, .tangemExpressPromotion:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .hasPendingTransactions, .notEnoughFeeForTransaction, .noAccount:
+        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .notEnoughFeeForTransaction, .noAccount:
             return false
         }
     }
@@ -179,7 +171,6 @@ extension TokenNotificationEvent {
         case .noAccount: return nil
         case .existentialDepositWarning: return nil
         case .longTransaction: return nil
-        case .hasPendingTransactions: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .tangemExpressPromotion: return nil
         }
