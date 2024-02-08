@@ -19,19 +19,14 @@ struct ProviderRowViewModel: Identifiable {
         switch titleFormat {
         case .prefixAndName:
             let text = Localization.expressByProvider(provider.name)
-            let attributedString = NSMutableAttributedString(string: text, attributes: [
-                .font: UIFonts.Regular.footnote,
-                .foregroundColor: UIColor(Colors.Text.tertiary),
-            ])
 
-            if let range = text.range(of: provider.name) {
-                attributedString.addAttributes(
-                    [
-                        .font: UIFonts.Regular.footnote,
-                        .foregroundColor: UIColor(Colors.Text.primary1),
-                    ],
-                    range: NSRange(range, in: text)
-                )
+            let attributeContainer = AttributeContainer()
+            var attributedString = AttributedString(text, attributes: attributeContainer)
+            attributedString.font = Fonts.Regular.footnote
+            attributedString.foregroundColor = Colors.Text.tertiary
+
+            if let range = attributedString.range(of: provider.name) {
+                attributedString[range].foregroundColor = Colors.Text.primary1
             }
 
             return .attributed(attributedString)
@@ -69,9 +64,7 @@ struct ProviderRowViewModel: Identifiable {
 extension ProviderRowViewModel {
     enum Title {
         case text(String)
-
-        @available(iOS, obsoleted: 15, message: "Should be replaced on AttributedString")
-        case attributed(NSAttributedString)
+        case attributed(AttributedString)
     }
 
     enum TitleFormat {
