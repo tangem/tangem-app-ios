@@ -50,11 +50,9 @@ class SendFiatCryptoConverter {
 
     private let blockchain: Blockchain
     private let amountType: Amount.AmountType
-    private let cryptoCurrencyId: String?
-    private let amountFractionDigits: Int
 
     private var _userInputAmount = CurrentValueSubject<DecimalNumberTextField.DecimalValue?, Never>(nil)
-    private var _fiatCryptoValue = FiatCryptoValue(crypto: nil, fiat: nil)
+    private var _fiatCryptoValue: FiatCryptoValue
     private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
     private var bag: Set<AnyCancellable> = []
@@ -67,8 +65,7 @@ class SendFiatCryptoConverter {
     ) {
         self.blockchain = blockchain
         self.amountType = amountType
-        self.cryptoCurrencyId = cryptoCurrencyId
-        self.amountFractionDigits = amountFractionDigits
+        _fiatCryptoValue = FiatCryptoValue(amountFractionDigits: amountFractionDigits, cryptoCurrencyId: cryptoCurrencyId)
 
         bind()
     }
@@ -82,9 +79,17 @@ class SendFiatCryptoConverter {
             .sink { [weak self] decimal in
                 guard let self else { return }
 
-                if let newAmountValue = fiatCryptoValue(from: decimal?.value, useFiatCalculation: _useFiatCalculation.value) {
-                    _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat.value)
+                if _useFiatCalculation.value {
+                    _fiatCryptoValue.setFiat(decimal?.value)
+                } else {
+                    _fiatCryptoValue.setCrypto(decimal?.value)
                 }
+            }
+            .store(in: &bag)
+
+        Publishers.CombineLatest3(_useFiatCalculation, _fiatCryptoValue.crypto, _fiatCryptoValue.fiat)
+            .sink { [weak self] _, _, _ in
+                self?.setTextFieldAmount()
             }
             .store(in: &bag)
     }
@@ -94,10 +99,7 @@ class SendFiatCryptoConverter {
     }
 
     func setModelAmount(_ amount: Decimal?) {
-        guard let newAmountValue = fiatCryptoValue(from: amount, useFiatCalculation: false) else { return }
-
-        _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat.value)
-        setTextFieldAmount()
+        _fiatCryptoValue.setCrypto(amount)
     }
 
     func setUseFiatCalculation(_ useFiatCalculation: Bool) {
@@ -106,36 +108,6 @@ class SendFiatCryptoConverter {
         if _userInputAmount.value != nil {
             setTextFieldAmount()
         }
-    }
-
-    private func fiatCryptoValue(from amount: Decimal?, useFiatCalculation: Bool) -> FiatCryptoValue? {
-        guard let amount else {
-            return FiatCryptoValue(crypto: nil, fiat: nil)
-        }
-
-        let newCryptoAmount: Decimal?
-        let newFiatAmount: Decimal?
-
-        if let cryptoCurrencyId {
-            let balanceConverter = BalanceConverter()
-            if useFiatCalculation {
-                newCryptoAmount = balanceConverter.convertFromFiat(value: amount, to: cryptoCurrencyId)?.rounded(scale: amountFractionDigits)
-                newFiatAmount = amount
-            } else {
-                newCryptoAmount = amount
-                newFiatAmount = balanceConverter.convertToFiat(value: amount, from: cryptoCurrencyId)?.rounded(scale: 2)
-            }
-        } else {
-            newCryptoAmount = amount
-            newFiatAmount = nil
-        }
-
-        let newValue = FiatCryptoValue(crypto: newCryptoAmount, fiat: newFiatAmount)
-        guard newValue != _fiatCryptoValue else {
-            return nil
-        }
-
-        return newValue
     }
 
     private func setTextFieldAmount() {
@@ -149,21 +121,41 @@ class SendFiatCryptoConverter {
 }
 
 private extension SendFiatCryptoConverter {
-    class FiatCryptoValue: Equatable {
+    class FiatCryptoValue {
         private(set) var crypto = CurrentValueSubject<Decimal?, Never>(nil)
         private(set) var fiat = CurrentValueSubject<Decimal?, Never>(nil)
 
-        init(crypto: Decimal?, fiat: Decimal? = nil) {
-            update(crypto: crypto, fiat: fiat)
+        private let amountFractionDigits: Int
+        private let cryptoCurrencyId: String?
+        private let balanceConverter = BalanceConverter()
+
+        init(amountFractionDigits: Int, cryptoCurrencyId: String?) {
+            self.amountFractionDigits = amountFractionDigits
+            self.cryptoCurrencyId = cryptoCurrencyId
         }
 
-        func update(crypto: Decimal?, fiat: Decimal?) {
+        func setCrypto(_ crypto: Decimal?) {
+            guard self.crypto.value != crypto else { return }
+
             self.crypto.send(crypto)
-            self.fiat.send(fiat)
+
+            if let cryptoCurrencyId, let crypto {
+                fiat.send(balanceConverter.convertToFiat(value: crypto, from: cryptoCurrencyId)?.rounded(scale: 2))
+            } else {
+                fiat.send(nil)
+            }
         }
 
-        static func == (left: SendFiatCryptoConverter.FiatCryptoValue, right: SendFiatCryptoConverter.FiatCryptoValue) -> Bool {
-            left.crypto.value == right.crypto.value && left.fiat.value == right.fiat.value
+        func setFiat(_ fiat: Decimal?) {
+            guard self.fiat.value != fiat else { return }
+
+            self.fiat.send(fiat)
+
+            if let cryptoCurrencyId, let fiat {
+                crypto.send(balanceConverter.convertFromFiat(value: fiat, to: cryptoCurrencyId)?.rounded(scale: amountFractionDigits))
+            } else {
+                crypto.send(nil)
+            }
         }
     }
 }
