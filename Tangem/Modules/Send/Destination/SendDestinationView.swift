@@ -13,7 +13,7 @@ struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             if let addressViewModel = viewModel.addressViewModel {
                 SendDestinationTextView(viewModel: addressViewModel)
                     .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
