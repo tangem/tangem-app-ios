@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '14.5'
+platform :ios, '15.0'
 
 # Debug Xcode configurations
 debug_configuration = 'Debug(production)'
@@ -29,10 +29,10 @@ def tangem_sdk_pod
 end
 
 def blockchain_sdk_pods
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-472'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-477'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
-  pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '3.2.4-tangem1'
+  pod 'TangemWalletCore', :git => 'https://github.com/tangem/wallet-core-binaries-ios.git', :tag => '4.0.21-tangem2'
   #pod 'TangemWalletCore', :path => '../wallet-core-binaries-ios'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-11'
