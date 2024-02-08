@@ -18,4 +18,8 @@ enum UIFonts {
             FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .footnote) : .systemFont(ofSize: 13, weight: .regular)
         }
     }
+
+    enum Bold {
+        static let footnote: UIFont = FeatureProvider.isAvailable(.dynamicFonts) ? .preferredFont(forTextStyle: .footnote) : .systemFont(ofSize: 13, weight: .semibold)
+    }
 }
