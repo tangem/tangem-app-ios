@@ -58,7 +58,6 @@ final class SingleTokenNotificationManager {
                     break
                 case .idle, .noDerivation:
                     self?.setupLoadedStateNotifications()
-                    self?.setupTangemExpressPromotionNotification()
                 }
             }
             .store(in: &bag)
@@ -97,6 +96,7 @@ final class SingleTokenNotificationManager {
         notificationInputsSubject.send(inputs)
 
         setupRentFeeNotification()
+        setupTangemExpressPromotionNotification()
     }
 
     private func setupRentFeeNotification() {
