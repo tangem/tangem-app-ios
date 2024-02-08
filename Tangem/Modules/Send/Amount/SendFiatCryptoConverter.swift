@@ -29,7 +29,7 @@ class SendFiatCryptoConverter {
             .map { [weak self] cryptoAmount in
                 guard let self, let cryptoAmount else { return nil }
 
-                return Amount(with: blockchain, type: amountType, value: cryptoAmount)
+                return Amount(type: amountType, currencySymbol: currencySymbol, value: cryptoAmount, decimals: decimals)
             }
             .eraseToAnyPublisher()
     }
@@ -40,7 +40,7 @@ class SendFiatCryptoConverter {
                 guard let self, let cryptoAmount, let fiatAmount else { return nil }
 
                 if useFiatCalculation {
-                    return Amount(with: blockchain, type: amountType, value: cryptoAmount).string()
+                    return Amount(type: amountType, currencySymbol: currencySymbol, value: cryptoAmount, decimals: decimals).string()
                 } else {
                     return BalanceFormatter().formatFiatBalance(fiatAmount)
                 }
@@ -48,8 +48,9 @@ class SendFiatCryptoConverter {
             .eraseToAnyPublisher()
     }
 
-    private let blockchain: Blockchain
     private let amountType: Amount.AmountType
+    private let currencySymbol: String
+    private let decimals: Int
 
     private var _userInputAmount = CurrentValueSubject<DecimalNumberTextField.DecimalValue?, Never>(nil)
     private var _fiatCryptoValue: FiatCryptoValue
@@ -58,14 +59,15 @@ class SendFiatCryptoConverter {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        blockchain: Blockchain,
         amountType: Amount.AmountType,
         cryptoCurrencyId: String?,
-        amountFractionDigits: Int
+        currencySymbol: String,
+        decimals: Int
     ) {
-        self.blockchain = blockchain
         self.amountType = amountType
-        _fiatCryptoValue = FiatCryptoValue(amountFractionDigits: amountFractionDigits, cryptoCurrencyId: cryptoCurrencyId)
+        self.currencySymbol = currencySymbol
+        self.decimals = decimals
+        _fiatCryptoValue = FiatCryptoValue(decimals: decimals, cryptoCurrencyId: cryptoCurrencyId)
 
         bind()
     }
@@ -125,12 +127,12 @@ private extension SendFiatCryptoConverter {
         private(set) var crypto = CurrentValueSubject<Decimal?, Never>(nil)
         private(set) var fiat = CurrentValueSubject<Decimal?, Never>(nil)
 
-        private let amountFractionDigits: Int
+        private let decimals: Int
         private let cryptoCurrencyId: String?
         private let balanceConverter = BalanceConverter()
 
-        init(amountFractionDigits: Int, cryptoCurrencyId: String?) {
-            self.amountFractionDigits = amountFractionDigits
+        init(decimals: Int, cryptoCurrencyId: String?) {
+            self.decimals = decimals
             self.cryptoCurrencyId = cryptoCurrencyId
         }
 
@@ -152,7 +154,7 @@ private extension SendFiatCryptoConverter {
             self.fiat.send(fiat)
 
             if let cryptoCurrencyId, let fiat {
-                crypto.send(balanceConverter.convertFromFiat(value: fiat, to: cryptoCurrencyId)?.rounded(scale: amountFractionDigits))
+                crypto.send(balanceConverter.convertFromFiat(value: fiat, to: cryptoCurrencyId)?.rounded(scale: decimals))
             } else {
                 crypto.send(nil)
             }
