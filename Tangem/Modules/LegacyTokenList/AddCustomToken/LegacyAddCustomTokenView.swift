@@ -115,7 +115,7 @@ private struct PickerInputWithTitle: View {
                 }
                 .id(model.id)
                 .accentColor(Colors.Button.positive)
-                .modifier(PickerStyleModifier())
+                .pickerStyle(.menu)
                 .disabled(!model.isEnabled)
                 .modifier(PickerAlignmentModifier())
 
@@ -137,18 +137,6 @@ private struct PickerAlignmentModifier: ViewModifier {
                 .padding(.leading, -12)
         } else {
             content
-        }
-    }
-}
-
-private struct PickerStyleModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 15, *) {
-            content
-                .pickerStyle(.menu)
-        } else {
-            content
-                .pickerStyle(.wheel)
         }
     }
 }
