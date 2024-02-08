@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tangem/hedera-sdk-swift.git",
       "state" : {
-        "revision" : "b830dd150b22c69ad59f52d85bf9ed032161f483",
-        "version" : "0.26.0-tangem1"
+        "revision" : "c29a30f38b0a6228f4ce861feeab7a49fd78a27f",
+        "version" : "0.26.0-tangem2"
       }
     },
     {
