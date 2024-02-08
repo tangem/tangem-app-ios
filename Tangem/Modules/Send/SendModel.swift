@@ -63,8 +63,10 @@ class SendModel {
     // MARK: - Raw data
 
     private var _amount = CurrentValueSubject<Amount?, Never>(nil)
+    private var _isValidatingDestination = CurrentValueSubject<Bool, Never>(false)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
+    private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
     private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
@@ -164,6 +166,27 @@ class SendModel {
     }
 
     private func bind() {
+        _destinationText
+            .dropFirst()
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.destination.send(nil)
+                self?._isValidatingDestination.send(true)
+            })
+            .debounce(for: 1, scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.validateDestination()
+            }
+            .store(in: &bag)
+
+        _destinationAdditionalFieldText
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.validateDestinationAdditionalField()
+            }
+            .store(in: &bag)
+
         Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
             .removeDuplicates {
                 $0 == $1
@@ -292,19 +315,22 @@ class SendModel {
 
     func setDestination(_ address: String) {
         _destinationText.send(address)
-        validateDestination()
+
+        let hasEmbeddedAdditionalField = addressService.hasEmbeddedAdditionalField(address: address)
+        _additionalFieldEmbeddedInAddress.send(hasEmbeddedAdditionalField)
+
+        if hasEmbeddedAdditionalField {
+            setDestinationAdditionalField("")
+        }
     }
 
     func setDestinationAdditionalField(_ additionalField: String) {
         _destinationAdditionalFieldText.send(additionalField)
-        validateDestinationAdditionalField()
     }
 
     private func validateDestination() {
-        #warning("[REDACTED_TODO_COMMENT]")
         destinationResolutionRequest?.cancel()
 
-        destination.send(nil)
         destinationResolutionRequest = runTask(in: self) { `self` in
             let destination: String?
             let error: Error?
@@ -321,9 +347,10 @@ class SendModel {
                 error = addressError
             }
 
-            DispatchQueue.main.async {
+            await runOnMain {
                 self.destination.send(destination)
                 self._destinationError.send(error)
+                self._isValidatingDestination.send(false)
             }
         }
     }
@@ -449,6 +476,8 @@ extension SendModel: SendAmountViewModelInput {
 }
 
 extension SendModel: SendDestinationViewModelInput {
+    var isValidatingDestination: AnyPublisher<Bool, Never> { _isValidatingDestination.eraseToAnyPublisher() }
+
     var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
 
@@ -465,6 +494,10 @@ extension SendModel: SendDestinationViewModelInput {
         case .none:
             return nil
         }
+    }
+
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
+        _additionalFieldEmbeddedInAddress.eraseToAnyPublisher()
     }
 
     var blockchainNetwork: BlockchainNetwork {
