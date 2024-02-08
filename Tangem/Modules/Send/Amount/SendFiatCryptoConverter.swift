@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class SendFiatCryptoConverter {
-    var userInputAmount: AnyPublisher<Decimal?, Never> {
+    var userInputAmount: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
         _userInputAmount.eraseToAnyPublisher()
     }
 
@@ -34,16 +34,31 @@ class SendFiatCryptoConverter {
             .eraseToAnyPublisher()
     }
 
+    var amountAlternative: AnyPublisher<String?, Never> {
+        Publishers.CombineLatest3(_useFiatCalculation, fiatAmount, cryptoAmount)
+            .withWeakCaptureOf(self)
+            .map { (self, parameters) -> String? in
+                let (useFiatCalculation, fiatAmount, cryptoAmount) = parameters
+
+                guard let cryptoAmount, let fiatAmount else { return nil }
+
+                if useFiatCalculation {
+                    return Amount(with: self.blockchain, type: self.amountType, value: cryptoAmount).string()
+                } else {
+                    return BalanceFormatter().formatFiatBalance(fiatAmount)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
     private let blockchain: Blockchain
     private let amountType: Amount.AmountType
     private let cryptoCurrencyId: String?
     private let amountFractionDigits: Int
 
-    private var _userInputAmount = CurrentValueSubject<Decimal?, Never>(nil)
+    private var _userInputAmount = CurrentValueSubject<DecimalNumberTextField.DecimalValue?, Never>(nil)
     private var _fiatCryptoValue = FiatCryptoValue(crypto: nil, fiat: nil)
-
-    private var useFiatCalculation = false
-    private var inputTrigger: InputTrigger = .keyboard
+    private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
     private var bag: Set<AnyCancellable> = []
 
@@ -63,27 +78,21 @@ class SendFiatCryptoConverter {
 
     func bind() {
         _userInputAmount
-            .removeDuplicates()
+            .removeDuplicates { $0?.value == $1?.value }
+            .dropFirst()
+            // If value == nil then continue chain to reset states to idle
+            .filter { $0?.isInternal ?? true }
             .sink { [weak self] decimal in
                 guard let self else { return }
 
-                guard inputTrigger == .keyboard else {
-                    inputTrigger = .keyboard
-                    return
-                }
-
-                if let newAmountValue = fiatCryptoValue(from: decimal, useFiatCalculation: useFiatCalculation) {
+                if let newAmountValue = fiatCryptoValue(from: decimal?.value, useFiatCalculation: _useFiatCalculation.value) {
                     _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat.value)
                 }
             }
             .store(in: &bag)
     }
 
-    func didChooseMaxAmount() {
-        inputTrigger = .maxAmount
-    }
-
-    func setUserInputAmount(_ amount: Decimal?) {
+    func setUserInputAmount(_ amount: DecimalNumberTextField.DecimalValue?) {
         _userInputAmount.send(amount)
     }
 
@@ -91,16 +100,13 @@ class SendFiatCryptoConverter {
         guard let newAmountValue = fiatCryptoValue(from: amount, useFiatCalculation: false) else { return }
 
         _fiatCryptoValue.update(crypto: newAmountValue.crypto.value, fiat: newAmountValue.fiat.value)
-        if inputTrigger != .keyboard {
-            setTextFieldAmount()
-        }
+        setTextFieldAmount()
     }
 
     func setUseFiatCalculation(_ useFiatCalculation: Bool) {
-        self.useFiatCalculation = useFiatCalculation
+        _useFiatCalculation.send(useFiatCalculation)
 
         if _userInputAmount.value != nil {
-            inputTrigger = .currencySelector
             setTextFieldAmount()
         }
     }
@@ -136,8 +142,12 @@ class SendFiatCryptoConverter {
     }
 
     private func setTextFieldAmount() {
-        let newAmount = useFiatCalculation ? _fiatCryptoValue.fiat.value : _fiatCryptoValue.crypto.value
-        _userInputAmount.send(newAmount)
+        let newAmount = _useFiatCalculation.value ? _fiatCryptoValue.fiat.value : _fiatCryptoValue.crypto.value
+        if let newAmount {
+            _userInputAmount.send(.external(newAmount))
+        } else {
+            _userInputAmount.send(nil)
+        }
     }
 }
 
@@ -158,13 +168,5 @@ private extension SendFiatCryptoConverter {
         static func == (left: SendFiatCryptoConverter.FiatCryptoValue, right: SendFiatCryptoConverter.FiatCryptoValue) -> Bool {
             left.crypto.value == right.crypto.value && left.fiat.value == right.fiat.value
         }
-    }
-}
-
-private extension SendFiatCryptoConverter {
-    enum InputTrigger {
-        case keyboard
-        case currencySelector
-        case maxAmount
     }
 }
