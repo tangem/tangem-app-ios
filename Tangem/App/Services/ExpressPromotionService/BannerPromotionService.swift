@@ -15,6 +15,17 @@ protocol BannerPromotionService {
     func hide(promotion: PromotionProgramName, on place: BannerPromotionPlace)
 }
 
+private struct BannerPromotionServiceKey: InjectionKey {
+    static var currentValue: BannerPromotionService = CommonBannerPromotionService()
+}
+
+extension InjectedValues {
+    var bannerPromotionService: BannerPromotionService {
+        get { Self[BannerPromotionServiceKey.self] }
+        set { Self[BannerPromotionServiceKey.self] = newValue }
+    }
+}
+
 struct ActivePromotionInfo: Hashable {
     let bannerPromotion: PromotionProgramName
     let timeline: Timeline
@@ -25,13 +36,6 @@ enum BannerPromotionPlace: String, Hashable {
     case tokenDetails
 }
 
-private struct BannerPromotionServiceKey: InjectionKey {
-    static var currentValue: BannerPromotionService = CommonBannerPromotionService()
-}
-
-extension InjectedValues {
-    var bannerPromotionService: BannerPromotionService {
-        get { Self[BannerPromotionServiceKey.self] }
-        set { Self[BannerPromotionServiceKey.self] = newValue }
-    }
+enum PromotionProgramName: String, Hashable {
+    case changelly
 }
