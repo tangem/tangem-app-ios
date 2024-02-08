@@ -15,7 +15,7 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
 
     var amountType: Amount.AmountType { .coin }
 
-    var blockchain: Blockchain { .ethereum(testnet: false) }
+    var currencySymbol: String { "" }
     var amountError: AnyPublisher<Error?, Never> {
         Just(nil).eraseToAnyPublisher()
     }
