@@ -24,6 +24,7 @@ struct SecurityModeView: View {
                     DefaultSelectableRowView(viewModel: $0)
                 }
             }
+            .interContentPadding(8)
 
             actionButton
         }
