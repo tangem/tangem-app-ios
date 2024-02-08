@@ -130,7 +130,6 @@ private extension ExpressModulesFactoryMock {
 
     var expressDestinationService: ExpressDestinationService {
         CommonExpressDestinationService(
-            pendingTransactionRepository: pendingTransactionRepository,
             walletModelsManager: walletModelsManager,
             expressRepository: expressRepository
         )
