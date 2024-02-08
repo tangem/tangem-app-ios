@@ -144,7 +144,7 @@ post_install do |installer|
     "BlockchainSdk",
     "https://github.com/tangem/hedera-sdk-swift.git",
     "Hedera",
-    { :kind => "exactVersion", :version => "0.26.0-tangem1" }
+    { :kind => "exactVersion", :version => "0.26.0-tangem2" }
   )
 
   # `CryptoSwift` SPM package for `BlockchainSdk` pod
