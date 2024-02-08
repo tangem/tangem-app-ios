@@ -39,25 +39,32 @@ struct BannerPromotionNotificationFactory {
         switch promotion.bannerPromotion {
         case .changelly:
             return .changelly(
-                title: changellyTitle(),
+                title: changellyTitle(place: place),
                 description: changellyDescription(promotion: promotion, place: place)
             )
         }
     }
 
-    private func changellyTitle() -> NotificationView.Title {
+    private func changellyTitle(place: BannerPromotionPlace) -> NotificationView.Title {
         let percent = changellyZeroPercent()
+        let string: String = {
+            switch place {
+            case .main:
+                return Localization.mainSwapChangellyPromotionTitle(percent)
+            case .tokenDetails:
+                return Localization.tokenSwapChangellyPromotionTitle(percent)
+            }
+        }()
+
         let attributed = NSMutableAttributedString(
-            string: Localization.mainSwapChangellyPromotionTitle(percent),
+            string: string,
             attributes: [.font: UIFonts.Bold.footnote, .foregroundColor: UIColor(Colors.Text.constantWhite)]
         )
 
         if let range = attributed.string.range(of: percent) {
-            let yellow = UIColor(red: 233, green: 253, blue: 2, alpha: 1)
-
             attributed.addAttribute(
                 .foregroundColor,
-                value: yellow,
+                value: UIColor(red: 233, green: 253, blue: 2, alpha: 1),
                 range: NSRange(range.lowerBound..., in: attributed.string)
             )
         }
