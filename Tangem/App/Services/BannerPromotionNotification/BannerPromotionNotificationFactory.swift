@@ -64,7 +64,7 @@ struct BannerPromotionNotificationFactory {
         if let range = attributed.string.range(of: percent) {
             attributed.addAttribute(
                 .foregroundColor,
-                value: UIColor(red: 233, green: 253, blue: 2, alpha: 1),
+                value: UIColor.yellow,
                 range: NSRange(range.lowerBound..., in: attributed.string)
             )
         }
