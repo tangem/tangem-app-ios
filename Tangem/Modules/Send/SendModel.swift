@@ -412,6 +412,7 @@ class SendModel {
         if let gasPrice = _customFeeGasPrice.value,
            let gasLimit = _customFeeGasLimit.value,
            let gasInWei = (gasPrice * gasLimit).decimal {
+            let blockchain = walletModel.tokenItem.blockchain
             let amount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
             newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
         } else {
@@ -455,10 +456,6 @@ class SendModel {
 // MARK: - Subview model inputs
 
 extension SendModel: SendAmountViewModelInput {
-    var blockchain: BlockchainSdk.Blockchain {
-        walletModel.blockchainNetwork.blockchain
-    }
-
     var amountType: BlockchainSdk.Amount.AmountType {
         walletModel.amountType
     }
@@ -530,7 +527,7 @@ extension SendModel: SendFeeViewModelInput {
     var feeOptions: [FeeOption] {
         if walletModel.shouldShowFeeSelector {
             var options: [FeeOption] = [.slow, .market, .fast]
-            if blockchain.isEvm {
+            if tokenItem.blockchain.isEvm {
                 options.append(.custom)
             }
             return options
