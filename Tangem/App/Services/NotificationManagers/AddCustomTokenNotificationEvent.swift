@@ -13,10 +13,10 @@ enum AddCustomTokenNotificationEvent: Hashable {
 }
 
 extension AddCustomTokenNotificationEvent: NotificationEvent {
-    var title: String {
+    var title: NotificationView.Title {
         switch self {
         case .scamWarning:
-            return Localization.customTokenValidationErrorNotFoundTitle
+            return .string(Localization.customTokenValidationErrorNotFoundTitle)
         }
     }
 
