@@ -36,14 +36,11 @@ class SendFiatCryptoConverter {
 
     var amountAlternative: AnyPublisher<String?, Never> {
         Publishers.CombineLatest3(_useFiatCalculation, fiatAmount, cryptoAmount)
-            .withWeakCaptureOf(self)
-            .map { (self, parameters) -> String? in
-                let (useFiatCalculation, fiatAmount, cryptoAmount) = parameters
-
-                guard let cryptoAmount, let fiatAmount else { return nil }
+            .map { [weak self] useFiatCalculation, fiatAmount, cryptoAmount -> String? in
+                guard let self, let cryptoAmount, let fiatAmount else { return nil }
 
                 if useFiatCalculation {
-                    return Amount(with: self.blockchain, type: self.amountType, value: cryptoAmount).string()
+                    return Amount(with: blockchain, type: amountType, value: cryptoAmount).string()
                 } else {
                     return BalanceFormatter().formatFiatBalance(fiatAmount)
                 }
