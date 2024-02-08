@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '14.5'
+platform :ios, '15.0'
 
 # Debug Xcode configurations
 debug_configuration = 'Debug(production)'
