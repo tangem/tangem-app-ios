@@ -264,17 +264,15 @@ extension UserWalletNotificationManager: NotificationManager {
             default:
                 break
             }
-
-            notificationInputsSubject.value.removeAll(where: { $0.id == id })
         }
 
         if let event = notification.settings.event as? BannerNotificationEvent {
             switch event {
-            case .changelly(let title, let description):
+            case .changelly:
                 bannerPromotionService.hide(promotion: .changelly, on: .main)
             }
-
-            notificationInputsSubject.value.removeAll(where: { $0.id == id })
         }
+        
+        notificationInputsSubject.value.removeAll(where: { $0.id == id })
     }
 }
