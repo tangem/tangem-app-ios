@@ -142,7 +142,6 @@ private extension CommonExpressModulesFactory {
 
     var expressDestinationService: ExpressDestinationService {
         CommonExpressDestinationService(
-            pendingTransactionRepository: pendingTransactionRepository,
             walletModelsManager: walletModelsManager,
             expressRepository: expressRepository
         )
