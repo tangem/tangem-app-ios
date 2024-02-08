@@ -83,7 +83,7 @@
 "common_explorer" = "Explorer";
 "common_explorer_format" = "%@ explorer";
 "common_fee_label" = "Commissions";
-"common_fee_selector_footer" = "Network transaction fees are used to support network security, incentivize validators, allocate resources, and determine transaction priority.";
+"common_fee_selector_footer" = "Network fees are charges users pay to process and confirm transactions. The fee amount can be affected by network congestion, transaction size, and execution priority.";
 "common_fee_selector_option_custom" = "Custom";
 "common_fee_selector_option_fast" = "Fast";
 "common_fee_selector_option_market" = "Market";
@@ -105,6 +105,7 @@
 "common_origin_card" = "Primary Card";
 "common_paste" = "Paste";
 "common_push" = "Push";
+"common_read_more" = "Read more";
 "common_receive" = "Receive";
 "common_reject" = "Reject";
 "common_reload" = "Reload";
