@@ -15,7 +15,7 @@ struct SendSummaryView: View {
 
     var body: some View {
         VStack {
-            GroupedScrollView {
+            GroupedScrollView(spacing: 14) {
                 GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
                     SendWalletSummaryView(viewModel: viewModel)
                 }
@@ -36,7 +36,6 @@ struct SendSummaryView: View {
                             }
                         }
                     }
-                    .backgroundColor(Colors.Background.action)
                 }
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
                 .disabled(!viewModel.canEditDestination)
@@ -47,8 +46,7 @@ struct SendSummaryView: View {
                     GroupedSection(viewModel.amountSummaryViewData) {
                         AmountSummaryView(data: $0)
                     }
-                    .interSectionPadding(12)
-                    .backgroundColor(Colors.Background.action)
+                    .innerContentPadding(12)
                 }
                 .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
@@ -60,7 +58,6 @@ struct SendSummaryView: View {
                     GroupedSection(viewModel.feeSummaryViewData) { data in
                         DefaultTextWithTitleRowView(data: data)
                     }
-                    .backgroundColor(Colors.Background.action)
                 }
                 .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
