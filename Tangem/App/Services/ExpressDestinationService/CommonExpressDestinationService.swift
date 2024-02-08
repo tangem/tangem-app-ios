@@ -11,17 +11,15 @@ import TangemExpress
 
 struct CommonExpressDestinationService {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
-    private let pendingTransactionRepository: ExpressPendingTransactionRepository
     private let walletModelsManager: WalletModelsManager
     private let expressRepository: ExpressRepository
 
     init(
-        pendingTransactionRepository: ExpressPendingTransactionRepository,
         walletModelsManager: WalletModelsManager,
         expressRepository: ExpressRepository
     ) {
-        self.pendingTransactionRepository = pendingTransactionRepository
         self.walletModelsManager = walletModelsManager
         self.expressRepository = expressRepository
     }
@@ -30,6 +28,25 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
+    func canBeSwapped(wallet: WalletModel) async -> Bool {
+        let isAvailable = swapAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
+        let hasBalance = (wallet.balanceValue ?? 0) > 0
+
+        guard isAvailable, !wallet.isCustom, hasBalance else {
+            AppLog.shared.debug("[Express] \(self) has checked that wallet: \(wallet.name) can not be swapped")
+            return false
+        }
+
+        do {
+            try await expressRepository.updatePairs(for: wallet)
+            let hasPairs = await !expressRepository.getPairs(from: wallet).isEmpty
+            AppLog.shared.debug("[Express] \(self) has checked that wallet: \(wallet.name) can be swapped: \(hasPairs)")
+            return hasPairs
+        } catch {
+            return false
+        }
+    }
+
     func getDestination(source: WalletModel) async throws -> WalletModel {
         let availablePairs = await expressRepository.getPairs(from: source)
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
