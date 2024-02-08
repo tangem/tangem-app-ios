@@ -26,13 +26,8 @@ struct LoadingProvidersRow: View {
 
     @ViewBuilder
     private var progressView: some View {
-        if #available(iOS 15, *) {
-            ProgressView()
-                .controlSize(.small)
-        } else {
-            ProgressView()
-                .scaleEffect(x: 0.7, y: 0.7, anchor: .center)
-        }
+        ProgressView()
+            .controlSize(.small)
     }
 }
 
