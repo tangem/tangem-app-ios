@@ -1087,7 +1087,6 @@
 		EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */; };
 		EF5E5A852B7100D700D19BBB /* ExpressPromotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */; };
 		EF5E5AA92B725F9A00D19BBB /* BannerPromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */; };
-		EF5E5AAB2B73928C00D19BBB /* BannerPromotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AAA2B73928C00D19BBB /* BannerPromotion.swift */; };
 		EF5E5AAD2B73E9AD00D19BBB /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AAC2B73E9AD00D19BBB /* Timeline.swift */; };
 		EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */; };
 		EF5F1BB429D5A19E0093307B /* SelectableGropedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */; };
@@ -2540,7 +2539,6 @@
 		EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonBannerPromotionService.swift; sourceTree = "<group>"; };
 		EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPromotion.swift; sourceTree = "<group>"; };
 		EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerPromotionService.swift; sourceTree = "<group>"; };
-		EF5E5AAA2B73928C00D19BBB /* BannerPromotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerPromotion.swift; sourceTree = "<group>"; };
 		EF5E5AAC2B73E9AD00D19BBB /* Timeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
 		EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderMock.swift; sourceTree = "<group>"; };
 		EF5F1BB329D5A19E0093307B /* SelectableGropedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableGropedSection.swift; sourceTree = "<group>"; };
@@ -5623,6 +5621,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EF9E38032B74E6B5004B694C /* BannerPromotionNotification */,
 				EF5E5A802B70FF1B00D19BBB /* ExpressPromotionService */,
 				EFA6164F2B62CC510013A129 /* TransactionSendAvailabilityProvider */,
 				DCE61E3F2B5EDDEC005A8D2E /* Safari */,
@@ -6408,11 +6407,8 @@
 		EF5E5A802B70FF1B00D19BBB /* ExpressPromotionService */ = {
 			isa = PBXGroup;
 			children = (
-				EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */,
 				EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */,
-				EF5E5AAA2B73928C00D19BBB /* BannerPromotion.swift */,
-				EF9E37FF2B73FCAC004B694C /* BannerPromotionNotificationFactory.swift */,
-				EF9E38012B73FCBD004B694C /* BannerNotificationEvent.swift */,
+				EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */,
 			);
 			path = ExpressPromotionService;
 			sourceTree = "<group>";
@@ -6988,6 +6984,15 @@
 				EF9E2A582B56AA7F00418559 /* ExpressSuccessSentRoutableMock.swift */,
 			);
 			path = Routables;
+			sourceTree = "<group>";
+		};
+		EF9E38032B74E6B5004B694C /* BannerPromotionNotification */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E37FF2B73FCAC004B694C /* BannerPromotionNotificationFactory.swift */,
+				EF9E38012B73FCBD004B694C /* BannerNotificationEvent.swift */,
+			);
+			path = BannerPromotionNotification;
 			sourceTree = "<group>";
 		};
 		EF9EA9612B10D39600AC1DA1 /* ExpressTokensListAdapter */ = {
@@ -8347,7 +8352,6 @@
 				DC66BC06285B6C7300CDF765 /* LegacySendCoordinatorView.swift in Sources */,
 				EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */,
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
-				EF5E5AAB2B73928C00D19BBB /* BannerPromotion.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
