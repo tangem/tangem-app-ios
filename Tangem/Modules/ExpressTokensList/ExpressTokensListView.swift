@@ -24,7 +24,7 @@ struct ExpressTokensListView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(Localization.swappingTokenListTitle)
-            .searchableCompat(text: $viewModel.searchText)
+            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
             .autocorrectionDisabled()
         }
         .onDisappear(perform: viewModel.onDisappear)

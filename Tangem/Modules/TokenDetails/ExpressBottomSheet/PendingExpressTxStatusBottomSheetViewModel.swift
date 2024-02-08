@@ -86,12 +86,12 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func onAppear() {
-        Analytics.log(event: .tokenChangeNowStatusScreenOpened, params: [.token: currentTokenItem.currencySymbol])
+        Analytics.log(event: .tokenSwapStatusScreenOpened, params: [.token: currentTokenItem.currencySymbol])
     }
 
     func openProviderFromStatusHeader() {
         Analytics.log(
-            event: .tokenChangeNowButtonGoToProvider,
+            event: .tokenButtonGoToProvider,
             params: [
                 .token: currentTokenItem.currencySymbol,
                 .place: Analytics.ParameterValue.status.rawValue,
@@ -252,7 +252,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
 
         if let placeValue {
             Analytics.log(
-                event: .tokenChangeNowButtonGoToProvider,
+                event: .tokenButtonGoToProvider,
                 params: [
                     .token: currentTokenItem.currencySymbol,
                     .place: placeValue.rawValue,
