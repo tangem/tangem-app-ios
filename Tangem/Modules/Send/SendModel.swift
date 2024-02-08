@@ -207,8 +207,39 @@ class SendModel {
             .removeDuplicates {
                 $0 == $1
             }
-            .sink { [weak self] amount, destination in
-                self?.updateFees(amount: amount, destination: destination)
+            .withWeakCaptureOf(self)
+            .flatMap { (self, parameters) -> AnyPublisher<FeeUpdateResult, Error> in
+                self.updateFees(amount: parameters.0, destination: parameters.1)
+                    .catch { _ in
+                        Empty<FeeUpdateResult, Error>()
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .sink { _ in
+
+            } receiveValue: { _ in
+            }
+            .store(in: &bag)
+
+        _feeValues
+            .sink { [weak self] feeValues in
+                guard
+                    let self,
+                    let selectedFee = feeValues[selectedFeeOption],
+                    let selectedFeeValue = selectedFee.value
+                else {
+                    return
+                }
+
+                fee.send(selectedFeeValue)
+
+                if let customFee = feeValues[.custom]?.value,
+                   let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
+                   !didSetCustomFee {
+                    _customFee.send(customFee)
+                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
+                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
+                }
             }
             .store(in: &bag)
 
@@ -253,72 +284,44 @@ class SendModel {
             return feeUpdatePublisher.eraseToAnyPublisher()
         }
 
-        let newFeeUpdatePublisher = PassthroughSubject<FeeUpdateResult, Error>()
-        feeUpdatePublisher = newFeeUpdatePublisher
+        guard let amount, let destination else {
+            _feeValues.send([:])
+            return .anyFail(error: WalletError.failedToGetFee)
+        }
 
-        let oldFeeAmount = fee.value
-
-        feeUpdateSubscription = Publishers.CombineLatest(Just(amount), Just(destination))
-            .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Error> in
-                guard
-                    let self,
-                    let amount,
-                    let destination
-                else {
-                    return .justWithError(output: [])
-                }
-
-                return walletModel
-                    .getFee(amount: amount, destination: destination)
-                    .receive(on: DispatchQueue.main)
-                    .eraseToAnyPublisher()
+        let oldFee = fee.value
+        let publisher = walletModel
+            .getFee(amount: amount, destination: destination)
+            .withWeakCaptureOf(self)
+            .map { (self, fees) in
+                self.feeValues(fees)
             }
-            .receive(on: RunLoop.main)
-            .sink { [weak self] result in
-                guard
-                    let self,
-                    case .failure = result
-                else {
-                    return
-                }
-
-                let pairs: [(FeeOption, LoadingValue<Fee>)] = feeOptions.map { ($0, .failedToLoad(error: WalletError.failedToGetFee)) }
-                let feeValues = Dictionary(pairs, uniquingKeysWith: { v1, _ in v1 })
-                _feeValues.send(feeValues)
-
-                feeUpdatePublisher?.send(completion: .failure(WalletError.failedToGetFee))
-                feeUpdatePublisher = nil
-            } receiveValue: { [weak self] fees in
+            .handleEvents(receiveOutput: { [weak self] feeValues in
+                self?._feeValues.send(feeValues)
+            }, receiveCompletion: { [weak self] completion in
                 guard let self else { return }
 
-                let feeValues = feeValues(fees)
-                _feeValues.send(feeValues)
-
-                guard
-                    let selectedFee = feeValues[selectedFeeOption],
-                    let selectedFeeValue = selectedFee.value
-                else {
-                    feeUpdatePublisher?.send(completion: .failure(WalletError.failedToGetFee))
-                    feeUpdatePublisher = nil
-                    return
-                }
-
-                fee.send(selectedFeeValue)
-
-                feeUpdatePublisher?.send(FeeUpdateResult(oldFee: oldFeeAmount?.amount, newFee: selectedFeeValue.amount))
-                feeUpdatePublisher?.send(completion: .finished)
                 feeUpdatePublisher = nil
 
-                if let customFee = feeValues[.custom]?.value,
-                   let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
-                   !didSetCustomFee {
-                    _customFee.send(customFee)
-                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
-                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
+                if case .failure = completion {
+                    let feeValuePairs: [(FeeOption, LoadingValue<Fee>)] = feeOptions.map { ($0, .failedToLoad(error: WalletError.failedToGetFee)) }
+                    let feeValues = Dictionary(feeValuePairs, uniquingKeysWith: { v1, _ in v1 })
+                    _feeValues.send(feeValues)
                 }
+            })
+            .withWeakCaptureOf(self)
+            .tryMap { (self, feeValues) in
+                guard
+                    let selectedFee = feeValues[self.selectedFeeOption],
+                    let selectedFeeValue = selectedFee.value
+                else {
+                    throw WalletError.failedToGetFee
+                }
+                return FeeUpdateResult(oldFee: oldFee?.amount, newFee: selectedFeeValue.amount)
             }
+            .eraseToAnyPublisher()
 
-        return newFeeUpdatePublisher.eraseToAnyPublisher()
+        return publisher
     }
 
     private func explorerUrl(from hash: String) -> URL? {
