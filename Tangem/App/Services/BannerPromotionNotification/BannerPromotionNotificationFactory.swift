@@ -94,10 +94,16 @@ struct BannerPromotionNotificationFactory {
     }
 
     func changellyZeroPercent() -> String {
-        PercentFormatter().expressRatePercentFormat(
-            value: 0,
-            maximumFractionDigits: 0,
-            minimumFractionDigits: 0
-        )
+        let value = 0 as NSDecimalNumber
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .percent
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+
+        if let formatted = formatter.string(from: value) {
+            return formatted
+        }
+
+        return "\(value)%"
     }
 }
