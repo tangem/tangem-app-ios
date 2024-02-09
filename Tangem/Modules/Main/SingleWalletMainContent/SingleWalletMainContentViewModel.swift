@@ -57,19 +57,16 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     private func bind() {
-        let userWalletNotificationsPublisher = userWalletNotificationManager
+        userWalletNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .share(replay: 1)
-
-        userWalletNotificationsPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
-            notificationsPublisher: userWalletNotificationsPublisher
+            notificationsPublisher: $notificationInputs
         )
     }
 }
