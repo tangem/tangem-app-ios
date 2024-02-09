@@ -95,7 +95,7 @@ class SendModel {
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
-    private var feeUpdatePublisher: PassthroughSubject<FeeUpdateResult, Error>?
+    private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
     private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -317,6 +317,8 @@ class SendModel {
                 return FeeUpdateResult(oldFee: oldFee?.amount, newFee: selectedFeeValue.amount)
             }
             .eraseToAnyPublisher()
+
+        feeUpdatePublisher = publisher
 
         return publisher
     }
