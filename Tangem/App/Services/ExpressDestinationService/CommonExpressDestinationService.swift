@@ -53,7 +53,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
         // Otherwise we try to find a source wallet with balance and swap on `wallet` as destination
         let pairsTo = await expressRepository.getPairs(to: wallet)
-        let walletModelsWithPositiveBalance = walletModelsManager.walletModels.filter { ($0.fiatValue ?? 0) > 0 }
+        let walletModelsWithPositiveBalance = walletModelsManager.walletModels.filter { !$0.isZeroAmount }
 
         let hasSourceWithBalance = walletModelsWithPositiveBalance.contains { wallet in
             pairsTo.contains(where: { $0.source == wallet.expressCurrency })
