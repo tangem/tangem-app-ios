@@ -51,11 +51,12 @@ struct ExpressFeeSelectorView: View {
 
     @available(iOS 15, *)
     private func attributedString() -> AttributedString {
-        var attributed = AttributedString(Localization.commonFeeSelectorFooter + " " + Localization.commonReadMore)
+        let readMore = Localization.commonReadMore
+        var attributed = AttributedString(Localization.commonFeeSelectorFooter + " " + readMore)
         attributed.foregroundColor = Colors.Text.tertiary
         attributed.font = Fonts.Regular.caption1
 
-        if let range = attributed.range(of: Localization.commonReadMore) {
+        if let range = attributed.range(of: readMore) {
             attributed[range].foregroundColor = Colors.Text.accent
             attributed[range].link = AppConstants.feeExplanationTangemBlogURL
         }
