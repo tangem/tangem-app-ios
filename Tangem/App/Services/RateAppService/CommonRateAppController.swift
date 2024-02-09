@@ -54,30 +54,46 @@ final class CommonRateAppController {
 // MARK: - RateAppController protocol conformance
 
 extension CommonRateAppController: RateAppController {
+    private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
+        userWalletModel
+            .totalBalancePublisher
+            .map { $0.value != nil }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    func bind(
+        isPageSelectedPublisher: some Publisher<Bool, Never>,
+        notificationsPublisher1: some Publisher<[NotificationViewInput], Never>,
+        notificationsPublisher2: some Publisher<[NotificationViewInput], Never>
+    ) {
+        isPageSelectedPublisher.combineLatest(isBalanceLoadedPublisher, notificationsPublisher1, notificationsPublisher2)
+            .debounce(for: 1, scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { controller, values in
+                controller.request(isPageSelected: values.0, isBalanceLoaded: values.1, notifications: values.2 + values.3)
+            }
+            .store(in: &bag)
+
+        bind()
+    }
+
     func bind(
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher: some Publisher<[NotificationViewInput], Never>
     ) {
-        let isBalanceLoadedPublisher = userWalletModel
-            .totalBalancePublisher
-            .map { $0.value != nil }
-            .removeDuplicates()
-
-        Publishers.CombineLatest3(isPageSelectedPublisher, isBalanceLoadedPublisher, notificationsPublisher)
-            .map { isPageSelected, isBalanceLoaded, notifications in
-                return RateAppRequest(
-                    isLocked: false,
-                    isSelected: isPageSelected,
-                    isBalanceLoaded: isBalanceLoaded,
-                    displayedNotifications: notifications
-                )
-            }
+        isPageSelectedPublisher.combineLatest(isBalanceLoadedPublisher, notificationsPublisher)
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { controller, rateAppRequest in
-                controller.rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
+            .sink { controller, values in
+                controller.request(isPageSelected: values.0, isBalanceLoaded: values.1, notifications: values.2)
             }
             .store(in: &bag)
 
+        bind()
+    }
+
+    private func bind() {
         userWalletModel
             .totalBalancePublisher
             .compactMap { $0.value }
@@ -95,6 +111,17 @@ extension CommonRateAppController: RateAppController {
                 controller.handleRateAppAction(rateAppAction)
             }
             .store(in: &bag)
+    }
+
+    private func request(isPageSelected: Bool, isBalanceLoaded: Bool, notifications: [NotificationViewInput]) {
+        let rateAppRequest = RateAppRequest(
+            isLocked: false,
+            isSelected: isPageSelected,
+            isBalanceLoaded: isBalanceLoaded,
+            displayedNotifications: notifications
+        )
+
+        rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
     }
 }
 
