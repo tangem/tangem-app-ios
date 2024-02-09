@@ -68,7 +68,6 @@ extension CommonRateAppController: RateAppController {
         notificationsPublisher2: some Publisher<[NotificationViewInput], Never>
     ) {
         isPageSelectedPublisher.combineLatest(isBalanceLoadedPublisher, notificationsPublisher1, notificationsPublisher2)
-            .debounce(for: 1, scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { controller, values in
                 controller.request(isPageSelected: values.0, isBalanceLoaded: values.1, notifications: values.2 + values.3)
@@ -83,7 +82,6 @@ extension CommonRateAppController: RateAppController {
         notificationsPublisher: some Publisher<[NotificationViewInput], Never>
     ) {
         isPageSelectedPublisher.combineLatest(isBalanceLoadedPublisher, notificationsPublisher)
-            .debounce(for: 1, scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { controller, values in
                 controller.request(isPageSelected: values.0, isBalanceLoaded: values.1, notifications: values.2)
