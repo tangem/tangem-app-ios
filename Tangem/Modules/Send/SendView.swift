@@ -8,6 +8,14 @@
 
 import SwiftUI
 
+extension SendView {
+    enum Constants {
+        static func animation(_ duration: TimeInterval) -> Animation {
+            .spring(duration: duration)
+        }
+    }
+}
+
 struct SendView: View {
     @Namespace var namespace
 
@@ -33,7 +41,7 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(.easeOut(duration: viewModel.slowAnimation ? 2 : 0.3), value: viewModel.step) // TMP
+        .animation(Constants.animation(viewModel.slowAnimation ? 2 : 0.3), value: viewModel.step) // TMP
         .alert(item: $viewModel.alert) { $0.alert }
         .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
@@ -45,7 +53,7 @@ struct SendView: View {
         case .slideBackward:
             return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
         case .none:
-            return .opacity
+            return .offset()
         }
     }
 
