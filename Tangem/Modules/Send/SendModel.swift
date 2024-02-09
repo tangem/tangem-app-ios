@@ -215,10 +215,7 @@ class SendModel {
                     }
                     .eraseToAnyPublisher()
             }
-            .sink { _ in
-
-            } receiveValue: { _ in
-            }
+            .sink()
             .store(in: &bag)
 
         _feeValues
