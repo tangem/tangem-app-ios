@@ -31,8 +31,9 @@ struct SendDestinationAddressSummaryView: View {
                 Text(address)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                     .multilineTextAlignment(.leading)
-                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .border(.black)
+                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
 
                 Assets.clear.image
                     .renderingMode(.template)
