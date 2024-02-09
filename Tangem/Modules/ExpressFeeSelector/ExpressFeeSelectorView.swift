@@ -22,7 +22,11 @@ struct ExpressFeeSelectorView: View {
             GroupedSection(viewModel.feeRowViewModels) {
                 FeeRowView(viewModel: $0)
             } footer: {
-                DefaultFooterView(Localization.commonFeeSelectorFooter)
+                if #available(iOS 15, *) {
+                    Text(attributedString())
+                } else {
+                    iOS14FeeFooter
+                }
             }
             .backgroundColor(Colors.Background.action)
             .interItemSpacing(0)
@@ -31,6 +35,33 @@ struct ExpressFeeSelectorView: View {
             .separatorStyle(.minimum)
             .padding(.horizontal, 14)
         }
+    }
+
+    private var iOS14FeeFooter: some View {
+        Group {
+            Text(Localization.commonFeeSelectorFooter + " ").foregroundColor(Colors.Text.tertiary) +
+                Text(Localization.commonReadMore).foregroundColor(Colors.Text.accent)
+        }
+        .font(Fonts.Regular.caption1)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            UIApplication.shared.open(AppConstants.feeExplanationTangemBlogURL)
+        }
+    }
+
+    @available(iOS 15, *)
+    private func attributedString() -> AttributedString {
+        let readMore = Localization.commonReadMore
+        var attributed = AttributedString(Localization.commonFeeSelectorFooter + " " + readMore)
+        attributed.foregroundColor = Colors.Text.tertiary
+        attributed.font = Fonts.Regular.caption1
+
+        if let range = attributed.range(of: readMore) {
+            attributed[range].foregroundColor = Colors.Text.accent
+            attributed[range].link = AppConstants.feeExplanationTangemBlogURL
+        }
+
+        return attributed
     }
 }
 
