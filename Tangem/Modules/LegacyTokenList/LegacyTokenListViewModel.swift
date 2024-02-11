@@ -78,8 +78,7 @@ class LegacyTokenListViewModel: ObservableObject {
 
         userTokensManager.update(
             itemsToRemove: pendingRemove,
-            itemsToAdd: pendingAdd,
-            derivationPath: nil
+            itemsToAdd: pendingAdd
         ) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isSaving = false
@@ -186,7 +185,7 @@ private extension LegacyTokenListViewModel {
             return false
         }
 
-        return userTokensManager.contains(tokenItem, derivationPath: nil)
+        return userTokensManager.contains(tokenItem)
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
@@ -194,7 +193,7 @@ private extension LegacyTokenListViewModel {
             return false
         }
 
-        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
+        return userTokensManager.canRemove(tokenItem)
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {
@@ -215,13 +214,13 @@ private extension LegacyTokenListViewModel {
         }
 
         if selected,
-           case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
+           case .token(_, let blockchainNetwork) = tokenItem,
+           case .solana = blockchainNetwork.blockchain,
            !settings.longHashesSupported {
             displayAlertAndUpdateSelection(
                 for: tokenItem,
                 title: Localization.commonAttention,
-                message: Localization.alertManageTokensUnsupportedMessage(blockchain.displayName)
+                message: Localization.alertManageTokensUnsupportedMessage(blockchainNetwork.blockchain.displayName)
             )
 
             return
@@ -350,8 +349,8 @@ private extension LegacyTokenListViewModel {
             return false
         }
 
-        if case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
+        if case .token(_, let blockchainNetwork) = tokenItem,
+           case .solana = blockchainNetwork.blockchain,
            !settings.longHashesSupported {
             return false
         }
