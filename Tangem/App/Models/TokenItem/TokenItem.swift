@@ -11,8 +11,8 @@ import BlockchainSdk
 import struct TangemSdk.DerivationPath
 
 enum TokenItem: Hashable, Codable {
-    case blockchain(Blockchain)
-    case token(Token, Blockchain)
+    case blockchain(BlockchainNetwork)
+    case token(Token, BlockchainNetwork)
 
     var isBlockchain: Bool { token == nil }
 
@@ -22,8 +22,8 @@ enum TokenItem: Hashable, Codable {
         switch self {
         case .token(let token, _):
             return token.id
-        case .blockchain(let blockchain):
-            return blockchain.coinId
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork.blockchain.coinId
         }
     }
 
@@ -31,8 +31,8 @@ enum TokenItem: Hashable, Codable {
         switch self {
         case .token(let token, _):
             return token.id
-        case .blockchain(let blockchain):
-            return blockchain.currencyId
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork.blockchain.currencyId
         }
     }
 
@@ -42,10 +42,19 @@ enum TokenItem: Hashable, Codable {
 
     var blockchain: Blockchain {
         switch self {
-        case .token(_, let blockchain):
-            return blockchain
-        case .blockchain(let blockchain):
-            return blockchain
+        case .token(_, let blockchainNetwork):
+            return blockchainNetwork.blockchain
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork.blockchain
+        }
+    }
+
+    var blockchainNetwork: BlockchainNetwork {
+        switch self {
+        case .token(_, let blockchainNetwork):
+            return blockchainNetwork
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork
         }
     }
 
@@ -62,8 +71,8 @@ enum TokenItem: Hashable, Codable {
         switch self {
         case .token(let token, _):
             return token.symbol
-        case .blockchain(let blockchain):
-            return blockchain.currencySymbol
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork.blockchain.currencySymbol
         }
     }
 
@@ -80,8 +89,8 @@ enum TokenItem: Hashable, Codable {
         switch self {
         case .token(let token, _):
             return token.name
-        case .blockchain(let blockchain):
-            return blockchain.displayName
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork.blockchain.displayName
         }
     }
 
@@ -106,8 +115,8 @@ enum TokenItem: Hashable, Codable {
         switch self {
         case .token(let token, _):
             return token.decimalCount
-        case .blockchain(let blockchain):
-            return blockchain.decimalCount
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork.blockchain.decimalCount
         }
     }
 }

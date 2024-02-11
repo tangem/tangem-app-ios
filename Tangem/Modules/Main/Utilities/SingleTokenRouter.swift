@@ -45,8 +45,7 @@ class SingleTokenRouter: SingleTokenRoutable {
             )
         }
         coordinator?.openReceiveScreen(
-            amountType: walletModel.amountType,
-            blockchain: walletModel.blockchainNetwork.blockchain,
+            tokenItem: walletModel.tokenItem,
             addressInfos: infos
         )
     }
