@@ -122,7 +122,7 @@ struct ReceiveBottomSheetView: View {
 struct ReceiveBottomSheet_Previews: PreviewProvider {
     static var btcAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
-            tokenItem: .blockchain(.bitcoin(testnet: false)),
+            tokenItem: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
             addressInfos: [
                 .init(
                     address: "bc1qeguhvlnxu4lwg48p5sfhxqxz679v3l5fma9u0c",
@@ -142,7 +142,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
 
     static var singleAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
-            tokenItem: .token(.tetherMock, .polygon(testnet: false)),
+            tokenItem: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)),
             addressInfos: [
                 .init(
                     address: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1",
