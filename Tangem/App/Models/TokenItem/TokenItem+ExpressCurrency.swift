@@ -12,16 +12,16 @@ import TangemExpress
 extension TokenItem {
     var expressCurrency: TangemExpress.ExpressCurrency {
         switch self {
-        case .blockchain(let blockchain):
+        case .blockchain(let blockchainNetwork):
             return TangemExpress.ExpressCurrency(
                 // Fixed constant value for the main token contract address
                 contractAddress: ExpressConstants.coinContractAddress,
-                network: blockchain.networkId
+                network: blockchainNetwork.blockchain.networkId
             )
-        case .token(let token, let blockchain):
+        case .token(let token, let blockchainNetwork):
             return TangemExpress.ExpressCurrency(
                 contractAddress: token.contractAddress,
-                network: blockchain.networkId
+                network: blockchainNetwork.blockchain.networkId
             )
         }
     }

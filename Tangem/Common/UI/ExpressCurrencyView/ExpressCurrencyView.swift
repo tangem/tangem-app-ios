@@ -180,7 +180,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .loading,
             fiatAmountState: .loading,
-            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.ethereum(testnet: false)), isCustom: false)),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "ETH"),
             canChangeCurrency: false
         ),
@@ -188,7 +188,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loading,
-            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.cardano(extended: false)), isCustom: false)),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.cardano(extended: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "ADA"),
             canChangeCurrency: false
         ),
@@ -196,7 +196,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loading,
-            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.polygon(testnet: false)), isCustom: false)),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.cardano(extended: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "MATIC"),
             canChangeCurrency: true
         ),
@@ -204,7 +204,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "1100.46"),
-            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.polygon(testnet: false)), isCustom: false)),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "MATIC"),
             canChangeCurrency: true
         ),
@@ -212,7 +212,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "2100.46 $"),
-            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .polygon(testnet: false)), isCustom: false)),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "USDT"),
             canChangeCurrency: true
         ),
@@ -221,7 +221,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "2100.46 $"),
             priceChangePercent: "-24.3 %",
-            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .polygon(testnet: false)), isCustom: false)),
+            tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "USDT"),
             canChangeCurrency: true
         ),
