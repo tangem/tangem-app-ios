@@ -34,7 +34,6 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
 extension ExpressPendingTransactionRecord {
     struct TokenTxInfo: Codable, Equatable {
         let tokenItem: TokenItem
-        let blockchainNetwork: BlockchainNetwork
         let amountString: String
         let isCustom: Bool
 
