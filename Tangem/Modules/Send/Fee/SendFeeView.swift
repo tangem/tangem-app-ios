@@ -61,6 +61,11 @@ struct SendFeeView: View {
                 .transition(SendView.Constants.auxiliaryViewTransition)
             }
 
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
+
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
@@ -98,6 +103,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeUserWalletNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
     }
 }
