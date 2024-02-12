@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import CryptoSwift
 import BlockchainSdk
 
 public protocol VisaBridgeInteractor {
