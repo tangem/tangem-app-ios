@@ -17,7 +17,7 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     @State private var textFieldSize: CGSize = .zero
     private let toolbarButton: () -> ToolbarButton
 
-    private var shouldFocusOnAppear: Bool = true
+    private var initialFocusBehavior: InitialFocusBehavior = .immediateFocus
     private var maximumFractionDigits: Int
     private var placeholderColor: Color = Colors.Text.disabled
     private var textColor: Color = Colors.Text.primary1
@@ -95,7 +95,9 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
             }
         }
         .onAppear {
-            if shouldFocusOnAppear {
+            guard let focusDelayDuration = initialFocusBehavior.delayDuration else { return }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + focusDelayDuration) {
                 isInputActive = true
             }
         }
@@ -122,8 +124,8 @@ extension FocusedDecimalNumberTextField: Setupable {
         map { $0.alignment = alignment }
     }
 
-    func shouldFocusOnAppear(_ shouldFocusOnAppear: Bool) -> Self {
-        map { $0.shouldFocusOnAppear = shouldFocusOnAppear }
+    func initialFocusBehavior(_ initialFocusBehavior: InitialFocusBehavior) -> Self {
+        map { $0.initialFocusBehavior = initialFocusBehavior }
     }
 }
 
