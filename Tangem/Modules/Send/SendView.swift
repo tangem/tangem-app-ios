@@ -13,6 +13,8 @@ extension SendView {
         static func animation(_ duration: TimeInterval) -> Animation {
             .spring(duration: duration)
         }
+
+        static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }
 }
 
