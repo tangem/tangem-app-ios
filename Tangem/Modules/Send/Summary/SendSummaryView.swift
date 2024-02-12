@@ -43,7 +43,8 @@ struct SendSummaryView: View {
                         .setNamespace(namespace)
                         .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
-                        .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                        .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                        .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
                 .innerContentPadding(12)
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
