@@ -18,6 +18,8 @@ extension Analytics {
         case receiveSessionProposal(name: String, dAppURL: String)
         case receiveRequestFromDApp(method: String)
         case errorShownToTheUser(error: String)
+        case attemptingToWriteMessageMultipleTimes
+        case connectionSetupMessage(message: String)
     }
 }
 
@@ -43,6 +45,10 @@ extension Analytics.WalletConnectDebugEvent: AnalyticsDebugEvent {
             suffix = "Receive request from dApp"
         case .errorShownToTheUser:
             suffix = "WalletConnectV2Service displays error to user"
+        case .attemptingToWriteMessageMultipleTimes:
+            suffix = webSocketPrefix + "write(message) called from WC library multiple times..."
+        case .connectionSetupMessage:
+            suffix = webSocketPrefix + "message during attempting to connect"
         }
 
         return prefix + suffix
@@ -50,7 +56,7 @@ extension Analytics.WalletConnectDebugEvent: AnalyticsDebugEvent {
 
     var analyticsParams: [String: Any] {
         switch self {
-        case .webSocketConnected, .webSocketReceiveText:
+        case .webSocketConnected, .webSocketReceiveText, .attemptingToWriteMessageMultipleTimes:
             return [:]
         case .webSocketDisconnected(let closeCode, let connectionState):
             return [
@@ -74,6 +80,10 @@ extension Analytics.WalletConnectDebugEvent: AnalyticsDebugEvent {
             return [
                 ParamKey.errorShownToTheUser.rawValue: error,
             ]
+        case .connectionSetupMessage(let message):
+            return [
+                ParamKey.connectionSetupMessage.rawValue: message,
+            ]
         }
     }
 }
@@ -88,5 +98,6 @@ private extension Analytics.WalletConnectDebugEvent {
         case dAppURL
         case requestMethod
         case errorShownToTheUser
+        case connectionSetupMessage
     }
 }
