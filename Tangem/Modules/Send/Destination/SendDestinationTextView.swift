@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
+    @Binding var animatingFooterOnAppear: Bool
 
     private var namespace: Namespace.ID?
     private var iconNamespaceId: String?
@@ -17,8 +18,9 @@ struct SendDestinationTextView: View {
     private var textNamespaceId: String?
     private var clearButtonNamespaceId: String?
 
-    init(viewModel: SendDestinationTextViewModel) {
+    init(viewModel: SendDestinationTextViewModel, animatingFooterOnAppear: Binding<Bool>) {
         self.viewModel = viewModel
+        _animatingFooterOnAppear = showFooter
     }
 
     var body: some View {
@@ -46,8 +48,11 @@ struct SendDestinationTextView: View {
                 .padding(.vertical, 10)
             }
         } footer: {
-            Text(viewModel.description)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            if !animatingFooterOnAppear {
+                Text(viewModel.description)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .transition(SendView.Constants.auxiliaryViewTransition)
+            }
         }
         .innerContentPadding(2)
         .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
@@ -164,28 +169,28 @@ extension SendDestinationTextView: Setupable {
     }
 }
 
-#Preview {
-    GroupedScrollView {
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-
-        Text("There are two fields and they must be aligned 👇")
-            .foregroundColor(.blue)
-            .font(.caption)
-
-        // To make sure everything's aligned and doesn't jump when entering stuff
-        ZStack {
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-                .opacity(0.5)
-
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-                .opacity(0.5)
-        }
-    }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-}
+// #Preview {
+//    GroupedScrollView {
+//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+//
+//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+//
+//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+//
+//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+//
+//        Text("There are two fields and they must be aligned 👇")
+//            .foregroundColor(.blue)
+//            .font(.caption)
+//
+//        // To make sure everything's aligned and doesn't jump when entering stuff
+//        ZStack {
+//            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+//                .opacity(0.5)
+//
+//            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+//                .opacity(0.5)
+//        }
+//    }
+//    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+// }
