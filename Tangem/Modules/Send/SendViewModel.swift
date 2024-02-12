@@ -297,12 +297,13 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: StepAnimation?) {
-        if !step.opensKeyboardByDefault {
-            UIApplication.shared.endEditing()
-        }
-
         self.stepAnimation = stepAnimation
+
         DispatchQueue.main.async {
+            // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
+            if !step.opensKeyboardByDefault {
+                UIApplication.shared.endEditing()
+            }
             self.step = step
         }
     }
