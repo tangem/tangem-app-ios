@@ -12,6 +12,7 @@ struct FeeRowView: View {
     let viewModel: FeeRowViewModel
 
     private var namespace: Namespace.ID?
+    private var iconNamespaceId: String?
     private var titleNamespaceId: String?
     private var subtitleNamespaceId: String?
 
@@ -25,19 +26,20 @@ struct FeeRowView: View {
                 viewModel.option.icon.image
                     .resizable()
                     .renderingMode(.template)
+                    .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
                     .frame(width: 24, height: 24)
                     .foregroundColor(iconColor)
 
                 Text(viewModel.option.title)
                     .style(font, color: Colors.Text.primary1)
-                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
+                    .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
 
                 Spacer()
 
                 if let subtitleText = viewModel.subtitleText {
                     Text(subtitleText)
                         .style(font, color: Colors.Text.primary1)
-                        .matchedGeometryEffectOptional(id: SendViewNamespaceId.feeSubtitle.rawValue, in: namespace)
+                        .matchedGeometryEffectOptional(id: subtitleNamespaceId, in: namespace)
                         .frame(minWidth: viewModel.isLoading ? 70 : 0)
                         .skeletonable(isShown: viewModel.isLoading)
                 }
@@ -58,6 +60,10 @@ struct FeeRowView: View {
 extension FeeRowView: Setupable {
     func setNamespace(_ namespace: Namespace.ID) -> Self {
         map { $0.namespace = namespace }
+    }
+
+    func setIconNamespaceId(_ iconNamespaceId: String?) -> Self {
+        map { $0.iconNamespaceId = iconNamespaceId }
     }
 
     func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
