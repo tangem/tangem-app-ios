@@ -19,6 +19,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
+    var feeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
@@ -35,6 +36,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: AmountSummaryViewData?
     @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
+    @Published var feeOptionIcon: Image?
 
     weak var router: SendSummaryRoutable?
 
@@ -99,6 +101,14 @@ class SendSummaryViewModel: ObservableObject {
                 self?.sectionViewModelFactory.makeFeeViewData(from: fee)
             }
             .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input
+            .feeOptionPublisher
+            .map {
+                $0.icon.image
+            }
+            .assign(to: \.feeOptionIcon, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
