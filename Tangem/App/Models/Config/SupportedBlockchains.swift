@@ -107,6 +107,7 @@ struct SupportedBlockchains {
             .decimal(testnet: false),
             .veChain(testnet: false),
             .xdc(testnet: false),
+            .shibarium(testnet: false),
         ]
     }
 
@@ -139,6 +140,7 @@ struct SupportedBlockchains {
             .veChain(testnet: true),
             .xdc(testnet: true),
             .algorand(curve: ed25519Curve(for: version), testnet: true),
+            .shibarium(testnet: true),
         ]
     }
 
