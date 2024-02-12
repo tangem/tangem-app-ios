@@ -18,9 +18,9 @@ struct SendSuggestedDestinationView: View {
     var body: some View {
         GroupedSection(viewModel.cellViewModels) { cellViewModel in
             if let tapAction = cellViewModel.tapAction {
-                Button(action: tapAction) {
-                    cellView(for: cellViewModel.type)
-                }
+                cellView(for: cellViewModel.type)
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: tapAction)
             } else {
                 cellView(for: cellViewModel.type)
             }
