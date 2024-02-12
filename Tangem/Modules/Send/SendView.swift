@@ -10,10 +10,7 @@ import SwiftUI
 
 extension SendView {
     enum Constants {
-        static func animation(_ duration: TimeInterval) -> Animation {
-            .spring(duration: duration)
-        }
-
+        static let defaultAnimation: Animation = .spring(duration: 0.3)
         static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }
 }
@@ -43,7 +40,7 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(Constants.animation(viewModel.slowAnimation ? 2 : 0.3), value: viewModel.step) // TMP
+        .animation(Constants.defaultAnimation, value: viewModel.step) // TMP
         .alert(item: $viewModel.alert) { $0.alert }
         .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
@@ -89,11 +86,11 @@ struct SendView: View {
                             .frame(maxWidth: .infinity, maxHeight: 1)
                     }
                 }
-                .overlay(
-                    Toggle("Slow", isOn: $viewModel.slowAnimation),
-                    alignment: .leading
-                )
-                #warning("TMP")
+//                .overlay(
+//                    Toggle("Slow", isOn: $viewModel.slowAnimation),
+//                    alignment: .leading
+//                )
+//                #warning("TMP")
             }
         }
         .padding(.horizontal, 16)
