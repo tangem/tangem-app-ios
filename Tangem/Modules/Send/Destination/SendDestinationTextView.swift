@@ -20,7 +20,7 @@ struct SendDestinationTextView: View {
 
     init(viewModel: SendDestinationTextViewModel, animatingFooterOnAppear: Binding<Bool>) {
         self.viewModel = viewModel
-        _animatingFooterOnAppear = showFooter
+        _animatingFooterOnAppear = animatingFooterOnAppear
     }
 
     var body: some View {
