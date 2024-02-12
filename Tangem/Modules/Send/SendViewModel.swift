@@ -335,6 +335,9 @@ extension SendViewModel: SendSummaryRoutable {
         if case .amount = step {
             sendAmountViewModel.animatingAuxiliaryViewsOnAppear = true
         }
+        if case .fee = step {
+            sendFeeViewModel.animatingAuxiliaryViewsOnAppear = true
+        }
 
         stepAnimation = nil
         self.step = step
