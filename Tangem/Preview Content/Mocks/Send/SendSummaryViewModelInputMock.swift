@@ -23,5 +23,6 @@ class SendSummaryViewModelInputMock: SendSummaryViewModelInput {
     var feeTextPublisher: AnyPublisher<String?, Never> { .just(output: "0.1 ETH") }
     var isSending: AnyPublisher<Bool, Never> { .just(output: false) }
 
+    func updateFees() -> AnyPublisher<FeeUpdateResult, Error> { .anyFail(error: WalletError.failedToGetFee) }
     func send() {}
 }
