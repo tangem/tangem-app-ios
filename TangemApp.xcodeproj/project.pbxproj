@@ -571,6 +571,7 @@
 		B63B63BA2A44012D00A7CECF /* OrganizeTokensListHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63B92A44012D00A7CECF /* OrganizeTokensListHeader.swift */; };
 		B63B63BD2A44013E00A7CECF /* OrganizeTokensListFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B63BC2A44013E00A7CECF /* OrganizeTokensListFooter.swift */; };
 		B63B72892AF5F23B004B80BF /* TokenSectionsSourcePublisherFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63B72882AF5F23B004B80BF /* TokenSectionsSourcePublisherFactory.swift */; };
+		B63BAA6C2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = B63BAA6B2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper */; };
 		B63D4CAD2B2B8C6200DB2420 /* MutableCollection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63D4CAC2B2B8C6200DB2420 /* MutableCollection+.swift */; };
 		B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63FDB172A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift */; };
 		B643B8072B1965EA002DE401 /* PerformanceMonitorConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B643B8062B1965EA002DE401 /* PerformanceMonitorConfigurator.swift */; };
@@ -645,6 +646,7 @@
 		B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */; };
 		B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */; };
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
+		B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */; };
@@ -767,6 +769,9 @@
 		DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */; };
 		DA78444C2B3080AF002281B8 /* SuccessToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA78444B2B3080AF002281B8 /* SuccessToast.swift */; };
 		DA7859E12AB0451F004FAE04 /* GenerateAddressesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */; };
+		DA7B2C512B6B893500FB9622 /* SendNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */; };
+		DA7B2C522B6B893500FB9622 /* SendNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */; };
+		DA7B2C542B6B898500FB9622 /* FeeUpdateResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C532B6B898500FB9622 /* FeeUpdateResult.swift */; };
 		DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */; };
 		DA81CF2F2B060A5D008877F1 /* SendSuggestedDestinationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */; };
 		DA81CF302B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81CF2E2B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift */; };
@@ -1337,13 +1342,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 5D3F77C124BF56D800E8695B;
 			remoteInfo = Tangem;
-		};
-		EF9E29A62B4F0C9900418559 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EF9E29922B4F0C8800418559;
-			remoteInfo = TangemExpress;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2199,6 +2197,9 @@
 		DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionServiceProtocol.swift; sourceTree = "<group>"; };
 		DA78444B2B3080AF002281B8 /* SuccessToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessToast.swift; sourceTree = "<group>"; };
 		DA7859E02AB0451F004FAE04 /* GenerateAddressesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesView.swift; sourceTree = "<group>"; };
+		DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendNotificationManager.swift; sourceTree = "<group>"; };
+		DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendNotificationEvent.swift; sourceTree = "<group>"; };
+		DA7B2C532B6B898500FB9622 /* FeeUpdateResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeeUpdateResult.swift; sourceTree = "<group>"; };
 		DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeSignType.swift; sourceTree = "<group>"; };
 		DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSuggestedDestinationView.swift; sourceTree = "<group>"; };
 		DA81CF2E2B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSuggestedDestinationViewModel.swift; sourceTree = "<group>"; };
@@ -2745,9 +2746,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
 				B099338A2B5517EC00240CDB /* TangemVisa.framework in Frameworks */,
+				B63BAA6C2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				D4344D97552BC5D1E227B832 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5407,6 +5410,15 @@
 			path = PromotionService;
 			sourceTree = "<group>";
 		};
+		DA7B2C4E2B6B893500FB9622 /* SendNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */,
+				DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */,
+			);
+			path = SendNotifications;
+			sourceTree = "<group>";
+		};
 		DA8BBF952A0248E300B085DC /* SensitiveText */ = {
 			isa = PBXGroup;
 			children = (
@@ -5538,6 +5550,7 @@
 		DAFC3E002AA8A50000D1013F /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				DA7B2C4E2B6B893500FB9622 /* SendNotifications */,
 				DA1D3B6F2B56C7DC00247393 /* QRScanView */,
 				DA559C2B2B0261F400F59584 /* Amount */,
 				DA559C2E2B0261F400F59584 /* Destination */,
@@ -5561,6 +5574,7 @@
 				DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */,
 				DCAB57FD295ECA55005D0F4A /* SendError.swift */,
 				DAD2D8532B4D578C002EA7F1 /* SendViewNamespaceId.swift */,
+				DA7B2C532B6B898500FB9622 /* FeeUpdateResult.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -7227,6 +7241,7 @@
 				5D3F77BF24BF56D800E8695B /* Frameworks */,
 				5D3F77C024BF56D800E8695B /* Resources */,
 				B066823E26564ADB00CB86CF /* Embed Foundation Extensions */,
+				B6EF4DDD2B73AA1600AE902C /* Remove duplicate signatures */,
 				EFD32AE229DF1DCB0026353E /* Strip Binary Symbols */,
 				EF9E29632B4F0BB500418559 /* Embed Frameworks */,
 				59958115DB0CEBC2FCE61B5F /* [CP] Embed Pods Frameworks */,
@@ -7235,10 +7250,13 @@
 			);
 			dependencies = (
 				EF9E297D2B4F0C4900418559 /* PBXTargetDependency */,
-				EF9E29A72B4F0C9900418559 /* PBXTargetDependency */,
 				B09933892B5517EC00240CDB /* PBXTargetDependency */,
 			);
 			name = Tangem;
+			packageProductDependencies = (
+				B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */,
+				B63BAA6B2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper */,
+			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
 			productType = "com.apple.product-type.application";
@@ -7413,6 +7431,10 @@
 				"zh-Hant",
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
+			packageReferences = (
+				B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
+				B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */,
+			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -7687,6 +7709,26 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		B6EF4DDD2B73AA1600AE902C /* Remove duplicate signatures */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 8;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Remove duplicate signatures";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\nset -e\n\n# Xcode 15 produces duplicate signatures for binary xcframeworks if they are referenced in other targets except the main app target\n# See https://developer.apple.com/forums/thread/733461 and https://github.com/CocoaPods/CocoaPods/issues/12022 for more info\n# Removing these duplicate signatures\nfind \"${BUILT_PRODUCTS_DIR}\" -type f -name \"*.signature\" -mindepth 2 -exec rm {} \\;\n";
+			showEnvVarsInLog = 0;
+		};
 		C13301A7BE6908D7BE647781 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -7759,7 +7801,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\nset -e\n\n# Read more: https://www.emergetools.com/blog/posts/how-xcode14-unintentionally-increases-app-size\n# Only do this for \"install builds\"(archive)\n\necho \"🟢 Start strip binary symbols 🧹\"\n\n# Path to the app directory\nAPP_DIR_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\"\n# Strip main binary\nstrip -rSTx \"${APP_DIR_PATH}/${EXECUTABLE_NAME}\"\n# Path to the Frameworks directory\nAPP_FRAMEWORKS_DIR=\"${APP_DIR_PATH}/Frameworks\"\n\n# Strip symbols from frameworks, if Frameworks/ exists at all\n# ... as long as the framework is NOT signed by Apple\nif [ -d \"$APP_FRAMEWORKS_DIR\" ]; then\n    find \"$APP_FRAMEWORKS_DIR\" -type f -perm +111 -maxdepth 2 -mindepth 2 -exec bash -c 'codesign -v -R=\"anchor apple\" \"{}\" &> /dev/null || (printf \"%s\\\\n\" \"{}\" && strip -rSTx \"{}\")' \\;\nfi\n";
+			shellScript = "#!/bin/bash\nset -e\n\n# Read more: https://www.emergetools.com/blog/posts/how-xcode14-unintentionally-increases-app-size\n# Only do this for \"install builds\"(archive)\n\necho \"🟢 Start strip binary symbols 🧹\"\n\n# Path to the app directory\nAPP_DIR_PATH=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\"\n# Strip main binary\nstrip -rSTx \"${APP_DIR_PATH}/${EXECUTABLE_NAME}\"\n# Path to the Frameworks directory\nAPP_FRAMEWORKS_DIR=\"${APP_DIR_PATH}/Frameworks\"\n\n# Strip symbols from frameworks, if Frameworks/ exists at all\n# ... as long as the framework is NOT signed by Apple\nif [ -d \"$APP_FRAMEWORKS_DIR\" ]; then\n    find \"$APP_FRAMEWORKS_DIR\" -type f -perm +111 -maxdepth 2 -mindepth 2 \\\n    -exec bash -c 'codesign -v -R=\"anchor apple\" \"{}\" &> /dev/null || \\\n    (printf \"%s\\\\n\" \"{}\" && chmod +w && strip -no_code_signature_warning -rSTx \"{}\")' \\;\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		F8D9253AE584A1B0D72391B6 /* [CP] Check Pods Manifest.lock */ = {
@@ -8198,6 +8240,7 @@
 				EF4662302924DF0300346B6C /* DefaultWarningRow.swift in Sources */,
 				65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
+				DA7B2C522B6B893500FB9622 /* SendNotificationEvent.swift in Sources */,
 				B62570EA2B24A59B005EBC91 /* RateAppBottomSheetView.swift in Sources */,
 				B0DE006C2A431BA6005A77D4 /* LocalizationIconParser.swift in Sources */,
 				B04CD33E29122C64001EA84A /* ReferralViewModel.swift in Sources */,
@@ -8385,6 +8428,7 @@
 				B0468CE52954146900F2E728 /* WalletConnectV2Service.swift in Sources */,
 				B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */,
 				B0C4F76D26F089850086D815 /* SingleCardOnboardingStep.swift in Sources */,
+				DA7B2C542B6B898500FB9622 /* FeeUpdateResult.swift in Sources */,
 				DC5118692860B3E1004FB954 /* PreviewCard.swift in Sources */,
 				EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */,
 				B003BDAA2A0291C200B282F7 /* TokenIconInfoBuilder.swift in Sources */,
@@ -8462,6 +8506,7 @@
 				EF5D83DF2B0BC4C400516B5F /* ExpressProviderFormatter.swift in Sources */,
 				B074AF872B06778800E9CEA3 /* AnalyticsContextDataProvider.swift in Sources */,
 				EF729B732AF3E86300D80205 /* ExpressProvidersSelectorRoutable.swift in Sources */,
+				DA7B2C512B6B893500FB9622 /* SendNotificationManager.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
 				B60B203C2AC5BDFA0098C09D /* BottomScrollableSheetShadowView.swift in Sources */,
@@ -9096,11 +9141,6 @@
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
 			targetProxy = EF9E29A02B4F0C9600418559 /* PBXContainerItemProxy */;
 		};
-		EF9E29A72B4F0C9900418559 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EF9E29922B4F0C8800418559 /* TangemExpress */;
-			targetProxy = EF9E29A62B4F0C9900418559 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -9357,8 +9397,6 @@
 					"-framework",
 					"\"CoreTelephony\"",
 					"-framework",
-					"\"CryptoSwift\"",
-					"-framework",
 					"\"FBLPromises\"",
 					"-framework",
 					"\"FirebaseAnalytics\"",
@@ -9407,8 +9445,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -9424,8 +9460,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -9511,8 +9545,6 @@
 					"-framework",
 					"\"CoreTelephony\"",
 					"-framework",
-					"\"CryptoSwift\"",
-					"-framework",
 					"\"FBLPromises\"",
 					"-framework",
 					"\"FirebaseAnalytics\"",
@@ -9561,8 +9593,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -9578,8 +9608,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -10818,8 +10846,6 @@
 					"-framework",
 					"\"CoreTelephony\"",
 					"-framework",
-					"\"CryptoSwift\"",
-					"-framework",
 					"\"FBLPromises\"",
 					"-framework",
 					"\"FirebaseAnalytics\"",
@@ -10868,8 +10894,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -10885,8 +10909,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -11078,8 +11100,6 @@
 					"-framework",
 					"\"CoreTelephony\"",
 					"-framework",
-					"\"CryptoSwift\"",
-					"-framework",
 					"\"FBLPromises\"",
 					"-framework",
 					"\"FirebaseAnalytics\"",
@@ -11128,8 +11148,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -11145,8 +11163,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -12323,8 +12339,6 @@
 					"-framework",
 					"\"CoreTelephony\"",
 					"-framework",
-					"\"CryptoSwift\"",
-					"-framework",
 					"\"FBLPromises\"",
 					"-framework",
 					"\"FirebaseAnalytics\"",
@@ -12373,8 +12387,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -12390,8 +12402,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -12583,8 +12593,6 @@
 					"-framework",
 					"\"CoreTelephony\"",
 					"-framework",
-					"\"CryptoSwift\"",
-					"-framework",
 					"\"FBLPromises\"",
 					"-framework",
 					"\"FirebaseAnalytics\"",
@@ -12633,8 +12641,6 @@
 					"-framework",
 					"\"SwiftDate\"",
 					"-framework",
-					"\"SwiftProtobuf\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SystemConfiguration\"",
@@ -12650,8 +12656,6 @@
 					"\"WalletCore\"",
 					"-framework",
 					"\"nanopb\"",
-					"-framework",
-					"\"secp256k1\"",
 					"-framework",
 					"\"stellarsdk\"",
 					"-weak_framework",
@@ -12834,6 +12838,38 @@
 			defaultConfigurationName = "Release(production)";
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/GigaBitcoin/secp256k1.swift.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.12.0;
+			};
+		};
+		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tangem/wallet-core-binaries-ios.git";
+			requirement = {
+				kind = exactVersion;
+				version = "4.0.21-tangem3";
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B63BAA6B2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */;
+			productName = TangemWalletCoreBinariesWrapper;
+		};
+		B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
+			productName = secp256k1;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5D3F77BA24BF56D800E8695B /* Project object */;
 }
