@@ -38,7 +38,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     @Published var amount: DecimalNumberTextField.DecimalValue? = nil
     @Published var useFiatCalculation = false
-    @Published var amountAlternative: String = ""
+    @Published var amountAlternative: String = "3,17 US$" // [REDACTED_TODO_COMMENT]
     @Published var error: String?
     @Published var animatingAuxiliaryViewsOnAppear = false
 
