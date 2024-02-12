@@ -174,12 +174,14 @@ final class SendViewModel: ObservableObject {
         bind()
 
         #warning("TMP")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.sendModel.setDestination("TXLuYhdbMUsLYLatsbYBPzsyaU3CX2n4t6")
-            self.sendModel.setAmount(.init(with: self.sendModel.blockchain, type: .coin, value: 1))
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            self.summ()
+        if Blockchain.tron(testnet: true) == walletInfo.blockchain {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.sendModel.setDestination("TXLuYhdbMUsLYLatsbYBPzsyaU3CX2n4t6")
+                self.sendModel.setAmount(.init(with: self.sendModel.blockchain, type: .coin, value: 1))
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+                self.summ()
+            }
         }
     }
 
