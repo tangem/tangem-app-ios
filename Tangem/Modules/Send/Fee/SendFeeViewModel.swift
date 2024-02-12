@@ -38,6 +38,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
+    @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
     private(set) var customFeeModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
@@ -89,6 +90,14 @@ class SendFeeViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        }
     }
 
     private func createCustomFeeModels() {
