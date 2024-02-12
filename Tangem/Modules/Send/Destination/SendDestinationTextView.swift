@@ -96,7 +96,9 @@ struct SendDestinationTextView: View {
                         TextField(viewModel.placeholder, text: $viewModel.input)
                     }
                 }
-                .disabled(viewModel.isDisabled)
+                .autocapitalization(.none)
+                .keyboardType(.asciiCapable)
+                .disableAutocorrection(true).disabled(viewModel.isDisabled)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .border(.black)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
