@@ -39,7 +39,7 @@ struct SendFinishView: View {
                         .setNamespace(namespace)
                         .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
-                        .setAmountNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                        .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                 }
                 .innerContentPadding(12)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer, in: namespace)
