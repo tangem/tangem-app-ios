@@ -10,7 +10,8 @@ import SwiftUI
 
 extension SendView {
     enum Constants {
-        static let defaultAnimation: Animation = .spring(duration: 0.3)
+        static let animationDuration: TimeInterval = 0.3
+        static let defaultAnimation: Animation = .spring(duration: animationDuration)
         static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }
 }
