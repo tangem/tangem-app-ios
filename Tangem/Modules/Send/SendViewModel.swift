@@ -19,7 +19,7 @@ final class SendViewModel: ObservableObject {
         case slideBackward
     }
 
-    @Published var stepAnimation: StepAnimation? = .slideForward
+    @Published var stepAnimation: StepAnimation? = nil
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
@@ -327,6 +327,10 @@ final class SendViewModel: ObservableObject {
 
 extension SendViewModel: SendSummaryRoutable {
     func openStep(_ step: SendStep) {
+        if case .destination = step {
+            sendDestinationViewModel.animatingAuxiliaryViewsOnAppear = true
+        }
+
         stepAnimation = nil
         self.step = step
     }
