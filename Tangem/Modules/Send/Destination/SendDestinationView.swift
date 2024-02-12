@@ -15,7 +15,7 @@ struct SendDestinationView: View {
     var body: some View {
         GroupedScrollView(spacing: 20) {
             if let addressViewModel = viewModel.addressViewModel {
-                SendDestinationTextView(viewModel: addressViewModel)
+                SendDestinationTextView(viewModel: addressViewModel, animatingFooterOnAppear: $viewModel.animatingAuxiliaryViewsOnAppear)
                     .setNamespace(namespace)
                     .setTitleNamespaceId(SendViewNamespaceId.addressTitle.rawValue)
                     .setIconNamespaceId(SendViewNamespaceId.addressIcon.rawValue)
@@ -24,14 +24,16 @@ struct SendDestinationView: View {
             }
 
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
-                SendDestinationTextView(viewModel: additionalFieldViewModel)
+                SendDestinationTextView(viewModel: additionalFieldViewModel, animatingFooterOnAppear: .constant(false))
             }
 
-            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
+            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, !viewModel.animatingAuxiliaryViewsOnAppear {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
+                    .transition(SendView.Constants.auxiliaryViewTransition)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 

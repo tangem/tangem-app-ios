@@ -41,6 +41,7 @@ class SendDestinationViewModel: ObservableObject {
 
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
+    @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -101,6 +102,14 @@ class SendDestinationViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            withAnimation(SendView.Constants.animation(2)) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        }
     }
 
     private func bind() {
