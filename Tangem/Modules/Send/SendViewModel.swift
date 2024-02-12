@@ -191,15 +191,8 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        if case .summary = nextStep {
-            stepAnimation = nil
-        } else {
-            stepAnimation = .slideForward
-        }
-
-        DispatchQueue.main.async {
-            self.step = nextStep
-        }
+        let stepAnimation: StepAnimation? = (nextStep == .summary) ? nil : .slideForward
+        openStep(nextStep, stepAnimation: stepAnimation)
     }
 
     func back() {
@@ -208,16 +201,12 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        stepAnimation = .slideBackward
-
-        DispatchQueue.main.async {
-            self.step = previousStep
-        }
+        openStep(previousStep, stepAnimation: .slideBackward)
     }
 
     #warning("TMP")
     func summ() {
-        openStep(.summary)
+        openStep(.summary, stepAnimation: nil)
     }
 
     func scanQRCode() {
@@ -307,6 +296,17 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
+    private func openStep(_ step: SendStep, stepAnimation: StepAnimation?) {
+        if !step.opensKeyboardByDefault {
+            UIApplication.shared.endEditing()
+        }
+
+        self.stepAnimation = stepAnimation
+        DispatchQueue.main.async {
+            self.step = step
+        }
+    }
+
     private func openFinishPage() {
         guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
@@ -314,7 +314,7 @@ final class SendViewModel: ObservableObject {
         }
 
         sendFinishViewModel.router = coordinator
-        openStep(.finish(model: sendFinishViewModel))
+        openStep(.finish(model: sendFinishViewModel), stepAnimation: nil)
     }
 
     private func parseQRCode(_ code: String) {
@@ -329,6 +329,11 @@ final class SendViewModel: ObservableObject {
 
 extension SendViewModel: SendSummaryRoutable {
     func openStep(_ step: SendStep) {
+        guard self.step == .summary else {
+            assertionFailure("This code should only be called from summary")
+            return
+        }
+
         if case .destination = step {
             sendDestinationViewModel.animatingAuxiliaryViewsOnAppear = true
         }
@@ -339,8 +344,7 @@ extension SendViewModel: SendSummaryRoutable {
             sendFeeViewModel.animatingAuxiliaryViewsOnAppear = true
         }
 
-        stepAnimation = nil
-        self.step = step
+        openStep(step, stepAnimation: nil)
     }
 
     func send() {
