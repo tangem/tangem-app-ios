@@ -29,7 +29,7 @@ struct DefaultToggleRowView: View {
 
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .toggleStyleCompat(Colors.Control.checked)
+                .tint(Colors.Control.checked)
                 .disabled(viewModel.isDisabled)
         }
         .padding(.vertical, 8)
