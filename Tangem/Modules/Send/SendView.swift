@@ -38,6 +38,12 @@ struct SendView: View {
                 if viewModel.showNavigationButtons {
                     navigationButtons
                 }
+
+                NavHolder()
+                    .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+
+                NavHolder()
+                    .alert(item: $viewModel.alert) { $0.alert }
             }
         }
         .background(backgroundColor.ignoresSafeArea())
