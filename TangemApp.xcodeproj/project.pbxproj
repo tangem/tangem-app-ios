@@ -792,6 +792,7 @@
 		DAAA3C6F2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */; };
 		DAAA3C722B3D813C0002DBB0 /* SendAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C702B3D813C0002DBB0 /* SendAddressService.swift */; };
 		DAAA3C732B3D813C0002DBB0 /* SendAddressServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C712B3D813C0002DBB0 /* SendAddressServiceFactory.swift */; };
+		DAB033922B7A541E00A19D46 /* InitialFocusBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB033912B7A541E00A19D46 /* InitialFocusBehavior.swift */; };
 		DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */; };
 		DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */; };
 		DAB19D4A2B2C72A100DD08C4 /* AddCustomTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */; };
@@ -2229,6 +2230,7 @@
 		DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionParametersBuilder.swift; sourceTree = "<group>"; };
 		DAAA3C702B3D813C0002DBB0 /* SendAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAddressService.swift; sourceTree = "<group>"; };
 		DAAA3C712B3D813C0002DBB0 /* SendAddressServiceFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAddressServiceFactory.swift; sourceTree = "<group>"; };
+		DAB033912B7A541E00A19D46 /* InitialFocusBehavior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialFocusBehavior.swift; sourceTree = "<group>"; };
 		DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenCoordinator.swift; sourceTree = "<group>"; };
 		DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenViewModel.swift; sourceTree = "<group>"; };
 		DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenView.swift; sourceTree = "<group>"; };
@@ -6490,6 +6492,7 @@
 			children = (
 				EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */,
 				EFEC5F73296FF2BA009C0E5F /* FocusedDecimalNumberTextField.swift */,
+				DAB033912B7A541E00A19D46 /* InitialFocusBehavior.swift */,
 				EFBAABAC2927CCBA0065C6D4 /* DecimalNumberTextField.swift */,
 				EFBAABAD2927CCBA0065C6D4 /* DecimalNumberFormatter.swift */,
 			);
@@ -8062,6 +8065,7 @@
 				DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */,
 				DA5CD0982A25F4F2008FD876 /* PromotionViewModel.swift in Sources */,
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
+				DAB033922B7A541E00A19D46 /* InitialFocusBehavior.swift in Sources */,
 				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
