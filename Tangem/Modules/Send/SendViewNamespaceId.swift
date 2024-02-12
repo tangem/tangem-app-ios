@@ -19,6 +19,7 @@ enum SendViewNamespaceId: String {
     case amountTitle
     case tokenIcon
     case amountCryptoText
+    case amountFiatText
     case feeContainer
     case feeTitle
     case feeSubtitle

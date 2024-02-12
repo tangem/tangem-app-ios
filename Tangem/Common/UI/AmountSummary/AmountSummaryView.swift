@@ -14,7 +14,8 @@ struct AmountSummaryView: View {
     private var namespace: Namespace.ID?
     private var titleNamespaceId: String?
     private var iconNamespaceId: String?
-    private var amountNamespaceId: String?
+    private var amountCryptoNamespaceId: String?
+    private var amountFiatNamespaceId: String?
 
     private let iconSize = CGSize(bothDimensions: 36)
 
@@ -36,10 +37,11 @@ struct AmountSummaryView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(data.amount)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                        .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
+                        .matchedGeometryEffectOptional(id: amountCryptoNamespaceId, in: namespace)
 
                     Text(data.amountFiat)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .matchedGeometryEffectOptional(id: amountFiatNamespaceId, in: namespace)
                 }
                 .truncationMode(.middle)
                 .lineLimit(1)
@@ -63,8 +65,12 @@ extension AmountSummaryView: Setupable {
         map { $0.iconNamespaceId = iconNamespaceId }
     }
 
-    func setAmountNamespaceId(_ amountNamespaceId: String?) -> Self {
-        map { $0.amountNamespaceId = amountNamespaceId }
+    func setAmountCryptoNamespaceId(_ amountCryptoNamespaceId: String?) -> Self {
+        map { $0.amountCryptoNamespaceId = amountCryptoNamespaceId }
+    }
+
+    func setAmountFiatNamespaceId(_ amountFiatNamespaceId: String?) -> Self {
+        map { $0.amountFiatNamespaceId = amountFiatNamespaceId }
     }
 }
 
