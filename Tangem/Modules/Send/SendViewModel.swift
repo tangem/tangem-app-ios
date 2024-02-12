@@ -88,6 +88,7 @@ final class SendViewModel: ObservableObject {
     private let walletModel: WalletModel
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
+    private let notificationManager: SendNotificationManager
 
     private weak var coordinator: SendRoutable?
 
@@ -164,12 +165,16 @@ final class SendViewModel: ObservableObject {
 
         #warning("Fiat icon URL")
 
+        notificationManager = SendNotificationManager(input: sendModel)
+
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel, walletInfo: walletInfo)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
         sendSummaryViewModel.router = self
+
+        notificationManager.setupManager(with: self)
 
         bind()
 
@@ -238,6 +243,7 @@ final class SendViewModel: ObservableObject {
         sendModel
             .isSending
             .removeDuplicates()
+            .receive(on: RunLoop.main)
             .sink { [weak self] isSending in
                 self?.setLoadingViewVisibile(isSending)
             }
@@ -350,5 +356,20 @@ extension SendViewModel: SendSummaryRoutable {
 
     func send() {
         sendModel.send()
+    }
+}
+
+extension SendViewModel: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId) {}
+
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .refreshFee:
+            sendModel.updateFees()
+                .sink()
+                .store(in: &bag)
+        default:
+            break
+        }
     }
 }
