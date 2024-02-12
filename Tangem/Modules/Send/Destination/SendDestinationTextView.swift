@@ -76,9 +76,19 @@ struct SendDestinationTextView: View {
     }
 
     private var addressIconView: some View {
-        AddressIconView(viewModel: AddressIconViewModel(address: viewModel.input))
-            .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
-            .frame(size: CGSize(bothDimensions: 36))
+        Group {
+            if viewModel.isValidating {
+                Circle()
+                    .foregroundColor(Colors.Button.secondary)
+                    .overlay(
+                        ActivityIndicatorView(style: .medium, color: .iconInformative)
+                    )
+            } else {
+                AddressIconView(viewModel: AddressIconViewModel(address: viewModel.input))
+            }
+        }
+        .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
+        .frame(size: CGSize(bothDimensions: 36))
     }
 
     private var input: some View {
