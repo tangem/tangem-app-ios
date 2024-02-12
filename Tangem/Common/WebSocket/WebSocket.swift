@@ -47,6 +47,9 @@ class WebSocket {
     // needed to keep connection alive
     private var pingTimer: Timer?
     private var task: URLSessionWebSocketTask?
+    private var connectionSetupDispatchWorkItem: DispatchWorkItem?
+    // This stuff is need to find doubling write requests
+    private var pendingMessagesToWrite: Set<String> = []
 
     private var bag = Set<AnyCancellable>()
 
@@ -93,18 +96,7 @@ class WebSocket {
 
     func connect() {
         log("Attempting to connect WebSocket with state \(state) to \(url)")
-        guard state == .notConnected else {
-            return
-        }
-
-        // If state is `notConnected` then task shouldn't exist
-        if task != nil {
-            disconnect()
-        }
-        state = .connecting
-        task = session.webSocketTask(with: request)
-        task?.resume()
-        receive()
+        scheduleConnectionSetup()
     }
 
     func disconnect() {
@@ -121,12 +113,21 @@ class WebSocket {
     }
 
     func write(string text: String, completion: (() -> Void)?) {
+        // Crash happens when completion is called multiple times for single handler.
+        // This cause sending more than one `resume()` in continuation inside WC library
+        if pendingMessagesToWrite.contains(text) {
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.attemptingToWriteMessageMultipleTimes)
+            log("Attempting to write same message multiple times. \n\(text)")
+            return
+        }
+
         guard isConnected else {
             // We need to send completion event, because otherwise WC2 library will stuck and won't work anymore...
             completion?()
             return
         }
 
+        pendingMessagesToWrite.insert(text)
         log("Writing text: \(text) to socket")
         task?.send(.string(text)) { [weak self] error in
             if let error = error {
@@ -135,6 +136,7 @@ class WebSocket {
                 self?.handleEvent(.messageSent(text))
             }
             completion?()
+            self?.pendingMessagesToWrite.remove(text)
         }
     }
 
@@ -283,6 +285,44 @@ class WebSocket {
                 self?.sendPing()
             }
         }
+    }
+
+    // Some crash logs and debug events indicating that there are multiple sequentials disconnect/connect requests
+    // This function attempting to address this issue. Added debug log events to see if it helps...
+    private func scheduleConnectionSetup() {
+        log("Attempting to schedule connection setup")
+        Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.connectionSetupMessage(message: "Attempting to schedule connection setup"))
+        guard connectionSetupDispatchWorkItem == nil else {
+            log("Connection setup already scheduled, no need to reschedule")
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.connectionSetupMessage(message: "Connection setup already scheduled, no need to reschedule"))
+            return
+        }
+
+        let connectionSetupDelay: TimeInterval = 5
+        log("Scheduling connection setup. Delay: \(connectionSetupDelay)")
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self, state == .notConnected else {
+                Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.connectionSetupMessage(message: "No need to setup web socket connection. State: \(self?.state.rawValue ?? "self is nil")"))
+                self?.connectionSetupDispatchWorkItem = nil
+                return
+            }
+
+            // If state is `notConnected` then task shouldn't exist
+            if task != nil {
+                Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.connectionSetupMessage(message: "WebSocketTask is not nil, disconnecting old task"))
+                disconnect()
+            }
+            state = .connecting
+            task = session.webSocketTask(with: request)
+            task?.resume()
+            receive()
+            connectionSetupDispatchWorkItem = nil
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.connectionSetupMessage(message: "Finished connection setup"))
+        }
+        connectionSetupDispatchWorkItem = workItem
+
+        Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.connectionSetupMessage(message: "Adding message to global queue"))
+        DispatchQueue.global().asyncAfter(deadline: .now() + connectionSetupDelay, execute: workItem)
     }
 
     /// `invalidate()` should be called from the same thread where it is was setup
