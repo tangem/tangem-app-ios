@@ -14,7 +14,6 @@ extension View {
     ///   - detents: Map detents list for any ios version
     ///   - settings: You can setup the sheet's appearance
     ///   - sheetContent: View for `sheetContent`
-    @available(iOS 14.0, *)
     @ViewBuilder
     func detentBottomSheet<Item: Identifiable, ContentView: View>(
         item: Binding<Item?>,
