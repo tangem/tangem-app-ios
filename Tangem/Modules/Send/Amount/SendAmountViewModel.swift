@@ -64,7 +64,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.animation(2)) {
+            withAnimation(SendView.Constants.defaultAnimation) {
                 animatingAuxiliaryViewsOnAppear = false
             }
         }
