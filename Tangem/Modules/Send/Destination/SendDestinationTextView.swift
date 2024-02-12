@@ -91,7 +91,7 @@ struct SendDestinationTextView: View {
                 Group {
                     if #available(iOS 16, *) {
                         TextField(viewModel.placeholder, text: $viewModel.input, axis: .vertical)
-                            .lineLimit(2, reservesSpace: false)
+                            .lineLimit(5, reservesSpace: false)
                     } else {
                         TextField(viewModel.placeholder, text: $viewModel.input)
                     }
