@@ -44,6 +44,8 @@ struct SendAmountView: View {
                         decimalValue: $viewModel.amount,
                         maximumFractionDigits: viewModel.amountFractionDigits
                     )
+                    // A small delay must be introduced to fix a glitch in a transition animation when changing screens
+                    .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
                     .alignment(.center)
                     .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
                     .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
