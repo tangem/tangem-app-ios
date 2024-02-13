@@ -57,6 +57,7 @@ final class ManageTokensViewModel: ObservableObject {
     }
 
     func addCustomTokenDidTapAction() {
+        Analytics.log(.manageTokensButtonCustomToken)
         coordinator?.openAddCustomToken(dataSource: dataSource)
     }
 }
@@ -230,8 +231,11 @@ private extension ManageTokensViewModel {
         }
 
         Analytics.log(
-            event: .manageTokensButtonGenerateAddresses,
-            params: [.cardsCount: String(countWalletPendingDerivation)]
+            event: .manageTokensButtonGetAddresses,
+            params: [
+                .cardsCount: String(countWalletPendingDerivation),
+                .source: Analytics.ParameterValue.manageTokens.rawValue,
+            ]
         )
 
         coordinator?.showGenerateAddressesWarning(
