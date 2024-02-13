@@ -439,7 +439,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             params[.contractAddress] = token.contractAddress
         }
 
-        Analytics.log(event: .customTokenWasAdded, params: params)
+        Analytics.log(event: .manageTokensCustomTokenWasAdded, params: params)
     }
 
     private func updateDefaultDerivationOption() {
