@@ -21,7 +21,6 @@ struct SendDestinationAddressSummaryView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(Localization.sendRecipient)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                .border(.blue)
                 .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressTitle.rawValue, in: namespace)
 
             HStack(spacing: 12) {
@@ -33,7 +32,6 @@ struct SendDestinationAddressSummaryView: View {
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .border(.black)
                     .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
 
                 Assets.clear.image
