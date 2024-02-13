@@ -590,6 +590,8 @@ extension ExpressViewModel: NotificationTapDelegate {
             interactor.refresh(type: .full)
         case .openFeeCurrency:
             openNetworkCurrency()
+        case .reduceAmount:
+            print("ReduceAmount")
         default:
             return
         }
