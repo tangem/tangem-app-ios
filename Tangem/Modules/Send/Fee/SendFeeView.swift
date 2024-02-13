@@ -16,14 +16,12 @@ struct SendFeeView: View {
     let bottomSpacing: CGFloat
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) {
                 FeeRowView(viewModel: $0)
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
-            .separatorStyle(.minimum)
-            .backgroundColor(Colors.Background.action)
 
             if viewModel.showCustomFeeFields,
                let customFeeModel = viewModel.customFeeModel,
@@ -40,7 +38,11 @@ struct SendFeeView: View {
                 DefaultFooterView(viewModel.subtractFromAmountFooterText)
                     .animation(.default)
             }
-            .backgroundColor(Colors.Background.action)
+
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
 
             Spacer(minLength: bottomSpacing)
         }
@@ -78,6 +80,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeUserWalletNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
     }
 }
