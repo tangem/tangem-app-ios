@@ -185,7 +185,7 @@ final class SendViewModel: ObservableObject {
                 self.sendModel.setAmount(.init(with: self.sendModel.blockchain, type: .coin, value: 1))
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-                self.summ()
+//                self.summ()
             }
         }
     }
@@ -304,13 +304,13 @@ final class SendViewModel: ObservableObject {
 
     private func openStep(_ step: SendStep, stepAnimation: StepAnimation?) {
         self.stepAnimation = stepAnimation
+        self.step = step
 
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
             if !step.opensKeyboardByDefault {
                 UIApplication.shared.endEditing()
             }
-            self.step = step
         }
     }
 
