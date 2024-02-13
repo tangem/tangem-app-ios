@@ -30,6 +30,7 @@ extension Analytics {
 
         case main = "Main"
         case token = "Token"
+        case manageTokens = "Manage Tokens"
 
         case scanSourceWelcome = "Introduction"
         case scanSourceAuth = "Sign In"
