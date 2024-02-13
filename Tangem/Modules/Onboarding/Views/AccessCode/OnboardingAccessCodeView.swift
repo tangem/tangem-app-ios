@@ -177,36 +177,14 @@ struct CustomPasswordTextField: View {
 
     @ViewBuilder
     var input: some View {
-        if #available(iOS 15.0, *) {
-            FocusableTextField(
-                isSecured: isSecured,
-                shouldBecomeFirstResponder: shouldBecomeFirstResponder,
-                placeholder: placeholder,
-                text: password,
-                onEditingChanged: onEditingChanged,
-                onCommit: onCommit
-            )
-        } else {
-            legacyInput
-        }
-    }
-
-    @ViewBuilder
-    private var legacyInput: some View {
-        if isSecured {
-            SecureField(
-                placeholder,
-                text: password,
-                onCommit: onCommit
-            )
-        } else {
-            TextField(
-                placeholder,
-                text: password,
-                onEditingChanged: onEditingChanged,
-                onCommit: onCommit
-            )
-        }
+        FocusableTextField(
+            isSecured: isSecured,
+            shouldBecomeFirstResponder: shouldBecomeFirstResponder,
+            placeholder: placeholder,
+            text: password,
+            onEditingChanged: onEditingChanged,
+            onCommit: onCommit
+        )
     }
 
     var body: some View {
@@ -235,7 +213,6 @@ struct CustomPasswordTextField: View {
     }
 }
 
-@available(iOS 15.0, *)
 private extension CustomPasswordTextField {
     enum Field: Hashable {
         case secure
