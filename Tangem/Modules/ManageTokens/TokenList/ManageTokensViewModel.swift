@@ -51,6 +51,10 @@ final class ManageTokensViewModel: ObservableObject {
     func onAppear() {
         loader.reset("")
     }
+    
+    func onBottomAppear() {
+        Analytics.log(.manageTokensScreenOpened)
+    }
 
     func fetchMore() {
         loader.fetchMore()
