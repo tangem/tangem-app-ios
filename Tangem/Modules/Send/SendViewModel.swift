@@ -19,7 +19,7 @@ final class SendViewModel: ObservableObject {
         case slideBackward
     }
 
-    @Published var stepAnimation: StepAnimation? = nil
+    @Published var stepAnimation: StepAnimation? = .slideForward
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
@@ -304,9 +304,17 @@ final class SendViewModel: ObservableObject {
 
     private func openStep(_ step: SendStep, stepAnimation: StepAnimation?) {
         self.stepAnimation = stepAnimation
-        self.step = step
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        if stepAnimation != nil {
+            // Gotta give some time to update animation variable
+            DispatchQueue.main.async {
+                self.step = step
+            }
+        } else {
+            self.step = step
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
             // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
             if !step.opensKeyboardByDefault {
                 UIApplication.shared.endEditing()
