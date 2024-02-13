@@ -49,7 +49,6 @@ final class ManageTokensViewModel: ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.manageTokensScreenOpened)
         loader.reset("")
     }
 
@@ -90,10 +89,6 @@ private extension ManageTokensViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] value in
-                if !value.isEmpty {
-                    Analytics.log(.manageTokensSearched)
-                }
-
                 self?.setNeedDisplayTokensListSkeletonView()
                 self?.fetch(with: value)
             }
@@ -164,6 +159,10 @@ private extension ManageTokensViewModel {
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
                 isShowAddCustomToken = tokenViewModels.isEmpty
+
+                if let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty {
+                    Analytics.log(event: .manageTokensTokenIsNotFound, params: [.input: searchValue])
+                }
             })
             .store(in: &bag)
 

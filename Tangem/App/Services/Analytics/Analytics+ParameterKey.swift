@@ -71,5 +71,6 @@ extension Analytics {
         case commission = "Commission"
         case place = "Place"
         case result = "Result"
+        case input = "Input"
     }
 }
