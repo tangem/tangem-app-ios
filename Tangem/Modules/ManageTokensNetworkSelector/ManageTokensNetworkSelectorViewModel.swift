@@ -82,7 +82,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func displayNonNativeNetworkAlert() {
         Analytics.log(.manageTokensNoticeNonNativeNetworkClicked)
-        
+
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {}
 
         alert = AlertBinder(alert: Alert(
