@@ -155,7 +155,8 @@ private extension CommonExpressTransactionBuilder {
              .decimal,
              .veChain,
              .xdc,
-             .shibarium:
+             .shibarium,
+             .aptos:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
