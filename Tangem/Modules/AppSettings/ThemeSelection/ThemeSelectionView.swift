@@ -20,11 +20,11 @@ struct ThemeSelectionView: View {
                     DefaultSelectableRowView(viewModel: $0)
                 },
                 footer: {
-                    Text(Localization.appSettingsThemeSelectionFooter)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    DefaultFooterView(Localization.appSettingsThemeSelectionFooter)
                 }
             )
         }
+        .interContentPadding(8)
         .background(Colors.Background.secondary.ignoresSafeArea(edges: .all))
         .navigationTitle(Text(Localization.appSettingsThemeSelectorTitle))
         .navigationBarTitleDisplayMode(.inline)
