@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import struct TangemExpress.ExpressAPIError
 
 class ExpressNotificationManager {
@@ -32,9 +33,6 @@ class ExpressNotificationManager {
     }
 
     private func setupNotifications(for state: ExpressInteractor.State) {
-//        depositTask?.cancel()
-//        depositTask = nil
-
         switch state {
         case .idle:
             notificationInputsSubject.value = []
@@ -48,18 +46,16 @@ class ExpressNotificationManager {
 
                 return !event.removingOnFullLoadingState
             }
-        case .restriction(let restrictions, let quote):
+        case .restriction(let restrictions, _):
             setupNotification(for: restrictions)
 
         case .permissionRequired:
             setupPermissionRequiredNotification()
 
-        case .readyToSwap(_, let quote):
+        case .readyToSwap:
             notificationInputsSubject.value = []
-            // We have not the subtractFee on DEX
-//            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: 0)
 
-        case .previewCEX(let preview, let quote):
+        case .previewCEX(let preview, _):
             if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
                 // If this notification already showed then will not update the notifications set
                 if !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
@@ -68,23 +64,8 @@ class ExpressNotificationManager {
             } else {
                 notificationInputsSubject.value = []
             }
-
-//            setupExistentialDepositWarning(amount: quote.fromAmount, subtractFee: preview.subtractFee)
         }
     }
-
-//    private func setupExistentialDepositWarning(amount: Decimal, subtractFee: Decimal) {
-//        depositTask = runTask(in: self) { manager in
-//            guard let notification = try await manager.makeExistentialDepositWarningIfNeeded(amount: amount, subtractFee: subtractFee) else {
-//                return
-//            }
-//
-//            // If this notification already showed then will not update the notifications set
-//            if !manager.notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
-//                manager.notificationInputsSubject.value.append(notification)
-//            }
-//        }
-//    }
 
     private func setupNotification(for restrictions: ExpressInteractor.RestrictionType) {
         guard let interactor = expressInteractor else { return }
@@ -107,7 +88,8 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
             return
         case .validationError(let validationError):
-            event = .existentialDepositWarning(message: validationError.localizedDescription)
+            setupNotification(for: validationError)
+            return
         case .notEnoughAmountForFee:
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
@@ -115,7 +97,11 @@ class ExpressNotificationManager {
             }
 
             let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
-            event = .notEnoughFeeForTokenTx(mainTokenName: sourceTokenItem.blockchain.displayName, mainTokenSymbol: sourceNetworkSymbol, blockchainIconName: sourceTokenItem.blockchain.iconNameFilled)
+            event = .notEnoughFeeForTokenTx(
+                mainTokenName: sourceTokenItem.blockchain.displayName,
+                mainTokenSymbol: sourceNetworkSymbol,
+                blockchainIconName: sourceTokenItem.blockchain.iconNameFilled
+            )
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
             let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
@@ -133,6 +119,52 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
+    private func setupNotification(for validationError: ValidationError) {
+        guard let interactor = expressInteractor else { return }
+
+        let sourceTokenItem = interactor.getSender().tokenItem
+        let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
+
+        let event: ExpressNotificationEvent
+        let notificationsFactory = NotificationsFactory()
+
+        switch validationError {
+        case .balanceNotFound, .invalidAmount, .invalidFee:
+            event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
+        case .amountExceedsBalance, .totalExceedsBalance: // Same as .notEnoughBalanceForSwapping
+            notificationInputsSubject.value = []
+            return
+        case .feeExceedsBalance: // Same as .notEnoughAmountForFee
+            guard sourceTokenItem.isToken else {
+                notificationInputsSubject.value = []
+                return
+            }
+
+            let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
+            event = .notEnoughFeeForTokenTx(
+                mainTokenName: sourceTokenItem.blockchain.displayName,
+                mainTokenSymbol: sourceNetworkSymbol,
+                blockchainIconName: sourceTokenItem.blockchain.iconNameFilled
+            )
+        case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
+            let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
+            let amountText = "\(minimumAmount.value) \(sourceTokenItemSymbol)"
+            event = .dustAmount(minimumAmountText: amountText, minimumChangeText: amountText)
+        case .minimumBalance(let minimumBalance):
+            event = .existentialDepositWarning(blockchainName: sourceTokenItem.blockchain.displayName, amount: "\(minimumBalance.value)")
+        case .withdrawalWarning(let withdrawalWarning):
+            event = .withdrawalWarning(reduceAmount: withdrawalWarning.suggestedReduceAmount.value, currencySymbol: sourceTokenItemSymbol)
+        case .reserve(let amount):
+            event = .notEnoughReserveToSwap(maximumAmountText: amount.description)
+        }
+
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+        }
+
+        notificationInputsSubject.value = [notification]
+    }
+
     private func setupPermissionRequiredNotification() {
         guard let interactor = expressInteractor else { return }
 
@@ -145,25 +177,6 @@ class ExpressNotificationManager {
         }
         notificationInputsSubject.value = [notification]
     }
-
-//
-//    private func makeExistentialDepositWarningIfNeeded(amount: Decimal, subtractFee: Decimal) async throws -> NotificationViewInput? {
-//        guard let sender = expressInteractor?.getSender(),
-//              let provider = sender.existentialDepositProvider else {
-//            return nil
-//        }
-//
-//        let balance = try sender.getBalance()
-//        let remainBalance = balance - (amount + subtractFee)
-//
-//        guard remainBalance < provider.existentialDeposit.value, let warning = sender.existentialDepositWarning else {
-//            return nil
-//        }
-//
-//        let notificationsFactory = NotificationsFactory()
-//        let notification = notificationsFactory.buildNotificationInput(for: .existentialDepositWarning(message: warning))
-//        return notification
-//    }
 
     private func makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
         guard subtractFee > 0 else { return nil }
