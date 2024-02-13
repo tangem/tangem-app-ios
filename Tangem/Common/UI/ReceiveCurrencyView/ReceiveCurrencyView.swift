@@ -123,9 +123,8 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
                     GroupedSection(viewModel) { viewModel in
                         ReceiveCurrencyView(viewModel: viewModel)
                     }
-                    .interSectionPadding(12)
+                    .innerContentPadding(12)
                     .interItemSpacing(10)
-                    .verticalPadding(0)
                 }
             }
             .padding(.horizontal, 16)
