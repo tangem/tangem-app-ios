@@ -70,7 +70,6 @@ struct SendDestinationTextView: View {
         } else {
             Text(viewModel.name)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                .border(.blue)
                 .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
         }
     }
@@ -110,7 +109,6 @@ struct SendDestinationTextView: View {
                 .keyboardType(.asciiCapable)
                 .disableAutocorrection(true).disabled(viewModel.isDisabled)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                .border(.black)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
                 if !viewModel.input.isEmpty {
