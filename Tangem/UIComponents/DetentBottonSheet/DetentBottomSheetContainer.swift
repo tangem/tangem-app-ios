@@ -67,7 +67,6 @@ extension DetentBottomSheetContainer {
             }
         }
 
-        @available(iOS 15.0, *)
         var detentsAboveIOS15: UISheetPresentationController.Detent {
             switch self {
             case .large, .custom(_), .fraction:

@@ -14,6 +14,7 @@ struct GroupedScrollView<Content: View>: View {
     private let spacing: CGFloat
     private let content: () -> Content
 
+    private var interContentPadding: CGFloat = 0
     private var horizontalPadding: CGFloat = 16
 
     init(
@@ -30,7 +31,14 @@ struct GroupedScrollView<Content: View>: View {
         ScrollView {
             LazyVStack(alignment: alignment, spacing: spacing, content: content)
                 .padding(.horizontal, horizontalPadding)
+                .padding(.vertical, interContentPadding)
         }
+    }
+}
+
+extension GroupedScrollView: Setupable {
+    func interContentPadding(_ padding: CGFloat) -> Self {
+        map { $0.interContentPadding = padding }
     }
 }
 
