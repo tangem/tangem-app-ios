@@ -76,7 +76,7 @@ struct SendView: View {
 
                     Text(title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                        .animation(nil)
+                        .animation(nil, value: title)
                         .padding(.vertical, 8)
                         .lineLimit(1)
                         .layoutPriority(1)
@@ -141,16 +141,16 @@ struct SendView: View {
                 )
             }
 
-            #warning("TMP")
-            Color.black
-                .frame(width: backButtonSize.height, height: backButtonSize.height)
-                .overlay(
-                    Image(systemName: "arrow.circlepath")
-                        .foregroundColor(.white)
-                )
-                .onTapGesture {
-                    viewModel.summ()
-                }
+//            #warning("TMP")
+//            Color.black
+//                .frame(width: backButtonSize.height, height: backButtonSize.height)
+//                .overlay(
+//                    Image(systemName: "arrow.circlepath")
+//                        .foregroundColor(.white)
+//                )
+//                .onTapGesture {
+//                    viewModel.summ()
+//                }
         }
         .padding(.horizontal)
     }
