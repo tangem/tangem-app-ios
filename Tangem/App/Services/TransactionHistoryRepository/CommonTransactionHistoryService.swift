@@ -18,8 +18,6 @@ class CommonTransactionHistoryService {
     private let transactionHistoryProvider: TransactionHistoryProvider
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
-    private var totalPages = 0
-    private var currentPage = 0
     private let pageSize: Int = 20
     private var cancellable: AnyCancellable?
     private var storage: ThreadSafeContainer<[TransactionRecord]> = []
@@ -51,13 +49,12 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
     }
 
     var canFetchHistory: Bool {
-        currentPage < totalPages
+        transactionHistoryProvider.canFetchHistory
     }
 
     func clearHistory() {
         cancellable = nil
-        currentPage = 0
-        totalPages = 0
+        transactionHistoryProvider.reset()
         cleanStorage()
         AppLog.shared.debug("\(self) was reset")
     }
@@ -78,7 +75,7 @@ private extension CommonTransactionHistoryService {
     func fetch(result: @escaping (Result<Void, Never>) -> Void) {
         cancellable = nil
 
-        guard currentPage == 0 || canFetchHistory else {
+        guard canFetchHistory else {
             AppLog.shared.debug("\(self) reached the end of list")
             result(.success(()))
             return
@@ -87,8 +84,8 @@ private extension CommonTransactionHistoryService {
         AppLog.shared.debug("\(self) start loading")
         _state.send(.loading)
 
-        let nextPage = Page(number: currentPage + 1, size: pageSize)
-        let request = TransactionHistory.Request(address: address, page: nextPage, amountType: tokenItem.amountType)
+        let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
+
         cancellable = transactionHistoryProvider
             .loadTransactionHistory(request: request)
             .sink { [weak self] completion in
@@ -101,8 +98,6 @@ private extension CommonTransactionHistoryService {
                     self?._state.send(.loaded)
                 }
             } receiveValue: { [weak self] response in
-                self?.totalPages = response.totalPages
-                self?.currentPage = response.page.number
                 self?.addToStorage(records: response.records)
                 AppLog.shared.debug("\(String(describing: self)) loaded")
                 result(.success(()))
@@ -132,8 +127,7 @@ extension CommonTransactionHistoryService: CustomStringConvertible {
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
                 "address": address,
-                "totalPages": totalPages,
-                "currentPage": currentPage,
+                "request": transactionHistoryProvider.description,
             ]
         )
     }
