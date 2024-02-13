@@ -59,6 +59,7 @@ struct SupportedBlockchains {
     private func testableBlockchains() -> Set<Blockchain> {
         [
             .algorand(curve: ed25519Curve(for: version), testnet: false),
+            .aptos(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
