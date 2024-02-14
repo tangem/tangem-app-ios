@@ -171,6 +171,13 @@ extension SendView {
     }
 }
 
+extension SendView {
+    enum StepAnimation {
+        case slideForward
+        case slideBackward
+    }
+}
+
 // MARK: - Preview
 
 struct SendView_Preview: PreviewProvider {
