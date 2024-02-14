@@ -79,7 +79,7 @@ class ExpressNotificationManager {
             guard let notification = try await manager.makeExistentialDepositWarningIfNeeded(amount: amount, subtractFee: subtractFee) else {
                 return
             }
-            
+
             // If this notification already showed then will not update the notifications set
             if !manager.notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
                 manager.notificationInputsSubject.value.append(notification)
@@ -91,15 +91,17 @@ class ExpressNotificationManager {
         guard let interactor = expressInteractor else { return }
 
         let sourceTokenItem = interactor.getSender().tokenItem
+        let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
         let event: ExpressNotificationEvent
         let notificationsFactory = NotificationsFactory()
 
         switch restrictions {
-        case .notEnoughAmountForSwapping(let minAmount):
-            let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
-            event = .notEnoughAmountToSwap(minimumAmountText: "\(minAmount) \(sourceTokenItemSymbol)")
+        case .tooSmallAmountForSwapping(let minAmount):
+            event = .tooSmallAmountToSwap(minimumAmountText: "\(minAmount) \(sourceTokenItemSymbol)")
+        case .tooBigAmountForSwapping(let maxAmount):
+            event = .tooBigAmountToSwap(maximumAmountText: "\(maxAmount) \(sourceTokenItemSymbol)")
         case .hasPendingTransaction:
-            event = .hasPendingTransaction(symbol: sourceTokenItem.currencySymbol)
+            event = .hasPendingTransaction(symbol: sourceTokenItemSymbol)
         case .hasPendingApproveTransaction:
             event = .hasPendingApproveTransaction
         case .notEnoughBalanceForSwapping:
