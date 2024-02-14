@@ -11,6 +11,9 @@ import SwiftUI
 
 enum SendNotificationEvent {
     case networkFeeUnreachable
+    // When fee currency is same as fee currency
+    case totalExceedsBalance(configuration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration)
+    // When fee currency is different
     case feeExceedsBalance(configuration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration)
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
@@ -24,6 +27,8 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return Localization.sendFeeUnreachableErrorTitle
+        case .totalExceedsBalance:
+            return Localization.sendNotificationExceedBalanceTitle
         case .feeExceedsBalance(let configuration):
             return Localization.warningSendBlockedFundsForFeeTitle(configuration.networkName)
         case .customFeeTooHigh:
@@ -43,6 +48,8 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return Localization.sendFeeUnreachableErrorText
+        case .totalExceedsBalance:
+            return Localization.sendNotificationExceedBalanceText
         case .feeExceedsBalance(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.transactionAmountTypeName,
@@ -66,7 +73,7 @@ extension SendNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkFeeUnreachable, .feeExceedsBalance:
+        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance:
             return .primary
         case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount, .invalidReserve:
             return .secondary
@@ -79,14 +86,14 @@ extension SendNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             return .init(iconType: .image(Assets.attention.image))
-        case .feeExceedsBalance(let configuration):
+        case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
             return .init(iconType: .image(Image(configuration.feeAmountTypeIconName)))
         }
     }
 
     var severity: NotificationView.Severity {
         switch self {
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .feeExceedsBalance, .minimumAmount, .invalidReserve:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .totalExceedsBalance, .feeExceedsBalance, .minimumAmount, .invalidReserve:
             return .critical
         }
     }
@@ -118,7 +125,7 @@ extension SendNotificationEvent {
 
     var location: Location {
         switch self {
-        case .networkFeeUnreachable, .feeExceedsBalance:
+        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance:
             return .feeLevels
         case .customFeeTooHigh, .customFeeTooLow:
             return .customFee
@@ -135,7 +142,7 @@ extension SendNotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .refreshFee
-        case .feeExceedsBalance(let configuration):
+        case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
         case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount, .invalidReserve:
             return nil
