@@ -22,6 +22,7 @@ protocol SendSummaryViewModelInput: AnyObject {
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
+    func updateFees() -> AnyPublisher<FeeUpdateResult, Error>
     func send()
 }
 
@@ -30,6 +31,7 @@ class SendSummaryViewModel: ObservableObject {
     let canEditDestination: Bool
 
     @Published var isSending = false
+    @Published var alert: AlertBinder?
 
     let walletSummaryViewModel: SendWalletSummaryViewModel
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
@@ -41,6 +43,7 @@ class SendSummaryViewModel: ObservableObject {
     weak var router: SendSummaryRoutable?
 
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
+    private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
     private let notificationManager: NotificationManager
@@ -68,12 +71,43 @@ class SendSummaryViewModel: ObservableObject {
         bind()
     }
 
+    func onAppear() {
+        screenIdleStartTime = Date()
+    }
+
+    func onDisappear() {
+        screenIdleStartTime = nil
+    }
+
     func didTapSummary(for step: SendStep) {
         router?.openStep(step)
     }
 
     func send() {
-        input.send()
+        guard let screenIdleStartTime else { return }
+
+        let feeValidityInterval: TimeInterval = 60
+        let now = Date()
+        if now.timeIntervalSince(screenIdleStartTime) <= feeValidityInterval {
+            input.send()
+            return
+        }
+
+        input.updateFees()
+            .sink { [weak self] completion in
+                if case .failure = completion {
+                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
+                }
+            } receiveValue: { [weak self] result in
+                self?.screenIdleStartTime = Date()
+
+                if let oldFee = result.oldFee, result.newFee > oldFee {
+                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendAlertFeeIncreasedTitle)
+                } else {
+                    self?.input.send()
+                }
+            }
+            .store(in: &bag)
     }
 
     private func bind() {
