@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemExpress
+import BlockchainSdk
 
 struct ExpressPendingTransactionRecord: Codable, Equatable {
     let userWalletId: String
@@ -34,7 +35,6 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
 extension ExpressPendingTransactionRecord {
     struct TokenTxInfo: Codable, Equatable {
         let tokenItem: TokenItem
-        let blockchainNetwork: BlockchainNetwork
         let amountString: String
         let isCustom: Bool
 
@@ -93,4 +93,84 @@ private func convertToDecimal(_ str: String) -> Decimal {
     let cleanedStr = str.replacingOccurrences(of: ",", with: ".")
     let locale = Locale(identifier: "en-US")
     return Decimal(string: cleanedStr, locale: locale) ?? 0
+}
+
+// MARK: - Migration
+
+extension ExpressPendingTransactionRecord {
+    private enum MigrationError: Error {
+        case networkMismatch
+    }
+
+    private struct LegacyTokenTxInfo: Decodable {
+        let tokenItem: LegacyTokenItem
+        let amountString: String
+        let isCustom: Bool
+        let blockchainNetwork: BlockchainNetwork
+
+        func mapToTokenTxInfo() throws -> TokenTxInfo {
+            return .init(
+                tokenItem: try tokenItem.mapToTokenItem(blockchainNetwork: blockchainNetwork),
+                amountString: amountString,
+                isCustom: isCustom
+            )
+        }
+    }
+
+    private enum LegacyTokenItem: Decodable {
+        case blockchain(Blockchain)
+        case token(Token, Blockchain)
+
+        private var blockchain: Blockchain {
+            switch self {
+            case .token(_, let blockchain):
+                return blockchain
+            case .blockchain(let blockchain):
+                return blockchain
+            }
+        }
+
+        func mapToTokenItem(blockchainNetwork: BlockchainNetwork) throws -> TokenItem {
+            guard blockchain == blockchainNetwork.blockchain else {
+                throw MigrationError.networkMismatch
+            }
+
+            switch self {
+            case .token(let token, _):
+                return .token(token, blockchainNetwork)
+            case .blockchain:
+                return .blockchain(blockchainNetwork)
+            }
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        userWalletId = try container.decode(String.self, forKey: .userWalletId)
+        expressTransactionId = try container.decode(String.self, forKey: .expressTransactionId)
+        transactionType = try container.decode(ExpressPendingTransactionRecord.TransactionType.self, forKey: .transactionType)
+        transactionHash = try container.decode(String.self, forKey: .transactionHash)
+
+        if let sourceTokenTxInfo = try? container.decode(ExpressPendingTransactionRecord.TokenTxInfo.self, forKey: .sourceTokenTxInfo) {
+            self.sourceTokenTxInfo = sourceTokenTxInfo
+        } else {
+            let legacySourceTokenTxInfo = try container.decode(ExpressPendingTransactionRecord.LegacyTokenTxInfo.self, forKey: .sourceTokenTxInfo)
+            sourceTokenTxInfo = try legacySourceTokenTxInfo.mapToTokenTxInfo()
+        }
+
+        if let destinationTokenTxInfo = try? container.decode(ExpressPendingTransactionRecord.TokenTxInfo.self, forKey: .destinationTokenTxInfo) {
+            self.destinationTokenTxInfo = destinationTokenTxInfo
+        } else {
+            let legacyDestinationTokenTxInfo = try container.decode(ExpressPendingTransactionRecord.LegacyTokenTxInfo.self, forKey: .destinationTokenTxInfo)
+            destinationTokenTxInfo = try legacyDestinationTokenTxInfo.mapToTokenTxInfo()
+        }
+
+        feeString = try container.decode(String.self, forKey: .feeString)
+        provider = try container.decode(ExpressPendingTransactionRecord.Provider.self, forKey: .provider)
+        date = try container.decode(Date.self, forKey: .date)
+        externalTxId = try container.decodeIfPresent(String.self, forKey: .externalTxId)
+        externalTxURL = try container.decodeIfPresent(String.self, forKey: .externalTxURL)
+        isHidden = try container.decode(Bool.self, forKey: .isHidden)
+        transactionStatus = try container.decode(PendingExpressTransactionStatus.self, forKey: .transactionStatus)
+    }
 }
