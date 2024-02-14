@@ -12,10 +12,12 @@ import SwiftUI
 struct SendDecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
 
+    private var initialFocusBehavior: InitialFocusBehavior = .noFocus
     private var maximumFractionDigits: Int
     private var maxAmountAction: (() -> Void)?
     private var suffix: String? = nil
     private var font: Font = Fonts.Regular.title1
+    private var alignment: Alignment = .leading
 
     init(decimalValue: Binding<DecimalNumberTextField.DecimalValue?>, maximumFractionDigits: Int) {
         _decimalValue = decimalValue
@@ -23,26 +25,19 @@ struct SendDecimalNumberTextField: View {
     }
 
     var body: some View {
-        if #available(iOS 15, *) {
-            FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits) {
-                if let action = maxAmountAction {
-                    Button(action: action) {
-                        Text(Localization.sendMaxAmountLabel)
-                            .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                    }
+        FocusedDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: maximumFractionDigits) {
+            if let action = maxAmountAction {
+                Button(action: action) {
+                    Text(Localization.sendMaxAmountLabel)
+                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
                 }
             }
-            .maximumFractionDigits(maximumFractionDigits)
-            .font(font)
-            .suffix(suffix)
-        } else {
-            DecimalNumberTextField(
-                decimalValue: $decimalValue,
-                decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
-            )
-            .maximumFractionDigits(maximumFractionDigits)
-            .font(font)
         }
+        .alignment(alignment)
+        .initialFocusBehavior(initialFocusBehavior)
+        .maximumFractionDigits(maximumFractionDigits)
+        .font(font)
+        .suffix(suffix)
     }
 }
 
@@ -64,9 +59,16 @@ extension SendDecimalNumberTextField: Setupable {
     func font(_ font: Font) -> Self {
         map { $0.font = font }
     }
+
+    func alignment(_ alignment: Alignment) -> Self {
+        map { $0.alignment = alignment }
+    }
+
+    func initialFocusBehavior(_ initialFocusBehavior: InitialFocusBehavior) -> Self {
+        map { $0.initialFocusBehavior = initialFocusBehavior }
+    }
 }
 
-@available(iOS 15.0, *)
 struct SendDecimalNumberTextField_Previews: PreviewProvider {
     @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
 
@@ -93,6 +95,7 @@ struct SendDecimalNumberTextField_Previews: PreviewProvider {
                 SendDecimalNumberTextField(decimalValue: $decimalValue, maximumFractionDigits: 8)
                     .suffix("USDT")
                     .font(Fonts.Regular.body)
+                    .alignment(.leading)
                     .padding()
                     .background(Colors.Background.action)
             }
