@@ -76,12 +76,13 @@ class SendNotificationManager {
         let sendModel = (input as! SendModel)
         let loadedFeeValues = sendModel
             .feeValues
-            .compactMap { loadingFeeValues -> [Decimal]? in
+            .withWeakCaptureOf(sendModel)
+            .compactMap { sendModel, loadingFeeValues -> [FeeOption: Decimal]? in
                 if loadingFeeValues.values.contains(where: { $0.isLoading }) {
                     return nil
                 }
 
-                return loadingFeeValues.values.compactMap { $0.value?.amount.value }
+                return loadingFeeValues.compactMapValues { $0.value?.amount.value }
             }
 
         let customFeeValue = sendModel
@@ -90,11 +91,12 @@ class SendNotificationManager {
                 $0?.amount.value
             }
 
+        // These are triggered when no custom fee is entered
         Publishers.CombineLatest(loadedFeeValues, customFeeValue)
-            .sink { [weak self] loadedFees, customFee in
+            .sink { [weak self] loadedFeeValues, customFee in
                 guard
-                    let lowestFee = loadedFees.first,
-                    let highestFee = loadedFees.last
+                    let lowestFee = loadedFeeValues[.slow],
+                    let highestFee = loadedFeeValues[.fast]
                 else {
                     return
                 }
