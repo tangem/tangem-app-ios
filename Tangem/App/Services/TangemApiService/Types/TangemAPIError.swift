@@ -43,13 +43,26 @@ extension TangemAPIError {
         case promotionProgramNotFound = 106
         case promotionProgramEnded = 107
 
+        // Blockchain account creation service
+        case networkAccountServiceInternalError = 120
+        case networkAccountsPerCardLimitReached = 121
+
         // Misc
         case notFound = 404
 
         /// The description for local errors, for server errors description will be gotten from api
         var description: String? {
             switch self {
-            case .notFound, .promotionCodeNotFound, .promotionCodeNotApplied, .promotionCodeAlreadyUsed, .promotionWalletAlreadyAwarded, .promotionCardAlreadyAwarded, .promotionProgramNotFound, .promotionProgramEnded:
+            case .notFound,
+                 .promotionCodeNotFound,
+                 .promotionCodeNotApplied,
+                 .promotionCodeAlreadyUsed,
+                 .promotionWalletAlreadyAwarded,
+                 .promotionCardAlreadyAwarded,
+                 .promotionProgramNotFound,
+                 .promotionProgramEnded,
+                 .networkAccountServiceInternalError,
+                 .networkAccountsPerCardLimitReached:
                 return nil
             case .decode:
                 return "Decoding error"
