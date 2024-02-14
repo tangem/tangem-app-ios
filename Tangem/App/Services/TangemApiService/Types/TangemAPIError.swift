@@ -12,6 +12,13 @@ struct TangemBaseAPIError: Decodable {
     let error: TangemAPIError
 }
 
+/// Server-side errors of validating the input parameters of the API.
+struct TangemInputAPIError: Decodable {
+    let statusCode: Int
+    let error: String?
+    let message: [String]
+}
+
 struct TangemAPIError: Decodable, Error, LocalizedError {
     let code: ErrorCode
     let message: String?
@@ -48,12 +55,14 @@ extension TangemAPIError {
         case networkAccountsPerCardLimitReached = 121
 
         // Misc
+        case badRequest = 400
         case notFound = 404
 
         /// The description for local errors, for server errors description will be gotten from api
         var description: String? {
             switch self {
-            case .notFound,
+            case .badRequest,
+                 .notFound,
                  .promotionCodeNotFound,
                  .promotionCodeNotApplied,
                  .promotionCodeAlreadyUsed,
