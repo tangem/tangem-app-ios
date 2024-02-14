@@ -14,7 +14,7 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var stepAnimation: StepAnimation? = .slideForward
+    @Published var stepAnimation: SendView.StepAnimation? = .slideForward
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
@@ -177,7 +177,7 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        let stepAnimation: StepAnimation? = (nextStep == .summary) ? nil : .slideForward
+        let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
         openStep(nextStep, stepAnimation: stepAnimation)
     }
 
@@ -278,7 +278,7 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: StepAnimation?) {
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
         self.stepAnimation = stepAnimation
 
         if stepAnimation != nil {
@@ -364,12 +364,5 @@ extension SendViewModel: NotificationTapDelegate {
         default:
             break
         }
-    }
-}
-
-extension SendViewModel {
-    enum StepAnimation {
-        case slideForward
-        case slideBackward
     }
 }
