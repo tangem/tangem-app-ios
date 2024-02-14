@@ -69,6 +69,10 @@ final class RateAppService {
             return
         }
 
+        guard request.isSelected else {
+            return
+        }
+
         guard request.isBalanceLoaded else {
             return
         }

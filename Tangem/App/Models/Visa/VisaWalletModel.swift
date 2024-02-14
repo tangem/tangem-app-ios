@@ -67,7 +67,7 @@ class VisaWalletModel {
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
         let utils = VisaUtilities()
-        tokenItem = .token(utils.visaToken, utils.visaBlockchain)
+        tokenItem = .token(utils.visaToken, .init(utils.visaBlockchain, derivationPath: nil))
 
         let apiService = VisaAPIServiceBuilder().build(
             isTestnet: true,
