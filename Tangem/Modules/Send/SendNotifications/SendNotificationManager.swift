@@ -22,6 +22,16 @@ class SendNotificationManager {
     private let transactionCreationNotificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
 
+    private var notEnoughFeeConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration {
+        TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration(
+            transactionAmountTypeName: tokenItem.name,
+            feeAmountTypeName: feeTokenItem.name,
+            feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
+            feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled,
+            networkName: tokenItem.networkName
+        )
+    }
+
     private weak var delegate: NotificationTapDelegate?
 
     init(tokenItem: TokenItem, feeTokenItem: TokenItem, input: SendNotificationManagerInput) {
@@ -105,30 +115,6 @@ class SendNotificationManager {
             }
             .store(in: &bag)
 
-        #warning("TODO")
-
-        sendModel
-            .feeError
-            .sink { [weak self] feeError in
-                guard
-                    let self,
-                    !sendModel.feeChargedInSameCurrency
-                else {
-                    return
-                }
-
-                let feeExceedsBalance = ((feeError as? TransactionError) == TransactionError.feeExceedsBalance)
-                let configuration = TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration(
-                    transactionAmountTypeName: tokenItem.name,
-                    feeAmountTypeName: feeTokenItem.name,
-                    feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
-                    feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled,
-                    networkName: tokenItem.networkName
-                )
-                updateEventVisibility(feeExceedsBalance, event: .feeExceedsBalance(configuration: configuration))
-            }
-            .store(in: &bag)
-
         sendModel
             .reserveAmountForTransaction
             .sink { [weak self] reserveAmountForTransaction in
@@ -147,9 +133,9 @@ class SendNotificationManager {
             .map { (self, transactionErrors) -> [NotificationViewInput] in
                 let factory = NotificationsFactory()
                 return transactionErrors
-                    .compactMap(\.sendNotificationEvent)
-                    .map {
-                        factory.buildNotificationInput(for: $0, buttonAction: self.buttonAction)
+                    .compactMap {
+                        guard let notificationEvent = self.notificationEvent(from: $0) else { return nil }
+                        return factory.buildNotificationInput(for: notificationEvent, buttonAction: self.buttonAction)
                     }
             }
             .sink { [weak self] in
@@ -166,6 +152,19 @@ class SendNotificationManager {
             }
         } else {
             notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == event.hashValue }
+        }
+    }
+
+    private func notificationEvent(from transactionError: TransactionError) -> SendNotificationEvent? {
+        switch transactionError {
+        case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
+            return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
+        case .totalExceedsBalance:
+            return .totalExceedsBalance(configuration: notEnoughFeeConfiguration)
+        case .feeExceedsBalance:
+            return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
+        default:
+            return nil
         }
     }
 }
@@ -189,15 +188,4 @@ extension SendNotificationManager: NotificationManager {
     }
 
     func dismissNotification(with id: NotificationViewId) {}
-}
-
-extension TransactionError {
-    var sendNotificationEvent: SendNotificationEvent? {
-        switch self {
-        case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
-            return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
-        default:
-            return nil
-        }
-    }
 }
