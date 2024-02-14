@@ -119,6 +119,9 @@ private extension CommonExpressTransactionBuilder {
         case .algorand:
             return AlgorandTransactionParams(nonce: extraDestinationId)
 
+        case .hedera:
+            return HederaTransactionParams(memo: extraDestinationId)
+
         case .bitcoin,
              .litecoin,
              .ethereum,
