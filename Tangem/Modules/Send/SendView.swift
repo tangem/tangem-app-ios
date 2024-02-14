@@ -29,12 +29,16 @@ struct SendView: View {
                 if viewModel.showNavigationButtons {
                     navigationButtons
                 }
+
+                NavHolder()
+                    .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+
+                NavHolder()
+                    .alert(item: $viewModel.alert) { $0.alert }
             }
         }
         .background(backgroundColor.ignoresSafeArea())
         .animation(.easeOut(duration: 0.3), value: viewModel.step)
-        .alert(item: $viewModel.alert) { $0.alert }
-        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
 
     @ViewBuilder

@@ -45,6 +45,7 @@ struct AuthView: View {
 
             Text(Localization.welcomeUnlockTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .multilineTextAlignment(.center)
                 .padding(.bottom, 14)
 
             Text(Localization.welcomeUnlockDescription(BiometricAuthorizationUtils.biometryType.name))
