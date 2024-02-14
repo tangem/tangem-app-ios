@@ -39,6 +39,7 @@ struct SendAmountView: View {
                         decimalValue: $viewModel.amount,
                         maximumFractionDigits: viewModel.amountFractionDigits
                     )
+                    .alignment(.center)
                     .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
                     .padding(.top, 16)
 
@@ -57,7 +58,6 @@ struct SendAmountView: View {
                 .frame(maxWidth: .infinity)
             }
             .contentAlignment(.center)
-            .backgroundColor(Colors.Background.action)
             .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
 
             HStack {

@@ -16,42 +16,6 @@ extension View {
     }
 
     @ViewBuilder
-    func tintCompat(_ color: Color) -> some View {
-        if #available(iOS 15.0, *) {
-            self.tint(color)
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
-    func toggleStyleCompat(_ color: Color) -> some View {
-        if #available(iOS 15.0, *) {
-            self.tint(color)
-        } else {
-            toggleStyle(SwitchToggleStyle(tint: color))
-        }
-    }
-
-    @ViewBuilder
-    func searchableCompat(text: Binding<String>) -> some View {
-        if #available(iOS 15.0, *) {
-            self.searchable(text: text, placement: .navigationBarDrawer(displayMode: .always))
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
-    func interactiveDismissDisabledCompat() -> some View {
-        if #available(iOS 15, *) {
-            self.interactiveDismissDisabled()
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
     func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
         if condition {
             transform(self)
@@ -68,14 +32,6 @@ extension View {
     /// See https://developer.apple.com/tutorials/swiftui-concepts/choosing-the-right-way-to-hide-a-view for details
     func hidden(_ shouldHide: Bool) -> some View {
         opacity(shouldHide ? 0.0 : 1.0)
-    }
-
-    @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
-    func ios14FixedHeight(_ height: CGFloat) -> some View {
-        if #unavailable(iOS 15.0) {
-            return frame(height: height)
-        }
-        return self
     }
 
     /// Two separate methods exist for iOS <16.0 and >=16.0 because they must be applied at the different levels
