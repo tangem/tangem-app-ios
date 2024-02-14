@@ -93,8 +93,7 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
 
         var body: some View {
             GroupedSection(viewModels) {
-//                FeeRowView(viewModel: $0, namespace: ))
-                Text($0.subtitleText ?? "A")
+                FeeRowView(viewModel: $0)
             }
             .padding(.vertical, 14)
             .background(Colors.Background.secondary)
