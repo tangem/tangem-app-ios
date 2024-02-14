@@ -42,7 +42,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         case .exchange:
             return Localization.tokenSwapPromotionButton
         case .reduceAmount(let amount, let currencySymbol):
-            return "Reduce amount \(amount) \(currencySymbol)"
+            return Localization.sendNotificationHighFeeAccept("\(amount) \(currencySymbol)")
         }
     }
 
