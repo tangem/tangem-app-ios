@@ -47,7 +47,7 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(Constants.defaultAnimation, value: viewModel.step) // TMP
+        .animation(Constants.defaultAnimation, value: viewModel.step)
         .alert(item: $viewModel.alert) { $0.alert }
         .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
@@ -93,11 +93,6 @@ struct SendView: View {
                             .frame(maxWidth: .infinity, maxHeight: 1)
                     }
                 }
-//                .overlay(
-//                    Toggle("Slow", isOn: $viewModel.slowAnimation),
-//                    alignment: .leading
-//                )
-//                #warning("TMP")
             }
         }
         .padding(.horizontal, 16)
@@ -140,17 +135,6 @@ struct SendView: View {
                     action: viewModel.next
                 )
             }
-
-//            #warning("TMP")
-//            Color.black
-//                .frame(width: backButtonSize.height, height: backButtonSize.height)
-//                .overlay(
-//                    Image(systemName: "arrow.circlepath")
-//                        .foregroundColor(.white)
-//                )
-//                .onTapGesture {
-//                    viewModel.summ()
-//                }
         }
         .padding(.horizontal)
     }
