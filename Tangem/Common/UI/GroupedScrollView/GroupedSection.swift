@@ -95,50 +95,6 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     }
 }
 
-/*
- body: some View {
-        if !models.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                header()
-                    .padding(.horizontal, horizontalPadding)
-
-                ZStack {
-                    Rectangle()
-                        .fill(Color.red)
-                        .matchedGeometryEffect(id: backgroundNamespaceId, in: namespace)
-                        .overlay(
-                            Text("\(backgroundNamespaceId ?? "nil") \(namespace?.hashValue ?? -1)")
-                                .foregroundColor(.white)
-                        )
-
-                    VStack(alignment: contentAlignment, spacing: interItemSpacing) {
-                        ForEach(models) { model in
-                            content(model)
-                                .padding(.horizontal, horizontalPadding)
-
-                            if models.last?.id != model.id {
-                                separator
-                            }
-                        }
-                    }
-                    .padding(.vertical, interSectionPadding)
-                    //                .background(
-                    //                    backgroundColor
-                    //                        .matchedGeometryEffect(id: backgroundNamespaceId, in: namespace)
-                    //                )
-                    //                .overlay(
-                    //                    Text("\(backgroundNamespaceId ?? "nil") \(namespace?.hashValue ?? -1)")
-                    //                )
-                }
-                .cornerRadius(12)
-
-                footer()
-                    .padding(.horizontal, horizontalPadding)
-            }
-            .padding(.vertical, verticalPadding)
-        }
- */
-
 extension GroupedSection {
     enum SeparatorStyle: Int, Hashable {
         case none
