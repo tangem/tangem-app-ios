@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 
-@available(iOS 13.0, *)
 struct TwinPreflightReadFilter: PreflightReadFilter {
     private let twinKey: TwinKey
 
