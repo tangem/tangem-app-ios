@@ -14,11 +14,6 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
-    enum StepAnimation {
-        case slideForward
-        case slideBackward
-    }
-
     @Published var stepAnimation: StepAnimation? = .slideForward
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
@@ -360,5 +355,12 @@ extension SendViewModel: NotificationTapDelegate {
         default:
             break
         }
+    }
+}
+
+extension SendViewModel {
+    enum StepAnimation {
+        case slideForward
+        case slideBackward
     }
 }
