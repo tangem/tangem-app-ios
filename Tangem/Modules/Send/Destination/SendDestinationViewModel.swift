@@ -87,6 +87,7 @@ class SendDestinationViewModel: ObservableObject {
             input: input.destinationTextPublisher,
             isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
+            animatingFooterOnAppear: $animatingAuxiliaryViewsOnAppear.uiPublisher,
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination($0)
@@ -99,6 +100,7 @@ class SendDestinationViewModel: ObservableObject {
                 input: input.destinationAdditionalFieldTextPublisher,
                 isValidating: .just(output: false),
                 isDisabled: input.additionalFieldEmbeddedInAddress,
+                animatingFooterOnAppear: .just(output: false),
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
