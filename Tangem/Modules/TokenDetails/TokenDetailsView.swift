@@ -128,7 +128,7 @@ private extension TokenDetailsView {
     let notifManager = SingleTokenNotificationManager(
         walletModel: walletModel,
         walletModelsManager: userWalletModel.walletModelsManager,
-        swapPairService: nil,
+        expressDestinationService: nil,
         contextDataProvider: nil
     )
     let pendingTxsManager = CommonPendingExpressTransactionsManager(
