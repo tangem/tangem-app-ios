@@ -35,9 +35,9 @@ class CommonTangemApiService {
         AppLog.shared.debug("CommonTangemApiService deinit")
     }
 
-    private func request<D: Decodable>(for type: TangemApiTarget.TargetType) async throws -> D {
+    private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
         let target = TangemApiTarget(type: type, authData: authData)
-        return try await provider.asyncRequest(for: target).mapAPIResponse()
+        return try await provider.asyncRequest(for: target).mapAPIResponse(decoder: decoder)
     }
 }
 
@@ -187,8 +187,17 @@ extension CommonTangemApiService: TangemApiService {
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
+    func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
+        let decoder = JSONDecoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+
+        return try await request(for: .promotion(request: model), decoder: decoder)
+    }
+
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
-        try await request(for: .promotion(programName: programName, timeout: timeout))
+        try await request(for: .promotion(request: .init(programName: programName)))
     }
 
     @discardableResult
@@ -237,13 +246,13 @@ extension CommonTangemApiService: TangemApiService {
 }
 
 private extension Response {
-    func mapAPIResponse<D: Decodable>() throws -> D {
+    func mapAPIResponse<D: Decodable>(decoder: JSONDecoder = .init()) throws -> D {
         let filteredResponse = try filterSuccessfulStatusCodes()
 
         if let baseError = try? filteredResponse.map(TangemBaseAPIError.self) {
             throw baseError.error
         }
 
-        return try filteredResponse.map(D.self)
+        return try filteredResponse.map(D.self, using: decoder)
     }
 }
