@@ -26,11 +26,9 @@ struct ExpressProvidersSelectorView: View {
             GroupedSection(viewModel.providerViewModels) {
                 ProviderRowView(viewModel: $0)
             }
-            .backgroundColor(Colors.Background.action)
-            .separatorStyle(.minimum)
             .interItemSpacing(14)
-            .interSectionPadding(12)
-            .verticalPadding(16)
+            .innerContentPadding(12)
+            .padding(.vertical, 10)
 
             moreProvidersInformationView
         }

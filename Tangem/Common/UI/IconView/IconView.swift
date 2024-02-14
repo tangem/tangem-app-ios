@@ -58,14 +58,11 @@ struct IconView<Placeholder: View>: View {
     var body: some View {
         if forceKingfisher {
             kfImage
-        } else if #available(iOS 15.0, *) {
-            cachedAsyncImage
         } else {
-            kfImage
+            cachedAsyncImage
         }
     }
 
-    @available(iOS 15.0, *)
     var cachedAsyncImage: some View {
         CachedAsyncImage(url: url, scale: UIScreen.main.scale) { phase in
             switch phase {
