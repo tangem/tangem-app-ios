@@ -125,7 +125,10 @@ class SendModel {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
-            didChangeFeeInclusion(true)
+            if walletModel.tokenItem == walletModel.feeTokenItem {
+                #warning("[REDACTED_TODO_COMMENT]")
+                didChangeFeeInclusion(true)
+            }
         }
     }
 
