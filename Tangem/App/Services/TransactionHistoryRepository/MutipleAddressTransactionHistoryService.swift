@@ -27,6 +27,8 @@ class MutipleAddressTransactionHistoryService {
         addresses: [String],
         transactionHistoryProviders: [String: TransactionHistoryProvider]
     ) {
+        assert(!transactionHistoryProviders.isEmpty, "TransactionHistoryProviders can't be empty")
+
         self.tokenItem = tokenItem
         self.addresses = addresses
         self.transactionHistoryProviders = transactionHistoryProviders
