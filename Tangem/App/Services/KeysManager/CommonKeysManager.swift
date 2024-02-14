@@ -43,6 +43,7 @@ extension CommonKeysManager: KeysManager {
             getBlockCredentials: .init(keys.getBlockAccessTokens),
             kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
             tronGridApiKey: keys.tronGridApiKey,
+            hederaArkhiaApiKey: keys.hederaArkhiaKey,
             tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
             fireAcademyApiKeys: .init(mainnetApiKey: keys.chiaFireAcademyApiKey, testnetApiKey: keys.chiaFireAcademyApiKey),
             chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
@@ -106,6 +107,7 @@ extension CommonKeysManager {
         let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
         let tronGridApiKey: String
+        let hederaArkhiaKey: String
         let quiknodeApiKey: String
         let quiknodeSubdomain: String
         let bscQuiknodeApiKey: String
