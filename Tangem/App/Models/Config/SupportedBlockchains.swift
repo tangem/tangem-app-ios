@@ -137,6 +137,7 @@ struct SupportedBlockchains {
             .octa,
             .chia(testnet: true),
             .near(curve: ed25519Curve(for: version), testnet: true),
+            .telos(testnet: true),
             .decimal(testnet: true),
             .veChain(testnet: true),
             .xdc(testnet: true),
