@@ -593,7 +593,7 @@ extension ExpressViewModel: NotificationTapDelegate {
     private func openNetworkCurrency() {
         guard
             let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == .blockchain(initialWallet.tokenItem.blockchain) && $0.blockchainNetwork == initialWallet.blockchainNetwork
+                $0.tokenItem == initialWallet.tokenItem
             })
         else {
             assertionFailure("Network currency WalletModel not found")

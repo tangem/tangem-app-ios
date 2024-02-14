@@ -77,7 +77,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: options.cardModel.userWalletId.stringValue,
-            blockchainNetwork: options.walletModel.blockchainNetwork,
             tokenItem: options.walletModel.tokenItem
         )
 
@@ -129,14 +128,7 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 }
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
-    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo]) {
-        let tokenItem: TokenItem
-        switch amountType {
-        case .token(let token):
-            tokenItem = .token(token, blockchain)
-        default:
-            tokenItem = .blockchain(blockchain)
-        }
+    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         receiveBottomSheetViewModel = .init(tokenItem: tokenItem, addressInfos: addressInfos)
     }
 
