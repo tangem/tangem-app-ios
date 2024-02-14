@@ -8,14 +8,6 @@
 
 import SwiftUI
 
-extension SendView {
-    enum Constants {
-        static let animationDuration: TimeInterval = 0.3
-        static let defaultAnimation: Animation = .spring(duration: animationDuration)
-        static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
-    }
-}
-
 struct SendView: View {
     @Namespace var namespace
 
@@ -48,8 +40,6 @@ struct SendView: View {
         }
         .background(backgroundColor.ignoresSafeArea())
         .animation(Constants.defaultAnimation, value: viewModel.step)
-        .alert(item: $viewModel.alert) { $0.alert }
-        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -170,6 +160,14 @@ private struct SendViewBackButton: View {
                 )
                 .frame(size: CGSize(bothDimensions: height))
         }
+    }
+}
+
+extension SendView {
+    enum Constants {
+        static let animationDuration: TimeInterval = 0.3
+        static let defaultAnimation: Animation = .spring(duration: animationDuration)
+        static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }
 }
 
