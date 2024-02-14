@@ -87,7 +87,7 @@ final class SendViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
-        $step
+        let inputFieldsValid = $step
             .flatMap { [weak self] step -> AnyPublisher<Bool, Never> in
                 guard let self else {
                     return .just(output: true)
@@ -103,6 +103,17 @@ final class SendViewModel: ObservableObject {
                 case .summary, .finish:
                     return .just(output: true)
                 }
+            }
+
+        let hasTransactionCreationError = Publishers.CombineLatest($step, sendModel.transactionCreationError)
+            .map { step, errors in
+                guard let transactionErrors = errors as? TransactionErrors else { return false }
+                return transactionErrors.errors.contains { $0.step == step }
+            }
+
+        return Publishers.CombineLatest(inputFieldsValid, hasTransactionCreationError)
+            .map { inputFieldsValid, hasTransactionCreationError in
+                inputFieldsValid && !hasTransactionCreationError
             }
             .eraseToAnyPublisher()
     }
@@ -339,6 +350,21 @@ extension SendViewModel: NotificationTapDelegate {
             openNetworkCurrency()
         default:
             break
+        }
+    }
+}
+
+// MARK: - TransactionError
+
+private extension TransactionError {
+    var step: SendStep {
+        switch self {
+        case .invalidAmount:
+            return .amount
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .totalExceedsBalance:
+            return .fee
+        case .dustAmount, .dustChange, .minimumBalance:
+            return .summary
         }
     }
 }
