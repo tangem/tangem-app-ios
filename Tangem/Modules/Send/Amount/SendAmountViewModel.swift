@@ -118,3 +118,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         }
     }
 }
+
+extension SendAmountViewModel: AuxiliaryViewAnimatable {
+    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
+    }
+}
