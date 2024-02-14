@@ -20,7 +20,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
-    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
+    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
 
     private weak var coordinator: TokenDetailsRoutable?
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
@@ -28,17 +28,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var notificatioChangeSubscription: AnyCancellable?
 
-    var tokenItem: TokenItem {
-        switch amountType {
-        case .token(let token):
-            return .token(token, blockchain)
-        default:
-            return .blockchain(blockchain)
-        }
-    }
-
     var iconUrl: URL? {
-        guard let id = tokenItem.id else {
+        guard let id = walletModel.tokenItem.id else {
             return nil
         }
 
@@ -46,7 +37,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     var customTokenColor: Color? {
-        tokenItem.token?.customTokenColor
+        walletModel.tokenItem.token?.customTokenColor
     }
 
     var canHideToken: Bool { userWalletModel.isMultiWallet }
@@ -80,7 +71,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: tokenItem.currencySymbol])
+        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: walletModel.tokenItem.currencySymbol])
     }
 
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -101,7 +92,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
+        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -141,7 +132,7 @@ extension TokenDetailsViewModel {
             ]
         )
 
-        userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        userWalletModel.userTokensManager.remove(walletModel.tokenItem)
         dismiss()
     }
 }
@@ -205,7 +196,7 @@ private extension TokenDetailsViewModel {
 
         coordinator?.openPendingExpressTransactionDetails(
             for: pendingTransaction,
-            tokenItem: tokenItem,
+            tokenItem: walletModel.tokenItem,
             pendingTransactionsManager: pendingExpressTransactionsManager
         )
     }
