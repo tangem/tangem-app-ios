@@ -600,8 +600,12 @@
 		B67688F12B078F71006C94F7 /* MainBottomSheetOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */; };
 		B67D90DD2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */; };
 		B67DC1E62B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DC1E52B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift */; };
+		B67DC1E82B7C4716008ACB0E /* BlockchainAccountCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DC1E72B7C4716008ACB0E /* BlockchainAccountCreator.swift */; };
+		B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DC1E92B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift */; };
 		B67DC1EC2B7C4CB9008ACB0E /* FakeBlockchainDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DC1EB2B7C4CB9008ACB0E /* FakeBlockchainDataStorage.swift */; };
 		B6805B722A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6805B712A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift */; };
+		B687286F2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687286E2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift */; };
+		B68728712B7D48F10090C24F /* BlockchainAccountCreateResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68728702B7D48F10090C24F /* BlockchainAccountCreateResult.swift */; };
 		B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */; };
 		B68907852A32482F00A0D246 /* ForEach+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68907842A32482F00A0D246 /* ForEach+.swift */; };
 		B68B35692A4ACF8B0069129F /* OrganizeTokensContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B35682A4ACF8B0069129F /* OrganizeTokensContainerView.swift */; };
@@ -2024,9 +2028,13 @@
 		B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetOverlayView.swift; sourceTree = "<group>"; };
 		B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetModifier.swift; sourceTree = "<group>"; };
 		B67DC1E52B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsBlockchainDataStorage.swift; sourceTree = "<group>"; };
+		B67DC1E72B7C4716008ACB0E /* BlockchainAccountCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreator.swift; sourceTree = "<group>"; };
+		B67DC1E92B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreatorStub.swift; sourceTree = "<group>"; };
 		B67DC1EB2B7C4CB9008ACB0E /* FakeBlockchainDataStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeBlockchainDataStorage.swift; sourceTree = "<group>"; };
 		B67DC1ED2B7C4F03008ACB0E /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		B6805B712A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemPreviewProvider.swift; sourceTree = "<group>"; };
+		B687286E2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreateParameters.swift; sourceTree = "<group>"; };
+		B68728702B7D48F10090C24F /* BlockchainAccountCreateResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreateResult.swift; sourceTree = "<group>"; };
 		B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadContentOffset.swift"; sourceTree = "<group>"; };
 		B68907842A32482F00A0D246 /* ForEach+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ForEach+.swift"; sourceTree = "<group>"; };
 		B68B35682A4ACF8B0069129F /* OrganizeTokensContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensContainerView.swift; sourceTree = "<group>"; };
@@ -4799,6 +4807,7 @@
 				B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */,
 				B0FB4EF62A8511A40057F4C2 /* UserTokenListStubs.swift */,
 				B6934E8C2B5EAF88004AA300 /* RateAppControllerStub.swift */,
+				B67DC1E92B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift */,
 			);
 			path = Stubs;
 			sourceTree = "<group>";
@@ -5028,6 +5037,16 @@
 				B6180C852A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift */,
 			);
 			path = OrganizeTokens;
+			sourceTree = "<group>";
+		};
+		B687286D2B7D48A70090C24F /* BlockchainAccountCreator */ = {
+			isa = PBXGroup;
+			children = (
+				B67DC1E72B7C4716008ACB0E /* BlockchainAccountCreator.swift */,
+				B687286E2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift */,
+				B68728702B7D48F10090C24F /* BlockchainAccountCreateResult.swift */,
+			);
+			path = BlockchainAccountCreator;
 			sourceTree = "<group>";
 		};
 		B68728722B7D4B870090C24F /* BlockchainDataStorage */ = {
@@ -5646,6 +5665,7 @@
 			isa = PBXGroup;
 			children = (
 				B68728722B7D4B870090C24F /* BlockchainDataStorage */,
+				B687286D2B7D48A70090C24F /* BlockchainAccountCreator */,
 				EF9E38032B74E6B5004B694C /* BannerPromotionNotification */,
 				EF5E5A802B70FF1B00D19BBB /* ExpressPromotionService */,
 				EFA6164F2B62CC510013A129 /* TransactionSendAvailabilityProvider */,
@@ -8024,6 +8044,7 @@
 				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
 				5D0A2CDF27E9D47900396399 /* StatefulPreviewWrapper.swift in Sources */,
 				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
+				B68728712B7D48F10090C24F /* BlockchainAccountCreateResult.swift in Sources */,
 				EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */,
 				EF5E5AAD2B73E9AD00D19BBB /* Timeline.swift in Sources */,
 				EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */,
@@ -8132,6 +8153,7 @@
 				DAB033922B7A541E00A19D46 /* InitialFocusBehavior.swift in Sources */,
 				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
+				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
 				DCBAF69F2A4AF4660029480A /* TwinWalletManagerFactory.swift in Sources */,
 				EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */,
@@ -8319,6 +8341,7 @@
 				DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */,
 				B012A1112AA5A75A0079BAB4 /* WalletModel+State.swift in Sources */,
 				EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */,
+				B67DC1E82B7C4716008ACB0E /* BlockchainAccountCreator.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
 				DC7D39EF29DFFBDC007BCD23 /* OnboardingStepsBuilderFactory.swift in Sources */,
 				2D788E852ADD657000E0884B /* WalletSelectorViewModel.swift in Sources */,
@@ -8880,6 +8903,7 @@
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
 				B0FE0B3529712C170046EE2C /* WalletConnectV2Utils.swift in Sources */,
 				DCBC945F2994F9BF0050BC35 /* AnalyticsContextScope.swift in Sources */,
+				B687286F2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift in Sources */,
 				EFEC5F74296FF2BA009C0E5F /* FocusedDecimalNumberTextField.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
 				B0A4C4A22A271CD20060E039 /* BalanceWithButtonsViewModel.swift in Sources */,
