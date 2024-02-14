@@ -224,6 +224,7 @@ final class SendViewModel: ObservableObject {
         sendModel
             .isSending
             .removeDuplicates()
+            .receive(on: RunLoop.main)
             .sink { [weak self] isSending in
                 self?.setLoadingViewVisibile(isSending)
             }
