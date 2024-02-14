@@ -173,3 +173,9 @@ class SendDestinationViewModel: ObservableObject {
             .store(in: &bag)
     }
 }
+
+extension SendDestinationViewModel: AuxiliaryViewAnimatable {
+    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
+    }
+}
