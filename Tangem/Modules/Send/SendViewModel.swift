@@ -325,14 +325,8 @@ extension SendViewModel: SendSummaryRoutable {
             return
         }
 
-        if case .destination = step {
-            sendDestinationViewModel.animatingAuxiliaryViewsOnAppear = true
-        }
-        if case .amount = step {
-            sendAmountViewModel.animatingAuxiliaryViewsOnAppear = true
-        }
-        if case .fee = step {
-            sendFeeViewModel.animatingAuxiliaryViewsOnAppear = true
+        if let auxiliaryViewAnimatable = auxiliaryViewAnimatable(step) {
+            auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear(true)
         }
 
         openStep(step, stepAnimation: nil)
@@ -340,6 +334,21 @@ extension SendViewModel: SendSummaryRoutable {
 
     func send() {
         sendModel.send()
+    }
+
+    private func auxiliaryViewAnimatable(_ step: SendStep) -> AuxiliaryViewAnimatable? {
+        switch step {
+        case .amount:
+            return sendAmountViewModel
+        case .destination:
+            return sendDestinationViewModel
+        case .fee:
+            return sendFeeViewModel
+        case .summary:
+            return nil
+        case .finish:
+            return nil
+        }
     }
 }
 
