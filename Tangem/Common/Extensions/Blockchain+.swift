@@ -155,6 +155,8 @@ private extension Blockchain {
             case .network: return "shibarium"
             case .coin: return "bone-shibaswap"
             }
+        case .hedera:
+            return "hedera-hashgraph"
         }
     }
 
