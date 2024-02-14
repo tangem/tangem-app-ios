@@ -15,18 +15,6 @@ class AppSettings {
     @AppStorageCompat(StorageType.numberOfAppLaunches)
     var numberOfLaunches: Int = 0
 
-    @AppStorageCompat(StorageType.didUserRespondToRateApp)
-    var didUserRespondToRateApp: Bool = false
-
-    @AppStorageCompat(StorageType.dismissRateAppAtLaunch)
-    var dismissRateAppAtLaunch: Int? = nil
-
-    @AppStorageCompat(StorageType.positiveBalanceAppearanceDate)
-    var positiveBalanceAppearanceDate: Date? = nil
-
-    @AppStorageCompat(StorageType.positiveBalanceAppearanceLaunch)
-    var positiveBalanceAppearanceLaunch: Int? = nil
-
     @AppStorageCompat(StorageType.cardsStartedActivation)
     var cardsStartedActivation: [String] = []
 
@@ -75,11 +63,11 @@ class AppSettings {
     @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
     var userDidSwipeWalletsOnMainScreen: Bool = false
 
-    @AppStorageCompat(StorageType.tangemExpressMainPromotionDismissed)
-    var tangemExpressMainPromotionDismissed: Bool = false
+    @AppStorageCompat(StorageType.mainPromotionDismissed)
+    var mainPromotionDismissed: [String] = []
 
-    @AppStorageCompat(StorageType.tangemExpressTokenPromotionDismissed)
-    var tangemExpressTokenPromotionDismissed: Bool = false
+    @AppStorageCompat(StorageType.tokenPromotionDismissed)
+    var tokenPromotionDismissed: [String] = []
 
     static let shared: AppSettings = .init()
 
