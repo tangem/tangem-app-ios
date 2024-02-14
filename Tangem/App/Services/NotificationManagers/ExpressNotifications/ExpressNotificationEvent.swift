@@ -92,7 +92,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .dustAmount(let minimumAmountText, let minimumChangeText):
             return Localization.warningExpressDustMessage(minimumAmountText, minimumChangeText)
         case .withdrawalWarning(let amount, let symbol):
-            return Localization.sendNotificationHighFeeText
+            return Localization.sendNotificationHighFeeText("\(amount) \(symbol)")
         }
     }
 
