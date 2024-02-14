@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import TangemVisa
 
 struct VisaWalletManagerFactory: AnyWalletManagerFactory {
     func makeWalletManager(for token: StorageEntry, keys: [CardDTO.Wallet]) throws -> WalletManager {

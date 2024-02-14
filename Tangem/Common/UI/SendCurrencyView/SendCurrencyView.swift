@@ -11,6 +11,7 @@ import SwiftUI
 struct SendCurrencyView: View {
     @ObservedObject private var viewModel: SendCurrencyViewModel
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
+    @State private var isShaking: Bool = false
 
     private var didTapChangeCurrency: (() -> Void)?
     private var maxAmountAction: (() -> Void)?
@@ -24,14 +25,24 @@ struct SendCurrencyView: View {
         ExpressCurrencyView(viewModel: viewModel.expressCurrencyViewModel) {
             SendDecimalNumberTextField(
                 decimalValue: $decimalValue,
-                maximumFractionDigits: viewModel.maximumFractionDigits,
-                font: Fonts.Regular.title1
+                maximumFractionDigits: viewModel.maximumFractionDigits
             )
             .maximumFractionDigits(viewModel.maximumFractionDigits)
             .maxAmountAction(maxAmountAction)
+            .offset(x: isShaking ? 10 : 0)
             .simultaneousGesture(TapGesture().onEnded {
                 viewModel.textFieldDidTapped()
             })
+            .onChange(of: viewModel.expressCurrencyViewModel.titleState) { titleState in
+                guard case .insufficientFunds = titleState else {
+                    return
+                }
+
+                isShaking = true
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.2, blendDuration: 0.2)) {
+                    isShaking = false
+                }
+            }
         }
         .didTapChangeCurrency { didTapChangeCurrency?() }
     }
