@@ -96,8 +96,14 @@ extension View {
     func matchedGeometryEffectOptional<ID>(id: ID?, in namespace: Namespace.ID?, properties: MatchedGeometryProperties = .frame, anchor: UnitPoint = .center, isSource: Bool = true) -> some View where ID: Hashable {
         if let id, let namespace {
             matchedGeometryEffect(id: id, in: namespace, properties: properties, anchor: anchor, isSource: isSource)
-        } else {
+        } else if id == nil, namespace == nil {
             self
+        } else {
+            #if DEBUG
+            fatalError("You must set either both ID and namespace or neither")
+            #else
+            self
+            #endif
         }
     }
 }
