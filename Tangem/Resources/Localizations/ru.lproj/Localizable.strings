@@ -83,7 +83,7 @@
 "common_explorer" = "Обозреватель";
 "common_explorer_format" = "%@ обозреватель";
 "common_fee_label" = "Комиссия";
-"common_fee_selector_footer" = "Сетевые комиссии за транзакции используются для поддержки безопасности сети, поощрения валидаторов, выделения ресурсов и определения приоритета транзакции.";
+"common_fee_selector_footer" = "Сетевые комиссии – это плата пользователя за обработку и подтверждение транзакций. Размер комиссии зависит от нагрузка на сеть, объема транзакции и приоритета исполнения.";
 "common_fee_selector_option_custom" = "Свое";
 "common_fee_selector_option_fast" = "Быстро";
 "common_fee_selector_option_market" = "По рынку";
@@ -105,6 +105,7 @@
 "common_origin_card" = "Основная карта";
 "common_paste" = "Вставить";
 "common_push" = "Ускорить";
+"common_read_more" = "Подробнее";
 "common_receive" = "Получить";
 "common_reject" = "Отклонить";
 "common_reload" = "Перезагрузить";
@@ -263,8 +264,8 @@
 "main_promotion_credited" = "1INCH токены будут зачислены на адрес вашего кошелька в сети %@ в течение 48 часов";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
-"main_swap_promotion_message" = "Обменивайте свои цифровые активы между различными сетями";
-"main_swap_promotion_title" = "Кроссчейн-своп теперь доступен";
+"main_swap_changelly_promotion_message" = "Обменивайте свои токены с %1$@ комиссии провайдера через Changelly с %2$@ по %3$@ февраля.";
+"main_swap_changelly_promotion_title" = "Обмен с Changelly, %@ комиссии";
 "main_tokens" = "Токены";
 "manage_tokens_add" = "Добавить";
 "manage_tokens_edit" = "Изменить";
@@ -557,9 +558,9 @@
 "token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
+"token_swap_changelly_promotion_message" = "Обменивайте этот токен на другие с %1$@ комиссии за обслуживание с %2$@ по %3$@ февраля.";
+"token_swap_changelly_promotion_title" = "Обмен с Changelly, %@ комиссии";
 "token_swap_promotion_button" = "Обменять";
-"token_swap_promotion_message" = "Обменяйте этот токен на другие активы в вашем портфеле";
-"token_swap_promotion_title" = "Представляем кроссчейн-своп";
 "transaction_history_contract_address" = "контракт: %@";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
