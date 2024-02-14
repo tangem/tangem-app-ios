@@ -16,14 +16,12 @@ struct SendFeeView: View {
     let bottomSpacing: CGFloat
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) {
                 FeeRowView(viewModel: $0)
             } footer: {
                 DefaultFooterView(Localization.commonFeeSelectorFooter)
             }
-            .separatorStyle(.minimum)
-            .backgroundColor(Colors.Background.action)
 
             ForEach(viewModel.feeLevelsNotificationInputs) { input in
                 NotificationView(input: input)
@@ -49,7 +47,11 @@ struct SendFeeView: View {
             } footer: {
                 DefaultFooterView(viewModel.subtractFromAmountFooterText)
             }
-            .backgroundColor(Colors.Background.action)
+
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
 
             ForEach(viewModel.feeCoverageNotificationInputs) { input in
                 NotificationView(input: input)
