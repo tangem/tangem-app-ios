@@ -172,33 +172,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .sink()
             .store(in: &bag)
 
-        let userWalletNotificationsPublisher = userWalletNotificationManager
+        userWalletNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .share(replay: 1)
-
-        userWalletNotificationsPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let tokensNotificationsPublisher = tokensNotificationManager
+        tokensNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .share(replay: 1)
-
-        tokensNotificationsPublisher
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let allNotificationsPublisher = [userWalletNotificationsPublisher, tokensNotificationsPublisher]
-            .combineLatest()
-            .map { $0.flatMap { $0 } }
-
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
-            notificationsPublisher: allNotificationsPublisher
+            notificationsPublisher1: $notificationInputs,
+            notificationsPublisher2: $tokensNotificationInputs
         )
     }
 
