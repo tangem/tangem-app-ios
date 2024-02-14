@@ -261,6 +261,12 @@ class SendFeeViewModel: ObservableObject {
     }
 }
 
+extension SendFeeViewModel: AuxiliaryViewAnimatable {
+    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
+    }
+}
+
 // MARK: - private extensions
 
 private extension DecimalNumberTextField.DecimalValue {
