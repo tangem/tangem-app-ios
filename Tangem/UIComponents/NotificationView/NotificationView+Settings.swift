@@ -63,6 +63,11 @@ extension NotificationView {
         }
     }
 
+    enum Title: Hashable {
+        case string(String)
+        case attributed(AttributedString)
+    }
+
     enum ColorScheme {
         case primary
         case secondary
