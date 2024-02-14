@@ -63,6 +63,12 @@ extension NotificationView {
         }
     }
 
+    enum Title: Hashable {
+        case string(String)
+        /// Available only for iOS 15
+        case attributed(NSAttributedString)
+    }
+
     enum ColorScheme {
         case primary
         case secondary
