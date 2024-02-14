@@ -58,7 +58,8 @@ struct SendSummaryView: View {
                         .setNamespace(namespace)
                         .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
                         .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-                        .overlay(feeIcon.opacity(0), alignment: .topLeading) // To maintain cell animation from Summary to Fee screen
+                        // To maintain cell animation from Summary to Fee screen
+                        .overlay(feeIcon.opacity(0), alignment: .topLeading)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
