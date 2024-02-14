@@ -10,7 +10,6 @@ import SwiftUI
 
 struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
-    @Binding var animatingFooterOnAppear: Bool
 
     private var namespace: Namespace.ID?
     private var iconNamespaceId: String?
@@ -18,9 +17,8 @@ struct SendDestinationTextView: View {
     private var textNamespaceId: String?
     private var clearButtonNamespaceId: String?
 
-    init(viewModel: SendDestinationTextViewModel, animatingFooterOnAppear: Binding<Bool>) {
+    init(viewModel: SendDestinationTextViewModel) {
         self.viewModel = viewModel
-        _animatingFooterOnAppear = animatingFooterOnAppear
     }
 
     var body: some View {
@@ -48,7 +46,7 @@ struct SendDestinationTextView: View {
                 .padding(.vertical, 10)
             }
         } footer: {
-            if !animatingFooterOnAppear {
+            if !viewModel.animatingFooterOnAppear {
                 Text(viewModel.description)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .transition(SendView.Constants.auxiliaryViewTransition)
@@ -105,9 +103,10 @@ struct SendDestinationTextView: View {
                         TextField(viewModel.placeholder, text: $viewModel.input)
                     }
                 }
+                .disabled(viewModel.isDisabled)
                 .autocapitalization(.none)
                 .keyboardType(.asciiCapable)
-                .disableAutocorrection(true).disabled(viewModel.isDisabled)
+                .disableAutocorrection(true)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
@@ -179,28 +178,28 @@ extension SendDestinationTextView: Setupable {
     }
 }
 
-// #Preview {
-//    GroupedScrollView {
-//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-//
-//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-//
-//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-//
-//        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-//
-//        Text("There are two fields and they must be aligned 👇")
-//            .foregroundColor(.blue)
-//            .font(.caption)
-//
-//        // To make sure everything's aligned and doesn't jump when entering stuff
-//        ZStack {
-//            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-//                .opacity(0.5)
-//
-//            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
-//                .opacity(0.5)
-//        }
-//    }
-//    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-// }
+#Preview {
+    GroupedScrollView {
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), animatingFooterOnAppear: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), animatingFooterOnAppear: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), animatingFooterOnAppear: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), animatingFooterOnAppear: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+
+        Text("There are two fields and they must be aligned 👇")
+            .foregroundColor(.blue)
+            .font(.caption)
+
+        // To make sure everything's aligned and doesn't jump when entering stuff
+        ZStack {
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), animatingFooterOnAppear: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+                .opacity(0.5)
+
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), isDisabled: .just(output: false), animatingFooterOnAppear: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+                .opacity(0.5)
+        }
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+}
