@@ -131,10 +131,10 @@ class ExpressNotificationManager {
         switch validationError {
         case .balanceNotFound, .invalidAmount, .invalidFee:
             event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
-        case .amountExceedsBalance, .totalExceedsBalance: // Same as .notEnoughBalanceForSwapping
+        case .amountExceedsBalance, .totalExceedsBalance: // Same as .notEnoughBalanceForSwapping which will be removed
             notificationInputsSubject.value = []
             return
-        case .feeExceedsBalance: // Same as .notEnoughAmountForFee
+        case .feeExceedsBalance: // Same as .notEnoughAmountForFee which will be removed
             guard sourceTokenItem.isToken else {
                 notificationInputsSubject.value = []
                 return
@@ -147,7 +147,6 @@ class ExpressNotificationManager {
                 blockchainIconName: sourceTokenItem.blockchain.iconNameFilled
             )
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
-            let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
             let amountText = "\(minimumAmount.value) \(sourceTokenItemSymbol)"
             event = .dustAmount(minimumAmountText: amountText, minimumChangeText: amountText)
         case .minimumBalance(let minimumBalance):
@@ -155,7 +154,7 @@ class ExpressNotificationManager {
         case .withdrawalWarning(let withdrawalWarning):
             event = .withdrawalWarning(reduceAmount: withdrawalWarning.suggestedReduceAmount.value, currencySymbol: sourceTokenItemSymbol)
         case .reserve(let amount):
-            event = .notEnoughReserveToSwap(maximumAmountText: amount.description)
+            event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
         }
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
