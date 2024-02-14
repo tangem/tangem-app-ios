@@ -51,6 +51,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeLevelsNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var customFeeNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var feeCoverageNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     private let notificationManager: NotificationManager
     private let input: SendFeeViewModelInput
@@ -192,6 +193,11 @@ class SendFeeViewModel: ObservableObject {
         (notificationManager as! SendNotificationManager)
             .notificationPublisher(for: .feeIncluded)
             .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
