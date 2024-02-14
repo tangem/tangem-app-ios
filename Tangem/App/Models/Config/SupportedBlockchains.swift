@@ -142,6 +142,7 @@ struct SupportedBlockchains {
             .xdc(testnet: true),
             .algorand(curve: ed25519Curve(for: version), testnet: true),
             .shibarium(testnet: true),
+            .aptos(curve: ed25519Curve(for: version), testnet: true),
         ]
     }
 
