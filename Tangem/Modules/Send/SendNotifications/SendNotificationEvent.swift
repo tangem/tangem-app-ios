@@ -23,24 +23,24 @@ enum SendNotificationEvent {
 }
 
 extension SendNotificationEvent: NotificationEvent {
-    var title: String {
+    var title: NotificationView.Title {
         switch self {
         case .networkFeeUnreachable:
-            return Localization.sendFeeUnreachableErrorTitle
+            return .string(Localization.sendFeeUnreachableErrorTitle)
         case .totalExceedsBalance:
-            return Localization.sendNotificationExceedBalanceTitle
+            return .string(Localization.sendNotificationExceedBalanceTitle)
         case .feeExceedsBalance(let configuration):
-            return Localization.warningSendBlockedFundsForFeeTitle(configuration.networkName)
+            return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.networkName))
         case .customFeeTooHigh:
-            return Localization.sendNotificationFeeTooHighTitle
+            return .string(Localization.sendNotificationFeeTooHighTitle)
         case .customFeeTooLow:
-            return Localization.sendNotificationTransactionDelayTitle
+            return .string(Localization.sendNotificationTransactionDelayTitle)
         case .feeCoverage:
-            return Localization.sendNetworkFeeWarningTitle
+            return .string(Localization.sendNetworkFeeWarningTitle)
         case .minimumAmount:
-            return Localization.sendNotificationInvalidAmountTitle
+            return .string(Localization.sendNotificationInvalidAmountTitle)
         case .invalidReserve(let value):
-            return Localization.sendNotificationInvalidReserveAmountTitle(value)
+            return .string(Localization.sendNotificationInvalidReserveAmountTitle(value))
         }
     }
 
