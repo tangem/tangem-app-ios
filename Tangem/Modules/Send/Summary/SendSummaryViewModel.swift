@@ -27,13 +27,14 @@ protocol SendSummaryViewModelInput: AnyObject {
 }
 
 class SendSummaryViewModel: ObservableObject {
+    let walletSummaryViewModel: SendWalletSummaryViewModel
     let canEditAmount: Bool
     let canEditDestination: Bool
 
+    @Published var isSendButtonDisabled = false
     @Published var isSending = false
     @Published var alert: AlertBinder?
 
-    let walletSummaryViewModel: SendWalletSummaryViewModel
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: AmountSummaryViewData?
     @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
@@ -143,6 +144,15 @@ class SendSummaryViewModel: ObservableObject {
             .notificationPublisher(for: .summary)
 //            .transactionCreationNotificationPublisher()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        (notificationManager as! SendNotificationManager)
+            .notificationPublisher
+            .map { notificationInputs in
+                let hasErrors = notificationInputs.map { $0.settings.event.severity }.contains(.critical)
+                return hasErrors
+            }
+            .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
