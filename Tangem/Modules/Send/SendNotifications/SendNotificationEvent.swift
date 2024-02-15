@@ -83,17 +83,27 @@ extension SendNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .minimumAmount, .invalidReserve:
+            // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+            // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.attention.image))
         case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
+            // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Image(configuration.feeAmountTypeIconName)))
         }
     }
 
     var severity: NotificationView.Severity {
         switch self {
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .totalExceedsBalance, .feeExceedsBalance, .minimumAmount, .invalidReserve:
+        case .minimumAmount, .invalidReserve:
+            // ⚠️ sync with SendNotificationEvent.icon
+            return .critical
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+            // ⚠️ sync with SendNotificationEvent.icon
+            return .warning
+        case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
+            // ⚠️ sync with SendNotificationEvent.icon
             return .critical
         }
     }
