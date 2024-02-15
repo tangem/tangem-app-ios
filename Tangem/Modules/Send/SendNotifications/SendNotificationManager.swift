@@ -74,6 +74,24 @@ class SendNotificationManager {
 
         #warning("TODO")
         let sendModel = (input as! SendModel)
+
+//        if let withdrawalValidator = sendModel.withdrawalValidator {
+//            sendModel
+//                .currentTransaction()
+//                .map { amo in
+//
+        ////                    withdrawalValidator.withdrawalSuggestion(for: <#T##Transaction#>)
+//
+//                    //            let event = SendNotificationEvent.withdrawalWarning(warningMessage: "WARNING", reduceMessage: "REDUCE?", ignoreMessage: "IGNORE", suggestedReduceAmount: "REDUCE BY 000")
+//                    //            self.updateEventVisibility(true, event: event)
+//
+//                    return 0
+//                }
+//                .sink { [weak self] _ in
+//                }
+//                .store(in: &bag)
+//        }
+
         let loadedFeeValues = sendModel
             .feeValues
             .withWeakCaptureOf(sendModel)
@@ -90,6 +108,11 @@ class SendNotificationManager {
             .compactMap {
                 $0?.amount.value
             }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//            let event = SendNotificationEvent.withdrawalWarning(warningMessage: "WARNING", reduceMessage: "REDUCE?", ignoreMessage: "IGNORE", suggestedReduceAmount: "REDUCE BY 000")
+//            self.updateEventVisibility(true, event: event)
+        }
 
         // These are triggered when no custom fee is entered
         Publishers.CombineLatest(loadedFeeValues, customFeeValue)
