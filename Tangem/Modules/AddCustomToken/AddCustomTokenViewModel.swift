@@ -87,10 +87,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         UIApplication.shared.endEditing()
 
         let tokenItem: TokenItem
-        let derivationPath: DerivationPath?
         do {
             tokenItem = try enteredTokenItem()
-            derivationPath = enteredDerivationPath()
 
             try checkLocalStorage()
 
@@ -100,8 +98,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             return
         }
 
-        userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem], derivationPath: derivationPath)
-        logSuccess(tokenItem: tokenItem, derivationPath: derivationPath)
+        userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
+        logSuccess(tokenItem: tokenItem)
 
         closeModule()
     }
@@ -247,10 +245,11 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     private func enteredTokenItem() throws -> TokenItem {
         let blockchain = try enteredBlockchain()
+        let derivationPath = enteredDerivationPath()
 
         let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
         if !blockchain.canHandleTokens || missingTokenInformation {
-            return .blockchain(blockchain)
+            return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
             let enteredContractAddress = try enteredContractAddress(in: blockchain)
 
@@ -276,7 +275,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 id: foundStandardTokenItem?.id
             )
 
-            return .token(token, blockchain)
+            return .token(token, .init(blockchain, derivationPath: derivationPath))
         }
     }
 
@@ -333,8 +332,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        let derivationPath = enteredDerivationPath()
-        if userWalletModel.userTokensManager.contains(tokenItem, derivationPath: derivationPath) {
+        if userWalletModel.userTokensManager.contains(tokenItem) {
             throw TokenSearchError.alreadyAdded
         }
     }
@@ -424,18 +422,18 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func logSuccess(tokenItem: TokenItem, derivationPath: DerivationPath?) {
+    private func logSuccess(tokenItem: TokenItem) {
         var params: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
         ]
 
         if let derivationStyle = settings.derivationStyle,
-           let usedDerivationPath = derivationPath ?? tokenItem.blockchain.derivationPath(for: derivationStyle) {
+           let usedDerivationPath = tokenItem.blockchainNetwork.derivationPath ?? tokenItem.blockchain.derivationPath(for: derivationStyle) {
             params[.derivationPath] = usedDerivationPath.rawPath
         }
 
-        if case .token(let token, let blockchain) = tokenItem {
-            params[.networkId] = blockchain.networkId
+        if case .token(let token, let blockchainNetwork) = tokenItem {
+            params[.networkId] = blockchainNetwork.blockchain.networkId
             params[.contractAddress] = token.contractAddress
         }
 
