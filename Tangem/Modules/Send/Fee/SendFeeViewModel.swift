@@ -38,6 +38,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
+    @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
     private(set) var customFeeModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
@@ -93,6 +94,14 @@ class SendFeeViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        }
     }
 
     private func createCustomFeeModels() {
@@ -249,6 +258,12 @@ class SendFeeViewModel: ObservableObject {
         let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
         let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
         return Fee(feeAmount, parameters: parameters)
+    }
+}
+
+extension SendFeeViewModel: AuxiliaryViewAnimatable {
+    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
     }
 }
 
