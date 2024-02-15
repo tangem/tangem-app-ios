@@ -13,10 +13,10 @@ enum SendNotificationEvent {
 }
 
 extension SendNotificationEvent: NotificationEvent {
-    var title: String {
+    var title: NotificationView.Title {
         switch self {
         case .networkFeeUnreachable:
-            return Localization.sendFeeUnreachableErrorTitle
+            return .string(Localization.sendFeeUnreachableErrorTitle)
         }
     }
 
