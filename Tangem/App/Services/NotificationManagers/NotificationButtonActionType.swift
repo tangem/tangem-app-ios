@@ -17,8 +17,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case refreshFee
     case goToProvider
     case exchange
-    case sendAll
-    case reduceBy
+    case reduceTo(amount: Decimal, amountFormatted: String)
 
     var id: Int { hashValue }
 
@@ -42,10 +41,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.commonGoToProvider
         case .exchange:
             return Localization.tokenSwapPromotionButton
-        case .sendAll:
-            return "Send all"
-        case .reduceBy:
-            return "Reduce by"
+        case .reduceTo(_, let amountFormatted):
+            return Localization.sendNotificationHighFeeAccept(amountFormatted)
         }
     }
 
@@ -55,7 +52,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return .trailing(Assets.tangemIcon)
         case .exchange:
             return .leading(Assets.exchangeMini)
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .sendAll, .reduceBy:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceTo:
             return nil
         }
     }
@@ -64,7 +61,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .sendAll, .reduceBy:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceTo:
             return .secondary
         case .exchange:
             return .exchangePromotionWhite
