@@ -51,7 +51,7 @@ final class ManageTokensViewModel: ObservableObject {
     func onAppear() {
         loader.reset("")
     }
-    
+
     func onBottomAppear() {
         Analytics.log(.manageTokensScreenOpened)
     }
@@ -237,7 +237,7 @@ private extension ManageTokensViewModel {
         Analytics.log(
             event: .manageTokensButtonGetAddresses,
             params: [
-                .cardsCount: String(countWalletPendingDerivation),
+                .walletCount: String(countWalletPendingDerivation),
                 .source: Analytics.ParameterValue.manageTokens.rawValue,
             ]
         )
