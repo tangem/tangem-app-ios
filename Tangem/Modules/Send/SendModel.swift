@@ -13,6 +13,10 @@ import BigInt
 import BlockchainSdk
 
 class SendModel {
+    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> {
+        _withdrawalSuggestion.eraseToAnyPublisher()
+    }
+
     var amountValid: AnyPublisher<Bool, Never> {
         amount
             .map {
@@ -62,6 +66,7 @@ class SendModel {
 
     private var transactionParameters: TransactionParams?
     private let _transactionCreationError = CurrentValueSubject<Error?, Never>(nil)
+    private let _withdrawalSuggestion = CurrentValueSubject<WithdrawalSuggestion?, Never>(nil)
     private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
     // MARK: - Raw data
@@ -286,6 +291,25 @@ class SendModel {
                 }
             }
             .store(in: &bag)
+
+        if let withdrawalValidator = walletModel.withdrawalValidator {
+            transaction
+                .withWeakCaptureOf(self)
+                .map { (self, transaction) in
+                    guard let transaction else { return nil }
+
+                    var suggestion = withdrawalValidator.withdrawalSuggestion(for: transaction)
+                    if self.isFeeIncluded {
+//                        suggestion = suggestion?.add(amount: transaction.fee.amount)
+                    }
+                    return suggestion
+                }
+                .sink { [weak self] in
+
+                    self?._withdrawalSuggestion.send($0)
+                }
+                .store(in: &bag)
+        }
     }
 
     @discardableResult
@@ -735,5 +759,16 @@ extension SendModel: SendNotificationManagerInput {
 
     var reserveAmountForTransaction: AnyPublisher<Amount?, Never> {
         Just(nil).eraseToAnyPublisher()
+    }
+}
+
+extension WithdrawalSuggestion {
+    func add(amount: Amount) -> WithdrawalSuggestion {
+        switch self {
+        case .changeAmountOrKeepCurrent(let newAmount):
+            return .changeAmountOrKeepCurrent(newAmount: newAmount + amount)
+        case .changeAmount(let newAmount, let maxUtxo):
+            return .changeAmount(newAmount: newAmount + amount, maxUtxo: maxUtxo)
+        }
     }
 }
