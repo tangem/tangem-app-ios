@@ -42,7 +42,7 @@ struct CoinsResponseMapper {
 
         guard let contractAddress = network.contractAddress,
               let decimalCount = network.decimalCount else {
-            return .blockchain(blockchain)
+            return .blockchain(.init(blockchain, derivationPath: nil))
         }
 
         guard blockchain.canHandleTokens else {
@@ -57,6 +57,6 @@ struct CoinsResponseMapper {
             id: id
         )
 
-        return .token(token, blockchain)
+        return .token(token, .init(blockchain, derivationPath: nil))
     }
 }
