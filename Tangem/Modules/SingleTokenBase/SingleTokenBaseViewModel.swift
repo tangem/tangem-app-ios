@@ -119,12 +119,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func fetchMoreHistory() -> FetchMore? {
-        guard walletModel.canFetchHistory else {
+        // flag isReloadingTransactionHistory need for locked fetchMore requests update transaction history, when pullToRefresh is active
+        guard walletModel.canFetchHistory, !isReloadingTransactionHistory else {
             return nil
         }
 
         return FetchMore { [weak self] in
-            self?.loadHistory()
+            self?.performLoadHistory()
         }
     }
 
@@ -152,7 +153,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             })
     }
 
-    func reloadHistory() {
+    func onButtonReloadHistory() {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
         // We should reset transaction history to initial state here
@@ -162,10 +163,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             self.isReloadingTransactionHistory = true
         }
 
-        loadHistory()
+        performLoadHistory()
     }
 
-    func loadHistory() {
+    private func performLoadHistory() {
         transactionHistoryBag = walletModel
             .updateTransactionsHistory()
             .receive(on: DispatchQueue.main)
@@ -209,7 +210,7 @@ extension SingleTokenBaseViewModel {
         setupActionButtons()
         updateActionButtons()
         updatePendingTransactionView()
-        loadHistory()
+        performLoadHistory()
     }
 
     private func setupActionButtons() {
