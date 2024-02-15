@@ -44,20 +44,18 @@ class WalletModel {
     var tokenItem: TokenItem {
         switch amountType {
         case .coin, .reserve:
-            return .blockchain(wallet.blockchain)
+            return .blockchain(blockchainNetwork)
         case .token(let token):
-            return .token(token, wallet.blockchain)
+            return .token(token, blockchainNetwork)
         }
     }
 
     var feeTokenItem: TokenItem {
-        let blockchain = blockchainNetwork.blockchain
-
-        switch blockchain.feePaidCurrency {
+        switch blockchainNetwork.blockchain.feePaidCurrency {
         case .coin:
-            return .blockchain(blockchain)
+            return .blockchain(blockchainNetwork)
         case .token(let value):
-            return .token(value, blockchain)
+            return .token(value, blockchainNetwork)
         case .sameCurrency:
             return tokenItem
         }
