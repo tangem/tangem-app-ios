@@ -20,6 +20,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     @Published var input: String = ""
     @Published var placeholder: String = ""
     @Published var isDisabled: Bool = true
+    @Published var animatingFooterOnAppear = false
     @Published var errorText: String?
 
     var hasTextInClipboard = false
@@ -31,6 +32,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         input: AnyPublisher<String, Never>,
         isValidating: AnyPublisher<Bool, Never>,
         isDisabled: AnyPublisher<Bool, Never>,
+        animatingFooterOnAppear: AnyPublisher<Bool, Never>,
         errorText: AnyPublisher<Error?, Never>,
         didEnterDestination: @escaping (String) -> Void
     ) {
@@ -40,10 +42,10 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         self.didEnterDestination = didEnterDestination
         placeholder = style.placeholder(isDisabled: self.isDisabled)
 
-        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, errorText: errorText)
+        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, animatingFooterOnAppear: animatingFooterOnAppear, errorText: errorText)
     }
 
-    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
+    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, animatingFooterOnAppear: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
             .assign(to: \.input, on: self, ownership: .weak)
             .store(in: &bag)
@@ -67,6 +69,11 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
                 self?.isDisabled = isDisabled
                 self?.placeholder = style.placeholder(isDisabled: isDisabled)
             }
+            .store(in: &bag)
+
+        animatingFooterOnAppear
+            .removeDuplicates()
+            .assign(to: \.animatingFooterOnAppear, on: self, ownership: .weak)
             .store(in: &bag)
 
         errorText
