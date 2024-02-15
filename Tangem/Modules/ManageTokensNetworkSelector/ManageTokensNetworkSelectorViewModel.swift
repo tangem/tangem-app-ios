@@ -244,8 +244,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         Analytics.log(event: .manageTokensSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
+            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
         ])
     }
 
