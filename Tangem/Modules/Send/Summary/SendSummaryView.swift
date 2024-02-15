@@ -83,6 +83,7 @@ struct SendSummaryView: View {
             title: Localization.commonSend,
             icon: .trailing(Assets.tangemIcon),
             isLoading: viewModel.isSending,
+            isDisabled: viewModel.isSendButtonDisabled,
             action: viewModel.send
         )
     }
