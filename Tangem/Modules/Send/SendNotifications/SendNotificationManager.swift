@@ -75,22 +75,26 @@ class SendNotificationManager {
         #warning("TODO")
         let sendModel = (input as! SendModel)
 
-//        if let withdrawalValidator = sendModel.withdrawalValidator {
-//            sendModel
-//                .currentTransaction()
-//                .map { amo in
-//
-        ////                    withdrawalValidator.withdrawalSuggestion(for: <#T##Transaction#>)
-//
-//                    //            let event = SendNotificationEvent.withdrawalWarning(warningMessage: "WARNING", reduceMessage: "REDUCE?", ignoreMessage: "IGNORE", suggestedReduceAmount: "REDUCE BY 000")
-//                    //            self.updateEventVisibility(true, event: event)
-//
-//                    return 0
-//                }
-//                .sink { [weak self] _ in
-//                }
-//                .store(in: &bag)
-//        }
+        if let withdrawalValidator = sendModel.withdrawalValidator {
+            sendModel
+                .withdrawalSuggestion
+                .sink { [weak self] withdrawalSuggestion in
+//                    let withdrawalOptionalAmountChange:
+                    switch withdrawalSuggestion {
+                    case .changeAmountOrKeepCurrent(let newAmount):
+//                                    let event = SendNotificationEvent.withdrawalWarning(warningMessage: "WARNING", reduceMessage: "REDUCE?", ignoreMessage: "IGNORE", suggestedReduceAmount: "REDUCE BY 000")
+//                                    self.updateEventVisibility(true, event: event)
+                        let event = SendNotificationEvent.withdrawalOptionalAmountChange(amount: newAmount.value, amountFormatted: newAmount.string())
+                        self?.updateEventVisibility(true, event: event)
+                    case .changeAmount(let newAmount):
+                        break
+                    case nil:
+                        let event = SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: "")
+                        self?.updateEventVisibility(false, event: event)
+                    }
+                }
+                .store(in: &bag)
+        }
 
         let loadedFeeValues = sendModel
             .feeValues
@@ -176,7 +180,7 @@ class SendNotificationManager {
                 notificationInputsSubject.value.append(input)
             }
         } else {
-            notificationInputsSubject.value.removeAll { $0.settings.event.hashValue == event.hashValue }
+            notificationInputsSubject.value.removeAll { ($0.settings.event as? SendNotificationEvent)?.id == event.id }
         }
     }
 
