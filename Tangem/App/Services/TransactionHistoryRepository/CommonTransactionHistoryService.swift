@@ -88,6 +88,11 @@ private extension CommonTransactionHistoryService {
 
         cancellable = transactionHistoryProvider
             .loadTransactionHistory(request: request)
+            .handleEvents(receiveCancel: {
+                // Resolves conflicting requests for tracking history from different consumers so as not to lose output from the update process
+                AppLog.shared.debug("\(String(describing: self)) canceled")
+                result(.success(()))
+            })
             .sink { [weak self] completion in
                 switch completion {
                 case .failure(let error):
@@ -96,11 +101,11 @@ private extension CommonTransactionHistoryService {
                     result(.success(()))
                 case .finished:
                     self?._state.send(.loaded)
+                    AppLog.shared.debug("\(String(describing: self)) loaded")
+                    result(.success(()))
                 }
             } receiveValue: { [weak self] response in
                 self?.addToStorage(records: response.records)
-                AppLog.shared.debug("\(String(describing: self)) loaded")
-                result(.success(()))
             }
     }
 
