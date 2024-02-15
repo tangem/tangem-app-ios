@@ -53,7 +53,7 @@ struct TokenDetailsView: View {
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
                     exploreTransactionAction: viewModel.openTransactionExplorer,
-                    reloadButtonAction: viewModel.reloadHistory,
+                    reloadButtonAction: viewModel.onButtonReloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
                     fetchMore: viewModel.fetchMoreHistory()
                 )
@@ -128,12 +128,11 @@ private extension TokenDetailsView {
     let notifManager = SingleTokenNotificationManager(
         walletModel: walletModel,
         walletModelsManager: userWalletModel.walletModelsManager,
-        swapPairService: nil,
+        expressDestinationService: nil,
         contextDataProvider: nil
     )
     let pendingTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        blockchainNetwork: walletModel.blockchainNetwork,
         tokenItem: walletModel.tokenItem
     )
     let coordinator = TokenDetailsCoordinator()
