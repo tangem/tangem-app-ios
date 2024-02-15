@@ -155,6 +155,7 @@ private extension Blockchain {
             case .network: return "shibarium"
             case .coin: return "bone-shibaswap"
             }
+        case .aptos: return "aptos"
         }
     }
 
