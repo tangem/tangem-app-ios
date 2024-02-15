@@ -194,11 +194,6 @@ class SendFeeViewModel: ObservableObject {
             .notificationPublisher(for: .feeIncluded)
             .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
-
-        notificationManager.notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.notificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
     }
 
     private func makeFeeRowViewModels(_ feeValues: [FeeOption: LoadingValue<Fee>]) -> [FeeRowViewModel] {
