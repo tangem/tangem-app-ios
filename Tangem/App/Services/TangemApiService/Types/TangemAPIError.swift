@@ -56,12 +56,14 @@ extension TangemAPIError {
 
         // Misc
         case badRequest = 400
+        case forbidden = 403
         case notFound = 404
 
         /// The description for local errors, for server errors description will be gotten from api
         var description: String? {
             switch self {
             case .badRequest,
+                 .forbidden,
                  .notFound,
                  .promotionCodeNotFound,
                  .promotionCodeNotApplied,
