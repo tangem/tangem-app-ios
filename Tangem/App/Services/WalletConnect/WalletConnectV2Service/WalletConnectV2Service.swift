@@ -107,9 +107,12 @@ final class WalletConnectV2Service {
             await sessionsStorage.remove(session)
         } catch {
             let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-            if case .sessionForTopicNotFound = internalError {
+            switch internalError {
+            case .sessionForTopicNotFound, .symmetricKeyForTopicNotFound:
                 await sessionsStorage.remove(session)
                 return
+            default:
+                break
             }
             AppLog.shared.error("[WC 2.0] Failed to disconnect session with topic: \(session.topic) with error: \(error)")
         }
