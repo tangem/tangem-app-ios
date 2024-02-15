@@ -49,34 +49,34 @@ class CommonUserTokensManager {
         self.longHashesSupported = longHashesSupported
     }
 
-    private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
-        if let derivationPath = derivationPath {
-            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+    private func getBlockchainNetwork(for tokenItem: TokenItem) -> BlockchainNetwork {
+        if tokenItem.blockchainNetwork.derivationPath != nil {
+            return tokenItem.blockchainNetwork
         }
 
         if let derivationStyle {
-            let derivationPath = blockchain.derivationPath(for: derivationStyle)
-            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+            let derivationPath = tokenItem.blockchain.derivationPath(for: derivationStyle)
+            return BlockchainNetwork(tokenItem.blockchain, derivationPath: derivationPath)
         }
 
-        return BlockchainNetwork(blockchain, derivationPath: nil)
+        return tokenItem.blockchainNetwork
     }
 
-    private func addInternal(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, shouldUpload: Bool) {
+    private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) {
         let entries = tokenItems.map { tokenItem in
-            let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+            let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
             return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
         }
 
         userTokenListManager.update(.append(entries), shouldUpload: shouldUpload)
     }
 
-    private func removeInternal(_ tokenItem: TokenItem, derivationPath: DerivationPath?, shouldUpload: Bool) {
-        guard canRemove(tokenItem, derivationPath: derivationPath) else {
+    private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
+        guard canRemove(tokenItem) else {
             return
         }
 
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
 
         if let token = tokenItem.token {
             userTokenListManager.update(.removeToken(token, in: blockchainNetwork), shouldUpload: shouldUpload)
@@ -111,8 +111,8 @@ extension CommonUserTokensManager: UserTokensManager {
         }
     }
 
-    func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+    func contains(_ tokenItem: TokenItem) -> Bool {
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
 
         guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
             return false
@@ -148,9 +148,9 @@ extension CommonUserTokensManager: UserTokensManager {
         return
     }
 
-    func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
+    func add(_ tokenItem: TokenItem) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
-            add(tokenItem, derivationPath: derivationPath) { result in
+            add(tokenItem) { result in
                 continuation.resume(with: result)
             }
         }
@@ -158,7 +158,7 @@ extension CommonUserTokensManager: UserTokensManager {
         // wait for walletModelsManager to be updated
         try await Task.sleep(seconds: 0.1)
 
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
         let walletModelId = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: tokenItem.amountType)
 
         guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId.id }) else {
@@ -168,17 +168,17 @@ extension CommonUserTokensManager: UserTokensManager {
         return walletModel.defaultAddress
     }
 
-    func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        addInternal(tokenItems, derivationPath: derivationPath, shouldUpload: true)
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        addInternal(tokenItems, shouldUpload: true)
         deriveIfNeeded(completion: completion)
     }
 
-    func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
+    func canRemove(_ tokenItem: TokenItem) -> Bool {
         guard tokenItem.isBlockchain else {
             return true
         }
 
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
 
         guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
             return false
@@ -188,21 +188,21 @@ extension CommonUserTokensManager: UserTokensManager {
         return hasNoTokens
     }
 
-    func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {
-        removeInternal(tokenItem, derivationPath: derivationPath, shouldUpload: true)
+    func remove(_ tokenItem: TokenItem) {
+        removeInternal(tokenItem, shouldUpload: true)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd, derivationPath: derivationPath)
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd)
         deriveIfNeeded(completion: completion)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) {
         itemsToRemove.forEach {
-            removeInternal($0, derivationPath: derivationPath, shouldUpload: false)
+            removeInternal($0, shouldUpload: false)
         }
 
-        addInternal(itemsToAdd, derivationPath: derivationPath, shouldUpload: false)
+        addInternal(itemsToAdd, shouldUpload: false)
         loadSwapAvailbilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
