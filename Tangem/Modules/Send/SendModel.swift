@@ -50,6 +50,10 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
+    var withdrawalValidator: WithdrawalValidator? {
+        walletModel.withdrawalValidator
+    }
+
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
