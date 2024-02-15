@@ -56,6 +56,9 @@ private struct RefreshableScrollViewCompat<Content: View>: View {
     @State private var rotation: Angle = .degrees(0)
     @State private var alpha: Double = 0
     @State private var refreshing: Bool = false
+
+    private let coordinateSpaceName = UUID()
+
     var threshold: CGFloat = 100
     let onRefresh: OnRefresh
     let content: Content
@@ -63,17 +66,7 @@ private struct RefreshableScrollViewCompat<Content: View>: View {
     var body: some View {
         VStack {
             ScrollView(.vertical, showsIndicators: false) {
-                ZStack(alignment: .top) {
-                    MovingView()
-
-                    VStack {
-                        content
-                    }
-                    .alignmentGuide(
-                        .top,
-                        computeValue: { _ in (refreshing && frozen) ? -threshold : 0.0 }
-                    )
-
+                VStack(spacing: 0) {
                     SymbolView(
                         height: threshold,
                         loading: refreshing,
@@ -81,65 +74,79 @@ private struct RefreshableScrollViewCompat<Content: View>: View {
                         rotation: rotation,
                         alpha: alpha
                     )
+
+                    content
+                }
+                .offset(y: -threshold + ((refreshing && frozen) ? threshold : 0.0))
+                .readContentOffset(inCoordinateSpace: .named(coordinateSpaceName)) { value in
+                    refreshLogic(offset: value)
                 }
             }
-            .background(FixedView())
-            .onPreferenceChange(RefreshableKeyTypes.PrefKey.self) { values in
-                refreshLogic(values: values)
-            }
+            .coordinateSpace(name: coordinateSpaceName)
         }
     }
 
-    private func refreshLogic(values: [RefreshableKeyTypes.PrefData]) {
-        // `DispatchQueue.main.async` used here to allow publishing changes during view update
-        DispatchQueue.main.async {
-            // Calculating scroll offset
-            let movingBounds = values.first { $0.vType == .movingView }?.bounds ?? .zero
-            let fixedBounds = values.first { $0.vType == .fixedView }?.bounds ?? .zero
+    private struct SymbolView: View {
+        var height: CGFloat
+        var loading: Bool
+        var frozen: Bool
+        var rotation: Angle
+        var alpha: Double
+        var body: some View {
+            ZStack {
+                VStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .opacity(loading ? 1.0 : 0.0)
 
-            scrollOffset = movingBounds.minY - fixedBounds.minY
+                Image(systemName: "arrow.down") // If not loading, show the arrow
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: height * 0.25, height: height * 0.25)
+                    .padding(height * 0.375)
+                    .rotationEffect(rotation)
+                    .opacity(loading ? 0 : alpha)
+            }
+            .frame(height: height)
+        }
+    }
 
-            rotation = symbolRotation(scrollOffset)
-            alpha = symbolAlpha(scrollOffset)
+    private func refreshLogic(offset: CGPoint) {
+        scrollOffset = -offset.y
 
-            // Crossing the threshold on the way down, we start the refresh process
-            if !refreshing, scrollOffset > threshold, previousScrollOffset <= threshold {
-                refreshing = true
+        rotation = symbolRotation(scrollOffset)
+        alpha = symbolAlpha(scrollOffset)
 
-                // The consumer of this view may and most likely will change view hierarchy in `onRefresh` closure,
-                // which in turn will interfere with view hierarchy changes made by changing our `frozen`/`refreshing`
-                // state variables.
-                // To prevent it, we're notifying the consumer of this view about triggered pull-to-refresh with some delay.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    onRefresh {
-                        withAnimation {
-                            refreshing = false
-                        }
+        // Crossing the threshold on the way down, we start the refresh process
+        if !refreshing, scrollOffset > threshold, previousScrollOffset <= threshold {
+            refreshing = true
+
+            // The consumer of this view may and most likely will change view hierarchy in `onRefresh` closure,
+            // which in turn will interfere with view hierarchy changes made by changing our `frozen`/`refreshing`
+            // state variables.
+            // To prevent it, we're notifying the consumer of this view about triggered pull-to-refresh with some delay.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                onRefresh {
+                    withAnimation {
+                        refreshing = false
                     }
                 }
             }
-            if refreshing {
-                // Crossing the threshold on the way up, we add a space at the top of the scrollview
-                if previousScrollOffset > threshold, scrollOffset < previousScrollOffset {
-                    frozen = true
-                }
-            } else {
-                // Removing the space at the top of the scroll view
-                frozen = false
-            }
-
-            // Updating last scroll offset
-            previousScrollOffset = scrollOffset
         }
-    }
+        if refreshing {
+            // Crossing the threshold on the way up, we add a space at the top of the scrollview
+            if previousScrollOffset > threshold, scrollOffset < previousScrollOffset {
+                frozen = true
+            }
+        } else {
+            // Removing the space at the top of the scroll view
+            frozen = false
+        }
 
-    private func symbolAnimationProgress(_ scrollOffset: CGFloat) -> Double {
-        // We will begin rotation, only after we have passed
-        // 60% of the way of reaching the threshold.
-        let h = Double(threshold)
-        let d = Double(scrollOffset)
-        let v = max(min(d - (h * 0.6), h * 0.4), 0)
-        return v / (h * 0.4)
+        // Updating last scroll offset
+        previousScrollOffset = scrollOffset
     }
 
     private func symbolRotation(_ scrollOffset: CGFloat) -> Angle {
@@ -150,90 +157,13 @@ private struct RefreshableScrollViewCompat<Content: View>: View {
         return symbolAnimationProgress(scrollOffset)
     }
 
-    private struct SymbolView: View {
-        var height: CGFloat
-        var loading: Bool
-        var frozen: Bool
-        var rotation: Angle
-        var alpha: Double
-        var body: some View {
-            Group {
-                if loading { // If loading, show the activity control
-                    VStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }.frame(height: height).fixedSize()
-                        .offset(y: -height + (loading && frozen ? height : 0.0))
-                } else {
-                    Image(systemName: "arrow.down") // If not loading, show the arrow
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: height * 0.25, height: height * 0.25).fixedSize()
-                        .padding(height * 0.375)
-                        .rotationEffect(rotation)
-                        .opacity(alpha)
-                        .offset(y: -height + (loading && frozen ? +height : 0.0))
-                }
-            }
-        }
-    }
-
-    private struct MovingView: View {
-        var body: some View {
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(
-                        key: RefreshableKeyTypes.PrefKey.self,
-                        value: [
-                            RefreshableKeyTypes.PrefData(
-                                vType: .movingView,
-                                bounds: proxy.frame(in: .global)
-                            ),
-                        ]
-                    )
-            }.frame(height: 0)
-        }
-    }
-
-    private struct FixedView: View {
-        var body: some View {
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(
-                        key: RefreshableKeyTypes.PrefKey.self,
-                        value: [
-                            RefreshableKeyTypes.PrefData(
-                                vType: .fixedView,
-                                bounds: proxy.frame(in: .global)
-                            ),
-                        ]
-                    )
-            }
-        }
-    }
-}
-
-@available(iOS, obsoleted: 16, message: "iOS 15 doesn't fully support refreshable for ScrollView. Can be removed after update min OS version to 16 ([REDACTED_INFO])")
-private enum RefreshableKeyTypes {
-    enum ViewType: Int {
-        case movingView
-        case fixedView
-    }
-
-    fileprivate struct PrefData: Equatable {
-        let vType: ViewType
-        let bounds: CGRect
-    }
-
-    fileprivate struct PrefKey: PreferenceKey {
-        static var defaultValue: [PrefData] = []
-
-        static func reduce(value: inout [PrefData], nextValue: () -> [PrefData]) {
-            value.append(contentsOf: nextValue())
-        }
-
-        typealias Value = [PrefData]
+    private func symbolAnimationProgress(_ scrollOffset: CGFloat) -> Double {
+        // We will begin rotation, only after we have passed
+        // 60% of the way of reaching the threshold.
+        let h = Double(threshold)
+        let d = Double(scrollOffset)
+        let v = max(min(d - (h * 0.6), h * 0.4), 0)
+        return v / (h * 0.4)
     }
 }
 
