@@ -11,7 +11,7 @@ import BlockchainSdk
 import TangemExpress
 
 protocol SingleTokenBaseRoutable: AnyObject {
-    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
+    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openBuyCrypto(at url: URL, action: @escaping () -> Void)
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void)
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel)
