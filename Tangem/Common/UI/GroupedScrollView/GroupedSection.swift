@@ -21,6 +21,9 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private var backgroundColor: Color = Colors.Background.action
     private var contentAlignment: HorizontalAlignment = .leading
 
+    private var namespace: Namespace.ID?
+    private var backgroundNamespaceId: String?
+
     init(
         _ models: [Model],
         @ViewBuilder content: @escaping (Model) -> Content,
@@ -64,8 +67,11 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                     }
                 }
                 .padding(.vertical, innerContentPadding)
-                .background(backgroundColor)
-                .cornerRadiusContinuous(14)
+                .background(
+                    backgroundColor
+                        .cornerRadiusContinuous(14)
+                        .matchedGeometryEffectOptional(id: backgroundNamespaceId, in: namespace)
+                )
 
                 footer()
                     .padding(.horizontal, horizontalPadding)
@@ -115,7 +121,15 @@ extension GroupedSection: Setupable {
     }
 
     func backgroundColor(_ color: Color) -> Self {
-        map { $0.backgroundColor = color }
+        backgroundColor(color, id: nil, namespace: nil)
+    }
+
+    func backgroundColor(_ color: Color, id backgroundNamespaceId: String?, namespace: Namespace.ID?) -> Self {
+        map {
+            $0.backgroundColor = color
+            $0.namespace = namespace
+            $0.backgroundNamespaceId = backgroundNamespaceId
+        }
     }
 
     func contentAlignment(_ alignment: HorizontalAlignment) -> Self {
