@@ -44,7 +44,7 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
     }
 
     var blockchainNetwork: BlockchainNetwork {
-        BlockchainNetwork(.ethereum(testnet: false))
+        BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
     }
 
     var walletPublicKey: Wallet.PublicKey {
