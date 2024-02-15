@@ -130,6 +130,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             return
         }
 
+        Analytics.log(event: .manageTokensCustomTokenNetworkSelected, params: [.blockchain: blockchain.displayName])
+
         selectedBlockchainNetworkId = blockchain.networkId
         selectedBlockchainName = blockchain.displayName
 
@@ -162,6 +164,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     func setSelectedDerivationOption(derivationOption: AddCustomTokenDerivationOption) {
         selectedDerivationOption = derivationOption
 
+        Analytics.log(event: .manageTokensCustomTokenNetworkSelected, params: [.derivation: derivationOption.parameterValue])
+
         validate()
     }
 
@@ -182,7 +186,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        $contractAddress.removeDuplicates()
+        $contractAddress
+            .removeDuplicates()
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .withWeakCaptureOf(self)
@@ -201,6 +206,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
                         result = viewModel.findToken(contractAddress: enteredContractAddress)
                         contractAddressError = nil
+
+                        Analytics.log(.manageTokensCustomTokenAddress)
 
                         viewModel.isLoading = true
                     }
@@ -429,7 +436,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
         if let derivationStyle = settings.derivationStyle,
            let usedDerivationPath = tokenItem.blockchainNetwork.derivationPath ?? tokenItem.blockchain.derivationPath(for: derivationStyle) {
-            params[.derivationPath] = usedDerivationPath.rawPath
+            params[.derivation] = usedDerivationPath.rawPath
         }
 
         if case .token(let token, let blockchainNetwork) = tokenItem {
