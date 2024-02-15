@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 import SwiftUI
 
 enum SendNotificationEvent {
@@ -20,7 +21,8 @@ enum SendNotificationEvent {
     case feeCoverage
     case minimumAmount(value: String)
     case invalidReserve(value: String)
-    case withdrawalWarning(warningMessage: String, reduceMessage: String, ignoreMessage: String? = nil, suggestedReduceAmount: String)
+    case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String)
+    case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
 }
 
 extension SendNotificationEvent: NotificationEvent {
@@ -42,8 +44,10 @@ extension SendNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .invalidReserve(let value):
             return .string(Localization.sendNotificationInvalidReserveAmountTitle(value))
-        case .withdrawalWarning(let warningMessage, let reduceMessage, let ignoreMessage, let suggestedReduceAmount):
-            return .string(warningMessage)
+        case .withdrawalOptionalAmountChange:
+            return .string(Localization.sendNotificationHighFeeTitle)
+        case .withdrawalMandatoryAmountChange:
+            return .string(Localization.sendNotificationTransactionLimitTitle)
         }
     }
 
@@ -71,14 +75,17 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationInvalidMinimumAmountText(value)
         case .invalidReserve:
             return Localization.sendNotificationInvalidReserveAmountText
-        case .withdrawalWarning(let warningMessage, let reduceMessage, let ignoreMessage, let suggestedReduceAmount):
-            return reduceMessage
+
+        case .withdrawalOptionalAmountChange(_, let amount):
+            return Localization.sendNotificationHighFeeText(amount)
+        case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
+            return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .withdrawalWarning:
+        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             return .primary
         case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount, .invalidReserve:
             return .secondary
@@ -87,10 +94,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .minimumAmount, .invalidReserve, .withdrawalWarning:
+        case .minimumAmount, .invalidReserve:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.attention.image))
         case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
@@ -101,10 +108,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .minimumAmount, .invalidReserve, .withdrawalWarning:
+        case .minimumAmount, .invalidReserve:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
         case .totalExceedsBalance, .feeExceedsBalance:
@@ -114,7 +121,12 @@ extension SendNotificationEvent: NotificationEvent {
     }
 
     var isDismissable: Bool {
-        false
+        switch self {
+        case .withdrawalOptionalAmountChange:
+            true
+        default:
+            false
+        }
     }
 
     var analyticsEvent: Analytics.Event? {
@@ -146,7 +158,7 @@ extension SendNotificationEvent {
             return .customFee
         case .feeCoverage:
             return .feeIncluded
-        case .minimumAmount, .invalidReserve, .withdrawalWarning:
+        case .minimumAmount, .invalidReserve, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             return .summary
         }
     }
@@ -159,10 +171,37 @@ extension SendNotificationEvent {
             return [.refreshFee]
         case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
             return [.openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)]
-        case .withdrawalWarning:
-            return [.sendAll, .reduceBy]
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted), .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
+            return [.reduceTo(amount: amount, amountFormatted: amountFormatted)]
         case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount, .invalidReserve:
             return nil
+        }
+    }
+}
+
+extension SendNotificationEvent {
+    var id: String {
+        switch self {
+        case .networkFeeUnreachable:
+            "networkFeeUnreachable"
+        case .totalExceedsBalance:
+            "totalExceedsBalance"
+        case .feeExceedsBalance:
+            "feeExceedsBalance"
+        case .customFeeTooHigh:
+            "customFeeTooHigh"
+        case .customFeeTooLow:
+            "customFeeTooLow"
+        case .feeCoverage:
+            "feeCoverage"
+        case .minimumAmount:
+            "minimumAmount"
+        case .invalidReserve:
+            "invalidReserve"
+        case .withdrawalOptionalAmountChange:
+            "withdrawalOptionalAmountChange"
+        case .withdrawalMandatoryAmountChange:
+            "withdrawalMandatoryAmountChange"
         }
     }
 }
