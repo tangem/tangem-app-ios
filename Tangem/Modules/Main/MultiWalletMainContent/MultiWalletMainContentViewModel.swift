@@ -172,33 +172,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .sink()
             .store(in: &bag)
 
-        let userWalletNotificationsPublisher = userWalletNotificationManager
+        userWalletNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .share(replay: 1)
-
-        userWalletNotificationsPublisher
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let tokensNotificationsPublisher = tokensNotificationManager
+        tokensNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
-            .share(replay: 1)
-
-        tokensNotificationsPublisher
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let allNotificationsPublisher = [userWalletNotificationsPublisher, tokensNotificationsPublisher]
-            .combineLatest()
-            .map { $0.flatMap { $0 } }
-
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
-            notificationsPublisher: allNotificationsPublisher
+            notificationsPublisher1: $notificationInputs,
+            notificationsPublisher2: $tokensNotificationInputs
         )
     }
 
@@ -282,32 +273,21 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
 private extension MultiWalletMainContentViewModel {
     func hideTokenAction(for tokenItemViewModel: TokenItemViewModel) {
-        let targetId = tokenItemViewModel.id
-        let blockchainNetwork: BlockchainNetwork
-        if let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == targetId }) {
-            blockchainNetwork = walletModel.blockchainNetwork
-        } else if let entry = userWalletModel.userTokenListManager.userTokensList.entries.first(where: { $0.walletModelId == targetId }) {
-            blockchainNetwork = entry.blockchainNetwork
-        } else {
-            return
-        }
-
-        let derivation = blockchainNetwork.derivationPath
         let tokenItem = tokenItemViewModel.tokenItem
 
-        if userWalletModel.userTokensManager.canRemove(tokenItem, derivationPath: derivation) {
-            showHideWarningAlert(tokenItem: tokenItemViewModel.tokenItem, blockchainNetwork: blockchainNetwork)
+        if userWalletModel.userTokensManager.canRemove(tokenItem) {
+            showHideWarningAlert(tokenItem: tokenItem)
         } else {
             showUnableToHideAlert(currencySymbol: tokenItem.currencySymbol, blockchainName: tokenItem.blockchain.displayName)
         }
     }
 
-    func showHideWarningAlert(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
+    func showHideWarningAlert(tokenItem: TokenItem) {
         error = AlertBuilder.makeAlert(
             title: Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol),
             message: Localization.tokenDetailsHideAlertMessage,
             primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide)) { [weak self] in
-                self?.hideToken(tokenItem: tokenItem, blockchainNetwork: blockchainNetwork)
+                self?.hideToken(tokenItem: tokenItem)
             },
             secondaryButton: .cancel()
         )
@@ -326,9 +306,8 @@ private extension MultiWalletMainContentViewModel {
         )
     }
 
-    func hideToken(tokenItem: TokenItem, blockchainNetwork: BlockchainNetwork) {
-        let derivation = blockchainNetwork.derivationPath
-        userWalletModel.userTokensManager.remove(tokenItem, derivationPath: derivation)
+    func hideToken(tokenItem: TokenItem) {
+        userWalletModel.userTokensManager.remove(tokenItem)
 
         Analytics.log(
             event: .buttonRemoveToken,
@@ -347,10 +326,8 @@ extension MultiWalletMainContentViewModel {
         Analytics.log(.buttonManageTokens)
 
         let shouldShowLegacyDerivationAlert = userWalletModel.config.warningEvents.contains(where: { $0 == .legacyDerivation })
-        var supportedBlockchains = userWalletModel.config.supportedBlockchains
-
         let settings = LegacyManageTokensSettings(
-            supportedBlockchains: supportedBlockchains,
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
             hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
             derivationStyle: userWalletModel.config.derivationStyle,
