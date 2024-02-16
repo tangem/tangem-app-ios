@@ -178,7 +178,8 @@ private extension ManageTokensViewModel {
 
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
-                isShowAddCustomToken = tokenViewModels.isEmpty
+
+                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.isMultiWallet })
             })
             .store(in: &bag)
 
