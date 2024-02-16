@@ -191,21 +191,20 @@ final class SendViewModel: ObservableObject {
     }
 
     func scanQRCode() {
-        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-            showCameraDeniedAlert = true
-        } else {
-            let binding = Binding<String>(
-                get: {
-                    ""
-                },
-                set: { [weak self] in
-                    self?.parseQRCode($0)
-                }
-            )
+        let binding = Binding<String>(
+            get: {
+                ""
+            },
+            set: { [weak self] in
+                self?.parseQRCode($0)
+            }
+        )
+        
+        
+        всегда показывать на черном экране
 
-            let networkName = walletModel.blockchainNetwork.blockchain.displayName
-            coordinator?.openQRScanner(with: binding, networkName: networkName)
-        }
+        let networkName = walletModel.blockchainNetwork.blockchain.displayName
+        coordinator?.openQRScanner(with: binding, networkName: networkName)
     }
 
     private func bind() {
