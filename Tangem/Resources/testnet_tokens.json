@@ -677,10 +677,22 @@
             ]
         },
         {
+            "id": "aptos",
+            "symbol": "APT",
+            "name": "Aptos",
+            "networks":
+            [
+                {
+                    "networkId": "aptos/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
             "id": "hedera-hashgraph",
             "symbol": "HBAR",
             "name": "Hedera",
-            "networks": 
+            "networks":
             [
                 {
                     "networkId": "hedera-hashgraph/test",
