@@ -89,6 +89,7 @@ private extension SensitiveTextVisibilityViewModel {
         NotificationCenter.default
             .publisher(for: UIApplication.didEnterBackgroundNotification)
             .sink(receiveValue: { [weak self] _ in
+                self?.previousIsFaceDown = false // [REDACTED_INFO]: avoid toggle upon device unlock
                 self?.endUpdates()
             })
             .store(in: &bag)
