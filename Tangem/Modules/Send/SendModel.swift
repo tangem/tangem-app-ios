@@ -13,10 +13,6 @@ import BigInt
 import BlockchainSdk
 
 class SendModel {
-    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> {
-        _withdrawalSuggestion.eraseToAnyPublisher()
-    }
-
     var amountValid: AnyPublisher<Bool, Never> {
         amount
             .map {
@@ -738,6 +734,10 @@ extension SendModel: SendFinishViewModelInput {
 extension SendModel: SendNotificationManagerInput {
     var transactionCreationError: AnyPublisher<Error?, Never> {
         _transactionCreationError.eraseToAnyPublisher()
+    }
+
+    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> {
+        _withdrawalSuggestion.eraseToAnyPublisher()
     }
 }
 
