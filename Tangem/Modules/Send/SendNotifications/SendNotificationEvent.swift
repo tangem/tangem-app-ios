@@ -21,7 +21,6 @@ enum SendNotificationEvent {
     case customFeeTooLow
     case feeCoverage
     case minimumAmount(value: String)
-    case invalidReserve(value: String)
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
 }
@@ -45,8 +44,6 @@ extension SendNotificationEvent: NotificationEvent {
             return .string(Localization.sendNetworkFeeWarningTitle)
         case .minimumAmount:
             return .string(Localization.sendNotificationInvalidAmountTitle)
-        case .invalidReserve(let value):
-            return .string(Localization.sendNotificationInvalidReserveAmountTitle(value))
         case .withdrawalOptionalAmountChange:
             return .string(Localization.sendNotificationHighFeeTitle)
         case .withdrawalMandatoryAmountChange:
@@ -78,8 +75,6 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNetworkFeeWarningContent
         case .minimumAmount(let value):
             return Localization.sendNotificationInvalidMinimumAmountText(value)
-        case .invalidReserve:
-            return Localization.sendNotificationInvalidReserveAmountText
         case .withdrawalOptionalAmountChange(_, let amount):
             return Localization.sendNotificationHighFeeText(amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
@@ -91,14 +86,14 @@ extension SendNotificationEvent: NotificationEvent {
         switch self {
         case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             return .primary
-        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount, .invalidReserve:
+        case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount:
             return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .minimumAmount, .invalidReserve, .withdrawalMandatoryAmountChange:
+        case .minimumAmount, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .networkFeeUnreachable, .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange:
@@ -112,7 +107,7 @@ extension SendNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .minimumAmount, .invalidReserve, .withdrawalMandatoryAmountChange:
+        case .minimumAmount, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
         case .networkFeeUnreachable, .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange:
@@ -162,7 +157,7 @@ extension SendNotificationEvent {
             return .customFee
         case .feeCoverage:
             return .feeIncluded
-        case .minimumAmount, .existentialDeposit, .invalidReserve, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             return .summary
         }
     }
@@ -179,7 +174,7 @@ extension SendNotificationEvent {
             return [.reduceBy(amount: amount, amountFormatted: amountFormatted)]
         case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
             return [.reduceTo(amount: amount, amountFormatted: amountFormatted)]
-        case .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount, .invalidReserve:
+        case .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount:
             return nil
         }
     }
@@ -204,8 +199,6 @@ extension SendNotificationEvent {
             "feeCoverage"
         case .minimumAmount:
             "minimumAmount"
-        case .invalidReserve:
-            "invalidReserve"
         case .withdrawalOptionalAmountChange:
             "withdrawalOptionalAmountChange"
         case .withdrawalMandatoryAmountChange:
