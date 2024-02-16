@@ -466,8 +466,6 @@
 "send_notification_existential_deposit_title" = "Existential deposit";
 "send_notification_fee_too_high_text" = "Сумма комиссии в %@ раз превышает рекомендованную. Убедитесь, что указанная комиссия верна.";
 "send_notification_fee_too_high_title" = "Установлена высокая комиссия";
-"send_notification_high_fee_accept" = "Оставить %s";
-"send_notification_high_fee_ignore" = "Отправить все";
 "send_notification_high_fee_text" = "Комиссия при переводе всего баланса выше. Для того, чтобы снизить комиссию Вы можете оставить %@.";
 "send_notification_high_fee_title" = "Увеличение комиссии";
 "send_notification_invalid_amount_text" = "Включенная комиссия превышает сумму перевода, что приводит к отрицательному значению";
@@ -475,6 +473,8 @@
 "send_notification_invalid_minimum_amount_text" = "Минимальная сумма отправки - %1$@. Пожалуйста, убедитесь, что остаток после отправки также не будет меньше %1$@.";
 "send_notification_invalid_reserve_amount_text" = "Адрес получателя не активирован. \nПожалуйста, измените сумму отправки, чтобы продолжить.";
 "send_notification_invalid_reserve_amount_title" = "Сумма отправки не может быть менее %@";
+"send_notification_reduce_by" = "Уменьшить на %@";
+"send_notification_reduce_to" = "Уменьшить до %@";
 "send_notification_transaction_delay_text" = "Обратите внимание, что при определенных параметрах комиссии возможны задержки по вашей транзакции";
 "send_notification_transaction_delay_title" = "Возможны задержки по транзакции";
 "send_notification_transaction_limit_text" = "Due to %1$@ limitations only %2$@ UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount.";
