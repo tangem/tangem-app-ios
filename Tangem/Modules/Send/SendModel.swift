@@ -756,10 +756,6 @@ extension SendModel: SendNotificationManagerInput {
     var transactionCreationError: AnyPublisher<Error?, Never> {
         _transactionCreationError.eraseToAnyPublisher()
     }
-
-    var reserveAmountForTransaction: AnyPublisher<Amount?, Never> {
-        Just(nil).eraseToAnyPublisher()
-    }
 }
 
 extension WithdrawalSuggestion {
