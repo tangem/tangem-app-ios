@@ -86,7 +86,7 @@ struct SendFeeView_Previews: PreviewProvider {
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
-        balanceAmount: 12013,
+        balanceValue: 12013,
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
