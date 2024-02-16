@@ -125,7 +125,10 @@ class SendModel {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
-            didChangeFeeInclusion(true)
+            if walletModel.tokenItem == walletModel.feeTokenItem {
+                #warning("[REDACTED_TODO_COMMENT]")
+                didChangeFeeInclusion(true)
+            }
         }
     }
 
@@ -638,6 +641,10 @@ extension SendModel: SendSummaryViewModelInput {
 
     var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
         fee.eraseToAnyPublisher()
+    }
+
+    var feeOptionPublisher: AnyPublisher<FeeOption, Never> {
+        _selectedFeeOption.eraseToAnyPublisher()
     }
 
     var canEditAmount: Bool {
