@@ -26,34 +26,34 @@ enum ExpressNotificationEvent {
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
-    var title: String {
+    var title: NotificationView.Title {
         switch self {
         case .permissionNeeded:
-            return Localization.expressProviderPermissionNeeded
+            return .string(Localization.expressProviderPermissionNeeded)
         case .refreshRequired(let title, _):
-            return title
+            return .string(title)
         case .hasPendingTransaction:
-            return Localization.warningExpressActiveTransactionTitle
+            return .string(Localization.warningExpressActiveTransactionTitle)
         case .hasPendingApproveTransaction:
-            return Localization.warningExpressApprovalInProgressTitle
+            return .string(Localization.warningExpressApprovalInProgressTitle)
         case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
-            return Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName)
+            return .string(Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName))
         case .tooSmallAmountToSwap(let minimumAmountText):
-            return Localization.warningExpressTooMinimalAmountTitle(minimumAmountText)
+            return .string(Localization.warningExpressTooMinimalAmountTitle(minimumAmountText))
         case .tooBigAmountToSwap(let maximumAmountText):
-            return Localization.warningExpressTooMaximumAmountTitle(maximumAmountText)
+            return .string(Localization.warningExpressTooMaximumAmountTitle(maximumAmountText))
         case .notEnoughReserveToSwap(let maximumAmountText):
-            return Localization.sendNotificationInvalidReserveAmountTitle(maximumAmountText)
+            return .string(Localization.sendNotificationInvalidReserveAmountTitle(maximumAmountText))
         case .noDestinationTokens:
-            return Localization.warningExpressNoExchangeableCoinsTitle
+            return .string(Localization.warningExpressNoExchangeableCoinsTitle)
         case .verificationRequired:
-            return Localization.expressExchangeNotificationVerificationTitle
+            return .string(Localization.expressExchangeNotificationVerificationTitle)
         case .cexOperationFailed:
-            return Localization.expressExchangeNotificationFailedTitle
+            return .string(Localization.expressExchangeNotificationFailedTitle)
         case .feeWillBeSubtractFromSendingAmount:
-            return Localization.sendNetworkFeeWarningTitle
+            return .string(Localization.sendNetworkFeeWarningTitle)
         case .existentialDepositWarning:
-            return Localization.warningExistentialDepositTitle
+            return .string(Localization.warningExistentialDepositTitle)
         }
     }
 

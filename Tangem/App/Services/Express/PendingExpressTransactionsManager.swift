@@ -22,7 +22,6 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let blockchainNetwork: BlockchainNetwork
     private let tokenItem: TokenItem
     private let expressAPIProvider: ExpressAPIProvider
 
@@ -36,11 +35,9 @@ class CommonPendingExpressTransactionsManager {
 
     init(
         userWalletId: String,
-        blockchainNetwork: BlockchainNetwork,
         tokenItem: TokenItem
     ) {
         self.userWalletId = userWalletId
-        self.blockchainNetwork = blockchainNetwork
         self.tokenItem = tokenItem
         expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
 
@@ -186,12 +183,10 @@ class CommonPendingExpressTransactionsManager {
                 return false
             }
 
-            let isSameBlockchain = record.sourceTokenTxInfo.blockchainNetwork == blockchainNetwork
-                || record.destinationTokenTxInfo.blockchainNetwork == blockchainNetwork
-            let isSameTokenItem = record.sourceTokenTxInfo.tokenItem == tokenItem
+            let isSame = record.sourceTokenTxInfo.tokenItem == tokenItem
                 || record.destinationTokenTxInfo.tokenItem == tokenItem
 
-            return isSameBlockchain && isSameTokenItem
+            return isSame
         }
     }
 
