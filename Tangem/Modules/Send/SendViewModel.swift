@@ -167,7 +167,7 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
         fiatCryptoAdapter = SendFiatCryptoAdapter(
-            amountType: sendModel.amountType,
+            amountType: walletModel.amountType,
             cryptoCurrencyId: walletInfo.currencyId,
             currencySymbol: sendModel.currencySymbol,
             decimals: walletInfo.amountFractionDigits
