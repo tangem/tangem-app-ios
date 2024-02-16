@@ -76,10 +76,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func setFiatCryptoAdapter(_ fiatCryptoAdapter: SendFiatCryptoAdapter) {
         self.fiatCryptoAdapter = fiatCryptoAdapter
-        fiatCryptoAdapter
-            .amountAlternative
-            .assign(to: \.amountAlternative, on: self, ownership: .weak)
-            .store(in: &bag)
+        bind(from: fiatCryptoAdapter)
     }
 
     func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
@@ -98,6 +95,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .amountError
             .map { $0?.localizedDescription }
             .assign(to: \.error, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func bind(from fiatCryptoAdapter: SendFiatCryptoAdapter) {
+        fiatCryptoAdapter
+            .amountAlternative
+            .assign(to: \.amountAlternative, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
