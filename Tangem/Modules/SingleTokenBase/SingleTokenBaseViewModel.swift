@@ -120,7 +120,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     func fetchMoreHistory() -> FetchMore? {
         // flag isReloadingTransactionHistory need for locked fetchMore requests update transaction history, when pullToRefresh is active
-        guard walletModel.canFetchHistory && !isReloadingTransactionHistory else {
+        guard walletModel.canFetchHistory, !isReloadingTransactionHistory else {
             return nil
         }
 
