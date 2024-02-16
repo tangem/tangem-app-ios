@@ -140,6 +140,7 @@ final class SendViewModel: ObservableObject {
         }
         walletInfo = SendWalletInfo(
             walletName: walletName,
+            balanceAmount: walletModel.balanceValue,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
             blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
