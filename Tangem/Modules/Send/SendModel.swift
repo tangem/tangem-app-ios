@@ -332,9 +332,11 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        guard _amount.value != amount else { return }
+        let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
 
-        _amount.send(amount)
+        guard _amount.value != newAmount else { return }
+
+        _amount.send(newAmount)
     }
 
     private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
