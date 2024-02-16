@@ -21,5 +21,5 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
     }
 
     func setAmount(_ amount: BlockchainSdk.Amount?) {}
-    func useMaxAmount() {}
+    func prepareForSendingMaxAmount() {}
 }
