@@ -40,7 +40,46 @@ struct SendTransactionParametersBuilder {
             return TONTransactionParams(memo: value)
         case .cosmos, .terraV1, .terraV2:
             return CosmosTransactionParams(memo: value)
-        default:
+        case .algorand:
+            return AlgorandTransactionParams(nonce: value)
+        case .bitcoin,
+             .litecoin,
+             .ethereum,
+             .ethereumPoW,
+             .ethereumFair,
+             .ethereumClassic,
+             .rsk,
+             .bitcoinCash,
+             .cardano,
+             .ducatus,
+             .tezos,
+             .dogecoin,
+             .bsc,
+             .polygon,
+             .avalanche,
+             .solana,
+             .fantom,
+             .polkadot,
+             .kusama,
+             .azero,
+             .tron,
+             .arbitrum,
+             .dash,
+             .gnosis,
+             .optimism,
+             .kava,
+             .kaspa,
+             .ravencoin,
+             .cronos,
+             .telos,
+             .octa,
+             .chia,
+             .near,
+             .decimal,
+             .veChain,
+             .xdc,
+             .shibarium,
+             .aptos:
             return nil
         }
     }
