@@ -80,14 +80,11 @@ class SendNotificationManager {
                 .withdrawalSuggestion
                 .sink { [weak self] withdrawalSuggestion in
                     guard let self else { return }
-//                    let withdrawalOptionalAmountChange:
                     switch withdrawalSuggestion {
-                    case .changeAmountOrKeepCurrent(let newAmount):
-//                                    let event = SendNotificationEvent.withdrawalWarning(warningMessage: "WARNING", reduceMessage: "REDUCE?", ignoreMessage: "IGNORE", suggestedReduceAmount: "REDUCE BY 000")
-//                                    self.updateEventVisibility(true, event: event)
+                    case .optionalAmountChange(let newAmount):
                         let event = SendNotificationEvent.withdrawalOptionalAmountChange(amount: newAmount.value, amountFormatted: newAmount.string())
                         updateEventVisibility(true, event: event)
-                    case .changeAmount(let newAmount, let maxUtxos):
+                    case .mandatoryAmountChange(let newAmount, let maxUtxos):
                         let event = SendNotificationEvent.withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: tokenItem.blockchain.displayName, maxUtxo: maxUtxos)
                         updateEventVisibility(true, event: event)
                     case nil:
