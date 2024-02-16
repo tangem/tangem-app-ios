@@ -66,16 +66,20 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         bind(from: input)
     }
 
+    func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
+        amount = userInputAmount
+    }
+
     func setFiatCryptoAdapter(_ fiatCryptoAdapter: SendFiatCryptoAdapter) {
         self.fiatCryptoAdapter = fiatCryptoAdapter
 
-        fiatCryptoAdapter
-            .userInputAmount
-            .sink { [weak self] userInputAmount in
-                print("zzz adapter updating user input", userInputAmount)
-                self?.amount = userInputAmount
-            }
-            .store(in: &bag)
+//        fiatCryptoAdapter
+//            .userInputAmount
+//            .sink { [weak self] userInputAmount in
+//                print("zzz adapter updating user input", userInputAmount)
+//                self?.amount = userInputAmount
+//            }
+//            .store(in: &bag)
 
         fiatCryptoAdapter
             .amountAlternative
