@@ -711,6 +711,10 @@ class LegacySendViewModel: ObservableObject {
                 if let memo = validatedMemo {
                     tx.params = CosmosTransactionParams(memo: memo)
                 }
+            case .algorand:
+                if let nonce = validatedMemo {
+                    tx.params = AlgorandTransactionParams(nonce: nonce)
+                }
             default:
                 break
             }
