@@ -32,5 +32,6 @@ struct QRScanViewCoordinatorView: CoordinatorView {
                 PhotoSelectorView(viewModel: $0)
                     .edgesIgnoringSafeArea(.all)
             }
+            .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
     }
 }
