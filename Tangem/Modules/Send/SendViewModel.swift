@@ -172,10 +172,9 @@ final class SendViewModel: ObservableObject {
             currencySymbol: sendModel.currencySymbol,
             decimals: walletInfo.amountFractionDigits
         )
-//        fiatCryptoAdapter
 
-        fiatCryptoAdapter.setSendModel(sendModel)
-        fiatCryptoAdapter.setViewModel(sendAmountViewModel)
+        fiatCryptoAdapter.setInput(sendAmountViewModel)
+        fiatCryptoAdapter.setOutput(sendModel)
         sendAmountViewModel.setFiatCryptoAdapter(fiatCryptoAdapter)
 
         sendSummaryViewModel.router = self
