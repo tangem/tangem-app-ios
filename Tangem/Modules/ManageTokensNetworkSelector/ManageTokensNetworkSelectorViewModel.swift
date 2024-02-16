@@ -162,8 +162,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
         userTokensManager.update(
             itemsToRemove: pendingRemove,
-            itemsToAdd: pendingAdd,
-            derivationPath: nil
+            itemsToAdd: pendingAdd
         )
     }
 
@@ -289,7 +288,7 @@ private extension ManageTokensNetworkSelectorViewModel {
 
     func isAdded(_ tokenItem: TokenItem) -> Bool {
         if let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager {
-            return userTokensManager.contains(tokenItem, derivationPath: nil)
+            return userTokensManager.contains(tokenItem)
         }
 
         return parentEmbeddedCoinId == tokenItem.blockchain.coinId
@@ -300,7 +299,7 @@ private extension ManageTokensNetworkSelectorViewModel {
             return false
         }
 
-        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
+        return userTokensManager.canRemove(tokenItem)
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {

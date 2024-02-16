@@ -22,12 +22,26 @@ struct ExpressFeeSelectorView: View {
             GroupedSection(viewModel.feeRowViewModels) {
                 FeeRowView(viewModel: $0)
             } footer: {
-                DefaultFooterView(Localization.commonFeeSelectorFooter)
+                Text(footerAttributedString)
             }
             .interItemSpacing(0)
             .padding(.vertical, 10)
             .padding(.horizontal, 14)
         }
+    }
+
+    private var footerAttributedString: AttributedString {
+        let readMore = Localization.commonReadMore
+        var attributed = AttributedString(Localization.commonFeeSelectorFooter + " " + readMore)
+        attributed.foregroundColor = Colors.Text.tertiary
+        attributed.font = Fonts.Regular.caption1
+
+        if let range = attributed.range(of: readMore) {
+            attributed[range].foregroundColor = Colors.Text.accent
+            attributed[range].link = AppConstants.feeExplanationTangemBlogURL
+        }
+
+        return attributed
     }
 }
 
