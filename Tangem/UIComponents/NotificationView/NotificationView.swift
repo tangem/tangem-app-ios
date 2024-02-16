@@ -101,8 +101,13 @@ struct NotificationView: View {
             icon
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(settings.event.title)
-                    .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
+                switch settings.event.title {
+                case .string(let string):
+                    Text(string)
+                        .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
+                case .attributed(let attributedString):
+                    Text(attributedString)
+                }
 
                 if let description = settings.event.description {
                     Text(description)
