@@ -375,6 +375,10 @@
 "push_additional_fee" = "額外費用";
 "push_previous_fee" = "先前費用";
 "push_tx_address_hint" = "先前交易總額包括費用";
+"qr_scanner_camera_denied_gallery_button" = "Select from the gallery";
+"qr_scanner_camera_denied_settings_button" = "Settings";
+"qr_scanner_camera_denied_text" = "You have not given access to your camera";
+"qr_scanner_camera_denied_title" = "Camera access denied";
 "rate_app_sheet_negative_response_button_title" = "Share feedback";
 "rate_app_sheet_positive_response_button_title" = "Rate the app 🙌";
 "rate_app_sheet_subtitle" = "Share your app experience – every detail counts.";
