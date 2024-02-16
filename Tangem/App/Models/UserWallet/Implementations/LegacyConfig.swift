@@ -94,7 +94,7 @@ extension LegacyConfig: UserWalletConfig {
             ]
 
             return blockchains.map {
-                StorageEntry(blockchainNetwork: .init($0), token: nil)
+                StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), token: nil)
             }
         }
     }
