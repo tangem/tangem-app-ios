@@ -117,11 +117,6 @@ class SendNotificationManager {
                 $0?.amount.value
             }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//            let event = SendNotificationEvent.withdrawalWarning(warningMessage: "WARNING", reduceMessage: "REDUCE?", ignoreMessage: "IGNORE", suggestedReduceAmount: "REDUCE BY 000")
-//            self.updateEventVisibility(true, event: event)
-        }
-
         // These are triggered when no custom fee is entered
         Publishers.CombineLatest(loadedFeeValues, customFeeValue)
             .sink { [weak self] loadedFeeValues, customFee in
@@ -145,15 +140,6 @@ class SendNotificationManager {
             .isFeeIncludedPublisher
             .sink { [weak self] isFeeIncluded in
                 self?.updateEventVisibility(isFeeIncluded, event: .feeCoverage)
-            }
-            .store(in: &bag)
-
-        sendModel
-            .reserveAmountForTransaction
-            .sink { [weak self] reserveAmountForTransaction in
-                let value = reserveAmountForTransaction?.string() ?? ""
-                let visible = reserveAmountForTransaction != nil
-                self?.updateEventVisibility(visible, event: .invalidReserve(value: value))
             }
             .store(in: &bag)
 
