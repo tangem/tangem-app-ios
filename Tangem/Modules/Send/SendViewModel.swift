@@ -353,7 +353,6 @@ extension SendViewModel: NotificationTapDelegate {
             reduceAmountTo(amount)
         default:
             assertionFailure("Notification tap not handled")
-            break
         }
     }
 
