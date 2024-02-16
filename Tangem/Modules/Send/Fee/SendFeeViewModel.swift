@@ -53,7 +53,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeCoverageNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
-    private let notificationManager: NotificationManager
+    private let notificationManager: SendNotificationManager
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
@@ -68,7 +68,7 @@ class SendFeeViewModel: ObservableObject {
         balanceConverter: balanceConverter
     )
 
-    init(input: SendFeeViewModelInput, notificationManager: NotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
         self.notificationManager = notificationManager
         self.walletInfo = walletInfo
@@ -179,18 +179,17 @@ class SendFeeViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        #warning("TODO")
-        (notificationManager as! SendNotificationManager)
+        notificationManager
             .notificationPublisher(for: .feeLevels)
             .assign(to: \.feeLevelsNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        (notificationManager as! SendNotificationManager)
+        notificationManager
             .notificationPublisher(for: .customFee)
             .assign(to: \.customFeeNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        (notificationManager as! SendNotificationManager)
+        notificationManager
             .notificationPublisher(for: .feeIncluded)
             .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
