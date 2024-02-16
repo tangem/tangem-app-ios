@@ -94,10 +94,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .minimumAmount, .invalidReserve, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .minimumAmount, .invalidReserve, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.attention.image))
         case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
@@ -108,10 +108,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .minimumAmount, .invalidReserve, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .minimumAmount, .invalidReserve, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
         case .totalExceedsBalance, .feeExceedsBalance:
