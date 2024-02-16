@@ -66,6 +66,11 @@ struct SendSummaryView: View {
                 .onTapGesture {
                     viewModel.didTapSummary(for: .fee)
                 }
+
+                ForEach(viewModel.notificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
 
             sendButton
