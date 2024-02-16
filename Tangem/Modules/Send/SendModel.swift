@@ -765,10 +765,10 @@ extension SendModel: SendNotificationManagerInput {
 extension WithdrawalSuggestion {
     func add(amount: Amount) -> WithdrawalSuggestion {
         switch self {
-        case .changeAmountOrKeepCurrent(let newAmount):
-            return .changeAmountOrKeepCurrent(newAmount: newAmount + amount)
-        case .changeAmount(let newAmount, let maxUtxo):
-            return .changeAmount(newAmount: newAmount + amount, maxUtxo: maxUtxo)
+        case .optionalAmountChange(let newAmount):
+            return .optionalAmountChange(newAmount: newAmount + amount)
+        case .mandatoryAmountChange(let newAmount, let maxUtxo):
+            return .mandatoryAmountChange(newAmount: newAmount + amount, maxUtxo: maxUtxo)
         }
     }
 }
