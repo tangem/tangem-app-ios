@@ -43,9 +43,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         case .exchange:
             return Localization.tokenSwapPromotionButton
         case .reduceBy(_, let amountFormatted):
-            return Localization.sendNotificationHighFeeAccept(amountFormatted)
+            return Localization.sendNotificationReduceBy(amountFormatted)
         case .reduceTo(_, let amountFormatted):
-            return "Reduce to \(amountFormatted)"
+            return Localization.sendNotificationReduceTo(amountFormatted)
         }
     }
 
