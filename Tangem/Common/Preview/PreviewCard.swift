@@ -88,7 +88,7 @@ enum PreviewCard {
     }
 
     var blockchainNetwork: BlockchainNetwork? {
-        blockchain.map { BlockchainNetwork($0) }
+        blockchain.map { BlockchainNetwork($0, derivationPath: nil) }
     }
 
     var publicKey: Data {
