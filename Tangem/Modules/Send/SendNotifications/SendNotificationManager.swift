@@ -164,7 +164,9 @@ class SendNotificationManager {
                 return transactionErrors
                     .compactMap {
                         guard let notificationEvent = self.notificationEvent(from: $0) else { return nil }
-                        return factory.buildNotificationInput(for: notificationEvent, buttonAction: self.buttonAction)
+                        return factory.buildNotificationInput(for: notificationEvent, buttonAction: self.buttonAction) { [weak self] settingsId in
+                            self?.dismissAction(with: settingsId)
+                        }
                     }
             }
             .sink { [weak self] in
@@ -173,10 +175,18 @@ class SendNotificationManager {
             .store(in: &bag)
     }
 
+    private func dismissAction(with settingsId: NotificationViewId) {
+        notificationInputsSubject.value.removeAll {
+            $0.settings.id == settingsId
+        }
+    }
+
     private func updateEventVisibility(_ visible: Bool, event: SendNotificationEvent) {
         if visible {
             if !notificationInputsSubject.value.contains(where: { $0.settings.event.hashValue == event.hashValue }) {
-                let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction)
+                let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction) { [weak self] id in
+                    self?.dismissAction(with: id)
+                }
                 notificationInputsSubject.value.append(input)
             }
         } else {
