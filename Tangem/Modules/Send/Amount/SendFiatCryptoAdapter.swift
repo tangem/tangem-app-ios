@@ -62,7 +62,7 @@ class SendFiatCryptoAdapter {
         bind()
     }
 
-    func setCrypto(_ decimal: Decimal) {
+    func setCrypto(_ decimal: Decimal?) {
         _fiatCryptoValue.setCrypto(decimal)
         setUserInputAmount()
     }
