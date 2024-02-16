@@ -683,3 +683,5 @@ extension SendModel: SendFinishViewModelInput {
 }
 
 extension SendModel: SendNotificationManagerInput {}
+
+extension SendModel: SendFiatCryptoAdapterOutput {}
