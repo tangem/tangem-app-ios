@@ -15,6 +15,8 @@ class QRScanViewCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Published var actionSheet: ActionSheetBinder?
+
     @Published var imagePickerModel: PhotoSelectorViewModel?
 
     @Published private(set) var rootViewModel: QRScanViewModel?
@@ -30,6 +32,8 @@ class QRScanViewCoordinator: CoordinatorObject {
     func start(with options: Options) {
         rootViewModel = QRScanViewModel(code: options.code, text: options.text, router: self)
     }
+
+    func t() {}
 }
 
 extension QRScanViewCoordinator: QRScanViewRoutable {
@@ -37,6 +41,12 @@ extension QRScanViewCoordinator: QRScanViewRoutable {
         imagePickerModel = PhotoSelectorViewModel { [weak self] image in
             self?.rootViewModel?.didSelectImage(image)
         }
+    }
+
+    func openSettings() {}
+
+    func present(_ actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
 
