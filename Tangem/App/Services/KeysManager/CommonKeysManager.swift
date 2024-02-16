@@ -50,7 +50,7 @@ extension CommonKeysManager: KeysManager {
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
+            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standard),
             networkProviderConfigurations: [:]
         )
     }
