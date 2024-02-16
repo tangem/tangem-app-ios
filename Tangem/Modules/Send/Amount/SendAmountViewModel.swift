@@ -72,15 +72,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func setFiatCryptoAdapter(_ fiatCryptoAdapter: SendFiatCryptoAdapter) {
         self.fiatCryptoAdapter = fiatCryptoAdapter
-
-//        fiatCryptoAdapter
-//            .userInputAmount
-//            .sink { [weak self] userInputAmount in
-//                print("zzz adapter updating user input", userInputAmount)
-//                self?.amount = userInputAmount
-//            }
-//            .store(in: &bag)
-
         fiatCryptoAdapter
             .amountAlternative
             .assign(to: \.amountAlternative, on: self, ownership: .weak)
@@ -103,45 +94,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     private func bind(from input: SendAmountViewModelInput) {
-//        input
-//            .amountInputPublisher
-//            .sink { [weak self] amount in
-//                self?.converter.setModelAmount(amount?.value)
-//            }
-//            .store(in: &bag)
-//
-//        $amount
-//            .removeDuplicates { $0?.value == $1?.value }
-//            .dropFirst()
-//            // If value == nil then continue chain to reset states to idle
-//            .filter { $0?.isInternal ?? true }
-//            .sink { [weak self] v in
-//                self?.converter.setUserInputAmount(v)
-//            }
-//            .store(in: &bag)
-//
-//        $useFiatCalculation
-//            .dropFirst()
-//            .removeDuplicates()
-//            .sink { [weak self] useFiatCalculation in
-//                self?.converter.setUseFiatCalculation(useFiatCalculation)
-//            }
-//            .store(in: &bag)
-//
-//        converter
-//            .modelAmount
-//            .sink { [weak self] modelAmount in
-//                self?.input.setAmount(modelAmount)
-//            }
-//            .store(in: &bag)
-//
-//        converter
-//            .userInputAmount
-//            .sink { [weak self] userInputAmount in
-//                self?.amount = userInputAmount
-//            }
-//            .store(in: &bag)
-
         input
             .amountError
             .map { $0?.localizedDescription }
