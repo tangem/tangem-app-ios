@@ -497,19 +497,6 @@ class SendModel {
 // MARK: - Subview model inputs
 
 extension SendModel: SendAmountViewModelInput {
-    var amountType: BlockchainSdk.Amount.AmountType {
-        walletModel.amountType
-    }
-
-    var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
-        _amount.eraseToAnyPublisher()
-    }
-
-    #warning("TODO")
-    var errorPublisher: AnyPublisher<Error?, Never> {
-        _amountError.eraseToAnyPublisher()
-    }
-
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
 }
 
