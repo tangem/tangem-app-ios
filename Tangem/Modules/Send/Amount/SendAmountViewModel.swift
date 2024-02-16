@@ -76,6 +76,11 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 self?.amount = userInputAmount
             }
             .store(in: &bag)
+
+        fiatCryptoAdapter
+            .amountAlternative
+            .assign(to: \.amountAlternative, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     func onAppear() {
@@ -137,11 +142,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .amountError
             .map { $0?.localizedDescription }
             .assign(to: \.error, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        fiatCryptoAdapter?
-            .amountAlternative
-            .assign(to: \.amountAlternative, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
