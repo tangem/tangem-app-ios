@@ -35,8 +35,12 @@ public class ExpressAvailableProvider {
         }
 
         switch await getState() {
-        case .permissionRequired, .preview, .ready:
-            return .high
+        case .permissionRequired(let state):
+            return .high(rate: state.quote.rate)
+        case .preview(let state):
+            return .high(rate: state.quote.rate)
+        case .ready(let state):
+            return .high(rate: state.quote.rate)
         case .idle, .restriction(.tooSmallAmount, _):
             return .medium
         case .restriction:
@@ -48,15 +52,11 @@ public class ExpressAvailableProvider {
 }
 
 public extension ExpressAvailableProvider {
-    enum Priority: Int, Comparable {
+    enum Priority: Comparable {
         case lowest
         case low
         case medium
-        case high
+        case high(rate: Decimal)
         case highest
-
-        public static func < (lhs: Self, rhs: Self) -> Bool {
-            lhs.rawValue < rhs.rawValue
-        }
     }
 }

@@ -99,7 +99,7 @@ extension ExpressNotificationEvent: NotificationEvent {
              .existentialDepositWarning:
             return .secondary
         case .notEnoughFeeForTokenTx, .refreshRequired, .verificationRequired, .cexOperationFailed:
-            return .primary
+            return .action
         }
     }
 
