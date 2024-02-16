@@ -344,8 +344,7 @@ extension SendViewModel: NotificationTapDelegate {
     func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
-//            sendModel.updateFees { _ in }
-            break
+            sendModel.updateFees()
         case .openFeeCurrency:
             openNetworkCurrency()
         case .reduceBy(let amount, _):
@@ -353,6 +352,7 @@ extension SendViewModel: NotificationTapDelegate {
         case .reduceTo(let amount, _):
             reduceAmountTo(amount)
         default:
+            assertionFailure("Notification tap not handled")
             break
         }
     }
