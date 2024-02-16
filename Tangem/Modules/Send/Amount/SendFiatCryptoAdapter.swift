@@ -10,6 +10,16 @@ import Foundation
 import Combine
 import BlockchainSdk
 
+protocol SendFiatCryptoAdapterInput: AnyObject {
+    var amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> { get }
+    var useFiatCalculationPublisher: AnyPublisher<Bool, Never> { get }
+    func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?)
+}
+
+protocol SendFiatCryptoAdapterOutput: AnyObject {
+    func setAmount(_ amount: Amount?)
+}
+
 class SendFiatCryptoAdapter {
     var amountAlternative: AnyPublisher<String?, Never> {
         Publishers.CombineLatest3(_useFiatCalculation, _fiatCryptoValue.fiat, _fiatCryptoValue.crypto)
@@ -32,9 +42,8 @@ class SendFiatCryptoAdapter {
     private var _fiatCryptoValue: FiatCryptoValue
     private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
-    #warning("[REDACTED_TODO_COMMENT]")
-    private weak var viewModel: SendAmountViewModel?
-    private weak var sendModel: SendModel?
+    private weak var input: SendFiatCryptoAdapterInput?
+    private weak var output: SendFiatCryptoAdapterOutput?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -48,6 +57,8 @@ class SendFiatCryptoAdapter {
         self.currencySymbol = currencySymbol
         self.decimals = decimals
         _fiatCryptoValue = FiatCryptoValue(decimals: decimals, cryptoCurrencyId: cryptoCurrencyId)
+
+        bind()
     }
 
     func setCrypto(_ decimal: Decimal) {
@@ -55,15 +66,33 @@ class SendFiatCryptoAdapter {
         setTextFieldAmount()
     }
 
-    func setSendModel(_ sendModel: SendModel) {
-        self.sendModel = sendModel
+    func setOutput(_ output: SendFiatCryptoAdapterOutput) {
+        self.output = output
     }
 
-    func setViewModel(_ viewModel: SendAmountViewModel) {
-        self.viewModel = viewModel
+    func setInput(_ input: SendFiatCryptoAdapterInput) {
+        self.input = input
 
-        viewModel
-            .$amount
+        bind(from: input)
+    }
+
+    private func bind() {
+        _fiatCryptoValue
+            .crypto
+            .map { [weak self] cryptoAmount -> Amount? in
+                guard let self, let cryptoAmount else { return nil }
+
+                return Amount(type: amountType, currencySymbol: currencySymbol, value: cryptoAmount, decimals: decimals)
+            }
+            .sink { [weak self] modelAmount in
+                self?.output?.setAmount(modelAmount)
+            }
+            .store(in: &bag)
+    }
+
+    private func bind(from input: SendFiatCryptoAdapterInput) {
+        input
+            .amountPublisher
             .removeDuplicates { $0?.value == $1?.value }
             .dropFirst()
             .sink { [weak self] decimal in
@@ -77,8 +106,8 @@ class SendFiatCryptoAdapter {
             }
             .store(in: &bag)
 
-        viewModel
-            .$useFiatCalculation
+        input
+            .useFiatCalculationPublisher
             .dropFirst()
             .removeDuplicates()
             .sink { [weak self] useFiatCalculation in
@@ -88,26 +117,14 @@ class SendFiatCryptoAdapter {
                 setTextFieldAmount()
             }
             .store(in: &bag)
-
-        _fiatCryptoValue
-            .crypto
-            .map { [weak self] cryptoAmount -> Amount? in
-                guard let self, let cryptoAmount else { return nil }
-
-                return Amount(type: amountType, currencySymbol: currencySymbol, value: cryptoAmount, decimals: decimals)
-            }
-            .sink { [weak self] modelAmount in
-                self?.sendModel?.setAmount(modelAmount)
-            }
-            .store(in: &bag)
     }
 
     private func setTextFieldAmount() {
         let newAmount = _useFiatCalculation.value ? _fiatCryptoValue.fiat.value : _fiatCryptoValue.crypto.value
         if let newAmount {
-            viewModel?.setUserInputAmount(.external(newAmount))
+            input?.setUserInputAmount(.external(newAmount))
         } else {
-            viewModel?.setUserInputAmount(nil)
+            input?.setUserInputAmount(nil)
         }
     }
 }
