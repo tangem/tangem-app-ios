@@ -45,12 +45,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private weak var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
     private let input: SendAmountViewModelInput
-    private let maxAmount: Decimal?
+    private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
-        maxAmount = walletInfo.balanceAmount
+        balanceValue = walletInfo.balanceValue
         walletName = walletInfo.walletName
         balance = walletInfo.balance
         tokenIconInfo = walletInfo.tokenIconInfo
@@ -87,9 +87,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func didTapMaxAmount() {
-        guard let maxAmount else { return }
+        guard let balanceValue else { return }
 
-        fiatCryptoAdapter?.setCrypto(maxAmount)
+        fiatCryptoAdapter?.setCrypto(balanceValue)
         input.prepareForSendingMaxAmount()
     }
 
