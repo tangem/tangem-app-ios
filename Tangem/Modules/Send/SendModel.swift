@@ -640,6 +640,10 @@ extension SendModel: SendSummaryViewModelInput {
         fee.eraseToAnyPublisher()
     }
 
+    var feeOptionPublisher: AnyPublisher<FeeOption, Never> {
+        _selectedFeeOption.eraseToAnyPublisher()
+    }
+
     var canEditAmount: Bool {
         sendType.predefinedAmount == nil
     }
