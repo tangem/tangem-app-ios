@@ -12,7 +12,7 @@ import BlockchainSdk
 #warning("[REDACTED_TODO_COMMENT]")
 struct SendWalletInfo {
     let walletName: String
-    let balanceAmount: Decimal?
+    let balanceValue: Decimal?
     let balance: String
     let blockchain: Blockchain
     let currencyId: String?
