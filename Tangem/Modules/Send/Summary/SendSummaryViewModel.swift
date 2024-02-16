@@ -142,7 +142,6 @@ class SendSummaryViewModel: ObservableObject {
 
         (notificationManager as! SendNotificationManager)
             .notificationPublisher(for: .summary)
-//            .transactionCreationNotificationPublisher()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
