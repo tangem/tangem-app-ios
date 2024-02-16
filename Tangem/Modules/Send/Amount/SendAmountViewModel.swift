@@ -21,7 +21,7 @@ protocol SendAmountViewModelInput {
     var currencySymbol: String { get }
 
     func setAmount(_ amount: Amount?)
-    func useMaxAmount()
+    func prepareForSendingMaxAmount()
 }
 
 class SendAmountViewModel: ObservableObject, Identifiable {
@@ -45,10 +45,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private weak var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
     private let input: SendAmountViewModelInput
+    private let maxAmount: Decimal?
     private var bag: Set<AnyCancellable> = []
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
+        maxAmount = walletInfo.balanceAmount
         walletName = walletInfo.walletName
         balance = walletInfo.balance
         tokenIconInfo = walletInfo.tokenIconInfo
@@ -85,7 +87,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func didTapMaxAmount() {
-        input.useMaxAmount()
+        guard let maxAmount else { return }
+
+        amount = .external(maxAmount)
+        input.prepareForSendingMaxAmount()
     }
 
     private func bind(from input: SendAmountViewModelInput) {
