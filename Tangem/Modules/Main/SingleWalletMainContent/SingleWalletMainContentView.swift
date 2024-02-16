@@ -41,7 +41,7 @@ struct SingleWalletMainContentView: View {
                 state: viewModel.transactionHistoryState,
                 exploreAction: viewModel.openExplorer,
                 exploreTransactionAction: viewModel.openTransactionExplorer,
-                reloadButtonAction: viewModel.reloadHistory,
+                reloadButtonAction: viewModel.onButtonReloadHistory,
                 isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
                 fetchMore: viewModel.fetchMoreHistory()
             )
