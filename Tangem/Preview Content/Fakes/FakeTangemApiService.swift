@@ -48,6 +48,10 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
+        throw "Not implemented"
+    }
+
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
         throw "Not implemented"
     }

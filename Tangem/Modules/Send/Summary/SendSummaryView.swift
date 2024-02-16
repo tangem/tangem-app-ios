@@ -21,52 +21,60 @@ struct SendSummaryView: View {
                 }
                 .backgroundColor(Colors.Button.disabled)
 
-                Button {
-                    viewModel.didTapSummary(for: .destination)
-                } label: {
-                    GroupedSection(viewModel.destinationViewTypes) { type in
-                        switch type {
-                        case .address(let address):
-                            SendDestinationAddressSummaryView(address: address)
-                                .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
-                        case .additionalField(let type, let value):
-                            if let name = type.name {
-                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
-                            }
+                GroupedSection(viewModel.destinationViewTypes) { type in
+                    switch type {
+                    case .address(let address):
+                        SendDestinationAddressSummaryView(address: address)
+                            .setNamespace(namespace)
+                    case .additionalField(let type, let value):
+                        if let name = type.name {
+                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
                         }
                     }
                 }
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-                .disabled(!viewModel.canEditDestination)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.didTapSummary(for: .destination)
+                }
 
-                Button {
+                GroupedSection(viewModel.amountSummaryViewData) {
+                    AmountSummaryView(data: $0)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+                        .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+                        .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                        .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
+                }
+                .innerContentPadding(12)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
                     viewModel.didTapSummary(for: .amount)
-                } label: {
-                    GroupedSection(viewModel.amountSummaryViewData) {
-                        AmountSummaryView(data: $0)
-                    }
-                    .innerContentPadding(12)
                 }
-                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-                .disabled(!viewModel.canEditAmount)
 
-                Button {
-                    viewModel.didTapSummary(for: .fee)
-                } label: {
-                    GroupedSection(viewModel.feeSummaryViewData) { data in
-                        DefaultTextWithTitleRowView(data: data)
-                    }
+                GroupedSection(viewModel.feeSummaryViewData) { data in
+                    DefaultTextWithTitleRowView(data: data)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                        // To maintain cell animation from Summary to Fee screen
+                        .overlay(feeIcon.opacity(0), alignment: .topLeading)
                 }
-                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.didTapSummary(for: .fee)
+                }
             }
 
             sendButton
                 .padding(.horizontal, 16)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .alert(item: $viewModel.alert) { $0.alert }
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 
     @ViewBuilder
@@ -77,6 +85,14 @@ struct SendSummaryView: View {
             isLoading: viewModel.isSending,
             action: viewModel.send
         )
+    }
+
+    @ViewBuilder
+    private var feeIcon: some View {
+        if let feeOptionIcon = viewModel.feeOptionIcon {
+            feeOptionIcon
+                .matchedGeometryEffect(id: SendViewNamespaceId.feeIcon.rawValue, in: namespace)
+        }
     }
 }
 
