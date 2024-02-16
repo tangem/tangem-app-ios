@@ -42,7 +42,9 @@ class ManageTokensCoordinator: CoordinatorObject {
     }
 
     func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {
-        if !state.isBottom {
+        if state.isBottom {
+            manageTokensViewModel?.onBottomDisappear()
+        } else {
             manageTokensViewModel?.onBottomAppear()
         }
     }
