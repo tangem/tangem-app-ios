@@ -47,9 +47,9 @@ class SendSummaryViewModel: ObservableObject {
     private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
-    private let notificationManager: NotificationManager
+    private let notificationManager: SendNotificationManager
 
-    init(input: SendSummaryViewModelInput, notificationManager: NotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
         self.notificationManager = notificationManager
 
@@ -140,12 +140,12 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
 
-        (notificationManager as! SendNotificationManager)
+        notificationManager
             .notificationPublisher(for: .summary)
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        (notificationManager as! SendNotificationManager)
+        notificationManager
             .notificationPublisher
             .map { notificationInputs in
                 let hasErrors = notificationInputs.map { $0.settings.event.severity }.contains(.critical)
