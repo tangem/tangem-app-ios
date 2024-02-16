@@ -119,6 +119,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeUserWalletNotificationManager(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo))
     }
 }

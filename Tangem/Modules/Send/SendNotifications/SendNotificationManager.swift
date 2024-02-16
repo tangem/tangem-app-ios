@@ -14,7 +14,11 @@ protocol SendNotificationManagerInput {
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 }
 
-class SendNotificationManager {
+protocol SendNotificationManager: NotificationManager {
+    func notificationPublisher(for location: SendNotificationEvent.Location) -> AnyPublisher<[NotificationViewInput], Never>
+}
+
+class CommonSendNotificationManager: SendNotificationManager {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let input: SendNotificationManagerInput
@@ -198,7 +202,7 @@ class SendNotificationManager {
     }
 }
 
-extension SendNotificationManager: NotificationManager {
+extension CommonSendNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
         notificationInputsSubject.value + transactionCreationNotificationInputsSubject.value
     }
