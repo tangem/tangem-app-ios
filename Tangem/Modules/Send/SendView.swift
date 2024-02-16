@@ -25,16 +25,32 @@ struct SendView: View {
             ZStack(alignment: .bottom) {
                 currentPage
                     .overlay(bottomOverlay, alignment: .bottom)
+                    .transition(pageContentTransition)
 
                 if viewModel.showNavigationButtons {
                     navigationButtons
                 }
+
+                NavHolder()
+                    .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+
+                NavHolder()
+                    .alert(item: $viewModel.alert) { $0.alert }
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(.easeOut(duration: 0.3), value: viewModel.step)
-        .alert(item: $viewModel.alert) { $0.alert }
-        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+        .animation(Constants.defaultAnimation, value: viewModel.step)
+    }
+
+    private var pageContentTransition: AnyTransition {
+        switch viewModel.stepAnimation {
+        case .slideForward:
+            return .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+        case .slideBackward:
+            return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
+        case .none:
+            return .offset()
+        }
     }
 
     @ViewBuilder
@@ -50,7 +66,7 @@ struct SendView: View {
 
                     Text(title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                        .animation(nil)
+                        .animation(nil, value: title)
                         .padding(.vertical, 8)
                         .lineLimit(1)
                         .layoutPriority(1)
@@ -144,6 +160,21 @@ private struct SendViewBackButton: View {
                 )
                 .frame(size: CGSize(bothDimensions: height))
         }
+    }
+}
+
+extension SendView {
+    enum Constants {
+        static let animationDuration: TimeInterval = 0.3
+        static let defaultAnimation: Animation = .spring(duration: animationDuration)
+        static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
+    }
+}
+
+extension SendView {
+    enum StepAnimation {
+        case slideForward
+        case slideBackward
     }
 }
 
