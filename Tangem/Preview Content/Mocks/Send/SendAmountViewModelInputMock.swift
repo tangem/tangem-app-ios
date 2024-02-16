@@ -11,15 +11,10 @@ import Combine
 import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
-    var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> { .just(output: nil) }
-
-    var amountType: Amount.AmountType { .coin }
-
-    var currencySymbol: String { "" }
+    var amountValue: Amount? { nil }
     var amountError: AnyPublisher<Error?, Never> {
         Just(nil).eraseToAnyPublisher()
     }
 
-    func setAmount(_ amount: BlockchainSdk.Amount?) {}
     func prepareForSendingMaxAmount() {}
 }
