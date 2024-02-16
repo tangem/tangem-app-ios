@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdk
 import SwiftUI
 
 enum SendNotificationEvent {
