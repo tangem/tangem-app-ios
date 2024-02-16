@@ -120,12 +120,12 @@ class AppCoordinator: CoordinatorObject {
 
     /// - Note: The coordinator is set up only once and only when the feature toggle is enabled.
     private func setupMainBottomSheetCoordinatorIfNeeded() {
-//        guard
-//            FeatureProvider.isAvailable(.mainScreenBottomSheet),
-//            mainBottomSheetCoordinator == nil
-//        else {
-//            return
-//        }
+        guard
+            FeatureProvider.isAvailable(.mainScreenBottomSheet),
+            mainBottomSheetCoordinator == nil
+        else {
+            return
+        }
 
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.mainBottomSheetCoordinator = nil
