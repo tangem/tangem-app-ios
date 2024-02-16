@@ -76,9 +76,12 @@ struct TokenInteractionAvailabilityProvider {
              .xdc,
              .algorand,
              .shibarium,
+             .aptos,
              .hedera:
 
-            /// If necessary, add more specific conditions for newly added blockchains
+            // Checking that we have at least one valid (non-empty) address
+            //
+            // If necessary, add more specific conditions for newly added blockchains
             return walletModel.wallet.addresses.contains { !$0.value.isEmpty }
         }
     }
