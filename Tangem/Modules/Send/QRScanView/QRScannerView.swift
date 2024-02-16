@@ -31,6 +31,7 @@ struct QRScanView: View {
                 .overlay(topButtons(), alignment: .top)
         }
         .ignoresSafeArea(edges: .bottom)
+        .onAppear(perform: viewModel.onAppear)
     }
 
     private func viewfinder(screenSize: CGSize) -> some View {
