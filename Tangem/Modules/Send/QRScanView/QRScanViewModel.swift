@@ -22,6 +22,39 @@ class QRScanViewModel: ObservableObject, Identifiable {
         self.text = text
         self.router = router
     }
+    
+    func onAppear() {
+        let noAccess = (AVCaptureDevice.authorizationStatus(for: .video) == .denied)
+        if noAccess {
+            presentAccessDeniedAlert()
+        }
+    }
+
+    func presentAccessDeniedAlert() {
+        let sheet = ActionSheet(
+            title: Text(Localization.qrScannerCameraDeniedTitle),
+            message: Text(Localization.qrScannerCameraDeniedText),
+            buttons: [
+                .default(Text(Localization.qrScannerCameraDeniedGalleryButton)) { [router] in
+                    print("zzz Gallery")
+                    router.openImagePicker()
+                },
+                .default(Text(Localization.qrScannerCameraDeniedSettingsButton)) { [router] in
+                    print("zzz Setting")
+                    router.openSettings()
+                },
+                .cancel(Text(Localization.commonCancel) {[router] in
+                    print("zzz Cancel")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        router.dismiss()
+                    }
+                },
+            ]
+        )
+
+        let actionSheet = ActionSheetBinder(sheet: sheet)
+        router.present(actionSheet)
+    }
 
     func toggleFlash() {
         guard
