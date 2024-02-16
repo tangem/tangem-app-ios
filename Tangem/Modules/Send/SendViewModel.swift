@@ -80,7 +80,7 @@ final class SendViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
-    private let notificationManager: SendNotificationManager
+    private let notificationManager: CommonSendNotificationManager
 
     private weak var coordinator: SendRoutable?
 
@@ -170,7 +170,7 @@ final class SendViewModel: ObservableObject {
 
         #warning("Fiat icon URL")
 
-        notificationManager = SendNotificationManager(
+        notificationManager = CommonSendNotificationManager(
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             input: sendModel
