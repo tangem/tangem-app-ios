@@ -8,18 +8,7 @@
 
 import Foundation
 
-struct TangemBaseAPIError: Decodable {
-    let error: TangemAPIError
-}
-
-/// Server-side errors of validating the input parameters of the API.
-struct TangemInputAPIError: Decodable {
-    let statusCode: Int
-    let error: String?
-    let message: [String]
-}
-
-struct TangemAPIError: Decodable, Error, LocalizedError {
+struct TangemAPIError: Decodable, LocalizedError {
     let code: ErrorCode
     let message: String?
 
