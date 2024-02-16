@@ -107,3 +107,13 @@ extension SendAmountViewModel: AuxiliaryViewAnimatable {
         self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
     }
 }
+
+extension SendAmountViewModel: SendFiatCryptoAdapterInput {
+    var amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
+        $amount.eraseToAnyPublisher()
+    }
+
+    var useFiatCalculationPublisher: AnyPublisher<Bool, Never> {
+        $useFiatCalculation.eraseToAnyPublisher()
+    }
+}
