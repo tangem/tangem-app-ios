@@ -40,10 +40,6 @@ extension Publisher where Failure == MoyaError {
     private func mapInputAPIError(from body: Data, using decoder: JSONDecoder) throws -> TangemAPIError {
         let error = try decoder.decode(TangemInputAPIError.self, from: body)
 
-        guard let code = TangemAPIError.ErrorCode(rawValue: error.statusCode) else {
-            throw TangemAPIError(code: .decode)
-        }
-
-        return TangemAPIError(code: code, message: error.message.first ?? error.error)
+        return TangemAPIError(code: error.statusCode, message: error.message.first ?? error.error)
     }
 }
