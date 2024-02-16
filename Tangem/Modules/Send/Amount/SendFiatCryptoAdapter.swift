@@ -29,7 +29,6 @@ class SendFiatCryptoAdapter {
     private let currencySymbol: String
     private let decimals: Int
 
-    private var _userInputAmount = CurrentValueSubject<DecimalNumberTextField.DecimalValue?, Never>(nil)
     private var _fiatCryptoValue: FiatCryptoValue
     private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
@@ -58,20 +57,13 @@ class SendFiatCryptoAdapter {
 
     func setSendModel(_ sendModel: SendModel) {
         self.sendModel = sendModel
-
-        sendModel
-            .amountInputPublisher
-            .sink { [weak self] amount in
-                guard let self else { return }
-                _fiatCryptoValue.setCrypto(amount?.value)
-            }
-            .store(in: &bag)
     }
 
     func setViewModel(_ viewModel: SendAmountViewModel) {
         self.viewModel = viewModel
 
-        _userInputAmount
+        viewModel
+            .$amount
             .removeDuplicates { $0?.value == $1?.value }
             .dropFirst()
             .sink { [weak self] decimal in
@@ -86,15 +78,6 @@ class SendFiatCryptoAdapter {
             .store(in: &bag)
 
         viewModel
-            .$amount
-            .removeDuplicates { $0?.value == $1?.value }
-            .dropFirst()
-            .sink { [weak self] v in
-                self?._userInputAmount.send(v)
-            }
-            .store(in: &bag)
-
-        viewModel
             .$useFiatCalculation
             .dropFirst()
             .removeDuplicates()
@@ -102,10 +85,7 @@ class SendFiatCryptoAdapter {
                 guard let self else { return }
 
                 _useFiatCalculation.send(useFiatCalculation)
-
-                if _userInputAmount.value != nil {
-                    setTextFieldAmount()
-                }
+                setTextFieldAmount()
             }
             .store(in: &bag)
 
