@@ -66,8 +66,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         bind(from: input)
     }
 
-    func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
-        amount = userInputAmount
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        }
     }
 
     func setFiatCryptoAdapter(_ fiatCryptoAdapter: SendFiatCryptoAdapter) {
@@ -78,18 +82,14 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    func onAppear() {
-        if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
-        }
+    func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
+        amount = userInputAmount
     }
 
     func didTapMaxAmount() {
         guard let maxAmount else { return }
 
-        amount = .external(maxAmount)
+        fiatCryptoAdapter?.setCrypto(maxAmount)
         input.prepareForSendingMaxAmount()
     }
 
