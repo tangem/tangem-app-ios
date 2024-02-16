@@ -79,18 +79,25 @@ class SendNotificationManager {
             sendModel
                 .withdrawalSuggestion
                 .sink { [weak self] withdrawalSuggestion in
+                    guard let self else { return }
 //                    let withdrawalOptionalAmountChange:
                     switch withdrawalSuggestion {
                     case .changeAmountOrKeepCurrent(let newAmount):
 //                                    let event = SendNotificationEvent.withdrawalWarning(warningMessage: "WARNING", reduceMessage: "REDUCE?", ignoreMessage: "IGNORE", suggestedReduceAmount: "REDUCE BY 000")
 //                                    self.updateEventVisibility(true, event: event)
                         let event = SendNotificationEvent.withdrawalOptionalAmountChange(amount: newAmount.value, amountFormatted: newAmount.string())
-                        self?.updateEventVisibility(true, event: event)
-                    case .changeAmount(let newAmount):
-                        break
+                        updateEventVisibility(true, event: event)
+                    case .changeAmount(let newAmount, let maxUtxos):
+                        let event = SendNotificationEvent.withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: tokenItem.blockchain.displayName, maxUtxo: maxUtxos)
+                        updateEventVisibility(true, event: event)
                     case nil:
-                        let event = SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: "")
-                        self?.updateEventVisibility(false, event: event)
+                        let events = [
+                            SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: ""),
+                            SendNotificationEvent.withdrawalMandatoryAmountChange(amount: .zero, amountFormatted: "", blockchainName: "", maxUtxo: 0),
+                        ]
+                        for event in events {
+                            updateEventVisibility(false, event: event)
+                        }
                     }
                 }
                 .store(in: &bag)

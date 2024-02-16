@@ -348,17 +348,34 @@ extension SendViewModel: NotificationTapDelegate {
             break
         case .openFeeCurrency:
             openNetworkCurrency()
+        case .reduceBy(let amount, _):
+            reduceAmountBy(amount)
         case .reduceTo(let amount, _):
-            guard var newAmount = sendModel.amountValue else { return }
-
-            newAmount = newAmount - Amount(with: sendModel.blockchain, type: sendModel.amountType, value: amount)
-            if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
-                newAmount = newAmount + feeValue
-            }
-            sendModel.setAmount(newAmount)
+            reduceAmountTo(amount)
         default:
             break
         }
+    }
+
+    private func reduceAmountBy(_ amount: Decimal) {
+        guard var newAmount = sendModel.amountValue else { return }
+
+        newAmount = newAmount - Amount(with: sendModel.blockchain, type: sendModel.amountType, value: amount)
+        if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
+            newAmount = newAmount + feeValue
+        }
+
+        sendModel.setAmount(newAmount)
+    }
+
+    private func reduceAmountTo(_ amount: Decimal) {
+        var newAmount = amount
+
+        if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount.value {
+            newAmount = newAmount + feeValue
+        }
+
+        sendModel.setAmount(Amount(with: sendModel.blockchain, type: sendModel.amountType, value: newAmount))
     }
 }
 
