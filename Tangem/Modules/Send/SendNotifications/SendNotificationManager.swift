@@ -209,6 +209,8 @@ class SendNotificationManager {
             return .totalExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .feeExceedsBalance:
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
+        case .minimumBalance(let minimumBalance):
+            return .existentialDeposit(amountFormatted: minimumBalance.string())
         default:
             return nil
         }
