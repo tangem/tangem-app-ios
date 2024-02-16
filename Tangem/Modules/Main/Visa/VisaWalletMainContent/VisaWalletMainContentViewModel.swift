@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemVisa
 
 protocol VisaWalletRoutable: AnyObject {
-    func openReceiveScreen(amountType: Amount.AmountType, blockchain: Blockchain, addressInfos: [ReceiveAddressInfo])
+    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openExplorer(at url: URL)
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord)
 }
@@ -58,8 +58,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             addressQRImage: QrCodeGenerator.generateQRCode(from: visaWalletModel.accountAddress)
         )
         coordinator?.openReceiveScreen(
-            amountType: visaWalletModel.tokenItem.amountType,
-            blockchain: visaWalletModel.tokenItem.blockchain,
+            tokenItem: visaWalletModel.tokenItem,
             addressInfos: [addressInfo]
         )
     }
