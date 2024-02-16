@@ -51,6 +51,11 @@ class SendFiatCryptoAdapter {
         _fiatCryptoValue = FiatCryptoValue(decimals: decimals, cryptoCurrencyId: cryptoCurrencyId)
     }
 
+    func setCrypto(_ decimal: Decimal) {
+        _fiatCryptoValue.setCrypto(decimal)
+        setTextFieldAmount()
+    }
+
     func setSendModel(_ sendModel: SendModel) {
         self.sendModel = sendModel
 
@@ -69,8 +74,6 @@ class SendFiatCryptoAdapter {
         _userInputAmount
             .removeDuplicates { $0?.value == $1?.value }
             .dropFirst()
-            // If value == nil then continue chain to reset states to idle
-//            .filter { $0?.isInternal ?? true }
             .sink { [weak self] decimal in
                 guard let self else { return }
 
@@ -86,11 +89,7 @@ class SendFiatCryptoAdapter {
             .$amount
             .removeDuplicates { $0?.value == $1?.value }
             .dropFirst()
-            // If value == nil then continue chain to reset states to idle
-//            .filter { $0?.isInternal ?? true }
             .sink { [weak self] v in
-                print("zzz viewModel update amount", v)
-//                self?.setUserInputAmount(v)
                 self?._userInputAmount.send(v)
             }
             .store(in: &bag)
@@ -101,8 +100,6 @@ class SendFiatCryptoAdapter {
             .removeDuplicates()
             .sink { [weak self] useFiatCalculation in
                 guard let self else { return }
-                print("zzz view model update useFiatCalculation", useFiatCalculation)
-//                self?.setUseFiatCalculation(useFiatCalculation)
 
                 _useFiatCalculation.send(useFiatCalculation)
 
@@ -112,7 +109,13 @@ class SendFiatCryptoAdapter {
             }
             .store(in: &bag)
 
-        modelAmount
+        _fiatCryptoValue
+            .crypto
+            .map { [weak self] cryptoAmount -> Amount? in
+                guard let self, let cryptoAmount else { return nil }
+
+                return Amount(type: amountType, currencySymbol: currencySymbol, value: cryptoAmount, decimals: decimals)
+            }
             .sink { [weak self] modelAmount in
                 self?.sendModel?.setAmount(modelAmount)
             }
