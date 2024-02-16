@@ -94,10 +94,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .minimumAmount, .invalidReserve:
+        case .minimumAmount, .invalidReserve, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.attention.image))
         case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
@@ -108,10 +108,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .minimumAmount, .invalidReserve:
+        case .minimumAmount, .invalidReserve, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .feeCoverage:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
         case .totalExceedsBalance, .feeExceedsBalance:
@@ -171,7 +171,9 @@ extension SendNotificationEvent {
             return [.refreshFee]
         case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
             return [.openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)]
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted), .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted):
+            return [.reduceBy(amount: amount, amountFormatted: amountFormatted)]
+        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
             return [.reduceTo(amount: amount, amountFormatted: amountFormatted)]
         case .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .minimumAmount, .invalidReserve:
             return nil
