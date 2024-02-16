@@ -121,12 +121,8 @@ class SendModel {
         bind()
     }
 
-    func useMaxAmount() {
-        let amountType = walletModel.amountType
-        if let amount = walletModel.wallet.amounts[amountType] {
-            setAmount(amount)
-            didChangeFeeInclusion(true)
-        }
+    func prepareForSendingMaxAmount() {
+        didChangeFeeInclusion(true)
     }
 
     func currentTransaction() -> BlockchainSdk.Transaction? {
