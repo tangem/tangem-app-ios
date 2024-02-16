@@ -23,30 +23,39 @@ struct SendAmountView: View {
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                         .lineLimit(1)
                         .padding(.top, 18)
+                        .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
 
-                    Text(viewModel.balance)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                        .lineLimit(1)
-                        .padding(.top, 4)
+                    if !viewModel.animatingAuxiliaryViewsOnAppear {
+                        Text(viewModel.balance)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .lineLimit(1)
+                            .padding(.top, 4)
+                            .transition(SendView.Constants.auxiliaryViewTransition)
+                    }
 
                     TokenIcon(
                         tokenIconInfo: viewModel.tokenIconInfo,
                         size: iconSize
                     )
+                    .matchedGeometryEffect(id: SendViewNamespaceId.tokenIcon.rawValue, in: namespace)
                     .padding(.top, 34)
 
                     SendDecimalNumberTextField(
                         decimalValue: $viewModel.amount,
                         maximumFractionDigits: viewModel.amountFractionDigits
                     )
+                    // A small delay must be introduced to fix a glitch in a transition animation when changing screens
+                    .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
                     .alignment(.center)
                     .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
+                    .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                     .padding(.top, 16)
 
                     // Keep empty text so that the view maintains its place in the layout
                     Text(viewModel.amountAlternative ?? " ")
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                         .lineLimit(1)
+                        .matchedGeometryEffect(id: SendViewNamespaceId.amountFiatText.rawValue, in: namespace)
                         .padding(.top, 6)
 
                     // Keep empty text so that the view maintains its place in the layout
@@ -59,26 +68,30 @@ struct SendAmountView: View {
                 .frame(maxWidth: .infinity)
             }
             .contentAlignment(.center)
-            .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
+            .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
-            HStack {
-                if viewModel.showCurrencyPicker {
-                    SendCurrencyPicker(
-                        cryptoIconURL: viewModel.cryptoIconURL,
-                        cryptoCurrencyCode: viewModel.cryptoCurrencyCode,
-                        fiatIconURL: viewModel.fiatIconURL,
-                        fiatCurrencyCode: viewModel.fiatCurrencyCode,
-                        useFiatCalculation: $viewModel.useFiatCalculation
-                    )
-                } else {
-                    Spacer()
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                HStack {
+                    if viewModel.showCurrencyPicker {
+                        SendCurrencyPicker(
+                            cryptoIconURL: viewModel.cryptoIconURL,
+                            cryptoCurrencyCode: viewModel.cryptoCurrencyCode,
+                            fiatIconURL: viewModel.fiatIconURL,
+                            fiatCurrencyCode: viewModel.fiatCurrencyCode,
+                            useFiatCalculation: $viewModel.useFiatCalculation
+                        )
+                    } else {
+                        Spacer()
+                    }
+
+                    MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
+                        .frame(width: viewModel.windowWidth / 3)
                 }
-
-                MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
-                    .frame(width: viewModel.windowWidth / 3)
+                .transition(SendView.Constants.auxiliaryViewTransition)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
