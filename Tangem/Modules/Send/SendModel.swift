@@ -54,10 +54,6 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
-    var withdrawalValidator: WithdrawalValidator? {
-        walletModel.withdrawalValidator
-    }
-
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -294,18 +290,11 @@ class SendModel {
 
         if let withdrawalValidator = walletModel.withdrawalValidator {
             transaction
-                .withWeakCaptureOf(self)
-                .map { (self, transaction) in
+                .map { transaction in
                     guard let transaction else { return nil }
-
-                    var suggestion = withdrawalValidator.withdrawalSuggestion(for: transaction)
-                    if self.isFeeIncluded {
-//                        suggestion = suggestion?.add(amount: transaction.fee.amount)
-                    }
-                    return suggestion
+                    return withdrawalValidator.withdrawalSuggestion(for: transaction)
                 }
                 .sink { [weak self] in
-
                     self?._withdrawalSuggestion.send($0)
                 }
                 .store(in: &bag)
@@ -747,12 +736,6 @@ extension SendModel: SendFinishViewModelInput {
 }
 
 extension SendModel: SendNotificationManagerInput {
-    var feeError: AnyPublisher<Error?, Never> { _feeError.eraseToAnyPublisher() }
-
-    var feeChargedInSameCurrency: Bool {
-        walletModel.feeTokenItem == walletModel.tokenItem
-    }
-
     var transactionCreationError: AnyPublisher<Error?, Never> {
         _transactionCreationError.eraseToAnyPublisher()
     }
