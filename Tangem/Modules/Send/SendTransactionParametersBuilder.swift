@@ -80,7 +80,8 @@ struct SendTransactionParametersBuilder {
              .decimal,
              .veChain,
              .xdc,
-             .shibarium:
+             .shibarium,
+             .aptos:
             return nil
         }
     }
