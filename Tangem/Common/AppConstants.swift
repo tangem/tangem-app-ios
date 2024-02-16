@@ -25,4 +25,6 @@ enum AppConstants {
     static let dashSign = "—" // longer stick (em-dash)
 
     static let sessionId = UUID().uuidString
+
+    static let feeExplanationTangemBlogURL = URL(string: "https://tangem.com/en/blog/post/what-is-a-transaction-fee-and-why-do-we-need-it/")!
 }

@@ -15,8 +15,8 @@ enum VisaNotificationEvent: Hashable {
 }
 
 extension VisaNotificationEvent: NotificationEvent {
-    var title: String {
-        "Error"
+    var title: NotificationView.Title {
+        .string("Error")
     }
 
     var description: String? {
