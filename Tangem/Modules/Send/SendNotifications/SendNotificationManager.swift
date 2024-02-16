@@ -12,6 +12,9 @@ import BlockchainSdk
 protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
+    var customFeePublisher: AnyPublisher<Fee?, Never> { get }
+    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
+    var transactionCreationError: AnyPublisher<Error?, Never> { get }
 }
 
 protocol SendNotificationManager: NotificationManager {
@@ -76,10 +79,7 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
-        #warning("TODO")
-        let sendModel = (input as! SendModel)
-
-        sendModel
+        input
             .withdrawalSuggestion
             .sink { [weak self] withdrawalSuggestion in
                 guard let self else { return }
@@ -102,10 +102,9 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
-        let loadedFeeValues = sendModel
+        let loadedFeeValues = input
             .feeValues
-            .withWeakCaptureOf(sendModel)
-            .compactMap { sendModel, loadingFeeValues -> [FeeOption: Decimal]? in
+            .compactMap { loadingFeeValues -> [FeeOption: Decimal]? in
                 if loadingFeeValues.values.contains(where: { $0.isLoading }) {
                     return nil
                 }
@@ -113,7 +112,7 @@ class CommonSendNotificationManager: SendNotificationManager {
                 return loadingFeeValues.compactMapValues { $0.value?.amount.value }
             }
 
-        let customFeeValue = sendModel
+        let customFeeValue = input
             .customFeePublisher
             .compactMap {
                 $0?.amount.value
@@ -145,7 +144,7 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
-        sendModel
+        input
             .transactionCreationError
             .map {
                 ($0 as? TransactionErrors)?.errors ?? []
