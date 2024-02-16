@@ -11,19 +11,19 @@ import Combine
 import BlockchainSdk
 
 class SendFiatCryptoAdapter {
-    var userInputAmount: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
+    private var userInputAmount: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
         _userInputAmount.eraseToAnyPublisher()
     }
 
-    var fiatAmount: AnyPublisher<Decimal?, Never> {
+    private var fiatAmount: AnyPublisher<Decimal?, Never> {
         _fiatCryptoValue.fiat.eraseToAnyPublisher()
     }
 
-    var cryptoAmount: AnyPublisher<Decimal?, Never> {
+    private var cryptoAmount: AnyPublisher<Decimal?, Never> {
         _fiatCryptoValue.crypto.eraseToAnyPublisher()
     }
 
-    var modelAmount: AnyPublisher<Amount?, Never> {
+    private var modelAmount: AnyPublisher<Amount?, Never> {
         _fiatCryptoValue
             .crypto
             .map { [weak self] cryptoAmount in
@@ -80,7 +80,9 @@ class SendFiatCryptoAdapter {
         sendModel
             .amountInputPublisher
             .sink { [weak self] amount in
-                self?.setModelAmount(amount?.value)
+                guard let self else { return }
+//                self?.setModelAmount(amount?.value)
+                _fiatCryptoValue.setCrypto(amount?.value)
             }
             .store(in: &bag)
     }
@@ -114,7 +116,8 @@ class SendFiatCryptoAdapter {
 //            .filter { $0?.isInternal ?? true }
             .sink { [weak self] v in
                 print("zzz viewModel update amount", v)
-                self?.setUserInputAmount(v)
+//                self?.setUserInputAmount(v)
+                self?._userInputAmount.send(v)
             }
             .store(in: &bag)
 
@@ -123,8 +126,15 @@ class SendFiatCryptoAdapter {
             .dropFirst()
             .removeDuplicates()
             .sink { [weak self] useFiatCalculation in
+                guard let self else { return }
                 print("zzz view model update useFiatCalculation", useFiatCalculation)
-                self?.setUseFiatCalculation(useFiatCalculation)
+//                self?.setUseFiatCalculation(useFiatCalculation)
+
+                _useFiatCalculation.send(useFiatCalculation)
+
+                if _userInputAmount.value != nil {
+                    setTextFieldAmount()
+                }
             }
             .store(in: &bag)
 
@@ -136,28 +146,24 @@ class SendFiatCryptoAdapter {
             .store(in: &bag)
     }
 
-    func setUserInputAmount(_ amount: DecimalNumberTextField.DecimalValue?) {
-        _userInputAmount.send(amount)
+//    func setUserInputAmount(_ amount: DecimalNumberTextField.DecimalValue?) {
+//        _userInputAmount.send(amount)
+//    }
+
+    private func setModelAmount(_ amount: Decimal?) {
+//        _fiatCryptoValue.setCrypto(amount)
     }
 
-    func setModelAmount(_ amount: Decimal?) {
-        _fiatCryptoValue.setCrypto(amount)
-    }
-
-    func setUseFiatCalculation(_ useFiatCalculation: Bool) {
-        _useFiatCalculation.send(useFiatCalculation)
-
-        if _userInputAmount.value != nil {
-            setTextFieldAmount()
-        }
-    }
+    private func setUseFiatCalculation(_ useFiatCalculation: Bool) {}
 
     private func setTextFieldAmount() {
         let newAmount = _useFiatCalculation.value ? _fiatCryptoValue.fiat.value : _fiatCryptoValue.crypto.value
         if let newAmount {
-            _userInputAmount.send(.external(newAmount))
+            viewModel?.setUserInputAmount(.external(newAmount))
+//            _userInputAmount.send(.external(newAmount))
         } else {
-            _userInputAmount.send(nil)
+            viewModel?.setUserInputAmount(nil)
+//            _userInputAmount.send(nil)
         }
     }
 }
