@@ -14,6 +14,7 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
+    @Published var stepAnimation: SendView.StepAnimation? = .slideForward
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
@@ -79,6 +80,7 @@ final class SendViewModel: ObservableObject {
     private let walletModel: WalletModel
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
+    private let notificationManager: SendNotificationManager
 
     private weak var coordinator: SendRoutable?
 
@@ -155,12 +157,16 @@ final class SendViewModel: ObservableObject {
 
         #warning("Fiat icon URL")
 
+        notificationManager = SendNotificationManager(input: sendModel)
+
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel, walletInfo: walletInfo)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
         sendSummaryViewModel.router = self
+
+        notificationManager.setupManager(with: self)
 
         bind()
     }
@@ -171,7 +177,8 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        step = nextStep
+        let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
+        openStep(nextStep, stepAnimation: stepAnimation)
     }
 
     func back() {
@@ -180,7 +187,7 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        step = previousStep
+        openStep(previousStep, stepAnimation: .slideBackward)
     }
 
     func scanQRCode() {
@@ -212,6 +219,7 @@ final class SendViewModel: ObservableObject {
         sendModel
             .isSending
             .removeDuplicates()
+            .receive(on: RunLoop.main)
             .sink { [weak self] isSending in
                 self?.setLoadingViewVisibile(isSending)
             }
@@ -270,6 +278,26 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
+        self.stepAnimation = stepAnimation
+
+        if stepAnimation != nil {
+            // Gotta give some time to update animation variable
+            DispatchQueue.main.async {
+                self.step = step
+            }
+        } else {
+            self.step = step
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
+            // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
+            if !step.opensKeyboardByDefault {
+                UIApplication.shared.endEditing()
+            }
+        }
+    }
+
     private func openFinishPage() {
         guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
@@ -277,7 +305,7 @@ final class SendViewModel: ObservableObject {
         }
 
         sendFinishViewModel.router = coordinator
-        openStep(.finish(model: sendFinishViewModel))
+        openStep(.finish(model: sendFinishViewModel), stepAnimation: nil)
     }
 
     private func parseQRCode(_ code: String) {
@@ -292,10 +320,49 @@ final class SendViewModel: ObservableObject {
 
 extension SendViewModel: SendSummaryRoutable {
     func openStep(_ step: SendStep) {
-        self.step = step
+        guard self.step == .summary else {
+            assertionFailure("This code should only be called from summary")
+            return
+        }
+
+        if let auxiliaryViewAnimatable = auxiliaryViewAnimatable(step) {
+            auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear(true)
+        }
+
+        openStep(step, stepAnimation: nil)
     }
 
     func send() {
         sendModel.send()
+    }
+
+    private func auxiliaryViewAnimatable(_ step: SendStep) -> AuxiliaryViewAnimatable? {
+        switch step {
+        case .amount:
+            return sendAmountViewModel
+        case .destination:
+            return sendDestinationViewModel
+        case .fee:
+            return sendFeeViewModel
+        case .summary:
+            return nil
+        case .finish:
+            return nil
+        }
+    }
+}
+
+extension SendViewModel: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId) {}
+
+    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .refreshFee:
+            sendModel.updateFees()
+                .sink()
+                .store(in: &bag)
+        default:
+            break
+        }
     }
 }
