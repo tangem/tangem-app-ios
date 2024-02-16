@@ -47,14 +47,6 @@ class CommonSendNotificationManager: SendNotificationManager {
         self.input = input
     }
 
-    var buttonAction: NotificationView.NotificationButtonTapAction {
-        delegate?.didTapNotificationButton(with:action:) ?? { _, _ in }
-    }
-
-    func transactionCreationNotificationPublisher() -> AnyPublisher<[NotificationViewInput], Never> {
-        transactionCreationNotificationInputsSubject.eraseToAnyPublisher()
-    }
-
     func notificationPublisher(for location: SendNotificationEvent.Location) -> AnyPublisher<[NotificationViewInput], Never> {
         notificationPublisher
             .map {
@@ -72,7 +64,7 @@ class CommonSendNotificationManager: SendNotificationManager {
         input
             .feeValues
             .map {
-                $0.contains(where: { $0.value.error != nil })
+                $0.contains { $0.value.error != nil }
             }
             .sink { [weak self] hasError in
                 self?.updateEventVisibility(hasError, event: .networkFeeUnreachable)
@@ -83,12 +75,21 @@ class CommonSendNotificationManager: SendNotificationManager {
             .withdrawalSuggestion
             .sink { [weak self] withdrawalSuggestion in
                 guard let self else { return }
+
                 switch withdrawalSuggestion {
                 case .optionalAmountChange(let newAmount):
-                    let event = SendNotificationEvent.withdrawalOptionalAmountChange(amount: newAmount.value, amountFormatted: newAmount.string())
+                    let event = SendNotificationEvent.withdrawalOptionalAmountChange(
+                        amount: newAmount.value,
+                        amountFormatted: newAmount.string()
+                    )
                     updateEventVisibility(true, event: event)
                 case .mandatoryAmountChange(let newAmount, let maxUtxos):
-                    let event = SendNotificationEvent.withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: tokenItem.blockchain.displayName, maxUtxo: maxUtxos)
+                    let event = SendNotificationEvent.withdrawalMandatoryAmountChange(
+                        amount: newAmount.value,
+                        amountFormatted: newAmount.string(),
+                        blockchainName: tokenItem.blockchain.displayName,
+                        maxUtxo: maxUtxos
+                    )
                     updateEventVisibility(true, event: event)
                 case nil:
                     let events = [
@@ -111,14 +112,11 @@ class CommonSendNotificationManager: SendNotificationManager {
 
                 return loadingFeeValues.compactMapValues { $0.value?.amount.value }
             }
-
         let customFeeValue = input
             .customFeePublisher
             .compactMap {
                 $0?.amount.value
             }
-
-        // These are triggered when no custom fee is entered
         Publishers.CombineLatest(loadedFeeValues, customFeeValue)
             .sink { [weak self] loadedFeeValues, customFee in
                 guard
@@ -154,9 +152,12 @@ class CommonSendNotificationManager: SendNotificationManager {
                 let factory = NotificationsFactory()
                 return transactionErrors
                     .compactMap {
-                        guard let notificationEvent = self.notificationEvent(from: $0) else { return nil }
-                        return factory.buildNotificationInput(for: notificationEvent, buttonAction: self.buttonAction) { [weak self] settingsId in
-                            self?.dismissAction(with: settingsId)
+                        guard let event = self.notificationEvent(from: $0) else { return nil }
+
+                        return factory.buildNotificationInput(for: event) { [weak self] id, actionType in
+                            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+                        } dismissAction: { [weak self] id in
+                            self?.dismissAction(with: id)
                         }
                     }
             }
@@ -175,7 +176,11 @@ class CommonSendNotificationManager: SendNotificationManager {
     private func updateEventVisibility(_ visible: Bool, event: SendNotificationEvent) {
         if visible {
             if !notificationInputsSubject.value.contains(where: { $0.settings.event.hashValue == event.hashValue }) {
-                let input = NotificationsFactory().buildNotificationInput(for: event, buttonAction: buttonAction) { [weak self] id in
+                let factory = NotificationsFactory()
+
+                let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
+                    self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+                } dismissAction: { [weak self] id in
                     self?.dismissAction(with: id)
                 }
                 notificationInputsSubject.value.append(input)
