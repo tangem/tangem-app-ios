@@ -92,7 +92,7 @@ class SendFiatCryptoAdapter {
             .removeDuplicates { $0?.value == $1?.value }
             .dropFirst()
             // If value == nil then continue chain to reset states to idle
-            .filter { $0?.isInternal ?? true }
+//            .filter { $0?.isInternal ?? true }
             .sink { [weak self] decimal in
                 guard let self else { return }
 
@@ -111,7 +111,7 @@ class SendFiatCryptoAdapter {
             .removeDuplicates { $0?.value == $1?.value }
             .dropFirst()
             // If value == nil then continue chain to reset states to idle
-            .filter { $0?.isInternal ?? true }
+//            .filter { $0?.isInternal ?? true }
             .sink { [weak self] v in
                 print("zzz viewModel update amount", v)
                 self?.setUserInputAmount(v)
