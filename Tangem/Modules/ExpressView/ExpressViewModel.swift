@@ -294,8 +294,7 @@ private extension ExpressViewModel {
 
     func updateSendCurrencyHeaderState(state: ExpressInteractor.State) {
         switch state {
-        case .restriction(.notEnoughBalanceForSwapping, _),
-             .restriction(.notEnoughAmountForFee, _):
+        case .restriction(.notEnoughBalanceForSwapping, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
         default:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingFromTitle))
@@ -447,14 +446,19 @@ private extension ExpressViewModel {
             break
         case .restriction(let type, _):
             switch type {
-            case .hasPendingTransaction, .hasPendingApproveTransaction, .requiredRefresh, .tooSmallAmountForSwapping, .tooBigAmountForSwapping, .noDestinationTokens:
+            case .hasPendingTransaction,
+                 .hasPendingApproveTransaction,
+                 .requiredRefresh,
+                 .tooSmallAmountForSwapping,
+                 .tooBigAmountForSwapping,
+                 .noDestinationTokens,
+                 .notEnoughAmountForFee:
                 mainButtonState = .swap
-                mainButtonIsEnabled = false
-
-            case .notEnoughAmountForFee, .notEnoughBalanceForSwapping:
+            case .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
-                mainButtonIsEnabled = false
             }
+
+            mainButtonIsEnabled = false
 
         case .permissionRequired:
             mainButtonState = .givePermission
