@@ -56,9 +56,6 @@ struct SendView: View {
     @ViewBuilder
     private var header: some View {
         VStack {
-            SheetDragHandler()
-                .padding(.bottom, 4)
-
             if let title = viewModel.title {
                 HStack {
                     Color.clear
@@ -86,6 +83,7 @@ struct SendView: View {
             }
         }
         .padding(.horizontal, 16)
+        .padding(.top, 12)
     }
 
     @ViewBuilder
@@ -127,6 +125,7 @@ struct SendView: View {
             }
         }
         .padding(.horizontal)
+        .padding(.bottom, 14)
     }
 
     @ViewBuilder
