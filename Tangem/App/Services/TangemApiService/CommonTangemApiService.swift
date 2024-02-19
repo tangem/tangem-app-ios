@@ -82,7 +82,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
-        let parameters = BlockchainAccountCreateParameters(networkId: networkId, publicWalletKey: publicKey)
+        let parameters = BlockchainAccountCreateParameters(networkId: networkId, walletPublicKey: publicKey)
         let target = TangemApiTarget(type: .createAccount(parameters), authData: authData)
 
         return provider
