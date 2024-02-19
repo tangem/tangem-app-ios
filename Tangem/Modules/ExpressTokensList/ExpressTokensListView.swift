@@ -27,15 +27,11 @@ struct ExpressTokensListView: View {
     @ViewBuilder
     private var mainContent: some View {
         VStack(spacing: .zero) {
-            FixedSpacer(height: 8)
-
-            if #available(iOS 15.0, *) {
-                BottomSheetSearchableHeaderView(
-                    title: Localization.swappingTokenListTitle,
-                    searchText: $viewModel.searchText
-                )
-                .padding(.vertical, 12)
-            }
+            BottomSheetSearchableHeaderView(
+                title: Localization.swappingTokenListTitle,
+                searchText: $viewModel.searchText
+            )
+            .padding(.vertical, 12)
 
             content
         }
