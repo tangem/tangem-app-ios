@@ -424,10 +424,10 @@ class WalletModel {
         return walletManager.getFee(amount: amount, destination: destination)
     }
 
-    func createTransaction(amountToSend: Amount, fee: Fee, destinationAddress: String) throws -> Transaction {
-        let transaction = try transactionCreator.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
-        return transaction
-    }
+//    func createTransaction(amountToSend: Amount, fee: Fee, destinationAddress: String) throws -> Transaction {
+//        let transaction = try transactionCreator.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
+//        return transaction
+//    }
 }
 
 // MARK: - Helpers
