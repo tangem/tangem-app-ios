@@ -360,8 +360,8 @@ class LegacySendViewModel: ObservableObject {
                 }
 
                 do {
-                    let tx = try walletModel.createTransaction(
-                        amountToSend: isFeeIncluded ? amount - selectedFee.amount : amount,
+                    let tx = try walletModel.transactionCreator.createTransaction(
+                        amount: isFeeIncluded ? amount - selectedFee.amount : amount,
                         fee: selectedFee,
                         destinationAddress: destination
                     )
