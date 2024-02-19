@@ -11,7 +11,7 @@ import Foundation
 struct BlockchainAccountCreateResult: Decodable {
     struct Data: Decodable {
         let accountId: String
-        let publicWalletKey: String
+        let walletPublicKey: String
     }
 
     let data: Data
