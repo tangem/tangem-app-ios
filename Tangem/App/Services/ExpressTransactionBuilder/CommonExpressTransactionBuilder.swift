@@ -70,8 +70,7 @@ private extension CommonExpressTransactionBuilder {
 
         switch destination {
         case .send(let string):
-            try await wallet.transactionValidator.validate(amount: amount, fee: fee, destination: .address(string))
-            return try wallet.transactionCreator.createTransaction(amount: amount, fee: fee, destinationAddress: string)
+            return try await wallet.transactionCreator.createTransaction(amount: amount, fee: fee, destinationAddress: string)
         case .contractCall(let contract, let data):
             var transaction = BlockchainSdk.Transaction(
                 amount: amount,
