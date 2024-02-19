@@ -10,5 +10,5 @@ import Foundation
 
 struct BlockchainAccountCreateParameters: Encodable {
     let networkId: String
-    let publicWalletKey: String
+    let walletPublicKey: String
 }
