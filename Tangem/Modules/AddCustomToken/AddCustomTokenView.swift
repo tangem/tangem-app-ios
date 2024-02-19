@@ -11,6 +11,10 @@ import SwiftUI
 struct AddCustomTokenView: View {
     @ObservedObject private var viewModel: AddCustomTokenViewModel
 
+    @FocusState private var isFocusedNameField: Bool
+    @FocusState private var isFocusedSymbolField: Bool
+    @FocusState private var isFocusedDecimalsField: Bool
+
     init(viewModel: AddCustomTokenViewModel) {
         self.viewModel = viewModel
     }
@@ -45,15 +49,52 @@ struct AddCustomTokenView: View {
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenNameInputTitle, placeholder: Localization.customTokenNameInputPlaceholder, text: $viewModel.name, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
+                            TextInputWithTitle(
+                                title: Localization.customTokenNameInputTitle,
+                                placeholder: Localization.customTokenNameInputPlaceholder,
+                                text: $viewModel.name,
+                                keyboardType: .default,
+                                isEnabled: true,
+                                isLoading: viewModel.isLoading
+                            )
+                            .focused($isFocusedNameField)
+                            .onChange(of: isFocusedNameField) { isFocused in
+                                guard !isFocused else { return }
+                                viewModel.onChangeFocusable(field: .name)
+                            }
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenTokenSymbolInputTitle, placeholder: Localization.customTokenTokenSymbolInputPlaceholder, text: $viewModel.symbol, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
+                            TextInputWithTitle(
+                                title: Localization.customTokenTokenSymbolInputTitle,
+                                placeholder: Localization.customTokenTokenSymbolInputPlaceholder,
+                                text: $viewModel.symbol,
+                                keyboardType: .default,
+                                isEnabled: true,
+                                isLoading: viewModel.isLoading
+                            )
+                            .focused($isFocusedSymbolField)
+                            .onChange(of: isFocusedSymbolField) { isFocused in
+                                guard !isFocused else { return }
+                                viewModel.onChangeFocusable(field: .symbol)
+                            }
 
                             separator
 
-                            TextInputWithTitle(title: Localization.customTokenDecimalsInputTitle, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: true, isLoading: viewModel.isLoading, error: viewModel.decimalsError)
+                            TextInputWithTitle(
+                                title: Localization.customTokenDecimalsInputTitle,
+                                placeholder: "0",
+                                text: $viewModel.decimals,
+                                keyboardType: .numberPad,
+                                isEnabled: true,
+                                isLoading: viewModel.isLoading,
+                                error: viewModel.decimalsError
+                            )
+                            .focused($isFocusedDecimalsField)
+                            .onChange(of: isFocusedDecimalsField) { isFocused in
+                                guard !isFocused else { return }
+                                viewModel.onChangeFocusable(field: .decimals)
+                            }
                         }
                         .background(Colors.Background.action)
                         .cornerRadiusContinuous(14)
