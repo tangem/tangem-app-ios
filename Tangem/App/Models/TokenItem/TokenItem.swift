@@ -36,7 +36,6 @@ enum TokenItem: Hashable, Codable {
         }
     }
 
-    // currently not used, do we still need it?
     var networkId: String {
         return blockchain.networkId
     }
