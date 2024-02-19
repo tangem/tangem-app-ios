@@ -80,12 +80,16 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
                 if !provider.isAvailable {
                     return unavailableProviderRowViewModel(provider: provider.provider)
                 }
-
-                if await provider.getState().isAvailableToShow {
-                    return await mapToProviderRowViewModel(provider: provider)
+                
+                // If the provider `isSelected` we are forced to show it anyway
+                let isSelected = selectedProvider?.provider.id == provider.provider.id
+                let isAvailableToShow = await provider.getState().isAvailableToShow
+                
+                guard isSelected || isAvailableToShow else {
+                    return nil
                 }
 
-                return nil
+                return await mapToProviderRowViewModel(provider: provider)
             }
 
         await runOnMain {
