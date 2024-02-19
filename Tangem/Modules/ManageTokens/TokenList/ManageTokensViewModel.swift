@@ -58,16 +58,14 @@ final class ManageTokensViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.viewDidAppear = true
         }
+        
+        Analytics.log(.manageTokensScreenOpened)
     }
 
     func onBottomDisappear() {
         loader.reset("")
         fetch(with: "")
         viewDidAppear = false
-    }
-
-    func onBottomAppear() {
-        Analytics.log(.manageTokensScreenOpened)
     }
 
     func fetchMore() {
