@@ -9,10 +9,10 @@
 import Foundation
 
 struct BlockchainAccountCreateResult: Decodable {
-    struct Data: Decodable {
+    struct AccountData: Decodable {
         let accountId: String
         let walletPublicKey: String
     }
 
-    let data: Data
+    let data: AccountData
 }
