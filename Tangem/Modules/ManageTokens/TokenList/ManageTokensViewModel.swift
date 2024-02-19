@@ -58,7 +58,7 @@ final class ManageTokensViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.viewDidAppear = true
         }
-        
+
         Analytics.log(.manageTokensScreenOpened)
     }
 
