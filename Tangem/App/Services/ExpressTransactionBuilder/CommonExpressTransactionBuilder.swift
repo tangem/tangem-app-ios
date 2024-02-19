@@ -126,7 +126,7 @@ private extension CommonExpressTransactionBuilder {
              .litecoin,
              .ethereum,
              .ethereumPoW,
-             .ethereumFair,
+             .disChain,
              .ethereumClassic,
              .rsk,
              .bitcoinCash,
