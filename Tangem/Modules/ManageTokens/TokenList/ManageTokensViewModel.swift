@@ -49,9 +49,7 @@ final class ManageTokensViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {
-        Analytics.log(.manageTokensScreenOpened)
-    }
+    func onAppear() {}
 
     func onBottomAppear() {
         // Need for locked fetchMore process when bottom sheet not yet open
