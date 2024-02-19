@@ -124,7 +124,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 titleState: .text(Localization.swappingFromTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loaded(text: "2100.46 $"),
-                priceChangePercent: "-24.3 %",
+                priceChangeState: .priceChangePercent("-24.3 %"),
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
                 symbolState: .loaded(text: "USDT"),
                 canChangeCurrency: true
