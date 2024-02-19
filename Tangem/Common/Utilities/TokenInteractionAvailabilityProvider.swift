@@ -36,7 +36,7 @@ struct TokenInteractionAvailabilityProvider {
              .stellar,
              .ethereum,
              .ethereumPoW,
-             .ethereumFair,
+             .disChain,
              .ethereumClassic,
              .rsk,
              .bitcoinCash,
