@@ -31,6 +31,6 @@ extension BlockchainAccountCreator: AccountCreator {
     func createAccount(blockchain: Blockchain, publicKey: Wallet.PublicKey) -> any Publisher<CreatedAccount, Error> {
         return tangemApiService
             .createAccount(networkId: networkId(for: blockchain), publicKey: publicKey.blockchainKey.hexString)
-            .tryMap { .forHedera(accountId: $0.data.accountId) }
+            .tryMap { HederaCreatedAccount(accountId: $0.data.accountId) }
     }
 }
