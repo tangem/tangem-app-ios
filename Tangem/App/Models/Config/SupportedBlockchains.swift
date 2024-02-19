@@ -69,7 +69,7 @@ struct SupportedBlockchains {
             .ethereum(testnet: false),
             .ethereumClassic(testnet: false),
             .ethereumPoW(testnet: false),
-            .ethereumFair,
+            .disChain,
             .litecoin,
             .bitcoin(testnet: false),
             .bitcoinCash,
