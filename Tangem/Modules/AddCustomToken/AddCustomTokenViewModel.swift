@@ -169,6 +169,24 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         validate()
     }
 
+    /// This method is needed to comply with the conditions for sending events. We send an event only when the text field has lost focus
+    func onChangeFocusable(field: FocusableObserveField) {
+        guard foundStandardToken == nil else { return }
+
+        switch field {
+        case .name where !name.isEmpty:
+            Analytics.log(.manageTokensCustomTokenName)
+        case .symbol where !symbol.isEmpty:
+            Analytics.log(.manageTokensCustomTokenSymbol)
+        case .decimals where !decimals.isEmpty:
+            Analytics.log(.manageTokensCustomTokenDecimals)
+        default:
+            break
+        }
+    }
+
+    // MARK: - Private Implementation
+
     private func bind() {
         dataSource
             .selectedUserWalletModelPublisher
@@ -207,11 +225,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                         result = viewModel.findToken(contractAddress: enteredContractAddress)
                         contractAddressError = nil
 
-                        Analytics.log(.manageTokensCustomTokenAddress)
+                        Analytics.log(.manageTokensCustomTokenAddress, params: [.validation: .ok])
 
                         viewModel.isLoading = true
                     }
                 } catch {
+                    Analytics.log(.manageTokensCustomTokenAddress, params: [.validation: .error])
                     result = .just(output: [])
                     contractAddressError = error
                 }
@@ -231,7 +250,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             $decimals.removeDuplicates()
         )
         .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [weak self] _ in
+        .sink { [weak self] events in
             self?.validate()
         }
         .store(in: &bag)
@@ -560,5 +579,15 @@ private extension AddCustomTokenViewModel {
         let supportedBlockchains: [Blockchain]
         let hdWalletsSupported: Bool
         let derivationStyle: DerivationStyle?
+    }
+}
+
+// MARK: - Focused Observe Field
+
+extension AddCustomTokenViewModel {
+    enum FocusableObserveField {
+        case name
+        case symbol
+        case decimals
     }
 }
