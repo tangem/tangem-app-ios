@@ -57,10 +57,7 @@ struct SupportedBlockchains {
 
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
-        [
-            .algorand(curve: ed25519Curve(for: version), testnet: false),
-            .aptos(curve: ed25519Curve(for: version), testnet: false),
-        ]
+        []
     }
 
     private func mainnetBlockchains() -> Set<Blockchain> {
@@ -109,6 +106,8 @@ struct SupportedBlockchains {
             .veChain(testnet: false),
             .xdc(testnet: false),
             .shibarium(testnet: false),
+            .algorand(curve: ed25519Curve(for: version), testnet: false),
+            .aptos(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
