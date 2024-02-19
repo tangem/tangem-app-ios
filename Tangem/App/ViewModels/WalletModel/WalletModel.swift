@@ -425,9 +425,7 @@ class WalletModel {
     }
 
     func createTransaction(amountToSend: Amount, fee: Fee, destinationAddress: String) throws -> Transaction {
-        try transactionValidator.validate(amount: amountToSend, fee: fee)
-        let transaction = walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
-
+        let transaction = try transactionCreator.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
         return transaction
     }
 }
