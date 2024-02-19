@@ -48,7 +48,7 @@ struct SendTransactionParametersBuilder {
              .litecoin,
              .ethereum,
              .ethereumPoW,
-             .ethereumFair,
+             .disChain,
              .ethereumClassic,
              .rsk,
              .bitcoinCash,
