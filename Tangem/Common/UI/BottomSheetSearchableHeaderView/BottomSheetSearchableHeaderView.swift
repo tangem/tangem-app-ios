@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 
-@available(iOS 15.0, *)
 struct BottomSheetSearchableHeaderView: View {
     private let title: String
     private let searchText: Binding<String>
@@ -59,7 +58,6 @@ struct BottomSheetSearchableHeaderView: View {
     }
 }
 
-@available(iOS 15.0, *)
 struct BottomSheetSearchableHeaderView_Preview: PreviewProvider {
     @State private static var searchText: String = ""
     static var previews: some View {
