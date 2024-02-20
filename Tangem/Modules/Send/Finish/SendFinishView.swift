@@ -15,46 +15,52 @@ struct SendFinishView: View {
 
     var body: some View {
         VStack {
-            GroupedScrollView {
-                header
-                    .padding(.bottom, 24)
+            GroupedScrollView(spacing: 14) {
+                if viewModel.showHeader {
+                    header
+                        .padding(.bottom, 24)
+                }
 
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address):
                         SendDestinationAddressSummaryView(address: address)
-                            .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
+                            .setNamespace(namespace)
                     case .additionalField(let type, let value):
                         if let name = type.name {
                             DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action)
-
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.amountSummaryViewData) {
                     AmountSummaryView(data: $0)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+                        .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+                        .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                        .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
-                .interSectionPadding(12)
-                .backgroundColor(Colors.Background.action)
-                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .innerContentPadding(12)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     DefaultTextWithTitleRowView(data: data)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
                 }
-                .backgroundColor(Colors.Background.action)
-                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
             }
 
-            bottomButtons
-                .padding(.horizontal, 16)
+            if viewModel.showButtons {
+                bottomButtons
+                    .padding(.horizontal, 16)
+            }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
@@ -72,6 +78,7 @@ struct SendFinishView: View {
                 .lineLimit(1)
                 .padding(.top, 6)
         }
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
 
     @ViewBuilder
@@ -97,6 +104,7 @@ struct SendFinishView: View {
                 action: viewModel.close
             )
         }
+        .transition(.opacity)
     }
 }
 
