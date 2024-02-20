@@ -81,6 +81,18 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
+    func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
+        let parameters = BlockchainAccountCreateParameters(networkId: networkId, walletPublicKey: publicKey)
+        let target = TangemApiTarget(type: .createAccount(parameters), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(BlockchainAccountCreateResult.self)
+            .mapTangemAPIError()
+            .eraseToAnyPublisher()
+    }
+
     func loadCoins(requestModel: CoinsList.Request) -> AnyPublisher<[CoinModel], Error> {
         provider
             .requestPublisher(TangemApiTarget(type: .coins(requestModel), authData: authData))
