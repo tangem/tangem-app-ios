@@ -54,7 +54,7 @@ struct LegacyCoinItemView: View {
                 if !model.isReadonly {
                     Toggle("", isOn: $model.selectedPublisher)
                         .labelsHidden()
-                        .toggleStyleCompat(Colors.Control.checked)
+                        .tint(Colors.Control.checked)
                         .offset(x: 2)
                         .scaleEffect(0.8)
                 }
@@ -73,7 +73,7 @@ struct CurrencyItemView_Previews: PreviewProvider {
         VStack(spacing: 0) {
             LegacyCoinItemView(
                 model: LegacyCoinItemViewModel(
-                    tokenItem: .blockchain(.ethereum(testnet: false)),
+                    tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
                     isReadonly: false,
                     isSelected: .constant(false)
                 ),
@@ -82,7 +82,7 @@ struct CurrencyItemView_Previews: PreviewProvider {
 
             LegacyCoinItemView(
                 model: LegacyCoinItemViewModel(
-                    tokenItem: .blockchain(.ethereum(testnet: false)),
+                    tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
                     isReadonly: false,
                     isSelected: .constant(true),
                     position: .last
@@ -93,7 +93,7 @@ struct CurrencyItemView_Previews: PreviewProvider {
             StatefulPreviewWrapper(false) {
                 LegacyCoinItemView(
                     model: LegacyCoinItemViewModel(
-                        tokenItem: .blockchain(.ethereum(testnet: false)),
+                        tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
                         isReadonly: false,
                         isSelected: $0
                     ),

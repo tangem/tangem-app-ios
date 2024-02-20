@@ -38,6 +38,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
+    @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
     private(set) var customFeeModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
@@ -48,6 +49,9 @@ class SendFeeViewModel: ObservableObject {
 
     @Published private var isFeeIncluded: Bool = false
 
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
+
+    private let notificationManager: NotificationManager
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
@@ -62,8 +66,9 @@ class SendFeeViewModel: ObservableObject {
         balanceConverter: balanceConverter
     )
 
-    init(input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
+    init(input: SendFeeViewModelInput, notificationManager: NotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
+        self.notificationManager = notificationManager
         self.walletInfo = walletInfo
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
@@ -89,6 +94,14 @@ class SendFeeViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        }
     }
 
     private func createCustomFeeModels() {
@@ -167,6 +180,11 @@ class SendFeeViewModel: ObservableObject {
             }
             .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
             .store(in: &bag)
+
+        notificationManager.notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func makeFeeRowViewModels(_ feeValues: [FeeOption: LoadingValue<Fee>]) -> [FeeRowViewModel] {
@@ -240,6 +258,12 @@ class SendFeeViewModel: ObservableObject {
         let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
         let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
         return Fee(feeAmount, parameters: parameters)
+    }
+}
+
+extension SendFeeViewModel: AuxiliaryViewAnimatable {
+    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
     }
 }
 
