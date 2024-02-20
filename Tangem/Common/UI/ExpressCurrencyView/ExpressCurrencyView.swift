@@ -110,23 +110,7 @@ struct ExpressCurrencyView<Content: View>: View {
                     isSensitiveText: false
                 )
 
-                if let priceChangeState = viewModel.priceChangeState, let didTapNetworkFeeInfoButton {
-                    Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
-                        switch priceChangeState {
-                        case .info:
-                            infoButtonIcon
-                                .foregroundColor(Colors.Icon.informative)
-                        case .priceChangePercent(let message):
-                            HStack(spacing: 2) {
-                                Text(message)
-                                    .style(Fonts.Regular.footnote, color: Colors.Text.attention)
-
-                                infoButtonIcon
-                                    .foregroundColor(Colors.Icon.attention)
-                            }
-                        }
-                    }
-                }
+                infoButton
             }
 
             Spacer()
@@ -143,6 +127,27 @@ struct ExpressCurrencyView<Content: View>: View {
             // Chevron's space
             .padding(.trailing, 12)
             .offset(x: -tokenIconSize.width / 2 + symbolSize.width / 2)
+        }
+    }
+    
+    @ViewBuilder
+    private var infoButton: some View {
+        if let priceChangeState = viewModel.priceChangeState, let didTapNetworkFeeInfoButton {
+            Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
+                switch priceChangeState {
+                case .info:
+                    infoButtonIcon
+                        .foregroundColor(Colors.Icon.informative)
+                case .percent(let message):
+                    HStack(spacing: 2) {
+                        Text(message)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+
+                        infoButtonIcon
+                            .foregroundColor(Colors.Icon.attention)
+                    }
+                }
+            }
         }
     }
 
@@ -231,7 +236,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "2100.46 $"),
-            priceChangeState: .priceChangePercent("-24.3 %"),
+            priceChangeState: .percent("-24.3 %"),
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "USDT"),
             canChangeCurrency: true
