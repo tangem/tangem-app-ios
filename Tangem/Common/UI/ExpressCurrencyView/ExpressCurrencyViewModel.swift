@@ -136,7 +136,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             let percentFormatter = PercentFormatter()
             let formatted = percentFormatter.expressRatePercentFormat(value: -result.lossesInPercents)
             await runOnMain {
-                viewModel.priceChangeState = .priceChangePercent(formatted)
+                viewModel.priceChangeState = .percent(formatted)
             }
         }
     }
@@ -153,7 +153,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 extension ExpressCurrencyViewModel {
     enum PriceChangeState: Hashable {
         case info
-        case priceChangePercent(_ formatted: String)
+        case percent(_ formatted: String)
     }
 
     enum TitleState: Hashable {
