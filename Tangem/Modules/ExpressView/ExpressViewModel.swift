@@ -108,21 +108,26 @@ final class ExpressViewModel: ObservableObject {
         coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
-    func userDidTapPriceChangeInfoButton() {
+    func userDidTapPriceChangeInfoButton(isBigLoss: Bool) {
         runTask(in: self) { viewModel in
-            let message: String? = await {
-                switch await viewModel.interactor.getSelectedProvider()?.provider.type {
-                case .none:
-                    return nil
-                case .cex:
-                    return Localization.expressCexFeeExplanation
-                case .dex:
-                    return Localization.swappingHighPriceImpactDescription
-                }
-            }()
-
-            guard let message else {
+            guard let providerType = await viewModel.interactor.getSelectedProvider()?.provider.type else {
                 return
+            }
+
+            var message: String
+
+            switch providerType {
+            case .cex:
+                message = Localization.expressCexFeeExplanation
+                if isBigLoss {
+                    let tokenItemSymbol = viewModel.interactor.getSender().tokenItem.currencySymbol
+                    message += "\n\n\(Localization.swappingAlertCexDescription(tokenItemSymbol))"
+                }
+            case .dex:
+                message = Localization.swappingAlertDexDescription
+                if isBigLoss {
+                    message += "\n\n\(Localization.swappingHighPriceImpactDescription)"
+                }
             }
 
             await runOnMain {
@@ -296,8 +301,7 @@ private extension ExpressViewModel {
 
     func updateSendCurrencyHeaderState(state: ExpressInteractor.State) {
         switch state {
-        case .restriction(.notEnoughBalanceForSwapping, _),
-             .restriction(.notEnoughAmountForFee, _):
+        case .restriction(.notEnoughBalanceForSwapping, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
         default:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingFromTitle))
@@ -456,13 +460,13 @@ private extension ExpressViewModel {
                  .tooBigAmountForSwapping,
                  .noDestinationTokens,
                  .validationError:
+                 .notEnoughAmountForFee:
                 mainButtonState = .swap
-                mainButtonIsEnabled = false
-
-            case .notEnoughAmountForFee, .notEnoughBalanceForSwapping:
+            case .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
-                mainButtonIsEnabled = false
             }
+
+            mainButtonIsEnabled = false
 
         case .permissionRequired:
             mainButtonState = .givePermission

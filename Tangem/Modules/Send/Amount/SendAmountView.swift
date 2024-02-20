@@ -16,7 +16,7 @@ struct SendAmountView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 14) {
             GroupedSection(viewModel) { viewModel in
                 VStack(spacing: 0) {
                     Text(viewModel.walletName)
