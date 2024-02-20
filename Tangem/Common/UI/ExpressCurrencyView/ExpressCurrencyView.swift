@@ -18,7 +18,7 @@ struct ExpressCurrencyView<Content: View>: View {
     private let tokenIconSize = CGSize(width: 40, height: 40)
     private let chevronIconSize = CGSize(width: 9, height: 9)
     private var didTapChangeCurrency: () -> Void = {}
-    private var didTapPriceChangePercent: (() -> Void)?
+    private var didTapNetworkFeeInfoButton: ((ExpressCurrencyViewModel.PriceChangeState) -> Void)?
 
     @State private var symbolSize: CGSize = .zero
 
@@ -100,7 +100,7 @@ struct ExpressCurrencyView<Content: View>: View {
     @ViewBuilder
     private var bottomContent: some View {
         HStack(spacing: 0) {
-            HStack(spacing: 8) {
+            HStack(spacing: 4) {
                 LoadableTextView(
                     state: viewModel.fiatAmountState,
                     font: Fonts.Regular.footnote,
@@ -110,20 +110,7 @@ struct ExpressCurrencyView<Content: View>: View {
                     isSensitiveText: false
                 )
 
-                if let priceChangePercent = viewModel.priceChangePercent, let didTapPriceChangePercent {
-                    Button(action: { didTapPriceChangePercent() }) {
-                        HStack(spacing: 2) {
-                            Text(priceChangePercent)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.attention)
-
-                            Assets.infoIconMini.image
-                                .renderingMode(.template)
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                                .foregroundColor(Colors.Icon.attention)
-                        }
-                    }
-                }
+                infoButton
             }
 
             Spacer()
@@ -141,6 +128,35 @@ struct ExpressCurrencyView<Content: View>: View {
             .padding(.trailing, 12)
             .offset(x: -tokenIconSize.width / 2 + symbolSize.width / 2)
         }
+    }
+    
+    @ViewBuilder
+    private var infoButton: some View {
+        if let priceChangeState = viewModel.priceChangeState, let didTapNetworkFeeInfoButton {
+            Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
+                switch priceChangeState {
+                case .info:
+                    infoButtonIcon
+                        .foregroundColor(Colors.Icon.informative)
+                case .percent(let message):
+                    HStack(spacing: 2) {
+                        Text(message)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+
+                        infoButtonIcon
+                            .foregroundColor(Colors.Icon.attention)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var infoButtonIcon: some View {
+        Assets.infoIconMini.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: 16, height: 16)
     }
 
     @ViewBuilder
@@ -169,8 +185,8 @@ extension ExpressCurrencyView: Setupable {
         map { $0.didTapChangeCurrency = block }
     }
 
-    func didTapPriceChangePercent(_ block: @escaping () -> Void) -> Self {
-        map { $0.didTapPriceChangePercent = block }
+    func didTapNetworkFeeInfoButton(_ block: @escaping (ExpressCurrencyViewModel.PriceChangeState) -> Void) -> Self {
+        map { $0.didTapNetworkFeeInfoButton = block }
     }
 }
 
@@ -220,7 +236,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "2100.46 $"),
-            priceChangePercent: "-24.3 %",
+            priceChangeState: .percent("-24.3 %"),
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "USDT"),
             canChangeCurrency: true
