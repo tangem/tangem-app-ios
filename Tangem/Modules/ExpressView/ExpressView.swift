@@ -66,20 +66,14 @@ struct ExpressView: View {
                         .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
                         .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
                 }
-                .interSectionPadding(12)
-                .interItemSpacing(10)
-                .verticalPadding(0)
-                .backgroundColor(Colors.Background.action)
+                .innerContentPadding(12)
 
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
                         .didTapChangeCurrency(viewModel.userDidTapChangeDestinationButton)
-                        .didTapPriceChangePercent(viewModel.userDidTapPriceChangeInfoButton)
+                        .didTapNetworkFeeInfoButton(viewModel.userDidTapPriceChangeInfoButton)
                 }
-                .interSectionPadding(12)
-                .interItemSpacing(10)
-                .verticalPadding(0)
-                .backgroundColor(Colors.Background.action)
+                .innerContentPadding(12)
             }
 
             swappingButton
@@ -125,10 +119,7 @@ struct ExpressView: View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
         }
-        .backgroundColor(Colors.Background.action)
-        .interSectionPadding(12)
-        .interItemSpacing(10)
-        .verticalPadding(0)
+        .innerContentPadding(12)
     }
 
     @ViewBuilder
@@ -141,9 +132,7 @@ struct ExpressView: View {
                 ProviderRowView(viewModel: data)
             }
         }
-        .backgroundColor(Colors.Background.action)
-        .interSectionPadding(12)
-        .verticalPadding(0)
+        .innerContentPadding(12)
     }
 
     @ViewBuilder
@@ -164,27 +153,14 @@ struct ExpressView: View {
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
-        .animation(.none)
+        .animation(nil, value: 0)
     }
 
     @ViewBuilder
     private var legalView: some View {
         if let legalText = viewModel.legalText {
-            if #available(iOS 15, *) {
-                Text(AttributedString(legalText))
-                    .font(Fonts.Regular.footnote)
-                    .multilineTextAlignment(.center)
-            } else {
-                GeometryReader { proxy in
-                    VStack(spacing: .zero) {
-                        Spacer()
-                            .layoutPriority(1)
-
-                        // AttributedTextView(UILabel) doesn't tappable on iOS 14
-                        AttributedTextView(legalText, textAlignment: .center, maxLayoutWidth: proxy.size.width)
-                    }
-                }
-            }
+            Text(legalText)
+                .multilineTextAlignment(.center)
         }
     }
 }
