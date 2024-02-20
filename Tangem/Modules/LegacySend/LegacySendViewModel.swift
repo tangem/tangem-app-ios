@@ -311,7 +311,7 @@ class LegacySendViewModel: ObservableObject {
                 let newAmount = Amount(with: amountToSend, value: newAmountValue)
 
                 do {
-                    try validate(amount: newAmount)
+                    try walletModel.transactionValidator.validate(amount: newAmount)
                     amountHint = nil
                     validatedAmount = newAmount
                 } catch {
@@ -597,16 +597,6 @@ class LegacySendViewModel: ObservableObject {
 
         UIApplication.shared.endEditing()
         error = AlertBinder(alert: alert)
-    }
-
-    func validate(amount: Amount) throws {
-        if amount.value < 0 {
-            throw ValidationError.invalidAmount
-        }
-
-        if amount.value > (walletModel.balanceValue ?? 0) {
-            throw ValidationError.amountExceedsBalance
-        }
     }
 
     // MARK: - Address resolution
