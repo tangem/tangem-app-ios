@@ -37,7 +37,7 @@ class FakeWalletManager: WalletManager {
     func scheduleSwitchFromLoadingState() {
         print("Scheduling switch from loading state")
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            self.state = .loaded(self.wallet)
+            self.state = .loaded
         }
     }
 
@@ -94,11 +94,9 @@ class FakeWalletManager: WalletManager {
     private func nextState() -> WalletManagerState {
         switch state {
         case .initial: return .loading
-        case .loading: return .loaded(wallet)
+        case .loading: return .loaded
         case .loaded: return .failed("Some Wallet manager error")
         case .failed: return .loading
-        @unknown default:
-            preconditionFailure()
         }
     }
 
