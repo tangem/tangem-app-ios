@@ -129,7 +129,7 @@ struct TokenItemView: View {
     @ViewBuilder
     private func contextMenuButton(for actionType: TokenActionType) -> some View {
         let action = { viewModel.didTapContextAction(actionType) }
-        if #available(iOS 15, *), actionType.isDestructive {
+        if actionType.isDestructive {
             Button(
                 role: .destructive,
                 action: action,

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct BalanceFormatter {
     static var defaultEmptyBalanceString: String { "–" }
@@ -108,28 +109,24 @@ struct BalanceFormatter {
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(currencyCode)"
     }
 
-    /// Format fiat balance string for main page with different font for integer and fractional parts
+    /// Format fiat balance string for main page with different font for integer and fractional parts.
     /// - Parameters:
     ///   - fiatBalance: Fiat balance should be formatted and with currency symbol. Use `formatFiatBalance(Decimal, BalanceFormattingOptions)
-    ///   - formattingOptions: Fonts for integer and fractional parts
-    /// - Returns: Formatted string for main screen
-    func formatTotalBalanceForMain(fiatBalance: String, formattingOptions: TotalBalanceFormattingOptions) -> NSAttributedString {
-        let attributedString = NSMutableAttributedString(string: fiatBalance)
-        let allStringRange = NSRange(location: 0, length: attributedString.length)
-        attributedString.addAttribute(.font, value: formattingOptions.integerPartFont, range: allStringRange)
-
+    ///   - formattingOptions: Fonts and colors for integer and fractional parts
+    /// - Returns: Parameters that can be used with SwiftUI `Text` view
+    func formatAttributedTotalBalance(fiatBalance: String, formattingOptions: TotalBalanceFormattingOptions = .defaultOptions) -> AttributedString {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
         let decimalSeparator = formatter.decimalSeparator ?? ""
+        var attributedString = AttributedString(fiatBalance)
+        attributedString.font = formattingOptions.integerPartFont
+        attributedString.foregroundColor = formattingOptions.integerPartColor
 
-        let decimalLocation = NSString(string: fiatBalance).range(of: decimalSeparator).location
-        if decimalLocation < (fiatBalance.count - 1) {
-            let locationAfterDecimal = decimalLocation + 1
-            let symbolsAfterDecimal = fiatBalance.count - locationAfterDecimal
-            let rangeAfterDecimal = NSRange(location: locationAfterDecimal, length: symbolsAfterDecimal)
-
-            attributedString.addAttribute(.font, value: formattingOptions.fractionalPartFont, range: rangeAfterDecimal)
+        if let separatorRange = attributedString.range(of: decimalSeparator) {
+            let fractionalPartRange = Range<AttributedString.Index>.init(uncheckedBounds: (lower: separatorRange.upperBound, upper: attributedString.endIndex))
+            attributedString[fractionalPartRange].font = formattingOptions.fractionalPartFont
+            attributedString[fractionalPartRange].foregroundColor = formattingOptions.fractionalPartColor
         }
 
         return attributedString

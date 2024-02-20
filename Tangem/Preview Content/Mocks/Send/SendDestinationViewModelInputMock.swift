@@ -11,6 +11,10 @@ import Combine
 import BlockchainSdk
 
 class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
+    var isValidatingDestination: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+
     var destinationTextPublisher: AnyPublisher<String, Never> {
         .just(output: "0x123123")
     }
@@ -35,8 +39,12 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         .memo
     }
 
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
     var blockchainNetwork: BlockchainNetwork {
-        BlockchainNetwork(.ethereum(testnet: false))
+        BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
     }
 
     var walletPublicKey: Wallet.PublicKey {

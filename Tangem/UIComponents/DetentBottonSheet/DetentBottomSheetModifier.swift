@@ -32,10 +32,8 @@ struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewMod
     func body(content: Content) -> some View {
         if #available(iOS 16.4, *) {
             aboveIOS16SheetUpdate(item: item, on: content)
-        } else if #available(iOS 15.0, *) {
-            beforeIOS16SheetUpdate(item: item, on: content)
         } else {
-            beforeIOS15SheetUpdate(item: item, on: content)
+            beforeIOS16SheetUpdate(item: item, on: content)
         }
     }
 }
@@ -59,7 +57,6 @@ private extension DetentBottomSheetModifier {
 
 // MARK: - Before iOS_16.4 UIKit Implementation BottomSheet
 
-@available(iOS 15.0, *)
 private extension DetentBottomSheetModifier {
     func beforeIOS16SheetUpdate(item: Item?, on content: Content) -> some View {
         content
@@ -70,20 +67,6 @@ private extension DetentBottomSheetModifier {
                 .presentationConfiguration { controller in
                     controller.detents = detents.map { $0.detentsAboveIOS15 }
                     controller.preferredCornerRadius = settings.cornerRadius
-                }
-            }
-    }
-}
-
-// MARK: - Before iOS_15 UIKit Implementation BottomSheet
-
-@available(iOS 14.0, *)
-private extension DetentBottomSheetModifier {
-    func beforeIOS15SheetUpdate(item: Item?, on content: Content) -> some View {
-        content
-            .sheet(item: $item) { item in
-                DetentBottomSheetContainer {
-                    sheetContent(item)
                 }
             }
     }

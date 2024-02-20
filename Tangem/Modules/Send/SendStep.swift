@@ -40,6 +40,15 @@ extension SendStep {
             return false
         }
     }
+
+    var opensKeyboardByDefault: Bool {
+        switch self {
+        case .amount:
+            return true
+        case .destination, .fee, .summary, .finish:
+            return false
+        }
+    }
 }
 
 extension SendStep: Equatable {
