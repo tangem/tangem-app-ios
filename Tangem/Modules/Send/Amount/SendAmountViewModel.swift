@@ -40,6 +40,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var useFiatCalculation = false
     @Published var amountAlternative: String = ""
     @Published var error: String?
+    @Published var animatingAuxiliaryViewsOnAppear = false
 
     private let input: SendAmountViewModelInput
     private var bag: Set<AnyCancellable> = []
@@ -59,6 +60,14 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
         bind(from: input)
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        }
     }
 
     func didTapMaxAmount() {
@@ -107,5 +116,11 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         } else {
             return nil
         }
+    }
+}
+
+extension SendAmountViewModel: AuxiliaryViewAnimatable {
+    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
     }
 }

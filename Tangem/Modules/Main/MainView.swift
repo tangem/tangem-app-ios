@@ -23,11 +23,7 @@ struct MainView: View {
                         if !info.isLockedWallet {
                             Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
 
-                            if #available(iOS 15, *) {
-                                Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
-                            } else {
-                                Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
-                            }
+                            Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
                         }
                     }
             },
@@ -59,14 +55,7 @@ struct MainView: View {
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 0) {
-                    if #unavailable(iOS 15) {
-                        // Offset didn't work for iOS 14 if there are no other view in toolbar
-                        Spacer()
-                            .frame(width: 10)
-                    }
-                    detailsNavigationButton
-                }
+                detailsNavigationButton
             }
         })
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
