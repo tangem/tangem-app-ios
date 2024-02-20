@@ -437,7 +437,7 @@ class LegacySendViewModel: ObservableObject {
                 if memo.isEmpty { return }
 
                 switch blockchainNetwork.blockchain {
-                case .binance, .ton, .cosmos, .terraV1, .terraV2:
+                case .binance, .ton, .cosmos, .terraV1, .terraV2, .algorand:
                     validatedMemo = memo
                 case .stellar:
                     if let memoId = UInt64(memo) {
