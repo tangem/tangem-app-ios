@@ -42,6 +42,8 @@ struct SendTransactionParametersBuilder {
             return CosmosTransactionParams(memo: value)
         case .algorand:
             return AlgorandTransactionParams(nonce: value)
+        case .hedera:
+            return HederaTransactionParams(memo: value)
         case .bitcoin,
              .litecoin,
              .ethereum,
