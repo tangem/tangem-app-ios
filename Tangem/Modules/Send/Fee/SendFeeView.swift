@@ -16,35 +16,60 @@ struct SendFeeView: View {
     let bottomSpacing: CGFloat
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) {
-                FeeRowView(viewModel: $0)
+                if $0.isSelected.value {
+                    FeeRowView(viewModel: $0)
+                        .setNamespace(namespace)
+                        .setIconNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                } else {
+                    if !viewModel.animatingAuxiliaryViewsOnAppear {
+                        FeeRowView(viewModel: $0)
+                            .transition(SendView.Constants.auxiliaryViewTransition)
+                    }
+                }
             } footer: {
-                DefaultFooterView(Localization.commonFeeSelectorFooter)
+                if !viewModel.animatingAuxiliaryViewsOnAppear {
+                    DefaultFooterView(Localization.commonFeeSelectorFooter)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
-            .separatorStyle(.minimum)
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
 
-            if viewModel.showCustomFeeFields,
+            if !viewModel.animatingAuxiliaryViewsOnAppear,
+               viewModel.showCustomFeeFields,
                let customFeeModel = viewModel.customFeeModel,
                let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
                let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
-                SendCustomFeeInputField(viewModel: customFeeModel)
-                SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
-                SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                Group {
+                    SendCustomFeeInputField(viewModel: customFeeModel)
+                    SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
+                    SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                }
+                .transition(SendView.Constants.auxiliaryViewTransition)
             }
 
-            GroupedSection(viewModel.subtractFromAmountModel) {
-                DefaultToggleRowView(viewModel: $0)
-            } footer: {
-                DefaultFooterView(viewModel.subtractFromAmountFooterText)
-                    .animation(.default)
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                GroupedSection(viewModel.subtractFromAmountModel) {
+                    DefaultToggleRowView(viewModel: $0)
+                } footer: {
+                    DefaultFooterView(viewModel.subtractFromAmountFooterText)
+                        .animation(.default, value: viewModel.subtractFromAmountFooterText)
+                }
+                .transition(SendView.Constants.auxiliaryViewTransition)
             }
-            .backgroundColor(Colors.Background.action)
+
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
+            }
 
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
@@ -78,6 +103,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeUserWalletNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
     }
 }
