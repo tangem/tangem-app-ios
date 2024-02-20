@@ -45,7 +45,7 @@ struct DecimalNumberTextField: View {
         TextField(placeholder, text: $textFieldText)
             .style(font, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
-            .tintCompat(Colors.Text.primary1)
+            .tint(Colors.Text.primary1)
             .onChange(of: decimalValue) { newDecimalValue in
                 switch newDecimalValue {
                 case .none, .internal:
