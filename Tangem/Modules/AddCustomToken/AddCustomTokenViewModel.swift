@@ -250,7 +250,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             $decimals.removeDuplicates()
         )
         .debounce(for: 0.1, scheduler: RunLoop.main)
-        .sink { [weak self] events in
+        .sink { [weak self] _ in
             self?.validate()
         }
         .store(in: &bag)
