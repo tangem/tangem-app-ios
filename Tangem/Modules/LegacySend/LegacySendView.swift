@@ -173,7 +173,8 @@ struct LegacySendView: View {
                                             Text(Localization.sendFeeIncludeDescription)
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                                 .foregroundColor(Color.tangemGrayDark6)
-                                        }.tintCompat(Colors.Control.checked)
+                                        }
+                                        .tint(Colors.Control.checked)
                                     }
                                 }
                                 .padding(.vertical, 8.0)
