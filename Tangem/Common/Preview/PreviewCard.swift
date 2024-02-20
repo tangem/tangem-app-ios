@@ -37,11 +37,16 @@ enum PreviewCard {
                     getBlockCredentials: .init(credentials: []),
                     kaspaSecondaryApiUrl: nil,
                     tronGridApiKey: "",
+                    hederaArkhiaApiKey: "",
                     tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
                     fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
                     chiaTangemApiKeys: .init(mainnetApiKey: ""),
                     quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                     quickNodeBscCredentials: .init(apiKey: "", subdomain: "")
+                ),
+                dependencies: .init(
+                    accountCreator: BlockchainAccountCreatorStub(),
+                    dataStorage: FakeBlockchainDataStorage()
                 )
             )
             let walletManager = try! factory.makeWalletManager(
@@ -88,7 +93,7 @@ enum PreviewCard {
     }
 
     var blockchainNetwork: BlockchainNetwork? {
-        blockchain.map { BlockchainNetwork($0) }
+        blockchain.map { BlockchainNetwork($0, derivationPath: nil) }
     }
 
     var publicKey: Data {

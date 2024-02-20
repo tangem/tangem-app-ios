@@ -56,17 +56,12 @@ struct BannerPromotionNotificationFactory {
             }
         }()
 
-        let attributed = NSMutableAttributedString(
-            string: string,
-            attributes: [.font: UIFonts.Bold.footnote, .foregroundColor: UIColor(Colors.Text.constantWhite)]
-        )
+        var attributed = AttributedString(string)
+        attributed.font = Fonts.Bold.footnote
+        attributed.foregroundColor = Colors.Text.constantWhite
 
-        if let range = attributed.string.range(of: percent) {
-            attributed.addAttribute(
-                .foregroundColor,
-                value: UIColor.yellow,
-                range: NSRange(range.lowerBound..., in: attributed.string)
-            )
+        if let range = attributed.range(of: percent) {
+            attributed[range.lowerBound...].foregroundColor = .init(red: 233, green: 253, blue: 2)
         }
 
         return .attributed(attributed)
