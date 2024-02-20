@@ -423,6 +423,11 @@
 "scan_card_settings_button" = "Scan Card";
 "scan_card_settings_message" = "Scan the card to change its settings. The changes will impact only the card you've scanned and will not affect other cards tied to your wallet.";
 "scan_card_settings_title" = "Get your card ready!";
+"send_additional_field_already_included" = "Already included in the entered address";
+"send_alert_button_request_support" = "Support";
+"send_alert_fee_increased_title" = "Fee is increased";
+"send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
+"send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Amount";
 "send_amount_substract" = "Subtract from send amount";
 "send_amount_substract_footer" = "The recipient will receive %@";
@@ -459,6 +464,8 @@
 "send_notification_exceed_fee_title" = "Fee exceeds balance";
 "send_notification_existential_deposit_text" = "The account will be wiped from the blockchain if a balance goes below the existential deposit. Please ensure that the remaining balance after sending will not be less than %@.";
 "send_notification_existential_deposit_title" = "Existential deposit";
+"send_notification_fee_too_high_accept" = "Reduce by %s XTZ";
+"send_notification_fee_too_high_ignore" = "No, send all";
 "send_notification_fee_too_high_text" = "The commission amount is %@ times the recommended amount. Make sure that the custom settings are correct.";
 "send_notification_fee_too_high_title" = "Custom fee is high";
 "send_notification_high_fee_text" = "The fee for transferring the entire balance is higher. To reduce the commission, you can leave 0.01.";
@@ -508,6 +515,9 @@
 "story_meet_title" = "Meet Tangem";
 "story_web3_description" = "Exchange, buy NFT's, make loans and deposits in more than 100 different decentralized services";
 "story_web3_title" = "Web 3.0 Compatible";
+"swapping_alert_cex_description" = "The amount includes:\n• service provider's fee\n• network fee for sending %s from the exchange back to the user's address.";
+"swapping_alert_dex_description" = "The amount includes the service provider's fee.";
+"swapping_alert_title" = "Fees";
 "swapping_approve_information_text" = "All decentralized exchanges require approvals to prevent smart contracts from accessing your wallet without your permission. By design, smart contracts can't access your tokens unless you approve. By \"unlocking\" your tokens, you authorize the 1-inch smart contract to spend them. The network's miners receive a gas fee (paid by you) to record this action on the blockchain. You can swap your token after giving approval.";
 "swapping_approve_information_title" = "Approve";
 "swapping_error_wrapper" = "Error: %@";
