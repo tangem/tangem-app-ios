@@ -143,7 +143,7 @@ struct CurrencyView_Previews: PreviewProvider {
 
     private static func itemsList(count: Int, isSelected: Binding<Bool>) -> [LegacyCoinItemViewModel] {
         Array(repeating: LegacyCoinItemViewModel(
-            tokenItem: .blockchain(.ethereum(testnet: false)),
+            tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
             isReadonly: false,
             isSelected: isSelected,
             position: .first
