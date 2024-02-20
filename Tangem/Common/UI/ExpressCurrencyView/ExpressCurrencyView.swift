@@ -129,7 +129,7 @@ struct ExpressCurrencyView<Content: View>: View {
             .offset(x: -tokenIconSize.width / 2 + symbolSize.width / 2)
         }
     }
-    
+
     @ViewBuilder
     private var infoButton: some View {
         if let priceChangeState = viewModel.priceChangeState, let didTapNetworkFeeInfoButton {
