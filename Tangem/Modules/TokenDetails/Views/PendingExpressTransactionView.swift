@@ -115,10 +115,10 @@ struct PendingExpressTransactionView_Previews: PreviewProvider {
                 PendingExpressTransactionView(info: .init(
                     id: UUID().uuidString,
                     providerName: "ChangeNow",
-                    sourceIconInfo: iconInfoBuilder.build(from: .blockchain(.polygon(testnet: false)), isCustom: false),
+                    sourceIconInfo: iconInfoBuilder.build(from: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)), isCustom: false),
                     sourceAmountText: "10 BTC",
                     destinationIconInfo: iconInfoBuilder.build(
-                        from: .token(.shibaInuMock, .arbitrum(testnet: false)),
+                        from: .token(.shibaInuMock, .init(.arbitrum(testnet: false), derivationPath: nil)),
                         isCustom: false
                     ),
                     destinationCurrencySymbol: "SHIB",
@@ -130,12 +130,12 @@ struct PendingExpressTransactionView_Previews: PreviewProvider {
                     id: UUID().uuidString,
                     providerName: "1inch",
                     sourceIconInfo: iconInfoBuilder.build(
-                        from: .token(.inverseBTCBlaBlaBlaMock, .ethereum(testnet: false)),
+                        from: .token(.inverseBTCBlaBlaBlaMock, .init(.ethereum(testnet: false), derivationPath: nil)),
                         isCustom: true
                     ),
                     sourceAmountText: "10 BTCblabla",
                     destinationIconInfo: iconInfoBuilder.build(
-                        from: .blockchain(.ethereum(testnet: false)),
+                        from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
                         isCustom: true
                     ),
                     destinationCurrencySymbol: "ETH",
@@ -147,12 +147,12 @@ struct PendingExpressTransactionView_Previews: PreviewProvider {
                     id: UUID().uuidString,
                     providerName: "ChangeNow",
                     sourceIconInfo: iconInfoBuilder.build(
-                        from: .blockchain(.bitcoin(testnet: false)),
+                        from: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
                         isCustom: false
                     ),
                     sourceAmountText: "10 BTC",
                     destinationIconInfo: iconInfoBuilder.build(
-                        from: .blockchain(.cardano(extended: true)),
+                        from: .blockchain(.init(.cardano(extended: false), derivationPath: nil)),
                         isCustom: false
                     ),
                     destinationCurrencySymbol: "ADA",

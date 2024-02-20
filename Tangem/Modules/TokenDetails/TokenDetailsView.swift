@@ -53,7 +53,7 @@ struct TokenDetailsView: View {
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
                     exploreTransactionAction: viewModel.openTransactionExplorer,
-                    reloadButtonAction: viewModel.reloadHistory,
+                    reloadButtonAction: viewModel.onButtonReloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
                     fetchMore: viewModel.fetchMoreHistory()
                 )
@@ -100,11 +100,7 @@ struct TokenDetailsView: View {
     private var navbarTrailingButton: some View {
         if viewModel.canHideToken {
             Menu {
-                if #available(iOS 15.0, *) {
-                    Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-                } else {
-                    Button(Localization.tokenDetailsHideToken, action: viewModel.hideTokenButtonAction)
-                }
+                Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
             } label: {
                 NavbarDotsImage()
             }
@@ -119,4 +115,35 @@ private extension TokenDetailsView {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
     }
+}
+
+#Preview {
+    let userWalletModel = FakeUserWalletModel.wallet3Cards
+    let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? .mockETH
+    let exchangeUtility = ExchangeCryptoUtility(
+        blockchain: walletModel.blockchainNetwork.blockchain,
+        address: walletModel.defaultAddress,
+        amountType: walletModel.tokenItem.amountType
+    )
+    let notifManager = SingleTokenNotificationManager(
+        walletModel: walletModel,
+        walletModelsManager: userWalletModel.walletModelsManager,
+        expressDestinationService: nil,
+        contextDataProvider: nil
+    )
+    let pendingTxsManager = CommonPendingExpressTransactionsManager(
+        userWalletId: userWalletModel.userWalletId.stringValue,
+        tokenItem: walletModel.tokenItem
+    )
+    let coordinator = TokenDetailsCoordinator()
+
+    return TokenDetailsView(viewModel: .init(
+        userWalletModel: userWalletModel,
+        walletModel: walletModel,
+        exchangeUtility: exchangeUtility,
+        notificationManager: notifManager,
+        pendingExpressTransactionsManager: pendingTxsManager,
+        coordinator: coordinator,
+        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator)
+    ))
 }
