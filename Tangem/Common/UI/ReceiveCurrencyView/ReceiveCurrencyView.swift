@@ -31,7 +31,7 @@ struct ReceiveCurrencyView: View {
             switch type {
             case .info:
                 didTapNetworkFeeInfoButton?(false)
-            case .priceChangePercent:
+            case .percent:
                 didTapNetworkFeeInfoButton?(true)
             }
         }
@@ -112,7 +112,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
                 titleState: .text(Localization.swappingToTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loaded(text: "2100.46 $"),
-                priceChangeState: .priceChangePercent("-24.3 %"),
+                priceChangeState: .percent("-24.3 %"),
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
                 symbolState: .loaded(text: "USDT"),
                 canChangeCurrency: true
