@@ -13,11 +13,14 @@ import Combine
 class SendDestinationTextViewModel: ObservableObject, Identifiable {
     let name: String
     let showAddressIcon: Bool
-    let placeholder: String
     let description: String
     let didEnterDestination: (String) -> Void
 
+    @Published var isValidating: Bool = false
     @Published var input: String = ""
+    @Published var placeholder: String = ""
+    @Published var isDisabled: Bool = true
+    @Published var animatingFooterOnAppear = false
     @Published var errorText: String?
 
     var hasTextInClipboard = false
@@ -27,19 +30,22 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     init(
         style: Style,
         input: AnyPublisher<String, Never>,
+        isValidating: AnyPublisher<Bool, Never>,
+        isDisabled: AnyPublisher<Bool, Never>,
+        animatingFooterOnAppear: AnyPublisher<Bool, Never>,
         errorText: AnyPublisher<Error?, Never>,
         didEnterDestination: @escaping (String) -> Void
     ) {
         name = style.name
         showAddressIcon = style.showAddressIcon
-        placeholder = style.placeholder
         description = style.description
         self.didEnterDestination = didEnterDestination
+        placeholder = style.placeholder(isDisabled: self.isDisabled)
 
-        bind(input: input, errorText: errorText)
+        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, animatingFooterOnAppear: animatingFooterOnAppear, errorText: errorText)
     }
 
-    private func bind(input: AnyPublisher<String, Never>, errorText: AnyPublisher<Error?, Never>) {
+    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, animatingFooterOnAppear: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
             .assign(to: \.input, on: self, ownership: .weak)
             .store(in: &bag)
@@ -49,6 +55,25 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
             .sink { [weak self] in
                 self?.didEnterDestination($0)
             }
+            .store(in: &bag)
+
+        isValidating
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .assign(to: \.isValidating, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        isDisabled
+            .removeDuplicates()
+            .sink { [weak self] isDisabled in
+                self?.isDisabled = isDisabled
+                self?.placeholder = style.placeholder(isDisabled: isDisabled)
+            }
+            .store(in: &bag)
+
+        animatingFooterOnAppear
+            .removeDuplicates()
+            .assign(to: \.animatingFooterOnAppear, on: self, ownership: .weak)
             .store(in: &bag)
 
         errorText
@@ -131,21 +156,21 @@ private extension SendDestinationTextViewModel.Style {
         }
     }
 
-    var placeholder: String {
-        switch self {
-        case .address:
-            Localization.sendEnterAddressField
-        case .additionalField:
-            Localization.sendOptionalField
-        }
-    }
-
     var description: String {
         switch self {
         case .address(let networkName):
             Localization.sendRecipientAddressFooter(networkName)
         case .additionalField:
             Localization.sendRecipientMemoFooter
+        }
+    }
+
+    func placeholder(isDisabled: Bool) -> String {
+        switch self {
+        case .address:
+            return Localization.sendEnterAddressField
+        case .additionalField:
+            return isDisabled ? Localization.sendAdditionalFieldAlreadyIncluded : Localization.sendOptionalField
         }
     }
 }
