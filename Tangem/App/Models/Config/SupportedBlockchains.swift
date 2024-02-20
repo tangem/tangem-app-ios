@@ -57,10 +57,7 @@ struct SupportedBlockchains {
 
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
-        [
-            .algorand(curve: ed25519Curve(for: version), testnet: false),
-            .aptos(curve: ed25519Curve(for: version), testnet: false),
-        ]
+        []
     }
 
     private func mainnetBlockchains() -> Set<Blockchain> {
@@ -68,7 +65,7 @@ struct SupportedBlockchains {
             .ethereum(testnet: false),
             .ethereumClassic(testnet: false),
             .ethereumPoW(testnet: false),
-            .ethereumFair,
+            .disChain,
             .litecoin,
             .bitcoin(testnet: false),
             .bitcoinCash,
@@ -109,6 +106,9 @@ struct SupportedBlockchains {
             .veChain(testnet: false),
             .xdc(testnet: false),
             .shibarium(testnet: false),
+            .algorand(curve: ed25519Curve(for: version), testnet: false),
+            .aptos(curve: ed25519Curve(for: version), testnet: false),
+            .hedera(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
@@ -137,12 +137,14 @@ struct SupportedBlockchains {
             .octa,
             .chia(testnet: true),
             .near(curve: ed25519Curve(for: version), testnet: true),
+            .telos(testnet: true),
             .decimal(testnet: true),
             .veChain(testnet: true),
             .xdc(testnet: true),
             .algorand(curve: ed25519Curve(for: version), testnet: true),
             .shibarium(testnet: true),
             .aptos(curve: ed25519Curve(for: version), testnet: true),
+            .hedera(curve: ed25519Curve(for: version), testnet: true),
         ]
     }
 
