@@ -27,6 +27,8 @@ extension Blockchain {
         switch self {
         case .arbitrum(let testnet), .optimism(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
+        case .ducatus:
+            return "ducatus" // from DucatusX
         default:
             return coinId
         }
@@ -71,7 +73,7 @@ private extension Blockchain {
         case .stellar: return "stellar"
         case .ethereum: return "ethereum"
         case .ethereumPoW: return "ethereum-pow-iou"
-        case .ethereumFair: return "ethereumfair"
+        case .disChain: return "ethereumfair" // keep existing id for compatibility
         case .ethereumClassic: return "ethereum-classic"
         case .rsk: return "rootstock"
         case .bitcoinCash: return "bitcoin-cash"
@@ -82,7 +84,7 @@ private extension Blockchain {
             case .network: return "xrp"
             case .coin: return "ripple"
             }
-        case .ducatus: return "ducatus"
+        case .ducatus: return "duc"
         case .tezos: return "tezos"
         case .dogecoin: return "dogecoin"
         case .bsc:
@@ -148,6 +150,15 @@ private extension Blockchain {
             case .coin: return "xdce-crowd-sale"
             }
         case .algorand: return "algorand"
+        case .shibarium:
+            switch type {
+            case .network: return "shibarium"
+            case .coin: return "bone-shibaswap"
+            }
+        case .aptos:
+            return "aptos"
+        case .hedera:
+            return "hedera-hashgraph"
         }
     }
 
