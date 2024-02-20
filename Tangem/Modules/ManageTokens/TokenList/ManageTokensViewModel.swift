@@ -49,8 +49,6 @@ final class ManageTokensViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {}
-
     func onBottomAppear() {
         // Need for locked fetchMore process when bottom sheet not yet open
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
