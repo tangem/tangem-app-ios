@@ -60,6 +60,7 @@ struct SupportedBlockchains {
         [
             .algorand(curve: ed25519Curve(for: version), testnet: false),
             .aptos(curve: ed25519Curve(for: version), testnet: false),
+            .hedera(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
@@ -137,12 +138,14 @@ struct SupportedBlockchains {
             .octa,
             .chia(testnet: true),
             .near(curve: ed25519Curve(for: version), testnet: true),
+            .telos(testnet: true),
             .decimal(testnet: true),
             .veChain(testnet: true),
             .xdc(testnet: true),
             .algorand(curve: ed25519Curve(for: version), testnet: true),
             .shibarium(testnet: true),
             .aptos(curve: ed25519Curve(for: version), testnet: true),
+            .hedera(curve: ed25519Curve(for: version), testnet: true),
         ]
     }
 
