@@ -30,6 +30,12 @@ extension View {
         )
         return environment(\.bottomScrollableSheetConfiguration, configuration)
     }
+
+    func onBottomScrollableSheetStateHandler(
+        _ handler: BottomScrollableSheetStateHandler
+    ) -> some View {
+        return environment(\.bottomScrollableSheetStateHandler, handler)
+    }
 }
 
 extension EnvironmentValues {
@@ -41,6 +47,11 @@ extension EnvironmentValues {
     var bottomScrollableSheetConfiguration: BottomScrollableSheetConfiguration {
         get { self[BottomScrollableSheetConfigurationEnvironmentKey.self] }
         set { self[BottomScrollableSheetConfigurationEnvironmentKey.self] = newValue }
+    }
+
+    var bottomScrollableSheetStateHandler: BottomScrollableSheetStateHandler? {
+        get { self[BottomScrollableSheetStateHandlerEnvironmentKey.self] }
+        set { self[BottomScrollableSheetStateHandlerEnvironmentKey.self] = newValue }
     }
 }
 
@@ -56,4 +67,8 @@ private enum BottomScrollableSheetConfigurationEnvironmentKey: EnvironmentKey {
         prefersGrabberVisible: true,
         allowsHitTesting: true
     )
+}
+
+private enum BottomScrollableSheetStateHandlerEnvironmentKey: EnvironmentKey {
+    static var defaultValue: BottomScrollableSheetStateHandler? { nil }
 }
