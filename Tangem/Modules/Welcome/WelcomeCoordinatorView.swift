@@ -14,22 +14,29 @@ struct WelcomeCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let welcomeModel = coordinator.welcomeViewModel {
-                WelcomeView(viewModel: welcomeModel)
-                    .navigationLinks(links)
-            }
-
+            content
             sheets
         }
-        .navigationBarHidden(true)
+        .animation(.default, value: coordinator.viewState?.isMain == true)
+        .navigationBarHidden(coordinator.viewState?.isMain == false)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch coordinator.viewState {
+        case .welcome(let welcomeViewModel):
+            WelcomeView(viewModel: welcomeViewModel)
+                .navigationLinks(links)
+        case .main(let mainCoordinator):
+            MainCoordinatorView(coordinator: mainCoordinator)
+        case .none:
+            EmptyView()
+        }
     }
 
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.mainCoordinator) {
-                MainCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.pushedOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
             }
