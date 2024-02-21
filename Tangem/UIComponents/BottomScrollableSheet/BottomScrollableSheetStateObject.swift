@@ -235,3 +235,16 @@ private extension BottomScrollableSheetStateObject {
         static let maxAnimationDuration: TimeInterval = 0.35
     }
 }
+
+// MARK: - BottomScrollableSheetStateHandler
+
+extension BottomScrollableSheetStateObject: BottomScrollableSheetStateHandler {
+    func update(state: BottomScrollableSheetStateHandlerState) {
+        switch state {
+        case .collapsed:
+            updateToState(.bottom)
+        case .expanded:
+            updateToState(.top(trigger: .tapGesture))
+        }
+    }
+}
