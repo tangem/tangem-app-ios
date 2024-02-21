@@ -130,6 +130,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             return
         }
 
+        Analytics.log(event: .manageTokensCustomTokenNetworkSelected, params: [.blockchain: blockchain.displayName])
+
         selectedBlockchainNetworkId = blockchain.networkId
         selectedBlockchainName = blockchain.displayName
 
@@ -162,8 +164,28 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     func setSelectedDerivationOption(derivationOption: AddCustomTokenDerivationOption) {
         selectedDerivationOption = derivationOption
 
+        Analytics.log(event: .manageTokensCustomTokenNetworkSelected, params: [.derivation: derivationOption.parameterValue])
+
         validate()
     }
+
+    /// This method is needed to comply with the conditions for sending events. We send an event only when the text field has lost focus
+    func onChangeFocusable(field: FocusableObserveField) {
+        guard foundStandardToken == nil else { return }
+
+        switch field {
+        case .name where !name.isEmpty:
+            Analytics.log(.manageTokensCustomTokenName)
+        case .symbol where !symbol.isEmpty:
+            Analytics.log(.manageTokensCustomTokenSymbol)
+        case .decimals where !decimals.isEmpty:
+            Analytics.log(.manageTokensCustomTokenDecimals)
+        default:
+            break
+        }
+    }
+
+    // MARK: - Private Implementation
 
     private func bind() {
         dataSource
@@ -182,7 +204,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        $contractAddress.removeDuplicates()
+        $contractAddress
+            .removeDuplicates()
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .withWeakCaptureOf(self)
@@ -202,9 +225,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                         result = viewModel.findToken(contractAddress: enteredContractAddress)
                         contractAddressError = nil
 
+                        Analytics.log(.manageTokensCustomTokenAddress, params: [.validation: .ok])
+
                         viewModel.isLoading = true
                     }
                 } catch {
+                    Analytics.log(.manageTokensCustomTokenAddress, params: [.validation: .error])
                     result = .just(output: [])
                     contractAddressError = error
                 }
@@ -429,7 +455,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
         if let derivationStyle = settings.derivationStyle,
            let usedDerivationPath = tokenItem.blockchainNetwork.derivationPath ?? tokenItem.blockchain.derivationPath(for: derivationStyle) {
-            params[.derivationPath] = usedDerivationPath.rawPath
+            params[.derivation] = usedDerivationPath.rawPath
         }
 
         if case .token(let token, let blockchainNetwork) = tokenItem {
@@ -437,7 +463,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             params[.contractAddress] = token.contractAddress
         }
 
-        Analytics.log(event: .customTokenWasAdded, params: params)
+        Analytics.log(event: .manageTokensCustomTokenWasAdded, params: params)
     }
 
     private func updateDefaultDerivationOption() {
@@ -553,5 +579,15 @@ private extension AddCustomTokenViewModel {
         let supportedBlockchains: [Blockchain]
         let hdWalletsSupported: Bool
         let derivationStyle: DerivationStyle?
+    }
+}
+
+// MARK: - Focused Observe Field
+
+extension AddCustomTokenViewModel {
+    enum FocusableObserveField {
+        case name
+        case symbol
+        case decimals
     }
 }
