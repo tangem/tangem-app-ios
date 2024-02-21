@@ -214,6 +214,10 @@ extension SingleTokenBaseViewModel {
     }
 
     private func setupActionButtons() {
+        guard TokenInteractionAvailabilityProvider(walletModel: walletModel).isActionButtonsAvailable() else {
+            return
+        }
+
         let listBuilder = TokenActionListBuilder()
         let canShowSwap = userWalletModel.config.hasFeature(.swapping)
         let canShowBuySell = userWalletModel.config.isFeatureVisible(.exchange)
