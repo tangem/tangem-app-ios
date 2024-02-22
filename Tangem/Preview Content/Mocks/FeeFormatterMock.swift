@@ -1,5 +1,5 @@
 //
-//  TransactionSenderMock.swift
+//  FeeFormatterMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,6 +10,5 @@ import TangemExpress
 import BlockchainSdk
 
 struct FeeFormatterMock: FeeFormatter {
-    func format(fee: Decimal, tokenItem: TokenItem) -> String { "" }
     func format(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> String { "" }
 }
