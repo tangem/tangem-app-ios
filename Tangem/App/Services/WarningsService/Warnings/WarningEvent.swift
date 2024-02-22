@@ -221,7 +221,8 @@ extension WarningEvent {
         case .missingDerivation: return .mainNoticeMissingAddress
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
-        case .supportedOnlySingleCurrencyWallet, .backupErrors: return nil
+        case .supportedOnlySingleCurrencyWallet: return nil
+        case .backupErrors: return .mainNoticeBackupErrors
         }
     }
 
