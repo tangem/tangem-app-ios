@@ -9,6 +9,8 @@
 import Foundation
 
 class UserWalletFactory {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     func userWallet(from cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> UserWallet {
         let name: String
         if !cardInfo.name.isEmpty {
@@ -17,14 +19,17 @@ class UserWalletFactory {
             name = config.cardName
         }
 
+        let saved = userWalletRepository.userWallets.first(where: { $0.userWalletId == userWalletId.value }) ?? nil
+
         return UserWallet(
             userWalletId: userWalletId.value,
             name: name,
             card: cardInfo.card,
-            associatedCardIds: [cardInfo.card.cardId],
+            associatedCardIds: saved?.associatedCardIds ?? [cardInfo.card.cardId],
             walletData: cardInfo.walletData,
             artwork: cardInfo.artwork.artworkInfo,
-            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
+            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
+            hasBackupErrors: saved?.hasBackupErrors
         )
     }
 }
