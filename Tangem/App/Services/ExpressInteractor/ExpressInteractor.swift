@@ -378,23 +378,23 @@ private extension ExpressInteractor {
 // MARK: - Restriction
 
 private extension ExpressInteractor {
-    func hasEnoughBalanceForFee(fees: [FeeOption: Fee], amount: Decimal?) async throws -> Bool {
-        let fee = try selectedFee(fees: fees).amount.value
-        let sender = getSender()
+    func hasEnoughBalanceForFee(fees: [FeeOption: Fee], amount: Decimal) async throws -> Bool {
+        let fee = try selectedFee(fees: fees)
+        let transactionValidator = getSender().transactionValidator
 
-        if sender.isToken {
-            let coinBalance = try sender.getCoinBalance()
-            return fee <= coinBalance
+        let tokenItem = getSender().tokenItem
+        do {
+            try await transactionValidator.validate(
+                amount: Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount),
+                fee: fee,
+                destination: .generate
+            )
+            return true
+        } catch ValidationError.invalidFee, ValidationError.feeExceedsBalance {
+            return false
+        } catch {
+            return true
         }
-
-        guard let amount else {
-            throw ExpressManagerError.amountNotFound
-        }
-
-        let balance = try sender.getBalance()
-        log("\(#function) fee: \(fee) amount: \(amount) balance: \(balance)")
-
-        return fee + amount <= balance
     }
 
     func hasPendingTransaction() -> Bool {
@@ -404,6 +404,22 @@ private extension ExpressInteractor {
     func validateDEX(data: ExpressTransactionData, fee: Fee) async -> RestrictionType? {
         do {
             try await expressTransactionBuilder.validateTransaction(
+                wallet: getSender(),
+                data: data,
+                fee: fee
+            )
+        } catch let error as ValidationError {
+            return .validationError(error)
+        } catch {
+            return .requiredRefresh(occurredError: error)
+        }
+
+        return nil
+    }
+
+    func validateApprove(data: ExpressApproveData, fee: Fee) async -> RestrictionType? {
+        do {
+            try await expressTransactionBuilder.validateApproveTransaction(
                 wallet: getSender(),
                 data: data,
                 fee: fee
@@ -496,7 +512,11 @@ private extension ExpressInteractor {
 
             return state
         case .restriction(.notEnoughAmountForFee(let returnState), let quote):
-            guard try await hasEnoughBalanceForFee(fees: returnState.fees, amount: quote?.fromAmount) else {
+            guard let amount = quote?.fromAmount else {
+                throw ExpressManagerError.amountNotFound
+            }
+
+            guard try await hasEnoughBalanceForFee(fees: returnState.fees, amount: amount) else {
                 return .restriction(.notEnoughAmountForFee(returnState), quote: quote)
             }
 
