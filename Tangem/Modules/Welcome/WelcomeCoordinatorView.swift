@@ -12,21 +12,46 @@ import SwiftUI
 struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
+//    [REDACTED_USERNAME] var isWelcome = true
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    init(coordinator: WelcomeCoordinator) {
+        self.coordinator = coordinator
+    }
+
     var body: some View {
-        ZStack {
+        Self._printChanges()
+        return ZStack {
             content
             sheets
         }
-        .animation(.default, value: coordinator.viewState?.isMain == true)
         .navigationBarHidden(coordinator.viewState?.isMain == false)
+        .animation(.default, value: coordinator.viewState)
     }
 
     @ViewBuilder
     private var content: some View {
         switch coordinator.viewState {
         case .welcome(let welcomeViewModel):
+//            if isWelcome {
+//                ZStack {
             WelcomeView(viewModel: welcomeViewModel)
                 .navigationLinks(links)
+//                    Button(action: { isWelcome = false }, label: {
+//                        Text("Go forward")
+//                    })
+//                }
+//            } else {
+//                ZStack {
+//                    Color.blue
+//                        .edgesIgnoringSafeArea(.all)
+//                    Button(action: {
+//                        userWalletRepository.logoutIfNeeded()
+//                    }, label: {
+//                        Text("Go back")
+//                    })
+//                }
+//            }
         case .main(let mainCoordinator):
             MainCoordinatorView(coordinator: mainCoordinator)
         case .none:
@@ -55,4 +80,60 @@ struct WelcomeCoordinatorView: CoordinatorView {
                 MailView(viewModel: $0)
             }
     }
+
+    static let coordinator: WelcomeCoordinator = {
+        let coordinator = WelcomeCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })
+        coordinator.start(with: WelcomeCoordinator.Options(shouldScan: false))
+        return coordinator
+    }()
+
+    static let fake: WelcomeCoordinatorView = .init(coordinator: coordinator)
+}
+
+#Preview {
+    struct TestView: View {
+        @State var isMain: Bool? = nil
+
+        let viewModel: MainViewModel = {
+            InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+            let coordinator = MainCoordinator()
+            let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
+            let viewModel = MainViewModel(
+                coordinator: coordinator,
+                swipeDiscoveryHelper: swipeDiscoveryHelper,
+                mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
+            )
+            swipeDiscoveryHelper.delegate = viewModel
+
+            return viewModel
+        }()
+
+        var body: some View {
+            NavigationView {
+                ZStack {
+                    if isMain == true {
+                        MainView(viewModel: viewModel)
+                    } else {
+                        WelcomeCoordinatorView.fake
+                    }
+                }
+                .overlay {
+                    Button {
+                        isMain?.toggle()
+                    } label: {
+                        Text("Toggle")
+                    }
+                }
+                .navigationBarHidden(isMain == false)
+                .animation(.default, value: isMain)
+            }
+            .onAppear {
+                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isMain = false
+                //            }
+            }
+        }
+    }
+
+    return TestView()
 }
