@@ -91,7 +91,7 @@ class ExpressNotificationManager {
             setupNotification(for: validationError)
             return
         case .notEnoughAmountForFee:
-            guard sourceTokenItem.isToken else {
+            guard !interactor.getSender().isFeeCurrency else {
                 notificationInputsSubject.value = []
                 return
             }
@@ -135,7 +135,7 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
             return
         case .feeExceedsBalance: // Same as .notEnoughAmountForFee which will be removed
-            guard sourceTokenItem.isToken else {
+            guard !interactor.getSender().isFeeCurrency else {
                 notificationInputsSubject.value = []
                 return
             }
