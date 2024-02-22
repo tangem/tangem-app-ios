@@ -347,7 +347,7 @@ private extension ExpressInteractor {
             let amount = makeAmount(value: amount)
             try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
             return true
-        } catch ValidationError.invalidFee, ValidationError.feeExceedsBalance {
+        } catch ValidationError.feeExceedsBalance {
             return false
         } catch {
             return true
