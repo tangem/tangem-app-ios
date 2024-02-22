@@ -14,6 +14,9 @@ class BackupContextManager {
 
     private weak var userWalletModel: UserWalletModel?
 
+    private var associatedCardIds: Set<String> = []
+    private var hasBackupErrors: Bool = false
+
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
     }
@@ -23,16 +26,24 @@ class BackupContextManager {
             return
         }
 
-        var userWallet = userWalletModel.userWallet
-        userWallet.associatedCardIds.insert(card.cardId)
+        associatedCardIds.insert(card.cardId)
 
         let curvesValidator = CurvesValidator(expectedCurves: userWalletModel.config.mandatoryCurves)
         let backupValidator = BackupValidator()
 
         if !curvesValidator.validate(card.wallets.map { $0.curve }) || !backupValidator.validate(card.backupStatus) {
-            userWallet.hasBackupErrors = true
+            hasBackupErrors = true
+        }
+    }
+
+    func onCompleteBackup() {
+        guard let userWalletModel else {
+            return
         }
 
+        var userWallet = userWalletModel.userWallet
+        userWallet.associatedCardIds = associatedCardIds
+        userWallet.hasBackupErrors = hasBackupErrors
         userWalletRepository.save(userWallet)
     }
 }
