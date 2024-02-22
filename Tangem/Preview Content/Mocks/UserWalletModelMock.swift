@@ -34,8 +34,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { Empty().eraseToAnyPublisher() }
 
-    func updateWalletName(_ name: String) {}
-
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
@@ -44,9 +42,13 @@ class UserWalletModelMock: UserWalletModel {
 
     var cardsCount: Int { 3 }
 
-    func getAnalyticsContextData() -> AnalyticsContextData? { nil }
-
     var isUserWalletLocked: Bool { false }
 
     var isTokensListEmpty: Bool { false }
+
+    func updateWalletName(_ name: String) {}
+
+    func getAnalyticsContextData() -> AnalyticsContextData? { nil }
+
+    func validate() -> Bool { true }
 }
