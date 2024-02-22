@@ -22,6 +22,8 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     var maxHeight: CGFloat { UIScreen.main.bounds.height }
 
+    var minHeight: CGFloat { height(for: .top(trigger: .dragGesture)) + Constants.sheetTopInset }
+
     var headerHeight: CGFloat = .zero {
         didSet {
             if oldValue != headerHeight {
@@ -49,10 +51,6 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         let minScale = 1.0
         let maxScale = minHeight / maxHeight
         return minScale - (minScale - maxScale) * progress
-    }
-
-    private var minHeight: CGFloat {
-        return height(for: .top(trigger: .dragGesture)) + Constants.sheetTopInset
     }
 
     private var bag: Set<AnyCancellable> = []
