@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
-    enum ViewState {
+    enum ViewState: Equatable {
         case welcome(WelcomeViewModel)
         case main(MainCoordinator)
 
@@ -20,6 +20,15 @@ class WelcomeCoordinator: CoordinatorObject {
                 return true
             }
             return false
+        }
+
+        static func == (lhs: WelcomeCoordinator.ViewState, rhs: WelcomeCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.welcome, .welcome), (.main, .main):
+                return true
+            default:
+                return false
+            }
         }
     }
 
@@ -73,6 +82,7 @@ class WelcomeCoordinator: CoordinatorObject {
     func start(with options: WelcomeCoordinator.Options) {
         viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
         subscribeToWelcomeLifecycle()
+        print("Welcome coordinator viewState started \(viewState)")
     }
 
     private func subscribeToWelcomeLifecycle() {
@@ -116,6 +126,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let options = MainCoordinator.Options(userWalletModel: cardModel)
         coordinator.start(with: options)
         viewState = .main(coordinator)
+        print("Welcome coordinator viewState changed to \(viewState)")
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
