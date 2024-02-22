@@ -27,8 +27,6 @@ extension Blockchain {
         switch self {
         case .arbitrum(let testnet), .optimism(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
-        case .ducatus:
-            return "ducatus" // from DucatusX
         default:
             return coinId
         }
@@ -84,7 +82,7 @@ private extension Blockchain {
             case .network: return "xrp"
             case .coin: return "ripple"
             }
-        case .ducatus: return "duc"
+        case .ducatus: return "ducatus"
         case .tezos: return "tezos"
         case .dogecoin: return "dogecoin"
         case .bsc:
