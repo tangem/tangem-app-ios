@@ -45,6 +45,8 @@ class StoriesViewModel: ObservableObject {
     }
 
     func onAppear() {
+        currentProgress = 0
+        print("Timer on appear called")
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .sink { [weak self] _ in
                 self?.pauseTimer()
@@ -53,12 +55,16 @@ class StoriesViewModel: ObservableObject {
 
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .sink { [weak self] _ in
+                print("Timer resume called")
                 self?.resumeTimer()
             }
             .store(in: &bag)
 
-        DispatchQueue.main.async {
-            self.restartTimer()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if !self.timerIsRunning() {
+                print("Timer restart called")
+                self.restartTimer()
+            }
         }
     }
 
@@ -204,6 +210,10 @@ class StoriesViewModel: ObservableObject {
 
     private func resumeTimer() {
         if timerIsRunning() {
+            print("Timer is already runnning")
+            Thread.callStackSymbols.forEach {
+                print($0)
+            }
             return
         }
 
@@ -215,6 +225,11 @@ class StoriesViewModel: ObservableObject {
 
         withAnimation(.linear(duration: remainingStoryDuration)) { [weak self] in
             self?.currentProgress = 1
+        }
+
+        print("Timer started")
+        Thread.callStackSymbols.forEach {
+            print($0)
         }
 
         timerSubscription = Timer.publish(every: remainingStoryDuration, on: .main, in: .default)
