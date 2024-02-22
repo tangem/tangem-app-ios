@@ -16,7 +16,8 @@ struct AuthCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        ZStack {
+        Self._printChanges()
+        return ZStack {
             content
                 .removeAnimation()
 

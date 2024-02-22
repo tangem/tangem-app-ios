@@ -11,6 +11,8 @@ import SwiftUI
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     var body: some View {
         ZStack {
             if let mainViewModel = coordinator.mainViewModel {
@@ -19,6 +21,11 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
             sheets
+            Button(action: {
+                userWalletRepository.lock(reason: .loggedOut)
+            }, label: {
+                Text("Log out")
+            })
         }
     }
 
