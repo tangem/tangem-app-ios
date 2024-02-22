@@ -798,6 +798,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                             self.backupContextManager?.onProceedBackup(updatedCard)
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.cardModel?.onBackupCreated(updatedCard)
+                                self.backupContextManager?.onCompleteBackup()
                             }
 
                             if self.backupServiceState == .finished {
