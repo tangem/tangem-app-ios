@@ -12,9 +12,10 @@ public protocol ExpressWallet {
     var expressCurrency: ExpressCurrency { get }
     var defaultAddress: String { get }
     var decimalCount: Int { get }
+    var isFeeCurrency: Bool { get }
 
     func getBalance() throws -> Decimal
-    func getCoinBalance() throws -> Decimal
+    func availableForLoadFee() throws -> Bool
 }
 
 public extension ExpressWallet {
@@ -26,9 +27,9 @@ public extension ExpressWallet {
         expressCurrency.network
     }
 
-    var isToken: Bool {
-        contractAddress != ExpressConstants.coinContractAddress
-    }
+//    var isToken: Bool {
+//        contractAddress != ExpressConstants.coinContractAddress
+//    }
 
     // Maybe will be deleted. We still deciding, How it will work
     func convertToWEI(value: Decimal) -> Decimal {
@@ -40,13 +41,5 @@ public extension ExpressWallet {
     func convertFromWEI(value: Decimal) -> Decimal {
         let decimalValue = pow(10, decimalCount)
         return value / decimalValue
-    }
-
-    func availableForLoadFee() throws -> Bool {
-        if isToken {
-            return try getCoinBalance() > 0
-        }
-
-        return true
     }
 }
