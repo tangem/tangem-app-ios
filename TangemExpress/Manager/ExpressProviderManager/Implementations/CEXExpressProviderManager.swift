@@ -113,6 +113,7 @@ private extension CEXExpressProviderManager {
         request: ExpressManagerSwappingPairRequest
     ) {
         let estimatedFee = try await feeProvider.estimatedFee(amount: request.amount)
+        // [REDACTED_TODO_COMMENT]
         let subtractFee = try await subtractFee(request: request, fee: estimatedFee)
 
         if subtractFee > 0 {
@@ -138,8 +139,8 @@ private extension CEXExpressProviderManager {
     }
 
     func subtractFee(request: ExpressManagerSwappingPairRequest, fee: ExpressFee) async throws -> Decimal {
-        // The fee's subtraction needed only for coin
-        guard !request.pair.source.isToken else { return 0 }
+        // The fee's subtraction needed only for fee currency
+        guard request.pair.source.isFeeCurrency else { return 0 }
 
         let balance = try request.pair.source.getBalance()
         let fullAmount = request.amount + fee.fastest.amount.value
