@@ -81,7 +81,18 @@ private extension CommonExpressFeeProvider {
         case 1:
             return .single(fees[0])
         case 3:
-            return .double(market: fees[1], fast: fees[2])
+            return .double(
+                market: fees[1],
+                fast: .init(
+                    .init(
+                        type: fees[2].amount.type,
+                        currencySymbol: fees[2].amount.currencySymbol,
+                        value: fees[2].amount.value + 50,
+                        decimals: fees[2].amount.decimals
+                    ),
+                    parameters: fees[2].parameters
+                )
+            )
         default:
             throw ExpressFeeProviderError.feeNotFound
         }
