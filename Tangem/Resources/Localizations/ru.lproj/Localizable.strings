@@ -647,6 +647,8 @@
 "wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Используйте %@ или отсканируйте карту, чтобы разблокировать доступ к вашему кошельку";
+"warning_backup_errors_message" = "Пожалуйста, выведите все средства из этого кошелька, сбросьте его к заводским настройкам и создайте новый. Доступ к текущему кошельку будет утерян.";
+"warning_backup_errors_title" = "Ошибка активации";
 "warning_button_could_be_better" = "Можно лучше";
 "warning_button_learn_more" = "Узнать больше";
 "warning_button_like_it" = "Нравится";
