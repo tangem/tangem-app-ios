@@ -40,7 +40,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private let keysRepository: KeysRepository
     private let walletManagersRepository: WalletManagersRepository
     private let cardImageProvider = CardImageProvider()
-//    private let notificationAnalyticsManager: NotificationsAnalyticsManager
 
     lazy var derivationManager: DerivationManager? = {
         guard config.hasFeature(.hdWallets) else {
@@ -298,6 +297,30 @@ class CardViewModel: Identifiable, ObservableObject {
             card: cardInfo.card,
             validator: walletModelsManager.walletModels.first?.signatureCountValidator
         )
+    }
+
+    func validate() -> Bool {
+        if userWallet.hasBackupErrors == true {
+            return false
+        }
+
+        var expectedCurves = config.mandatoryCurves
+        // bls12381_G2_AUG is optional for wallets
+        if config is GenericConfig {
+            expectedCurves.remove(.bls12381_G2_AUG)
+        }
+
+        let curvesValidator = CurvesValidator(expectedCurves: expectedCurves)
+        if !curvesValidator.validate(card.wallets.map { $0.curve }) {
+            return false
+        }
+
+        let backupValidator = BackupValidator()
+        if !backupValidator.validate(card.backupStatus) {
+            return false
+        }
+
+        return true
     }
 
     private func appendPersistentBlockchains() {
