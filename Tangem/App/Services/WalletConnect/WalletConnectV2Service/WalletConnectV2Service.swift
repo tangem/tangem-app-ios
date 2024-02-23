@@ -83,7 +83,6 @@ final class WalletConnectV2Service {
         canEstablishNewSessionSubject.send(false)
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri)
-            self?.canEstablishNewSessionSubject.send(true)
         } onTimeout: { [weak self] in
             self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
             self?.canEstablishNewSessionSubject.send(true)
@@ -192,6 +191,8 @@ final class WalletConnectV2Service {
                     ]
                 )
 
+                canEstablishNewSessionSubject.send(true)
+
                 await sessionsStorage.save(savedSession)
             }
             .sink()
@@ -215,6 +216,8 @@ final class WalletConnectV2Service {
                         .dAppUrl: session.sessionInfo.dAppInfo.url,
                     ]
                 )
+
+                canEstablishNewSessionSubject.send(true)
 
                 log("Session with topic (\(topic)) was found. Deleting session from storage...")
                 await sessionsStorage.remove(session)
@@ -318,6 +321,7 @@ final class WalletConnectV2Service {
             do {
                 log("Namespaces to approve for session connection: \(namespaces)")
                 try await signApi.approve(proposalId: id, namespaces: namespaces)
+                canEstablishNewSessionSubject.send(true)
             } catch let error as WalletConnectV2Error {
                 self.displayErrorUI(error)
             } catch {
@@ -332,6 +336,7 @@ final class WalletConnectV2Service {
         runTask { [weak self] in
             do {
                 try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejected)
+                self?.canEstablishNewSessionSubject.send(true)
                 self?.log("User reject WC connection")
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
