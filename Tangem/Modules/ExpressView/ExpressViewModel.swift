@@ -92,9 +92,7 @@ final class ExpressViewModel: ObservableObject {
             return
         }
 
-        sendDecimalValue = .external(sourceBalance)
-        updateSendFiatValue(amount: sourceBalance)
-        interactor.update(amount: sourceBalance)
+        updateSendDecimalValue(to: sourceBalance)
     }
 
     func userDidTapSwapSwappingItemsButton() {
@@ -276,6 +274,12 @@ private extension ExpressViewModel {
             .store(in: &bag)
     }
 
+    func updateSendDecimalValue(to value: Decimal) {
+        sendDecimalValue = .external(value)
+        updateSendFiatValue(amount: value)
+        interactor.update(amount: value)
+    }
+
     // MARK: - Send view bubble
 
     func updateSendView(wallet: WalletModel) {
@@ -288,9 +292,7 @@ private extension ExpressViewModel {
         }
 
         let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
-        sendDecimalValue = .external(roundedAmount)
-        updateSendFiatValue(amount: roundedAmount)
-        interactor.update(amount: roundedAmount)
+        updateSendDecimalValue(to: roundedAmount)
     }
 
     func updateSendFiatValue(amount: Decimal?) {
@@ -457,6 +459,7 @@ private extension ExpressViewModel {
                  .tooSmallAmountForSwapping,
                  .tooBigAmountForSwapping,
                  .noDestinationTokens,
+                 .validationError,
                  .notEnoughAmountForFee:
                 mainButtonState = .swap
             case .notEnoughBalanceForSwapping:
@@ -593,6 +596,13 @@ extension ExpressViewModel: NotificationTapDelegate {
             interactor.refresh(type: .full)
         case .openFeeCurrency:
             openNetworkCurrency()
+        case .reduceAmount(let amount, _):
+            guard let value = sendDecimalValue?.value else {
+                AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
+                return
+            }
+
+            updateSendDecimalValue(to: value - amount)
         default:
             return
         }
