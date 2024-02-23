@@ -159,6 +159,18 @@ private extension Blockchain {
             return "aptos"
         case .hedera:
             return "hedera-hashgraph"
+            #warning("check ids")
+        case .areon:
+            return "area"
+        case .playa3ullGames:
+            return "3ull"
+        case .pulsechain:
+            return "pls"
+        case .aurora:
+            switch type {
+            case .network: return "aurora"
+            case .coin: return "eth"
+            }
         }
     }
 
