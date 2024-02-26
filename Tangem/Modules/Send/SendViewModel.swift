@@ -137,6 +137,9 @@ final class SendViewModel: ObservableObject {
         } else {
             cryptoIconURL = nil
         }
+
+        let fiatIconURL = FiatIconURLBuilder().iconURL(currencyCode: AppSettings.shared.selectedCurrencyCode)
+
         walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
@@ -148,14 +151,12 @@ final class SendViewModel: ObservableObject {
             tokenIconInfo: tokenIconInfo,
             cryptoIconURL: cryptoIconURL,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
-            fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
+            fiatIconURL: fiatIconURL,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
             feeAmountType: walletModel.feeTokenItem.amountType
         )
-
-        #warning("Fiat icon URL")
 
         notificationManager = SendNotificationManager(input: sendModel)
 
