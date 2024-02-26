@@ -699,6 +699,7 @@
 		DA19D8C62B39AE3C001C91C4 /* QRCodeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19D8C52B39AE3C001C91C4 /* QRCodeParser.swift */; };
 		DA19D8C82B39AE6C001C91C4 /* QRCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */; };
 		DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */; };
+		DA19EF3E2B8C88B600F7BDFD /* FiatIconURLBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA19EF3D2B8C88B600F7BDFD /* FiatIconURLBuilder.swift */; };
 		DA1D3B712B56C7E900247393 /* QRScanViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B702B56C7E900247393 /* QRScanViewCoordinator.swift */; };
 		DA1D3B732B56C82C00247393 /* QRScanViewCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B722B56C82C00247393 /* QRScanViewCoordinatorView.swift */; };
 		DA1D3B752B56C87200247393 /* PhotoSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B742B56C87200247393 /* PhotoSelectorView.swift */; };
@@ -2138,6 +2139,7 @@
 		DA19D8C52B39AE3C001C91C4 /* QRCodeParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeParser.swift; sourceTree = "<group>"; };
 		DA19D8C72B39AE6B001C91C4 /* QRCodeParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeParserTests.swift; sourceTree = "<group>"; };
 		DA19DBD129477E7C00E43675 /* ContinuousCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousCornerRadius.swift; sourceTree = "<group>"; };
+		DA19EF3D2B8C88B600F7BDFD /* FiatIconURLBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FiatIconURLBuilder.swift; sourceTree = "<group>"; };
 		DA1D3B702B56C7E900247393 /* QRScanViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewCoordinator.swift; sourceTree = "<group>"; };
 		DA1D3B722B56C82C00247393 /* QRScanViewCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewCoordinatorView.swift; sourceTree = "<group>"; };
 		DA1D3B742B56C87200247393 /* PhotoSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectorView.swift; sourceTree = "<group>"; };
@@ -5294,6 +5296,14 @@
 			path = QRCodeParser;
 			sourceTree = "<group>";
 		};
+		DA19EF3C2B8C88B600F7BDFD /* FiatIconURLBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				DA19EF3D2B8C88B600F7BDFD /* FiatIconURLBuilder.swift */,
+			);
+			path = FiatIconURLBuilder;
+			sourceTree = "<group>";
+		};
 		DA1D3B6F2B56C7DC00247393 /* QRScanView */ = {
 			isa = PBXGroup;
 			children = (
@@ -5705,6 +5715,7 @@
 				EF07082D2A1647560072AA0E /* FeeFormatter */,
 				B0D1AC302906718600584E6C /* Analytics */,
 				EF6EDD7B296C0D40001B21A3 /* IncomingActionManager */,
+				DA19EF3C2B8C88B600F7BDFD /* FiatIconURLBuilder */,
 				EF808441293F6B43000D91EA /* TokenIconURLBuilder */,
 				EF5903A02909283A00C527C9 /* EnvironmentProvider */,
 				EF5A5ACC28D86089002544AC /* TotalBalanceProvider */,
@@ -8652,6 +8663,7 @@
 				5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */,
 				EF48E6C32B02273800FE0072 /* ExpressTokenItemView.swift in Sources */,
 				5D4B8BBB27EDB354002CE87C /* NetworkIcon.swift in Sources */,
+				DA19EF3E2B8C88B600F7BDFD /* FiatIconURLBuilder.swift in Sources */,
 				DC7127AF2897ECBB00F60F71 /* NoteConfig.swift in Sources */,
 				B62EE31E2B28A0FE006BA412 /* AppStoreReviewModifier.swift in Sources */,
 				DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */,
