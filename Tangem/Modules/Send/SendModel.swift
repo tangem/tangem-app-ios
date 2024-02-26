@@ -748,14 +748,3 @@ extension SendModel: SendNotificationManagerInput {
         _withdrawalSuggestion.eraseToAnyPublisher()
     }
 }
-
-extension WithdrawalSuggestion {
-    func add(amount: Amount) -> WithdrawalSuggestion {
-        switch self {
-        case .optionalAmountChange(let newAmount):
-            return .optionalAmountChange(newAmount: newAmount + amount)
-        case .mandatoryAmountChange(let newAmount, let maxUtxo):
-            return .mandatoryAmountChange(newAmount: newAmount + amount, maxUtxo: maxUtxo)
-        }
-    }
-}
