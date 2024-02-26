@@ -40,7 +40,7 @@ private struct BottomScrollableSheetModifier<
             .prefersGrabberVisible(configuration.prefersGrabberVisible)
             .isHiddenWhenCollapsed(configuration.isHiddenWhenCollapsed)
             .allowsHitTesting(configuration.allowsHitTesting)
-            .onBottomScrollableSheetStateHandler(stateObject)
+            .environment(\.bottomScrollableSheetStateController, stateObject)
         }
         .background(Color.black.edgesIgnoringSafeArea(.all))
     }
