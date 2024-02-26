@@ -13,19 +13,16 @@ import SwiftUI
 struct MainBottomSheetContentCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainBottomSheetCoordinator
 
-    @Environment(\.bottomScrollableSheetStateHandler) private var bottomScrollableSheetStateHandler
+    @Environment(\.bottomScrollableSheetStateController) private var bottomScrollableSheetStateController
 
     var body: some View {
         if let manageTokensCoordinator = coordinator.manageTokensCoordinator {
             ManageTokensCoordinatorView(coordinator: manageTokensCoordinator)
                 .onChange(of: coordinator.shouldDissmis, perform: { newValue in
-                    guard newValue else { return }
-
                     if newValue {
-                        bottomScrollableSheetStateHandler?.update(state: .collapsed)
+                        bottomScrollableSheetStateController?.collapse()
+                        coordinator.shouldDissmis.toggle()
                     }
-
-                    coordinator.shouldDissmis.toggle()
                 })
         }
     }
