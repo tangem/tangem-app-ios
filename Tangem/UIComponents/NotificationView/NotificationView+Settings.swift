@@ -71,6 +71,7 @@ extension NotificationView {
     enum ColorScheme {
         case primary
         case secondary
+        case action
         case tangemExpressPromotion
 
         @ViewBuilder
@@ -78,6 +79,7 @@ extension NotificationView {
             switch self {
             case .primary: Colors.Background.primary
             case .secondary: Colors.Button.disabled
+            case .action: Colors.Background.action
             case .tangemExpressPromotion:
                 Assets.swapBannerBackground.image
                     .resizable()
@@ -87,7 +89,7 @@ extension NotificationView {
 
         var dismissButtonColor: Color {
             switch self {
-            case .primary, .secondary:
+            case .primary, .secondary, .action:
                 return Colors.Icon.inactive
             case .tangemExpressPromotion:
                 return Colors.Text.constantWhite
@@ -96,7 +98,7 @@ extension NotificationView {
 
         var titleColor: Color {
             switch self {
-            case .primary, .secondary:
+            case .primary, .secondary, .action:
                 return Colors.Text.primary1
             case .tangemExpressPromotion:
                 return Colors.Text.constantWhite
@@ -105,7 +107,7 @@ extension NotificationView {
 
         var messageColor: Color {
             switch self {
-            case .primary, .secondary:
+            case .primary, .secondary, .action:
                 return Colors.Text.tertiary
             case .tangemExpressPromotion:
                 return Colors.Text.constantWhite
