@@ -257,12 +257,12 @@ class SendModel {
                     let destination,
                     let fee
                 else {
-                    return .failure(TransactionError.invalidAmount)
+                    return .failure(ValidationError.invalidAmount)
                 }
 
                 do {
-                    let transaction = try walletModel.createTransaction(
-                        amountToSend: amount,
+                    let transaction = try walletModel.transactionCreator.createTransaction(
+                        amount: amount,
                         fee: fee,
                         destinationAddress: destination
                     )
@@ -288,7 +288,7 @@ class SendModel {
             transaction
                 .map { transaction in
                     guard let transaction else { return nil }
-                    return withdrawalValidator.withdrawalSuggestion(for: transaction)
+                    return withdrawalValidator.withdrawalSuggestion(amount: transaction.amount, fee: transaction.fee.amount)
                 }
                 .sink { [weak self] in
                     self?._withdrawalSuggestion.send($0)
@@ -354,14 +354,17 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        guard _amount.value != amount else { return }
+        let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
 
-        _amount.send(amount)
+        guard _amount.value != newAmount else { return }
+
+        _amount.send(newAmount)
     }
 
     private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
         let validatedAmount: Amount?
-        let error: Error?
+        let amountError: Error?
+        let feeError: Error?
 
         if let newAmount {
             do {
@@ -372,33 +375,34 @@ class SendModel {
                 } else {
                     amount = newAmount
                 }
-                try walletModel.transactionCreator.validate(amount: amount)
+
+                if let fee {
+                    try walletModel.transactionCreator.validate(amount: amount, fee: fee)
+                } else {
+                    try walletModel.transactionCreator.validate(amount: amount)
+                }
 
                 validatedAmount = amount
-                error = nil
+                amountError = nil
+                feeError = nil
             } catch let validationError {
                 validatedAmount = nil
-                error = validationError
+                if fee != nil {
+                    amountError = nil
+                    feeError = validationError
+                } else {
+                    amountError = validationError
+                    feeError = nil
+                }
             }
         } else {
             validatedAmount = nil
-            error = nil
-        }
-
-        let feeError: Error?
-        if let fee {
-            do {
-                try walletModel.transactionCreator.validate(fee: fee)
-                feeError = nil
-            } catch let feeValidationError {
-                feeError = feeValidationError
-            }
-        } else {
+            amountError = nil
             feeError = nil
         }
 
         amount.send(validatedAmount)
-        _amountError.send(error)
+        _amountError.send(amountError)
         _feeError.send(feeError)
     }
 
