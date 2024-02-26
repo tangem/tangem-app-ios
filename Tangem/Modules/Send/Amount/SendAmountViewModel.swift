@@ -95,13 +95,19 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
 
+        $amount
+            .removeDuplicates { $0?.value == $1?.value }
+            .dropFirst()
+            .sink { [weak self] decimal in
+                self?.fiatCryptoAdapter?.setAmount(decimal)
+            }
+            .store(in: &bag)
+
         $useFiatCalculation
             .dropFirst()
             .removeDuplicates()
             .sink { [weak self] useFiatCalculation in
-                guard let self else { return }
-
-                fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
+                self?.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
             }
             .store(in: &bag)
     }
