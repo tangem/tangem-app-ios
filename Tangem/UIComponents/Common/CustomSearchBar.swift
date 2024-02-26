@@ -14,7 +14,7 @@ struct CustomSearchBar: View {
     var placeholder: String
 
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             Assets.search.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)
