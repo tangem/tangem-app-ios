@@ -15,8 +15,8 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
     }
 
     @Published var enteredSearchText = ""
-
     @Published var inputShouldBecomeFocused = false
+    @Published var bottomScrollableSheetState: BottomScrollableSheetState = .bottom
 
     func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {
         if case .top(.tapGesture) = state {
