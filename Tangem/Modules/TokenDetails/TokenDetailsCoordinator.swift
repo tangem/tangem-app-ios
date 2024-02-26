@@ -199,7 +199,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
 
             if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + AppConstants.sheetDismissalTime) {
                     self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
                 }
             }
@@ -238,7 +238,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
 
             if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + AppConstants.sheetDismissalTime) {
                     self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
                 }
             }
