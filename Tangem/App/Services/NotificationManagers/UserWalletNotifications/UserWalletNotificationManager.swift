@@ -187,7 +187,9 @@ final class UserWalletNotificationManager {
             didFinishCountingHashes()
             let notification = factory.buildNotificationInput(
                 for: .numberOfSignedHashesIncorrect,
-                action: delegate?.didTapNotification(with:) ?? { _ in },
+                action: { [weak self] id in
+                    self?.delegate?.didTapNotification(with: id)
+                },
                 buttonAction: { _, _ in },
                 dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
             )
