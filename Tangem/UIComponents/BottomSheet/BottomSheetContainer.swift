@@ -162,8 +162,8 @@ extension BottomSheetContainer {
             backgroundColor: Color,
             backgroundOpacity: CGFloat = 0.4,
             distanceToHide: CGFloat = UIScreen.main.bounds.height * 0.1,
-            animationDuration: Double = 0.35,
-            backgroundAnimationDelay: TimeInterval = 0.05
+            animationDuration: Double = 0.25,
+            backgroundAnimationDelay: TimeInterval = 0.0
         ) {
             self.cornerRadius = cornerRadius
             self.backgroundColor = backgroundColor
