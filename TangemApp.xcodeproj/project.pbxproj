@@ -1070,6 +1070,7 @@
 		EF48E6E42B02408500FE0072 /* ExpressViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48E6DE2B02408500FE0072 /* ExpressViewModel.swift */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
+		EF4B70C02B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B70BF2B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift */; };
 		EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */; };
 		EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */; };
 		EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */; };
@@ -2530,6 +2531,7 @@
 		EF48E6DE2B02408500FE0072 /* ExpressViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressViewModel.swift; sourceTree = "<group>"; };
 		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
+		EF4B70BF2B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetSearchableHeaderView.swift; sourceTree = "<group>"; };
 		EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokenListManager.swift; sourceTree = "<group>"; };
 		EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManager.swift; sourceTree = "<group>"; };
 		EF4BEFDE28AD3EE500C5D1BE /* ContentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentState.swift; sourceTree = "<group>"; };
@@ -3211,6 +3213,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF4B70BE2B5FBF4100B18BF4 /* BottomSheetSearchableHeaderView */,
 				DA8C672E2B0B451F00E1C9B8 /* AmountSummary */,
 				DC2CD3402B0FE3D600C0D677 /* SendCurrencyView */,
 				EF0DD79F2B02B30F0099527D /* ExpressFeeRow */,
@@ -6361,6 +6364,14 @@
 			path = ExpressView;
 			sourceTree = "<group>";
 		};
+		EF4B70BE2B5FBF4100B18BF4 /* BottomSheetSearchableHeaderView */ = {
+			isa = PBXGroup;
+			children = (
+				EF4B70BF2B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift */,
+			);
+			path = BottomSheetSearchableHeaderView;
+			sourceTree = "<group>";
+		};
 		EF4BEF8428ACF0FD00C5D1BE /* UserTokenListManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -8510,6 +8521,7 @@
 				DCBC94572993FF330050BC35 /* Analytics+ProductType.swift in Sources */,
 				EF4662392924E00400346B6C /* WalletConnectRowView.swift in Sources */,
 				B0453672264D4B730005B23E /* AppConstants.swift in Sources */,
+				EF4B70C02B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift in Sources */,
 				B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */,
 				5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */,
 				EF692A482951E7C8001F4B8A /* XCAssets+Generated.swift in Sources */,
