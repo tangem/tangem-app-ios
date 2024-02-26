@@ -135,6 +135,7 @@ final class SendViewModel: ObservableObject {
         self.emailDataProvider = emailDataProvider
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
+        #warning("[REDACTED_TODO_COMMENT]")
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
 
         let steps = sendType.steps
