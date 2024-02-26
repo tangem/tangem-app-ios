@@ -161,9 +161,7 @@ class CommonSendNotificationManager: SendNotificationManager {
                 }
                 return [input]
             }
-            .sink { [weak self] in
-                self?.transactionCreationNotificationInputsSubject.send($0)
-            }
+            .assign(to: \.value, on: transactionCreationNotificationInputsSubject, ownership: .weak)
             .store(in: &bag)
     }
 
