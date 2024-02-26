@@ -29,11 +29,15 @@ final class SendViewModel: ObservableObject {
     }
 
     var showBackButton: Bool {
-        previousStep != nil
+        previousStep != nil && !didReachSummaryScreen
     }
 
     var showNextButton: Bool {
-        nextStep != nil
+        !didReachSummaryScreen
+    }
+
+    var showContinueButton: Bool {
+        didReachSummaryScreen
     }
 
     var showQRCodeButton: Bool {
@@ -85,6 +89,8 @@ final class SendViewModel: ObservableObject {
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
+    
+    private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
         $step
@@ -190,6 +196,10 @@ final class SendViewModel: ObservableObject {
         openStep(previousStep, stepAnimation: .slideBackward)
     }
 
+    func `continue`() {
+        openStep(.summary, stepAnimation: nil)
+    }
+
     func scanQRCode() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             showCameraDeniedAlert = true
@@ -279,6 +289,10 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
+        if case .summary = step {
+            didReachSummaryScreen = true
+        }
+
         self.stepAnimation = stepAnimation
 
         if stepAnimation != nil {
