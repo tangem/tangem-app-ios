@@ -35,7 +35,7 @@ protocol SendFeeViewModelInput {
 }
 
 class SendFeeViewModel: ObservableObject {
-    let feeExplanationUrl = TangemBlogUrlBuilder().postUrl(path: "what-is-a-transaction-fee-and-why-do-we-need-it")
+    let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
 
     weak var router: SendFeeRoutable?
 
