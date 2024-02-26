@@ -61,17 +61,14 @@ extension ExpressCoordinator {
 
 extension ExpressCoordinator: ExpressRoutable {
     func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection) {
-        UIApplication.shared.endEditing()
         expressTokensListViewModel = factory.makeExpressTokensListViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
     func presentFeeSelectorView() {
-        UIApplication.shared.endEditing()
         expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
     }
 
     func presentApproveView() {
-        UIApplication.shared.endEditing()
         expressApproveViewModel = factory.makeExpressApproveViewModel(coordinator: self)
     }
 
@@ -95,7 +92,6 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentProviderSelectorView() {
-        UIApplication.shared.endEditing()
         expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
