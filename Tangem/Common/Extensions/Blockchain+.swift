@@ -73,7 +73,7 @@ private extension Blockchain {
         case .stellar: return "stellar"
         case .ethereum: return "ethereum"
         case .ethereumPoW: return "ethereum-pow-iou"
-        case .ethereumFair: return "ethereumfair"
+        case .disChain: return "ethereumfair" // keep existing id for compatibility
         case .ethereumClassic: return "ethereum-classic"
         case .rsk: return "rootstock"
         case .bitcoinCash: return "bitcoin-cash"
@@ -155,7 +155,10 @@ private extension Blockchain {
             case .network: return "shibarium"
             case .coin: return "bone-shibaswap"
             }
-        case .aptos: return "aptos"
+        case .aptos:
+            return "aptos"
+        case .hedera:
+            return "hedera-hashgraph"
         }
     }
 
