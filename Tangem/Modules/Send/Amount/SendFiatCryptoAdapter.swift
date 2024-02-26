@@ -61,6 +61,19 @@ class SendFiatCryptoAdapter {
         bind()
     }
 
+    func setAmount(_ decimal: DecimalNumberTextField.DecimalValue?) {
+        if _useFiatCalculation.value {
+            _fiatCryptoValue.setFiat(decimal?.value)
+        } else {
+            _fiatCryptoValue.setCrypto(decimal?.value)
+        }
+    }
+
+    func setUseFiatCalculation(_ useFiatCalculation: Bool) {
+        _useFiatCalculation.send(useFiatCalculation)
+        setUserInputAmount()
+    }
+
     func setCrypto(_ decimal: Decimal?) {
         _fiatCryptoValue.setCrypto(decimal)
         setUserInputAmount()
@@ -72,8 +85,6 @@ class SendFiatCryptoAdapter {
 
     func setInput(_ input: SendFiatCryptoAdapterInput) {
         self.input = input
-
-        bind(from: input)
     }
 
     private func bind() {
@@ -88,28 +99,6 @@ class SendFiatCryptoAdapter {
                 self?.output?.setAmount(modelAmount)
             }
             .store(in: &bag)
-    }
-
-    private func bind(from input: SendFiatCryptoAdapterInput) {
-        input
-            .amountPublisher
-            .removeDuplicates { $0?.value == $1?.value }
-            .dropFirst()
-            .sink { [weak self] decimal in
-                guard let self else { return }
-
-                if _useFiatCalculation.value {
-                    _fiatCryptoValue.setFiat(decimal?.value)
-                } else {
-                    _fiatCryptoValue.setCrypto(decimal?.value)
-                }
-            }
-            .store(in: &bag)
-    }
-
-    func setUseFiatCalculation(_ useFiatCalculation: Bool) {
-        _useFiatCalculation.send(useFiatCalculation)
-        setUserInputAmount()
     }
 
     private func setUserInputAmount() {
