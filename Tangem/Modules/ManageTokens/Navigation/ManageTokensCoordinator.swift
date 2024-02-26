@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Dependencies
@@ -58,6 +59,9 @@ extension ManageTokensCoordinator {
 
 extension ManageTokensCoordinator: ManageTokensRoutable {
     func openAddCustomToken(dataSource: ManageTokensDataSource) {
+        // Need force hide keyboard, because it will affect the state of the focus properties field in the shield under the hood
+        UIApplication.shared.endEditing()
+
         guard let userWalletModel = dataSource.defaultUserWalletModel else { return }
 
         let dismissAction: Action<Void> = { [weak self] _ in
