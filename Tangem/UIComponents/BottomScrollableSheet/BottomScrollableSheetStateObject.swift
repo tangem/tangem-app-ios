@@ -236,13 +236,12 @@ private extension BottomScrollableSheetStateObject {
 
 // MARK: - BottomScrollableSheetStateHandler
 
-extension BottomScrollableSheetStateObject: BottomScrollableSheetStateHandler {
-    func update(state: BottomScrollableSheetStateHandlerState) {
-        switch state {
-        case .collapsed:
-            updateToState(.bottom)
-        case .expanded:
-            updateToState(.top(trigger: .tapGesture))
-        }
+extension BottomScrollableSheetStateObject: BottomScrollableSheetStateController {
+    func collapse() {
+        updateToState(.bottom)
+    }
+
+    func expand() {
+        updateToState(.top(trigger: .tapGesture))
     }
 }
