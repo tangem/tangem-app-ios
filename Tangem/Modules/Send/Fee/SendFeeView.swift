@@ -35,7 +35,7 @@ struct SendFeeView: View {
                     feeSelectorFooter
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .environment(\.openURL, OpenURLAction { url in
-                            viewModel.didTapFeeExplanation()
+                            viewModel.openFeeExplanation()
                             return .handled
                         })
                         .transition(SendView.Constants.auxiliaryViewTransition)
