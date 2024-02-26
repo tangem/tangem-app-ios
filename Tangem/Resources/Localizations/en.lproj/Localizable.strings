@@ -493,6 +493,7 @@
 "send_recipient_label" = "Send to";
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network. Caution: Omitting a memo may lead to misplaced funds";
 "send_recipient_wallets_title" = "My wallets";
+"send_sending" = "Sending...";
 "send_title_currency_format" = "Sending %@";
 "send_total_label" = "Total";
 "send_total_subtitle_asset_format" = "%1$@ and %2$@ will be sent";
