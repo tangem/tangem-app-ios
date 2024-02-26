@@ -23,11 +23,14 @@ protocol SendFiatCryptoAdapterOutput: AnyObject {
 class SendFiatCryptoAdapter {
     var amountAlternative: AnyPublisher<String?, Never> {
         Publishers.CombineLatest3(_useFiatCalculation, _fiatCryptoValue.fiat, _fiatCryptoValue.crypto)
-            .map { [weak self] useFiatCalculation, fiatAmount, cryptoAmount -> String? in
-                guard let self, let cryptoAmount, let fiatAmount else { return nil }
+            .withWeakCaptureOf(self)
+            .map { thisSendFiatCryptoAdapter, params -> String? in
+                let (useFiatCalculation, fiatAmount, cryptoAmount) = params
+
+                guard let cryptoAmount, let fiatAmount else { return nil }
 
                 if useFiatCalculation {
-                    return Amount(type: amountType, currencySymbol: currencySymbol, value: cryptoAmount, decimals: decimals).string()
+                    return Amount(type: thisSendFiatCryptoAdapter.amountType, currencySymbol: thisSendFiatCryptoAdapter.currencySymbol, value: cryptoAmount, decimals: thisSendFiatCryptoAdapter.decimals).string()
                 } else {
                     return BalanceFormatter().formatFiatBalance(fiatAmount)
                 }
@@ -90,10 +93,11 @@ class SendFiatCryptoAdapter {
     private func bind() {
         _fiatCryptoValue
             .crypto
-            .map { [weak self] cryptoAmount -> Amount? in
-                guard let self, let cryptoAmount else { return nil }
+            .withWeakCaptureOf(self)
+            .map { thisSendFiatCryptoAdapter, cryptoAmount -> Amount? in
+                guard let cryptoAmount else { return nil }
 
-                return Amount(type: amountType, currencySymbol: currencySymbol, value: cryptoAmount, decimals: decimals)
+                return Amount(type: thisSendFiatCryptoAdapter.amountType, currencySymbol: thisSendFiatCryptoAdapter.currencySymbol, value: cryptoAmount, decimals: thisSendFiatCryptoAdapter.decimals)
             }
             .sink { [weak self] modelAmount in
                 self?.output?.setAmount(modelAmount)
