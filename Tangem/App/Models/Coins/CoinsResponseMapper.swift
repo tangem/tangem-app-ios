@@ -17,7 +17,7 @@ struct CoinsResponseMapper {
     }
 
     func mapToCoinModels(_ response: CoinsList.Response) -> [CoinModel] {
-        response.coins.map { coin in
+        response.coins.compactMap { coin in
             let id = coin.id.trimmed()
             let name = coin.name.trimmed()
             let symbol = coin.symbol.uppercased().trimmed()
@@ -28,6 +28,10 @@ struct CoinsResponseMapper {
                 }
 
                 return CoinModel.Item(id: id, tokenItem: item, exchangeable: network.exchangeable)
+            }
+
+            if items.isEmpty {
+                return nil
             }
 
             return CoinModel(id: id, name: name, symbol: symbol, items: items)
