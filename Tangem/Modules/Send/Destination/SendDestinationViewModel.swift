@@ -12,6 +12,8 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationViewModelInput {
+    var destinationValid: AnyPublisher<Bool, Never> { get }
+
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
 
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
@@ -44,6 +46,7 @@ class SendDestinationViewModel: ObservableObject {
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
+    @Published var showSuggestedDestinations = true
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -133,6 +136,16 @@ class SendDestinationViewModel: ObservableObject {
                 $0?.localizedDescription
             }
             .assign(to: \.destinationAdditionalFieldErrorText, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input
+            .destinationValid
+            .removeDuplicates()
+            .sink { [weak self] destinationValid in
+                withAnimation(SendView.Constants.defaultAnimation) {
+                    self?.showSuggestedDestinations = !destinationValid
+                }
+            }
             .store(in: &bag)
 
         input
