@@ -451,8 +451,16 @@ final class WalletConnectV2Service {
         if let error {
             params[.validation] = Analytics.ParameterValue.fail.rawValue
             params[.errorCode] = "\(error.code)"
+            let errorDescription: String
+            if case .unknown(let externalErrorMessage) = error {
+                errorDescription = externalErrorMessage
+            } else {
+                errorDescription = error.errorDescription ?? "No error description"
+            }
+            params[.errorDescription] = errorDescription
         } else {
             params[.validation] = Analytics.ParameterValue.success.rawValue
+            params[.errorCode] = "0"
         }
 
         Analytics.log(event: .requestHandled, params: params)

@@ -107,9 +107,9 @@ final class SendViewModel: ObservableObject {
             }
 
         let hasTransactionCreationError = Publishers.CombineLatest($step, sendModel.transactionCreationError)
-            .map { step, errors in
-                guard let transactionErrors = errors as? TransactionErrors else { return false }
-                return transactionErrors.errors.contains { $0.step == step }
+            .map { step, error in
+                guard let validationError = error as? ValidationError else { return false }
+                return validationError.step == step
             }
 
         return Publishers.CombineLatest(inputFieldsValid, hasTransactionCreationError)
@@ -424,14 +424,14 @@ extension SendViewModel: NotificationTapDelegate {
     }
 }
 
-// MARK: - TransactionError
+// MARK: - ValidationError
 
-private extension TransactionError {
+private extension ValidationError {
     var step: SendStep {
         switch self {
-        case .invalidAmount:
+        case .invalidAmount, .balanceNotFound:
             return .amount
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .totalExceedsBalance:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .totalExceedsBalance, .withdrawalWarning, .reserve:
             return .fee
         case .dustAmount, .dustChange, .minimumBalance:
             return .summary

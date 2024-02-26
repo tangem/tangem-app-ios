@@ -145,21 +145,21 @@ class CommonSendNotificationManager: SendNotificationManager {
         input
             .transactionCreationError
             .map {
-                ($0 as? TransactionErrors)?.errors ?? []
+                $0 as? ValidationError
             }
             .withWeakCaptureOf(self)
-            .map { (self, transactionErrors) -> [NotificationViewInput] in
+            .map { (self, validationError) -> [NotificationViewInput] in
+                guard let validationError else { return [] }
                 let factory = NotificationsFactory()
-                return transactionErrors
-                    .compactMap {
-                        guard let event = self.notificationEvent(from: $0) else { return nil }
 
-                        return factory.buildNotificationInput(for: event) { [weak self] id, actionType in
-                            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-                        } dismissAction: { [weak self] id in
-                            self?.dismissAction(with: id)
-                        }
-                    }
+                guard let event = self.notificationEvent(from: validationError) else { return [] }
+
+                let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
+                    self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+                } dismissAction: { [weak self] id in
+                    self?.dismissAction(with: id)
+                }
+                return [input]
             }
             .sink { [weak self] in
                 self?.transactionCreationNotificationInputsSubject.send($0)
@@ -190,8 +190,8 @@ class CommonSendNotificationManager: SendNotificationManager {
         }
     }
 
-    private func notificationEvent(from transactionError: TransactionError) -> SendNotificationEvent? {
-        switch transactionError {
+    private func notificationEvent(from validationError: ValidationError) -> SendNotificationEvent? {
+        switch validationError {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
         case .totalExceedsBalance:
