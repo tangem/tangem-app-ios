@@ -40,6 +40,14 @@ class ManageTokensCoordinator: CoordinatorObject {
         assert(delegate != nil)
         manageTokensViewModel = .init(searchTextPublisher: options.searchTextPublisher, coordinator: self)
     }
+
+    func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {
+        if state.isBottom {
+            manageTokensViewModel?.onBottomDisappear()
+        } else {
+            manageTokensViewModel?.onBottomAppear()
+        }
+    }
 }
 
 extension ManageTokensCoordinator {
