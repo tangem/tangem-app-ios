@@ -8,11 +8,7 @@
 
 import Foundation
 
-protocol BottomScrollableSheetStateHandler {
-    func update(state: BottomScrollableSheetStateHandlerState)
-}
-
-enum BottomScrollableSheetStateHandlerState {
-    case collapsed
-    case expanded
+protocol BottomScrollableSheetStateController {
+    func collapse()
+    func expand()
 }
