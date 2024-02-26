@@ -35,6 +35,10 @@ protocol SendFeeViewModelInput {
 }
 
 class SendFeeViewModel: ObservableObject {
+    let feeExplanationUrl = TangemBlogUrlBuilder().postUrl(path: "what-is-a-transaction-fee-and-why-do-we-need-it")
+
+    weak var router: SendFeeRoutable?
+
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
@@ -102,6 +106,10 @@ class SendFeeViewModel: ObservableObject {
                 animatingAuxiliaryViewsOnAppear = false
             }
         }
+    }
+
+    func didTapFeeExplanation() {
+        router?.openFeeExplanation(url: feeExplanationUrl)
     }
 
     private func createCustomFeeModels() {
