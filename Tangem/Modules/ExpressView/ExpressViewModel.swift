@@ -92,9 +92,7 @@ final class ExpressViewModel: ObservableObject {
             return
         }
 
-        sendDecimalValue = .external(sourceBalance)
-        updateSendFiatValue(amount: sourceBalance)
-        interactor.update(amount: sourceBalance)
+        updateSendDecimalValue(to: sourceBalance)
     }
 
     func userDidTapSwapSwappingItemsButton() {
@@ -110,21 +108,26 @@ final class ExpressViewModel: ObservableObject {
         coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
-    func userDidTapPriceChangeInfoButton() {
+    func userDidTapPriceChangeInfoButton(isBigLoss: Bool) {
         runTask(in: self) { viewModel in
-            let message: String? = await {
-                switch await viewModel.interactor.getSelectedProvider()?.provider.type {
-                case .none:
-                    return nil
-                case .cex:
-                    return Localization.expressCexFeeExplanation
-                case .dex:
-                    return Localization.swappingHighPriceImpactDescription
-                }
-            }()
-
-            guard let message else {
+            guard let providerType = await viewModel.interactor.getSelectedProvider()?.provider.type else {
                 return
+            }
+
+            var message: String
+
+            switch providerType {
+            case .cex:
+                message = Localization.expressCexFeeExplanation
+                if isBigLoss {
+                    let tokenItemSymbol = viewModel.interactor.getSender().tokenItem.currencySymbol
+                    message += "\n\n\(Localization.swappingAlertCexDescription(tokenItemSymbol))"
+                }
+            case .dex:
+                message = Localization.swappingAlertDexDescription
+                if isBigLoss {
+                    message += "\n\n\(Localization.swappingHighPriceImpactDescription)"
+                }
             }
 
             await runOnMain {
@@ -271,6 +274,12 @@ private extension ExpressViewModel {
             .store(in: &bag)
     }
 
+    func updateSendDecimalValue(to value: Decimal) {
+        sendDecimalValue = .external(value)
+        updateSendFiatValue(amount: value)
+        interactor.update(amount: value)
+    }
+
     // MARK: - Send view bubble
 
     func updateSendView(wallet: WalletModel) {
@@ -283,9 +292,7 @@ private extension ExpressViewModel {
         }
 
         let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
-        sendDecimalValue = .external(roundedAmount)
-        updateSendFiatValue(amount: roundedAmount)
-        interactor.update(amount: roundedAmount)
+        updateSendDecimalValue(to: roundedAmount)
     }
 
     func updateSendFiatValue(amount: Decimal?) {
@@ -294,8 +301,7 @@ private extension ExpressViewModel {
 
     func updateSendCurrencyHeaderState(state: ExpressInteractor.State) {
         switch state {
-        case .restriction(.notEnoughBalanceForSwapping, _),
-             .restriction(.notEnoughAmountForFee, _):
+        case .restriction(.notEnoughBalanceForSwapping, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .insufficientFunds)
         default:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(titleState: .text(Localization.swappingFromTitle))
@@ -447,14 +453,20 @@ private extension ExpressViewModel {
             break
         case .restriction(let type, _):
             switch type {
-            case .hasPendingTransaction, .hasPendingApproveTransaction, .requiredRefresh, .tooSmallAmountForSwapping, .tooBigAmountForSwapping, .noDestinationTokens:
+            case .hasPendingTransaction,
+                 .hasPendingApproveTransaction,
+                 .requiredRefresh,
+                 .tooSmallAmountForSwapping,
+                 .tooBigAmountForSwapping,
+                 .noDestinationTokens,
+                 .validationError,
+                 .notEnoughAmountForFee:
                 mainButtonState = .swap
-                mainButtonIsEnabled = false
-
-            case .notEnoughAmountForFee, .notEnoughBalanceForSwapping:
+            case .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
-                mainButtonIsEnabled = false
             }
+
+            mainButtonIsEnabled = false
 
         case .permissionRequired:
             mainButtonState = .givePermission
@@ -584,6 +596,13 @@ extension ExpressViewModel: NotificationTapDelegate {
             interactor.refresh(type: .full)
         case .openFeeCurrency:
             openNetworkCurrency()
+        case .reduceAmount(let amount, _):
+            guard let value = sendDecimalValue?.value else {
+                AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
+                return
+            }
+
+            updateSendDecimalValue(to: value - amount)
         default:
             return
         }
