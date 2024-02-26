@@ -12,7 +12,6 @@ import BlockchainSdk
 
 protocol SendFiatCryptoAdapterInput: AnyObject {
     var amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> { get }
-    var useFiatCalculationPublisher: AnyPublisher<Bool, Never> { get }
 
     func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?)
 }
@@ -106,18 +105,11 @@ class SendFiatCryptoAdapter {
                 }
             }
             .store(in: &bag)
+    }
 
-        input
-            .useFiatCalculationPublisher
-            .dropFirst()
-            .removeDuplicates()
-            .sink { [weak self] useFiatCalculation in
-                guard let self else { return }
-
-                _useFiatCalculation.send(useFiatCalculation)
-                setUserInputAmount()
-            }
-            .store(in: &bag)
+    func setUseFiatCalculation(_ useFiatCalculation: Bool) {
+        _useFiatCalculation.send(useFiatCalculation)
+        setUserInputAmount()
     }
 
     private func setUserInputAmount() {
