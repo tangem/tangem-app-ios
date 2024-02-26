@@ -13,7 +13,7 @@ extension Analytics {
         case blockchain
         case firmware = "Firmware"
         case action
-        case errorDescription = "error_description"
+        case errorDescription = "Error Description"
         case errorCode = "Error Code"
         case newSecOption = "new_security_option"
         case errorKey = "Tangem SDK error key"
@@ -26,6 +26,7 @@ extension Analytics {
         case success
         case token = "Token"
         case derivationPath = "Derivation Path"
+        case derivation = "Derivation"
         case network = "Network"
         case networkId = "Network Id"
         case contractAddress = "Contract Address"
@@ -33,7 +34,8 @@ extension Analytics {
         case state = "State"
         case basicCurrency = "Currency"
         case batch = "Batch"
-        case cardsCount = "Cards count"
+        case cardsCount = "Cards Count"
+        case walletCount = "Wallet Count"
         case sku = "SKU"
         case amount = "Amount"
         case count = "Count"
@@ -71,5 +73,6 @@ extension Analytics {
         case commission = "Commission"
         case place = "Place"
         case result = "Result"
+        case input = "Input"
     }
 }
