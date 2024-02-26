@@ -108,7 +108,7 @@ class SendFeeViewModel: ObservableObject {
         }
     }
 
-    func didTapFeeExplanation() {
+    func openFeeExplanation() {
         router?.openFeeExplanation(url: feeExplanationUrl)
     }
 
