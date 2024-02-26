@@ -27,7 +27,7 @@ struct SendDestinationView: View {
                 SendDestinationTextView(viewModel: additionalFieldViewModel)
             }
 
-            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, !viewModel.showSuggestedDestinations {
+            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
                     .transition(.opacity)
             }
