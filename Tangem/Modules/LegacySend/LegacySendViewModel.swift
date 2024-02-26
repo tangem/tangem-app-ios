@@ -311,7 +311,7 @@ class LegacySendViewModel: ObservableObject {
                 let newAmount = Amount(with: amountToSend, value: newAmountValue)
 
                 do {
-                    try walletModel.transactionCreator.validate(amount: newAmount)
+                    try walletModel.transactionValidator.validate(amount: newAmount)
                     amountHint = nil
                     validatedAmount = newAmount
                 } catch {
@@ -360,8 +360,8 @@ class LegacySendViewModel: ObservableObject {
                 }
 
                 do {
-                    let tx = try walletModel.createTransaction(
-                        amountToSend: isFeeIncluded ? amount - selectedFee.amount : amount,
+                    let tx = try walletModel.transactionCreator.createTransaction(
+                        amount: isFeeIncluded ? amount - selectedFee.amount : amount,
                         fee: selectedFee,
                         destinationAddress: destination
                     )
@@ -437,7 +437,7 @@ class LegacySendViewModel: ObservableObject {
                 if memo.isEmpty { return }
 
                 switch blockchainNetwork.blockchain {
-                case .binance, .ton, .cosmos, .terraV1, .terraV2:
+                case .binance, .ton, .cosmos, .terraV1, .terraV2, .hedera, .algorand:
                     validatedMemo = memo
                 case .stellar:
                     if let memoId = UInt64(memo) {
@@ -557,7 +557,7 @@ class LegacySendViewModel: ObservableObject {
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
         guard
             let validator = walletModel.withdrawalValidator,
-            let warning = validator.validate(transaction),
+            let warning = validator.validateWithdrawalWarning(amount: transaction.amount, fee: transaction.fee.amount),
             error == nil
         else {
             return
@@ -714,6 +714,10 @@ class LegacySendViewModel: ObservableObject {
             case .algorand:
                 if let nonce = validatedMemo {
                     tx.params = AlgorandTransactionParams(nonce: nonce)
+                }
+            case .hedera:
+                if let memo = validatedMemo {
+                    tx.params = HederaTransactionParams(memo: memo)
                 }
             default:
                 break
