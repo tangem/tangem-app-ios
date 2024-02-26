@@ -53,6 +53,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {
         __headerViewModel.onBottomScrollableSheetStateChange(state)
+        manageTokensCoordinator?.onBottomScrollableSheetStateChange(state)
     }
 
     private func bind() {
