@@ -94,6 +94,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .map { $0?.localizedDescription }
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
+
+        $useFiatCalculation
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] useFiatCalculation in
+                guard let self else { return }
+
+                fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
+            }
+            .store(in: &bag)
     }
 
     private func bind(from fiatCryptoAdapter: SendFiatCryptoAdapter) {
@@ -113,9 +123,5 @@ extension SendAmountViewModel: AuxiliaryViewAnimatable {
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
         $amount.eraseToAnyPublisher()
-    }
-
-    var useFiatCalculationPublisher: AnyPublisher<Bool, Never> {
-        $useFiatCalculation.eraseToAnyPublisher()
     }
 }
