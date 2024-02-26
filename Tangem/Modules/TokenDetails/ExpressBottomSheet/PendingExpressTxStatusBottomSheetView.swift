@@ -219,7 +219,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             currentTokenItem: tokenItem,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
-                tokenItem: tokenItem
+                walletModel: .mockETH
             ),
             router: TokenDetailsCoordinator()
         )
