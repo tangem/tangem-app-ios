@@ -80,9 +80,9 @@ struct SendSummaryView: View {
     @ViewBuilder
     private var sendButton: some View {
         MainButton(
-            title: Localization.commonSend,
-            icon: .trailing(Assets.tangemIcon),
-            isLoading: viewModel.isSending,
+            title: viewModel.sendButtonText,
+            icon: viewModel.sendButtonIcon,
+            isDisabled: viewModel.isSending,
             action: viewModel.send
         )
     }
