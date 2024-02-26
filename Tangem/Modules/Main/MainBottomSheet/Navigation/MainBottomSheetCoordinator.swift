@@ -70,10 +70,6 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     private func setupManageTokens() {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.shouldDissmis = true
-            self?.hideKeyboard()
-
-            // Need for remember state if nededed
-//            self?.manageTokensCoordinator = nil
         }
 
         let coordinator = ManageTokensCoordinator(
@@ -83,11 +79,6 @@ class MainBottomSheetCoordinator: CoordinatorObject {
         coordinator.delegate = self
         coordinator.start(with: .init(searchTextPublisher: __headerViewModel.enteredSearchTextPublisher))
         manageTokensCoordinator = coordinator
-    }
-
-    @objc
-    private func hideKeyboard() {
-        UIApplication.shared.endEditing()
     }
 }
 
