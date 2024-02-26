@@ -609,9 +609,10 @@ extension ExpressViewModel: NotificationTapDelegate {
     }
 
     func openFeeCurrency() {
-        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(
-            where: { $0.tokenItem == initialWallet.feeTokenItem && $0.blockchainNetwork == initialWallet.blockchainNetwork }
-        ) else {
+        let walletModels = userWalletModel.walletModelsManager.walletModels
+        guard let feeCurrencyWalletModel = walletModels.first(where: {
+            $0.tokenItem == initialWallet.feeTokenItem
+        }) else {
             assertionFailure("Fee currency '\(initialWallet.feeTokenItem.name)' for currency '\(initialWallet.tokenItem.name)' not found")
             return
         }
