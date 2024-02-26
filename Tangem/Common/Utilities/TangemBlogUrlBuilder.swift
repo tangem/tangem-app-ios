@@ -9,16 +9,31 @@
 import Foundation
 
 struct TangemBlogUrlBuilder {
-    func postUrl(path: String) -> URL {
-        let currentLanguageCode = Locale.current.languageCode ?? "en"
+    func url(post: Post) -> URL {
+        let currentLanguageCode = Locale.current.languageCode ?? LanguageCode.ru
 
         let languageCode: String
         switch currentLanguageCode {
-        case "ru":
+        case LanguageCode.ru:
             languageCode = currentLanguageCode
         default:
-            languageCode = "en"
+            languageCode = LanguageCode.en
         }
-        return URL(string: "https://tangem.com/\(languageCode)/blog/post/\(path)/")!
+        return URL(string: "https://tangem.com/\(languageCode)/blog/post/\(post.path)/")!
+    }
+}
+
+extension TangemBlogUrlBuilder {
+    enum Post {
+        case fee
+    }
+}
+
+private extension TangemBlogUrlBuilder.Post {
+    var path: String {
+        switch self {
+        case .fee:
+            "what-is-a-transaction-fee-and-why-do-we-need-it"
+        }
     }
 }
