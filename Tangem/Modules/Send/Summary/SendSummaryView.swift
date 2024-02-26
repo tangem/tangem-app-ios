@@ -70,6 +70,7 @@ struct SendSummaryView: View {
 
             sendButton
                 .padding(.horizontal, 16)
+                .padding(.bottom, 14)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
