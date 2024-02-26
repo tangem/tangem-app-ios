@@ -29,8 +29,7 @@ struct MainBottomSheetHeaderInputView: View {
         )
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.verticalInset)
-        // [REDACTED_TODO_COMMENT]
-//        .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
+        .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
         .background(Colors.Background.primary)
     }
 }
