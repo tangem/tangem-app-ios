@@ -108,7 +108,7 @@ enum TokenItem: Hashable, Codable {
     }
 
     var networkName: String {
-        blockchain.displayName
+        blockchain.networkDisplayName
     }
 
     var decimalCount: Int {
