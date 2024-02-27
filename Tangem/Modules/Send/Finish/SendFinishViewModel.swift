@@ -74,10 +74,14 @@ class SendFinishViewModel: ObservableObject {
     }
 
     func explore() {
+        Analytics.log(.sendButtonExplore)
+
         router?.explore(url: transactionURL)
     }
 
     func share() {
+        Analytics.log(.sendButtonShare)
+
         router?.share(url: transactionURL)
     }
 
