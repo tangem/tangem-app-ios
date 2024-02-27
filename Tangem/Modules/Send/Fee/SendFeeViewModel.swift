@@ -98,9 +98,13 @@ class SendFeeViewModel: ObservableObject {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
+            Analytics.log(.sendScreenReopened, params: [.commonSource: .sendScreenFee])
+
             withAnimation(SendView.Constants.defaultAnimation) {
                 animatingAuxiliaryViewsOnAppear = false
             }
+        } else {
+            Analytics.log(.sendFeeScreenOpened)
         }
     }
 
