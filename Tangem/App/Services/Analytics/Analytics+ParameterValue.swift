@@ -71,6 +71,7 @@ extension Analytics {
         case destinationAddressSourceQrCode = "QRCode"
         case destinationAddressPasteButton = "PasteButton"
         case destinationAddressPastePopup = "PastePopup"
+        case destinationAddressRecentAddress = "RecentAddress"
 
         case success = "Success"
         case fail = "Fail"
@@ -102,6 +103,12 @@ extension Analytics {
         case system = "System"
         case light = "Light"
         case dark = "Dark"
+
+        // MARK: - Send
+
+        case sendScreenAddress = "Address"
+        case sendScreenAmount = "Amount"
+        case sendScreenFee = "Fee"
 
         // MARK: - Actions
 
