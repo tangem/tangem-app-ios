@@ -16,7 +16,7 @@ struct ManageTokensItemView: View {
 
     var body: some View {
         HStack {
-            HStack(spacing: Constants.spacerLength) {
+            HStack(spacing: 12) {
                 IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
                     .skeletonable(isShown: viewModel.isLoading, radius: iconSize.height / 2)
 
@@ -99,12 +99,6 @@ struct ManageTokensItemView: View {
         }
         .frame(width: 50, height: 37, alignment: .center)
         .padding(.trailing, 24)
-    }
-}
-
-private extension ManageTokensItemView {
-    enum Constants {
-        static let spacerLength = 12.0
     }
 }
 
