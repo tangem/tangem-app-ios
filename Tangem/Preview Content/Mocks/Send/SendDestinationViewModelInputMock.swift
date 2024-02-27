@@ -11,6 +11,10 @@ import Combine
 import BlockchainSdk
 
 class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
+    var destinationValid: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
     var isValidatingDestination: AnyPublisher<Bool, Never> {
         .just(output: false)
     }
