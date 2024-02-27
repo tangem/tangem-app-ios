@@ -38,7 +38,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var error: String?
     @Published var animatingAuxiliaryViewsOnAppear = false
 
-    private weak var fiatCryptoAdapter: SendFiatCryptoAdapter?
+    private var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
     private let input: SendAmountViewModelInput
     private let balanceValue: Decimal?
