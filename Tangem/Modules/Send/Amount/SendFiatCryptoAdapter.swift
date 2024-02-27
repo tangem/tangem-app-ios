@@ -49,7 +49,6 @@ class SendFiatCryptoAdapter {
             .eraseToAnyPublisher()
     }
 
-    private let amountType: Amount.AmountType
     private let currencySymbol: String
     private let decimals: Int
 
@@ -62,12 +61,10 @@ class SendFiatCryptoAdapter {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        amountType: Amount.AmountType,
         cryptoCurrencyId: String?,
         currencySymbol: String,
         decimals: Int
     ) {
-        self.amountType = amountType
         self.currencySymbol = currencySymbol
         self.decimals = decimals
         _fiatCryptoValue = FiatCryptoValue(decimals: decimals, cryptoCurrencyId: cryptoCurrencyId)
