@@ -27,6 +27,7 @@ struct MainBottomSheetHeaderInputView: View {
             searchText: $searchText,
             placeholder: Localization.manageTokensSearchPlaceholder
         )
+        .padding(.horizontal, 16)
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.verticalInset)
         .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
