@@ -210,9 +210,9 @@ private extension TokenDetailsViewModel {
     }
 
     func openFeeCurrency() {
-        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(
-            where: { $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork }
-        ) else {
+        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+            $0.tokenItem == walletModel.feeTokenItem
+        }) else {
             assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
             return
         }

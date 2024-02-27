@@ -27,7 +27,7 @@ protocol MainUserWalletPageBuilderFactory {
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
     typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutable
-    let coordinator: MainContentRoutable
+    weak var coordinator: MainContentRoutable?
 
     func createPage(
         for model: UserWalletModel,
