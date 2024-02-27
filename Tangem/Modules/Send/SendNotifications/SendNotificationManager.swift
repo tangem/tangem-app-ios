@@ -19,6 +19,7 @@ protocol SendNotificationManagerInput {
 
 protocol SendNotificationManager: NotificationManager {
     func notificationPublisher(for location: SendNotificationEvent.Location) -> AnyPublisher<[NotificationViewInput], Never>
+    func hasNotifications(with severity: NotificationView.Severity) -> AnyPublisher<Bool, Never>
 }
 
 class CommonSendNotificationManager: SendNotificationManager {
@@ -57,6 +58,14 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+
+    func hasNotifications(with severity: NotificationView.Severity) -> AnyPublisher<Bool, Never> {
+        notificationPublisher
+            .map { notificationInputs in
+                notificationInputs.contains { $0.settings.event.severity == severity }
+            }
             .eraseToAnyPublisher()
     }
 
