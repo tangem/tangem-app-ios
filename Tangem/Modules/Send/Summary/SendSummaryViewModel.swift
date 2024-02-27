@@ -78,6 +78,8 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.sendConfirmScreenOpened)
+
         screenIdleStartTime = Date()
     }
 
