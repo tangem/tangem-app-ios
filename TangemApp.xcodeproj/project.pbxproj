@@ -781,6 +781,7 @@
 		DA7B2C512B6B893500FB9622 /* SendNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */; };
 		DA7B2C522B6B893500FB9622 /* SendNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */; };
 		DA7B2C542B6B898500FB9622 /* FeeUpdateResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7B2C532B6B898500FB9622 /* FeeUpdateResult.swift */; };
+		DA7DEAE92B8E21E0007049E9 /* SendFiatCryptoAdapterOutputMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7DEAE82B8E21E0007049E9 /* SendFiatCryptoAdapterOutputMock.swift */; };
 		DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */; };
 		DA81CF2F2B060A5D008877F1 /* SendSuggestedDestinationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */; };
 		DA81CF302B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81CF2E2B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift */; };
@@ -2230,6 +2231,7 @@
 		DA7B2C4F2B6B893500FB9622 /* SendNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendNotificationManager.swift; sourceTree = "<group>"; };
 		DA7B2C502B6B893500FB9622 /* SendNotificationEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendNotificationEvent.swift; sourceTree = "<group>"; };
 		DA7B2C532B6B898500FB9622 /* FeeUpdateResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeeUpdateResult.swift; sourceTree = "<group>"; };
+		DA7DEAE82B8E21E0007049E9 /* SendFiatCryptoAdapterOutputMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFiatCryptoAdapterOutputMock.swift; sourceTree = "<group>"; };
 		DA81B0F02AB0A74000FA86D3 /* ChangeSignType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeSignType.swift; sourceTree = "<group>"; };
 		DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSuggestedDestinationView.swift; sourceTree = "<group>"; };
 		DA81CF2E2B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSuggestedDestinationViewModel.swift; sourceTree = "<group>"; };
@@ -5439,6 +5441,7 @@
 			children = (
 				DA559C442B02622600F59584 /* SendRoutableMock.swift */,
 				DA559C452B02622600F59584 /* SendFeeViewModelInputMock.swift */,
+				DA7DEAE82B8E21E0007049E9 /* SendFiatCryptoAdapterOutputMock.swift */,
 				DA559C462B02622600F59584 /* SendSummaryViewModelInputMock.swift */,
 				DA559C472B02622600F59584 /* SendDestinationViewModelInputMock.swift */,
 				DA559C482B02622600F59584 /* SendAmountViewModelInputMock.swift */,
@@ -8049,6 +8052,7 @@
 				2DC567672B0DFFAF00B0244F /* ManageTokensViewModel.swift in Sources */,
 				EF0DC11C2A0CE29E007E3DA7 /* ExpressApproveViewModel.swift in Sources */,
 				B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */,
+				DA7DEAE92B8E21E0007049E9 /* SendFiatCryptoAdapterOutputMock.swift in Sources */,
 				EFAD02472A824E6700E9B959 /* TransactionViewModel.swift in Sources */,
 				EF729B722AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift in Sources */,
 				5D51037927C539B60025EA55 /* ABIError.swift in Sources */,
