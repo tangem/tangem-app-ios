@@ -61,11 +61,6 @@ extension Blockchain {
             return false
         }
     }
-
-    var networkDisplayName: String {
-        // [REDACTED_INFO] hack for arbitrum
-        displayName == "Arbitrum" ? "Arbitrum One" : displayName
-    }
 }
 
 // MARK: - Blockchain ID
