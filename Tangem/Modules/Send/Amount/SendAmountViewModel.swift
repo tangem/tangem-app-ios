@@ -17,7 +17,7 @@ protocol SendAmountViewModelInput {
     var amountValue: Amount? { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
-    func prepareForSendingMaxAmount()
+    func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
 class SendAmountViewModel: ObservableObject, Identifiable {
@@ -95,7 +95,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         guard let balanceValue else { return }
 
         fiatCryptoAdapter?.setCrypto(balanceValue)
-        input.prepareForSendingMaxAmount()
+        input.didChangeFeeInclusion(true)
     }
 
     private func bind(from input: SendAmountViewModelInput) {
