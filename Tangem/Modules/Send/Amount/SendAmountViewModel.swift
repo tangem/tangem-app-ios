@@ -44,7 +44,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
 
-    init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
+    init(input: SendAmountViewModelInput, fiatCryptoAdapterOutput: SendFiatCryptoAdapterOutput, walletInfo: SendWalletInfo) {
         self.input = input
         balanceValue = walletInfo.balanceValue
         walletName = walletInfo.walletName
@@ -58,6 +58,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
         fiatIconURL = walletInfo.fiatIconURL
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
+
+        let fiatCryptoAdapter = SendFiatCryptoAdapter(
+            cryptoCurrencyId: walletInfo.currencyId,
+            currencySymbol: walletInfo.cryptoCurrencyCode,
+            decimals: walletInfo.amountFractionDigits
+        )
+
+        fiatCryptoAdapter.setInput(self)
+        fiatCryptoAdapter.setOutput(fiatCryptoAdapterOutput)
+        setFiatCryptoAdapter(fiatCryptoAdapter)
 
         bind(from: input)
     }
