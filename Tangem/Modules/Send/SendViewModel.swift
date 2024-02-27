@@ -85,7 +85,6 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
-    private let fiatCryptoAdapter: SendFiatCryptoAdapter
 
     private weak var coordinator: SendRoutable?
 
@@ -167,21 +166,10 @@ final class SendViewModel: ObservableObject {
 
         notificationManager = SendNotificationManager(input: sendModel)
 
-        sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
+        sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapterOutput: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
-
-        fiatCryptoAdapter = SendFiatCryptoAdapter(
-            amountType: walletModel.amountType,
-            cryptoCurrencyId: walletInfo.currencyId,
-            currencySymbol: sendModel.currencySymbol,
-            decimals: walletInfo.amountFractionDigits
-        )
-
-        fiatCryptoAdapter.setInput(sendAmountViewModel)
-        fiatCryptoAdapter.setOutput(sendModel)
-        sendAmountViewModel.setFiatCryptoAdapter(fiatCryptoAdapter)
 
         sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
