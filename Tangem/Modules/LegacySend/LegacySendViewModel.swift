@@ -757,7 +757,7 @@ class LegacySendViewModel: ObservableObject {
                             .memo: retrieveAnalyticsMemoValue().rawValue,
                         ])
 
-                        Analytics.log(.selectedCurrency, params: [
+                        Analytics.log(.sendSelectedCurrency, params: [
                             .commonType: isFiatCalculation ? .selectedCurrencyApp : .token,
                         ])
                     }
@@ -980,7 +980,7 @@ extension LegacySendViewModel {
     }
 
     func openQRScanner() {
-        Analytics.log(.buttonQRCode)
+        Analytics.log(.sendButtonQRCode)
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             showCameraDeniedAlert = true
         } else {
