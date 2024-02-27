@@ -19,19 +19,19 @@ extension WalletModel: ExpressWallet {
         tokenItem.decimalCount
     }
 
+    var isFeeCurrency: Bool {
+        tokenItem == feeTokenItem
+    }
+
+    var feeCurrencyHasPositiveBalance: Bool {
+        wallet.hasFeeCurrency(amountType: amountType)
+    }
+
     func getBalance() throws -> Decimal {
         guard let balanceValue else {
             throw ExpressManagerError.amountNotFound
         }
 
         return balanceValue
-    }
-
-    func getCoinBalance() throws -> Decimal {
-        guard let coinBalance = getDecimalBalance(for: .coin) else {
-            throw ExpressManagerError.amountNotFound
-        }
-
-        return coinBalance
     }
 }

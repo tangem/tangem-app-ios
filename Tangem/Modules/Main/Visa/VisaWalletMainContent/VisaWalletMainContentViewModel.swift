@@ -39,7 +39,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
     init(
         visaWalletModel: VisaWalletModel,
-        coordinator: VisaWalletRoutable
+        coordinator: VisaWalletRoutable?
     ) {
         self.visaWalletModel = visaWalletModel
         self.coordinator = coordinator
