@@ -64,9 +64,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
+            Analytics.log(.sendScreenReopened, params: [.commonSource: .sendScreenAmount])
+
             withAnimation(SendView.Constants.defaultAnimation) {
                 animatingAuxiliaryViewsOnAppear = false
             }
+        } else {
+            Analytics.log(.sendAmountScreenOpened)
         }
     }
 
