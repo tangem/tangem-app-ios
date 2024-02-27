@@ -335,6 +335,17 @@ class SendModel {
         _amount.send(newAmount)
     }
 
+    // Convenience method
+    func setAmount(_ decimal: Decimal?) {
+        let amount: Amount?
+        if let decimal {
+            amount = Amount(type: walletModel.amountType, currencySymbol: currencySymbol, value: decimal, decimals: walletModel.decimalCount)
+        } else {
+            amount = nil
+        }
+        setAmount(amount)
+    }
+
     private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
         let amount: Amount?
         let error: Error?
