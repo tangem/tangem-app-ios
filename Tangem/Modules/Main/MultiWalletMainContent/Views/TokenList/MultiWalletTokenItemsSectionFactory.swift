@@ -16,7 +16,7 @@ struct MultiWalletTokenItemsSectionFactory {
         case .plain:
             return MultiWalletMainContentViewModel.SectionViewModel(id: index, title: nil)
         case .group(let blockchainNetwork):
-            let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
+            let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.networkDisplayName)
             return MultiWalletMainContentViewModel.SectionViewModel(id: blockchainNetwork, title: title)
         }
     }
