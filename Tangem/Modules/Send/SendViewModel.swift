@@ -89,7 +89,7 @@ final class SendViewModel: ObservableObject {
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
-    
+
     private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
