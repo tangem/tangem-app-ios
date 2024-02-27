@@ -123,6 +123,16 @@ struct SendView: View {
                     action: viewModel.next
                 )
             }
+
+            if viewModel.showContinueButton {
+                MainButton(
+                    title: Localization.commonContinue,
+                    style: .primary,
+                    size: .default,
+                    isDisabled: viewModel.currentStepInvalid,
+                    action: viewModel.continue
+                )
+            }
         }
         .padding(.horizontal)
         .padding(.bottom, 14)
