@@ -183,6 +183,8 @@ final class SendViewModel: ObservableObject {
             return
         }
 
+        logNextStepAnalytics()
+
         let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
         openStep(nextStep, stepAnimation: stepAnimation)
     }
@@ -311,6 +313,31 @@ final class SendViewModel: ObservableObject {
 
         sendModel.setDestination(result.destination)
         sendModel.setAmount(result.amount)
+    }
+
+    private func logNextStepAnalytics() {
+        switch step {
+        case .fee:
+            let feeType: Analytics.ParameterValue
+            if sendModel.feeOptions.count == 1 {
+                feeType = .transactionFeeFixed
+            } else {
+                switch sendModel.selectedFeeOption {
+                case .slow:
+                    feeType = .transactionFeeMin
+                case .market:
+                    feeType = .transactionFeeNormal
+                case .fast:
+                    feeType = .transactionFeeMax
+                case .custom:
+                    feeType = .transactionFeeCustom
+                }
+            }
+
+            Analytics.log(event: .sendFeeSelected, params: [.feeType: feeType.rawValue])
+        default:
+            break
+        }
     }
 }
 
