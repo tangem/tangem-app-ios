@@ -139,7 +139,7 @@ final class SendViewModel: ObservableObject {
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
         if let tokenId = walletModel.tokenItem.id {
-            cryptoIconURL = TokenIconURLBuilder().iconURL(id: tokenId)
+            cryptoIconURL = IconURLBuilder().tokenIconURL(id: tokenId)
         } else {
             cryptoIconURL = nil
         }
