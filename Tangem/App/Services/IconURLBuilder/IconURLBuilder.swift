@@ -21,4 +21,11 @@ struct IconURLBuilder {
             .appendingPathComponent(size.rawValue)
             .appendingPathComponent("\(id).png")
     }
+
+    func fiatIconURL(currencyCode: String) -> URL {
+        baseURL
+            .appendingPathComponent("currencies")
+            .appendingPathComponent("medium")
+            .appendingPathComponent("\(currencyCode.lowercased()).png")
+    }
 }
