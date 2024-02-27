@@ -156,11 +156,7 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
 
         notificationManager
-            .notificationPublisher
-            .map { notificationInputs in
-                let hasErrors = notificationInputs.map { $0.settings.event.severity }.contains(.critical)
-                return hasErrors
-            }
+            .hasNotifications(with: .critical)
             .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
