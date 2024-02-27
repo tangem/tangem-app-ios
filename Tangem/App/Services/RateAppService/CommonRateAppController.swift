@@ -13,14 +13,14 @@ import CombineExt
 final class CommonRateAppController {
     private let rateAppService: RateAppService
     private let userWalletModel: UserWalletModel
-    private unowned let coordinator: RateAppRoutable
+    private weak var coordinator: RateAppRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         rateAppService: RateAppService,
         userWalletModel: UserWalletModel,
-        coordinator: RateAppRoutable
+        coordinator: RateAppRoutable?
     ) {
         self.rateAppService = rateAppService
         self.userWalletModel = userWalletModel
@@ -28,24 +28,24 @@ final class CommonRateAppController {
     }
 
     private func handleRateAppAction(_ action: RateAppAction) {
-        coordinator.closeAppRateDialog()
+        coordinator?.closeAppRateDialog()
 
         switch action {
         case .openAppRateDialog:
             let viewModel = RateAppBottomSheetViewModel { [weak self] response in
                 self?.rateAppService.respondToRateAppDialog(with: response)
             }
-            coordinator.openAppRateDialog(with: viewModel)
+            coordinator?.openAppRateDialog(with: viewModel)
         case .openFeedbackMailWithEmailType(let emailType):
             let userWallet = userWalletModel
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
                 let collector = NegativeFeedbackDataCollector(userWalletEmailData: userWallet.emailData)
                 let recipient = userWallet.config.emailConfig?.recipient ?? EmailConfig.default.recipient
-                self?.coordinator.openFeedbackMail(with: collector, emailType: emailType, recipient: recipient)
+                self?.coordinator?.openFeedbackMail(with: collector, emailType: emailType, recipient: recipient)
             }
         case .openAppStoreReview:
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
-                self?.coordinator.openAppStoreReview()
+                self?.coordinator?.openAppStoreReview()
             }
         }
     }
