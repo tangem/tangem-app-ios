@@ -1150,7 +1150,6 @@
 		EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */; };
 		EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */; };
 		EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */; };
-		EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
 		EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */; };
 		EF842DEB2AFA58C5006E472E /* ExpressTokensListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */; };
@@ -1163,7 +1162,7 @@
 		EF914D502A604627001F00B2 /* QuotesMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4F2A604627001F00B2 /* QuotesMapper.swift */; };
 		EF914D522A612E49001F00B2 /* Wallet2Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D512A612E49001F00B2 /* Wallet2Config.swift */; };
 		EF92412F2934BB8000C28551 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92412E2934BB8000C28551 /* MainButton.swift */; };
-		EF9241362934E25900C28551 /* TokenIconURLBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241352934E25900C28551 /* TokenIconURLBuilder.swift */; };
+		EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9241352934E25900C28551 /* IconURLBuilder.swift */; };
 		EF92E2B829954B3200DD9B06 /* config_beta.json in Resources */ = {isa = PBXBuildFile; fileRef = EF92E2B729954B3100DD9B06 /* config_beta.json */; };
 		EF92E2BA29963E7400DD9B06 /* ExpressKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */; };
 		EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */; };
@@ -2618,7 +2617,6 @@
 		EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsRoutable.swift; sourceTree = "<group>"; };
 		EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinatorView.swift; sourceTree = "<group>"; };
-		EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilding.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
 		EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListView.swift; sourceTree = "<group>"; };
 		EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListViewModel.swift; sourceTree = "<group>"; };
@@ -2631,7 +2629,7 @@
 		EF914D4F2A604627001F00B2 /* QuotesMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotesMapper.swift; sourceTree = "<group>"; };
 		EF914D512A612E49001F00B2 /* Wallet2Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet2Config.swift; sourceTree = "<group>"; };
 		EF92412E2934BB8000C28551 /* MainButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
-		EF9241352934E25900C28551 /* TokenIconURLBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconURLBuilder.swift; sourceTree = "<group>"; };
+		EF9241352934E25900C28551 /* IconURLBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconURLBuilder.swift; sourceTree = "<group>"; };
 		EF92E2B729954B3100DD9B06 /* config_beta.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_beta.json; path = "tangem-app-config/config_beta.json"; sourceTree = SOURCE_ROOT; };
 		EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressKeys.swift; sourceTree = "<group>"; };
 		EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesView.swift; sourceTree = "<group>"; };
@@ -5717,7 +5715,7 @@
 				EF07082D2A1647560072AA0E /* FeeFormatter */,
 				B0D1AC302906718600584E6C /* Analytics */,
 				EF6EDD7B296C0D40001B21A3 /* IncomingActionManager */,
-				EF808441293F6B43000D91EA /* TokenIconURLBuilder */,
+				EF808441293F6B43000D91EA /* IconURLBuilder */,
 				EF5903A02909283A00C527C9 /* EnvironmentProvider */,
 				EF5A5ACC28D86089002544AC /* TotalBalanceProvider */,
 				EF5A5AD128D86094002544AC /* CardImageProvider */,
@@ -6713,14 +6711,13 @@
 			path = Mocks;
 			sourceTree = "<group>";
 		};
-		EF808441293F6B43000D91EA /* TokenIconURLBuilder */ = {
+		EF808441293F6B43000D91EA /* IconURLBuilder */ = {
 			isa = PBXGroup;
 			children = (
 				EF808444293F6B76000D91EA /* TokenURLIconSize.swift */,
-				EF808442293F6B69000D91EA /* TokenIconURLBuilding.swift */,
-				EF9241352934E25900C28551 /* TokenIconURLBuilder.swift */,
+				EF9241352934E25900C28551 /* IconURLBuilder.swift */,
 			);
-			path = TokenIconURLBuilder;
+			path = IconURLBuilder;
 			sourceTree = "<group>";
 		};
 		EF81B2A82A6686D2006CD57B /* BottomScrollableSheet */ = {
@@ -8725,7 +8722,7 @@
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				DC66BC16285C529600CDF765 /* LegacySendRoutable.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
-				EF9241362934E25900C28551 /* TokenIconURLBuilder.swift in Sources */,
+				EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
 				EFE5EC552AEC2AF400C5ADC3 /* Toast.swift in Sources */,
 				DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */,
@@ -8886,7 +8883,6 @@
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
 				B6E9A8C72A9A35B5005CF137 /* MainFooterViewModel.swift in Sources */,
-				EF808443293F6B69000D91EA /* TokenIconURLBuilding.swift in Sources */,
 				B064284629BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift in Sources */,
 				DC37A07A2A584C1400C2A3F2 /* CardDerivableProvider.swift in Sources */,
 				2DBE29C32B3C4A8100109D5E /* DetentBottomSheetModifier.swift in Sources */,
