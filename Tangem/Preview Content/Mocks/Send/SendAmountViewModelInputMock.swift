@@ -16,5 +16,5 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
         Just(nil).eraseToAnyPublisher()
     }
 
-    func prepareForSendingMaxAmount() {}
+    func didChangeFeeInclusion(_ isFeeIncluded: Bool) {}
 }
