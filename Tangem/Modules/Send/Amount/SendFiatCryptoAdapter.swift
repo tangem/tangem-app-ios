@@ -17,7 +17,7 @@ protocol SendFiatCryptoAdapterInput: AnyObject {
 }
 
 protocol SendFiatCryptoAdapterOutput: AnyObject {
-    func setAmount(_ amount: Amount?)
+    func setAmount(_ decimal: Decimal?)
 }
 
 class SendFiatCryptoAdapter {
@@ -29,10 +29,21 @@ class SendFiatCryptoAdapter {
 
                 guard let cryptoAmount, let fiatAmount else { return nil }
 
+                let formatter = BalanceFormatter()
                 if useFiatCalculation {
-                    return Amount(type: thisSendFiatCryptoAdapter.amountType, currencySymbol: thisSendFiatCryptoAdapter.currencySymbol, value: cryptoAmount, decimals: thisSendFiatCryptoAdapter.decimals).string()
+                    let formattingOption = BalanceFormattingOptions(
+                        minFractionDigits: BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits,
+                        maxFractionDigits: thisSendFiatCryptoAdapter.decimals,
+                        roundingType: BalanceFormattingOptions.defaultCryptoFormattingOptions.roundingType
+                    )
+
+                    return formatter.formatCryptoBalance(
+                        cryptoAmount,
+                        currencyCode: thisSendFiatCryptoAdapter.currencySymbol,
+                        formattingOptions: formattingOption
+                    )
                 } else {
-                    return BalanceFormatter().formatFiatBalance(fiatAmount)
+                    return formatter.formatFiatBalance(fiatAmount)
                 }
             }
             .eraseToAnyPublisher()
@@ -93,14 +104,8 @@ class SendFiatCryptoAdapter {
     private func bind() {
         _fiatCryptoValue
             .crypto
-            .withWeakCaptureOf(self)
-            .map { thisSendFiatCryptoAdapter, cryptoAmount -> Amount? in
-                guard let cryptoAmount else { return nil }
-
-                return Amount(type: thisSendFiatCryptoAdapter.amountType, currencySymbol: thisSendFiatCryptoAdapter.currencySymbol, value: cryptoAmount, decimals: thisSendFiatCryptoAdapter.decimals)
-            }
-            .sink { [weak self] modelAmount in
-                self?.output?.setAmount(modelAmount)
+            .sink { [weak self] crypto in
+                self?.output?.setAmount(crypto)
             }
             .store(in: &bag)
     }
