@@ -11,7 +11,7 @@ import Combine
 import WalletConnectSwiftV2
 import BlockchainSdk
 
-protocol WalletConnectUserWalletInfoProvider {
+protocol WalletConnectUserWalletInfoProvider: AnyObject {
     var userWalletId: UserWalletId { get }
     var signer: TangemSigner { get }
     var wcWalletModelProvider: WalletConnectWalletModelProvider { get }
@@ -45,7 +45,7 @@ final class WalletConnectV2Service {
         }
     }
 
-    private var infoProvider: WalletConnectUserWalletInfoProvider?
+    private weak var infoProvider: WalletConnectUserWalletInfoProvider?
 
     init(
         uiDelegate: WalletConnectUIDelegate,
