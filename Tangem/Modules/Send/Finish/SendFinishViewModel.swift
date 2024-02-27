@@ -67,6 +67,8 @@ class SendFinishViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.sendTransactionSentScreenOpened)
+
         showHeader = true
         showButtons = true
     }
