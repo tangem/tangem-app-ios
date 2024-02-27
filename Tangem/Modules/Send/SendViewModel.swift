@@ -170,6 +170,7 @@ final class SendViewModel: ObservableObject {
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
+        sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
