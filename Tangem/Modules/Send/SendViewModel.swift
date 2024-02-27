@@ -227,15 +227,6 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
 
         sendModel
-            .isSending
-            .removeDuplicates()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] isSending in
-                self?.setLoadingViewVisibile(isSending)
-            }
-            .store(in: &bag)
-
-        sendModel
             .sendError
             .compactMap { $0 }
             .sink { [weak self] sendError in
@@ -261,15 +252,6 @@ final class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-    }
-
-    private func setLoadingViewVisibile(_ visible: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if visible {
-            appDelegate.addLoadingView()
-        } else {
-            appDelegate.removeLoadingView()
-        }
     }
 
     private func openMail(with error: Error) {
