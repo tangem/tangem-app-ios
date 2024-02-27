@@ -49,7 +49,7 @@ class TokenDetailsHeaderViewModel {
 
     private func prepareTokenComponents() {
         let tokenTypePrefix = tokenItem.blockchain.tokenTypeName ?? ""
-        let networkNameSuffix = tokenItem.blockchain.displayName
+        let networkNameSuffix = tokenItem.blockchain.networkDisplayName
 
         let localizedString = Localization.tokenDetailsTokenTypeSubtitle(tokenTypePrefix, networkNameSuffix)
         do {
