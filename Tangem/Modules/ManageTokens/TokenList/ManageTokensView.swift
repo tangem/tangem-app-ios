@@ -38,7 +38,6 @@ struct ManageTokensView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
-        .padding(.top, 22)
     }
 
     private var list: some View {
