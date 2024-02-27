@@ -13,6 +13,7 @@ class SendRoutableMock: SendRoutable {
     init() {}
 
     func dismiss() {}
+    func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
     func explore(url: URL) {}
     func share(url: URL) {}
