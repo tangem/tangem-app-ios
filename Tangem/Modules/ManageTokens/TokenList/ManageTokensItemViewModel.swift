@@ -25,7 +25,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     // MARK: - Properties
 
     var id: String { coinModel.id }
-    var imageURL: URL? { TokenIconURLBuilder().iconURL(id: coinModel.id, size: .large) }
+    var imageURL: URL? { IconURLBuilder().tokenIconURL(id: coinModel.id, size: .large) }
     var name: String { coinModel.name }
     var symbol: String { coinModel.symbol }
 
