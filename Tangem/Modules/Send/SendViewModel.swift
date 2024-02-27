@@ -144,7 +144,7 @@ final class SendViewModel: ObservableObject {
             cryptoIconURL = nil
         }
 
-        let fiatIconURL = FiatIconURLBuilder().iconURL(currencyCode: AppSettings.shared.selectedCurrencyCode)
+        let fiatIconURL = IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode)
 
         walletInfo = SendWalletInfo(
             walletName: walletName,
