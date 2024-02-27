@@ -269,13 +269,12 @@ final class WalletConnectV2Service {
             )
             displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
         } catch let error as WalletConnectV2Error {
-            canEstablishNewSessionSubject.send(true)
             displayErrorUI(error)
         } catch {
-            canEstablishNewSessionSubject.send(true)
             AppLog.shared.error("[WC 2.0] \(error)")
             displayErrorUI(.unknown(error.localizedDescription))
         }
+        canEstablishNewSessionSubject.send(true)
     }
 
     // MARK: - UI Related
@@ -335,11 +334,11 @@ final class WalletConnectV2Service {
         runTask { [weak self] in
             do {
                 try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejected)
-                self?.canEstablishNewSessionSubject.send(true)
                 self?.log("User reject WC connection")
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
             }
+            self?.canEstablishNewSessionSubject.send(true)
         }
     }
 
