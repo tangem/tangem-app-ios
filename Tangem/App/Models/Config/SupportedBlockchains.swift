@@ -110,7 +110,7 @@ struct SupportedBlockchains {
             .aptos(curve: ed25519Curve(for: version), testnet: false),
             .hedera(curve: ed25519Curve(for: version), testnet: false),
             .areon(testnet: false),
-            .playa3ullGames(testnet: false),
+            .playa3ullGames,
             .pulsechain(testnet: false),
             .aurora(testnet: false),
         ]
@@ -150,7 +150,7 @@ struct SupportedBlockchains {
             .aptos(curve: ed25519Curve(for: version), testnet: true),
             .hedera(curve: ed25519Curve(for: version), testnet: true),
             .areon(testnet: true),
-            .playa3ullGames(testnet: true),
+            .playa3ullGames,
             .pulsechain(testnet: true),
             .aurora(testnet: true),
         ]
