@@ -23,7 +23,7 @@ final class MainHeaderViewModel: ObservableObject {
         subtitleProvider.containsSensitiveInfo
     }
 
-    private let supplementInfoProvider: MainHeaderSupplementInfoProvider
+    private weak var supplementInfoProvider: MainHeaderSupplementInfoProvider?
     private let subtitleProvider: MainHeaderSubtitleProvider
     private let balanceProvider: MainHeaderBalanceProvider
 
@@ -45,12 +45,12 @@ final class MainHeaderViewModel: ObservableObject {
     }
 
     private func bind() {
-        supplementInfoProvider.userWalletNamePublisher
+        supplementInfoProvider?.userWalletNamePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.userWalletName, on: self, ownership: .weak)
             .store(in: &bag)
 
-        supplementInfoProvider.cardHeaderImagePublisher
+        supplementInfoProvider?.cardHeaderImagePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
