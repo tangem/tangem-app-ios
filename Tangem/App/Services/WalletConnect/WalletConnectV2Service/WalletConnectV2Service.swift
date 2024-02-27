@@ -217,8 +217,6 @@ final class WalletConnectV2Service {
                     ]
                 )
 
-                canEstablishNewSessionSubject.send(true)
-
                 log("Session with topic (\(topic)) was found. Deleting session from storage...")
                 await sessionsStorage.remove(session)
             }
@@ -271,8 +269,10 @@ final class WalletConnectV2Service {
             )
             displaySessionConnectionUI(for: proposal, namespaces: sessionNamespaces)
         } catch let error as WalletConnectV2Error {
+            canEstablishNewSessionSubject.send(true)
             displayErrorUI(error)
         } catch {
+            canEstablishNewSessionSubject.send(true)
             AppLog.shared.error("[WC 2.0] \(error)")
             displayErrorUI(.unknown(error.localizedDescription))
         }
@@ -321,7 +321,6 @@ final class WalletConnectV2Service {
             do {
                 log("Namespaces to approve for session connection: \(namespaces)")
                 try await signApi.approve(proposalId: id, namespaces: namespaces)
-                canEstablishNewSessionSubject.send(true)
             } catch let error as WalletConnectV2Error {
                 self.displayErrorUI(error)
             } catch {
