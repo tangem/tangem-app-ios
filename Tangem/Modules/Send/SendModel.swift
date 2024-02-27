@@ -121,10 +121,6 @@ class SendModel {
         bind()
     }
 
-    func prepareForSendingMaxAmount() {
-        didChangeFeeInclusion(true)
-    }
-
     func currentTransaction() -> BlockchainSdk.Transaction? {
         transaction.value
     }
