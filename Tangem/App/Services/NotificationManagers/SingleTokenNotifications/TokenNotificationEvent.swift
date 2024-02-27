@@ -52,7 +52,7 @@ enum TokenNotificationEvent: Hashable {
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             return configuration.isFeeCurrencyPurchaseAllowed
-                ? .openFeeCurrency(currencySymbol: configuration.eventConfiguration.feeAmountTypeCurrencySymbol)
+                ? .openFeeCurrency(currencySymbol: configuration.eventConfiguration.currencyButtonTitle)
                 : nil
         }
     }
