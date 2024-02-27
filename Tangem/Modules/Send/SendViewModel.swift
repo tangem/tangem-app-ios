@@ -29,11 +29,15 @@ final class SendViewModel: ObservableObject {
     }
 
     var showBackButton: Bool {
-        previousStep != nil
+        previousStep != nil && !didReachSummaryScreen
     }
 
     var showNextButton: Bool {
-        nextStep != nil
+        !didReachSummaryScreen
+    }
+
+    var showContinueButton: Bool {
+        didReachSummaryScreen
     }
 
     var showQRCodeButton: Bool {
@@ -86,6 +90,8 @@ final class SendViewModel: ObservableObject {
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
+
+    private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
         $step
@@ -177,6 +183,7 @@ final class SendViewModel: ObservableObject {
         fiatCryptoAdapter.setOutput(sendModel)
         sendAmountViewModel.setFiatCryptoAdapter(fiatCryptoAdapter)
 
+        sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
@@ -203,6 +210,10 @@ final class SendViewModel: ObservableObject {
         openStep(previousStep, stepAnimation: .slideBackward)
     }
 
+    func `continue`() {
+        openStep(.summary, stepAnimation: nil)
+    }
+
     func scanQRCode() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             showCameraDeniedAlert = true
@@ -227,15 +238,6 @@ final class SendViewModel: ObservableObject {
                 !$0
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        sendModel
-            .isSending
-            .removeDuplicates()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] isSending in
-                self?.setLoadingViewVisibile(isSending)
-            }
             .store(in: &bag)
 
         sendModel
@@ -266,15 +268,6 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func setLoadingViewVisibile(_ visible: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if visible {
-            appDelegate.addLoadingView()
-        } else {
-            appDelegate.removeLoadingView()
-        }
-    }
-
     private func openMail(with error: Error) {
         guard let transaction = sendModel.currentTransaction() else { return }
 
@@ -292,6 +285,10 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
+        if case .summary = step {
+            didReachSummaryScreen = true
+        }
+
         self.stepAnimation = stepAnimation
 
         if stepAnimation != nil {
