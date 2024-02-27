@@ -1,5 +1,5 @@
 //
-//  TokenIconURLBuilder.swift
+//  IconURLBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,14 +8,14 @@
 
 import Foundation
 
-struct TokenIconURLBuilder: TokenIconURLBuilding {
+struct IconURLBuilder {
     private let baseURL: URL
 
     init(baseURL: URL = URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/")!) {
         self.baseURL = baseURL
     }
 
-    func iconURL(id: String, size: TokenURLIconSize = .large) -> URL {
+    func tokenIconURL(id: String, size: TokenURLIconSize = .large) -> URL {
         baseURL
             .appendingPathComponent("coins")
             .appendingPathComponent(size.rawValue)
