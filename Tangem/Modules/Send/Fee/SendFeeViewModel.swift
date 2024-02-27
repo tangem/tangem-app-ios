@@ -235,6 +235,10 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func selectFeeOption(_ feeOption: FeeOption) {
+        if feeOption == .custom {
+            Analytics.log(.sendCustomFeeClicked)
+        }
+
         selectedFeeOption = feeOption
         input.didSelectFeeOption(feeOption)
         showCustomFeeFields = feeOption == .custom
