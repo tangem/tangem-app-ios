@@ -22,12 +22,12 @@ protocol SendFiatCryptoAdapterOutput: AnyObject {
 
 class SendFiatCryptoAdapter {
     var amountAlternative: AnyPublisher<String?, Never> {
-        Publishers.CombineLatest3(_useFiatCalculation, _fiatCryptoValue.fiat, _fiatCryptoValue.crypto)
+        Publishers.CombineLatest(_useFiatCalculation, $_fiatCryptoValue)
             .withWeakCaptureOf(self)
             .map { thisSendFiatCryptoAdapter, params -> String? in
-                let (useFiatCalculation, fiatAmount, cryptoAmount) = params
+                let (useFiatCalculation, fiatCryptoValue) = params
 
-                guard let cryptoAmount, let fiatAmount else { return nil }
+                guard let cryptoValue = fiatCryptoValue.crypto, let fiatValue = fiatCryptoValue.fiat else { return nil }
 
                 let formatter = BalanceFormatter()
                 if useFiatCalculation {
@@ -38,12 +38,12 @@ class SendFiatCryptoAdapter {
                     )
 
                     return formatter.formatCryptoBalance(
-                        cryptoAmount,
+                        cryptoValue,
                         currencyCode: thisSendFiatCryptoAdapter.currencySymbol,
                         formattingOptions: formattingOption
                     )
                 } else {
-                    return formatter.formatFiatBalance(fiatAmount)
+                    return formatter.formatFiatBalance(fiatValue)
                 }
             }
             .eraseToAnyPublisher()
@@ -53,7 +53,7 @@ class SendFiatCryptoAdapter {
     private let currencySymbol: String
     private let decimals: Int
 
-    private var _fiatCryptoValue: FiatCryptoValue
+    @Published private var _fiatCryptoValue: FiatCryptoValue
     private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
     private weak var input: SendFiatCryptoAdapterInput?
@@ -102,8 +102,8 @@ class SendFiatCryptoAdapter {
     }
 
     private func bind() {
-        _fiatCryptoValue
-            .crypto
+        $_fiatCryptoValue
+            .map(\.crypto)
             .sink { [weak self] crypto in
                 self?.output?.setAmount(crypto)
             }
@@ -111,7 +111,7 @@ class SendFiatCryptoAdapter {
     }
 
     private func setUserInputAmount() {
-        let newAmount = _useFiatCalculation.value ? _fiatCryptoValue.fiat.value : _fiatCryptoValue.crypto.value
+        let newAmount = _useFiatCalculation.value ? _fiatCryptoValue.fiat : _fiatCryptoValue.crypto
         if let newAmount {
             input?.setUserInputAmount(.external(newAmount))
         } else {
@@ -121,9 +121,9 @@ class SendFiatCryptoAdapter {
 }
 
 private extension SendFiatCryptoAdapter {
-    class FiatCryptoValue {
-        private(set) var crypto = CurrentValueSubject<Decimal?, Never>(nil)
-        private(set) var fiat = CurrentValueSubject<Decimal?, Never>(nil)
+    struct FiatCryptoValue {
+        private(set) var crypto: Decimal?
+        private(set) var fiat: Decimal?
 
         private let decimals: Int
         private let cryptoCurrencyId: String?
@@ -134,27 +134,27 @@ private extension SendFiatCryptoAdapter {
             self.cryptoCurrencyId = cryptoCurrencyId
         }
 
-        func setCrypto(_ crypto: Decimal?) {
-            guard self.crypto.value != crypto else { return }
+        mutating func setCrypto(_ crypto: Decimal?) {
+            guard self.crypto != crypto else { return }
 
-            self.crypto.send(crypto)
+            self.crypto = crypto
 
             if let cryptoCurrencyId, let crypto {
-                fiat.send(balanceConverter.convertToFiat(value: crypto, from: cryptoCurrencyId)?.rounded(scale: 2))
+                fiat = balanceConverter.convertToFiat(value: crypto, from: cryptoCurrencyId)?.rounded(scale: 2)
             } else {
-                fiat.send(nil)
+                fiat = nil
             }
         }
 
-        func setFiat(_ fiat: Decimal?) {
-            guard self.fiat.value != fiat else { return }
+        mutating func setFiat(_ fiat: Decimal?) {
+            guard self.fiat != fiat else { return }
 
-            self.fiat.send(fiat)
+            self.fiat = fiat
 
             if let cryptoCurrencyId, let fiat {
-                crypto.send(balanceConverter.convertFromFiat(value: fiat, to: cryptoCurrencyId)?.rounded(scale: decimals))
+                crypto = balanceConverter.convertFromFiat(value: fiat, to: cryptoCurrencyId)?.rounded(scale: decimals)
             } else {
-                crypto.send(nil)
+                crypto = nil
             }
         }
     }
