@@ -29,10 +29,13 @@ struct TransactionSendAvailabilityProvider {
 
         // no fee
         if !wallet.hasFeeCurrency(amountType: walletModel.amountType), !currentAmount.isZero {
-//            uncomment if necessary
-//            if walletModel.tokenItem.name == "Arbitrum", walletModel.tokenItem.token?.symbol == "ARB" {
-//                buttonTitle = "Arbitrum (ETH)"
-//            }
+            // [REDACTED_INFO] hack for arbitrum
+            var currencyButtonTitle = walletModel.feeTokenItem.currencySymbol
+            if walletModel.tokenItem.id == "arbitrum",
+               walletModel.tokenItem.blockchain.networkId == "arbitrum-one" {
+                currencyButtonTitle = walletModel.feeTokenItem.blockchain.displayName +
+                    " (\(walletModel.feeTokenItem.blockchain.currencySymbol))"
+            }
 
             return .zeroFeeCurrencyBalance(
                 configuration: .init(
@@ -41,7 +44,7 @@ struct TransactionSendAvailabilityProvider {
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
                     feeAmountTypeIconName: walletModel.feeTokenItem.blockchain.iconNameFilled,
                     networkName: walletModel.tokenItem.networkName,
-                    currencyButtonTitle: "\(walletModel.feeTokenItem.name) (\(walletModel.feeTokenItem.currencySymbol))"
+                    currencyButtonTitle: currencyButtonTitle
                 )
             )
         }
@@ -74,22 +77,6 @@ extension TransactionSendAvailabilityProvider {
             let feeAmountTypeIconName: String
             let networkName: String
             let currencyButtonTitle: String
-
-            init(
-                transactionAmountTypeName: String,
-                feeAmountTypeName: String,
-                feeAmountTypeCurrencySymbol: String,
-                feeAmountTypeIconName: String,
-                networkName: String,
-                currencyButtonTitle: String? = nil
-            ) {
-                self.transactionAmountTypeName = transactionAmountTypeName
-                self.feeAmountTypeName = feeAmountTypeName
-                self.feeAmountTypeCurrencySymbol = feeAmountTypeCurrencySymbol
-                self.feeAmountTypeIconName = feeAmountTypeIconName
-                self.networkName = networkName
-                self.currencyButtonTitle = currencyButtonTitle ?? feeAmountTypeCurrencySymbol
-            }
         }
 
         var description: String? {
