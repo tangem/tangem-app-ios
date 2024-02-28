@@ -12,12 +12,6 @@ import SwiftUI
 struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
-    init(coordinator: WelcomeCoordinator) {
-        self.coordinator = coordinator
-    }
-
     var body: some View {
         ZStack {
             content
