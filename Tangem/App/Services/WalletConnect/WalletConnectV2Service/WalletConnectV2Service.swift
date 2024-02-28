@@ -107,9 +107,12 @@ final class WalletConnectV2Service {
             await sessionsStorage.remove(session)
         } catch {
             let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-            if case .sessionForTopicNotFound = internalError {
+            switch internalError {
+            case .sessionForTopicNotFound, .symmetricKeyForTopicNotFound:
                 await sessionsStorage.remove(session)
                 return
+            default:
+                break
             }
             AppLog.shared.error("[WC 2.0] Failed to disconnect session with topic: \(session.topic) with error: \(error)")
         }
@@ -448,8 +451,16 @@ final class WalletConnectV2Service {
         if let error {
             params[.validation] = Analytics.ParameterValue.fail.rawValue
             params[.errorCode] = "\(error.code)"
+            let errorDescription: String
+            if case .unknown(let externalErrorMessage) = error {
+                errorDescription = externalErrorMessage
+            } else {
+                errorDescription = error.errorDescription ?? "No error description"
+            }
+            params[.errorDescription] = errorDescription
         } else {
             params[.validation] = Analytics.ParameterValue.success.rawValue
+            params[.errorCode] = "0"
         }
 
         Analytics.log(event: .requestHandled, params: params)
