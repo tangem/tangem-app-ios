@@ -108,7 +108,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
                                 .frame(width: 16, height: 16)
                                 .foregroundColor(Colors.Icon.informative)
 
-                            Text("ID: \(transactionID)")
+                            Text(Localization.expressTransactionId(transactionID))
                                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                         }
                         .lineLimit(1)
