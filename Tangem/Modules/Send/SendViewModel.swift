@@ -392,9 +392,9 @@ extension SendViewModel: NotificationTapDelegate {
             sendModel.updateFees()
         case .openFeeCurrency:
             openNetworkCurrency()
-        case .reduceBy(let amount, _):
+        case .reduceAmountBy(let amount, _):
             reduceAmountBy(amount)
-        case .reduceTo(let amount, _):
+        case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
         default:
             assertionFailure("Notification tap not handled")
