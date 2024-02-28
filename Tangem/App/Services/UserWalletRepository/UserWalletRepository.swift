@@ -21,7 +21,6 @@ protocol UserWalletRepository: Initializable {
     var isLocked: Bool { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
 
-    func lock(reason: UserWalletRepositoryLockReason)
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
     func setSelectedUserWalletId(_ userWalletId: Data?, unlockIfNeeded: Bool, reason: UserWalletRepositorySelectionChangeReason)
     func updateSelection()
