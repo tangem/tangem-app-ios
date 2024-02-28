@@ -177,7 +177,7 @@ class WalletModel {
 
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
-    
+
     // [REDACTED_INFO] currently used as hack for arbitrum
     var feeDisplayName: String {
         var feeDisplayName = feeTokenItem.currencySymbol
