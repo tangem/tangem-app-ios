@@ -55,7 +55,6 @@ public struct BottomSheetInfoView: View {
 
 // MARK: - Previews
 
-@available(iOS 15.0, *)
 struct BottomSheetInfoView_Previews: PreviewProvider {
     struct StatableContainer: View {
         @State private var item: BottomSheetInfoViewModel?
