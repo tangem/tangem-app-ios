@@ -43,6 +43,13 @@ struct SendFeeView: View {
             }
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
 
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                ForEach(viewModel.feeLevelsNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
+            }
+
             if !viewModel.animatingAuxiliaryViewsOnAppear,
                viewModel.showCustomFeeFields,
                let customFeeModel = viewModel.customFeeModel,
@@ -54,6 +61,11 @@ struct SendFeeView: View {
                     SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
+
+                ForEach(viewModel.customFeeNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
@@ -64,11 +76,11 @@ struct SendFeeView: View {
                         .animation(.default, value: viewModel.subtractFromAmountFooterText)
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
-            }
 
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-                    .transition(.notificationTransition)
+                ForEach(viewModel.feeCoverageNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
 
             Spacer(minLength: bottomSpacing)
@@ -112,6 +124,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeUserWalletNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
     }
 }
