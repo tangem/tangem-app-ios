@@ -130,6 +130,10 @@ extension UIColor {
         return UIColor(named: "TextDisabled")!
     }
 
+    @nonobjc static var iconInformative: UIColor {
+        return UIColor(named: "IconInformative")!
+    }
+
     // ☝️☝️☝️ End of UIColors from the new palette ☝️☝️☝️
 
     // MARK: Background

@@ -20,13 +20,24 @@ struct ExpressApproveView: View {
             headerView
 
             VStack(spacing: 22) {
-                content
+                GroupedSection(viewModel.menuRowViewModel) {
+                    DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
+                } footer: {
+                    DefaultFooterView(Localization.swappingPermissionPolicyTypeFooter)
+                }
+
+                GroupedSection(viewModel.feeRowViewModel) {
+                    DefaultRowView(viewModel: $0)
+                } footer: {
+                    DefaultFooterView(Localization.swappingPermissionFeeFooter)
+                }
 
                 buttons
             }
+            .padding(.top, 10)
+            .padding(.bottom, 6)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 6)
         .background(Colors.Background.tertiary)
         .alert(item: $viewModel.errorAlert) { $0.alert }
     }
@@ -42,24 +53,6 @@ struct ExpressApproveView: View {
                     .foregroundColor(Colors.Icon.informative)
                     .padding(.top, 4)
             }
-        }
-    }
-
-    private var content: some View {
-        VStack(spacing: 0) {
-            GroupedSection(viewModel.menuRowViewModel) {
-                DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction)
-            } footer: {
-                DefaultFooterView(Localization.swappingPermissionPolicyTypeFooter)
-            }
-            .backgroundColor(Colors.Background.action)
-
-            GroupedSection(viewModel.feeRowViewModel) {
-                DefaultRowView(viewModel: $0)
-            } footer: {
-                DefaultFooterView(Localization.swappingPermissionFeeFooter)
-            }
-            .backgroundColor(Colors.Background.action)
         }
     }
 
