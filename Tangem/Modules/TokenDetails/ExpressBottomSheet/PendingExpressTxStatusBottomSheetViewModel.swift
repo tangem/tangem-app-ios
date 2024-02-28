@@ -109,7 +109,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     func copyTransactionID() {
         UIPasteboard.general.string = transactionID
 
-        let toastView = SuccessToast(text: "Transaction ID copied")
+        let toastView = SuccessToast(text: Localization.expressTransactionIdCopied)
         successToast = Toast(view: toastView)
         successToast?.present(layout: .top(padding: 14), type: .temporary())
     }
