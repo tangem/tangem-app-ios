@@ -36,12 +36,14 @@ class StoriesViewModel: ObservableObject {
     init() {
         runTask { [weak self] in
             guard let self else { return }
-
-            let isNewCard = true
-            let userWalletId: String? = nil
-            await promotionService.checkPromotion(isNewCard: isNewCard, userWalletId: userWalletId, timeout: promotionCheckTimeout)
-            await didFinishCheckingPromotion()
         }
+    }
+
+    func checkPromotion() async {
+        let isNewCard = true
+        let userWalletId: String? = nil
+        await promotionService.checkPromotion(isNewCard: isNewCard, userWalletId: userWalletId, timeout: promotionCheckTimeout)
+        await didFinishCheckingPromotion()
     }
 
     func onAppear() {
