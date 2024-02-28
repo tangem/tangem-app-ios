@@ -175,9 +175,9 @@ class CommonPendingExpressTransactionsManager {
 
     private func filterRelatedTokenTransactions(list: [ExpressPendingTransactionRecord]) -> [ExpressPendingTransactionRecord] {
         list.filter { record in
-//            guard !record.isHidden else {
-//                return false
-//            }
+            guard !record.isHidden else {
+                return false
+            }
 
             // We should show only CEX transaction on UI
             guard record.provider.type == .cex else {
