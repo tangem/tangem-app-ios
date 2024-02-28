@@ -29,14 +29,6 @@ struct TransactionSendAvailabilityProvider {
 
         // no fee
         if !wallet.hasFeeCurrency(amountType: walletModel.amountType), !currentAmount.isZero {
-            // [REDACTED_INFO] hack for arbitrum
-            var currencyButtonTitle = walletModel.feeTokenItem.currencySymbol
-            if walletModel.tokenItem.id == "arbitrum",
-               walletModel.tokenItem.blockchain.networkId == "arbitrum-one" {
-                currencyButtonTitle = walletModel.feeTokenItem.blockchain.displayName +
-                    " (\(walletModel.feeTokenItem.blockchain.currencySymbol))"
-            }
-
             return .zeroFeeCurrencyBalance(
                 configuration: .init(
                     transactionAmountTypeName: walletModel.tokenItem.name,
@@ -44,7 +36,7 @@ struct TransactionSendAvailabilityProvider {
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
                     feeAmountTypeIconName: walletModel.feeTokenItem.blockchain.iconNameFilled,
                     networkName: walletModel.tokenItem.networkName,
-                    currencyButtonTitle: currencyButtonTitle
+                    currencyButtonTitle: walletModel.feeDisplayName
                 )
             )
         }
