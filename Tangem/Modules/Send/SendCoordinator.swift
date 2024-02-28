@@ -70,6 +70,10 @@ extension SendCoordinator: SendRoutable {
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
     }
 
+    func openFeeExplanation(url: URL) {
+        safariManager.openURL(url)
+    }
+
     func explore(url: URL) {
         safariManager.openURL(url)
     }
