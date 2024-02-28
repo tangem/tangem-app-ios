@@ -28,17 +28,28 @@ protocol SendSummaryViewModelInput: AnyObject {
 }
 
 class SendSummaryViewModel: ObservableObject {
+    let walletSummaryViewModel: SendWalletSummaryViewModel
     let canEditAmount: Bool
     let canEditDestination: Bool
 
+    var sendButtonText: String {
+        isSending ? Localization.sendSending : Localization.commonSend
+    }
+
+    var sendButtonIcon: MainButton.Icon? {
+        isSending ? nil : .trailing(Assets.tangemIcon)
+    }
+
+    @Published var isSendButtonDisabled = false
     @Published var isSending = false
     @Published var alert: AlertBinder?
 
-    let walletSummaryViewModel: SendWalletSummaryViewModel
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: AmountSummaryViewData?
     @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
     @Published var feeOptionIcon: Image?
+
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     weak var router: SendSummaryRoutable?
 
@@ -46,9 +57,11 @@ class SendSummaryViewModel: ObservableObject {
     private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
+    private let notificationManager: SendNotificationManager
 
-    init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
+        self.notificationManager = notificationManager
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
@@ -78,6 +91,10 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func didTapSummary(for step: SendStep) {
+        if isSending {
+            return
+        }
+
         router?.openStep(step)
     }
 
@@ -143,6 +160,16 @@ class SendSummaryViewModel: ObservableObject {
                 $0.icon.image
             }
             .assign(to: \.feeOptionIcon, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager
+            .notificationPublisher(for: .summary)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager
+            .hasNotifications(with: .critical)
+            .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
 }
