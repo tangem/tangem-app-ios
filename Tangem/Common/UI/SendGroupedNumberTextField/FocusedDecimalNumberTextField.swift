@@ -17,6 +17,7 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     private let toolbarButton: () -> ToolbarButton
 
     private var initialFocusBehavior: InitialFocusBehavior = .immediateFocus
+    private var onFocusChanged: ((Bool) -> Void)?
     private var maximumFractionDigits: Int
     private var placeholderColor: Color = Colors.Text.disabled
     private var textColor: Color = Colors.Text.primary1
@@ -67,6 +68,9 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
                 }
         }
         .lineLimit(1)
+        .onChange(of: isInputActive) { isInputActive in
+            onFocusChanged?(isInputActive)
+        }
     }
 
     @ViewBuilder
@@ -106,6 +110,10 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
 // MARK: - Setupable
 
 extension FocusedDecimalNumberTextField: Setupable {
+    func onFocusChanged(_ action: ((Bool) -> Void)?) -> Self {
+        map { $0.onFocusChanged = action }
+    }
+
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
     }
