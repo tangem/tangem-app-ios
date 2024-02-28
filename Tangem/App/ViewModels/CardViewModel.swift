@@ -291,6 +291,10 @@ class CardViewModel: Identifiable, ObservableObject {
         userTokensManager.sync {}
     }
 
+    deinit {
+        Log.debug("CardViewModel deinit 🥳🤟")
+    }
+
     func setupWarnings() {
         warningsService.setupWarnings(
             for: config,
