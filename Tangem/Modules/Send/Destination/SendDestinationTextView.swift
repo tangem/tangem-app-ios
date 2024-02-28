@@ -12,6 +12,7 @@ struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
 
     private var namespace: Namespace.ID?
+    private var containerNamespaceId: String?
     private var iconNamespaceId: String?
     private var titleNamespaceId: String?
     private var textNamespaceId: String?
@@ -53,7 +54,7 @@ struct SendDestinationTextView: View {
             }
         }
         .innerContentPadding(2)
-        .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
+        .backgroundColor(Colors.Background.action, id: containerNamespaceId, namespace: namespace)
         .onAppear {
             viewModel.onAppear()
         }
@@ -159,6 +160,10 @@ struct SendDestinationTextView: View {
 extension SendDestinationTextView: Setupable {
     func setNamespace(_ namespace: Namespace.ID) -> Self {
         map { $0.namespace = namespace }
+    }
+
+    func setContainerNamespaceId(_ containerNamespaceId: String) -> Self {
+        map { $0.containerNamespaceId = containerNamespaceId }
     }
 
     func setIconNamespaceId(_ iconNamespaceId: String) -> Self {
