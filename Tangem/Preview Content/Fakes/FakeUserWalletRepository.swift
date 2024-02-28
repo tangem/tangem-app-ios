@@ -91,6 +91,4 @@ class FakeUserWalletRepository: UserWalletRepository {
     func initialClean() {}
 
     func setSaving(_ enabled: Bool) {}
-
-    func lock(reason: UserWalletRepositoryLockReason) {}
 }
