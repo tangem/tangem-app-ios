@@ -16,14 +16,13 @@ struct AuthCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        Self._printChanges()
-        return ZStack {
+        ZStack {
             content
                 .removeAnimation()
 
             sheets
         }
-        .animation(.default, value: coordinator.viewState?.isMain == true)
+        .animation(.default, value: coordinator.viewState)
         .navigationBarHidden(coordinator.viewState?.isMain != true)
     }
 

@@ -21,11 +21,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
             sheets
-            Button(action: {
-                userWalletRepository.lock(reason: .loggedOut)
-            }, label: {
-                Text("Log out")
-            })
         }
     }
 
