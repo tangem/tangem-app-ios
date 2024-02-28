@@ -106,12 +106,7 @@ struct NotificationView: View {
                     Text(string)
                         .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
                 case .attributed(let attributedString):
-                    if #available(iOS 15, *) {
-                        Text(AttributedString(attributedString))
-                    } else {
-                        Text(attributedString.string)
-                            .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
-                    }
+                    Text(attributedString)
                 }
 
                 if let description = settings.event.description {
