@@ -18,6 +18,7 @@ final class ManageTokensViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
+    @Published var viewDidAppear: Bool = false
 
     // MARK: - Properties
 
@@ -50,7 +51,19 @@ final class ManageTokensViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.manageTokensScreenOpened)
+    }
+
+    func onBottomAppear() {
+        // Need for locked fetchMore process when bottom sheet not yet open
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.viewDidAppear = true
+        }
+    }
+
+    func onBottomDisappear() {
         loader.reset("")
+        fetch(with: "")
+        viewDidAppear = false
     }
 
     func fetchMore() {
@@ -92,9 +105,11 @@ private extension ManageTokensViewModel {
             .sink { [weak self] value in
                 if !value.isEmpty {
                     Analytics.log(.manageTokensSearched)
+
+                    // It is necessary to hide it under this condition for disable to eliminate the flickering of the animation
+                    self?.setNeedDisplayTokensListSkeletonView()
                 }
 
-                self?.setNeedDisplayTokensListSkeletonView()
                 self?.fetch(with: value)
             }
             .store(in: &bag)
@@ -163,7 +178,8 @@ private extension ManageTokensViewModel {
 
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
-                isShowAddCustomToken = tokenViewModels.isEmpty
+
+                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.isMultiWallet })
             })
             .store(in: &bag)
 
