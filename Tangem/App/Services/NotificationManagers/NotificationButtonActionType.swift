@@ -18,8 +18,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case goToProvider
     case exchange
     case reduceAmount(byAmount: Decimal, currencySymbol: String)
-    case reduceBy(amount: Decimal, amountFormatted: String)
-    case reduceTo(amount: Decimal, amountFormatted: String)
+    case reduceAmountBy(amount: Decimal, amountFormatted: String)
+    case reduceAmountTo(amount: Decimal, amountFormatted: String)
 
     var id: Int { hashValue }
 
@@ -45,9 +45,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.tokenSwapPromotionButton
         case .reduceAmount(let amount, let currencySymbol):
             return Localization.sendNotificationReduceTo("\(amount) \(currencySymbol)")
-        case .reduceBy(_, let amountFormatted):
+        case .reduceAmountBy(_, let amountFormatted):
             return Localization.sendNotificationReduceBy(amountFormatted)
-        case .reduceTo(_, let amountFormatted):
+        case .reduceAmountTo(_, let amountFormatted):
             return Localization.sendNotificationReduceTo(amountFormatted)
         }
     }
@@ -58,7 +58,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return .trailing(Assets.tangemIcon)
         case .exchange:
             return .leading(Assets.exchangeMini)
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmount, .reduceBy, .reduceTo:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmount, .reduceAmountBy, .reduceAmountTo:
             return nil
         }
     }
@@ -67,7 +67,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmount, .reduceBy, .reduceTo:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmount, .reduceAmountBy, .reduceAmountTo:
             return .secondary
         case .exchange:
             return .exchangePromotionWhite
