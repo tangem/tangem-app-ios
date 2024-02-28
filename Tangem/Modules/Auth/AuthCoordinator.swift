@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 class AuthCoordinator: CoordinatorObject {
-    enum ViewState {
+    enum ViewState: Equatable {
         case auth(AuthViewModel)
         case main(MainCoordinator)
 
@@ -19,6 +19,15 @@ class AuthCoordinator: CoordinatorObject {
                 return true
             }
             return false
+        }
+
+        static func == (lhs: AuthCoordinator.ViewState, rhs: AuthCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.auth, .auth), (.main, .main):
+                return true
+            default:
+                return false
+            }
         }
     }
 
