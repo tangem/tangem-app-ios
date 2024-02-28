@@ -226,16 +226,12 @@ extension DetailsViewModel {
     }
 
     func setupSupportSectionModels() {
-        supportSectionModels = [
-            DefaultRowViewModel(title: Localization.detailsChat, action: weakify(self, forFunction: DetailsViewModel.openSupportChat)),
-        ]
-
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: weakify(self, forFunction: DetailsViewModel.openReferral)))
         }
 
         if userWalletModel.config.emailConfig != nil {
-            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: weakify(self, forFunction: DetailsViewModel.openMail)))
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleContactToSupport, action: weakify(self, forFunction: DetailsViewModel.openMail)))
         }
     }
 
