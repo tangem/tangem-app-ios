@@ -45,7 +45,10 @@ struct SendFeeView: View {
                let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
                 Group {
                     SendCustomFeeInputField(viewModel: customFeeModel)
+
                     SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
+                        .onFocusChanged(viewModel.onCustomGasPriceFocusChanged)
+
                     SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
