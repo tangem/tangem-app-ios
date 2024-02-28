@@ -195,7 +195,7 @@
 "express_by_provider" = "Предоставлено %@";
 "express_cex_fee_explanation" = "Кроме того, в курс обмена включена комиссия сети за отправку обмененных средств на ваш адрес";
 "express_cex_status_button_title" = "Статус";
-"express_choose_providers_subtitle" = "Провайдеры проводят транзакции, обеспечивая плавный и эффективный обмен токенами";
+"express_choose_providers_subtitle" = "Tangem предоставляет доступ к обмену через сторонних поставщиков в соответствии с их правилами";
 "express_choose_providers_title" = "Выберите провайдера";
 "express_error_code" = "Произошла ошибка. Код: %@";
 "express_estimated_amount" = "Курс обмена";
