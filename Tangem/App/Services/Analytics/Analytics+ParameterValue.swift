@@ -72,6 +72,7 @@ extension Analytics {
         case destinationAddressPasteButton = "PasteButton"
         case destinationAddressPastePopup = "PastePopup"
         case destinationAddressRecentAddress = "RecentAddress"
+        case destinationAddressMyWallet = "MyWallet"
 
         case success = "Success"
         case fail = "Fail"
