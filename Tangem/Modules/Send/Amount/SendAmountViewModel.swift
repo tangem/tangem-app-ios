@@ -59,15 +59,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         fiatIconURL = walletInfo.fiatIconURL
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
 
-        let fiatCryptoAdapter = SendFiatCryptoAdapter(
+        fiatCryptoAdapter = SendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
             currencySymbol: walletInfo.cryptoCurrencyCode,
-            decimals: walletInfo.amountFractionDigits
+            decimals: walletInfo.amountFractionDigits,
+            input: self,
+            output: fiatCryptoAdapterOutput
         )
-
-        fiatCryptoAdapter.setInput(self)
-        fiatCryptoAdapter.setOutput(fiatCryptoAdapterOutput)
-        setFiatCryptoAdapter(fiatCryptoAdapter)
 
         bind(from: input)
     }
@@ -80,11 +78,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 animatingAuxiliaryViewsOnAppear = false
             }
         }
-    }
-
-    func setFiatCryptoAdapter(_ fiatCryptoAdapter: SendFiatCryptoAdapter) {
-        self.fiatCryptoAdapter = fiatCryptoAdapter
-        bind(from: fiatCryptoAdapter)
     }
 
     func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
@@ -120,10 +113,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
                 self?.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
             }
             .store(in: &bag)
-    }
 
-    private func bind(from fiatCryptoAdapter: SendFiatCryptoAdapter) {
-        fiatCryptoAdapter
+        fiatCryptoAdapter?
             .amountAlternative
             .assign(to: \.amountAlternative, on: self, ownership: .weak)
             .store(in: &bag)
