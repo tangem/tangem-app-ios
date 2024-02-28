@@ -184,8 +184,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
     static var defaultViewModel: PendingExpressTxStatusBottomSheetViewModel = {
         let factory = PendingExpressTransactionFactory()
         let userWalletId = "21321"
-        let tokenItem = TokenItem.blockchain(.polygon(testnet: false))
-        let blockchainNetwork = BlockchainNetwork(.polygon(testnet: false))
+        let tokenItem = TokenItem.blockchain(.init(.polygon(testnet: false), derivationPath: nil))
         let record = ExpressPendingTransactionRecord(
             userWalletId: userWalletId,
             expressTransactionId: "1bd298ee-2e99-406e-a25f-a715bb87e806",
@@ -193,13 +192,11 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             transactionHash: "13213124321",
             sourceTokenTxInfo: .init(
                 tokenItem: tokenItem,
-                blockchainNetwork: blockchainNetwork,
                 amountString: "10",
                 isCustom: true
             ),
             destinationTokenTxInfo: .init(
-                tokenItem: .token(.shibaInuMock, .ethereum(testnet: false)),
-                blockchainNetwork: .init(.ethereum(testnet: false)),
+                tokenItem: .token(.shibaInuMock, .init(.ethereum(testnet: false), derivationPath: nil)),
                 amountString: "1",
                 isCustom: false
             ),
@@ -222,7 +219,6 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             currentTokenItem: tokenItem,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
-                blockchainNetwork: blockchainNetwork,
                 tokenItem: tokenItem
             ),
             router: TokenDetailsCoordinator()
