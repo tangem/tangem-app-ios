@@ -177,6 +177,16 @@ class WalletModel {
 
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
+    
+    // [REDACTED_INFO] currently used as hack for arbitrum
+    var feeDisplayName: String {
+        var feeDisplayName = feeTokenItem.currencySymbol
+        if tokenItem.id == "arbitrum",
+           tokenItem.blockchain.networkId == "arbitrum-one" {
+            feeDisplayName = feeTokenItem.blockchain.displayName + " (\(feeTokenItem.blockchain.currencySymbol))"
+        }
+        return feeDisplayName
+    }
 
     var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
         TransactionSendAvailabilityProvider().sendingRestrictions(walletModel: self)
