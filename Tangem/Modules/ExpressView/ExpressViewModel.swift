@@ -38,7 +38,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var alert: AlertBinder?
 
-    @Published var legalText: NSAttributedString?
+    @Published var legalText: AttributedString?
 
     // MARK: - Dependencies
 
@@ -110,21 +110,26 @@ final class ExpressViewModel: ObservableObject {
         coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
-    func userDidTapPriceChangeInfoButton() {
+    func userDidTapPriceChangeInfoButton(isBigLoss: Bool) {
         runTask(in: self) { viewModel in
-            let message: String? = await {
-                switch await viewModel.interactor.getSelectedProvider()?.provider.type {
-                case .none:
-                    return nil
-                case .cex:
-                    return Localization.expressCexFeeExplanation
-                case .dex:
-                    return Localization.swappingHighPriceImpactDescription
-                }
-            }()
-
-            guard let message else {
+            guard let providerType = await viewModel.interactor.getSelectedProvider()?.provider.type else {
                 return
+            }
+
+            var message: String
+
+            switch providerType {
+            case .cex:
+                message = Localization.expressCexFeeExplanation
+                if isBigLoss {
+                    let tokenItemSymbol = viewModel.interactor.getSender().tokenItem.currencySymbol
+                    message += "\n\n\(Localization.swappingAlertCexDescription(tokenItemSymbol))"
+                }
+            case .dex:
+                message = Localization.swappingAlertDexDescription
+                if isBigLoss {
+                    message += "\n\n\(Localization.swappingHighPriceImpactDescription)"
+                }
             }
 
             await runOnMain {
@@ -597,7 +602,7 @@ extension ExpressViewModel: NotificationTapDelegate {
     private func openNetworkCurrency() {
         guard
             let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == .blockchain(initialWallet.tokenItem.blockchain) && $0.blockchainNetwork == initialWallet.blockchainNetwork
+                $0.tokenItem == initialWallet.tokenItem
             })
         else {
             assertionFailure("Network currency WalletModel not found")
