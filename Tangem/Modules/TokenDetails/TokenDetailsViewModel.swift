@@ -33,7 +33,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             return nil
         }
 
-        return TokenIconURLBuilder().iconURL(id: id)
+        return IconURLBuilder().tokenIconURL(id: id)
     }
 
     var customTokenColor: Color? {
