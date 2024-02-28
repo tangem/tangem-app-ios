@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
     var transactionID: String? {
@@ -43,6 +44,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     private var subscription: AnyCancellable?
     private var notificationUpdateWorkItem: DispatchWorkItem?
     private weak var router: PendingExpressTxStatusRoutable?
+    private var successToast: Toast<SuccessToast>?
 
     init(
         pendingTransaction: PendingExpressTransaction,
@@ -105,7 +107,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func copyTransactionID() {
-        print("copyTransactionID")
+        UIPasteboard.general.string = transactionID
+
+        let toastView = SuccessToast(text: "Transaction ID copied")
+        successToast = Toast(view: toastView)
+        successToast?.present(layout: .top(padding: 14), type: .temporary())
     }
 
     private func openProvider() {
