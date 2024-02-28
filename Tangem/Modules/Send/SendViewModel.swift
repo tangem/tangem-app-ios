@@ -29,11 +29,15 @@ final class SendViewModel: ObservableObject {
     }
 
     var showBackButton: Bool {
-        previousStep != nil
+        previousStep != nil && !didReachSummaryScreen
     }
 
     var showNextButton: Bool {
-        nextStep != nil
+        !didReachSummaryScreen
+    }
+
+    var showContinueButton: Bool {
+        didReachSummaryScreen
     }
 
     var showQRCodeButton: Bool {
@@ -86,6 +90,8 @@ final class SendViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
 
+    private var didReachSummaryScreen = false
+
     private var currentStepValid: AnyPublisher<Bool, Never> {
         $step
             .flatMap { [weak self] step -> AnyPublisher<Bool, Never> in
@@ -133,10 +139,13 @@ final class SendViewModel: ObservableObject {
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
         if let tokenId = walletModel.tokenItem.id {
-            cryptoIconURL = TokenIconURLBuilder().iconURL(id: tokenId)
+            cryptoIconURL = IconURLBuilder().tokenIconURL(id: tokenId)
         } else {
             cryptoIconURL = nil
         }
+
+        let fiatIconURL = IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode)
+
         walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
@@ -148,14 +157,12 @@ final class SendViewModel: ObservableObject {
             tokenIconInfo: tokenIconInfo,
             cryptoIconURL: cryptoIconURL,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
-            fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
+            fiatIconURL: fiatIconURL,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
             feeAmountType: walletModel.feeTokenItem.amountType
         )
-
-        #warning("Fiat icon URL")
 
         notificationManager = SendNotificationManager(input: sendModel)
 
@@ -164,6 +171,7 @@ final class SendViewModel: ObservableObject {
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
 
+        sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
@@ -190,6 +198,10 @@ final class SendViewModel: ObservableObject {
         openStep(previousStep, stepAnimation: .slideBackward)
     }
 
+    func `continue`() {
+        openStep(.summary, stepAnimation: nil)
+    }
+
     func scanQRCode() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             showCameraDeniedAlert = true
@@ -214,15 +226,6 @@ final class SendViewModel: ObservableObject {
                 !$0
             }
             .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        sendModel
-            .isSending
-            .removeDuplicates()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] isSending in
-                self?.setLoadingViewVisibile(isSending)
-            }
             .store(in: &bag)
 
         sendModel
@@ -253,15 +256,6 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func setLoadingViewVisibile(_ visible: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if visible {
-            appDelegate.addLoadingView()
-        } else {
-            appDelegate.removeLoadingView()
-        }
-    }
-
     private func openMail(with error: Error) {
         guard let transaction = sendModel.currentTransaction() else { return }
 
@@ -279,6 +273,10 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
+        if case .summary = step {
+            didReachSummaryScreen = true
+        }
+
         self.stepAnimation = stepAnimation
 
         if stepAnimation != nil {
