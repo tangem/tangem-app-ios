@@ -198,6 +198,7 @@ class LegacySendViewModel: ObservableObject {
     convenience init(
         amountToSend: Amount,
         destination: String,
+        tag: String?,
         blockchainNetwork: BlockchainNetwork,
         cardViewModel: CardViewModel,
         coordinator: LegacySendRoutable
@@ -210,6 +211,9 @@ class LegacySendViewModel: ObservableObject {
         )
         isSellingCrypto = true
         self.destination = destination
+        if let tag {
+            memo = tag
+        }
         canFiatCalculation = false
         sendAmount = amountToSend.value.description
         amountText = sendAmount
