@@ -429,8 +429,6 @@
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Importo";
-"send_amount_substract" = "Subtract from send amount";
-"send_amount_substract_footer" = "The recipient will receive %@";
 "send_confirm_label" = "Confirm";
 "send_date_format" = "%1$@ at %2$@";
 "send_destination_hint_address" = "Indirizzo";
