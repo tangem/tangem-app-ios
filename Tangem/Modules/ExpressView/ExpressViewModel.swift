@@ -92,9 +92,7 @@ final class ExpressViewModel: ObservableObject {
             return
         }
 
-        sendDecimalValue = .external(sourceBalance)
-        updateSendFiatValue(amount: sourceBalance)
-        interactor.update(amount: sourceBalance)
+        updateSendDecimalValue(to: sourceBalance)
     }
 
     func userDidTapSwapSwappingItemsButton() {
@@ -276,6 +274,12 @@ private extension ExpressViewModel {
             .store(in: &bag)
     }
 
+    func updateSendDecimalValue(to value: Decimal) {
+        sendDecimalValue = .external(value)
+        updateSendFiatValue(amount: value)
+        interactor.update(amount: value)
+    }
+
     // MARK: - Send view bubble
 
     func updateSendView(wallet: WalletModel) {
@@ -288,9 +292,7 @@ private extension ExpressViewModel {
         }
 
         let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
-        sendDecimalValue = .external(roundedAmount)
-        updateSendFiatValue(amount: roundedAmount)
-        interactor.update(amount: roundedAmount)
+        updateSendDecimalValue(to: roundedAmount)
     }
 
     func updateSendFiatValue(amount: Decimal?) {
@@ -429,7 +431,7 @@ private extension ExpressViewModel {
             return
         }
 
-        let tokenItem = interactor.getSender().tokenItem
+        let tokenItem = interactor.getSender().feeTokenItem
         let formattedFee = feeFormatter.format(fee: fee, tokenItem: tokenItem)
 
         var action: (() -> Void)?
@@ -457,6 +459,7 @@ private extension ExpressViewModel {
                  .tooSmallAmountForSwapping,
                  .tooBigAmountForSwapping,
                  .noDestinationTokens,
+                 .validationError,
                  .notEnoughAmountForFee:
                 mainButtonState = .swap
             case .notEnoughBalanceForSwapping:
@@ -592,24 +595,29 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .refresh:
             interactor.refresh(type: .full)
         case .openFeeCurrency:
-            openNetworkCurrency()
+            openFeeCurrency()
+        case .reduceAmountTo(let amount, _):
+            guard let value = sendDecimalValue?.value else {
+                AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
+                return
+            }
+
+            updateSendDecimalValue(to: value - amount)
         default:
             return
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func openNetworkCurrency() {
-        guard
-            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == initialWallet.tokenItem
-            })
-        else {
-            assertionFailure("Network currency WalletModel not found")
+    func openFeeCurrency() {
+        let walletModels = userWalletModel.walletModelsManager.walletModels
+        guard let feeCurrencyWalletModel = walletModels.first(where: {
+            $0.tokenItem == initialWallet.feeTokenItem
+        }) else {
+            assertionFailure("Fee currency '\(initialWallet.feeTokenItem.name)' for currency '\(initialWallet.tokenItem.name)' not found")
             return
         }
 
-        coordinator?.presentNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.presentFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 

@@ -14,6 +14,6 @@ protocol ExpressRoutable: AnyObject {
     func presentFeeSelectorView()
     func presentApproveView()
     func presentProviderSelectorView()
-    func presentNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel)
+    func presentFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel)
     func presentSuccessView(data: SentExpressTransactionData)
 }
