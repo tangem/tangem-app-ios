@@ -72,6 +72,7 @@ struct TransactionsListView: View {
                 .padding(.horizontal, 36)
 
             makeExploreTransactionHistoryButton(withTitle: Localization.commonExploreTransactionHistory, hasFixedSize: true)
+                .padding(.horizontal, 16)
         }
         .padding(.vertical, 28)
     }
@@ -97,7 +98,9 @@ struct TransactionsListView: View {
                 .foregroundColor(Colors.Icon.inactive)
 
             Text(Localization.transactionHistoryEmptyTransactions)
+                .multilineTextAlignment(.center)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .padding(.horizontal, 16)
 
             makeExploreTransactionHistoryButton(withTitle: Localization.commonExplore, hasFixedSize: true)
         }
@@ -138,18 +141,8 @@ struct TransactionsListView: View {
                             header
                         }
 
-                        if #available(iOS 15, *) {
-                            makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
-                        } else {
-                            Spacer(minLength: 0)
-
-                            // Remove vertical padding from iOS 14 header to make it fit into fixed-height cell
-                            makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: false)
-
-                            Spacer(minLength: 0)
-                        }
+                        makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
                     }
-                    .ios14FixedHeight(Constants.ios14ListItemHeight)
 
                     ForEach(sectionItem.items.indexed(), id: \.1.id) { cellIndex, cellItem in
                         Button {
@@ -158,7 +151,6 @@ struct TransactionsListView: View {
                             // Extra padding to implement "cell spacing" without resorting to VStack spacing
                             TransactionView(viewModel: cellItem)
                                 .padding(.bottom, cellIndex == (sectionItem.items.count - 1) ? 0 : 16)
-                                .ios14FixedHeight(Constants.ios14ListItemHeight)
                         }
                     }
                 }
@@ -256,8 +248,6 @@ extension TransactionsListView {
 
 extension TransactionsListView {
     enum Constants {
-        @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
-        static let ios14ListItemHeight = 56.0
         static let buttonBackgroundColor = Colors.Button.secondary
     }
 }
