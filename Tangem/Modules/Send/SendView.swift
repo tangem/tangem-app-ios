@@ -123,6 +123,16 @@ struct SendView: View {
                     action: viewModel.next
                 )
             }
+
+            if viewModel.showContinueButton {
+                MainButton(
+                    title: Localization.commonContinue,
+                    style: .primary,
+                    size: .default,
+                    isDisabled: viewModel.currentStepInvalid,
+                    action: viewModel.continue
+                )
+            }
         }
         .padding(.horizontal)
         .padding(.bottom, 14)
@@ -185,6 +195,7 @@ struct SendView_Preview: PreviewProvider {
     static let viewModel = SendViewModel(
         walletName: card.userWalletName,
         walletModel: card.walletModelsManager.walletModels.first!,
+        userWalletModel: card,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: CardViewModel.mock!,
