@@ -12,7 +12,7 @@ import TangemSdk
 class BackupContextManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private weak var userWalletModel: UserWalletModel?
+    private var userWalletModel: UserWalletModel
 
     private var associatedCardIds: Set<String> = []
     private var hasBackupErrors: Bool = false
@@ -22,10 +22,6 @@ class BackupContextManager {
     }
 
     func onProceedBackup(_ card: Card) {
-        guard let userWalletModel else {
-            return
-        }
-
         associatedCardIds.insert(card.cardId)
 
         let curvesValidator = CurvesValidator(expectedCurves: userWalletModel.config.mandatoryCurves)
@@ -37,10 +33,6 @@ class BackupContextManager {
     }
 
     func onCompleteBackup() {
-        guard let userWalletModel else {
-            return
-        }
-
         var userWallet = userWalletModel.userWallet
         userWallet.associatedCardIds = associatedCardIds
         userWallet.hasBackupErrors = hasBackupErrors
