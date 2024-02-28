@@ -32,7 +32,7 @@ struct SendSummaryView: View {
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     viewModel.didTapSummary(for: .destination)
@@ -66,23 +66,30 @@ struct SendSummaryView: View {
                 .onTapGesture {
                     viewModel.didTapSummary(for: .fee)
                 }
+
+                ForEach(viewModel.notificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
 
             sendButton
                 .padding(.horizontal, 16)
+                .padding(.bottom, 14)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+        .presentation(modal: viewModel.isSending)
     }
 
     @ViewBuilder
     private var sendButton: some View {
         MainButton(
-            title: Localization.commonSend,
-            icon: .trailing(Assets.tangemIcon),
-            isLoading: viewModel.isSending,
+            title: viewModel.sendButtonText,
+            icon: viewModel.sendButtonIcon,
+            isDisabled: viewModel.isSending,
             action: viewModel.send
         )
     }
@@ -102,7 +109,7 @@ struct SendSummaryView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
@@ -126,6 +133,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo))
     }
 }
