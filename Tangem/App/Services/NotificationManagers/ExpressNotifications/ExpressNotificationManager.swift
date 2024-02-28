@@ -145,7 +145,8 @@ class ExpressNotificationManager {
         case .minimumBalance(let minimumBalance):
             event = .existentialDepositWarning(blockchainName: sourceTokenItem.blockchain.displayName, amount: "\(minimumBalance.value)")
         case .withdrawalWarning(let withdrawalWarning):
-            event = .withdrawalWarning(reduceAmount: withdrawalWarning.suggestedReduceAmount.value, currencySymbol: sourceTokenItemSymbol)
+            let amount = withdrawalWarning.suggestedReduceAmount
+            event = .withdrawalWarning(amount: amount.value, amountFormatted: amount.string())
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
         }
