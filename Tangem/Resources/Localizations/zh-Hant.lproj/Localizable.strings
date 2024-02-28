@@ -239,6 +239,7 @@
 "express_terms_of_use" = "Terms of Use";
 "express_token_list_empty_search" = "No tokens found. Please try another request";
 "express_unknown_error" = "There was an error. Please try again.";
+"express_transaction_id" = "ID: %s";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
 "feedback_preface_support" = "嗨! 幫助團隊，";
