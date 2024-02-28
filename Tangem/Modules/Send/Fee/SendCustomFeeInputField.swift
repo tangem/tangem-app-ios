@@ -11,6 +11,12 @@ import SwiftUI
 struct SendCustomFeeInputField: View {
     @ObservedObject var viewModel: SendCustomFeeInputFieldModel
 
+    private var onFocusChanged: ((Bool) -> Void)?
+
+    init(viewModel: SendCustomFeeInputFieldModel) {
+        self.viewModel = viewModel
+    }
+
     var body: some View {
         GroupedSection(viewModel) { viewModel in
             VStack(alignment: .leading, spacing: 4) {
@@ -25,6 +31,7 @@ struct SendCustomFeeInputField: View {
                     )
                     .suffix("WEI")
                     .font(Fonts.Regular.subheadline)
+                    .onFocusChanged(onFocusChanged)
 
                     Spacer()
 
@@ -41,6 +48,12 @@ struct SendCustomFeeInputField: View {
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
         .backgroundColor(Colors.Background.action)
+    }
+}
+
+extension SendCustomFeeInputField: Setupable {
+    func onFocusChanged(_ action: ((Bool) -> Void)?) -> Self {
+        map { $0.onFocusChanged = action }
     }
 }
 
