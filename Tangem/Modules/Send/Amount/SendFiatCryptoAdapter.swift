@@ -63,11 +63,15 @@ class SendFiatCryptoAdapter {
     init(
         cryptoCurrencyId: String?,
         currencySymbol: String,
-        decimals: Int
+        decimals: Int,
+        input: SendFiatCryptoAdapterInput?,
+        output: SendFiatCryptoAdapterOutput?
     ) {
         self.currencySymbol = currencySymbol
         self.decimals = decimals
-        _fiatCryptoValue = FiatCryptoValue(decimals: decimals, cryptoCurrencyId: cryptoCurrencyId)
+        self.input = input
+        self.output = output
+        _fiatCryptoValue = .init(FiatCryptoValue(decimals: decimals, cryptoCurrencyId: cryptoCurrencyId))
 
         bind()
     }
@@ -88,14 +92,6 @@ class SendFiatCryptoAdapter {
     func setCrypto(_ decimal: Decimal?) {
         _fiatCryptoValue.setCrypto(decimal)
         setUserInputAmount()
-    }
-
-    func setOutput(_ output: SendFiatCryptoAdapterOutput) {
-        self.output = output
-    }
-
-    func setInput(_ input: SendFiatCryptoAdapterInput) {
-        self.input = input
     }
 
     private func bind() {
