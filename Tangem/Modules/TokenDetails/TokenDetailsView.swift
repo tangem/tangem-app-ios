@@ -133,7 +133,7 @@ private extension TokenDetailsView {
     )
     let pendingTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        tokenItem: walletModel.tokenItem
+        walletModel: walletModel
     )
     let coordinator = TokenDetailsCoordinator()
 

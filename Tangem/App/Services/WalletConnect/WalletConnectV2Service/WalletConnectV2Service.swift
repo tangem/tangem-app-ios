@@ -11,7 +11,7 @@ import Combine
 import WalletConnectSwiftV2
 import BlockchainSdk
 
-protocol WalletConnectUserWalletInfoProvider {
+protocol WalletConnectUserWalletInfoProvider: AnyObject {
     var userWalletId: UserWalletId { get }
     var signer: TangemSigner { get }
     var wcWalletModelProvider: WalletConnectWalletModelProvider { get }
@@ -45,7 +45,7 @@ final class WalletConnectV2Service {
         }
     }
 
-    private var infoProvider: WalletConnectUserWalletInfoProvider?
+    private weak var infoProvider: WalletConnectUserWalletInfoProvider?
 
     init(
         uiDelegate: WalletConnectUIDelegate,
@@ -83,7 +83,6 @@ final class WalletConnectV2Service {
         canEstablishNewSessionSubject.send(false)
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri)
-            self?.canEstablishNewSessionSubject.send(true)
         } onTimeout: { [weak self] in
             self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
             self?.canEstablishNewSessionSubject.send(true)
@@ -192,6 +191,8 @@ final class WalletConnectV2Service {
                     ]
                 )
 
+                canEstablishNewSessionSubject.send(true)
+
                 await sessionsStorage.save(savedSession)
             }
             .sink()
@@ -273,6 +274,7 @@ final class WalletConnectV2Service {
             AppLog.shared.error("[WC 2.0] \(error)")
             displayErrorUI(.unknown(error.localizedDescription))
         }
+        canEstablishNewSessionSubject.send(true)
     }
 
     // MARK: - UI Related
@@ -336,6 +338,7 @@ final class WalletConnectV2Service {
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
             }
+            self?.canEstablishNewSessionSubject.send(true)
         }
     }
 
