@@ -12,6 +12,8 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationViewModelInput {
+    var isValidatingDestination: AnyPublisher<Bool, Never> { get }
+
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { get }
 
@@ -23,6 +25,7 @@ protocol SendDestinationViewModelInput {
     var walletPublicKey: Wallet.PublicKey { get }
 
     var additionalFieldType: SendAdditionalFields? { get }
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> { get }
 
     var currencySymbol: String { get }
     var walletAddresses: [String] { get }
@@ -40,6 +43,7 @@ class SendDestinationViewModel: ObservableObject {
 
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
+    @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -81,6 +85,9 @@ class SendDestinationViewModel: ObservableObject {
         addressViewModel = SendDestinationTextViewModel(
             style: .address(networkName: input.networkName),
             input: input.destinationTextPublisher,
+            isValidating: input.isValidatingDestination,
+            isDisabled: .just(output: false),
+            animatingFooterOnAppear: $animatingAuxiliaryViewsOnAppear.uiPublisher,
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination($0)
@@ -91,6 +98,9 @@ class SendDestinationViewModel: ObservableObject {
             additionalFieldViewModel = SendDestinationTextViewModel(
                 style: .additionalField(name: name),
                 input: input.destinationAdditionalFieldTextPublisher,
+                isValidating: .just(output: false),
+                isDisabled: input.additionalFieldEmbeddedInAddress,
+                animatingFooterOnAppear: .just(output: false),
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
@@ -98,6 +108,14 @@ class SendDestinationViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        }
     }
 
     private func bind() {
@@ -153,5 +171,11 @@ class SendDestinationViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
+}
+
+extension SendDestinationViewModel: AuxiliaryViewAnimatable {
+    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
     }
 }
