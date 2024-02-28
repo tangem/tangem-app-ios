@@ -12,7 +12,6 @@ import SwiftUI
 
 // MARK: - Convenience extensions
 
-@available(iOS, introduced: 15.0)
 extension View {
     typealias PresentationConfiguration = (_ controller: UISheetPresentationController) -> Void
 
@@ -25,7 +24,6 @@ extension View {
 
 // MARK: - Private implementation
 
-@available(iOS, introduced: 15.0)
 private struct PresentationConfigurationViewModifier: ViewModifier {
     let configuration: View.PresentationConfiguration
 
@@ -35,7 +33,6 @@ private struct PresentationConfigurationViewModifier: ViewModifier {
     }
 }
 
-@available(iOS, introduced: 15.0)
 private struct SheetPresentationConfiguratorHolder: UIViewControllerRepresentable {
     let configuration: View.PresentationConfiguration
 
@@ -52,7 +49,6 @@ private struct SheetPresentationConfiguratorHolder: UIViewControllerRepresentabl
     }
 }
 
-@available(iOS, introduced: 15.0)
 private final class SheetPresentationConfigurator: UIViewController {
     var configuration: View.PresentationConfiguration?
 
