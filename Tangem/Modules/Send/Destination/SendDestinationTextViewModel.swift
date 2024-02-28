@@ -11,10 +11,16 @@ import SwiftUI
 import Combine
 
 class SendDestinationTextViewModel: ObservableObject, Identifiable {
+    enum InputSource {
+        case programmatic
+        case keyboard
+        case pasteButton
+    }
+
     let name: String
     let showAddressIcon: Bool
     let description: String
-    let didEnterDestination: (String) -> Void
+    let didEnterDestination: (String, InputSource) -> Void
 
     @Published var isValidating: Bool = false
     @Published var input: String = ""
@@ -25,6 +31,8 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     var hasTextInClipboard = false
 
+    var lastInputSource: InputSource?
+
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -34,7 +42,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         isDisabled: AnyPublisher<Bool, Never>,
         animatingFooterOnAppear: AnyPublisher<Bool, Never>,
         errorText: AnyPublisher<Error?, Never>,
-        didEnterDestination: @escaping (String) -> Void
+        didEnterDestination: @escaping (String, InputSource) -> Void
     ) {
         name = style.name
         showAddressIcon = style.showAddressIcon
@@ -47,15 +55,28 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, animatingFooterOnAppear: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
-            .assign(to: \.input, on: self, ownership: .weak)
+            .sink { [weak self] text in
+//                guard let self else { return }
+                guard self?.input != text else { return }
+
+                self?.lastInputSource = .programmatic
+                self?.input = text
+            }
             .store(in: &bag)
 
         self.$input
             .removeDuplicates()
             .sink { [weak self] in
-                self?.didEnterDestination($0)
+                print("ZZZ input change", $0, self!.lastInputSource)
+
+                guard let lastInputSource = self?.lastInputSource else { return }
+
+                self?.didEnterDestination($0, lastInputSource)
+                self?.lastInputSource = nil
             }
             .store(in: &bag)
+
+        // TGPz1VgfdRMMDhyeQDtNi9xZjFpQacHGzH
 
         isValidating
             .removeDuplicates()
@@ -109,16 +130,27 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         updatePasteButton()
     }
 
+    func didTapPasteButton(_ string: String) {
+        lastInputSource = .pasteButton
+        input = string
+    }
+
     func didTapLegacyPasteButton() {
         guard let input = UIPasteboard.general.string else {
             return
         }
 
-        didEnterDestination(input)
+        print("zzz did tap legacy")
+//        didEnterDestination(input)
+        lastInputSource = .pasteButton
+        self.input = input
     }
 
     func clearInput() {
-        didEnterDestination("")
+        print("zzz clear input")
+//        didEnterDestination("")
+        lastInputSource = .pasteButton
+        input = ""
     }
 
     private func updatePasteButton() {
