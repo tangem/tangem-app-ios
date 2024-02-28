@@ -117,7 +117,7 @@ struct TokenIcon_Preview: PreviewProvider {
                         tokenIconInfo: .init(
                             name: "",
                             blockchainIconName: coin.iconName,
-                            imageURL: TokenIconURLBuilder().iconURL(id: coin.id, size: .large),
+                            imageURL: IconURLBuilder().tokenIconURL(id: coin.id, size: .large),
                             isCustom: true,
                             customTokenColor: nil
                         ),
