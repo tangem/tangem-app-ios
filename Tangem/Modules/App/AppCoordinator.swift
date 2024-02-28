@@ -13,10 +13,20 @@ import CombineExt
 import SwiftUI
 
 class AppCoordinator: CoordinatorObject {
-    enum ViewState {
+    enum ViewState: Equatable {
         case welcome(WelcomeCoordinator)
         case uncompleteBackup(UncompletedBackupCoordinator)
         case auth(AuthCoordinator)
+        case main(MainCoordinator)
+
+        static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main):
+                return true
+            default:
+                return false
+            }
+        }
     }
 
     // MARK: - Dependencies
@@ -90,7 +100,6 @@ class AppCoordinator: CoordinatorObject {
         default:
             let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
             welcomeCoordinator.start(with: .init(shouldScan: shouldScan))
-            print("Appcoordinator viewState changed to \(viewState)")
             viewState = .welcome(welcomeCoordinator)
         }
     }
