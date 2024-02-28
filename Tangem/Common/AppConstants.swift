@@ -16,8 +16,6 @@ enum AppConstants {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
 
-    static let sheetDismissalTime: TimeInterval = 0.6
-
     static let messageForTokensKey = "TokensSymmetricKey"
     static let maximumFractionDigitsForBalance = 8
 
