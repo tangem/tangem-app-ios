@@ -220,7 +220,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
 
             if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + AppConstants.sheetDismissalTime) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
                 }
             }
@@ -259,7 +259,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             self?.sendCoordinator = nil
 
             if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + AppConstants.sheetDismissalTime) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
                 }
             }
