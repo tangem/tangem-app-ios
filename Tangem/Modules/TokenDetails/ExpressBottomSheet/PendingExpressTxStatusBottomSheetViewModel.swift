@@ -10,16 +10,8 @@ import Foundation
 import Combine
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
-    var providerName: String {
-        pendingTransaction.transactionRecord.provider.name
-    }
-
-    var providerIconURL: URL? {
-        pendingTransaction.transactionRecord.provider.iconURL
-    }
-
-    var providerType: String {
-        pendingTransaction.transactionRecord.provider.type.rawValue.uppercased()
+    var transactionID: String? {
+        pendingTransaction.transactionRecord.externalTxId
     }
 
     var animationDuration: TimeInterval {
@@ -32,6 +24,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     let sourceAmountText: String
     let destinationAmountText: String
 
+    @Published var providerRowViewModel: ProviderRowViewModel
     @Published var sourceFiatAmountTextState: LoadableTextView.State = .loading
     @Published var destinationFiatAmountTextState: LoadableTextView.State = .loading
     @Published var statusesList: [PendingExpressTransactionStatusRow.StatusRowData] = []
@@ -61,6 +54,16 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         self.currentTokenItem = currentTokenItem
         self.pendingTransactionsManager = pendingTransactionsManager
         self.router = router
+
+        let provider = pendingTransaction.transactionRecord.provider
+        providerRowViewModel = .init(
+            provider: .init(id: provider.id, iconURL: provider.iconURL, name: provider.name, type: provider.type.rawValue),
+            titleFormat: .name,
+            isDisabled: false,
+            badge: .none,
+            subtitles: [.text(Localization.expressFloatingRate)],
+            detailsType: .none
+        )
 
         let dateFormatter = DateFormatter()
         dateFormatter.doesRelativeDateFormatting = true
@@ -99,6 +102,10 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         )
 
         openProvider()
+    }
+
+    func copyTransactionID() {
+        print("copyTransactionID")
     }
 
     private func openProvider() {
