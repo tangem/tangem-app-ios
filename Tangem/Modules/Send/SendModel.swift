@@ -63,8 +63,10 @@ class SendModel {
     // MARK: - Raw data
 
     private var _amount = CurrentValueSubject<Amount?, Never>(nil)
+    private var _isValidatingDestination = CurrentValueSubject<Bool, Never>(false)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
+    private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
     private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
@@ -93,6 +95,8 @@ class SendModel {
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
+    private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
+    private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -121,12 +125,20 @@ class SendModel {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
-            didChangeFeeInclusion(true)
+            if walletModel.tokenItem == walletModel.feeTokenItem {
+                #warning("[REDACTED_TODO_COMMENT]")
+                didChangeFeeInclusion(true)
+            }
         }
     }
 
     func currentTransaction() -> BlockchainSdk.Transaction? {
         transaction.value
+    }
+
+    @discardableResult
+    func updateFees() -> AnyPublisher<FeeUpdateResult, Error> {
+        updateFees(amount: amount.value, destination: destination.value)
     }
 
     func send() {
@@ -164,6 +176,27 @@ class SendModel {
     }
 
     private func bind() {
+        _destinationText
+            .dropFirst()
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.destination.send(nil)
+                self?._isValidatingDestination.send(true)
+            })
+            .debounce(for: 1, scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.validateDestination()
+            }
+            .store(in: &bag)
+
+        _destinationAdditionalFieldText
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.validateDestinationAdditionalField()
+            }
+            .store(in: &bag)
+
         Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
             .removeDuplicates {
                 $0 == $1
@@ -173,42 +206,32 @@ class SendModel {
             }
             .store(in: &bag)
 
-        #warning("[REDACTED_TODO_COMMENT]")
         Publishers.CombineLatest(amount, destination)
             .removeDuplicates {
                 $0 == $1
             }
-            .flatMap { [weak self] amount, destination -> AnyPublisher<[Fee], Never> in
-                guard
-                    let self,
-                    let amount,
-                    let destination
-                else {
-                    return .just(output: [])
-                }
-
-                #warning("[REDACTED_TODO_COMMENT]")
-                return walletModel
-                    .getFee(amount: amount, destination: destination)
-                    .receive(on: DispatchQueue.main)
-                    .catch { [weak self] error in
-                        #warning("[REDACTED_TODO_COMMENT]")
-                        return Just([Fee]())
+            .withWeakCaptureOf(self)
+            .flatMap { (self, parameters) -> AnyPublisher<FeeUpdateResult, Error> in
+                self.updateFees(amount: parameters.0, destination: parameters.1)
+                    .catch { _ in
+                        Empty<FeeUpdateResult, Error>()
                     }
                     .eraseToAnyPublisher()
             }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-            .sink { [weak self] fees in
-                guard let self else { return }
+            .sink()
+            .store(in: &bag)
 
-                let feeValues = feeValues(fees)
-                _feeValues.send(feeValues)
-
-                if let selectedFee = feeValues[selectedFeeOption],
-                   let selectedFeeValue = selectedFee.value {
-                    fee.send(selectedFeeValue)
+        _feeValues
+            .sink { [weak self] feeValues in
+                guard
+                    let self,
+                    let selectedFee = feeValues[selectedFeeOption],
+                    let selectedFeeValue = selectedFee.value
+                else {
+                    return
                 }
+
+                fee.send(selectedFeeValue)
 
                 if let customFee = feeValues[.custom]?.value,
                    let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
@@ -255,6 +278,54 @@ class SendModel {
             .store(in: &bag)
     }
 
+    @discardableResult
+    private func updateFees(amount: Amount?, destination: String?) -> AnyPublisher<FeeUpdateResult, Error> {
+        if let feeUpdatePublisher {
+            return feeUpdatePublisher.eraseToAnyPublisher()
+        }
+
+        guard let amount, let destination else {
+            _feeValues.send([:])
+            return .anyFail(error: WalletError.failedToGetFee)
+        }
+
+        let oldFee = fee.value
+        let publisher = walletModel
+            .getFee(amount: amount, destination: destination)
+            .withWeakCaptureOf(self)
+            .map { (self, fees) in
+                self.feeValues(fees)
+            }
+            .handleEvents(receiveOutput: { [weak self] feeValues in
+                self?._feeValues.send(feeValues)
+            }, receiveCompletion: { [weak self] completion in
+                guard let self else { return }
+
+                feeUpdatePublisher = nil
+
+                if case .failure = completion {
+                    let feeValuePairs: [(FeeOption, LoadingValue<Fee>)] = feeOptions.map { ($0, .failedToLoad(error: WalletError.failedToGetFee)) }
+                    let feeValues = Dictionary(feeValuePairs, uniquingKeysWith: { v1, _ in v1 })
+                    _feeValues.send(feeValues)
+                }
+            })
+            .withWeakCaptureOf(self)
+            .tryMap { (self, feeValues) in
+                guard
+                    let selectedFee = feeValues[self.selectedFeeOption],
+                    let selectedFeeValue = selectedFee.value
+                else {
+                    throw WalletError.failedToGetFee
+                }
+                return FeeUpdateResult(oldFee: oldFee?.amount, newFee: selectedFeeValue.amount)
+            }
+            .eraseToAnyPublisher()
+
+        feeUpdatePublisher = publisher
+
+        return publisher
+    }
+
     private func explorerUrl(from hash: String) -> URL? {
         let factory = ExternalLinkProviderFactory()
         let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
@@ -264,9 +335,11 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        guard _amount.value != amount else { return }
+        let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
 
-        _amount.send(amount)
+        guard _amount.value != newAmount else { return }
+
+        _amount.send(newAmount)
     }
 
     private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
@@ -292,19 +365,22 @@ class SendModel {
 
     func setDestination(_ address: String) {
         _destinationText.send(address)
-        validateDestination()
+
+        let hasEmbeddedAdditionalField = addressService.hasEmbeddedAdditionalField(address: address)
+        _additionalFieldEmbeddedInAddress.send(hasEmbeddedAdditionalField)
+
+        if hasEmbeddedAdditionalField {
+            setDestinationAdditionalField("")
+        }
     }
 
     func setDestinationAdditionalField(_ additionalField: String) {
         _destinationAdditionalFieldText.send(additionalField)
-        validateDestinationAdditionalField()
     }
 
     private func validateDestination() {
-        #warning("[REDACTED_TODO_COMMENT]")
         destinationResolutionRequest?.cancel()
 
-        destination.send(nil)
         destinationResolutionRequest = runTask(in: self) { `self` in
             let destination: String?
             let error: Error?
@@ -321,9 +397,10 @@ class SendModel {
                 error = addressError
             }
 
-            DispatchQueue.main.async {
+            await runOnMain {
                 self.destination.send(destination)
                 self._destinationError.send(error)
+                self._isValidatingDestination.send(false)
             }
         }
     }
@@ -449,6 +526,8 @@ extension SendModel: SendAmountViewModelInput {
 }
 
 extension SendModel: SendDestinationViewModelInput {
+    var isValidatingDestination: AnyPublisher<Bool, Never> { _isValidatingDestination.eraseToAnyPublisher() }
+
     var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
 
@@ -465,6 +544,10 @@ extension SendModel: SendDestinationViewModelInput {
         case .none:
             return nil
         }
+    }
+
+    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
+        _additionalFieldEmbeddedInAddress.eraseToAnyPublisher()
     }
 
     var blockchainNetwork: BlockchainNetwork {
@@ -562,6 +645,10 @@ extension SendModel: SendSummaryViewModelInput {
         fee.eraseToAnyPublisher()
     }
 
+    var feeOptionPublisher: AnyPublisher<FeeOption, Never> {
+        _selectedFeeOption.eraseToAnyPublisher()
+    }
+
     var canEditAmount: Bool {
         sendType.predefinedAmount == nil
     }
@@ -606,3 +693,5 @@ extension SendModel: SendFinishViewModelInput {
         _transactionURL.value
     }
 }
+
+extension SendModel: SendNotificationManagerInput {}
