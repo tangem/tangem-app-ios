@@ -12,7 +12,6 @@ import SwiftUI
 struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
-//    [REDACTED_USERNAME] var isWelcome = true
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     init(coordinator: WelcomeCoordinator) {
@@ -20,8 +19,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        Self._printChanges()
-        return ZStack {
+        ZStack {
             content
             sheets
         }
@@ -33,25 +31,8 @@ struct WelcomeCoordinatorView: CoordinatorView {
     private var content: some View {
         switch coordinator.viewState {
         case .welcome(let welcomeViewModel):
-//            if isWelcome {
-//                ZStack {
             WelcomeView(viewModel: welcomeViewModel)
                 .navigationLinks(links)
-//                    Button(action: { isWelcome = false }, label: {
-//                        Text("Go forward")
-//                    })
-//                }
-//            } else {
-//                ZStack {
-//                    Color.blue
-//                        .edgesIgnoringSafeArea(.all)
-//                    Button(action: {
-//                        userWalletRepository.logoutIfNeeded()
-//                    }, label: {
-//                        Text("Go back")
-//                    })
-//                }
-//            }
         case .main(let mainCoordinator):
             MainCoordinatorView(coordinator: mainCoordinator)
         case .none:
