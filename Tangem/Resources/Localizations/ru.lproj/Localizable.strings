@@ -429,8 +429,6 @@
 "send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
-"send_amount_substract" = "Вычесть из суммы отправки";
-"send_amount_substract_footer" = "Сумма к получению %@";
 "send_confirm_label" = "Подтвердить";
 "send_date_format" = "%1$@ в %2$@";
 "send_destination_hint_address" = "Адрес";
