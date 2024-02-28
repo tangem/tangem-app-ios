@@ -308,6 +308,8 @@ final class SendViewModel: ObservableObject {
 
     private func parseQRCode(_ code: String) {
         #warning("[REDACTED_TODO_COMMENT]")
+        sendDestinationViewModel.didScanAddressFromQrCode()
+
         let parser = QRCodeParser(amountType: walletModel.amountType, blockchain: walletModel.blockchainNetwork.blockchain)
         let result = parser.parse(code)
 
