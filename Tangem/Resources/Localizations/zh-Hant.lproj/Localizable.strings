@@ -195,7 +195,7 @@
 "express_by_provider" = "Provided by %@";
 "express_cex_fee_explanation" = "Additionally, the network fee for sending the exchanged funds back to your address is included in the rate";
 "express_cex_status_button_title" = "Status";
-"express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token swaps";
+"express_choose_providers_subtitle" = "Tangem offers token swaps via 3rd-party providers according to each provider's terms";
 "express_choose_providers_title" = "Choose provider";
 "express_error_code" = "An error occurred. Code: %@";
 "express_estimated_amount" = "Estimated amount";
