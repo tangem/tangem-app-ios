@@ -47,6 +47,8 @@ struct TangemApiTarget: TargetType {
             return "/promotion/award"
         case .resetAward:
             return "/private/manual-check/promotion-award"
+        case .createAccount:
+            return "/user-network-account"
         }
     }
 
@@ -56,7 +58,12 @@ struct TangemApiTarget: TargetType {
             return .get
         case .saveUserWalletTokens:
             return .put
-        case .participateInReferralProgram, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser:
+        case .participateInReferralProgram,
+             .validateNewUserPromotionEligibility,
+             .validateOldUserPromotionEligibility,
+             .awardNewUser,
+             .awardOldUser,
+             .createAccount:
             return .post
         case .resetAward:
             return .delete
@@ -118,6 +125,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: [
                 "cardId": cardId,
             ], encoding: URLEncoding.default)
+        case .createAccount(let parameters):
+            return .requestJSONEncodable(parameters)
         }
     }
 
@@ -137,6 +146,7 @@ extension TangemApiTarget {
         case saveUserWalletTokens(key: String, list: UserTokenList)
         case loadReferralProgramInfo(userWalletId: String, expectedAwardsLimit: Int)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
+        case createAccount(_ parameters: BlockchainAccountCreateParameters)
 
         // Promotion
         case promotion(request: ExpressPromotion.Request)
