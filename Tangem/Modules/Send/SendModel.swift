@@ -116,6 +116,10 @@ class SendModel {
             setDestination(destination)
         }
 
+        if let tag = sendType.predefinedTag {
+            setDestinationAdditionalField(tag)
+        }
+
         validateDestination()
         validateDestinationAdditionalField()
         bind()
