@@ -182,7 +182,7 @@ class CommonSendNotificationManager: SendNotificationManager {
 
     private func updateEventVisibility(_ visible: Bool, event: SendNotificationEvent) {
         if visible {
-            if !notificationInputsSubject.value.contains(where: { ($0.settings.event as? SendNotificationEvent)?.id == event.id }) {
+            if !notificationInputsSubject.value.contains(where: { $0.settings.event.id == event.id }) {
                 let factory = NotificationsFactory()
 
                 let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
@@ -193,7 +193,7 @@ class CommonSendNotificationManager: SendNotificationManager {
                 notificationInputsSubject.value.append(input)
             }
         } else {
-            notificationInputsSubject.value.removeAll { ($0.settings.event as? SendNotificationEvent)?.id == event.id }
+            notificationInputsSubject.value.removeAll { $0.settings.event.id == event.id }
         }
     }
 
