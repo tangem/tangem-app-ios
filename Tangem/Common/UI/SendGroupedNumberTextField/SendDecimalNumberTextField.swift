@@ -12,6 +12,7 @@ import SwiftUI
 struct SendDecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
 
+    private var onFocusChanged: ((Bool) -> Void)?
     private var initialFocusBehavior: InitialFocusBehavior = .noFocus
     private var maximumFractionDigits: Int
     private var maxAmountAction: (() -> Void)?
@@ -38,12 +39,17 @@ struct SendDecimalNumberTextField: View {
         .maximumFractionDigits(maximumFractionDigits)
         .font(font)
         .suffix(suffix)
+        .onFocusChanged(onFocusChanged)
     }
 }
 
 // MARK: - Setupable
 
 extension SendDecimalNumberTextField: Setupable {
+    func onFocusChanged(_ action: ((Bool) -> Void)?) -> Self {
+        map { $0.onFocusChanged = action }
+    }
+
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
     }
