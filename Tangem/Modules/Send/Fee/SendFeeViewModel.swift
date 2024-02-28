@@ -19,6 +19,7 @@ protocol SendFeeViewModelInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
     var customGasLimit: BigUInt? { get }
+    var customGasPrice: BigUInt? { get }
 
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
@@ -56,6 +57,7 @@ class SendFeeViewModel: ObservableObject {
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
     private let customFeeInFiat = CurrentValueSubject<String?, Never>("")
+    private var customGasPriceBeforeEditing: BigUInt?
     private var bag: Set<AnyCancellable> = []
 
     private lazy var balanceFormatter = BalanceFormatter()
@@ -105,6 +107,19 @@ class SendFeeViewModel: ObservableObject {
             }
         } else {
             Analytics.log(.sendFeeScreenOpened)
+        }
+    }
+
+    func onCustomGasPriceFocusChanged(focused: Bool) {
+        if focused {
+            customGasPriceBeforeEditing = input.customGasPrice
+        } else {
+            let customGasPriceAfterEditing = input.customGasPrice
+            if customGasPriceAfterEditing != customGasPriceBeforeEditing {
+                Analytics.log(.sendGasPriceInserted)
+            }
+
+            customGasPriceBeforeEditing = nil
         }
     }
 
