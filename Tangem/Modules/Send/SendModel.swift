@@ -601,6 +601,10 @@ extension SendModel: SendFeeViewModelInput {
         _customFeeGasLimit.value
     }
 
+    var customGasPrice: BigUInt? {
+        _customFeeGasPrice.value
+    }
+
     var customFeePublisher: AnyPublisher<Fee?, Never> {
         _customFee.eraseToAnyPublisher()
     }
