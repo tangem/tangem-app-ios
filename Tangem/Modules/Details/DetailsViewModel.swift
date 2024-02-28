@@ -92,7 +92,7 @@ extension DetailsViewModel {
     }
 
     func openMail() {
-        Analytics.log(.buttonSendFeedback)
+        Analytics.log(.requestSupport)
 
         guard let emailConfig = userWalletModel.config.emailConfig else { return }
 
