@@ -11,7 +11,7 @@ import Foundation
 /// `tangem://redirect?action=dismissBrowser`
 /// `https://tangem.com/redirect?action=dismissBrowser`
 struct DismissSafariActionURLHelper: IncomingActionURLHelper {
-    let actionValue: String = "dismissBrowser"
+    private let actionValue: String = "dismissBrowser"
 
     func buildURL(scheme: IncomingActionScheme) -> URL {
         var urlComponents = URLComponents(string: scheme.baseScheme)!
@@ -26,7 +26,7 @@ struct DismissSafariActionURLHelper: IncomingActionURLHelper {
 
         if let action = components.queryItems?.first(where: { $0.name == IncomingActionConstants.incoimingActionName }),
            action.value == actionValue {
-            return .dismissSafari
+            return .dismissSafari(url)
         }
 
         return nil
