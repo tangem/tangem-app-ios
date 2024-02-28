@@ -35,6 +35,10 @@ protocol SendFeeViewModelInput {
 }
 
 class SendFeeViewModel: ObservableObject {
+    let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
+
+    weak var router: SendFeeRoutable?
+
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
@@ -105,6 +109,10 @@ class SendFeeViewModel: ObservableObject {
                 animatingAuxiliaryViewsOnAppear = false
             }
         }
+    }
+
+    func openFeeExplanation() {
+        router?.openFeeExplanation(url: feeExplanationUrl)
     }
 
     private func createCustomFeeModels() {
