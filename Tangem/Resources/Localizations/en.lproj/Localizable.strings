@@ -240,6 +240,7 @@
 "express_token_list_empty_search" = "No tokens found. Please try another request";
 "express_unknown_error" = "There was an error. Please try again.";
 "express_transaction_id" = "ID: %s";
+"express_transaction_id_copied" = "Transaction ID copied";
 "feedback_preface_rate_negative" = "Tell us what functions you are missing, and we will try to help you.";
 "feedback_preface_scan_failed" = "Please tell us what card do you have";
 "feedback_preface_support" = "Hi support team,";
