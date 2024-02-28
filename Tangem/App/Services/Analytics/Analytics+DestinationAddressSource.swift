@@ -13,6 +13,7 @@ extension Analytics {
         case qrCode
         case pasteButton
         case pasteMenu
+        case myWallet
         case recentAddress
 
         var parameterValue: Analytics.ParameterValue {
@@ -23,6 +24,8 @@ extension Analytics {
                 return .destinationAddressPastePopup
             case .qrCode:
                 return .destinationAddressSourceQrCode
+            case .myWallet:
+                return .destinationAddressMyWallet
             case .recentAddress:
                 return .destinationAddressRecentAddress
             }
