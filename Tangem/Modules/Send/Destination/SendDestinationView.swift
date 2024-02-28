@@ -17,6 +17,7 @@ struct SendDestinationView: View {
             if let addressViewModel = viewModel.addressViewModel {
                 SendDestinationTextView(viewModel: addressViewModel)
                     .setNamespace(namespace)
+                    .setContainerNamespaceId(SendViewNamespaceId.amountContainer.rawValue)
                     .setTitleNamespaceId(SendViewNamespaceId.addressTitle.rawValue)
                     .setIconNamespaceId(SendViewNamespaceId.addressIcon.rawValue)
                     .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
@@ -27,9 +28,9 @@ struct SendDestinationView: View {
                 SendDestinationTextView(viewModel: additionalFieldViewModel)
             }
 
-            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, !viewModel.animatingAuxiliaryViewsOnAppear {
+            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
-                    .transition(SendView.Constants.auxiliaryViewTransition)
+                    .transition(.opacity)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
