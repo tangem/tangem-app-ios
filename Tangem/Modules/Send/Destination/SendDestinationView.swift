@@ -17,6 +17,7 @@ struct SendDestinationView: View {
             if let addressViewModel = viewModel.addressViewModel {
                 SendDestinationTextView(viewModel: addressViewModel)
                     .setNamespace(namespace)
+                    .setContainerNamespaceId(SendViewNamespaceId.amountContainer.rawValue)
                     .setTitleNamespaceId(SendViewNamespaceId.addressTitle.rawValue)
                     .setIconNamespaceId(SendViewNamespaceId.addressIcon.rawValue)
                     .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
