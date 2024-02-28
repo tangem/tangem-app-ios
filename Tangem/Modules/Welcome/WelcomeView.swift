@@ -40,7 +40,6 @@ struct WelcomeView: View {
         }
         .statusBar(hidden: true)
         .environment(\.colorScheme, viewModel.storiesModel.currentPage.colorScheme)
-//        .removeAnimation()
     }
 }
 
