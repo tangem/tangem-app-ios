@@ -14,25 +14,24 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var sensitiveTextVisibilityViewModel = SensitiveTextVisibilityViewModel.shared
 
     var body: some View {
-        Self._printChanges()
-        return NavigationView {
-            Group {
-                switch coordinator.viewState {
-                case .welcome(let welcomeCoordinator):
-                    WelcomeCoordinatorView(coordinator: welcomeCoordinator)
-                case .uncompleteBackup(let uncompletedBackupCoordinator):
-                    UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
-                case .auth(let authCoordinator):
-                    AuthCoordinatorView(coordinator: authCoordinator)
-                //                    .if(coordinator.mainBottomSheetCoordinator != nil) { view in
-                //                        view.animation(nil) // Fixes weird animations on appear when the view has a bottom scrollable sheet
-                //                    }
-                case .none:
-                    EmptyView()
-                }
+        NavigationView {
+            switch coordinator.viewState {
+            case .welcome(let welcomeCoordinator):
+                WelcomeCoordinatorView(coordinator: welcomeCoordinator)
+            case .uncompleteBackup(let uncompletedBackupCoordinator):
+                UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
+            case .auth(let authCoordinator):
+                AuthCoordinatorView(coordinator: authCoordinator)
+            //                    .if(coordinator.mainBottomSheetCoordinator != nil) { view in
+            //                        view.animation(nil) // Fixes weird animations on appear when the view has a bottom scrollable sheet
+            //                    }
+            case .main(let mainCoordinator):
+                MainCoordinatorView(coordinator: mainCoordinator)
+            case .none:
+                EmptyView()
             }
-//            .animation(.default, value: UUID())
         }
+        .animation(.default, value: coordinator.viewState)
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
 //        .modifier(ifLet: coordinator.mainBottomSheetCoordinator) { view, mainBottomSheetCoordinator in
