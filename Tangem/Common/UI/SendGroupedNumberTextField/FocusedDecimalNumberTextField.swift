@@ -10,14 +10,13 @@ import Foundation
 import SwiftUI
 
 /// It same as`DecimalNumberTextField` but with support focus state / toolbar buttons / suffix
-@available(iOS 15.0, *)
 struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     @FocusState private var isInputActive: Bool
     @State private var textFieldSize: CGSize = .zero
     private let toolbarButton: () -> ToolbarButton
 
-    private var shouldFocusOnAppear: Bool = true
+    private var initialFocusBehavior: InitialFocusBehavior = .immediateFocus
     private var maximumFractionDigits: Int
     private var placeholderColor: Color = Colors.Text.disabled
     private var textColor: Color = Colors.Text.primary1
@@ -95,7 +94,9 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
             }
         }
         .onAppear {
-            if shouldFocusOnAppear {
+            guard let focusDelayDuration = initialFocusBehavior.delayDuration else { return }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + focusDelayDuration) {
                 isInputActive = true
             }
         }
@@ -104,7 +105,6 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
 
 // MARK: - Setupable
 
-@available(iOS 15.0, *)
 extension FocusedDecimalNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.maximumFractionDigits = digits }
@@ -122,12 +122,11 @@ extension FocusedDecimalNumberTextField: Setupable {
         map { $0.alignment = alignment }
     }
 
-    func shouldFocusOnAppear(_ shouldFocusOnAppear: Bool) -> Self {
-        map { $0.shouldFocusOnAppear = shouldFocusOnAppear }
+    func initialFocusBehavior(_ initialFocusBehavior: InitialFocusBehavior) -> Self {
+        map { $0.initialFocusBehavior = initialFocusBehavior }
     }
 }
 
-@available(iOS 15.0, *)
 struct FocusedNumberTextField_Previews: PreviewProvider {
     @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
 
