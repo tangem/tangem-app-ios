@@ -14,6 +14,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case buyCrypto(currencySymbol: String?)
     case openFeeCurrency(currencySymbol: String)
     case refresh
+    case refreshFee
     case goToProvider
     case exchange
 
@@ -33,7 +34,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.commonBuyCurrency(currencySymbol)
         case .openFeeCurrency(let currencySymbol):
             return Localization.commonBuyCurrency(currencySymbol)
-        case .refresh:
+        case .refresh, .refreshFee:
             return Localization.warningButtonRefresh
         case .goToProvider:
             return Localization.commonGoToProvider
@@ -48,7 +49,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return .trailing(Assets.tangemIcon)
         case .exchange:
             return .leading(Assets.exchangeMini)
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .goToProvider:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider:
             return nil
         }
     }
@@ -57,7 +58,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .goToProvider:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider:
             return .secondary
         case .exchange:
             return .exchangePromotionWhite
