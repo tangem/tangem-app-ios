@@ -32,7 +32,7 @@ struct SendFinishView: View {
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.amountSummaryViewData) {
                     AmountSummaryView(data: $0)
@@ -57,6 +57,7 @@ struct SendFinishView: View {
             if viewModel.showButtons {
                 bottomButtons
                     .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
@@ -114,7 +115,7 @@ struct SendFinishView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
