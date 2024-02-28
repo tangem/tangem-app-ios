@@ -56,16 +56,6 @@ struct SendFeeView: View {
                 .transition(SendView.Constants.auxiliaryViewTransition)
             }
 
-            if !viewModel.animatingAuxiliaryViewsOnAppear {
-                GroupedSection(viewModel.subtractFromAmountModel) {
-                    DefaultToggleRowView(viewModel: $0)
-                } footer: {
-                    DefaultFooterView(viewModel.subtractFromAmountFooterText)
-                        .animation(.default, value: viewModel.subtractFromAmountFooterText)
-                }
-                .transition(SendView.Constants.auxiliaryViewTransition)
-            }
-
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
                     .transition(.notificationTransition)
