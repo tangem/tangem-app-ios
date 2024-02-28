@@ -584,7 +584,10 @@ struct CardsInfoPagerView<
 
         scheduledContentSelectedIndexUpdate?.cancel()
 
-        let scheduledUpdate = DispatchWorkItem { contentSelectedIndex = newValue }
+        let scheduledUpdate = DispatchWorkItem {
+            contentSelectedIndex = newValue
+            scheduledContentSelectedIndexUpdate = nil
+        }
         scheduledContentSelectedIndexUpdate = scheduledUpdate
         DispatchQueue.main.async(execute: scheduledUpdate)
     }

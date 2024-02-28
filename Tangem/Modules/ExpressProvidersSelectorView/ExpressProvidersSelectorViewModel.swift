@@ -153,17 +153,17 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     }
 
     func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
-        // For best we don't add percent badge
-        guard !provider.isBest else {
+        // For selectedProvider we don't add percent badge
+        guard selectedProvider?.provider.id != provider.provider.id else {
             return nil
         }
 
         guard let quote = await provider.getState().quote,
-              let bestRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
+              let selectedRate = await selectedProvider?.getState().quote?.rate else {
             return nil
         }
 
-        let changePercent = quote.rate / bestRate - 1
+        let changePercent = quote.rate / selectedRate - 1
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
