@@ -19,7 +19,7 @@ class UserWalletFactory {
             name = config.cardName
         }
 
-        let saved = userWalletRepository.userWallets.first(where: { $0.userWalletId == userWalletId.value }) ?? nil
+        let saved = userWalletRepository.userWallets.first(where: { $0.userWalletId == userWalletId.value })
 
         return UserWallet(
             userWalletId: userWalletId.value,
