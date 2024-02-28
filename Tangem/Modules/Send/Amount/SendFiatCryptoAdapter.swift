@@ -22,7 +22,7 @@ protocol SendFiatCryptoAdapterOutput: AnyObject {
 
 class SendFiatCryptoAdapter {
     var amountAlternative: AnyPublisher<String?, Never> {
-        Publishers.CombineLatest(_useFiatCalculation, $_fiatCryptoValue)
+        Publishers.CombineLatest(_useFiatCalculation, _fiatCryptoValue)
             .withWeakCaptureOf(self)
             .map { thisSendFiatCryptoAdapter, params -> String? in
                 let (useFiatCalculation, fiatCryptoValue) = params
@@ -52,7 +52,8 @@ class SendFiatCryptoAdapter {
     private let currencySymbol: String
     private let decimals: Int
 
-    @Published private var _fiatCryptoValue: FiatCryptoValue
+    private var _fiatCryptoValue: CurrentValueSubject<FiatCryptoValue, Never>
+
     private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
 
     private weak var input: SendFiatCryptoAdapterInput?
@@ -77,11 +78,13 @@ class SendFiatCryptoAdapter {
     }
 
     func setAmount(_ decimal: DecimalNumberTextField.DecimalValue?) {
+        var newFiatCryptoValue = _fiatCryptoValue.value
         if _useFiatCalculation.value {
-            _fiatCryptoValue.setFiat(decimal?.value)
+            newFiatCryptoValue.setFiat(decimal?.value)
         } else {
-            _fiatCryptoValue.setCrypto(decimal?.value)
+            newFiatCryptoValue.setCrypto(decimal?.value)
         }
+        _fiatCryptoValue.send(newFiatCryptoValue)
     }
 
     func setUseFiatCalculation(_ useFiatCalculation: Bool) {
@@ -90,12 +93,14 @@ class SendFiatCryptoAdapter {
     }
 
     func setCrypto(_ decimal: Decimal?) {
-        _fiatCryptoValue.setCrypto(decimal)
+        var newFiatCryptoValue = _fiatCryptoValue.value
+        newFiatCryptoValue.setCrypto(decimal)
+        _fiatCryptoValue.send(newFiatCryptoValue)
         setUserInputAmount()
     }
 
     private func bind() {
-        $_fiatCryptoValue
+        _fiatCryptoValue
             .map(\.crypto)
             .sink { [weak self] crypto in
                 self?.output?.setAmount(crypto)
@@ -104,7 +109,7 @@ class SendFiatCryptoAdapter {
     }
 
     private func setUserInputAmount() {
-        let newAmount = _useFiatCalculation.value ? _fiatCryptoValue.fiat : _fiatCryptoValue.crypto
+        let newAmount = _useFiatCalculation.value ? _fiatCryptoValue.value.fiat : _fiatCryptoValue.value.crypto
         if let newAmount {
             input?.setUserInputAmount(.external(newAmount))
         } else {
