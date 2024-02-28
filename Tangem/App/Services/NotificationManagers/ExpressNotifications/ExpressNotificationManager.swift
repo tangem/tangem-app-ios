@@ -91,17 +91,12 @@ class ExpressNotificationManager {
             setupNotification(for: validationError)
             return
         case .notEnoughAmountForFee:
-            guard sourceTokenItem.isToken else {
+            guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: interactor.getSender()) else {
                 notificationInputsSubject.value = []
                 return
             }
 
-            let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
-            event = .notEnoughFeeForTokenTx(
-                mainTokenName: sourceTokenItem.blockchain.displayName,
-                mainTokenSymbol: sourceNetworkSymbol,
-                blockchainIconName: sourceTokenItem.blockchain.iconNameFilled
-            )
+            event = notEnoughFeeForTokenTxEvent
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
             let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
@@ -131,21 +126,19 @@ class ExpressNotificationManager {
         switch validationError {
         case .balanceNotFound, .invalidAmount, .invalidFee:
             event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
-        case .amountExceedsBalance, .totalExceedsBalance: // Same as .notEnoughBalanceForSwapping which will be removed
+        case .amountExceedsBalance, .totalExceedsBalance:
+            assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
             notificationInputsSubject.value = []
             return
-        case .feeExceedsBalance: // Same as .notEnoughAmountForFee which will be removed
-            guard sourceTokenItem.isToken else {
+        case .feeExceedsBalance:
+            assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
+            guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: interactor.getSender()) else {
                 notificationInputsSubject.value = []
                 return
             }
 
-            let sourceNetworkSymbol = sourceTokenItem.blockchain.currencySymbol
-            event = .notEnoughFeeForTokenTx(
-                mainTokenName: sourceTokenItem.blockchain.displayName,
-                mainTokenSymbol: sourceNetworkSymbol,
-                blockchainIconName: sourceTokenItem.blockchain.iconNameFilled
-            )
+            event = notEnoughFeeForTokenTxEvent
+
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             let amountText = "\(minimumAmount.value) \(sourceTokenItemSymbol)"
             event = .dustAmount(minimumAmountText: amountText, minimumChangeText: amountText)
@@ -182,6 +175,18 @@ class ExpressNotificationManager {
         let factory = NotificationsFactory()
         let notification = factory.buildNotificationInput(for: .feeWillBeSubtractFromSendingAmount)
         return notification
+    }
+
+    private func makeNotEnoughFeeForTokenTx(sender: WalletModel) -> ExpressNotificationEvent? {
+        guard !sender.isFeeCurrency else {
+            return nil
+        }
+
+        return .notEnoughFeeForTokenTx(
+            mainTokenName: sender.feeTokenItem.blockchain.displayName,
+            mainTokenSymbol: sender.feeTokenItem.currencySymbol,
+            blockchainIconName: sender.feeTokenItem.blockchain.iconNameFilled
+        )
     }
 }
 
