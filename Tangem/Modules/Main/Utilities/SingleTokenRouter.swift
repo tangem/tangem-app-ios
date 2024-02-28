@@ -92,7 +92,7 @@ class SingleTokenRouter: SingleTokenRoutable {
             return
         }
 
-        coordinator?.openSellCrypto(at: url, sellRequestUrl: exchangeUtility.sellCryptoCloseURL) { [weak self] response in
+        coordinator?.openSellCrypto(at: url) { [weak self] response in
             if let request = exchangeUtility.extractSellCryptoRequest(from: response) {
                 self?.openSendToSell(with: request, for: walletModel)
             }
@@ -110,6 +110,7 @@ class SingleTokenRouter: SingleTokenRoutable {
         coordinator?.openSendToSell(
             amountToSend: amount,
             destination: request.targetAddress,
+            tag: request.tag,
             blockchainNetwork: blockchainNetwork,
             cardViewModel: cardViewModel,
             walletModel: walletModel
