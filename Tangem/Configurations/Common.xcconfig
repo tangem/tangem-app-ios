@@ -1,0 +1,15 @@
+//
+//  Common.xcconfig
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2024 Tangem AG. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// Storage container name for BSDK (`BlockchainDataStorage`)
+BSDK_SUITE_NAME = bsdk.$(APP_BUNDLE_IDENTIFIER)
+
+// [REDACTED_TODO_COMMENT]
