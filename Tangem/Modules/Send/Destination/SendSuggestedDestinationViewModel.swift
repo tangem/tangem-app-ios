@@ -31,7 +31,7 @@ class SendSuggestedDestinationViewModel {
                     CellModel(
                         type: .wallet(wallet: wallet, addressIconViewModel: AddressIconViewModel(address: wallet.address)),
                         tapAction: {
-                            self?.tapAction(SendSuggestedDestination(address: wallet.address, additionalField: nil))
+                            self?.tapAction(SendSuggestedDestination(address: wallet.address, additionalField: nil, type: .wallet))
                         }
                     )
                 }
@@ -45,7 +45,7 @@ class SendSuggestedDestinationViewModel {
                     CellModel(
                         type: .recentTransaction(record: record, addressIconViewModel: AddressIconViewModel(address: record.address)),
                         tapAction: {
-                            self?.tapAction(SendSuggestedDestination(address: record.address, additionalField: record.additionalField))
+                            self?.tapAction(SendSuggestedDestination(address: record.address, additionalField: record.additionalField, type: .transactionRecord))
                         }
                     )
                 }
@@ -78,8 +78,14 @@ extension SendSuggestedDestinationViewModel.CellModel {
 }
 
 struct SendSuggestedDestination {
+    enum `Type` {
+        case wallet
+        case transactionRecord
+    }
+
     let address: String
     let additionalField: String?
+    let type: Type
 }
 
 struct SendSuggestedDestinationWallet {
