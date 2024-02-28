@@ -119,11 +119,14 @@ private extension CommonExpressTransactionBuilder {
         case .algorand:
             return AlgorandTransactionParams(nonce: extraDestinationId)
 
+        case .hedera:
+            return HederaTransactionParams(memo: extraDestinationId)
+
         case .bitcoin,
              .litecoin,
              .ethereum,
              .ethereumPoW,
-             .ethereumFair,
+             .disChain,
              .ethereumClassic,
              .rsk,
              .bitcoinCash,
@@ -154,7 +157,9 @@ private extension CommonExpressTransactionBuilder {
              .near,
              .decimal,
              .veChain,
-             .xdc:
+             .xdc,
+             .shibarium,
+             .aptos:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
