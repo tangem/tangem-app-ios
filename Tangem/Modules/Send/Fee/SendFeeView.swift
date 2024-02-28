@@ -32,7 +32,12 @@ struct SendFeeView: View {
                 }
             } footer: {
                 if !viewModel.animatingAuxiliaryViewsOnAppear {
-                    DefaultFooterView(Localization.commonFeeSelectorFooter)
+                    feeSelectorFooter
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .environment(\.openURL, OpenURLAction { url in
+                            viewModel.openFeeExplanation()
+                            return .handled
+                        })
                         .transition(SendView.Constants.auxiliaryViewTransition)
                 }
             }
@@ -83,6 +88,10 @@ struct SendFeeView: View {
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
     }
+
+    private var feeSelectorFooter: some View {
+        Text(Localization.commonFeeSelectorFooter) + Text(" ") + Text("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")
+    }
 }
 
 struct SendFeeView_Previews: PreviewProvider {
@@ -91,7 +100,7 @@ struct SendFeeView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
