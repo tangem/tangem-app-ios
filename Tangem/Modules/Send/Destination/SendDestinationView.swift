@@ -27,9 +27,9 @@ struct SendDestinationView: View {
                 SendDestinationTextView(viewModel: additionalFieldViewModel)
             }
 
-            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, !viewModel.animatingAuxiliaryViewsOnAppear {
+            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
-                    .transition(SendView.Constants.auxiliaryViewTransition)
+                    .transition(.opacity)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
