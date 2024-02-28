@@ -49,6 +49,12 @@ class SendDestinationViewModel: ObservableObject {
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
+    private var lastDestinationAddressSource: Analytics.DestinationAddressSource?
+
+    func setLastDestinationAddressSource(_ lastDestinationAddressSource: Analytics.DestinationAddressSource) {
+        self.lastDestinationAddressSource = lastDestinationAddressSource
+    }
+
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Dependencies
@@ -89,8 +95,14 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             animatingFooterOnAppear: $animatingAuxiliaryViewsOnAppear.uiPublisher,
             errorText: input.destinationError
-        ) { [weak self] in
-            self?.input.setDestination($0)
+        ) { [weak self] destination, source in
+            if case .pasteButton = source {
+                self?.lastDestinationAddressSource = .pasteButton
+            } else {
+                self?.lastDestinationAddressSource = nil
+            }
+
+            self?.input.setDestination(destination)
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -102,12 +114,19 @@ class SendDestinationViewModel: ObservableObject {
                 isDisabled: input.additionalFieldEmbeddedInAddress,
                 animatingFooterOnAppear: .just(output: false),
                 errorText: input.destinationAdditionalFieldError
-            ) { [weak self] in
-                self?.input.setDestinationAdditionalField($0)
+            ) { [weak self] additionalField, _ in
+                self?.input.setDestinationAdditionalField(additionalField)
             }
         }
 
         bind()
+
+        (input as! SendModel)
+            .destinationPublisher
+            .sink { [weak self] dest in
+                print("ZZZ new dest", dest, self!.lastDestinationAddressSource)
+            }
+            .store(in: &bag)
     }
 
     func onAppear() {
@@ -119,6 +138,10 @@ class SendDestinationViewModel: ObservableObject {
         } else {
             Analytics.log(.sendAddressScreenOpened)
         }
+    }
+
+    func didScanAddressFromQrCode() {
+        lastDestinationAddressSource = .qrCode
     }
 
     private func bind() {
@@ -166,6 +189,13 @@ class SendDestinationViewModel: ObservableObject {
                 ) { [weak self] destination in
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
+
+                    switch destination.type {
+                    case .wallet:
+                        self?.lastDestinationAddressSource = .myWallet
+                    case .transactionRecord:
+                        self?.lastDestinationAddressSource = .recentAddress
+                    }
 
                     self?.input.setDestination(destination.address)
                     if let additionalField = destination.additionalField {
