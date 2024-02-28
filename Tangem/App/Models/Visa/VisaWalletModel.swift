@@ -67,7 +67,7 @@ class VisaWalletModel {
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
         let utils = VisaUtilities()
-        tokenItem = .token(utils.visaToken, utils.visaBlockchain)
+        tokenItem = .token(utils.visaToken, .init(utils.visaBlockchain, derivationPath: nil))
 
         let apiService = VisaAPIServiceBuilder().build(
             isTestnet: true,
@@ -254,9 +254,9 @@ extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaWalletModel: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<NSAttributedString>, Never> {
+    var balanceProvider: AnyPublisher<LoadingValue<AttributedString>, Never> {
         stateSubject.combineLatest(balancesSubject)
-            .map { [weak self] state, balances -> LoadingValue<NSAttributedString> in
+            .map { [weak self] state, balances -> LoadingValue<AttributedString> in
                 guard let self else {
                     return .loading
                 }
@@ -270,7 +270,7 @@ extension VisaWalletModel: MainHeaderBalanceProvider {
                     if let balances {
                         let balanceFormatter = BalanceFormatter()
                         let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                        let formattedForMain = balanceFormatter.formatTotalBalanceForMain(fiatBalance: formattedBalance, formattingOptions: .defaultOptions)
+                        let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
                         return .loaded(formattedForMain)
                     } else {
                         return .loading
