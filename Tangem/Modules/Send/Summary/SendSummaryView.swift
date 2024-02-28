@@ -75,19 +75,21 @@ struct SendSummaryView: View {
 
             sendButton
                 .padding(.horizontal, 16)
+                .padding(.bottom, 14)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+        .presentation(modal: viewModel.isSending)
     }
 
     @ViewBuilder
     private var sendButton: some View {
         MainButton(
-            title: Localization.commonSend,
-            icon: .trailing(Assets.tangemIcon),
-            isLoading: viewModel.isSending,
+            title: viewModel.sendButtonText,
+            icon: viewModel.sendButtonIcon,
+            isDisabled: viewModel.isSending,
             action: viewModel.send
         )
     }
@@ -107,7 +109,7 @@ struct SendSummaryView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
