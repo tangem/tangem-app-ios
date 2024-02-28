@@ -22,6 +22,9 @@ protocol SendFinishViewModelInput: AnyObject {
 }
 
 class SendFinishViewModel: ObservableObject {
+    @Published var showHeader = false
+    @Published var showButtons = false
+
     let transactionTime: String
 
     let destinationViewTypes: [SendDestinationSummaryViewType]
@@ -61,6 +64,11 @@ class SendFinishViewModel: ObservableObject {
         formatter.timeStyle = .short
         self.transactionTime = formatter.string(from: transactionTime)
         self.transactionURL = transactionURL
+    }
+
+    func onAppear() {
+        showHeader = true
+        showButtons = true
     }
 
     func explore() {
