@@ -100,7 +100,7 @@ extension SendCoordinator: SendRoutable {
         self.qrScanViewCoordinator = qrScanViewCoordinator
     }
 
-    func presentNetworkCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
         dismiss(with: (walletModel, userWalletModel))
     }
 }
