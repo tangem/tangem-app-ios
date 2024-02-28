@@ -32,6 +32,14 @@ class SendSummaryViewModel: ObservableObject {
     let canEditAmount: Bool
     let canEditDestination: Bool
 
+    var sendButtonText: String {
+        isSending ? Localization.sendSending : Localization.commonSend
+    }
+
+    var sendButtonIcon: MainButton.Icon? {
+        isSending ? nil : .trailing(Assets.tangemIcon)
+    }
+
     @Published var isSendButtonDisabled = false
     @Published var isSending = false
     @Published var alert: AlertBinder?
@@ -83,6 +91,10 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func didTapSummary(for step: SendStep) {
+        if isSending {
+            return
+        }
+
         router?.openStep(step)
     }
 
