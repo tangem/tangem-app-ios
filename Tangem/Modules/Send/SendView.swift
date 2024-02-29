@@ -195,6 +195,7 @@ struct SendView_Preview: PreviewProvider {
     static let viewModel = SendViewModel(
         walletName: card.userWalletName,
         walletModel: card.walletModelsManager.walletModels.first!,
+        userWalletModel: card,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: CardViewModel.mock!,
