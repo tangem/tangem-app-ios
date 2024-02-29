@@ -159,7 +159,11 @@ private extension CommonExpressTransactionBuilder {
              .veChain,
              .xdc,
              .shibarium,
-             .aptos:
+             .aptos,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
