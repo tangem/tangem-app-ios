@@ -109,22 +109,23 @@ class SendModel {
         self.sendType = sendType
         self.addressService = addressService
 
+        bind()
+
         if let amount = sendType.predefinedAmount {
-            #warning("TODO")
             setAmount(amount)
         }
 
         if let destination = sendType.predefinedDestination {
             setDestination(destination)
+        } else {
+            validateDestination()
         }
 
         if let tag = sendType.predefinedTag {
             setDestinationAdditionalField(tag)
+        } else {
+            validateDestinationAdditionalField()
         }
-
-        validateDestination()
-        validateDestinationAdditionalField()
-        bind()
     }
 
     func currentTransaction() -> BlockchainSdk.Transaction? {
