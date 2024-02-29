@@ -21,7 +21,7 @@ class LegacySendCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel? = nil
-    @Published var qrScanViewModel: QRScanViewModel? = nil
+    @Published var qrScanViewModel: LegacyQRScanViewModel? = nil
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -33,6 +33,7 @@ class LegacySendCoordinator: CoordinatorObject {
             sendViewModel = LegacySendViewModel(
                 amountToSend: options.amountToSend,
                 destination: destination,
+                tag: options.tag,
                 blockchainNetwork: options.blockchainNetwork,
                 cardViewModel: options.cardViewModel,
                 coordinator: self
@@ -52,6 +53,7 @@ extension LegacySendCoordinator {
     struct Options {
         let amountToSend: Amount
         let destination: String?
+        let tag: String?
         let blockchainNetwork: BlockchainNetwork
         let cardViewModel: CardViewModel
     }

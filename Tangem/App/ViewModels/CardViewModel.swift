@@ -24,17 +24,22 @@ class CardViewModel: Identifiable, ObservableObject {
     var userTokensManager: UserTokensManager { _userTokensManager }
 
     private lazy var _userTokensManager = CommonUserTokensManager(
+        userWalletId: userWalletId,
+        shouldLoadSwapAvailability: config.hasFeature(.swapping),
         userTokenListManager: userTokenListManager,
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
-        cardDerivableProvider: self
+        cardDerivableProvider: self,
+        existingCurves: config.walletCurves,
+        longHashesSupported: longHashesSupported
     )
 
     let userTokenListManager: UserTokenListManager
 
     private let keysRepository: KeysRepository
     private let walletManagersRepository: WalletManagersRepository
+    private let cardImageProvider = CardImageProvider()
 
     lazy var derivationManager: DerivationManager? = {
         guard config.hasFeature(.hdWallets) else {
@@ -57,7 +62,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { _signer }
 
     var cardInteractor: CardInteractor {
-        .init(tangemSdk: config.makeTangemSdk(), cardId: cardId)
+        .init(cardInfo: cardInfo)
     }
 
     var cardId: String { cardInfo.card.cardId }
@@ -106,7 +111,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var artworkInfo: ArtworkInfo? {
-        CardImageProvider().cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
+        cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
     }
 
     var name: String {
@@ -141,10 +146,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.tou
     }
 
-    var embeddedEntry: StorageEntry? {
-        config.embeddedBlockchain
-    }
-
     var canShowSwapping: Bool {
         !config.getFeatureAvailability(.swapping).isHidden
     }
@@ -164,7 +165,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private(set) var cardInfo: CardInfo
     private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
-    private var didPerformInitialUpdate = false
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -222,10 +222,6 @@ class CardViewModel: Identifiable, ObservableObject {
         UserWalletFactory().userWallet(from: cardInfo, config: config, userWalletId: userWalletId)
     }
 
-    var productType: Analytics.ProductType {
-        config.productType
-    }
-
     private var isActive: Bool {
         if let selectedUserWalletId = userWalletRepository.selectedUserWalletId {
             return selectedUserWalletId == userWalletId.value
@@ -236,6 +232,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
+    private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
     private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
@@ -267,7 +264,8 @@ class CardViewModel: Identifiable, ObservableObject {
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
             hdWalletsSupported: config.hasFeature(.hdWallets),
-            hasTokenSynchronization: config.hasFeature(.tokenSynchronization)
+            hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
+            defaultBlockchains: config.defaultBlockchains
         )
 
         walletManagersRepository = CommonWalletManagersRepository(
@@ -283,9 +281,16 @@ class CardViewModel: Identifiable, ObservableObject {
 
         _signer = config.tangemSigner
         _userWalletNamePublisher = .init(cardInfo.name)
+        _cardHeaderImagePublisher = .init(config.cardHeaderImage)
         updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
+
+        userTokensManager.sync {}
+    }
+
+    deinit {
+        Log.debug("CardViewModel deinit 🥳🤟")
     }
 
     func setupWarnings() {
@@ -294,6 +299,30 @@ class CardViewModel: Identifiable, ObservableObject {
             card: cardInfo.card,
             validator: walletModelsManager.walletModels.first?.signatureCountValidator
         )
+    }
+
+    func validate() -> Bool {
+        if userWallet.hasBackupErrors == true {
+            return false
+        }
+
+        var expectedCurves = config.mandatoryCurves
+        /// Since the curve `bls12381_G2_AUG` was added later into first generation of wallets,, we cannot determine whether this curve is missing due to an error or because the user did not want to recreate the wallet. 
+        if config is GenericConfig {
+            expectedCurves.remove(.bls12381_G2_AUG)
+        }
+
+        let curvesValidator = CurvesValidator(expectedCurves: expectedCurves)
+        if !curvesValidator.validate(card.wallets.map { $0.curve }) {
+            return false
+        }
+
+        let backupValidator = BackupValidator()
+        if !backupValidator.validate(card.backupStatus) {
+            return false
+        }
+
+        return true
     }
 
     private func appendPersistentBlockchains() {
@@ -413,6 +442,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func onUpdate() {
         AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
+        _cardHeaderImagePublisher.send(config.cardHeaderImage)
         _signer = config.tangemSigner
         updateModel()
         // prevent save until onboarding completed
@@ -520,15 +550,20 @@ extension CardViewModel: UserWalletModel {
         walletModelsManager.walletModels.count
     }
 
-    func initialUpdate() {
-        guard !didPerformInitialUpdate else {
-            AppLog.shared.debug("Initial update has been performed")
-            return
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
+        let artwork: CardArtwork
+
+        if let artworkInfo = artworkInfo {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
         }
 
-        didPerformInitialUpdate = true
-
-        _userTokensManager.updateUserTokens()
+        return cardImageProvider.loadImage(
+            cardId: card.cardId,
+            cardPublicKey: card.cardPublicKey,
+            artwork: artwork
+        )
     }
 
     func updateWalletName(_ name: String) {
@@ -537,14 +572,16 @@ extension CardViewModel: UserWalletModel {
     }
 }
 
-extension CardViewModel: MainHeaderInfoProvider {
-    var cardHeaderImage: ImageType? { config.cardHeaderImage }
-
-    var isUserWalletLocked: Bool { userWallet.isLocked }
+extension CardViewModel: MainHeaderSupplementInfoProvider {
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
+}
 
-    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
+extension CardViewModel: MainHeaderUserWalletStateInfoProvider {
+    var isUserWalletLocked: Bool { userWallet.isLocked }
+
+    var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
 }
 
 // [REDACTED_TODO_COMMENT]
@@ -563,15 +600,25 @@ extension CardViewModel: DerivationManagerDelegate {
 
 extension CardViewModel: CardDerivableProvider {
     var cardDerivableInteractor: CardDerivable {
-        // [REDACTED_TODO_COMMENT]
-        let shouldSkipCardId = cardInfo.card.backupStatus?.isActive ?? false
-        let cardId = shouldSkipCardId ? nil : cardInfo.card.cardId
-        return CardInteractor(tangemSdk: config.makeTangemSdk(), cardId: cardId)
+        return cardInteractor
     }
 }
 
 extension CardViewModel: TotalBalanceProviding {
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-        totalBalanceProvider.totalBalancePublisher()
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
+        totalBalanceProvider.totalBalancePublisher
     }
 }
+
+extension CardViewModel: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        return AnalyticsContextData(
+            card: card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
+    }
+}
+
+extension CardViewModel: EmailDataProvider {}
