@@ -529,6 +529,7 @@
 "swapping_high_price_impact" = "High price impact!";
 "swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
 "swapping_insufficient_funds" = "Insufficient funds";
+"swapping_network_fee_warning_content" = "Sending amount will be reduced to cover the selected fee level";
 "swapping_not_enough_funds_for_fee" = "Insufficient funds in your %1$@  wallet to cover fees. Top up your %2$@ wallet first.";
 "swapping_pending_transaction_subtitle" = "Transaction in progress...";
 "swapping_pending_transaction_title" = "Waiting";
