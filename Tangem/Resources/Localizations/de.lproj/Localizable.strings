@@ -458,7 +458,7 @@
 "send_max_fee" = "Max fee";
 "send_max_fee_footer" = "Maximum fee amount";
 "send_memo_destination_tag_error" = "Numbers only for Destination Tag";
-"send_network_fee_warning_content" = "Sending amount will be reduced to cover the selected fee level";
+"send_network_fee_warning_content" = "Sending amount will be reduced by %1$s to cover the selected commission level. The recipient will get %2$s.";
 "send_network_fee_warning_title" = "Network fee coverage";
 "send_notification_exceed_balance_text" = "Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance";
 "send_notification_exceed_balance_title" = "Total exceeds balance";
