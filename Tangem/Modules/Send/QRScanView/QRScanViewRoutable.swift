@@ -9,7 +9,6 @@
 import Foundation
 
 protocol QRScanViewRoutable {
-    func present(_ actionSheet: ActionSheetBinder)
     func openImagePicker()
     func openSettings()
     func dismiss()
