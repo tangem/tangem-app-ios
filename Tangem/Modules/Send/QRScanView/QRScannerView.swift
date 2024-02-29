@@ -12,7 +12,7 @@ import AVFoundation
 import SwiftUI
 
 protocol QRScannerViewDelegate2: AnyObject {
-    func userDidRejectCameraAccess()
+    func userDidDenyCameraAccess()
 }
 
 struct QRScanView: View {
@@ -36,7 +36,6 @@ struct QRScanView: View {
         }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .ignoresSafeArea(edges: .bottom)
-        .onAppear(perform: viewModel.onAppear)
     }
 
     private func viewfinder(screenSize: CGSize) -> some View {
@@ -154,6 +153,7 @@ struct QRScanView_Previews_Inline: PreviewProvider {
 
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
+
     weak var delegate: QRScannerViewDelegate2?
 
     @Environment(\.presentationMode) var presentationMode
@@ -182,6 +182,9 @@ struct QRScannerView: UIViewRepresentable {
         }
 
         func qrScanningDidFail() {
+            DispatchQueue.main.async {
+                self.presentationMode.dismiss()
+            }
         }
 
         func qrScanningSucceededWithCode(_ str: String?) {
@@ -197,7 +200,7 @@ struct QRScannerView: UIViewRepresentable {
         func qrScanningDidStop() {}
 
         func qrScanningRejectedAccess() {
-            delegate?.userDidRejectCameraAccess()
+            delegate?.userDidDenyCameraAccess()
         }
     }
 }
@@ -263,7 +266,7 @@ extension UIQRScannerView {
                     if granted {
                         self?.initVideo()
                     } else {
-                        self?.userDidRejectCameraAccess()
+                        self?.userDidDenyCameraAccess()
                     }
                 }
             })
@@ -306,8 +309,8 @@ extension UIQRScannerView {
             self.captureSession?.startRunning()
         }
     }
-    
-    func userDidRejectCameraAccess() {
+
+    func userDidDenyCameraAccess() {
         delegate?.qrScanningRejectedAccess()
     }
 
